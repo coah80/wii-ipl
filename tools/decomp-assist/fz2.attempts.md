@@ -556,3 +556,172 @@ Before -> after instruction-exact functions / objdiff code bytes / matched data 
 - iplBoard: 93/94 -> 93/94; 19144 -> 19144; 896 -> 896.
 - lyt_window: 20/21 -> 20/21; 9848 -> 9848; 268 -> 268.
 Final full gate passes, correct DOL SHA1, zero regressions, zero net forbidden patterns and zero readability warnings. NHTTPi_SocSend_sub has 102/102 instructions and ctxdiff diffs0 after the clean build. Remaining compiler allocation/local layout fixes and the lyt_window duplicate-constant emission are unresolved. Only NHTTP_socket_RVL.c and this attempts log differ from round3 baseline; source improvement commit bf69c042.
+
+# Round 4
+Baseline 950bb0dda6ba1980970a54d6f575670f4e07aee8; fetch origin/main b84b3c0d; all six owned sources unchanged remotely.
+- libs/RevoEX/src/nhttp/NHTTP_socket_RVL: POOL IDENTICAL up to 0 (mine=0 base=0)
+- src/scene/channelSelect/iplChannelObj: POOL IDENTICAL up to 20 (mine=20 base=20)
+- src/scene/board/iplBoard: POOL IDENTICAL up to 18 (mine=18 base=18)
+- libs/NW4R/src/lyt/lyt_window: POOL IDENTICAL up to 1 (mine=1 base=1)
+- libs/RVLMiddleware/eZiText/src/clib/zmtkey: POOL IDENTICAL up to 0 (mine=0 base=0)
+- libs/RVLMiddleware/eZiText/src/clib/zconvert: POOL IDENTICAL up to 0 (mine=0 base=0)
+- Recv_sub structural diagnosis: 67/67, same0x20 frame/branches, only source-offset load and memcpy argument moves reordered at37..40; last-round temporaries did not help. This round probes operand expression and helper argument boundaries.
+- NHTTPi_SocRecv_sub / r4 array subscript address for buffered source: 67/67 instructions; structural 0, positional differences 4
+- NHTTPi_SocRecv_sub / r4 copy helper evaluates offset before destination: 67/67 instructions; structural 0, positional differences 4
+- NHTTPi_SocRecv_sub / r4 copy helper size-first parameter ordering: 67/67 instructions; structural 0, positional differences 4
+- setLangPane diagnosis:195/195; initial structural fixes are four-byte records, eight-byte name capacity and terminating fallback table/first match. Last round narrowed to four pointer-register differences. Reconstruct that candidate to inspect further loop scopes.
+- Send diagnosis:43/43,0x10 frame identical; early SSL-id load scheduled after save/copy instead of before. Probe expression branch, const local and helper boundary before register search.
+- NHTTPi_SocSend / r4 conditional operator chooses socket writer: 43/43 instructions; structural 2, positional differences 3
+- NHTTPi_SocSend / r4 const saved SSL identifier: 43/43 instructions; structural 2, positional differences 3
+- NHTTPi_SocSend / r4 inline SSL identifier accessor: 43/43 instructions; structural 2, positional differences 3
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r4 structural candidate with distinct group pointer names: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r4 explicit pane loop scopes: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r4 range group pointer initialized through iterator dereference type: 195/195 instructions; structural 0, positional differences 4
+- appendRecord structural diagnosis:283/283, frame0x90 vs0xa0; target three interruption saves spill beside metadata. Prior read-state groups forced spills but slots differ. Probe contiguous metadata state with explicit real type-array initialization and scoped status locals.
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r4 metadata state type bytes explicitly cleared: 283/283 instructions; structural 12, positional differences 8
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r4 reverse loop clearing metadata type bytes: 284/283 instructions; structural 23, positional differences 249
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r4 interrupt states declared at each disabling call: 283/283 instructions; structural 52, positional differences 57
+- lyt_window extent proof: scLytFatalColorA at0x81695553 is source extern C const u8 (size1) and GetFrameMaterial loads it with lbz before assembling GXColor RGBA; target recorded size5 includes four trailing section-alignment bytes. Correct size5->1; address and .sdata2 section total remain unchanged, four padding bytes unowned.
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r4 metadata type bytes initialized ascending: 283/283 instructions; structural 0, positional differences 0; EXACT candidate retained
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r4 metadata type chained assignments reversed: 283/283 instructions; structural 0, positional differences 0; EXACT candidate retained
+- DrawFrame diagnosis:376/376, frame0xe0 identical; all119 surviving differences are register coloring including static flip table r31/r21 and subsequent temporary allocation. Probe geometry/quad storage boundaries before final declaration search.
+- DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc / r4 quad texture coordinates passed by first element address: 376/376 instructions; structural 0, positional differences 119
+- DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc / r4 geometry aggregated into local quad state: 376/376 instructions; structural 23, positional differences 142
+- DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc / r4 material kept as meaningful local before texture check: 375/376 instructions; structural 8, positional differences 364
+- appendRecord exact result: one RecordReadState groups all real metadata and three saved interruption flags; address-taken metadata causes the target stack storage rather than promotion. Target offsets relative to sp: third8,dataSize0xc,second0x10,first0x14,second-of-minute0x18,minute0x1c,hour0x20,gameCode0x24,CDBId0x28,type0x30,Date0x38,key0x48. All fields are consumed by real metadata/restore calls. Clearing the real eight-byte type buffer in ascending byte order reproduces target stores; no padding or dummy objects. Final readable candidate uses separate byte assignments, recordSecond name, 283/283 and ctxdiff diffs0.
+
+### First round4 gate
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/scene/board/iplBoard] pool: IDENTICAL
+[src/scene/board/iplBoard] objdiff: code 20276/20276 data 896/896 functions 94/94 fuzzy 100.0000 linked code 0
+[src/scene/board/iplBoard] instruction-exact functions: 94/94
+[src/scene/board/iplBoard]   section .data size 744 match 100.0
+[src/scene/board/iplBoard]   section .rodata size 104 match 100.0
+[src/scene/board/iplBoard]   section .sdata size 40 match 100.0
+[src/scene/board/iplBoard]   section .sdata2 size 8 match 100.0
+[src/scene/board/iplBoard]   section .text size 20276 match 100.0
+[src/scene/board/iplBoard] baseline: code 19144/20276 data 896 functions 93 fuzzy 99.8765
+[libs/NW4R/src/lyt/lyt_window] pool: IDENTICAL
+[libs/NW4R/src/lyt/lyt_window] objdiff: code 9848/11352 data 268/316 functions 20/21 fuzzy 99.7586 linked code 0
+[libs/NW4R/src/lyt/lyt_window] instruction-exact functions: 20/21
+[libs/NW4R/src/lyt/lyt_window]   section .ctors size 4 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .data size 256 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .sbss size 8 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .sdata2 size 48 match 70.588234
+[libs/NW4R/src/lyt/lyt_window]   section .text size 11352 match 99.75864
+[libs/NW4R/src/lyt/lyt_window]   below 100: DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc 98.17819
+[libs/NW4R/src/lyt/lyt_window] baseline: code 9848/11352 data 268 functions 20 fuzzy 99.7586
+regressions vs baseline: 0
+global matched_code_percent: 88.74257 -> 88.78037
+global fuzzy_match_percent: 99.47580 -> 99.47663
+global complete_code_percent: 64.69724 -> 64.69724
+global matched_data_percent: 98.77142 -> 98.77142
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+note: config touched: config/43U/symbols.txt (orchestrator reviews every config/symbols change)
+GATE PASS
+```
+- Zi8getKeyLayout diagnosis:182/182, frame/branches/operand order identical; r26/r27 language/count still exchanged. Probe char-count assignment boundary, custom-key copy loop and pointer offset decomposition before declaration search.
+- Zi8getKeyLayout / r4 character count assigned before emptiness branch: 182/182 instructions; structural 1, positional differences 17
+- Zi8getKeyLayout / r4 custom-key copy as while loop: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r4 separate skip key header and character offset: 182/182 instructions; structural 2, positional differences 20
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r4 const node iterators for visibility loops: 195/195 instructions; structural 0, positional differences 4
+- Zi8ConvertUC2Key diagnosis:207/207, frame and branch skeleton identical; work/key r27/r28 exchanged. Probe mapped table addressing and valid-character loop forms before declaration search.
+- Zi8ConvertUC2Key / r4 mapped character table explicit subscript address: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r4 single-range exit uses explicit braces: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r4 character invalid range expressed as negated valid range: 207/207 instructions; structural 0, positional differences 18
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r4 found language exits before fallback block: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r4 explicit language fallback control labels: 195/195 instructions; structural 0, positional differences 4
+
+### Round4 final open-function and data audit
+- Recv_sub: three successful source variants, final declaration search two orders best(0,4); restored baseline, scheduling unchanged.
+- Send: three successful source variants, final declaration search two orders best(2,3); restored baseline, scheduling unchanged.
+- setLangPane: six successful variants after reconstructing last-round structural fix; final leading declaration search23 orders best(0,4); all fuzzy candidates restored. Original stays97.18974%, candidate's only four differences are r28/r30 group pointers. No exact result claimed. calcCursorAnim remains objdiff100; instruction counter's54/56 remains the previously documented conditional-branch normalization artifact.
+- DrawFrame: three successful variants; final declaration search52 orders best(0,119); restored baseline. Texture flip/argument coloring remains unresolved.
+- Zi8getKeyLayout: three successful variants; declaration search52 orders best(0,16); restored baseline.
+- Zi8ConvertUC2Key: three successful variants; correct six-declaration search36 orders best(0,18); restored baseline.
+- appendRecord now exact: readable interrupt field names slotInterrupts/waitInterrupts/recordInterrupts preserve283/283 and ctxdiff diffs0. No declaration search needed after resolving the structural stack layout.
+- Successful-attempt audit: NHTTPi_SocRecv_sub=3, NHTTPi_SocSend=3, setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object=6, appendRecord__Q33ipl5scene5BoardFP10_CDBRecord=5, DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc=3, Zi8getKeyLayout=3, Zi8ConvertUC2Key=3. All remaining objdiff-open functions have at least three distinct successful source-level attempts this round.
+- Data ownership: NHTTP has no data symbols; ChannelObj, Board, zmtkey and zconvert retain100% data, no supported rename/extent correction found. lyt_window .data/vtables are100%; .sdata2 target48 bytes vs source24 reflects16 bytes of duplicated fatal RGBA constants plus trailing alignment. Target unnamed quartets have no distinct real source objects to pair by name, so no renames justified. Four trailing bytes of scLytFatalColorA's old extent were corrected to unowned padding with the relocation/type proof above. Section addresses/totals remain unchanged. No weak vtables suppressed.
+
+- Final advisory literal-reference audit:183 matched functions,86 arguments checked, no candidates/errors/skips. Final formatting cleanup removed a whitespace-only line and wrapped metadata call; ctxdiff remains283/283,diffs0.
+
+## Round4 final full gate over all units
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL] pool: IDENTICAL
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL] objdiff: code 1700/2140 data None/None functions 8/10 fuzzy 99.5701 linked code 0
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL] instruction-exact functions: 8/10
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL]   section .text size 2140 match 99.57009
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL]   below 100: NHTTPi_SocRecv_sub 99.55224
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL]   below 100: NHTTPi_SocSend 95.34884
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL] baseline: code 1700/2140 data None functions 8 fuzzy 99.5701
+[src/scene/channelSelect/iplChannelObj] pool: IDENTICAL
+[src/scene/channelSelect/iplChannelObj] objdiff: code 10144/10924 data 2216/2216 functions 55/56 fuzzy 99.7993 linked code 0
+[src/scene/channelSelect/iplChannelObj] instruction-exact functions: 54/56
+[src/scene/channelSelect/iplChannelObj]   section .data size 1240 match 100.0
+[src/scene/channelSelect/iplChannelObj]   section .rodata size 784 match 100.0
+[src/scene/channelSelect/iplChannelObj]   section .sdata size 120 match 100.0
+[src/scene/channelSelect/iplChannelObj]   section .sdata2 size 72 match 100.0
+[src/scene/channelSelect/iplChannelObj]   section .text size 10924 match 99.79934
+[src/scene/channelSelect/iplChannelObj]   below 100: setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object 97.18974
+[src/scene/channelSelect/iplChannelObj] baseline: code 10144/10924 data 2216 functions 55 fuzzy 99.7993
+[src/scene/board/iplBoard] pool: IDENTICAL
+[src/scene/board/iplBoard] objdiff: code 20276/20276 data 896/896 functions 94/94 fuzzy 100.0000 linked code 0
+[src/scene/board/iplBoard] instruction-exact functions: 94/94
+[src/scene/board/iplBoard]   section .data size 744 match 100.0
+[src/scene/board/iplBoard]   section .rodata size 104 match 100.0
+[src/scene/board/iplBoard]   section .sdata size 40 match 100.0
+[src/scene/board/iplBoard]   section .sdata2 size 8 match 100.0
+[src/scene/board/iplBoard]   section .text size 20276 match 100.0
+[src/scene/board/iplBoard] baseline: code 19144/20276 data 896 functions 93 fuzzy 99.8765
+[libs/NW4R/src/lyt/lyt_window] pool: IDENTICAL
+[libs/NW4R/src/lyt/lyt_window] objdiff: code 9848/11352 data 268/316 functions 20/21 fuzzy 99.7586 linked code 0
+[libs/NW4R/src/lyt/lyt_window] instruction-exact functions: 20/21
+[libs/NW4R/src/lyt/lyt_window]   section .ctors size 4 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .data size 256 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .sbss size 8 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .sdata2 size 48 match 70.588234
+[libs/NW4R/src/lyt/lyt_window]   section .text size 11352 match 99.75864
+[libs/NW4R/src/lyt/lyt_window]   below 100: DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc 98.17819
+[libs/NW4R/src/lyt/lyt_window] baseline: code 9848/11352 data 268 functions 20 fuzzy 99.7586
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] objdiff: code 1488/2216 data 60/60 functions 3/4 fuzzy 99.8466 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] instruction-exact functions: 3/4
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   section .text size 2216 match 99.84657
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   section extab size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   section extabindex size 36 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   below 100: Zi8getKeyLayout 99.53297
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] baseline: code 1488/2216 data 60 functions 3 fuzzy 99.8466
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] objdiff: code 1380/2208 data 112/112 functions 3/4 fuzzy 99.8370 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] instruction-exact functions: 3/4
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section .rodata size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section .text size 2208 match 99.83696
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   below 100: Zi8ConvertUC2Key 99.565216
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] baseline: code 1380/2208 data 112 functions 3 fuzzy 99.8370
+regressions vs baseline: 0
+global matched_code_percent: 88.74257 -> 88.78037
+global fuzzy_match_percent: 99.47580 -> 99.47663
+global complete_code_percent: 64.69724 -> 64.69724
+global matched_data_percent: 98.77142 -> 98.77142
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+note: config touched: config/43U/symbols.txt (orchestrator reviews every config/symbols change)
+GATE PASS
+```
+
+Before -> after instruction-exact functions / objdiff matched code bytes / matched data bytes:
+- NHTTP_socket_RVL:8/10->8/10 /1700->1700 /no data symbols.
+- iplChannelObj:54/56->54/56 raw instruction counter,55/56->55/56 objdiff;10144->10144 /2216->2216. The calcCursorAnim counter discrepancy is unchanged.
+- iplBoard:93/94->94/94 /19144->20276 /896->896. All code/data sections100%.
+- lyt_window:20/21->20/21 /9848->9848 /268->268; scLytFatalColorA extent5->1, target section size48 unchanged.
+- zmtkey:3/4->3/4 /1488->1488 /60->60.
+- zconvert:3/4->3/4 /1380->1380 /112->112.
+Remaining objdiff-open functions: NHTTPi_SocRecv_sub99.55224% scheduling;NHTTPi_SocSend95.34884% scheduling;setLangPane97.18974% original stack/branch structure (structurally corrected candidate remains four register differences);DrawFrame98.17819% coloring;Zi8getKeyLayout99.53297% language/count coloring;Zi8ConvertUC2Key99.565216% work/key coloring. All at least three successful distinct attempts this round, restored. Unresolved data emission:lyt_window16 duplicated fatal-color bytes; no evidence justifying data symbol renames.
+Changed paths:src/scene/board/iplBoard.cpp,config/43U/symbols.txt,tools/decomp-assist/fz2.attempts.md. Source/extent improvement committed f70c5ddc; final descriptive field names and audit are committed separately after final GATE PASS. No untried remaining functions.

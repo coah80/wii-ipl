@@ -429,32 +429,38 @@ namespace ipl {
         }
 
         BOOL Board::appendRecord(CDBRecord* record) {
-            CDBRecordKey recordKey;
-
-            utility::Date recordDate;
-            int recordDay;
-            int recordMin;
-            int recordHour;
-
-            u32 recordGC = 0;
-
+            struct RecordReadState {
+                BOOL recordInterrupts;
+                u32 dataSize;
+                BOOL waitInterrupts;
+                BOOL slotInterrupts;
+                int recordSecond;
+                int recordMin;
+                int recordHour;
+                u32 recordGC;
+                CDBId cdbId;
+                char recordType[8];
+                utility::Date recordDate;
+                CDBRecordKey recordKey;
+            } state;
+            state.recordGC = 0;
             cdb::Manager* cdbManager = System::getCdbManager();
-
-            struct InterruptState {
-                BOOL first;
-                BOOL second;
-                BOOL third;
-                BOOL result;
-            } interrupts;
-            interrupts.result = TRUE;
-
-            char recordType[8] = "";
+            BOOL result = TRUE;
+            state.recordType[0] = 0;
+            state.recordType[1] = 0;
+            state.recordType[2] = 0;
+            state.recordType[3] = 0;
+            state.recordType[4] = 0;
+            state.recordType[5] = 0;
+            state.recordType[6] = 0;
+            state.recordType[7] = 0;
 
             // Get record metadata
-            CDBRecordGetCalendarTimeForce(record, &recordDate.year, &recordDate.month, &recordDate.day, &recordHour, &recordMin, &recordDay);
-            CDBRecordGetKeyForce(record, &recordKey);
-            CDBRecordGetTypeForce(record, recordType);
-            CDBRecordGetGameCodeForce(record, (char*)&recordGC);
+            CDBRecordGetCalendarTimeForce(record, &state.recordDate.year, &state.recordDate.month, &state.recordDate.day,
+                                        &state.recordHour, &state.recordMin, &state.recordSecond);
+            CDBRecordGetKeyForce(record, &state.recordKey);
+            CDBRecordGetTypeForce(record, state.recordType);
+            CDBRecordGetGameCodeForce(record, (char*)&state.recordGC);
 
             if (mbReading == true && mSearchRecord_Prev.created) {
                 mbReading = false;
@@ -462,34 +468,34 @@ namespace ipl {
             }
 
             // Verify record
-            if (!cdbManager->isValidType(recordType)) {
+            if (!cdbManager->isValidType(state.recordType)) {
                 return TRUE;
             }
-            if (is_already_read(recordKey.keyString)) {
+            if (is_already_read(state.recordKey.keyString)) {
                 return TRUE;
             }
-            if (is_exist_keytbl(recordKey.keyString)) {
+            if (is_exist_keytbl(state.recordKey.keyString)) {
                 return TRUE;
             }
 
-            recordDate.month++;
-            if (!(recordDate == mCurrentDate)) {
+            state.recordDate.month++;
+            if (!(state.recordDate == mCurrentDate)) {
                 goto error;
             }
 
             // Find any free space to put the object on screen
 
-            interrupts.first = OSDisableInterrupts();
+            state.slotInterrupts = OSDisableInterrupts();
             BOOL exist = is_exist_diff_date();
             BoardObject* obj = mObjList.getNextFree();
-            OSRestoreInterrupts(interrupts.first);
+            OSRestoreInterrupts(state.slotInterrupts);
 
             if (obj == NULL && exist) {
                 while (obj == NULL) {
                     OSSleepMilliseconds((OSTime)1);
-                    interrupts.second = OSDisableInterrupts();
+                    state.waitInterrupts = OSDisableInterrupts();
                     obj = mObjList.getNextFree();
-                    OSRestoreInterrupts(interrupts.second);
+                    OSRestoreInterrupts(state.waitInterrupts);
                 }
             }
 
@@ -506,61 +512,59 @@ namespace ipl {
 
             // Get CDB metadata
 
-            u32 dataSize;
-            if (!cdbManager->getDataSize(record, &dataSize)) {
+            if (!cdbManager->getDataSize(record, &state.dataSize)) {
                 return TRUE;
             }
-            if (dataSize > 0x32000) {
+            if (state.dataSize > 0x32000) {
                 return TRUE;
             }
 
-            CDBId cdbId;
-            if (!System::getCdbManager()->getCDBId(record, &cdbId)) {
+            if (!System::getCdbManager()->getCDBId(record, &state.cdbId)) {
                 return TRUE;
             }
 
             // Read CDB metadata
-            u8* rbrData = new (obj->mpHeap, DEFAULT_ALIGN) u8[dataSize];
+            u8* rbrData = new (obj->mpHeap, DEFAULT_ALIGN) u8[state.dataSize];
             if (rbrData == NULL) {
                 return FALSE;
             }
-            if (!cdbManager->read(record, rbrData, dataSize)) {
+            if (!cdbManager->read(record, rbrData, state.dataSize)) {
                 delete[] rbrData;
                 goto close;
             }
 
-            interrupts.result = TRUE;
+            result = TRUE;
 
             if (((RBRHeader*)rbrData)->magic == RBR_MAGIC && cdbManager->isValidHeader((RBRHeader*)rbrData)) {
-                interrupts.third = OSDisableInterrupts();
+                state.recordInterrupts = OSDisableInterrupts();
 
-                if (recordDate == mCurrentDate) {
+                if (state.recordDate == mCurrentDate) {
                     if (mbReading == true && mSearchRecord_Prev.created) {
                         mbReading = false;
                         delete[] rbrData;
-                        OSRestoreInterrupts(interrupts.third);
+                        OSRestoreInterrupts(state.recordInterrupts);
 
                         return FALSE;
                     }
 
                     // Create on screen object
-                    obj->create(mpLayoutFile, rbrData, recordGC, cdbId, recordKey, recordDate);
+                    obj->create(mpLayoutFile, rbrData, state.recordGC, state.cdbId, state.recordKey, state.recordDate);
                     mObjList.append(obj);
 
                     CDBRecordGetCalendarTimeForce(record, &mSearchRecord_Next.year, &mSearchRecord_Next.month, &mSearchRecord_Next.day,
                                                   &mSearchRecord_Next.hour, &mSearchRecord_Next.min, &mSearchRecord_Next.sec);
-                    memcpy(&mSearchRecord_Next.key, &recordKey, sizeof(CDBRecordKey));
+                    memcpy(&mSearchRecord_Next.key, &state.recordKey, sizeof(CDBRecordKey));
 
                     mSearchRecord_Next.created = true;
                     if (mSearchRecord_Prev.created == false) {
                         memcpy(&mSearchRecord_Prev, &mSearchRecord_Next, sizeof(SearchRecord));
                     }
                 } else {
-                    interrupts.result = FALSE;
+                    result = FALSE;
                     delete[] rbrData;
                 }
 
-                OSRestoreInterrupts(interrupts.third);
+                OSRestoreInterrupts(state.recordInterrupts);
             } else {
                 delete[] rbrData;
             }
@@ -584,13 +588,13 @@ namespace ipl {
                 show_ricon();
             }
 
-            interrupts.result = FALSE;
+            result = FALSE;
             goto out;
 
         error:
-            interrupts.result = FALSE;
+            result = FALSE;
         out:
-            return interrupts.result;
+            return result;
         }
 
         void Board::stt_wait_cdb_init() {
