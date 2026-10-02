@@ -484,6 +484,7 @@ static inline unsigned long __nupBase64EncodedSize(unsigned long length) {
 }
 
 static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
+    static char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     u8* end = input + length;
     u32 value = 0;
     u32 count = 0;
@@ -496,26 +497,19 @@ static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
         if (count < 3) {
             continue;
         }
-        u8 encodedSecond = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 12 & 0x3f];
-        u8 encodedFirst = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 18 & 0x3f];
-        output[0] = encodedFirst;
-        u8 encodedThird = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 6 & 0x3f];
-        output[1] = encodedSecond;
-        u8 encodedFourth = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value & 0x3f];
-        output[2] = encodedThird;
-        output[3] = encodedFourth;
+        output[0] = alphabet[value >> 18 & 0x3f];
+        output[1] = alphabet[value >> 12 & 0x3f];
+        output[2] = alphabet[value >> 6 & 0x3f];
+        output[3] = alphabet[value & 0x3f];
         count = 0;
         output += 4;
     }
 
     if (count == 2) {
         value <<= 8;
-        u8 encodedSecond = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 12 & 0x3f];
-        u8 encodedFirst = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 18 & 0x3f];
-        output[0] = encodedFirst;
-        u8 encodedThird = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 6 & 0x3f];
-        output[1] = encodedSecond;
-        output[2] = encodedThird;
+        output[0] = alphabet[value >> 18 & 0x3f];
+        output[1] = alphabet[value >> 12 & 0x3f];
+        output[2] = alphabet[value >> 6 & 0x3f];
         output[3] = fillByte;
         return;
     }
@@ -523,10 +517,8 @@ static void __nupBase64Encode(u8* output, u8* input, unsigned long length) {
         return;
     }
     value <<= 16;
-    u8 encodedSecond = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 12 & 0x3f];
-    u8 encodedFirst = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[value >> 18 & 0x3f];
-    output[0] = encodedFirst;
-    output[1] = encodedSecond;
+    output[0] = alphabet[value >> 18 & 0x3f];
+    output[1] = alphabet[value >> 12 & 0x3f];
     output[2] = fillByte;
     output[3] = fillByte;
 }
