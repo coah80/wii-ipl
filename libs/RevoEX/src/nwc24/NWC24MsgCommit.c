@@ -430,14 +430,17 @@ static NWC24Err CheckMsgObject(const NWC24MsgObjPrivate* msg) {
     return NWC24_OK;
 }
 
+static inline u32 Base64StorageSize(const u32* byteCount) {
+    return (*byteCount * 4 + 2) / 3 + *byteCount / 57 * 2 + 4;
+}
+
 static NWC24Err CheckMsgBoxSpace(const NWC24MsgObjPrivate* msg, NWC24MBoxType type) {
     u32 total = 0;
     u32 textSize = 0;
     s32 index;
     NWC24Err err;
     for (index = 0; index < msg->numAttached; ++index) {
-        u32 size = msg->attachedSize[index];
-        total += (size * 4 + 2) / 3 + size / 57 * 2 + 4;
+        total += Base64StorageSize(&msg->attachedSize[index]);
     }
     switch (msg->encoding) {
         case NWC24_ENC_7BIT:
