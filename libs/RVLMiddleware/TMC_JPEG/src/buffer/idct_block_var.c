@@ -92,18 +92,20 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
                 dst[0] = val;
             } else {
                 s32 oddLowSum;
+                s32 oddLowDifference;
                 s32 oddHighSum;
+                s32 oddHighDifference;
                 s32 dcValue;
                 
                 t = b2 - b6;
                 oddLowSum = b5 + b3;
-                b5 = b5 - b3;
+                oddLowDifference = b5 - b3;
                 oddHighSum = b1 + b7;
-                b1 = b1 - b7;
+                oddHighDifference = b1 - b7;
                 u = b6 + b2;
                 t = t * 0xB5 >> 8;
                 x_factor = oddHighSum - oddLowSum;
-                z_factor = b5 + b1;
+                z_factor = oddLowDifference + oddHighDifference;
                 dcValue = block[0];
                 a = dcValue - b4;
                 x = x_factor * 0xB5 >> 8;
@@ -113,14 +115,14 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
                 z = z_factor * 0x62 >> 8;
                 w = d + u;
                 y = d - u;
-                m_part = b1 * 0x14E >> 8;
+                m_part = oddHighDifference * 0x14E >> 8;
                 e = a - t;
                 m = m_part - z;
                 oddLowSum += m;
                 n = oddHighSum + oddLowSum;
                 o = x + m;
                 dst[0] = w + n;
-                p_part = b5 * 0x8B;
+                p_part = oddLowDifference * 0x8B;
                 dst[7] = w - n;
                 p_part >>= 8;
                 dst[1] = v + o;
