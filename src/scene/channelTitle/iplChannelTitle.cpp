@@ -449,7 +449,7 @@ namespace ipl {
 
             mpRsoExpHeaps[0] = EGG::ExpHeap::create(0x80000, System::getMem2App(), MEM_HEAP_OPT_THREAD_SAFE | MEM_HEAP_OPT_DEBUG_FILL);
             mpRsoExpHeaps[1] = EGG::ExpHeap::create(0x80000, System::getMem2App(), MEM_HEAP_OPT_THREAD_SAFE | MEM_HEAP_OPT_DEBUG_FILL);
-            getButton()->setUnk_0x105(true);
+            getButton()->setSuppressNewMailAnm(true);
         }
 
         void ChannelTitle::calcCommon() {
@@ -931,7 +931,7 @@ namespace ipl {
 
             System::getChannelManager()->resetChJumpLoad();
 
-            getButton()->setUnk_0x105(false);
+            getButton()->setSuppressNewMailAnm(false);
         }
 
         BOOL ChannelTitle::isResetAcceptable() const {

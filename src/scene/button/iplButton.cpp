@@ -185,7 +185,7 @@ namespace ipl {
         };
         // clang-format on
 
-        Button::Button(EGG::Heap* heap) : Base(heap), unk_0x54(0), mOptOutBtn(), mSdMenuBtn(), unk_0x104(false), unk_0x105(false), mReservedCmd() {
+        Button::Button(EGG::Heap* heap) : Base(heap), mAnimWait(0), mOptOutBtn(), mSdMenuBtn(), mbNewMailAnm(false), mbSuppressNewMailAnm(false), mReservedCmd() {
             for (int i = 0; i < ARROW_BTN_MAX; i++) {
                 mbArrowVisible[i] = true;
             }
@@ -293,7 +293,7 @@ namespace ipl {
         }
 
         void Button::calc() {
-            switch (unk_0x54) {
+            switch (mAnimWait) {
                 case 0: {
                     if (mReservedCmd.get_current_index() != 0) {
                         Command popped = mReservedCmd.get_popped_item();
@@ -312,7 +312,7 @@ namespace ipl {
                     if (!mpButtonAnim[ANIM_SCENE_CHANGE]->isPlaying() && !mpButtonAnim[ANIM_CALENDAR_EXIT]->isPlaying() &&
                         !mpButtonAnim[ANIM_COMMON_BUTTON]->isPlaying() && !mpButtonAnim[ANIM_TRASH_DELETE]->isPlaying() &&
                         !mOptOutBtn.mpLayout->isPlaying()) {
-                        unk_0x54 = 0;
+                        mAnimWait = 0;
                     }
                     break;
                 }
@@ -335,7 +335,7 @@ namespace ipl {
                 mpBalloons[i]->calc();
             }
 
-            if (unk_0x104 && !unk_0x105 && mTimer()) {
+            if (mbNewMailAnm && !mbSuppressNewMailAnm && mTimer()) {
                 startNewMailAnm_();
             }
         }
@@ -457,7 +457,7 @@ namespace ipl {
 
         bool Button::isActive() const {
             bool result = false;
-            if (isSceneCreated() && unk_0x54 != 1) {
+            if (isSceneCreated() && mAnimWait != 1) {
                 result = true;
             }
             return result;
@@ -668,7 +668,7 @@ namespace ipl {
                 }
             }
 
-            unk_0x54 = 1;
+            mAnimWait = 1;
         }
 
         void Button::initArrowAppearance(int arrowType, bool bAppear) {
@@ -752,8 +752,8 @@ namespace ipl {
             mpButtonAnim[ANIM_BOARD_BBS_NEW]->setMinFrame(scLoopAnmFrame.start);
             mpButtonAnim[ANIM_BOARD_BBS_NEW]->setMaxFrame(scLoopAnmFrame.end);
             mpButtonAnim[ANIM_BOARD_BBS_NEW]->setSpeed(1.0f);
-            unk_0x104 = true;
-            if (!unk_0x105) {
+            mbNewMailAnm = true;
+            if (!mbSuppressNewMailAnm) {
                 startNewMailAnm_();
             }
         }
@@ -773,7 +773,7 @@ namespace ipl {
             mpButtonAnim[ANIM_BOARD_BBS_NEW]->setMaxFrame(1.0f);
             mpButtonAnim[ANIM_BOARD_BBS_NEW]->setSpeed(0.0f);
             mpButtonAnim[ANIM_BOARD_BBS_NEW]->play();
-            unk_0x104 = false;
+            mbNewMailAnm = false;
         }
 
         void Button::enableBtn() {
