@@ -25,6 +25,12 @@ ziU8 Zi8GetFormatVersion(ziU8 ZI_NEED_WORK);
 ziPtr Zi8GetTableAddress(ziU8, ziU8 ZI_NEED_WORK);
 ziU16 Zi8Uni2Ord(ziWChar ZI_NEED_WORK);
 
+typedef struct ziEncodedOrdinal {
+    ziU8 low;
+    ziU8 high;
+} ziEncodedOrdinal;
+typedef char ziEncodedOrdinalSizeCheck[(sizeof(ziEncodedOrdinal) == 2) ? 1 : -1];
+
 ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
     ziChineseEntry* table = 0;
     ziU8* baseData = 0;
@@ -134,10 +140,10 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
                         countLeft = count;
                         cursor = ordinals;
                         while (countLeft > 0) {
-                            value = (data[1] << 8) | data[0];
+                            value = ((ziU32)(ziU16)data[1] << 8) |
+                                    ((const ziEncodedOrdinal*)data)->low;
                             data += 2;
-                            cursor++;
-                            if (value != *cursor) break;
+                            if (value != *++cursor) break;
                             countLeft--;
                             if (value & 0x8000) break;
                         }

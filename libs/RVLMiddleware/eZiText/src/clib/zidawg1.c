@@ -41,6 +41,13 @@ ziU32 ZiDAWGGetChild(ziU32 node) {
     return node;
 }
 
+typedef struct ziDawgLongOffset {
+    ziU8 flags;
+    ziU8 middle;
+    ziU8 low;
+} ziDawgLongOffset;
+typedef char ziDawgLongOffsetSizeCheck[(sizeof(ziDawgLongOffset) == 3) ? 1 : -1];
+
 ziU8* ZiDAWGGetSibling(ziU8* cursor) {
     ziS32 depth;
     ziU8* node;
@@ -70,14 +77,14 @@ ziU8* ZiDAWGGetSibling(ziU8* cursor) {
             }
 
             if ((*cursor & 0x80) != 0) {
-                node += (*cursor & 0x7f) * 0x10000 +
-                        (((ziU32)cursor[1] << 8) + (ziU32)cursor[2]) + 0x8000;
+                node += (((const ziDawgLongOffset*)cursor)->flags & 0x7f) * 0x10000 +
+                        (((ziU32)(ziU16)cursor[1] << 8) +
+                         ((const ziDawgLongOffset*)cursor)->low) + 0x8000;
             } else {
                 node = cursor[1] + (node + (ziU16)*cursor * 0x100);
             }
             return node;
         } else {
-            cursor = node;
             do {
                 header = nodeHeaderTable[cursor[0] >> 4];
                 if ((cursor[0] & 0xf) == 0xf) {
