@@ -220,13 +220,12 @@ void LayoutByNW4R::create(MEMAllocator* allocator) {
     mpPaneManager->setAllComponentTriggerTarget(false);
     mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
 
-    const PaneAnimation* paneTable = csPaneToAnimationInSign;
     const char* forceName;
     u32 animationCount;
     u32 paneIndex = 0;
     do {
         AnmPane* pane = NULL;
-        const PaneAnimation& paneInfo = paneTable[paneIndex & 0xFFFF];
+        const PaneAnimation& paneInfo = csPaneToAnimationInSign[paneIndex & 0xFFFF];
         switch (paneInfo.type) {
         case 2: {
             void* paneBuffer = MEMAllocFromAllocator(allocator, sizeof(CellPhoneSignButtonPane));
@@ -250,13 +249,14 @@ void LayoutByNW4R::create(MEMAllocator* allocator) {
         animationCount = paneInfo.animationCount;
         u16 animationIndex = 0;
         while (animationIndex < animationCount) {
-            void* resource = mpMultiArcResourceAccessor->GetResource(0, paneInfo.animations[animationIndex]->name);
+            const AnimationFile* const& animation = paneInfo.animations[animationIndex];
+            void* resource = mpMultiArcResourceAccessor->GetResource(0, animation->name);
             AnimTransformPane* transform = static_cast<AnimTransformPane*>(
                 getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
             if (forceName != NULL) {
-                pane->forceAddAnimation(allocator, paneInfo.animations[animationIndex]->id, transform, forceName, false, true);
+                pane->forceAddAnimation(allocator, animation->id, transform, forceName, false, true);
             } else {
-                pane->addAnimation(allocator, paneInfo.animations[animationIndex]->id, transform, false, true);
+                pane->addAnimation(allocator, animation->id, transform, false, true);
             }
             ++animationIndex;
         }

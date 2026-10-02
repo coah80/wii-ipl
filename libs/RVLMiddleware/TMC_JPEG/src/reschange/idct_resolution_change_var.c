@@ -57,15 +57,14 @@ void TMCJPEGDEC_IdctBlock4x4(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag
 
     {
         u32 idx = 3;
-        s32* column = tmp + 3;
 
         for (i = 0; i < 4; i++) {
             u8* bp = conv_row_ptr + idx;
 
-            a = column[0] + 0x40000;
-            b = column[8];
-            d = column[24];
-            c = column[16];
+            a = tmp[idx] + 0x40000;
+            b = tmp[idx + 8];
+            d = tmp[idx + 24];
+            c = tmp[idx + 16];
 
             evsum = a + c;
             cd = a - c;
@@ -79,7 +78,6 @@ void TMCJPEGDEC_IdctBlock4x4(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag
             bp[pitch * 2] = clampU8((cd - rot) >> 11);
             bp[pitch * 4 - pitch] = clampU8((evsum - oddrot) >> 11);
 
-            column--;
             idx -= 1;
         }
     }
