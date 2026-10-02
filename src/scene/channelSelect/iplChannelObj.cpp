@@ -638,7 +638,7 @@ namespace ipl {
         void ChannelObj::setLangPane(const layout::Object* layout) {
             int lang = System::getLanguage();
             const char* langGroup = scLangGroups[lang];
-            char langCodeBuf[40] = "";
+            char langCodeBuf[10][4] = {""};
 
             bool foundLangGroup = false;
 
@@ -648,7 +648,7 @@ namespace ipl {
                 } else {
                     bool isNonRsoGroup = true;
                     for (int i = 0; i < channel::MAX_ANIMS; i++) {
-                        char name[6];
+                        char name[8];
                         sprintf(name, "Rso%d", i);
                         if (strncmp(it->GetName(), name, 5) == 0) {
                             isNonRsoGroup = false;
@@ -663,8 +663,8 @@ namespace ipl {
 
                         for (int i = 0; i < 10; i++) {
                             if (strncmp(it->GetName(), scLangGroups[i], 3) == 0) {
-                                memcpy(&langCodeBuf[i], it->GetName(), 3);
-                                langCodeBuf[i + 3] = 0;
+                                memcpy(langCodeBuf[i], it->GetName(), 3);
+                                langCodeBuf[i][3] = 0;
                                 break;
                             }
                         }
@@ -680,16 +680,15 @@ namespace ipl {
             } else {
                 s32 region = System::getRegion();
                 for (int i = 0; i < channel::MAX_ANIMS; i++) {
-                    char* groupName = (char*)scModuleData.langGroupLookup[region][i];
-
-                    if (groupName != NULL) {
-                        if (strcmp(groupName, &langCodeBuf[scLangLookup[region][i]]) == 0) {
-                            nw4r::lyt::Group* group = layout->FindGroupByName(groupName);
-                            for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter();
-                                 it++) {
-                                it->mTarget->SetVisible(true);
-                            }
+                    if (scModuleData.langGroupLookup[region][i] == NULL) {
+                        break;
+                    }
+                    if (strcmp(scModuleData.langGroupLookup[region][i], langCodeBuf[scLangLookup[region][i]]) == 0) {
+                        nw4r::lyt::Group* group = layout->FindGroupByName(scModuleData.langGroupLookup[region][i]);
+                        for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter(); it++) {
+                            it->mTarget->SetVisible(true);
                         }
+                        break;
                     }
                 }
             }
