@@ -729,8 +729,11 @@ namespace ipl {
                 return;
             }
 
-            if (OSGetTime() - mOperationStartTime < OS_TIMER_CLOCK) {
+            switch (OSGetTime() - mOperationStartTime < OS_TIMER_CLOCK) {
+            default:
                 return;
+            case false:
+                break;
             }
             setDialogMessage(1, 0);
             int result = mpSDWorker->get_async_result();
@@ -781,11 +784,15 @@ namespace ipl {
                     enqueueLoadNotice();
                 }
             } else {
-                int channelCount = 0;
-                int channelIndex = 0;
-                u32 titleIndex = 0;
+                u32 titleId;
+                u32 titleIndex;
+                int channelIndex;
+                int channelCount;
+                channelCount = 0;
+                channelIndex = 0;
+                titleIndex = 0;
                 for (; titleIndex < mSDTitleCount; ++titleIndex) {
-                    u32 titleId = mpSDTitleInfo[titleIndex].titleId;
+                    titleId = mpSDTitleInfo[titleIndex].titleId;
                     if (titleId != 0x48415A41) {
                         ++channelCount;
                         mpChannelTitleIds[channelIndex++] = titleId;
