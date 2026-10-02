@@ -16,7 +16,7 @@ namespace ipl {
     namespace cs {
         namespace savedata {
             struct data {
-                char unk_0x00[MAX_PATH_LENGTH + sizeof(wchar_t)]; // 0x00
+                char sMountPath[MAX_PATH_LENGTH + sizeof(wchar_t)]; // 0x00
                 char sPath[MAX_PATH_LENGTH + sizeof(wchar_t)];    // 0x42
                 u8 flag;                                          // 0x84
                 u8* pData;                                        // 0x88
@@ -67,7 +67,7 @@ namespace ipl {
                     data* data = static_cast<savedata::data*>(*hdr->value.ptr_v);
 
                     if (data->pData == NULL && data->size == 0) {
-                        if (data->unk_0x00[0] == 0) {
+                        if (data->sMountPath[0] == 0) {
                             error = load_nand_(vm, data, heap, offset, size, 0x20);
                         } else {
                             error = load_vf_(vm, data, heap, offset, size, 0x20);
@@ -127,7 +127,7 @@ namespace ipl {
                             }
                         }
 
-                        if (data->unk_0x00[0] == '\0') {
+                        if (data->sMountPath[0] == '\0') {
                             error = load_nand_(vm, data, csHeap, 0, size, -0x20);
                         } else {
                             error = load_vf_(vm, data, csHeap, 0, size, -0x20);
@@ -591,7 +591,7 @@ namespace ipl {
                         memset(data, 0, sizeof(savedata::data));
                         memset(temp, 0, sizeof(temp));
                         if (arg1 != NULL) {
-                            util::utf16_to_ascii(data->unk_0x00, temp, MAX_PATH_LENGTH, arg0);
+                            util::utf16_to_ascii(data->sMountPath, temp, MAX_PATH_LENGTH, arg0);
                             memset(temp, 0, sizeof(temp));
                             util::utf16_to_ascii(data->sPath, temp, MAX_PATH_LENGTH, arg1);
                         } else {
