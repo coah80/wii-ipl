@@ -783,7 +783,7 @@ static NWC24Err DuplicationCheck(MBCHeader* header, const NWC24MsgObjPrivate* ms
                 continue;
             }
             if (msg->unk_0x1C != 0 && entry->crc == msg->unk_0x1C && entry->type == msg->type && entry->length == msg->length &&
-                entry->flags == msg->unk_0x10 && (s32)entry->date == (s32)msg->unk_0x28) {
+                entry->flags == msg->unk_0x10 && (s32)entry->date == (s32)msg->date) {
                 duplicateId = entry->msgId;
                 duplicateOffset = offset;
                 continue;
@@ -962,8 +962,8 @@ static NWC24Err CopyMsgObjToMBCFmt(const NWC24MsgObjPrivate* msg, MBCEntry* entr
     entry->crc = msg->unk_0x1C;
     entry->fromIdHigh = msg->fromIdHigh;
     entry->fromIdLow = msg->fromIdLow;
-    entry->date = msg->unk_0x28;
-    entry->receivedDate = msg->unk_0x2C;
+    entry->date = msg->date;
+    entry->receivedDate = msg->receivedDate;
     entry->numTo = msg->numTo;
     entry->numAttached = msg->numAttached;
     entry->groupId = msg->groupId;
@@ -1009,8 +1009,8 @@ static NWC24Err CopyMsgObjToPrvFmt(const MBCEntry* entry, NWC24MsgObjPrivate* ms
     msg->unk_0x1C = entry->crc;
     msg->fromIdHigh = entry->fromIdHigh;
     msg->fromIdLow = entry->fromIdLow;
-    msg->unk_0x28 = entry->date;
-    msg->unk_0x2C = entry->receivedDate;
+    msg->date = entry->date;
+    msg->receivedDate = entry->receivedDate;
     msg->numTo = entry->numTo;
     msg->numAttached = entry->numAttached;
     msg->groupId = entry->groupId;

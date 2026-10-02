@@ -158,7 +158,7 @@ static inline NWC24Err WriteMessageIdField(NWC24MsgObjPrivate* msg) {
     Mail_memset(buffer, 0, 1024);
     Mail_strcpy(buffer, "Message-Id: <");
     Mail_memset(idText, 0, 32);
-    Mail_sprintf(idText, "%05X%08X%08X%08X", msg->msgId, (u32)(myId >> 32), (u32)myId, msg->unk_0x28);
+    Mail_sprintf(idText, "%05X%08X%08X%08X", msg->msgId, (u32)(myId >> 32), (u32)myId, msg->date);
     Mail_strcat(buffer, idText);
     Mail_strcat(buffer, domain);
     Mail_strcat(buffer, ">\r\n");
@@ -312,7 +312,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
         }
         CHECK_WRITE(WriteExtraFields(msg));
         Mail_memset(MultiPartDivider, 0, 40);
-        Mail_sprintf(MultiPartDivider, "Boundary-NWC24-%08X%05X", msg->unk_0x28, msg->msgId);
+        Mail_sprintf(MultiPartDivider, "Boundary-NWC24-%08X%05X", msg->date, msg->msgId);
         buffer = NWC24WorkP->stringWork;
         Mail_memset(buffer, 0, 1024);
         Mail_strcpy(buffer, "MIME-Version: 1.0\r\n");
@@ -654,9 +654,9 @@ static NWC24Err WriteDateField(NWC24MsgObjPrivate* msg) {
     date.sec = calendar.sec;
     if (date.month > 12)
         return NWC24_ERR_FORMAT;
-    NWC24iDateToMinutes(&msg->unk_0x28, &date);
+    NWC24iDateToMinutes(&msg->date, &date);
     if (msg->type & 0x1000000)
-        NWC24iMinutesToDate(&date, msg->unk_0x2C);
+        NWC24iMinutesToDate(&date, msg->receivedDate);
     buffer = NWC24WorkP->stringWork;
     Mail_memset(buffer, 0, 1024);
     Mail_sprintf(buffer, "Date: %02d %s %d %02d:%02d:%02d -0000\r\n", date.day, months[date.month - 1], date.year, date.hour, date.min, date.sec);
