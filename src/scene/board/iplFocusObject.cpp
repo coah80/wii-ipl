@@ -12,6 +12,26 @@
 #include <revolution/enc.h>
 
 namespace ipl {
+    namespace math {
+        static inline VEC3 addWeightedVectors(const VEC3& start, const VEC3& end) {
+            VEC3 sum;
+            nw4r::math::VEC3Add(&sum, &start, &end);
+            return sum;
+        }
+        static inline void normalizeVector(nw4r::math::VEC3* result, const VEC3& sum, f32 frames) {
+            nw4r::math::VEC3Scale(result, &sum, 1.0f / frames);
+        }
+        template <>
+        VEC3 LinearIntp<VEC3>::get() const {
+            nw4r::math::VEC3 result;
+            VEC3 sum = addWeightedVectors(mStart * (mMaxFrame - mFrame), mEnd * getCurrentFrame());
+            normalizeVector(&result, sum, getMaxFrame());
+            return result;
+        }
+    }
+}
+
+namespace ipl {
     namespace scene {
         // clang-format off
         const char* focus_object::mAnimNames[BoardObject::TYPE_MAX][1+ANIM_ARROW_MAX] = {
