@@ -1,21 +1,28 @@
 #include <string.h>
 #include <tmc_jpeg_internal.h>
 
-static u8 clampU8(s32 v) {
+static s32 clampU8(s32 v) {
     s32 ok;
     ok = 0;
     if (v < 256 && v > -1) {
         ok = 1;
     }
-    return (ok) ? v : ((v < 0) ? 0 : 255);
+    return ok ? v : (v < 0 ? 0 : 255);
 }
 
-static s8 clampS8(s32 v) {
-    return (v < 128 && v > -129) ? (s8)v : (v > 0) ? 127 : -128;
+static s32 clampS8(s32 v) {
+    s32 inRange = 0;
+    if (v < 128 && v > -129) {
+        inRange = 1;
+    }
+    return inRange ? v : (v > 0) ? 127 : -128;
 }
 
-static s32 scalingClampU8(s32 val) {
-    return (val >> 19 != 0) ? (0xFF & ~(val >> 31)) : (val >> 11);
+static s32 scalingClampU8(s32 value) {
+    if ((value >> 19) == 0) {
+        return value >> 11;
+    }
+    return value < 0 ? 0 : 255;
 }
 
 void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag) {
@@ -24,17 +31,39 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
     s32 done;
     s32 iter;
     s32 i;
-    s32 b1, b2, b3, b4, b5, b6, b7;
-    s32 v, e, a, d, n, o, p, q, t, u, w, x, y;
-    s32 x_factor, z_factor, m_part, p_part;
-    s32 r, z, m;
+    s32 e;
+    s32 b2;
+    s32 b3;
+    s32 b4;
+    s32 b5;
+    s32 b6;
+    s32 b7;
+    s32 v;
+    s32 m;
+    s32 a;
+    s32 d;
+    s32 z;
+    s32 o;
+    s32 p;
+    s32 p_part;
+    s32 t;
+    s32 u;
+    s32 r;
+    s32 n;
+    s32 y;
+    s32 x_factor;
+    s32 z_factor;
+    s32 m_part;
+    s32 q;
+    s32 w;
+    s32 x;
+    s32 b1;
 
     r = (zigzag >> 4) * 8;
-    iter = (u32)(r + 7) >> 3;
     dst = tmp;
     done = 0;
     {
-        for (; iter > 0; iter--) {
+        for (; done < r; done += 8) {
             u32 ac;
             b4 = block[4];
             b6 = block[6];
@@ -44,7 +73,13 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
             b5 = block[5];
             b3 = block[3];
 
-            ac = (u32)b4 | (u32)b6 | (u32)b2 | (u32)b1 | (u32)b7 | (u32)b5 | (u32)b3;
+            ac = (u32)b4;
+            ac |= (u32)b6;
+            ac |= (u32)b2;
+            ac |= (u32)b1;
+            ac |= (u32)b7;
+            ac |= (u32)b5;
+            ac |= (u32)b3;
             if (ac == 0) {
                 s32 val = block[0];
                 dst[7] = val;
@@ -56,42 +91,54 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
                 dst[1] = val;
                 dst[0] = val;
             } else {
-                t = (b2 - b6) * 0xB5 >> 8;
-                a = block[0] - b4;
-                d = block[0] + b4;
-                u = t + b6 + b2;
-                v = a + t;
-                e = a - t;
-                w = d + u;
-                x_factor = (b1 + b7) - (b5 + b3);
-                y = d - u;
-                z_factor = (b5 - b3) + (b1 - b7);
-                m_part = (b1 - b7) * 0x14E >> 8;
-                p_part = (b5 - b3) * 0x8B >> 8;
+                s32 oddLowSum;
+                s32 oddHighSum;
+                s32 dcValue;
+                
+                t = b2 - b6;
+                oddLowSum = b5 + b3;
+                b5 = b5 - b3;
+                oddHighSum = b1 + b7;
+                b1 = b1 - b7;
+                u = b6 + b2;
+                t = t * 0xB5 >> 8;
+                x_factor = oddHighSum - oddLowSum;
+                z_factor = b5 + b1;
+                dcValue = block[0];
+                a = dcValue - b4;
                 x = x_factor * 0xB5 >> 8;
+                d = dcValue + b4;
+                u = t + u;
+                v = a + t;
                 z = z_factor * 0x62 >> 8;
+                w = d + u;
+                y = d - u;
+                m_part = b1 * 0x14E >> 8;
+                e = a - t;
                 m = m_part - z;
-                n = b1 + b7 + b5 + b3 + m;
+                oddLowSum += m;
+                n = oddHighSum + oddLowSum;
                 o = x + m;
+                dst[0] = w + n;
+                p_part = b5 * 0x8B;
+                dst[7] = w - n;
+                p_part >>= 8;
+                dst[1] = v + o;
                 p = z + p_part;
                 q = p + x;
-                dst[0] = w + n;
-                dst[1] = v + o;
                 dst[6] = v - o;
                 dst[2] = e + q;
                 dst[5] = e - q;
-                dst[7] = w - n;
                 dst[3] = y + p;
                 dst[4] = y - p;
             }
             block += 8;
             dst += 8;
-            done += 8;
         }
     }
 
     dst = tmp + done;
-    for (; done < 0x38; done += 8) {
+    for (; done <= 0x38; done += 8) {
         memset(dst, 0, 0x20);
         dst += 8;
     }
@@ -112,7 +159,13 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
         b5 = dst[0x28];
         b3 = dst[0x18];
 
-        ac = (u32)b4 | (u32)b6 | (u32)b2 | (u32)b1 | (u32)b7 | (u32)b5 | (u32)b3;
+        ac = (u32)b4;
+            ac |= (u32)b6;
+            ac |= (u32)b2;
+            ac |= (u32)b1;
+            ac |= (u32)b7;
+            ac |= (u32)b5;
+            ac |= (u32)b3;
         out = conv_row_ptr + i;
         if (ac == 0) {
             u8 val = clampU8((*dst >> 11) + 0x80);
@@ -125,24 +178,37 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
             out[pitch] = val;
             out[0] = val;
         } else {
-            t = (b2 - b6) * 0xB5 >> 8;
-            a = (*dst + 0x40000) - b4;
-            d = (*dst + 0x40000) + b4;
-            u = t + b6 + b2;
-            v = a + t;
-            e = a - t;
+            s32 oddLowSum;
+            s32 oddHighSum;
+            s32 dcValue;
+            
+            t = b2 - b6;
+            oddLowSum = b5 + b3;
+            b5 = b5 - b3;
+            oddHighSum = b1 + b7;
+            b1 = b1 - b7;
+            u = b6 + b2;
+            b2 = t * 0xB5 >> 8;
+            x_factor = oddHighSum - oddLowSum;
+            z_factor = b5 + b1;
+            dcValue = *dst + 0x40000;
+            a = dcValue - b4;
+            x = x_factor * 0xB5 >> 8;
+            d = dcValue + b4;
+            u = b2 + u;
+            v = a + b2;
+            z_factor = z_factor * 0x62 >> 8;
             w = d + u;
-            x = ((b1 + b7) - (b5 + b3)) * 0xB5 >> 8;
             y = d - u;
-
-            z_factor = ((b5 - b3) + (b1 - b7)) * 0x62 >> 8;
-            m_part = ((b1 - b7) * 0x14E >> 8) - z_factor;
-
-            n = b1 + b7 + b5 + b3 + m_part;
+            m_part = b1 * 0x14E >> 8;
+            e = a - b2;
+            m_part = m_part - z_factor;
+            oddLowSum += m_part;
+            n = oddHighSum + oddLowSum;
             o = x + m_part;
-            p = z_factor + ((b5 - b3) * 0x8B >> 8);
+            p_part = b5 * 0x8B >> 8;
+            p = z_factor + p_part;
             q = p + x;
-
             out[0] = scalingClampU8(w + n);
             out[r] = scalingClampU8(w - n);
             out[pitch] = scalingClampU8(v + o);
@@ -161,11 +227,34 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
     s32* dst;
     s32 done;
     s32 iter;
-    s32 i;
-    s32 b1, b2, b3, b4, b5, b6, b7;
-    s32 v, e, a, d, m, n, o, p, q, t, u, w, x, y, z;
-    s32 x_factor, z_factor, m_part, p_part;
+    s32 d;
+    s32 b1;
+    s32 b2;
+    s32 b3;
+    s32 b4;
+    s32 b5;
+    s32 b6;
+    s32 b7;
+    s32 v;
     s32 r;
+    s32 a;
+    s32 i;
+    s32 m;
+    s32 n;
+    s32 o;
+    s32 x;
+    s32 q;
+    s32 y;
+    s32 u;
+    s32 w;
+    s32 p;
+    s32 t;
+    s32 z;
+    s32 x_factor;
+    s32 z_factor;
+    s32 m_part;
+    s32 p_part;
+    s32 e;
 
     if (zigzag == 0x11) {
         s32 val;
@@ -179,48 +268,42 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
         goto mode_gt_2;
     }
 
-    {
-        s32 inner;
+    dst = tmp;
+    done = 0;
+    for (; done < r; done += 8) {
+        s32 dcValue;
+        s32 oddCoefficient;
 
-        dst = tmp;
-        done = 0;
-        iter = (u32)(r + 7) >> 3;
-        if (iter > 0) {
-            done = iter << 3;
-            for (; iter > 0; iter--) {
-                s32 b0;
-                t = block[1] * 0xB5 >> 8;
-                v = block[1] * 0x62 >> 8;
-                u = v + t;
-                z = (block[1] * 0x14E >> 8) - v;
-                m = block[1] + z;
-                n = t + z;
-                b0 = block[0];
-                dst[0] = b0 + m;
-                dst[7] = b0 - m;
-                dst[1] = b0 + n;
-                dst[6] = b0 - n;
-                dst[2] = b0 + u;
-                dst[5] = b0 - u;
-                dst[3] = b0 + v;
-                dst[4] = b0 - v;
-                dst += 8;
-                block += 8;
-            }
-        }
-    zero_fill:
-        dst = tmp + done;
-        for (; done <= 0x38; done += 8) {
-            memset(dst, 0, 0x20);
-            dst += 8;
-        }
+        oddCoefficient = block[1];
+        dcValue = block[0];
+        t = oddCoefficient * 0xB5 >> 8;
+        v = oddCoefficient * 0x62 >> 8;
+        u = v + t;
+        z = (oddCoefficient * 0x14E >> 8) - v;
+        m = oddCoefficient + z;
+        n = t + z;
+        dst[0] = dcValue + m;
+        dst[7] = dcValue - m;
+        dst[1] = dcValue + n;
+        dst[6] = dcValue - n;
+        dst[2] = dcValue + u;
+        dst[5] = dcValue - u;
+        dst[3] = dcValue + v;
+        dst[4] = dcValue - v;
+        dst += 8;
+        block += 8;
+    }
+    dst = tmp + done;
+    for (; done <= 0x38; done += 8) {
+        memset(dst, 0, 0x20);
+        dst += 8;
     }
     goto epilogue;
 
 mode_gt_2:
     dst = tmp;
     done = 0;
-    for (iter = (u32)(r + 7) >> 3; iter > 0; iter--) {
+    for (; done < r; done += 8) {
             u32 ac;
             b4 = block[4];
             b6 = block[6];
@@ -249,38 +332,52 @@ mode_gt_2:
                 dst[1] = val;
                 dst[0] = val;
             } else {
-                t = (b2 - b6) * 0xB5 >> 8;
-                a = block[0] - b4;
-                d = block[0] + b4;
-                u = t + b6 + b2;
-                v = a + t;
-                e = a - t;
-                w = d + u;
-                x_factor = (b1 + b7) - (b5 + b3);
-                y = d - u;
-                z_factor = (b5 - b3) + (b1 - b7);
-                m_part = (b1 - b7) * 0x14E >> 8;
-                p_part = (b5 - b3) * 0x8B >> 8;
+                s32 oddLowSum;
+                s32 oddLowDifference;
+                s32 oddHighSum;
+                s32 oddHighDifference;
+                s32 dcValue;
+                
+                t = b2 - b6;
+                oddLowSum = b5 + b3;
+                oddLowDifference = b5 - b3;
+                oddHighSum = b1 + b7;
+                oddHighDifference = b1 - b7;
+                u = b6 + b2;
+                t = t * 0xB5 >> 8;
+                x_factor = oddHighSum - oddLowSum;
+                z_factor = oddLowDifference + oddHighDifference;
+                dcValue = block[0];
+                a = dcValue - b4;
                 x = x_factor * 0xB5 >> 8;
+                d = dcValue + b4;
+                u = t + u;
+                v = a + t;
                 z = z_factor * 0x62 >> 8;
+                w = d + u;
+                y = d - u;
+                m_part = oddHighDifference * 0x14E >> 8;
+                e = a - t;
                 m = m_part - z;
-                n = b1 + b7 + b5 + b3 + m;
+                oddLowSum += m;
+                n = oddHighSum + oddLowSum;
                 o = x + m;
+                dst[0] = w + n;
+                p_part = oddLowDifference * 0x8B;
+                dst[7] = w - n;
+                p_part >>= 8;
+                dst[1] = v + o;
                 p = z + p_part;
                 q = p + x;
-                dst[0] = w + n;
-                dst[1] = v + o;
                 dst[6] = v - o;
                 dst[2] = e + q;
                 dst[5] = e - q;
-                dst[7] = w - n;
                 dst[3] = y + p;
                 dst[4] = y - p;
             }
             block += 8;
             dst += 8;
-            done += 8;
-        }
+    }
 
     dst = tmp + done;
     for (; done <= 0x38; done += 8) {
@@ -293,7 +390,9 @@ epilogue:
     dst = tmp + 7;
     for (iter = 8, i = 7; iter > 0; iter--, i--) {
         u32 ac;
+        u8* output;
         b4 = dst[0x20];
+        output = conv_row_ptr + i;
         b6 = dst[0x30];
         b2 = dst[0x10];
         b1 = dst[8];
@@ -311,40 +410,56 @@ epilogue:
         if (ac == 0) {
             s32 val;
             val = clampS8(*dst >> 11);
-            conv_row_ptr[i + 56] = (u8)val;
-            conv_row_ptr[i + 48] = (u8)val;
-            conv_row_ptr[i + 40] = (u8)val;
-            conv_row_ptr[i + 32] = (u8)val;
-            conv_row_ptr[i + 24] = (u8)val;
-            conv_row_ptr[i + 16] = (u8)val;
-            conv_row_ptr[i + 8] = (u8)val;
-            conv_row_ptr[i] = (u8)val;
+            output[56] = (u8)val;
+            output[48] = (u8)val;
+            output[40] = (u8)val;
+            output[32] = (u8)val;
+            output[24] = (u8)val;
+            output[16] = (u8)val;
+            output[8] = (u8)val;
+            output[0] = (u8)val;
         } else {
-            t = (b2 - b6) * 0xB5 >> 8;
-            a = *dst - b4;
-            d = *dst + b4;
-            u = t + b6 + b2;
+            s32 oddLowSum;
+            s32 oddLowDifference;
+            s32 oddHighSum;
+            s32 oddHighDifference;
+            s32 dcValue;
+            
+            t = b2 - b6;
+            oddLowSum = b5 + b3;
+            oddLowDifference = b5 - b3;
+            oddHighSum = b1 + b7;
+            oddHighDifference = b1 - b7;
+            u = b6 + b2;
+            t = t * 0xB5 >> 8;
+            x_factor = oddHighSum - oddLowSum;
+            z_factor = oddLowDifference + oddHighDifference;
+            dcValue = *dst;
+            a = dcValue - b4;
+            x = x_factor * 0xB5 >> 8;
+            d = dcValue + b4;
+            u = t + u;
             v = a + t;
-            e = a - t;
+            z = z_factor * 0x62 >> 8;
             w = d + u;
-            x = ((b1 + b7) - (b5 + b3)) * 0xB5 >> 8;
             y = d - u;
-            z = ((b5 - b3) + (b1 - b7)) * 0x62 >> 8;
-            m = ((b1 - b7) * 0x14E >> 8) - z;
-            n = b1 + b7 + b5 + b3 + m;
+            m_part = oddHighDifference * 0x14E >> 8;
+            e = a - t;
+            m = m_part - z;
+            oddLowSum += m;
+            n = oddHighSum + oddLowSum;
             o = x + m;
-
-            p = z + ((b5 - b3) * 0x8B >> 8);
+            p_part = oddLowDifference * 0x8B >> 8;
+            p = z + p_part;
             q = p + x;
-
-            conv_row_ptr[i] = (u8)clampS8((w + n) >> 11);
-            conv_row_ptr[i + 56] = (u8)clampS8((w - n) >> 11);
-            conv_row_ptr[i + 8] = (u8)clampS8((v + o) >> 11);
-            conv_row_ptr[i + 48] = (u8)clampS8((v - o) >> 11);
-            conv_row_ptr[i + 16] = (u8)clampS8((e + q) >> 11);
-            conv_row_ptr[i + 40] = (u8)clampS8((e - q) >> 11);
-            conv_row_ptr[i + 24] = (u8)clampS8((y + p) >> 11);
-            conv_row_ptr[i + 32] = (u8)clampS8((y - p) >> 11);
+            output[0] = (u8)clampS8((w + n) >> 11);
+            output[56] = (u8)clampS8((w - n) >> 11);
+            output[8] = (u8)clampS8((v + o) >> 11);
+            output[48] = (u8)clampS8((v - o) >> 11);
+            output[16] = (u8)clampS8((e + q) >> 11);
+            output[40] = (u8)clampS8((e - q) >> 11);
+            output[24] = (u8)clampS8((y + p) >> 11);
+            output[32] = (u8)clampS8((y - p) >> 11);
         }
         dst--;
     }
