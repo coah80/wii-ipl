@@ -3551,12 +3551,12 @@ libs/RVL_SDK/src/bte/l2c_csm.c:
 
 libs/RVL_SDK/src/bte/l2c_link.c:
 	.text       start:0x815AC630 end:0x815AD7BC
-	.data       start:0x8168E930 end:0x8168EB68
+	.data       start:0x8168E930 end:0x8168EBA0
 
 libs/RVL_SDK/src/bte/l2c_main.c:
 	.bss        start:0x811725E0 end:0x81172DC8
 	.text       start:0x815AD7BC end:0x815AE7EC
-	.data       start:0x8168EB68 end:0x8168EEA0
+	.data       start:0x8168EBA0 end:0x8168EEA0
 
 libs/RVL_SDK/src/bte/l2c_utils.c:
 	.text       start:0x815AE7EC end:0x815B06B0
