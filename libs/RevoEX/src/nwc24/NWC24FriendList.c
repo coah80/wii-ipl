@@ -37,7 +37,7 @@ static u32 GetUnkFlag(u32 index) {
         return result;
     }
 
-    data = header->unk_0x10[index >> 5] >> (index & 0x1f) & 1;
+    data = header->confirmedBits[index >> 5] >> (index & 0x1f) & 1;
     return (NWC24Err)data;
 }
 
@@ -50,7 +50,7 @@ static NWC24Err SetUnkFlag(u32 index, int flag) {
         return result;
     }
 
-    header->unk_0x10[index >> 5] = ~(1 << (index & 0x1f)) & header->unk_0x10[index >> 5] | flag << (index & 0x1f);
+    header->confirmedBits[index >> 5] = ~(1 << (index & 0x1f)) & header->confirmedBits[index >> 5] | flag << (index & 0x1f);
     return NWC24_OK;
 }
 
@@ -629,10 +629,10 @@ NWC24Err NWC24iCreateFriendList() {
     header->version = FRIEND_LIST_VERSION;
     header->infoCount = NWC24_FRIEND_INFO_MAX;
     header->registeredCount = 0;
-    header->unk_0x10[0] = 0;
-    header->unk_0x10[1] = 0;
-    header->unk_0x10[2] = 0;
-    header->unk_0x10[3] = 0;
+    header->confirmedBits[0] = 0;
+    header->confirmedBits[1] = 0;
+    header->confirmedBits[2] = 0;
+    header->confirmedBits[3] = 0;
 
     result = NWC24FOpen(&file, FLFilePath, NWC24_OPEN_WRITE);
     if (result != NWC24_OK) {

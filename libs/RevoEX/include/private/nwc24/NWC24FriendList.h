@@ -17,7 +17,7 @@ typedef struct NWC24FLHeader {
     u32 version;          // 0x04
     u32 infoCount;        // 0x08
     u32 registeredCount;  // 0x0C
-    u32 unk_0x10[4];
+    u32 confirmedBits[4];  // 0x10
     u32 unk_0x20[7];
     u32 unk_0x3C;
     NWC24UserId friendIds[NWC24_FRIEND_INFO_MAX];  // 0x40
