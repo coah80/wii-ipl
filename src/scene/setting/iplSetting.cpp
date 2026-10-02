@@ -1606,10 +1606,10 @@ namespace ipl {
             OSReport("initKeyboard formId:%d\n", mpWiiSettingData->data[0x11]);
             memset(unk_0x938, 0, sizeof(unk_0x938));
 
-            int invalidInput = 0;
+            int stringLimit;
             keyboard::Manager::KeyboardType keyboardType = keyboard::Manager::LETTER;
-            int rowLimit = 0;
-            int stringLimit = 0;
+            int rowLimit;
+            int invalidInput = 0;
             int productArea = static_cast<s8>(SCGetProductArea());
 
             switch (mpWiiSettingData->data[0x11]) {
@@ -1711,14 +1711,16 @@ namespace ipl {
             }
 
             if (productArea == 11) {
-                System::getKeyboard()->memoFrm()->setZiDictionary(System::getKeyboard()->getZiOemDic(), System::getKeyboard()->getZiSystemDic());
+                void* systemDic = System::getKeyboard()->getZiSystemDic();
+                void* oemDic = System::getKeyboard()->getZiOemDic();
+                System::getKeyboard()->memoFrm()->setZiDictionary(oemDic, systemDic);
             }
 
             keyboard::Manager::KeyboardSetting setting;
-            setting.type = keyboardType;
+            setting.rowLimit = rowLimit;
             setting.wcString = reinterpret_cast<const wchar_t*>(unk_0x938);
             setting.stringLimit = stringLimit;
-            setting.rowLimit = rowLimit;
+            setting.type = keyboardType;
             System::getKeyboard()->start(0, setting);
 
             if (invalidInput != 0) {
