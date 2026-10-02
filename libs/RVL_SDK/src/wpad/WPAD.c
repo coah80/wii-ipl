@@ -1315,7 +1315,7 @@ static void __ClearControlBlock(s32 chan) {
     _wmb[chan].unk_0x04 = 0;
     _wmb[chan].unk_0x08 = 0;
     _wmb[chan].unk_0x0C = 0;
-    _wmb[chan].unk_0x10 = NULL;
+    _wmb[chan].callback = NULL;
 
     _rumbleCnt[chan] = 0;
 }
@@ -1643,8 +1643,8 @@ static void WPADiConnCallback(WUDDevInfo* devInfo, u8 open) {
 
             if (p->cmdBlkCB != NULL) {
                 p->cmdBlkCB(chan, WPAD_ERR_NO_CONTROLLER);
-            } else if (_wmb[chan].unk_0x10 != NULL) {
-                _wmb[chan].unk_0x10(chan, WPAD_ERR_NO_CONTROLLER);
+            } else if (_wmb[chan].callback != NULL) {
+                _wmb[chan].callback(chan, WPAD_ERR_NO_CONTROLLER);
             }
 
             do {
