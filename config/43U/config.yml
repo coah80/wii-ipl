@@ -11,6 +11,8 @@ splits: 'config/43U/splits.txt'
 ldscript_template: 'config/ldscript_ipl2.lcf'
 
 force_active:
+  - SOGetSockOpt
+  - SOSetInterfaceOpt
   - fprintf
   - leap_days
   - __msl_time2tm
