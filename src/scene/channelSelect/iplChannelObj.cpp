@@ -674,7 +674,8 @@ namespace ipl {
 
             if (foundLangGroup) {
                 nw4r::lyt::Group* group = layout->FindGroupByName(langGroup);
-                for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter(); it++) {
+                nw4r::lyt::Group* const& groupView = group;
+                for (nw4r::lyt::PaneLinkList::Iterator it = groupView->GetPaneList().GetBeginIter(); it != groupView->GetPaneList().GetEndIter(); it++) {
                     it->mTarget->SetVisible(true);
                 }
             } else {
@@ -685,7 +686,8 @@ namespace ipl {
                     }
                     if (strcmp(scModuleData.langGroupLookup[region][i], langCodeBuf[scLangLookup[region][i]]) == 0) {
                         nw4r::lyt::Group* group = layout->FindGroupByName(scModuleData.langGroupLookup[region][i]);
-                        for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter(); it != group->GetPaneList().GetEndIter(); it++) {
+                        nw4r::lyt::Group* const& groupView = group;
+                        for (nw4r::lyt::PaneLinkList::Iterator it = groupView->GetPaneList().GetBeginIter(); it != groupView->GetPaneList().GetEndIter(); it++) {
                             it->mTarget->SetVisible(true);
                         }
                         break;
