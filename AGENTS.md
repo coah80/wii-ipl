@@ -431,6 +431,53 @@ Policy additions learned in this loop:
   between. Check that it changes no other function in the units that use it.
   Use-site volatile casts and the `register` keyword stay forbidden.
 
+### Handoff: where the loop lives
+
+The loop's tools and state live outside the repository, in the author's
+workers directory `/mnt/drive2/projects/wii-ipl-workers` (`$W` below). A new
+orchestrator thread picks up from there.
+
+Tools in `$W/_restore0928-tools/`:
+
+| File | Purpose |
+|------|---------|
+| `gate.py <unit...> [--base origin/main] [--quick]` | the acceptance gate; `--quick` only skips the clean `rm -rf build/43U` |
+| `land.sh <name> <worktree> merge-base <unit...> <title>` | gate a worker's diff on a fresh branch, push, open and squash-merge the PR |
+| `luna.sh <worktree> <name> <prompt> <effort> [session]` | start (or resume) one Codex worker; run with `MODEL=gpt-6.1-sol CODEX_BIN=$W/_codex159/bin/codex` |
+| `reviewd.sh` | review daemon: queues every open PR whose head changed |
+| `revq.sh`, `automerge.py` | the daemon's gate runner and merge decision |
+| `checklist.py` | regenerates `$W/CHECKLIST.md` from a report |
+| `chatter.py <run-prefix>` | counts worker text messages for the silent-mode audit |
+| `baseline-<sha8>.json` | objdiff reports of past `origin/main` commits, used for regressions |
+
+State:
+
+- `$W/_luna-runs/prompts/`: worker prompts. `common.md` is shared; each
+  task is `<name>.task.md`, and the launched prompt is `<name>.md` = task +
+  common.
+- `$W/_luna-runs/<name>.<time>.jsonl` and `.last.md`: worker transcript and
+  final report.
+- `$W/_luna-runs/effort-policy.txt`: the policy log. Records escalations,
+  parked functions, and every orchestrator attempt with what was tried.
+- `$W/CHECKLIST.md`: units with non-exact code, worst first.
+- Worktrees: `verify-fix` is the only verification and landing tree;
+  `sol-low`, `sol-med`, `sol-high` and `w0929-fix-board` are the four worker
+  slots; `orch` is orchestrator scratch.
+- Logs: `/tmp/reviewd.log`, `/tmp/vfq.log` (current review batch) and
+  `/tmp/automerge.log` (merge decisions). These are lost on reboot, which
+  only means open PRs get reviewed again.
+- `/tmp/wii-git.lock`: every `git fetch` or checkout in a shared worktree
+  runs under `flock` on this file, because worktrees share refs.
+
+To pick up the loop:
+
+1. Make sure no other orchestrator session is running.
+2. Check `pgrep -af "reviewd.sh|luna.sh|land.sh"` and restart the review
+   daemon if it isn't running.
+3. Read the newest `.last.md` for each slot. Land gains, then relaunch the
+   slot per the effort scale.
+4. Handle every `NEEDS REVIEW` line in `/tmp/automerge.log`.
+
 ## Goal completion contract
 
 The decompilation loop does not stop after a successful wave, a convenient
