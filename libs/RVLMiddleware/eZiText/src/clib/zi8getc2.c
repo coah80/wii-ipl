@@ -50,10 +50,10 @@ ziBool Zi8ZHsetZYfuzzyPairs(ziFuzzyZYPairs pairs ZI_NEED_WORK) {
 
 ziBool Zi8SetLatinSearchOrder(ziU8* searchArray, ziU8 searchSize ZI_NEED_WORK) {
     if (searchArray == 0 || *searchArray == 0) {
-        ZI_WORK->unk_0x1410 = (ziU32)Zi8SOdefaultArray;
+        ZI_WORK->formats = (ziU32)Zi8SOdefaultArray;
         ZI_WORK->unk_0x1418 = 9;
     } else {
-        ZI_WORK->unk_0x1410 = (ziU32)searchArray;
+        ZI_WORK->formats = (ziU32)searchArray;
         ZI_WORK->unk_0x1418 = searchSize;
     }
     return 1;

@@ -265,7 +265,7 @@ struct __zi8_work_data_s {
     ziPtr unk_0x11FC;
     ziPtr userKeys[0x83];  // 0x1200
     ziU8 unk_0x140C[4];
-    ziU32 unk_0x1410;
+    ziU32 formats;  // 0x1410
     ziU8 unk_0x1414[4];
     ziU8 unk_0x1418;
     ziU8 unk_0x1419;
