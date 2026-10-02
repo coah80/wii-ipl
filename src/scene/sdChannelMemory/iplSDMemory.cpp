@@ -1358,15 +1358,11 @@ namespace ipl {
                     nw4r::ut::Color activeColor;
                     writeFourFlagBytes(&activeColor.r, 0x34, 0xBE, 0xED, 0xFF);
                     ++nandTitleIndex;
-                    nw4r::ut::Color firstActive = activeColor;
-                    nw4r::ut::Color secondActive = activeColor;
-                    setTitleRowColors(titleText, firstActive, secondActive);
+                    setTitleRowColors(titleText, nw4r::ut::Color(activeColor), nw4r::ut::Color(activeColor));
                 } else {
                     nw4r::ut::Color inactiveColor;
                     writeFourFlagBytes(&inactiveColor.r, 0x64, 0x64, 0x64, 0xFF);
-                    nw4r::ut::Color firstInactive = inactiveColor;
-                    nw4r::ut::Color secondInactive = inactiveColor;
-                    setTitleRowColors(titleText, firstInactive, secondInactive);
+                    setTitleRowColors(titleText, nw4r::ut::Color(inactiveColor), nw4r::ut::Color(inactiveColor));
                 }
 
                 nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
