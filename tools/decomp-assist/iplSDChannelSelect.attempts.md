@@ -18,3 +18,18 @@ reproduces it. Applied at the `event == 0` check in the anon
 SDChannelSelectButtonEventHandler::onEventDerived → 144/144 insn-identical.
 The same pair inside a u64 `<` compare (handleSDTitleListResult `neg.` hi-test)
 has no applicable source form — that one stays a wall.
+
+## switch-on-bool dispatch (handleSDTitleListResult)
+Orig emits `beq fwd-body / b ret` where a plain `if (u64 < K) return;` folds to single `bne ret`.
+Decode: `switch (x < K) { default: BODY; break; case true: return; }` — `default` arm FIRST
+(source order) with the bool-compare as discriminant → MWCC emits the two-arm dispatch
+(171/171 insn-equal). `case false:` regresses (jump-table range dispatch), if/else folds.
+Residual: orig uses `neg.` flags directly (`beq`); mine emits `neg` + `cmpwi 1` + `beq` —
+same insn count, operand-level diff only.
+
+## Dead-arm fossil (iplAddressEdit, earlier)
+An unreachable empty `case N:` arm in a switch materializes a dead `b end` between
+dispatch and bodies: `case 4: break;` in start_left_event → EXACT 96/96;
+`case 4: goto done;` in start_point_event → 182/182. Only works in range-mapped
+dispatch (table/dense compare); every listed case in a compare-chain gets its own
+cmpwi level — the trick cannot produce extra `b` edges there (set_err_msg stays +1).
