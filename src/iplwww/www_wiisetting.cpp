@@ -298,9 +298,8 @@ namespace www {
                     }
                     case FORM_ID_DUMMY_SECURITY_KEY: {
                         memset(pString->asterisks, 0, sizeof(pString->asterisks));
-                        SetStringBuf* strBuf = pString;
                         int i;
-                        for (i = 0; i < strlen(strBuf->securityKey); strBuf->asterisks[i++] = '*') {
+                        for (i = 0; i < strlen(pString->securityKey); pString->asterisks[i++] = '*') {
                         }
                         if (i > 0x20) {
                             pString->asterisks[0x20] = '\n';
