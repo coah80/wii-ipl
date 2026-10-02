@@ -234,30 +234,39 @@ void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
 }
 
 BOOL NETAESCreateEx(AESContext* context, const void* key, u32 keyLength, const void* iv, const AESBlockMode* mode) {
-    BOOL result=FALSE;
-    u32 words,index,value;
     u32* schedule;
+    u32 words;
+    u32 index;
+    u32 value;
+    BOOL result = FALSE;
     if (keyLength != 16 && keyLength != 24 && keyLength != 32) {
         OSReport("NETAESCreateEx() failed! (key-length is allowed only 16, 20, 24 BYTEs)");
     } else {
-        context->rounds=keyLength/4+6;
-        context->needsTransform=1;
-        context->mode=mode;
+        context->needsTransform = 1;
+        context->rounds = (keyLength * 8) / 32 + 6;
+        context->mode = mode;
         memcpy(context->chain, iv, 16);
-        schedule=context->keys;
-        words=keyLength/4;
-        memcpy(schedule,key,keyLength);
-        value=schedule[words-1];
-        for(index=words; index<(context->rounds+1)*4; ++index) {
-            if (index%words == 0) {
-                value=SUBSTITUTE_XOR(AESiSubShiftTable,value<<8,value<<8,value<<8,value>>24) ^ ((u32)AESiRoundKeyRcon0[index/words-1]<<24);
-            } else if(words>6 && index%words==4) {
-                value=SUBSTITUTE_XOR(AESiSubShiftTable,value,value,value,value);
+        schedule = context->keys;
+        words = keyLength / 4;
+        memcpy(schedule, key, keyLength);
+        value = schedule[words - 1];
+        for (index = words; index < (context->rounds + 1) * 4; ++index) {
+            if (index % words == 0) {
+                u32 high = (u32)AESiSubShiftTable[(value >> 16) & 255] << 24;
+                u32 low = AESiSubShiftTable[value >> 24];
+                u32 lower = (u32)AESiSubShiftTable[value & 255] << 8;
+                u32 upper = (u32)AESiSubShiftTable[(value >> 8) & 255] << 16;
+                value = (low ^ high) ^ (lower ^ upper);
+                value ^= (u32)AESiRoundKeyRcon0[index / words - 1] << 24;
+            } else if (words > 6 && index % words == 4) {
+                value = ((u32)AESiSubShiftTable[value >> 24] << 24) ^
+                        (((u32)AESiSubShiftTable[(value >> 16) & 255] << 16) ^
+                         (AESiSubShiftTable[value & 255] ^ ((u32)AESiSubShiftTable[(value >> 8) & 255] << 8)));
             }
-            value ^= schedule[index-words];
-            schedule[index]=value;
+            value ^= schedule[index - words];
+            schedule[index] = value;
         }
-        result=TRUE;
+        result = TRUE;
     }
     return result;
 }
