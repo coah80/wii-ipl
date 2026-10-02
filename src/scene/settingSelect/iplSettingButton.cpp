@@ -15,10 +15,10 @@ namespace ipl {
         // clang-format on
 
         SettingButton::SettingButton(EGG::Heap* heap, int arg) : FaderSceneBase(heap), ::gui::EventHandler() {
-            unk_0x264 = 64;
-            unk_0x268 = 0;
-            unk_0x26C = 0;
-            unk_0x270 = 0;
+            mQueueCapacity = 64;
+            mQueueCount = 0;
+            mQueueRead = 0;
+            mQueueWrite = 0;
             mSettingArg = arg;
             mpLayout = NULL;
             mpLayoutFile = NULL;
@@ -81,9 +81,9 @@ namespace ipl {
 
         FaderSceneCommand SettingButton::calcNormal() {
             if (!mpLayout->getAnim(ANIM_ALPHA_IN)->isPlaying() && !mpLayout->getAnim(ANIM_ALPHA_OUT)->isPlaying() &&
-                !mpLayout->getAnim(ANIM_BTN_FLASH)->isPlaying() && unk_0x268 != 0) {
-                Unk unk = unk_0x64[unk_0x26C];
-                switch (unk.command) {
+                !mpLayout->getAnim(ANIM_BTN_FLASH)->isPlaying() && mQueueCount != 0) {
+                CmdEntry entry = mCmdQueue[mQueueRead];
+                switch (entry.command) {
                     case CMD_SHOW_BTN: {
                         showBtn();
                         break;
@@ -93,16 +93,16 @@ namespace ipl {
                         break;
                     }
                     case CMD_SET_TEXT: {
-                        setText(unk.msgID);
+                        setText(entry.msgID);
                         break;
                     }
                 }
 
-                if (unk_0x268 != 0) {
-                    if (++unk_0x26C >= unk_0x264) {
-                        unk_0x26C = 0;
+                if (mQueueCount != 0) {
+                    if (++mQueueRead >= mQueueCapacity) {
+                        mQueueRead = 0;
                     }
-                    unk_0x268--;
+                    mQueueCount--;
                 }
             }
 
@@ -225,16 +225,16 @@ namespace ipl {
         }
 
         void SettingButton::reserve(int command, u32 msgId) {
-            if (unk_0x264 != unk_0x268) {
-                int unk = unk_0x270;
-                unk_0x64[unk].command = command;
-                unk_0x64[unk].msgID = msgId;
-                unk_0x270++;
+            if (mQueueCapacity != mQueueCount) {
+                int writeIdx = mQueueWrite;
+                mCmdQueue[writeIdx].command = command;
+                mCmdQueue[writeIdx].msgID = msgId;
+                mQueueWrite++;
 
-                if (unk_0x270 >= unk_0x264) {
-                    unk_0x270 = 0;
+                if (mQueueWrite >= mQueueCapacity) {
+                    mQueueWrite = 0;
                 }
-                unk_0x268++;
+                mQueueCount++;
             }
         }
 

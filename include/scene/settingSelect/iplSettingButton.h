@@ -62,17 +62,17 @@ namespace ipl {
             void start_left_event(const char* paneName);
             void start_trig_event(const char* paneName);
 
-            typedef struct Unk {
+            typedef struct CmdEntry {
                 int command;  // 0x00
                 u32 msgID;    // 0x04
-            } Unk;
+            } CmdEntry;
 
-            Unk unk_0x64[64];
+            CmdEntry mCmdQueue[64];
 
-            int unk_0x264;
-            int unk_0x268;
-            int unk_0x26C;
-            int unk_0x270;
+            int mQueueCapacity;
+            int mQueueCount;
+            int mQueueRead;
+            int mQueueWrite;
 
             int mSettingArg;  // 0x274
 
