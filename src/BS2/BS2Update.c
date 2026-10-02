@@ -39,7 +39,7 @@ static u32 UpdateImportResult = 0;
 u32 StartUpdate = 0;
 u32 CancelUpdate = 0;
 static u32 UpdateProgress = 0;
-static s32 rc = 0;
+static volatile s32 rc = 0;
 static u64 VersionIOS = 0;
 static u32 VersionMEM2 = 0;
 static u32 VersionES = 0;
@@ -114,12 +114,12 @@ static void* UpdateThread(void* argument) {
     requiredBytes = 0;
     requiredInodes = 0;
     channelCount = 0;
-    scratch.freeChannels = 0;
-    scratch.freeBlocks = 0;
-    scratch.freeInodes = 0;
     selectedSeatCount = 0;
     State = 0;
     ContainsSeatTitles = FALSE;
+    scratch.freeChannels = 0;
+    scratch.freeBlocks = 0;
+    scratch.freeInodes = 0;
     if (ES_GetTitleId(&scratch.titleId) != 0) {
         regionValid = FALSE;
     } else {

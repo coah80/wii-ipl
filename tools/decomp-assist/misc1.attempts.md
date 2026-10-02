@@ -143,3 +143,12 @@ reg-rotation, not localized. Reverted.
   insn stream otherwise. Levers tried: buff_end/buff_ptr decl order, &buff[511]
   vs +511, buff_ptr=buff init, register/const qualifiers, buff_end+1 reuse —
   all no-op.
+
+## w1009 — BS2Update post-rebase (volatile globals + base-web fold)
+
+- `static volatile s32 rc` (decl-site volatile, same mechanism as upstream BS2Mach NAND globals): orig reloads `rc` per access site — 6 loads, volatile decl matches exactly. UpdateThread 92.3 → 93.35, insn count 902 → 904 vs orig 913. `UpdateProgress` volatile also tried — overshoots (20 loads vs orig 11): orig MIXES a callee-cached local with per-access reloads inside the import loop — not fully volatile. Reverted to plain.
+- symbols.txt: `@1814/@1826/@1851/@1858` renames pair UpdateThread's sdata strings (propagates into orig .o via resplit).
+- BS2UpdateInit: orig keeps `&Flags0` as a callee base web — `addi r30`+offset for `Flags1`(+0x800), `Thread.thread`(+0x1000), `Thread.stack`(+0x1318→+0x1000 top). MWCC won't hoist a single-use address web; `flags` local, `Flags0 + N` expr, and merged `Flags[1024]` all remat per-site. Orig had 3 separate LOCAL bss objects, so the fold needs a source-level `&Flags0` value used ≥2× in Init — none found. Parked (72 vs 71 insns).
+- UpdateThread residual: orig uses a distinct `li r15,0` web for the 3 scratch-init stores (r15 = its first-born callee web) vs my shared r0 — allocator priority tie.
+- BS2Mach BS2NANDDivideCallback: swapped `NandBuffer += result` before `NandTransferred += result` — resolved the r5↔r6 pairwise web swap (~30→16 diffs). Residual: `li r3,0`/NandCompletion-load scheduling swap + NT/NL/NF marshal order at 3 call sites (arg-eval order, compiler-internal). `u32 remaining` temp regressed (122 vs 128 — orig recomputes per-site).
+- odh near-100s (decompressLoop 99.67, setQuantizationTable 99.57, huffmanCoder 99.08, colorConv 98.64, LineConv11 98.08): all verified pure regname/operand-order diffs — same callee-web rotation family, no decode gap.

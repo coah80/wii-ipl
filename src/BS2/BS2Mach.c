@@ -1081,8 +1081,8 @@ void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
     } else if (result < 0) {
         NandCompletion(result, block);
     } else {
-        NandTransferred = NandTransferred + result;
         NandBuffer = NandBuffer + result;
+        NandTransferred = NandTransferred + result;
         if (NandLength - NandTransferred > 0x40000) {
             if (NandOperation == 1) {
                 BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, 0x40000);
