@@ -1239,6 +1239,9 @@ Manager::StateType DispMemoState::getStateType() {
     return Manager::ST_Hidden;
 }
 
+extern const f32 sZeroScale;
+const f32 sZeroScale = 0.0f;
+
 }
 }
 }

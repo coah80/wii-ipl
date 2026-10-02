@@ -66,6 +66,9 @@ public:
     virtual void startToInput();
     virtual void movePrevSignWindow();
     virtual void moveNextSignWindow();
+#ifdef TISIGNWINDOW_IMPLEMENTATION
+    virtual void vt_0x10C() = 0;
+#endif
 
     bool mbActive;
     bool mbInput;

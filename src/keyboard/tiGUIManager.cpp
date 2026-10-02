@@ -243,6 +243,8 @@ namespace textinput {
 
         PaneComponent::~PaneComponent() {}
 
+        GUIComponent::~GUIComponent() {}
+
         void PaneManager::createLayoutScene(const nw4r::lyt::Layout& layout) {
             mIDCounter = 0;
             walkInChildren(layout.GetRootPane()->GetChildList());

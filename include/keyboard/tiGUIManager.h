@@ -70,19 +70,12 @@ namespace textinput {
 
             EventHandler() : muLatestEventCtrlNo(0) {}
 
-            virtual ~EventHandler() {}  // 0x08
+            virtual ~EventHandler();  // 0x08
 
-#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual void onEvent(GUIComponent& comp, u32 event, void* data);  // 0x0C
 
             virtual void setLatestEventCtrlNo(int ctrlNo);  // 0x10
             virtual int getLatestEventCtrlNo();              // 0x14
-#else
-            virtual void onEvent(GUIComponent& comp, u32 event, void* data) {}  // 0x0C
-
-            virtual void setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }  // 0x10
-            virtual int getLatestEventCtrlNo() { return muLatestEventCtrlNo; }               // 0x14
-#endif
 
         protected:
             int muLatestEventCtrlNo;  // 0x04
@@ -99,33 +92,18 @@ namespace textinput {
                 EVENT_RELEASE
             };
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
-            virtual void init();
-#else
-            virtual void init() {  // 0x10
-                for (int i = 0; i < GUI_POINTS_MAX; i++) {
-                    mbPointed[i] = false;
-                    mDraggingPos[i].z = mDraggingPos[i].y = mDraggingPos[i].x = 0;
-                    mbDragging[i] = false;
-                    mFlightDuration[i] = 0;
-                }
-            }
-#endif
+            virtual ~GUIComponent();  // 0x08
+            virtual void init();  // 0x10
 
             GUIComponent(u32 id)
-                : GUIInterface(), mbInitialize(false), mDraggingButton(0xFFFF), mID(id), mbTriggerTarget(false), mpManager(NULL), mpListener(NULL) {
+                : mbInitialize(false), mDraggingButton(0xFFFF), mID(id), mbTriggerTarget(false), mpManager(NULL), mpListener(NULL) {
                 init();
             }
-            virtual ~GUIComponent() {}  // 0x08
 
             virtual u32 getID() { return mID; }  // 0x20
 
             virtual bool isPointed(int point) { return mbPointed[point]; }    // 0x24
-#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual bool isDragging(int point);  // 0x28
-#else
-            virtual bool isDragging(int point) { return mbDragging[point]; }  // 0x28
-#endif
 
             virtual void setPointed(int point, bool bEnable) { mbPointed[point] = bEnable; }  // 0x2C
 
@@ -157,27 +135,15 @@ namespace textinput {
             }
 
             virtual bool isTriggerTarget() { return mbTriggerTarget; }                  // 0x48
-#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual void setTriggerTarget(bool bEnable);  // 0x4C
-#else
-            virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x4C
-#endif
 
             void setParentManager(GUIManager* manager) { mpManager = manager; }
             GUIManager* getParentManager() { return mpManager; }
 
             virtual bool isVisible() { return true; }  // 0x50
 
-#ifdef TI_CANDIDATEBOX_IMPLEMENTATION
             virtual u16 getFlightDuration(int point);  // 0x54
-#else
-            virtual u16 getFlightDuration(int point) { return mFlightDuration[point]; }  // 0x54
-#endif
-#ifdef TI_CELLPHONE_IMPLEMENTATION
             virtual void setFlightDuration(int point, u16 flightDir);  // 0x58
-#else
-            virtual void setFlightDuration(int point, u16 flightDir) { mFlightDuration[point] = flightDir; }  // 0x58
-#endif
 
             virtual bool contain(f32 x, f32 y) = 0;  // 0x5C
 
