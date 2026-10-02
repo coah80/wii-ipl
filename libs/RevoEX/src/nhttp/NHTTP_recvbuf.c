@@ -77,16 +77,18 @@ s32 NHTTPi_compareTokenN_HdrRecvBuf(const NHTTPResponseInfo* response, s32 posit
     s32 offset;
     int character;
 
-    if (position < limit) {
-        FindHeaderBlock(response, position, &block, &offset);
-        character = ReadHeaderChar(response, &block, &offset);
-        while (LowerCase((s8)character) == LowerCase(*token)) {
-            if (*token == 0 || *token == ' ' || *token == delimiter || position == limit - 1) return 0;
-            character = ReadHeaderChar(response, &block, &offset);
-            ++position;
-            ++token;
-        }
+    if (position >= limit) {
+        goto tail;
     }
+    FindHeaderBlock(response, position, &block, &offset);
+    character = ReadHeaderChar(response, &block, &offset);
+    while (LowerCase((s8)character) == LowerCase(*token)) {
+        if (*token == 0 || *token == ' ' || *token == delimiter || position == limit - 1) return 0;
+        character = ReadHeaderChar(response, &block, &offset);
+        ++position;
+        ++token;
+    }
+tail:
     return -1;
 }
 
