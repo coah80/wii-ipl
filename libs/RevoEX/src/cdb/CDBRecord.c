@@ -393,6 +393,67 @@ CDBErr CDBRecordGetDataSize(CDBRecord* record, u32* size) {
     return err;
 }
 
+CDBErr CDBRecordReduceFileSize(CDBRecord* record, u32 newFileSize) {
+    CDBRecordFile* recordFile;
+    CDBErr err;
+    u32 fileSize;
+
+    recordFile = record->file;
+    if (recordFile == NULL) {
+        CDBReportError("can't reduce file size of the record ; the record is closed\n");
+        return CDB_ERROR_27;
+    }
+    if ((recordFile->allocFlag & 2) == 0) {
+        CDBReportError("can't reduce file size of the record ; the record is opened as READONLY\n");
+        return CDB_ERROR_27;
+    }
+    CDBAttrGetFileSize(&recordFile->attr, &fileSize);
+    if (newFileSize > fileSize) {
+        CDBReportError("can't reduce file size of the record ; file size must be over %d bytes\n", fileSize);
+        return CDB_ERROR_26;
+    }
+    CDBAttrSetFileSize(&recordFile->attr, newFileSize);
+    recordFile->attr.dirty = TRUE;
+    err = CDBRecordFileWriteAttrBuf(record);
+    if (err != CDB_ERROR_OK) {
+        return err;
+    }
+    return CDB_ERROR_OK;
+}
+
+CDBErr CDBRecordReduceDataSize(CDBRecord* record, u32 newDataSize) {
+    CDBRecordFile* recordFile;
+    CDBErr err = CDB_ERROR_OK;
+    u32 dataSize;
+
+    recordFile = record->file;
+    if (recordFile == NULL) {
+        CDBReportError("can't reduce data size of the record ; the record is closed\n");
+        return CDB_ERROR_27;
+    }
+    if ((recordFile->allocFlag & 2) == 0) {
+        CDBReportError("can't reduce data size of the record ; the record is opened as READONLY\n");
+        return CDB_ERROR_27;
+    }
+    if (!CDBRecordBelongedDBOpenedAsRW(record)) {
+        CDBReportError("can't reduce data size of the record; permission denied\n");
+        return CDB_ERROR_ACCESS_DENIED;
+    }
+    err = CDBRecordFileGetDataSize(record, &dataSize);
+    if (err != CDB_ERROR_OK) {
+        return err;
+    }
+    if (newDataSize < dataSize) {
+        CDBAttrSetFileSize(&recordFile->attr, newDataSize);
+        recordFile->attr.dirty = TRUE;
+    }
+    err = CDBRecordFileWriteAttrBuf(record);
+    if (err != CDB_ERROR_OK) {
+        return err;
+    }
+    return CDB_ERROR_OK;
+}
+
 CDBErr CDBRecordRemove(CDBRecord* record) {
     CDBErr err;
     CDBLock();
@@ -430,6 +491,50 @@ void CDBRecordGetTypeForce(CDBRecord* record, char* type) {
     CDBUnlock();
 }
 
+CDBErr CDBRecordSetFileType(CDBRecord* record, const char* fileType) {
+    CDBRecordDatabaseState* instance;
+    CDBRecordFile* recordFile;
+    CDBErr err;
+
+    instance = ((CDBDatabase*)record->database)->instance;
+    recordFile = record->file;
+    if ((instance->openFlags & 2) == 0) {
+        CDBReportError("can't set file type of the record; the database is opened as READONLY\n");
+        return CDB_ERROR_26;
+    }
+    if (recordFile == NULL) {
+        CDBReportError("can't set file type of the record ; the record is closed\n");
+        return CDB_ERROR_27;
+    }
+    if ((recordFile->allocFlag & 2) == 0) {
+        CDBReportError("can't set file type of the record ; the record is opened as READONLY\n");
+        return CDB_ERROR_27;
+    }
+    if (record->key.location != CDB_FS_LOCATION_NAND) {
+        CDBReportError("can't set file type of the record ; the record must exsist on NAND\n");
+        return CDB_ERROR_26;
+    }
+    CDBLock();
+    strcpy(CDBKeyStrType(record->key.keyString), fileType);
+    CDBAttrSetKeyStr(&recordFile->attr, &record->key);
+    err = CDBRecordFileWriteAttrBuf(record);
+    CDBUnlock();
+    return err;
+}
+
+CDBErr CDBRecordGetFileType(CDBRecord* record, char* fileType) {
+    CDBErr err = CDB_ERROR_OK;
+    CDBLock();
+    if (record->file == NULL) {
+        CDBReportError("can't get file type of the record ; the record is closed\n");
+        err = CDB_ERROR_27;
+    } else {
+        CDBConvKeyStrToType(record->key.keyString, fileType);
+    }
+    CDBUnlock();
+    return err;
+}
+
 void CDBRecordGetGameCodeForce(CDBRecord* record, char* gameCode) {
     u32 value;
     CDBLock();
@@ -438,10 +543,120 @@ void CDBRecordGetGameCodeForce(CDBRecord* record, char* gameCode) {
     CDBUnlock();
 }
 
+CDBErr CDBRecordGetGameCode(CDBRecord* record, u32* gameCode) {
+    CDBErr err = CDB_ERROR_OK;
+    CDBLock();
+    if (record->file == NULL) {
+        CDBReportError("can't get game code of the record ; the record is closed\n");
+        err = CDB_ERROR_27;
+    } else {
+        CDBConvKeyStrToGameCode(record->key.keyString, gameCode);
+    }
+    CDBUnlock();
+    return err;
+}
+
+CDBErr CDBRecordGetMakerCode(CDBRecord* record, u32* makerCode) {
+    CDBErr err = CDB_ERROR_OK;
+    CDBLock();
+    if (record->file == NULL) {
+        CDBReportError("can't get maker code of the record ; the record is closed\n");
+        err = CDB_ERROR_27;
+    } else {
+        CDBConvKeyStrToMakerCode(record->key.keyString, makerCode);
+    }
+    CDBUnlock();
+    return err;
+}
+
+CDBErr CDBRecordGetModifiedTime(CDBRecord* record, u32* modifiedTime) {
+    CDBErr err = CDB_ERROR_OK;
+    CDBLock();
+    if (record->file == NULL) {
+        CDBReportError("can't get modified time of the record; the record is closed\n");
+        err = CDB_ERROR_27;
+    } else {
+        *modifiedTime = ((CDBRecordFile*)record->file)->attr.buf.lastModifiedDate;
+    }
+    CDBUnlock();
+    return err;
+}
+
+CDBErr CDBRecordGetModifiedCount(CDBRecord* record, u32* modifiedCount) {
+    CDBErr err = CDB_ERROR_OK;
+    CDBLock();
+    if (record->file == NULL) {
+        CDBReportError("can't get modified count of the record; the record is closed\n");
+        err = CDB_ERROR_27;
+    } else {
+        CDBAttrGetModifiedCount(&((CDBRecordFile*)record->file)->attr, modifiedCount);
+    }
+    CDBUnlock();
+    return err;
+}
+
 void CDBRecordGetKeyForce(CDBRecord* record, CDBRecordKey* key) {
     CDBLock();
     CDBRecordKeyCopy(key, &record->key);
     CDBUnlock();
+}
+
+CDBErr CDBRecordSetName(CDBRecord* record, const char* name, const char* keyword) {
+    CDBRecordDatabaseState* instance;
+    CDBRecordFile* recordFile;
+    CDBErr err;
+
+    instance = ((CDBDatabase*)record->database)->instance;
+    recordFile = record->file;
+    if ((instance->openFlags & 2) == 0) {
+        CDBReportError("can't set a name of the record; the database is opened as READONLY\n");
+        return CDB_ERROR_26;
+    }
+    if (!CDBRecordBelongedDBOpenedAsRW(record)) {
+        CDBReportError("can't add keyword to the record; permission denied\n");
+        return CDB_ERROR_ACCESS_DENIED;
+    }
+    if (recordFile == NULL) {
+        CDBReportError("can't set a name of the record; the record is closed\n");
+        return CDB_ERROR_27;
+    }
+    if ((recordFile->allocFlag & 2) == 0) {
+        CDBReportError("can't set a name of the record; the record is opened as READONLY\n");
+        return CDB_ERROR_27;
+    }
+    CDBLock();
+    strncpy(recordFile->attr.buf.desc, name, CDB_ATTR_BUF_MAX_DESC_LEN);
+    recordFile->attr.buf.descLength = strlen(name);
+    recordFile->attr.dirty = TRUE;
+    err = CDBRecordFileWriteAttrBuf(record);
+    CDBUnlock();
+    return err;
+}
+
+CDBErr CDBRecordGetKeyword(CDBRecord* record, char* keyword) {
+    CDBErr err = CDB_ERROR_OK;
+    CDBLock();
+    if (record->file == NULL) {
+        CDBReportError("can't get keyword from the record; the record is closed\n");
+        err = CDB_ERROR_27;
+    } else {
+        strcpy(keyword, ((CDBRecordFile*)record->file)->attr.buf.desc);
+    }
+    CDBUnlock();
+    return err;
+}
+
+CDBErr CDBRecordGetKey(CDBRecord* record, CDBRecordKey* key) {
+    CDBErr err = CDB_ERROR_OK;
+    CDBLock();
+    if (record->file == NULL) {
+        CDBReportError("can't get key from the record; the record is closed\n");
+        err = CDB_ERROR_27;
+    } else {
+        CDBRecordKeyCopy(key, &record->key);
+    }
+    CDBUnlock();
+    return err;
 }
 
 void CDBRecordGetCalendarTimeForce(CDBRecord* record, int* year, int* month, int* day, int* hour, int* min, int* sec) {
@@ -452,6 +667,23 @@ void CDBRecordGetCalendarTimeForce(CDBRecord* record, int* year, int* month, int
     CDBConvEpochStrToEpochValue(epochString, &epoch);
     CDBConvEpochValueToDate(epoch, year, month, day, hour, min, sec);
     CDBUnlock();
+}
+
+CDBErr CDBRecordGetCalendarTime(CDBRecord* record, int* year, int* month, int* day, int* hour, int* min, int* sec) {
+    char epochString[64];
+    CDBDate epoch;
+    CDBErr err = CDB_ERROR_OK;
+    CDBLock();
+    if (record->file == NULL) {
+        CDBReportError("can't get calender time from the record; the record is closed\n");
+        err = CDB_ERROR_27;
+    } else {
+        CDBConvKeyStrToEpochStr(record->key.keyString, epochString);
+        CDBConvEpochStrToEpochValue(epochString, &epoch);
+        CDBConvEpochValueToDate(epoch, year, month, day, hour, min, sec);
+    }
+    CDBUnlock();
+    return err;
 }
 
 CDBErr CDBRecordGetId(CDBRecord* record, CDBId* id) {
@@ -530,6 +762,27 @@ CDBErr CDBRecordUpdateModifiedDate(CDBRecord* record) {
         return err;
     }
     return CDB_ERROR_OK;
+}
+
+CDBErr CDBRecordDuplicate(CDBRecord* record, CDBRecord* newRecord) {
+    CDBRecordFile* recordFile;
+    CDBErr err;
+
+    if (record->key.location != CDB_FS_LOCATION_NAND && record->key.location != CDB_FS_LOCATION_SD) {
+        OSPanic(__FILE__, __LINE__, "CDBRecordDuplicate invalud location\n");
+        return CDB_ERROR_1;
+    }
+    recordFile = record->file;
+    if (recordFile == NULL) {
+        return CDB_ERROR_27;
+    }
+    CDBLock();
+    CDBRecordKeyCopy(&newRecord->key, &record->key);
+    newRecord->file = NULL;
+    newRecord->database = record->database;
+    err = CDBRecordFileCreateBlank(newRecord);
+    CDBUnlock();
+    return err;
 }
 
 CDBErr CDBRecordBackupToSD(CDBRecord* record) {
@@ -695,8 +948,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
     }
     {
         CDBErr result;
-        CDBRecordFile* tempFile;
-        tempFile = record->file;
+        CDBRecordFile* tempFile = record->file;
         if ((s32)tempFile == 0) {
             result = CDB_ERROR_27;
         } else if (tempFile->allocFlag == 1) {
@@ -825,7 +1077,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
 
 CDBErr CDBRecordDecrypt(CDBRecord* record, void* buffer, u32 size, u32* dataSize, CDBRecordKey* key) {
     CDBErr status;
-    int fileOffset;
+    s32 fileOffset;
     CDBRecordFile* recordFile;
     u32 fileDataSize;
     u32 fileSize;
@@ -959,4 +1211,33 @@ CDBErr CDBRecordDecrypt(CDBRecord* record, void* buffer, u32 size, u32* dataSize
         *dataSize = fileSize;
     }
     return CDB_ERROR_OK;
+}
+
+CDBErr CDBRecordPrivateChangeOwner(CDBRecord* record, u64 newWiiId) {
+    CDBRecordFile* recordFile;
+    char fullPath[256];
+    char newPath[256];
+    CDBErr err;
+    u64 preWiiId;
+    u64 recordWiiId;
+
+    CDBReportError("CDBRecordPrivateChangeOwner\n");
+
+    recordFile = record->file;
+    if (recordFile == NULL) {
+        return CDB_ERROR_27;
+    }
+    preWiiId = CDBGetWiiId();
+    recordWiiId = record->key.wiiId;
+    OSReport(" i_pre-wiiid  = %lX\n", preWiiId);
+    OSReport(" record-wiiid = %lX\n", recordWiiId);
+    CDBConvKeyToFullPath(&record->key, fullPath);
+    record->key.wiiId = newWiiId;
+    CDBConvKeyToFullPath(&record->key, newPath);
+    OSReport("path =%s\n", fullPath);
+    OSReport("path2=%s\n", newPath);
+    CDBLock();
+    err = CDBAttrSetWiiId(&recordFile->attr, newWiiId);
+    CDBUnlock();
+    return err;
 }
