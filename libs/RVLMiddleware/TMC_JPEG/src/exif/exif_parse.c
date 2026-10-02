@@ -366,7 +366,7 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
                 return;
             }
             pInfo->xResNum = readU32(p, byteOrder);
-            p = (const u8*)(pInfo->thumbnailData + offset + 4);
+            p = pInfo->thumbnailData + (offset + 4);
             if (pInfo->thumbnailData > p) {
                 return;
             }
@@ -386,7 +386,7 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
                 return;
             }
             pInfo->yResNum = readU32(p, byteOrder);
-            p = (const u8*)(pInfo->thumbnailData + offset + 4);
+            p = pInfo->thumbnailData + (offset + 4);
             if (pInfo->thumbnailData > p) {
                 return;
             }
