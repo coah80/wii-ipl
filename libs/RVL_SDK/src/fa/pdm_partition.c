@@ -1,9 +1,13 @@
 #include <private/fa/pdm.h>
 #include <revolution/types.h>
-#define MBR_WORD(buf, offset) (((pf_u32)(buf)[(offset) + 3] << 24) + ((pf_u32)(buf)[(offset) + 2] << 16) + ((pf_u32)(buf)[(offset) + 1] << 8) + (buf)[offset])
 static inline pf_u16 read_boot_u16(pf_u8* buf, pf_u32 offset) {
     if ((pf_u32)&buf[offset] & 1) { return (buf[offset + 1] << 8) | buf[offset]; }
     return PF_SWAP_16(*(pf_u16*)&buf[(offset + 1) & ~1]);
+}
+
+static inline pf_u32 read_partition_u32(const pf_u8* buf, pf_u32 offset) {
+    return (((pf_u32)buf[offset + 2] << 16) + buf[offset]) +
+           (((pf_u32)buf[offset + 3] << 24) + ((pf_u32)buf[offset + 1] << 8));
 }
 
 pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mbr) {
@@ -18,8 +22,8 @@ pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mb
     p_count = count;
     for (index = 0; index < 4; index++) {
         *p_start = 0;
-        *p_start = (((pf_u32)buf[456] << 16) + buf[454]) + (((pf_u32)buf[457] << 24) + ((pf_u32)buf[455] << 8));
-        *p_count = (((pf_u32)buf[460] << 16) + buf[458]) + (((pf_u32)buf[461] << 24) + ((pf_u32)buf[459] << 8));
+        *p_start = read_partition_u32(buf, 454);
+        *p_count = read_partition_u32(buf, 458);
         if (*p_start != 0 && *p_count != 0) {
             if (index == 0) { *p_is_mbr = 1; }
         } else {
@@ -91,14 +95,14 @@ pf_s32 pdm_part_get_start_sector(PDM_PARTITION* p_part) {
     if (err != 0) { return err; }
     pdm_part_is_master_boot_sector(buf, p_part->p_disk->disk_info.total_sectors, &is_mbr);
     if (is_mbr) {
-        start[0] = MBR_WORD(buf, 454);
-        start[1] = MBR_WORD(buf, 470);
-        start[2] = MBR_WORD(buf, 486);
-        start[3] = MBR_WORD(buf, 502);
-        count[0] = MBR_WORD(buf, 458);
-        count[1] = MBR_WORD(buf, 474);
-        count[2] = MBR_WORD(buf, 490);
-        count[3] = MBR_WORD(buf, 506);
+        start[0] = read_partition_u32(buf, 454);
+        start[1] = read_partition_u32(buf, 470);
+        start[2] = read_partition_u32(buf, 486);
+        start[3] = read_partition_u32(buf, 502);
+        count[0] = read_partition_u32(buf, 458);
+        count[1] = read_partition_u32(buf, 474);
+        count[2] = read_partition_u32(buf, 490);
+        count[3] = read_partition_u32(buf, 506);
         part_index = 0;
         for (index = 0; index < 4; index++) {
             sector = start[index];
@@ -112,15 +116,15 @@ pf_s32 pdm_part_get_start_sector(PDM_PARTITION* p_part) {
                 sector = base;
                 for (extended_index = 0; extended_index < 2; extended_index++) {
                     if (extended_index == 0) {
-                        sector = sector + MBR_WORD(buf, 454);
-                        length = MBR_WORD(buf, 458);
+                        sector = sector + read_partition_u32(buf, 454);
+                        length = read_partition_u32(buf, 458);
                         err = pdm_disk_physical_read(p_part->p_disk, buf, sector, 1, 512, &success);
                         if (err != 0) { return err; }
                         if (requested == part_index) { p_part->start_sector = sector; p_part->total_sector = length; return 0; }
                         part_index++;
                     } else {
-                        sector = base + MBR_WORD(buf, 470);
-                        length = MBR_WORD(buf, 474);
+                        sector = base + read_partition_u32(buf, 470);
+                        length = read_partition_u32(buf, 474);
                         if (sector == 0 || length == 0) { break; }
                         err = pdm_disk_physical_read(p_part->p_disk, buf, sector, 1, 512, &success);
                         if (err != 0) { return err; }
