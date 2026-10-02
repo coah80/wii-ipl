@@ -236,10 +236,10 @@ namespace ipl {
 
         Calendar::Calendar(EGG::Heap* heap)
             : FaderSceneBase(heap), ButtonEventHandlerBase(), mState(STATE_NORMAL), mPrevState(STATE_NORMAL), mpLayout(NULL), mpLayoutFile(NULL),
-              mpGroupAnim(NULL), mpInitAnim(NULL), mpBoardDate(NULL), mpSelectDate(NULL), mbScrolling(false), unk_0xA0(FALSE), mbTaskCanceled(FALSE),
+              mpGroupAnim(NULL), mpInitAnim(NULL), mpBoardDate(NULL), mpSelectDate(NULL), mbScrolling(false), mbSearchTaskRunning(FALSE), mbTaskCanceled(FALSE),
               mbBackToBoardAlt(FALSE) {
             nw4r::ut::List_Init(&mDateList, offsetof(Date, mNode1));
-            nw4r::ut::List_Init(&unk_0x90, offsetof(Date, mNode2));
+            nw4r::ut::List_Init(&mDrawList, offsetof(Date, mNode2));
 
             mbAsian = System::getRegion() == SC_PRODUCT_AREA_JPN || (u32)System::getRegion() == SC_PRODUCT_AREA_KOR ||
                       (u32)System::getRegion() == SC_PRODUCT_AREA_CHN;
@@ -262,7 +262,7 @@ namespace ipl {
             for (int i = 0; i < (DATE_COUNT * 2); i++) {
                 Date* date = new Date(getSceneHeap(), mpLayoutFile, "arc", "my_IplTop_f.brlyt");
                 if (i < DATE_COUNT) {
-                    nw4r::ut::List_Append(&unk_0x90, date);
+                    nw4r::ut::List_Append(&mDrawList, date);
                 }
                 nw4r::ut::List_Append(&mDateList, date);
             }
@@ -382,10 +382,10 @@ namespace ipl {
                     }
                 } else {
                     for (u32 i = 0; i < DATE_COUNT; i++) {
-                        ((Date*)nw4r::ut::List_GetNth(&unk_0x90, i))->draw(false);
+                        ((Date*)nw4r::ut::List_GetNth(&mDrawList, i))->draw(false);
                     }
                     for (u32 i = 0; i < DATE_COUNT; i++) {
-                        ((Date*)nw4r::ut::List_GetNth(&unk_0x90, i))->draw(true);
+                        ((Date*)nw4r::ut::List_GetNth(&mDrawList, i))->draw(true);
                     }
                 }
             }
@@ -425,8 +425,8 @@ namespace ipl {
         }
 
         void Calendar::onPointDate(Date* date) {
-            nw4r::ut::List_Remove(&unk_0x90, date);
-            nw4r::ut::List_Append(&unk_0x90, date);
+            nw4r::ut::List_Remove(&mDrawList, date);
+            nw4r::ut::List_Append(&mDrawList, date);
         }
 
         void Calendar::onTrigDate(Date* date) {
@@ -503,7 +503,7 @@ namespace ipl {
         }
 
         void Calendar::on_wait_task() {
-            if (unk_0xA0 == FALSE) {
+            if (mbSearchTaskRunning == FALSE) {
                 switch (mPrevState) {
                     case STATE_SCROLL_RIGHT: {
                         do_scroll_r();
@@ -535,7 +535,7 @@ namespace ipl {
 
             mPrevState = mState;
             mState = STATE_SCROLL_RIGHT;
-            if (unk_0xA0 == TRUE) {
+            if (mbSearchTaskRunning == TRUE) {
                 mbTaskCanceled = TRUE;
                 mPrevState = STATE_SCROLL_RIGHT;
                 mState = STATE_WAIT_TASK;
@@ -577,7 +577,7 @@ namespace ipl {
 
             mPrevState = mState;
             mState = STATE_SCROLL_LEFT;
-            if (unk_0xA0) {
+            if (mbSearchTaskRunning) {
                 mbTaskCanceled = TRUE;
                 mPrevState = STATE_SCROLL_LEFT;
                 mState = STATE_WAIT_TASK;
@@ -616,7 +616,7 @@ namespace ipl {
             mPrevState = mState;
             mState = STATE_DONE;
 
-            if (unk_0xA0 == TRUE) {
+            if (mbSearchTaskRunning == TRUE) {
                 OSReport("検索タスク終了要求\n");  // "Search task termination requested"
                 mbTaskCanceled = TRUE;
                 mPrevState = mState;
@@ -863,14 +863,14 @@ namespace ipl {
 
                 OSReport("タスク終了\n");  // Task end
 
-                calendar->unk_0xA0 = FALSE;
+                calendar->mbSearchTaskRunning = FALSE;
                 calendar->mbTaskCanceled = FALSE;
             }
         }
 
         void Calendar::exec_search_task() {
             OSReport("検索開始\n");  // Start search
-            unk_0xA0 = TRUE;
+            mbSearchTaskRunning = TRUE;
             System::getTask1()->requestJam(search_task_, this, NULL);
         }
 

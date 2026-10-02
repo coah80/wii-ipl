@@ -95,9 +95,9 @@ namespace ipl {
 
         public:
             nw4r::ut::List mDateList;  // 0x84
-            nw4r::ut::List unk_0x90;
+            nw4r::ut::List mDrawList;
             bool mbScrolling;  // 0x9C
-            vBOOL unk_0xA0;
+            vBOOL mbSearchTaskRunning;
             BOOL mbTaskCanceled;     // 0xA4
             vBOOL mbBackToBoardAlt;  // 0xA8
             bool mbAsian;            // 0xAC
