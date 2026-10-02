@@ -109,7 +109,6 @@ namespace textinput {
                 HKBManager* manager;
             };
             HKBManager() __attribute__((never_inline));
-            ~HKBManager();
             static HKBManager& getInstance() { return sInstance; }
             void Initialize();
             void ClearState();
