@@ -689,7 +689,7 @@ config.libs = [
         ]
     ),
     IPLSection("sound", [
-            Object(NonMatching, "sound/iplSound.cpp"),
+            Object(Matching,    "sound/iplSound.cpp"),
         ]
     ),
     IPLSection("iplwww", [
