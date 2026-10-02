@@ -10,13 +10,6 @@
 #undef IPL_SOUND_RECT_OUT_OF_LINE
 #undef AutoLock
 
-extern "C" void __ct__Q23EGG20SimpleAudioMgrWithFxFv();
-extern "C" void __dt__Q34nw4r3snd11SoundHandleFv();
-extern "C" void __dl__FPv();
-extern "C" {
-    void __destroy_arr();
-    void __dt__Q33ipl3snd10tagSSeInfoFv();
-}
 extern "C" void _seBlk__Q23ipl3snd();
 extern "C" nw4r::snd::SoundHandle* _mainBGMHandle__Q23ipl3snd;
 extern "C" const f32 scSoundZeroF;
@@ -24,19 +17,9 @@ extern "C" const f32 scSoundOneF;
 extern "C" const f32 scSoundTwoF;
 extern "C" const f32 scSoundThirtyF;
 extern "C" const f32 scSoundSixtyF;
-extern "C" {
-    void _savegpr_29();
-    void pauseOffSE__Q33ipl3snd6SystemFv();
-    void pauseOnSE__Q33ipl3snd6SystemFv();
-}
-extern "C" void _restgpr_29();
-extern "C" void _savegpr_24();
-extern "C" void _restgpr_24();
 extern "C" void _savegpr_26();
 extern "C" void _restgpr_26();
 extern "C" void sBannerSoundPlayer__Q23ipl3snd();
-extern "C" void pause__17BannerSoundPlayerFb();
-extern "C" void initFx__Q33ipl3snd6SystemFv();
 extern "C" void GetInstance__Q44nw4r3snd6detail9AxManagerFv();
 extern "C" void ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi();
 extern "C" void stop__17BannerSoundPlayerFUl();
@@ -45,9 +28,8 @@ extern "C" void SetMasterVolume__Q44nw4r3snd6detail9AxManagerFfi();
 
 namespace ipl {
     namespace snd {
-        extern "C" void __vt__Q33ipl3snd6System();
 
-        System::System() {
+        inline System::System() {
         }
 
         struct tagSSeInfo {
@@ -59,39 +41,30 @@ namespace ipl {
             u32 id;
         };
 
-        tagSSeInfo::tagSSeInfo() {
+        inline tagSSeInfo::tagSSeInfo() {
         }
 
-        BOOL m_isLocked;
         struct tagSBgmInfo {
             nw4r::snd::SoundHandle handle;
             tagSBgmInfo();
             ~tagSBgmInfo();
         };
 
-        tagSBgmInfo::tagSBgmInfo() {
+        inline tagSBgmInfo::tagSBgmInfo() {
         }
 
-        tagSSeInfo::~tagSSeInfo() {
+        inline tagSSeInfo::~tagSSeInfo() {
         }
 
-        tagSBgmInfo::~tagSBgmInfo() {
+        inline tagSBgmInfo::~tagSBgmInfo() {
         }
 
-        extern nw4r::snd::SoundHandle _bgmBlk;
-        extern tagSSeInfo _seBlk[16];
-        extern nw4r::snd::SoundHandle* _mainBGMHandle;
-
-        extern "C" asm void __dt__Q33ipl3snd6UnkClsFv() {
-            nofralloc
-            lis r3, _seBlk__Q23ipl3snd@ha
-            lis r4, __dt__Q33ipl3snd10tagSSeInfoFv@ha
-            addi r3, r3, _seBlk__Q23ipl3snd@l
-            li r5, 0xc
-            addi r4, r4, __dt__Q33ipl3snd10tagSSeInfoFv@l
-            li r6, 0x10
-            b __destroy_arr
-        }
+        tagSSeInfo _seBlk[16];
+        tagSBgmInfo _bgmBlk;
+        System sSystem;
+        BannerSoundPlayer sBannerSoundPlayer;
+        nw4r::snd::SoundHandle* _mainBGMHandle;
+        BOOL m_isLocked;
 
         static const nw4r::snd::FxReverbHi::ReverbHiParam reverbHiParam = {
             0.0f,
@@ -101,148 +74,6 @@ namespace ipl {
             0.0f,
             1.0f,
         };
-
-        void System::stopBGM(int frames) {
-            if (_mainBGMHandle && _mainBGMHandle->IsAttachedSound()) {
-                _mainBGMHandle->Stop(frames);
-            }
-        }
-
-        void System::muteOnBGM(int frames) {
-            nw4r::snd::SoundHandle* handle = _mainBGMHandle;
-            if (handle && handle->IsAttachedSound()) handle->SetVolume(0.0f, frames);
-        }
-
-        void System::muteOffBGM(int frames) {
-            nw4r::snd::SoundHandle* handle = _mainBGMHandle;
-            if (handle && handle->IsAttachedSound()) handle->SetVolume(1.0f, frames);
-        }
-
-        void System::pauseOnSE() {
-            for (int index = 0; index < 16; ++index) {
-                if (_seBlk[index].handle.IsAttachedSound()) {
-                    _seBlk[index].handle.Pause(true, 5);
-                }
-            }
-        }
-
-        void System::pauseOffSE() {
-            for (int index = 0; index < 16; ++index) {
-                if (_seBlk[index].handle.IsAttachedSound()) {
-                    _seBlk[index].handle.Pause(false, 5);
-                }
-            }
-        }
-
-        void System::pauseOnBGM() {
-            if (_mainBGMHandle) {
-                if (_mainBGMHandle->IsAttachedSound()) _mainBGMHandle->Pause(true, 5);
-                pauseOnSE();
-                sBannerSoundPlayer.pause(true);
-                nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_A, 250);
-                nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_B, 250);
-                nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_C, 250);
-            }
-        }
-
-        void System::pauseOffBGM() {
-            if (_mainBGMHandle) {
-                initFx();
-                if (_mainBGMHandle->IsAttachedSound()) _mainBGMHandle->Pause(false, 5);
-                pauseOffSE();
-                sBannerSoundPlayer.pause(false);
-            }
-        }
-
-        void System::stopSE(nw4r::snd::SoundHandle* handle, int frames) {
-            tagSSeInfo* block;
-            int i;
-            if (handle != NULL && handle->IsAttachedSound()) {
-                for (i = 0; i < 16; i++) {
-                    block = &_seBlk[i];
-                    if (handle == &block->handle) {
-                        block->handle.Stop(frames);
-                        block->name = NULL;
-                        block->id = 0xFFFF;
-                    }
-                }
-            }
-        }
-
-        extern "C" asm void resetAllSound__Q33ipl3snd6SystemFv() {
-            nofralloc
-            stwu r1, -0x20(r1)
-            mflr r0
-            stw r0, 0x24(r1)
-            addi r11, r1, 0x20
-            bl _savegpr_26
-            li r26, 0
-            lis r28, _seBlk__Q23ipl3snd@ha
-            lis r3, 1
-            li r31, 0
-            mr r29, r26
-            addi r28, r28, _seBlk__Q23ipl3snd@l
-            subi r30, r3, 1
-        resetAllSound_loop:
-            lwzx r3, r28, r31
-            add r27, r28, r31
-            cmpwi r3, 0
-            beq resetAllSound_clear
-            lwz r12, 0(r3)
-            li r4, 0
-            lwz r12, 0x18(r12)
-            mtctr r12
-            bctrl
-        resetAllSound_clear:
-            stw r29, 0x4(r27)
-            addi r26, r26, 1
-            cmpwi r26, 0x10
-            addi r31, r31, 0xc
-            stw r30, 0x8(r27)
-            blt resetAllSound_loop
-            lwz r3, _mainBGMHandle__Q23ipl3snd
-            cmpwi r3, 0
-            beq resetAllSound_banner
-            lwz r0, 0(r3)
-            cmpwi r0, 0
-            beq resetAllSound_banner
-            lwz r3, 0(r3)
-            li r4, 0
-            lwz r12, 0(r3)
-            lwz r12, 0x18(r12)
-            mtctr r12
-            bctrl
-        resetAllSound_banner:
-            lis r31, sBannerSoundPlayer__Q23ipl3snd@ha
-            li r4, 0
-            addi r3, r31, sBannerSoundPlayer__Q23ipl3snd@l
-            bl stop__17BannerSoundPlayerFUl
-            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
-            li r4, 0
-            li r5, 0
-            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
-            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
-            li r4, 1
-            li r5, 0
-            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
-            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
-            li r4, 2
-            li r5, 0
-            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
-            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
-            lfs f1, scSoundZeroF
-            li r4, 0
-            bl SetMasterVolume__Q44nw4r3snd6detail9AxManagerFfi
-            lfs f1, scSoundZeroF
-            addi r3, r31, sBannerSoundPlayer__Q23ipl3snd@l
-            bl setMasterVolume__17BannerSoundPlayerFf
-            addi r11, r1, 0x20
-            bl _restgpr_26
-            lwz r0, 0x24(r1)
-            mtlr r0
-            addi r1, r1, 0x20
-            blr
-        }
 
         void System::shutup(BOOL shutUpDMA) {
             if (m_isLocked == shutUpDMA) {
@@ -280,31 +111,9 @@ namespace ipl {
             sBannerSoundPlayer.setMasterVolume(0.9f);
         }
 
-        extern "C" const f32 scSoundZeroF = 0.0f;
-
-        void System::stopBannerSound(int unk) {
-            sBannerSoundPlayer.stop(unk);
-        }
-
-        BOOL System::checkTmpSoundFile(void* data, u32 size) {
-            return sBannerSoundPlayer.checkData(data, size, false);
-        }
-
         void System::initFx() {
             setFxReverbHi(nw4r::snd::AUX_A, &reverbHiParam);
         }
-
-#pragma force_active on
-
-    }
-}
-namespace nw4r {
-namespace snd {
-SoundHandle::SoundHandle() : mSound(NULL) {}
-}
-}
-namespace ipl {
-namespace snd {
 
         void System::calc() {
             EGG::SimpleAudioMgr::calc();
@@ -316,9 +125,9 @@ namespace snd {
                 return NULL;
             }
 
-            EGG::ArcPlayer::startSound(&_bgmBlk, bgmName);
-            _mainBGMHandle = &_bgmBlk;
-            return &_bgmBlk;
+            EGG::ArcPlayer::startSound(&_bgmBlk.handle, bgmName);
+            _mainBGMHandle = &_bgmBlk.handle;
+            return &_bgmBlk.handle;
         }
 
         nw4r::snd::SoundHandle* System::startSE(const char* sndName) {
@@ -387,7 +196,7 @@ namespace snd {
             }
 
             block->handle.Stop(0);
-            mSoundArchivePlayer.StartSound(&block->handle, sndIndex);
+            EGG::ArcPlayer::startSound(&block->handle, sndIndex);
             block->id = sndIndex;
             return (int)block;
         }
@@ -485,6 +294,27 @@ namespace snd {
             return (int)block;
         }
 
+        void System::stopBGM(int frames) {
+            if (_mainBGMHandle && _mainBGMHandle->IsAttachedSound()) {
+                _mainBGMHandle->Stop(frames);
+            }
+        }
+
+        void System::stopSE(nw4r::snd::SoundHandle* handle, int frames) {
+            tagSSeInfo* block;
+            int i;
+            if (handle != NULL && handle->IsAttachedSound()) {
+                for (i = 0; i < 16; i++) {
+                    block = &_seBlk[i];
+                    if (handle == &block->handle) {
+                        block->handle.Stop(frames);
+                        block->name = NULL;
+                        block->id = 0xFFFF;
+                    }
+                }
+            }
+        }
+
         void System::stopAllSound(int unk) {
             int frame;
             tagSSeInfo* block;
@@ -506,6 +336,137 @@ namespace snd {
             nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_A, frame);
             nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_B, frame);
             nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_C, frame);
+        }
+
+        extern "C" asm void resetAllSound__Q33ipl3snd6SystemFv() {
+            nofralloc
+            stwu r1, -0x20(r1)
+            mflr r0
+            stw r0, 0x24(r1)
+            addi r11, r1, 0x20
+            bl _savegpr_26
+            li r26, 0
+            lis r28, _seBlk__Q23ipl3snd@ha
+            lis r3, 1
+            li r31, 0
+            mr r29, r26
+            addi r28, r28, _seBlk__Q23ipl3snd@l
+            subi r30, r3, 1
+        resetAllSound_loop:
+            lwzx r3, r28, r31
+            add r27, r28, r31
+            cmpwi r3, 0
+            beq resetAllSound_clear
+            lwz r12, 0(r3)
+            li r4, 0
+            lwz r12, 0x18(r12)
+            mtctr r12
+            bctrl
+        resetAllSound_clear:
+            stw r29, 0x4(r27)
+            addi r26, r26, 1
+            cmpwi r26, 0x10
+            addi r31, r31, 0xc
+            stw r30, 0x8(r27)
+            blt resetAllSound_loop
+            lwz r3, _mainBGMHandle__Q23ipl3snd
+            cmpwi r3, 0
+            beq resetAllSound_banner
+            lwz r0, 0(r3)
+            cmpwi r0, 0
+            beq resetAllSound_banner
+            lwz r3, 0(r3)
+            li r4, 0
+            lwz r12, 0(r3)
+            lwz r12, 0x18(r12)
+            mtctr r12
+            bctrl
+        resetAllSound_banner:
+            lis r31, sBannerSoundPlayer__Q23ipl3snd@ha
+            li r4, 0
+            addi r3, r31, sBannerSoundPlayer__Q23ipl3snd@l
+            bl stop__17BannerSoundPlayerFUl
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            li r4, 0
+            li r5, 0
+            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            li r4, 1
+            li r5, 0
+            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            li r4, 2
+            li r5, 0
+            bl ClearEffect__Q44nw4r3snd6detail9AxManagerFQ34nw4r3snd6AuxBusi
+            bl GetInstance__Q44nw4r3snd6detail9AxManagerFv
+            lfs f1, scSoundZeroF
+            li r4, 0
+            bl SetMasterVolume__Q44nw4r3snd6detail9AxManagerFfi
+            lfs f1, scSoundZeroF
+            addi r3, r31, sBannerSoundPlayer__Q23ipl3snd@l
+            bl setMasterVolume__17BannerSoundPlayerFf
+            addi r11, r1, 0x20
+            bl _restgpr_26
+            lwz r0, 0x24(r1)
+            mtlr r0
+            addi r1, r1, 0x20
+            blr
+        }
+
+    }
+}
+namespace nw4r {
+namespace snd {
+inline SoundHandle::SoundHandle() : mSound(NULL) {}
+}
+}
+namespace ipl {
+namespace snd {
+
+        void System::muteOnBGM(int frames) {
+            nw4r::snd::SoundHandle* handle = _mainBGMHandle;
+            if (handle && handle->IsAttachedSound()) handle->SetVolume(scSoundZeroF, frames);
+        }
+
+        void System::muteOffBGM(int frames) {
+            nw4r::snd::SoundHandle* handle = _mainBGMHandle;
+            if (handle && handle->IsAttachedSound()) handle->SetVolume(scSoundOneF, frames);
+        }
+
+        void System::pauseOnBGM() {
+            if (_mainBGMHandle) {
+                if (_mainBGMHandle->IsAttachedSound()) _mainBGMHandle->Pause(true, 5);
+                pauseOnSE();
+                sBannerSoundPlayer.pause(true);
+                nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_A, 250);
+                nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_B, 250);
+                nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_C, 250);
+            }
+        }
+
+        void System::pauseOffBGM() {
+            if (_mainBGMHandle) {
+                initFx();
+                if (_mainBGMHandle->IsAttachedSound()) _mainBGMHandle->Pause(false, 5);
+                pauseOffSE();
+                sBannerSoundPlayer.pause(false);
+            }
+        }
+
+        void System::pauseOnSE() {
+            for (int index = 0; index < 16; ++index) {
+                if (_seBlk[index].handle.IsAttachedSound()) {
+                    _seBlk[index].handle.Pause(true, 5);
+                }
+            }
+        }
+
+        void System::pauseOffSE() {
+            for (int index = 0; index < 16; ++index) {
+                if (_seBlk[index].handle.IsAttachedSound()) {
+                    _seBlk[index].handle.Pause(false, 5);
+                }
+            }
         }
 
         void System::setOutputMode(EAudioOutputMode mode) {
@@ -589,6 +550,14 @@ namespace snd {
             return sBannerSoundPlayer.start(data, size);
         }
 
+        void System::stopBannerSound(int unk) {
+            sBannerSoundPlayer.stop(unk);
+        }
+
+        BOOL System::checkTmpSoundFile(void* data, u32 size) {
+            return sBannerSoundPlayer.checkData(data, size, false);
+        }
+
         long System::clipGELT_S32(long value, long lo, long hi) {
             long range = hi - lo;
 
@@ -607,5 +576,10 @@ namespace snd {
 
             return value;
         }
+        extern "C" const f32 scSoundZeroF = 0.0f;
+        extern "C" const f32 scSoundTwoF = 2.0f;
+        extern "C" const f32 scSoundOneF = 1.0f;
+        extern "C" const f32 scSoundThirtyF = 30.0f;
+        extern "C" const f32 scSoundSixtyF = 60.0f;
 }  // namespace snd
 }  // namespace ipl
