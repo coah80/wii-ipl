@@ -67,14 +67,17 @@ BOOL AXFXChorusExpSettings(AXFX_CHORUS_EXP* fx) {
     OSRestoreInterrupts(enabled);
     return result;
 }
-void AXFXChorusExpShutdown(AXFX_CHORUS_EXP* fx) {
-    BOOL enabled = OSDisableInterrupts();
+static void __FreeDelayLine(AXFX_CHORUS_EXP* fx) {
     u32 channel;
-    fx->active |= 1;
     for (channel = 0; channel < 3; channel++) {
         if (fx->delay.line[channel] != NULL) __AXFXFree(fx->delay.line[channel]);
         fx->delay.line[channel] = NULL;
     }
+}
+void AXFXChorusExpShutdown(AXFX_CHORUS_EXP* fx) {
+    BOOL enabled = OSDisableInterrupts();
+    fx->active |= 1;
+    __FreeDelayLine(fx);
     OSRestoreInterrupts(enabled);
 }
 void AXFXChorusExpCallback(AXFX_BUFFERUPDATE* update, AXFX_CHORUS_EXP* fx) {
@@ -118,10 +121,11 @@ void AXFXChorusExpCallback(AXFX_BUFFERUPDATE* update, AXFX_CHORUS_EXP* fx) {
             fx->history[0][history] = fx->delay.line[0][source];
             fx->history[1][history] = fx->delay.line[1][source];
             fx->history[2][history] = fx->delay.line[2][source];
-            history = (history + 1) & 3;
+            history++;
+            history &= 3;
             source++;
-            if (source >= fx->delay.size) source = 0;
             whole--;
+            if (source >= fx->delay.size) source = 0;
         }
         fx->delay.lastPos = position & 0xFFFF0000;
         coefficients = __AXFXGetSrcCoef((fraction >> 9) & 0x7F);
@@ -129,14 +133,18 @@ void AXFXChorusExpCallback(AXFX_BUFFERUPDATE* update, AXFX_CHORUS_EXP* fx) {
             f32 filtered = 0.0f;
             f32 dry;
             filtered += coefficients[0] * fx->history[channel][history];
-            history = (history + 1) & 3;
+            history++;
+            history &= 3;
             filtered += coefficients[1] * fx->history[channel][history];
-            history = (history + 1) & 3;
+            history++;
+            history &= 3;
             filtered += coefficients[2] * fx->history[channel][history];
-            history = (history + 1) & 3;
+            history++;
+            history &= 3;
             filtered += coefficients[3] * fx->history[channel][history];
-            history = (history + 1) & 3;
-            if (fx->busIn != NULL) dry = *input[channel]++ + *output[channel];
+            history++;
+            history &= 3;
+            if (fx->busIn != NULL) dry = *output[channel] + *input[channel]++;
             else dry = *output[channel];
             fx->delay.line[channel][fx->delay.inPos] = dry + filtered * fx->feedback;
             *output[channel]++ = filtered * fx->outGain;
