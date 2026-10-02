@@ -64,12 +64,12 @@ namespace ipl {
             FOCUS_ANIM_OUT,
         };
 
-        Board::Board(EGG::Heap* heap, int unk)
+        Board::Board(EGG::Heap* heap, int forceNewMailAnm)
             : Base(heap), ButtonEventHandlerBase(), mState(STATE_WAIT_CDB_INIT), mObjList(), mbDoReadTask(false), mbReading(false),
               mbDoTaskDelete(false), mbDoCountTask(false), mbNewMsgAnimCount(false), mCurrentDate(System::getCurrentTime()),
               mPreviousDate(System::getCurrentTime()), mpLayoutFile(NULL), mpLayoutBg(NULL), mpLayoutFocusBg(NULL), mbRIconEnable(false),
               mbLIconEnable(false), mbFocusMode(false), mbPlayDispSound(false), mpCurrentFocus(NULL), mMsgCount(-1), mPrevMsgCount(-1), mBoardSD(),
-              mbExitRequest(false), unk_0xFB8(unk) {
+              mbExitRequest(false), mForceNewMailAnm(forceNewMailAnm) {
             setSceneParentFlags(SCN_PARENTFLAG_CALC | SCN_PARENTFLAG_DRAW);
 
             for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
@@ -753,8 +753,8 @@ namespace ipl {
                     return;
                 }
 
-                if (unk_0xFB8) {
-                    unk_0xFB8 = 0;
+                if (mForceNewMailAnm) {
+                    mForceNewMailAnm = 0;
                     button->startNewMailAnm();
 
                     return;
@@ -796,8 +796,8 @@ namespace ipl {
         }
 
         void Board::stt_normal() {
-            if (unk_0xFB8) {
-                unk_0xFB8 = 0;
+            if (mForceNewMailAnm) {
+                mForceNewMailAnm = 0;
             }
 
             Button* button = get_button();
