@@ -1739,7 +1739,6 @@ namespace ipl {
                 if (mKeyboardState.pressOK) {
                     onTextInputOK();
                     u8 formId = mpWiiSettingData->data[0x11];
-                    formText = NULL;
                     switch (formId) {
                         case 1:
                             formText = mpStringBuffer->nickname;
@@ -1810,7 +1809,8 @@ namespace ipl {
                         memcpy(mpStringBuffer->asterisks, mpStringBuffer->securityKey, sizeof(mpStringBuffer->securityKey));
                         mpStringBuffer->asterisks[0x41] = 0;
                         while (mpStringBuffer->asterisks[index] != 0) {
-                            mpStringBuffer->asterisks[index++] = '*';
+                            mpStringBuffer->asterisks[index] = '*';
+                            index++;
                         }
                         if (index > 0x20) {
                             mpStringBuffer->asterisks[0x20] = '\n';
@@ -1822,7 +1822,6 @@ namespace ipl {
                     }
                 } else {
                     u8 formId = mpWiiSettingData->data[0x11];
-                    formText = NULL;
                     switch (formId) {
                         case 1:
                             formText = mpStringBuffer->nickname;
