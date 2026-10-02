@@ -1080,7 +1080,7 @@ config.libs = [
             Object(Matching,    "nwc24/NWC24Stream.c"),
             Object(Matching,    "nwc24/NWC24Parser.c"),
             Object(NonMatching, "nwc24/NWC24MsgCommit.c"),
-            Object(NonMatching, "nwc24/NWC24MsgRead.c"),
+            Object(Matching,    "nwc24/NWC24MsgRead.c"),
             Object(NonMatching, "nwc24/NWC24MsgSubject.c"),
             Object(Matching,    "nwc24/NWC24Schedule.c"),
             Object(NonMatching, "nwc24/NWC24DateParser.c"),
