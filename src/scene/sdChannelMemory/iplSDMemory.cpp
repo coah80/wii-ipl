@@ -164,16 +164,10 @@ namespace ipl {
                 mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(false);
                 nw4r::lyt::Pane* expandedButton = mpTitleLayout->FindPaneByName("N_Btn_4");
                 expandedButton->SetVisible(true);
-||||||| parent of f3413243 (sceneleft: iplAddress set_err_msg/movePane_onDrag decodes, SDChannelSelect static setEventHandler)
-                mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(false);
-                mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(true);
                 mDisplayMode = 4;
             } else {
                 nw4r::lyt::Pane* compactButton = mpTitleLayout->FindPaneByName("N_Btn_3");
                 compactButton->SetVisible(true);
-                mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(false);
-||||||| parent of f3413243 (sceneleft: iplAddress set_err_msg/movePane_onDrag decodes, SDChannelSelect static setEventHandler)
-                mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(true);
                 mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(false);
                 mDisplayMode = 3;
             }

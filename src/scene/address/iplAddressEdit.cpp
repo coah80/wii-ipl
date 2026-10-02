@@ -2167,10 +2167,6 @@ state0Button3: {
         xOffset = 15.0f;
         height = 50.0f;
         scale = 0.5f;
-||||||| parent of be519f34 (iplAddressEdit: dead-arm fossil decode (start_left_event exact), case-4 arm in start_point_event, friendText reuse in create)
-        f32 xOffset = 15.0f;
-        f32 height = 50.0f;
-        f32 scale = 0.5f;
         position.x = position.x + xOffset;
         position.y = position.y + height * scale;
         (mpBalloon)
@@ -2215,10 +2211,6 @@ state22Button3:
             xOffset = 15.0f;
             height = 50.0f;
             scale = 0.5f;
-||||||| parent of be519f34 (iplAddressEdit: dead-arm fossil decode (start_left_event exact), case-4 arm in start_point_event, friendText reuse in create)
-            f32 xOffset = 15.0f;
-            f32 height = 50.0f;
-            f32 scale = 0.5f;
             position.x = position.x + xOffset;
             position.y = position.y + height * scale;
             (mpBalloon)

@@ -68,3 +68,15 @@ the weak emission; removing them emits the vtables in the same tail order and
 .data becomes byte-identical (3144B, data 100%). Lesson: an orig data region of
 zeros with no relocs after vtables = deduplicated weak vtable, NOT an all-zero
 object — .bss-promotion analysis was the wrong frame.
+
+## drawTransferTitles: copy-temp decode (451/451 insn-equal)
+
+Orig's callsite copies the built Color into THREE disjoint stack slots per call
+(4 lbz + 12 stb) — decoded as `Color(x)` copy-ctor temporaries:
+`setTitleRowColors(titleText, Color(c), Color(c))` reproduces all three
+materializations (MWCC emits a third dead temp in the arg area). The callee
+still calls out-of-line `__as__Color` for its member copies — consistent with
+decl-only `operator=(const Color&)` + inlined implicit copy-ctor in this TU.
+Direct pass (`setTitleRowColors(t, c, c)`) removes 32 insns; named copies emit
+`bl __as__` instead of memberwise bytes — neither matches. Remaining residual:
+frame +0x20 slot layout + reg-web coloring (insn-equal tie).

@@ -1616,9 +1616,6 @@ namespace ipl {
             } message;
             message.text = System::getMessage(MESG_ERROR_CODE);
             wcsncat(errMsg, message.text, errMsgLen - wcslen(errMsg));
-||||||| parent of f3413243 (sceneleft: iplAddress set_err_msg/movePane_onDrag decodes, SDChannelSelect static setEventHandler)
-            wcsncat(errMsg, System::getMessage(MESG_ERROR_CODE), errMsgLen - wcslen(errMsg));
-            u32 msgId = MESG_ERROR_CODE;
 
             wchar_t errCode[32];
             memset(errCode, 0, sizeof(errCode));

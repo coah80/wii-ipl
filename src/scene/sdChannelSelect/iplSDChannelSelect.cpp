@@ -3466,8 +3466,6 @@ namespace ipl {
             case 0: break;
             }
             {
-||||||| parent of 98e67efe (iplSDChannelSelect: decode beq+b dispatch in anon onEventDerived via switch)
-            if (event == 0) {
                 if (mpScene->mState == 1) {
                 if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
                     if (con != NULL) {
@@ -3508,9 +3506,6 @@ namespace ipl {
                         }
                     }
                 }
-||||||| parent of 98e67efe (iplSDChannelSelect: decode beq+b dispatch in anon onEventDerived via switch)
-            } else {
-                return;
             }
         }
 
