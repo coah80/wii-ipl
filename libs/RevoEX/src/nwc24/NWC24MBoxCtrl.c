@@ -170,7 +170,7 @@ NWC24Err NWC24GetMsgObj(NWC24MsgObj* msg, NWC24MBoxType type, u32 id) {
     u32 count = 0;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
-    entry = (MBCEntry*)NWC24WorkP->unk_0x1800;
+    entry = (MBCEntry*)NWC24WorkP->mbcEntry;
     memset(entry, 0, sizeof(*entry));
     if (id == 0)
         return NWC24_ERR_HIDDEN;
@@ -251,7 +251,7 @@ NWC24Err NWC24GetMsgIdList(NWC24MBoxType type, u32* ids, u32 maxLength) {
     MBCEntry* entry;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
-    entry = (MBCEntry*)NWC24WorkP->unk_0x1800;
+    entry = (MBCEntry*)NWC24WorkP->mbcEntry;
     err = GetCachedMBCHeader(type, &header);
     if (err != NWC24_OK)
         return err;
@@ -307,11 +307,11 @@ NWC24Err NWC24iOpenMBox(void) {
     NWC24File recvFile, sendFile;
     char* path = NWC24WorkP->pathWork;
     NWC24Err err;
-    Mail_memset(NWC24WorkP->unk_0x1700, 0, 128);
+    Mail_memset(NWC24WorkP->sendMbcHeader, 0, 128);
     err = GetCachedMBCHeader(NWC24_MBOX_TYPE_SEND, &header);
     if (err != NWC24_OK)
         return err;
-    Mail_memset(NWC24WorkP->unk_0x1780, 0, 128);
+    Mail_memset(NWC24WorkP->recvMbcHeader, 0, 128);
     err = GetCachedMBCHeader(NWC24_MBOX_TYPE_RECV, &header);
     if (err != NWC24_OK)
         return err;
@@ -340,11 +340,11 @@ NWC24Err NWC24iInitMBox(void) {
     NWC24File recvFile, sendFile;
     NWC24Err recvResult, sendResult, err, sendStatus;
     char* path = NWC24WorkP->pathWork;
-    Mail_memset(NWC24WorkP->unk_0x1700, 0, 128);
+    Mail_memset(NWC24WorkP->sendMbcHeader, 0, 128);
     sendResult = CreateCtrlFile(NWC24_MBOX_TYPE_SEND, FALSE);
     if (sendResult < 0)
         return sendResult;
-    Mail_memset(NWC24WorkP->unk_0x1780, 0, 128);
+    Mail_memset(NWC24WorkP->recvMbcHeader, 0, 128);
     recvResult = CreateCtrlFile(NWC24_MBOX_TYPE_RECV, FALSE);
     if (recvResult < 0)
         return recvResult;
@@ -616,11 +616,11 @@ static NWC24Err CreateCtrlFile(NWC24MBoxType type, BOOL force) {
         err = MakeCtrlPath(path, type);
         if (err != NWC24_OK)
             return err;
-        entry = (MBCEntry*)NWC24WorkP->unk_0x1800;
+        entry = (MBCEntry*)NWC24WorkP->mbcEntry;
         if (type == NWC24_MBOX_TYPE_SEND)
-            header = (MBCHeader*)NWC24WorkP->unk_0x1700;
+            header = (MBCHeader*)NWC24WorkP->sendMbcHeader;
         else if (type == NWC24_MBOX_TYPE_RECV)
-            header = (MBCHeader*)NWC24WorkP->unk_0x1780;
+            header = (MBCHeader*)NWC24WorkP->recvMbcHeader;
         else
             return NWC24_ERR_INVALID_VALUE;
         result = err;
@@ -676,7 +676,7 @@ static NWC24Err DeleteMsg(NWC24MBoxType type, u32 id, BOOL protect) {
     NWC24Err err, deleteResult, closeResult;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
-    entry = (MBCEntry*)NWC24WorkP->unk_0x1800;
+    entry = (MBCEntry*)NWC24WorkP->mbcEntry;
     err = GetCachedMBCHeader(type, &header);
     if (err != NWC24_OK)
         return err;
@@ -754,7 +754,7 @@ static NWC24Err DuplicationCheck(MBCHeader* header, const NWC24MsgObjPrivate* ms
     NWC24Err clearResult, deleteResult;
     if (type == NWC24_MBOX_TYPE_SEND)
         return NWC24_OK;
-    entry = (MBCEntry*)NWC24WorkP->unk_0x1800;
+    entry = (MBCEntry*)NWC24WorkP->mbcEntry;
     for (offset = 128; offset < header->fileSize; offset += 128) {
         if (count >= header->numMessages)
             break;
@@ -809,9 +809,9 @@ static NWC24Err GetCachedMBCHeader(NWC24MBoxType type, MBCHeader** header) {
     char* path;
     NWC24Err err = NWC24_OK, closeResult;
     if (type == NWC24_MBOX_TYPE_SEND)
-        *header = (MBCHeader*)NWC24WorkP->unk_0x1700;
+        *header = (MBCHeader*)NWC24WorkP->sendMbcHeader;
     else if (type == NWC24_MBOX_TYPE_RECV)
-        *header = (MBCHeader*)NWC24WorkP->unk_0x1780;
+        *header = (MBCHeader*)NWC24WorkP->recvMbcHeader;
     else {
         *header = NULL;
         return NWC24_ERR_INVALID_VALUE;
@@ -874,7 +874,7 @@ static NWC24Err InitMBCHeader(MBCHeader* header, NWC24MBoxType type) {
 
 static NWC24Err AddMBCEntry(MBCHeader* header, const NWC24MsgObjPrivate* msg, NWC24File* file) {
     u32 offset = header->freeOffset;
-    MBCEntry* entry = (MBCEntry*)NWC24WorkP->unk_0x1800;
+    MBCEntry* entry = (MBCEntry*)NWC24WorkP->mbcEntry;
     u32 next;
     NWC24Err err;
     if (offset == 0)
@@ -906,7 +906,7 @@ static NWC24Err AddMBCEntry(MBCHeader* header, const NWC24MsgObjPrivate* msg, NW
 }
 
 static NWC24Err ClearMBCEntry(MBCHeader* header, NWC24File* file, u32 offset) {
-    MBCEntry* entry = (MBCEntry*)NWC24WorkP->unk_0x1800;
+    MBCEntry* entry = (MBCEntry*)NWC24WorkP->mbcEntry;
     NWC24Err err = NWC24FSeek(file, offset, NWC24_SEEK_BEG);
     if (err != NWC24_OK)
         return err;
