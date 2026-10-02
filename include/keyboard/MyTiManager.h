@@ -92,7 +92,11 @@ namespace textinput {
                     virtual void setSaveData(savedata::MemoSetting memoSetting) {
                         mMemoSetting = memoSetting;
                     }
+#ifdef IPL_KEYBOARD_MEMO_GET_SAVE_DATA
+                    virtual savedata::MemoSetting getSaveData();
+#else
                     virtual savedata::MemoSetting   getSaveData()   { return mMemoSetting; }
+#endif
 
                     virtual void                    changeState(StateTimeLine stateTimeLine);
                     virtual State*                  getState()      { return mpCurrentState; }

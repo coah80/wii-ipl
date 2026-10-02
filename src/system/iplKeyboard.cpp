@@ -1,3 +1,4 @@
+#define IPL_KEYBOARD_MEMO_GET_SAVE_DATA
 #define IPL_SOUND_RECT_OUT_OF_LINE
 #include "system/iplKeyboard.h"
 
@@ -745,3 +746,7 @@ namespace ipl {
         }
     }  // namespace keyboard
 }  // namespace ipl
+
+textinput::extend::savedata::MemoSetting textinput::extend::memo::Manager::getSaveData() {
+    return mMemoSetting;
+}
