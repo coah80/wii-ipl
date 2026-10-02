@@ -426,19 +426,19 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capa
             return result;
     }
     Mail_memset(charset, 0, charsetCapacity);
-    if (privateMsg->unk_0x50.size >= charsetCapacity)
+    if (privateMsg->charsetData.size >= charsetCapacity)
         result = NWC24_ERR_FORMAT;
     else {
-        if (privateMsg->unk_0x50.size != 0) {
-            NWC24FSeek(&file, (u32)privateMsg->unk_0x50.ptr, NWC24_SEEK_BEG);
-            result = NWC24FRead(charset, privateMsg->unk_0x50.size, &file);
+        if (privateMsg->charsetData.size != 0) {
+            NWC24FSeek(&file, (u32)privateMsg->charsetData.ptr, NWC24_SEEK_BEG);
+            result = NWC24FRead(charset, privateMsg->charsetData.size, &file);
             if (result != NWC24_OK)
                 goto close;
         }
-        if (privateMsg->unk_0x58.size != 0 && privateMsg->unk_0x58.size < 32) {
+        if (privateMsg->encodingData.size != 0 && privateMsg->encodingData.size < 32) {
             Mail_memset(buffer, 0, 32);
-            NWC24FSeek(&file, (u32)privateMsg->unk_0x58.ptr, NWC24_SEEK_BEG);
-            result = NWC24FRead(buffer, privateMsg->unk_0x58.size, &file);
+            NWC24FSeek(&file, (u32)privateMsg->encodingData.ptr, NWC24_SEEK_BEG);
+            result = NWC24FRead(buffer, privateMsg->encodingData.size, &file);
             if (result != NWC24_OK)
                 goto close;
             result = NWC24ParseEncodingStr(encoding, buffer);
