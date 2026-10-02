@@ -2114,7 +2114,12 @@ namespace textinput {
             void LayoutByNW4R::onPressedShift(bool sound) {
                 u32 flags = mKeyState.getABCFlag();
                 flags |= 128;
-                mKeyState.setABCFlag(flags);
+                if ((mKeyState.abcFlags & ~15) != flags) {
+                    Base* keyboard = mKeyState.owner;
+                    mKeyState.abcFlags = (mKeyState.abcFlags & 15) | (flags & ~15);
+                    if (keyboard != NULL)
+                        keyboard->refreshState();
+                }
                 mShiftButton.SetState(true, 5);
                 if (sound)
                     mpEventObserver->onSE(static_cast<sound::SE>(13));
@@ -2123,7 +2128,13 @@ namespace textinput {
             void LayoutByNW4R::onReleasedShift() {
                 u32 flags = mKeyState.getABCFlag();
                 flags &= ~128;
-                mKeyState.setABCFlag(flags);
+                u32 currentFlags = mKeyState.abcFlags;
+                if ((currentFlags & ~15) != flags) {
+                    Base* keyboard = mKeyState.owner;
+                    mKeyState.abcFlags = (currentFlags & 15) | (flags & ~15);
+                    if (keyboard != NULL)
+                        keyboard->refreshState();
+                }
                 if (mShiftButton.mbOn) {
                     mShiftButton.mbOn = false;
                     mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(5));
@@ -2513,8 +2524,24 @@ namespace textinput {
                 } else {
                     gather.setPressedShiftB(false);
                     input::HKBManager::getInstance().SetForceModifierState(0, 0);
-                    if (wasShift && !gather.isHoldingShift())
-                        onReleasedShift();
+                    if (wasShift && !gather.isHoldingShift()) {
+                        u32 flags;
+                        u32 currentFlags;
+                        Base* keyboard;
+                        flags = mKeyState.getABCFlag();
+                        flags &= ~128;
+                        currentFlags = mKeyState.abcFlags;
+                        if ((currentFlags & ~15) != flags) {
+                            keyboard = mKeyState.owner;
+                            mKeyState.abcFlags = (currentFlags & 15) | (flags & ~15);
+                            if (keyboard != NULL)
+                                keyboard->refreshState();
+                        }
+                        if (mShiftButton.mbOn) {
+                            mShiftButton.mbOn = false;
+                            mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(5));
+                        }
+                    }
                 }
                 return handled;
             }

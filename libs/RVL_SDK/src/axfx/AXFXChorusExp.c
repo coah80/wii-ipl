@@ -198,31 +198,34 @@ static BOOL __InitParams(AXFX_CHORUS_EXP* fx) {
     return TRUE;
 }
 static void __CalcLFO(s32* output, AXFX_CHORUS_EXP_LFO* lfo) {
-    u32 remaining = 96;
-    do {
-        s32 value;
-        u32 phase = lfo->phase & 0xFFFF0000;
+    s32 start;
+    s64 value;
+    s32 difference;
+    s64 gradient;
+    u32 phase;
+    u32 sample;
+    for (sample = 0; sample < 96; sample++) {
+        phase = lfo->phase & 0xFFFF0000;
         if (phase != lfo->lastNum) {
-            s32 start, difference;
-            s64 product;
             lfo->lastNum = phase;
             phase >>= 16;
             start = lfo->table[phase];
             difference = lfo->table[(phase + 1) & 0x7F] - start;
-            product = (s64)start * lfo->depthSamp;
-            value = ((u32)(product >> 32) << 8) | ((u32)product >> 24);
-            product = (s64)difference * lfo->gradFactor;
-            lfo->grad = ((u32)(product >> 32) << 8) | ((u32)product >> 24);
+            gradient = difference;
+            gradient *= lfo->gradFactor;
+            lfo->grad = gradient >> 24;
+            value = (s64)start * lfo->depthSamp;
+            value >>= 24;
+        } else {
+            value = lfo->lastValue + lfo->grad;
         }
-        else value = lfo->lastValue + lfo->grad;
         lfo->lastValue = value;
-        if (lfo->sign != 0) value = -value;
+        if (lfo->sign >= 1) value = -value;
         lfo->phase += lfo->phaseAdd;
         if (lfo->phase & 0xFF800000) {
             lfo->phase &= 0x7FFFFF;
             lfo->sign ^= 1;
         }
         *output++ = value;
-        remaining--;
-    } while (remaining != 0);
+    }
 }
