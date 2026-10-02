@@ -150,6 +150,7 @@ void Decolated::inputChar(wchar_t ch) {
         input[1] = 0;
         input[0] = 0;
         u16 count;
+        u32 inputIndex = 0;
         if (static_cast<u32>(mTranslateMode) - 1 > 1) {
             goto nonKana;
         }
@@ -173,9 +174,15 @@ void Decolated::inputChar(wchar_t ch) {
         }
 nonKana:
         if (mTranslateMode == 3) {
-            input[0] = ch;
-            input[1] = 0;
-            count = 1;
+            inputIndex = 0;
+            input[0] = 0;
+            if (ch == 10) {
+                inputIndex = 0;
+            }
+            input[inputIndex] = ch;
+            ++inputIndex;
+            input[inputIndex] = 0;
+            count = inputIndex;
             mKanaStream.mOutput[0] = 0;
         } else {
             count = 1;

@@ -14,12 +14,12 @@ namespace textinput {
             Base(Manager* manager) : mQwerty(true), meLanguage(USA), mpAllocator(NULL), mpManager(manager) {}
 #endif
 
-            virtual void create(MEMAllocator* allocator) { mpAllocator = allocator; }
-            virtual void init() {}
-            virtual bool isQwerty() const { return mQwerty; }
+            virtual void create(MEMAllocator* allocator);
+            virtual void init();
+            virtual bool isQwerty() const;
             virtual void setQwerty(bool qwerty);
-            virtual void setLanguage(Language language) { meLanguage = language; }
-            virtual Language getLanguage() const { return meLanguage; }
+            virtual void setLanguage(Language language);
+            virtual Language getLanguage() const;
 
         protected:
             Manager* mgr() { return mpManager; }
@@ -56,11 +56,7 @@ namespace textinput {
             virtual void onOK();
             virtual void onCancel();
             virtual void setQwertyWithSE(bool qwerty);
-#ifdef TI_CELLPHONE_IMPLEMENTATION
-            virtual bool isEnableKeytopChange() const { return mbIsEnableQwertyChg; }
-#else
             virtual bool isEnableKeytopChange() const;
-#endif
             virtual void enableKeytopChange(bool enable);
 #ifdef MYTIMANAGER_MATCHING
             virtual nw4r::lyt::Pane* getDownArea();

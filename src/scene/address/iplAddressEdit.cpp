@@ -2480,6 +2480,8 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
 }
 
 
+textinput::InputForm* textinput::Manager::getInputForm() { return mpInputForm; }
+
 void ipl::scene::AddressEdit::start_ipt_point_event(
     const char* paneName, int channel) {
     ipl::controller::Interface* controller = ipl::System::getControllerManager()->getYoungController();

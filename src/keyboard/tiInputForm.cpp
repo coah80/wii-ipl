@@ -1564,6 +1564,8 @@ void Base::resetRelation() {
     mpUnfixString->resetRelation();
 }
 
+keyboard::hwkey::HWKeyboard* Manager::getHWKeyboard() { return mpHWKeyboard; }
+
 inline void DeadKeyStream::init() {
     KPRInitQueue(&mKPRQueue);
     KPRSetMode(&mKPRQueue, KPR_MODE_DEADKEY);
@@ -3431,6 +3433,8 @@ void Base::finishDraw(u32) {}
 
 void Base::onSE(sound::SE) {}
 
+keyboard::cellphonetype::LayoutByNW4R* Manager::getCellPhoneKeyboard() { return mpCellPhoneKeyboard; }
+
 void Base::setString(const wchar_t* string) {
     mpString->set(string);
 }
@@ -3649,6 +3653,7 @@ void WithAtok::setInputting(wchar_t ch) {}
 void WithAtok::setSelectedCandidate(s32 index) {}
 void WithAtok::startConverting() {}
 bool WithAtok::isFix() { return true; }
+const candidatebox::LayoutByNW4R* Manager::getCandidateBox() const { return mpCandidateBox; }
 bool WithAtok::isConverting() { return false; }
 s16 WithAtok::getSelectedConverting() { return 0; }
 bool WithAtok::isDictionaryOpened() { return false; }

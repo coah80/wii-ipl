@@ -226,6 +226,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator) {
     for (; paneIndex < 25; ++paneIndex) {
         AnmPane* pane = NULL;
         const PaneAnimation& paneInfo = csPaneToAnimationInSign[paneIndex & 0xFFFF];
+        animationCount = paneInfo.animationCount;
         switch (paneInfo.type) {
         case 2: {
             void* paneBuffer = MEMAllocFromAllocator(allocator, sizeof(CellPhoneSignButtonPane));
@@ -246,7 +247,6 @@ void LayoutByNW4R::create(MEMAllocator* allocator) {
 
         nw4r::ut::List_Append(&mAnmPanes, pane);
         forceName = paneInfo.forceName;
-        animationCount = paneInfo.animationCount;
         u16 animationIndex = 0;
         while (animationIndex < animationCount) {
             const AnimationFile* const& animation = paneInfo.animations[animationIndex];

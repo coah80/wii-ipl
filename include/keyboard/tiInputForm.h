@@ -240,10 +240,8 @@ namespace textinput {
                 virtual void                onClose();
                 #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
                 tistring::WithAtok* getCurrentString(bool fixed);
-                virtual bool canConvert() { return getCurrentString(false) == mpUnfixString; }
-#else
-                virtual bool                canConvert();
 #endif
+                virtual bool                canConvert();
 
                 virtual void                setString(const wchar_t* string);
 

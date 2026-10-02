@@ -191,7 +191,7 @@ namespace textinput {
 #endif
                 virtual ~Base();
                 virtual void create(MEMAllocator* allocator);
-                virtual inline void init();
+                virtual void init();
                 virtual void updateFromReceiver(u32 command, void* data);
                 virtual void onKey(u32 event, void* data);
                 virtual int getType();
@@ -358,8 +358,8 @@ namespace textinput {
                 virtual void init();
                 virtual void changeAnimation(u32 animation);
                 virtual ~AnmPane();
-                virtual int getState() const { return mAnimation; }
-                virtual int getKeyType() const { return mKeyType; }
+                virtual int getState() const;
+                virtual int getKeyType() const;
 
             protected:
                 int mAnimation;

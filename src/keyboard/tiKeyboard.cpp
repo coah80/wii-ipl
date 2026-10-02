@@ -303,6 +303,9 @@ bool Manager::isVacancy() const {
     if (!getToolBar()->isQwerty() && getCellPhoneKeyboard()->isHoldingButton()) return false;
     return getInputForm()->inputform::Base::isVacancy();
 }
+const InputForm* Manager::getInputForm() const { return mpInputForm; }
+const keyboard::cellphonetype::LayoutByNW4R* Manager::getCellPhoneKeyboard() const { return mpCellPhoneKeyboard; }
+
 void Manager::SetFont(nw4r::lyt::FontRefLink* link) {
     nw4r::ut::Font* font = link->GetFont();
     if (mpToolBar) static_cast<nw4rmanager::Layout&>(*mpToolBar).SetFontForce(font);
@@ -316,6 +319,7 @@ void* Manager::getPredictLanguageSelectDialog() { return mpPredictLanguageDialog
 const void* Manager::getPredictLanguageSelectDialog() const { return mpPredictLanguageDialog; }
 void* Manager::getSignKeyboard() { return mpSignWindow; }
 const void* Manager::getSignKeyboard() const { return mpSignWindow; }
+
 void Manager::setDefaultPredictionJP(int count, const char** predictions) {
     static_cast<tistring::WithAtok*>(getInputForm()->getAtokString())->setDefaultPrediction(count, predictions);
 }

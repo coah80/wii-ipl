@@ -402,6 +402,9 @@ namespace textinput {
             init();
         }
 
+        void gui::GUIInterface::create() {
+        }
+
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
             CandidateTextAnmPane* pane;
             for (u16 i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
@@ -1607,6 +1610,10 @@ namespace textinput {
             if (anim->muID == 0 && anmEvent == E_1) {
                 riseEvent(0x400, reinterpret_cast<void*>(0));
             }
+        }
+
+        u16 gui::GUIComponent::getFlightDuration(int point) {
+            return mFlightDuration[point];
         }
 
         UIButton::UIButton(u32 id, LayoutByNW4R* layout, UIObj::Listener* listener)

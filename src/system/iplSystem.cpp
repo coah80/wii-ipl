@@ -1481,6 +1481,14 @@ namespace ipl {
     }
 }  // namespace ipl
 
+void textinput::EventObserver::onOutOfLength() { printf("OutOfLength\n"); }
+void textinput::EventObserver::onCancel() { printf("Cancel!\n"); }
+void textinput::EventObserver::onOK() { printf("OK!\n"); }
+void textinput::EventObserver::onSE(textinput::sound::SE) {}
+void textinput::EventObserver::onEvent(nw4r::lyt::Pane*, u32) {}
+void textinput::EventObserver::onCommand(textinput::CommandReceiver::INPUT_COMMAND, void*) {}
+void textinput::EventObserver::onInput(textinput::CommandReceiver::INPUT_COMMAND, void*) {}
+
 #ifdef __MWERKS__
 #pragma force_active on
 extern "C" const f32 scOrthoLeft = -304.0f;

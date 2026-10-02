@@ -489,7 +489,15 @@ namespace textinput {
                 {csUSKeyboard, csGridKeyboard, csPaneNameToControlKey, &csKRAsciiVisiblePanes, NULL},
             };
 
-            static const LanguageData csJapanKanaInput = {csJPKeyboard, csGridKeyboard, csPaneNameToControlKey, &csJPNAsciiVisiblePanes, NULL};
+            struct LanguageDependencyData {
+                LanguageData data;
+                u32 flags;
+            };
+
+            static const LanguageDependencyData csJapanKanaInput = {
+                {csJPKeyboard, csGridKeyboard, csPaneNameToControlKey, &csJPNAsciiVisiblePanes, NULL},
+                0,
+            };
 
             struct AnimationFile {
                 u32 id;
@@ -1304,6 +1312,18 @@ namespace textinput {
                   &csAninationFile[6], &csAninationFile[7], NULL, NULL, NULL, NULL}},
             };
 
+            const hwkey::HWKeyboard* Manager::getHWKeyboard() const {
+                return mpHWKeyboard;
+            }
+
+            bool toolbar::Base::isQwerty() const {
+                return mQwerty;
+            }
+
+            const toolbar::LayoutByNW4R* Manager::getToolBar() const {
+                return mpToolBar;
+            }
+
             Base::TranslateMode Base::getTranslateMode() const {
                 switch (static_cast<int>(mKeyState.abcFlags & 15)) {
                     case 0:
@@ -1317,6 +1337,14 @@ namespace textinput {
                 }
             }
 
+            const LayoutByNW4R* Manager::getPCKeyboard() const {
+                return mpPCKeyboard;
+            }
+
+            Language Manager::getLanguage() const {
+                return meLanguage;
+            }
+
             bool Base::isCapsOn() const {
                 return (mKeyState.abcFlags >> 6) & 1;
             }
@@ -1325,7 +1353,7 @@ namespace textinput {
                 mpAllocator = allocator;
             }
 
-            void Base::init() {
+            inline void Base::init() {
                 mState.rejected = false;
                 Language language = getLanguage();
                 mKeyState.inputType = 0;
@@ -1341,6 +1369,14 @@ namespace textinput {
                 mKeyState.refresh_();
                 TranslateMode mode = Base::getTranslateMode();
                 sendCommand(18, &mode);
+            }
+
+            Language KeyboardBase::getLanguage() const {
+                return meLanguage;
+            }
+
+            void CommandSender::sendCommand(u32 command, void* data) {
+                if (mpCommandReceiver != NULL) mpCommandReceiver->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(command), data);
             }
 
             void Base::inputCharCode(wchar_t code) {
@@ -1427,6 +1463,10 @@ namespace textinput {
                         inputCharCode(code);
                     }
                 }
+            }
+
+            bool inputform::Base::canConvert() {
+                return getCurrentString(false) == mpUnfixString;
             }
 
             void Base::goSignInputMode() {
@@ -1596,6 +1636,10 @@ namespace textinput {
                 }
             }
 
+            toolbar::LayoutByNW4R* Manager::getToolBar() {
+                return mpToolBar;
+            }
+
             bool Base::isABC() {
                 return mKeyState.inputType == 0;
             }
@@ -1632,9 +1676,13 @@ namespace textinput {
                         mpManager->getCandidateBox()->checkValidation();
                     TranslateMode inputMode = mode;
                     sendCommand(18, &inputMode);
-                    mpInitialLanguageData = &csJapanKanaInput;
+                    mpInitialLanguageData = &csJapanKanaInput.data;
                     sendCommand(41, NULL);
                 }
+            }
+
+            candidatebox::LayoutByNW4R* Manager::getCandidateBox() {
+                return mpCandidateBox;
             }
 
             void LayoutByNW4R::setABC(bool abc) {
@@ -1665,7 +1713,7 @@ namespace textinput {
                 if ((abcFlags & 15) == 0)
                     data = &csLanguageDependencyData[language];
                 else if (language == JP)
-                    data = &csJapanKanaInput;
+                    data = &csJapanKanaInput.data;
                 else
                     data = &csLanguageDependencyData[language];
                 struct BooleanMode {
@@ -1863,6 +1911,9 @@ namespace textinput {
             UIObj::~UIObj() {
             }
 
+            gui::EventHandler::~EventHandler() {
+            }
+
             UIModifierButton::~UIModifierButton() {
             }
 
@@ -1942,6 +1993,10 @@ namespace textinput {
             }
 
             AnmPane::~AnmPane() {
+            }
+
+            TiLayout* nw4rmanager::Layout::getLayout() {
+                return mpLayout;
             }
 
             void LayoutByNW4R::init() {
@@ -2285,12 +2340,29 @@ namespace textinput {
                 cancelStateFocusIn();
             }
 
+            void nw4rmanager::Layout::initPaneLastDrawReceived() {
+                mAnmPaneFifo.init();
+            }
+
+            void nw4rmanager::PaneFifo::init() {
+                for (int i = 0; i < MAX_COUNT; i++) {
+                    mpaFifo[i] = NULL;
+                }
+            }
+
             void LayoutByNW4R::throwReleaseForAll() {
                 for (AnmPane* pane = static_cast<AnmPane*>(nw4r::ut::List_GetFirst(&mAnmPanes)); pane != NULL;
                      pane = static_cast<AnmPane*>(nw4r::ut::List_GetNext(&mAnmPanes, pane))) {
                     if (pane->getKeyType() == 0)
                         pane->onAnmEvent(AnmPane::PE_2);
                 }
+            }
+
+            int AnmPane::getKeyType() const {
+                return mKeyType;
+            }
+
+            void nw4rmanager::AnmPane::onAnmEvent(AnmPaneEvent) {
             }
 
             void LayoutByNW4R::cancelStateFocusIn() {
@@ -2347,6 +2419,10 @@ namespace textinput {
                 }
             }
 
+            int AnmPane::getState() const {
+                return mAnimation;
+            }
+
             void LayoutByNW4R::goSignInputMode() {
                 mpSignWindow->open(this, false);
                 throwReleaseForAll();
@@ -2383,6 +2459,39 @@ namespace textinput {
                 if (shift && last != NULL)
                     setPaneLastDrawReceived(last);
                 updateDakuten();
+            }
+
+            nw4r::lyt::Pane* nw4rmanager::PaneFifo::getLast() {
+                for (int i = MAX_COUNT-1; i > -1; i--) {
+                    if (mpaFifo[i] != NULL) {
+                        return mpaFifo[i];
+                    }
+                }
+                return NULL;
+            }
+
+            void nw4rmanager::Layout::setPaneLastDrawReceived(nw4r::lyt::Pane* pane) {
+                mAnmPaneFifo.push(pane);
+            }
+
+            void nw4rmanager::PaneFifo::push(nw4r::lyt::Pane* pane)  {
+                if (mpaFifo[MAX_COUNT-1] == NULL) {
+                    for (int i = 0; i < MAX_COUNT; i++) {
+                        if (mpaFifo[i] == NULL) {
+                            mpaFifo[i] = pane;
+                            return;
+                        }
+                    }
+                }
+                else {
+                    for (int i = 1; i < MAX_COUNT; i++) {
+                        mpaFifo[i-1] = mpaFifo[i];
+                        if (pane == mpaFifo[i-1]) {
+                            mpaFifo[i-1] = NULL;
+                        }
+                    }
+                    mpaFifo[MAX_COUNT-1] = pane;
+                }
             }
 
             void LayoutByNW4R::updateDakuten() {
@@ -2443,6 +2552,10 @@ namespace textinput {
                 }
             }
 
+            bool candidatebox::LayoutByNW4R::isActive() const {
+                return mbActive;
+            }
+
             void LayoutByNW4R::setLangKeyActive(bool active) {
                 Base::setLangKeyActive(active);
                 if (getLanguage() == KR || getLanguage() == CN) {
@@ -2466,10 +2579,10 @@ namespace textinput {
                         mpInitialLanguageData = &csLanguageDependencyData[getLanguage()];
                         break;
                     case 1:
-                        mpInitialLanguageData = &csJapanKanaInput;
+                        mpInitialLanguageData = &csJapanKanaInput.data;
                         break;
                     case 2:
-                        mpInitialLanguageData = &csJapanKanaInput;
+                        mpInitialLanguageData = &csJapanKanaInput.data;
                         break;
                 }
                 initLayout();
@@ -2729,6 +2842,10 @@ namespace textinput {
                             break;
                     }
                 }
+            }
+
+            bool gui::GUIComponent::isDragging(int point) {
+                return mbDragging[point];
             }
 
             void AnmPane::changeAnimation(u32 animation) {
@@ -3077,6 +3194,14 @@ namespace textinput {
                 : UIObj(id, layout, listener), mpPaneComponent(NULL), mpBoundingComponent(NULL), mpAnimation(NULL), mbOn(false) {
             }
 
+            gui::PaneManager* nw4rmanager::Layout::getPaneManager() {
+                return mpPaneManager;
+            }
+
+            void gui::GUIComponent::setTriggerTarget(bool bEnable) {
+                mbTriggerTarget = bEnable;
+            }
+
             void UIModifierButton::onGUIEvent(gui::PaneComponent&, u32 event, nw4rmanager::TiEventHandler::Input* input) {
                 const char* name = "P_key_CAPS";
                 if (mId == 1)
@@ -3130,6 +3255,37 @@ namespace textinput {
             }
 
             void UIModePanel::onGUIEvent(gui::PaneComponent&, u32, nw4rmanager::TiEventHandler::Input*) {
+            }
+
+            void KeyboardBase::update() {
+            }
+
+            nw4r::ut::List& nw4rmanager::Layout::getAnmPaneList() {
+                return mAnmPanes;
+            }
+
+            void nw4rmanager::Layout::setAnimOn(bool flag) {
+                mbAnimOn = flag;
+            }
+
+            nw4rmanager::Anim* nw4rmanager::AnmPane::searchAnimation(u32 id) {
+                for (Anim* animation = static_cast<Anim*>(nw4r::ut::List_GetNext(&mAnms, NULL)); animation != NULL;
+                     animation = static_cast<Anim*>(nw4r::ut::List_GetNext(&mAnms, animation))) {
+                    if (animation->muID == id) return animation;
+                }
+                return NULL;
+            }
+
+            bool nw4rmanager::AnmPane::isInAnimation() {
+                return mpCurrentAnim != NULL;
+            }
+
+            int gui::EventHandler::getLatestEventCtrlNo() {
+                return muLatestEventCtrlNo;
+            }
+
+            void gui::EventHandler::setLatestEventCtrlNo(int ctrlNo) {
+                muLatestEventCtrlNo = ctrlNo;
             }
 
             Base::InputMode Base::getAIUInputMode() const {
@@ -3190,10 +3346,17 @@ namespace textinput {
             void UIObj::onGUIEvent(gui::PaneComponent&, u32, nw4rmanager::TiEventHandler::Input*) {
             }
 
+            void nw4rmanager::TiEventHandler::setEventObserver(EventObserver* event) {
+                mpEventObserver = event;
+            }
+
             void Base::setInputModeCK(u32) {
             }
 
             void Base::setInputModeJP(bool, u32, u32) {
+            }
+
+            void gui::EventHandler::onEvent(gui::GUIComponent&, u32, void*) {
             }
 
             SelectorPosition chinesePosition = {{-219.0f, -130.0f, 0.0f}};

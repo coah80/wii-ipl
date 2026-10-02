@@ -752,6 +752,10 @@ namespace textinput {
                 mpPredictLanguageDialog = dialog;
             }
 
+            void gui::GUIComponent::setFlightDuration(int point, u16 duration) {
+                mFlightDuration[point] = duration;
+            }
+
             bool LayoutByNW4R::updateInput(int channel, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
                 return nw4rmanager::Layout::updateInput(channel, x, y, trig, hold, release, data);
             }
@@ -962,6 +966,10 @@ namespace textinput {
                     }
                 }
             }
+
+            bool toolbar::LayoutByNW4R::isEnableKeytopChange() const { return mbIsEnableQwertyChg; }
+
+            keyboard::pctype::LayoutByNW4R* Manager::getPCKeyboard() { return mpPCKeyboard; }
 
             void LayoutByNW4R::setLangKeyActive(bool enabled) {
                 Base::setLangKeyActive(enabled);

@@ -5,11 +5,17 @@
 
 namespace nw4r {
     namespace ut {
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+#define NW4R_UT_RUNTIME_TYPEINFO                                                                                                                     \
+    virtual const nw4r::ut::detail::RuntimeTypeInfo* GetRuntimeTypeInfo() const;                                                                     \
+    static const nw4r::ut::detail::RuntimeTypeInfo typeInfo
+#else
 #define NW4R_UT_RUNTIME_TYPEINFO                                                                                                                     \
     virtual const nw4r::ut::detail::RuntimeTypeInfo* GetRuntimeTypeInfo() const {                                                                    \
         return &typeInfo;                                                                                                                            \
     }                                                                                                                                                \
     static const nw4r::ut::detail::RuntimeTypeInfo typeInfo
+#endif
 
 #define NW4R_UT_GET_RUNTIME_TYPEINFO(T) const nw4r::ut::detail::RuntimeTypeInfo T::typeInfo(NULL);
 
