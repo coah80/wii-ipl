@@ -70,7 +70,7 @@ namespace textinput {
 
             EventHandler() : muLatestEventCtrlNo(0) {}
 
-            virtual ~EventHandler();  // 0x08
+            virtual ~EventHandler() {}  // 0x08
 
             virtual void onEvent(GUIComponent& comp, u32 event, void* data);  // 0x0C
 

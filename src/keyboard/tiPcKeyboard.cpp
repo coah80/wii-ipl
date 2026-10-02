@@ -1864,9 +1864,6 @@ namespace textinput {
             UIObj::~UIObj() {
             }
 
-            gui::EventHandler::~EventHandler() {
-            }
-
             UIModifierButton::~UIModifierButton() {
             }
 
