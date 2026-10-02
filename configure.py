@@ -1098,7 +1098,7 @@ config.libs = [
             Object(Matching,    "so/SOCommon.c"),
             Object(NonMatching, "so/SOBasic.c"),
             Object(Matching, "so/SOInformation.c"),
-            Object(NonMatching, "so/SOOption.c"),
+            Object(Matching,    "so/SOOption.c"),
         ]
     ),
     RevoEXLib("ssl", [
