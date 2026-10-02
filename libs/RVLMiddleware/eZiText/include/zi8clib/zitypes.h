@@ -258,7 +258,7 @@ struct __zi8_work_data_s {
     ziU8 unk_0x330[8];
     ziU32 unk_0x338;
     ziU8 unk_0x33C[0x1FC];
-    ziU8 unk_0x538;
+    ziU8 language;  // 0x538
     ziU8 unk_0x539;
     ziU8 unk_0x53A[0x40];
     ziWChar unk_0x57A[0x641];
