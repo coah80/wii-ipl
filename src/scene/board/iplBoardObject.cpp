@@ -485,16 +485,16 @@ namespace ipl {
         }
 
         void BoardObject::stt_stand() {
-            f32 degrees = mStandData.unk_0x0C * 30.0f + 30.0f;
+            f32 degrees = mStandData.mAngleIdx * 30.0f + 30.0f;
             f32 cosF = nw4r::math::CosFIdx(degrees * 0.7111111f);
-            degrees = mStandData.unk_0x0C * 30.0f + 30.0f;
+            degrees = mStandData.mAngleIdx * 30.0f + 30.0f;
             f32 sinF = nw4r::math::SinFIdx(degrees * 0.7111111f);
 
             math::VEC2 standPos;
             __ct__Q33ipl4math4VEC2Fff(&standPos, sinF * 160.0f, cosF * 160.0f);
-            mBoardPos = (((mStandData.pos * (f32)(10 - mStandData.unk_0x08)) + (standPos * mStandData.unk_0x08)) / 10.0f);
+            mBoardPos = (((mStandData.pos * (f32)(10 - mStandData.mStep)) + (standPos * mStandData.mStep)) / 10.0f);
 
-            if ((mStandData.unk_0x08 += 1) > 10) {
+            if ((mStandData.mStep += 1) > 10) {
                 mStandData.init();
                 mState = STATE_NORMAL;
             }
