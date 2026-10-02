@@ -16,6 +16,31 @@
   orig .o symtab; semantic decl names can't match (rule 1 bans lbl_ names).
 - `.data` tail (orig +5B `780a000000000000` f64) = splits-boundary extraction artifact.
 
+## symbols.txt naming lever (w1003) — VERIFIED WORKING
+- Renaming lbl_XXXX symbols.txt entries to semantic names propagates into the
+  extracted orig .o via the splitter (touch config.yml or it won't resplit).
+- Data pairing = RAW SYMBOL NAME equality between the two .o symtabs. Both sides
+  need a same-named symbol: orig via symbols.txt rename, mine via a real decl.
+- BS2Update .sbss: 4 anon objects named RebootRequired/ContainsSeatTitles/
+  UpdateImportState/UpdateImportResult -> data 10488/10488 (was 79% capped).
+- iplESMisc .sdata: 5 objects named to my emitted names (__FUNCTION__$NNNN,
+  @17944 for "%s%s" literal) + last object size corrected 9->8 (orig extent
+  included the section pad) -> data 4416/4416.
+- www_wiisetting .data: lbl_816440A0 (0x38 merged) split into 4 interior entries
+  matching my MSG_* / Message decls -> pairs; section now scores (2.05%).
+- Non-pairable: anonymous pooled literals/jumptables on MY side (@NNNN) — renaming
+  orig alone gives no pair (verified: wiiSettingName rename, no score move).
+  Lifting needs real named decls — wiisetting is Equivalent-linked so source
+  edits are off-limits; its .data string/jumptable gap (~97%) is an
+  extraction-boundary artifact (orig merges pooled literals into labeled runs).
+- BS2Mach .data same artifact: orig merges ~50 literals into few GLOBAL lbl_
+  objects + 4 jumptables.
+
+## AxAdpcmPlayer::start (99.78) — parked
+- 14 regname diffs: const-zero web r25<->r26 + one r29/r30 mr mirror.
+- Tried: remove dead NULL-init (no-op), move sSysPauseFlag store (cascade -300),
+  p* decl rotation (26 diffs, worse). Same allocator-internal family.
+
 ## odh (src/system/odh.cpp) — fuzzy 99.4, data 100%
 - Removed ODHEncodeRGBA8, ODHEncodeY8U8V8, ODHDecodeY8U8V8 — absent from orig .o.
 - All 6 sub-100 fns verified via raw word-diff (df.py normalization had masked them):
