@@ -266,3 +266,67 @@ reg-rotation, not localized. Reverted.
   `code` load reg destructively for srawi, mine keeps it in a 3rd reg);
   colorConv 98.63, decompressLoop 99.67, huffmanDecoder 95.57 — all
   the same documented web-rotation family.
+
+## 2026-10-02 — BS2Mach data carving + CheckBS2/DivideCallback decodes
+
+### NEW TECHNIQUE: symbols.txt inner-literal carving (merged literal runs)
+Orig's splitter merges contiguous unlabeled literal runs into ONE lbl_ object
+(BS2Mach .data had lbl_81645DE4 @0x3c size 0x3b8 covering ~35 separate string
+literals). Adding a symbols.txt entry at EACH inner literal's DOL address
+(`@NNNN = .data:0x81645DXX; // type:object size:0xYY data:string`) makes the
+splitter carve the run into separate objects at exactly the boundaries my .o
+has — offset+size pair. Renamed the 3 merged-run start lbl_ to my first
+literal's @name, added 84 inner entries (also 4 jumptable + 4 sdata renames).
+Result: .data fuzzy 16.1 → 91.1% (remaining = jumptable relocs into the
+unmatched fns). matched_data measure unchanged (pairs count completeness).
+
+### CheckBS2CommandStatus 95.46 → 99.51 (1-insn left)
+- `CacheCommandComplete = NandPending` → `= 1` (volatile global read forced
+  an extra lwz; orig wrote literal 1).
+- Store-interleave decode: orig emits `stw NP; lwz CL; stw CC; addi+stw CL`
+  — the CC store lands INSIDE the CacheLength update. Reproduced with a
+  temp for the new length: `{ u32 newLen = CacheLength + X;
+  CacheCommandComplete = 1; CacheLength = newLen; }` — the temp pushes the
+  CC store between the operand load and the final add/store.
+- Case 0x12 (OSRoundUp32B): orig computes `(CacheLength + round) + 32` —
+  `add` then `addi 0x20` — but `round+32` CSE'd into newLen when the Async
+  arg had the identical `OSRoundUp32B(X) + 32` text. Broke the shared VN by
+  writing the arg's scaling as `<< 3` instead of `* sizeof` — newLen then
+  emitted orig's add+addi shape and the whole 3-web rotation collapsed to
+  1 insn. Residual: orig's `stw CC` fills the load-use gap right after
+  `lwz partitionCount`, mine sits one slot later (scheduler freedom;
+  `count` locals rotate the whole allocation — rejected).
+
+### BS2NANDDivideCallback → 100% FLIPPED
+- `static u32 CancelNand` → `static volatile u32` — the volatile
+  NandCompletion fp-load was hoisting before the plain CancelNand store;
+  volatile-volatile ordering pins it after (matches orig's emit order).
+- Per-site arg-temp decode: `{ u32 rem; ...Report...; rem = NandLength -
+  NandTransferred; ret = NANDxAsync(..., rem, ...); }` — the temp's
+  computation emits the subf-operand loads FIRST (orig's marshal order),
+  vs inline arg3 which made MWCC load arg1 first. A SHARED `remaining`
+  local crosses calls and callee-pins (regresses to mass rotation) —
+  per-arm temps die after the call and stay volatile.
+
+### Twins BS2NANDDivideReadAsync/WriteAsync 95.74 (1-insn each)
+Orig emits `lis r6,cb` BEFORE `lwz r3,NandFile`; mine swaps. Per-site
+`NANDCallback cb` local folds — MWCC rematerializes the constant at use.
+Pure scheduler placement of an independent lis — documented tie.
+
+### BS2StartGCGame 96.75 residual
+- `time = (OS_BUS_CLOCK >> 2) * (OSTime)seconds` — operand order fix
+  (orig mulhwu(bus4,sec) not mulhwu(sec,bus)).
+- Head weave: orig bundles `li 1, lis r30, lis r31, stw, addi r30, addi
+  r31` — splits webs around the StartingGame store. Not volatile-driven
+  (tried volatile StartingGame — no-op). Scheduler weave, no lever.
+- Mul-chain reg rotation: orig rtc-load→r5 / seconds→r7 / bus4→r5 vs mine
+  r0/r5/r7 — eval order identical, homes rotated; local forms all regress.
+
+### BS2UpdateInit fold residual (documented, unchanged)
+Orig r30=&Flags0 materializes in the prologue and EVERY .bss address folds
+onto it (&Thread = r30+0x1000, &Thread.stack = r30+0x1318, then +0x1000
+as a separate pointer-arith addi — NOT folded into the member offset).
+Mine anchors &Thread.stack+size onto the &Thread web (r3+0x1318). 7
+source forms all fold identically. Orig's fold anchor = section-base
+(Flags0@bss+0); my `pFlags = Flags0` store reproduces the r30 web at +2
+insns (orig has no Init-side pFlags store — its fold trigger is internal).

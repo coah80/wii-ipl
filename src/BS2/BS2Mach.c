@@ -63,7 +63,7 @@ BOOL AbortFlag = FALSE;
 volatile int CacheFailed = 0;
 volatile int RegionValid = 0;
 static volatile int NandPending = 0;
-static u32 CancelNand = 0;
+static volatile u32 CancelNand = 0;
 static volatile u32 LowReadResult = 0;
 static vu32 CacheCommandComplete = 0;
 static u32 AudioBufferUnconfigured = 0;
@@ -931,7 +931,7 @@ void BS2StartGCGame() {
     __OSGetRTC(&rtc);
     counterBias = SCGetCounterBias();
     seconds = rtc + counterBias;
-    time = (OSTime)seconds * (OS_BUS_CLOCK >> 2);
+    time = (OS_BUS_CLOCK >> 2) * (OSTime)seconds;
     __OSSetTime(time);
 
     sram = __OSLockSram();
@@ -1097,11 +1097,15 @@ void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
         } else {
             if (NandLength - NandTransferred != 0) {
                 if (NandOperation == 1) {
+                    u32 rem;
                     BS2Report("NANDWriteAsync buf:0x%08X, length:0x%08X\n", NandBuffer, NandLength - NandTransferred);
-                    ret = NANDWriteAsync(NandFile, (void *)NandBuffer, NandLength - NandTransferred, BS2NANDDivideCallback, block);
+                    rem = NandLength - NandTransferred;
+                    ret = NANDWriteAsync(NandFile, (void *)NandBuffer, rem, BS2NANDDivideCallback, block);
                 } else {
+                    u32 rem;
                     BS2Report("NANDReadAsync buf:0x%08X, length:0x%08X\n", NandBuffer, NandLength - NandTransferred);
-                    ret = NANDReadAsync(NandFile, (void *)NandBuffer, NandLength - NandTransferred, BS2NANDDivideCallback, block);
+                    rem = NandLength - NandTransferred;
+                    ret = NANDReadAsync(NandFile, (void *)NandBuffer, rem, BS2NANDDivideCallback, block);
                 }
                 if (ret < 0) {
                     NandCompletion(ret, block);
@@ -1184,8 +1188,11 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write drive info\n");
             NandPending = 1;
-            CacheCommandComplete = NandPending;
-            CacheLength = CacheLength + 0x20;
+            {
+                u32 newLen = CacheLength + 0x20;
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1200,8 +1207,11 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write disk id\n");
             NandPending = 1;
-            CacheCommandComplete = NandPending;
-            CacheLength = CacheLength + 0x20;
+            {
+                u32 newLen = CacheLength + 0x20;
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1216,8 +1226,11 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write game toc\n");
             NandPending = 1;
-            CacheCommandComplete = 1;
-            CacheLength = CacheLength + 0x20;
+            {
+                u32 newLen = CacheLength + 0x20;
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1232,13 +1245,16 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write partition ifno\n");
             NandPending = 1;
-            CacheCommandComplete = 1;
-            CacheLength += OSRoundUp32B(((DVDGameTOC *)DataToc)->partitionCount * sizeof(DVDPartitionInfo)) + 32;
+            {
+                u32 newLen = OSRoundUp32B(((DVDGameTOC *)DataToc)->partitionCount * sizeof(DVDPartitionInfo)) + 32 + CacheLength;
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
             } else {
-                BS2NANDDivideWriteAsync(&BS2CacheFileInfo, &PartitionInfoBuf, OSRoundUp32B(((DVDGameTOC *)DataToc)->partitionCount * sizeof(DVDPartitionInfo)) + 32, BS2NANDCallback, &BS2NandBlock);
+                BS2NANDDivideWriteAsync(&BS2CacheFileInfo, &PartitionInfoBuf, OSRoundUp32B(((DVDGameTOC *)DataToc)->partitionCount << 3) + 32, BS2NANDCallback, &BS2NandBlock);
                 return 0;
             }
         }
@@ -1248,8 +1264,11 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write boot info 3\n");
             NandPending = 1;
-            CacheCommandComplete = 1;
-            CacheLength = CacheLength + 0x2000;
+            {
+                u32 newLen = CacheLength + 0x2000;
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1264,8 +1283,11 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write open partition\n");
             NandPending = 1;
-            CacheCommandComplete = 1;
-            CacheLength = CacheLength + 0x4a00;
+            {
+                u32 newLen = CacheLength + 0x4a00;
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1280,8 +1302,11 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write apploader header\n");
             NandPending = 1;
-            CacheCommandComplete = 1;
-            CacheLength = CacheLength + 0x20;
+            {
+                u32 newLen = CacheLength + 0x20;
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1296,8 +1321,11 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write apploader\n");
             NandPending = 1;
-            CacheCommandComplete = 1;
-            CacheLength = CacheLength + (AppLoaderHdr.length + 0x1fU & 0xffffffe0);
+            {
+                u32 newLen = CacheLength + (AppLoaderHdr.length + 0x1fU & 0xffffffe0);
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1313,8 +1341,11 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write apploader load\n");
             NandPending = 1;
-            CacheCommandComplete = 1;
-            CacheLength = CacheLength + LoaderLength;
+            {
+                u32 newLen = CacheLength + LoaderLength;
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1330,8 +1361,11 @@ BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write banner\n");
             NandPending = 1;
-            CacheCommandComplete = 1;
-            CacheLength = CacheLength + (BannerLength + 0x1fU & 0xffffffe0);
+            {
+                u32 newLen = CacheLength + (BannerLength + 0x1fU & 0xffffffe0);
+                CacheCommandComplete = 1;
+                CacheLength = newLen;
+            }
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
