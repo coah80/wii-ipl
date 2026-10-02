@@ -129,3 +129,17 @@ huffmanDecoder: `u16* table` single-web decode (reassigned per site) regressed
 iplESMisc DUD: u64 `titleId` local + `(u32)((titleId>>32)&0xFFFFFF)` /
 `NANDTitleIdLo` arg forms — neutral (575 disasm-diff lines both ways); fn-wide
 reg-rotation, not localized. Reverted.
+
+## w1007 — wprintf __wpformatter decodes (99.27 -> 99.38)
+
+- `num_chars = ((long)buff_end - (long)buff_ptr) / 2;` — orig emits the
+  signed byte-diff divide-by-2 sequence (subf + srwi 0x1f + add + srawi); the
+  plain `wchar_t*` pointer diff emitted subf only.
+- `double2hex(long_double_num, buff + 512, *fmt_ptr)` — orig rematerializes
+  `addi r3,r1,0x480` (r1-relative), same as the long2str/longlong2str/float2str
+  buf-arg sites; `buff_end`/`buff_end + 1` forms emit member-reg math instead.
+- Remaining 130 diffs are a pure 3-web callee rotation: orig binds
+  buff_end->r15 / buff_ptr->r25 / numChars->r24; mine r25/r24/r15. Identical
+  insn stream otherwise. Levers tried: buff_end/buff_ptr decl order, &buff[511]
+  vs +511, buff_ptr=buff init, register/const qualifiers, buff_end+1 reuse —
+  all no-op.
