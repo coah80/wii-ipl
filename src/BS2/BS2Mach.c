@@ -1522,7 +1522,7 @@ BS2State BS2Tick() {
     case 5:
         status = CheckBS2CommandStatus();
         if (status != 0) {
-            if (((*(u32 *)0x8000002c) & 0xf0000000) == 0)
+            if (((*(vu32 *)0x8000002c) & 0xf0000000) == 0)
                 (*(u16 *)0x800030e6) = 0x8002;
             else
                 (*(u16 *)0x800030e6) = DriveInfo.deviceCode | 0x8000;
@@ -1551,16 +1551,18 @@ BS2State BS2Tick() {
     case 9:
     case 10: {
         DVDDiskID *bootDisc;
+        char *bootArea;
         status = CheckBS2CommandStatus();
         if (status == 0)
             break;
         memcpy((void *)0x80000000, &DiskID, sizeof(DVDDiskID));
         bootDisc = (DVDDiskID *)0x80000000;
         if (bootDisc->rvlMagic == 0x5d1c9ea3) {
-            status = strncmp((char *)bootDisc, "RAAE", 4);
-            if (status == 0 || strncmp((char *)bootDisc, "408", 3) == 0 ||
-                strncmp((char *)bootDisc, "410", 3) == 0 ||
-                strncmp((char *)bootDisc, "410", 3) == 0)
+            bootArea = (char *)0x80000000;
+            status = strncmp(bootArea, "RAAE", 4);
+            if (status == 0 || strncmp(bootArea, "408", 3) == 0 ||
+                strncmp(bootArea, "410", 3) == 0 ||
+                strncmp(bootArea, "410", 3) == 0)
                 regionMatches = FALSE;
             else
                 regionMatches = TRUE;
@@ -1584,12 +1586,14 @@ BS2State BS2Tick() {
     case 0xb: {
         DVDDiskID *bootDisc = (DVDDiskID *)0x80000000;
         u32 audioBufferSize;
+        u8 streaming;
         if (AudioBufferUnconfigured == 0) {
             State = BS2_STT_GC_GAME;
             break;
         }
+        streaming = bootDisc->streaming;
         AudioBufferUnconfigured = 0;
-        if (bootDisc->streaming != 0) {
+        if (streaming != 0) {
             audioBufferSize = bootDisc->streamingBufSize;
             audioBufferSize = audioBufferSize != 0 ? audioBufferSize : 10;
             __DVDAudioBufferConfig(&Block, 1, audioBufferSize, BS2DVDCallback);
@@ -1929,21 +1933,24 @@ invalidRvlRegion:
             State = BS2_STT_RESET_SYSTEM;
             break;
         }
-        if (GamePartition == 0) {
+        if (GamePartition != 0) {
+            State = BS2_STT_37;
+        } else {
             State = BS2_STT_54;
             break;
         }
-        State = BS2_STT_37;
-    case 0x25:
+    case 0x25: {
+        u32 gamePartition = (u32)((DVDPartitionInfo *)GamePartition)->partition;
         if (BS2BootFromCache != 0) {
             BS2Report("Open partition from cache.dat\n");
             NandPending = 1;
             BS2NANDDivideReadAsync(&BS2CacheFileInfo, &PartitionParams.tmd, 0x4a00, BS2NANDCallback, &BS2NandBlock);
         } else
-            DVDOpenPartitionAsync(&Block, &PartitionParams.tmd, (u32)((DVDPartitionInfo *)GamePartition)->partition, BS2DVDCallback);
+            DVDOpenPartitionAsync(&Block, &PartitionParams.tmd, gamePartition, BS2DVDCallback);
         PartitionOpen = 1;
         State = BS2_STT_38;
         break;
+    }
     case 0x26: {
         status = CheckBS2CommandStatus();
         if (status == 0)
@@ -2134,7 +2141,7 @@ invalidRvlRegion:
                     if (status == 0)
                         OSPanic("BS2Mach.c", 0x12c8, "BS2 ERROR >>> Cannnot alloc 0x%08x from MEMAllocator", bannerFile.length);
                     BannerLength = bannerFile.length;
-                    BannerBuffer = OSRoundDown32B(BannerAllocation) + 32;
+                    BannerBuffer = BannerAllocation + 0x20 - (BannerAllocation & 0x1f);
                     BS2Report("BannerBufferAddr : %08X\n");
                 } else {
                     if ((BannerBuffer != 0) && (BannerLength != 0)) {
