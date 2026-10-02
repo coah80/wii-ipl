@@ -83,3 +83,19 @@
 - EncodeWord: base pins stack-arg (decodedSizeOut, 0x48(r1)) to r31 AND
   re-materializes string addrs per-site into arg regs; mine CSEs addrs into
   callee regs (competes for the same window). Whole-fn pin-order wall.
+
+## wave 11 findings (asymmetric-access CSE-frontier break)
+
+- **Asymmetric-access lever (proven, NWC24ReadMsgAttached)**: when two identical
+  `arr[index]` accesses get CSE'd at the ADDRESS level (MWCC pins `base+idx*4`
+  once, single `lwz` + reuse — one insn short of base's scaled-index +
+  `add`/`lwz` recompute), phrase the second access through a different-but-equal
+  expression so `index*4` is the ONLY shared CSE node: member-index form for one
+  site, `*(u32*)((u8*)obj->arr + index*4)` for the other. The scaled index then
+  wins the pin and each site recomputes `add` + `lwz disp` — base's exact form.
+  Member-index on one side + byte-cast on the other = no shared address node.
+- Failed variants on the same wall: uniform member-index twice (addr pinned),
+  `u32* sizePtr` local (materializes base -> `lwzx`), uniform byte-cast twice
+  (addr pinned), `index *= 4` split-if (breaks single shared -5 tail block).
+- TextInternal -1 confirmed = SelectMBox type-reload CSE wall + beq/bne polarity;
+  Attached -1 same wall. All other remaining diffs insn-equal renames.
