@@ -195,7 +195,7 @@ typedef struct _zi8DawgCtx {
     ziU8* table;     // 0x10
     ziU8* p14;       // 0x14
     zi8DawgRec recs[0x32];  // 0x18
-    ziU32 unk_0x338; // 0x338
+    ziU32 endNode; // 0x338
 } zi8DawgCtx;
 
 typedef struct _ziUwdNode {

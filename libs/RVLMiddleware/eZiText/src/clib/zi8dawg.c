@@ -32,7 +32,7 @@ ziU32 Zi8MatchROMdata0(ziWChar* elements, ziU8 count, ziU8 language,
     if (language != context->lang || graphTable != context->key) records[0].key = 0;
     if (count == 1 && mode != 0 && graphTable == 0xe) goto finish_graph;
     if (status != 0) {
-        if (records[context->cnt - 1].node == (ziU8*)context->unk_0x338) goto finish_graph;
+        if (records[context->cnt - 1].node == (ziU8*)context->endNode) goto finish_graph;
         for (index = 0; index < count; index++) {
             if (records[index].key != elements[index] &&
                 (ziU16)records[index].attr != elements[index]) goto finish_graph;
@@ -82,7 +82,7 @@ check_keys:
                 records[0].node = ZiDAWGGetGraphInfo(context, keyData, (ziS16*)keys);
             } else {
                 records[0].node = ZiDAWGGetGraph(context);
-                context->unk_0x338 = 0;
+                context->endNode = 0;
                 context->p14 = 0;
             }
             records[0].key = 0;
@@ -98,7 +98,7 @@ check_keys:
     }
     searching = 1;
     current = &records[context->cnt - 1];
-    while (searching && context->cnt != 0 && current->node != (ziU8*)context->unk_0x338) {
+    while (searching && context->cnt != 0 && current->node != (ziU8*)context->endNode) {
         if (capacity < context->cnt) goto finish_graph;
         current->attr = ZiDAWGgetCHARattribute(context, current->node, ZI_WORK);
         if (context->cnt <= count) {
