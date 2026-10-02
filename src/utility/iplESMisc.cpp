@@ -978,33 +978,37 @@ namespace ipl {
             ESMisc::ChangeUid(SYSMENU_TITLE_ID);
         }
 
-        static inline void DeleteTicketsForce(EGG::Heap* heap, ESTitleId titleId, u8* ticketViews, u32* ticketViewCount) {
+        static inline s32 DeleteTicketsForce(EGG::Heap* heap, ESTitleId titleId, u8* ticketViews, u32* ticketViewCount) {
             ESTicketView* ticketViewList = NULL;
             s32 ret;
             memset(ticketViews, 0, OSRoundUp32B(sizeof(ESTicketView)));
             ret = ES_GetTicketViews(titleId, NULL, ticketViewCount);
             if (ret != ES_ERR_OK) {
                 OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret, titleId);
-            } else if (*ticketViewCount != 0) {
-                ticketViewList = (ESTicketView*)heap->alloc(*ticketViewCount * OSRoundUp32B(sizeof(ESTicketView)), -DEFAULT_ALIGN);
-                ret = ES_GetTicketViews(titleId, ticketViewList, ticketViewCount);
+                goto cleanup;
+            }
+            if (*ticketViewCount == 0) {
+                return ret;
+            }
+            ticketViewList = (ESTicketView*)heap->alloc(*ticketViewCount * OSRoundUp32B(sizeof(ESTicketView)), -DEFAULT_ALIGN);
+            ret = ES_GetTicketViews(titleId, ticketViewList, ticketViewCount);
+            if (ret != ES_ERR_OK) {
+                OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret, titleId);
+                goto cleanup;
+            }
+            for (u32 j = 0; j < *ticketViewCount; j++) {
+                memcpy(ticketViews, (u8*)ticketViewList + j * sizeof(ESTicketView), sizeof(ESTicketView));
+                ret = ES_DeleteTicket((ESTicketView*)ticketViews);
                 if (ret != ES_ERR_OK) {
-                    OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret, titleId);
-                } else {
-                    for (u32 j = 0; j < *ticketViewCount; j++) {
-                        memcpy(ticketViews, (u8*)ticketViewList + j * sizeof(ESTicketView), sizeof(ESTicketView));
-                        ret = ES_DeleteTicket((ESTicketView*)ticketViews);
-                        if (ret != ES_ERR_OK) {
-                            OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret,
-                                     ((ESTicketView*)ticketViews)->ticketId);
-                        }
-                    }
+                    OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret,
+                             ((ESTicketView*)ticketViews)->ticketId);
                 }
             }
-
+        cleanup:
             if (ticketViewList != NULL) {
                 heap->free(ticketViewList);
             }
+            return ret;
         }
 
         static inline s32 InitSavedata(EGG::Heap* heap) {
@@ -1032,20 +1036,23 @@ namespace ipl {
                 goto cleanup;
             }
 
-            for (u32 i = 0; i < titleCount; i++) {
-                if ((titleIds[i] & 0xFFFFFFFFFFFFFF00ULL) == 0x00010000525A4400ULL) {
-                    verifySavedataZD(heap, titleIds[i], &fileInfo);
-                    continue;
-                }
-                switch (titleIds[i]) {
-                    case 0x0001000844495343ULL:
-                    case 0x000100014A4F4449ULL:
-                    case 0x0001000148415858ULL:
-                    case 0x0001000844564458ULL:
-                    case 0x000100084449534BULL:
-                        ES_DeleteTitle(titleIds[i]);
-                        DeleteTicketsForce(heap, titleIds[i], ticketViews, &ticketViewCount);
-                        break;
+            {
+                u8* ticketScratch = ticketViews;
+                for (u32 i = 0; i < titleCount; i++) {
+                    if ((titleIds[i] & 0xFFFFFFFFFFFFFF00ULL) == 0x00010000525A4400ULL) {
+                        verifySavedataZD(heap, titleIds[i], &fileInfo);
+                        continue;
+                    }
+                    switch (titleIds[i]) {
+                        case 0x0001000844495343ULL:
+                        case 0x000100014A4F4449ULL:
+                        case 0x0001000148415858ULL:
+                        case 0x0001000844564458ULL:
+                        case 0x000100084449534BULL:
+                            ES_DeleteTitle(titleIds[i]);
+                            DeleteTicketsForce(heap, titleIds[i], ticketScratch, &ticketViewCount);
+                            break;
+                    }
                 }
             }
 
