@@ -551,13 +551,13 @@ static NWC24Err DecodeWord(char* charsetData, u32 charsetCapacity, char* decoded
             u32 markerLength = Mail_strlen(marker);
             u32 offset;
             char* delimiter = NULL;
-            char* current = (char*)encodedWordPosition + consumedSize;
+            char* current;
             for (offset = 0; offset <= encodedSize - consumedSize; offset++) {
+                current = (char*)encodedWordPosition + consumedSize + offset;
                 if (Mail_strncmp((char*)current, marker, markerLength) == 0) {
                     delimiter = current;
                     break;
                 }
-                current++;
             }
             if (delimiter == 0) {
                 return NWC24_ERR_INVALID_VALUE;
