@@ -72,7 +72,11 @@ struct DVDCommandBlock {
     DVDCommandBlock* prev;  // 0x04
 
     u32 command;  // 0x08
+#ifdef BS2_MACH_VOLATILE_DVD_STATE
+    volatile s32 state;
+#else
     s32 state;    // 0x0C
+#endif
 
     u32 offset;  // 0x10
     u32 length;  // 0x14

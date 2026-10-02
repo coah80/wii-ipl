@@ -1,3 +1,4 @@
+#define BS2_MACH_VOLATILE_DVD_STATE
 #define BS2_MACH_FIVE_ARG_READ
 #include "BS2/BS2.h"
 #include "BS2/BS2BringUp.h"
@@ -64,7 +65,7 @@ volatile int CacheFailed = 0;
 volatile int RegionValid = 0;
 volatile int NandPending = 0;
 vu32 CancelNand = 0;
-u32 LowReadResult = 0;
+vu32 LowReadResult = 0;
 u32 CacheCommandComplete = 0;
 u32 AudioBufferUnconfigured = 0;
 u64 ResetTime = 0;
@@ -577,7 +578,7 @@ void BS2StartGame() {
     u32 (*entry)(void);
 
     StartingGame = TRUE;
-    while (DVDGetCommandBlockStatus(&CoverBlock) != DVD_STATE_IDLE) {
+    while (CoverBlock.state != DVD_STATE_IDLE) {
     }
 
     BS2Report("BS2StartGame(1)\n");
@@ -677,8 +678,6 @@ void BS2StartGame() {
     LowReadResult = 0;
     DVDLowReadDiskID(&DiskID, (DVDLowCallback)callback);
     while (LowReadResult == 0) {
-        BOOL enabled = OSDisableInterrupts();
-        OSRestoreInterrupts(enabled);
     }
 
     status = LowReadResult;
@@ -693,8 +692,6 @@ void BS2StartGame() {
         LowReadResult = 0;
         DVDLowRequestError((DVDLowCallback)callback);
         while (LowReadResult == 0) {
-            BOOL enabled = OSDisableInterrupts();
-            OSRestoreInterrupts(enabled);
         }
         driveError = DVDLowGetImmBufferReg() & 0xFF000000;
         if (driveError == 0x01000000 || (driveError = DVDLowGetImmBufferReg() & 0xFF000000) == 0x03000000) {
@@ -729,8 +726,6 @@ disk_done:
                             (DVDLowCallback)callback);
     }
     while (LowReadResult == 0) {
-        BOOL enabled = OSDisableInterrupts();
-        OSRestoreInterrupts(enabled);
     }
 
     status = LowReadResult;
@@ -748,8 +743,6 @@ disk_done:
         LowReadResult = 0;
         DVDLowRequestError((DVDLowCallback)callback);
         while (LowReadResult == 0) {
-            BOOL enabled = OSDisableInterrupts();
-            OSRestoreInterrupts(enabled);
         }
         driveError = DVDLowGetImmBufferReg() & 0xFF000000;
         if (driveError == 0x01000000 || (driveError = DVDLowGetImmBufferReg() & 0xFF000000) == 0x03000000) {
