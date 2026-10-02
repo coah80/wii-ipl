@@ -164,7 +164,7 @@ CDBErr CDBRecordOpen_(CDBRecord* record) {
             goto open_result_ready;
         open_location_ok:
             if (CDBFSSDIsMounted()) {
-                err = CDBRecordDecrypt(record, cryptBuf, 0x3EC00, &cryptBuf->unk_0x3EC00, NULL);
+                err = CDBRecordDecrypt(record, cryptBuf, 0x3EC00, &cryptBuf->size, NULL);
             } else {
                 err = CDB_ERROR_SD_IS_NOT_MOUNTED;
             }
@@ -174,7 +174,7 @@ CDBErr CDBRecordOpen_(CDBRecord* record) {
             CDBCryptBufFree((CDBCryptBuf**)&record->cryptBuf);
             return err;
         }
-        cryptBuf->unk_0x3EC04 = sizeof(CDBAttrBuf);
+        cryptBuf->offset = sizeof(CDBAttrBuf);
     }
     return CDB_ERROR_OK;
 }
@@ -223,7 +223,7 @@ CDBErr CDBRecordOpenReadOnly_(CDBRecord* record) {
             goto result_ready;
         location_ok:
             if (CDBFSSDIsMounted()) {
-                result = CDBRecordDecrypt(record, cryptBuf, 0x3EC00, &cryptBuf->unk_0x3EC00, NULL);
+                result = CDBRecordDecrypt(record, cryptBuf, 0x3EC00, &cryptBuf->size, NULL);
             } else {
                 result = CDB_ERROR_SD_IS_NOT_MOUNTED;
             }
@@ -233,7 +233,7 @@ CDBErr CDBRecordOpenReadOnly_(CDBRecord* record) {
             CDBCryptBufFree((CDBCryptBuf**)&record->cryptBuf);
             return result;
         }
-        cryptBuf->unk_0x3EC04 = sizeof(CDBAttrBuf);
+        cryptBuf->offset = sizeof(CDBAttrBuf);
     }
     return CDB_ERROR_OK;
 }
