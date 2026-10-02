@@ -430,7 +430,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
     if (getMode != 7 && getMode != 10 && getMode != 8 && getMode != 9) {
         Zi8PrepareMatch(request, &match, 0, work);
     } else {
-        if (!((struct __zi8_work_data_s*)work)->unk_0x16 || request->elementCount > 6) {
+        if (!((struct __zi8_work_data_s*)work)->cangjieEnabled || request->elementCount > 6) {
             resultFallback = 0;
             goto engine_finish;
         }
@@ -1151,7 +1151,7 @@ context_word_lookup:
     if (ordinalIndex == 0xFFFF) goto context_results_done;
     record = records + ordinalIndex * 12;
     phoneticGroups = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
-    if (((struct __zi8_work_data_s*)work)->unk_0x16) {
+    if (((struct __zi8_work_data_s*)work)->cangjieEnabled) {
         switch (phoneticGroups[0] & 7) {
         case 2: phoneticGroups += 2; break;
         case 3: case 4: phoneticGroups += 3; break;
@@ -1965,7 +1965,7 @@ component_retry:
         ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = ordinalIndex;
         relatedRecord = records + ordinalIndex * 12;
         phoneticGroups = phraseTable + ((relatedRecord[9] & 15) << 16 | (relatedRecord[11] | relatedRecord[10] << 8));
-        if (((struct __zi8_work_data_s*)work)->unk_0x16) {
+        if (((struct __zi8_work_data_s*)work)->cangjieEnabled) {
             switch (phoneticGroups[0] & 7) {
             case 2: phoneticGroups += 2; break;
             case 3: case 4: phoneticGroups += 3; break;

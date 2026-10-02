@@ -37,7 +37,7 @@ ziU16 Zi8Uni2Ptr(ziU16 ch, ziE12* buf ZI_NEED_WORK) {
                 p = (ziU8*)(table2 +
                             (((e[9] & 0xF) << 16) |
                              (e[0xB] | (e[0xA] << 8))));
-                if (WORKP->unk_0x16 != 0) {
+                if (WORKP->cangjieEnabled != 0) {
                     switch (p[0] & 7) {
                     case 2:
                         p += 2;
