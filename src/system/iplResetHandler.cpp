@@ -61,7 +61,7 @@ namespace ipl {
                             if (System::getPostmanManager()->IsUnknown() ||
                                 (System::getSceneManager() != NULL && System::getScene(SCENE_ADDRESS) != NULL)) {
                                 if (System::getNwc24Manager() != NULL && !System::isNandFull()) {
-                                    if (System::createdAfterAndLibMgr() && !System::getNwc24Manager()->isUnk0xA31()) {
+                                    if (System::createdAfterAndLibMgr() && !System::getNwc24Manager()->isReceivingIdle()) {
                                         return;
                                     }
                                 }

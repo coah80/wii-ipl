@@ -47,7 +47,7 @@ namespace ipl {
     (((mLastError > NWC24_ERR_FILE_OPEN || mLastError < NWC24_ERR_FILE_OTHER) && mLastError != NWC24_ERR_NAND_CORRUPT) &&                            \
      (mLastError != NWC24_ERR_FILE_EXISTS && mLastError != NWC24_ERR_INTERNAL_VF && mLastError != NWC24_ERR_FILE_BROKEN))
 
-        Manager::Manager(EGG::Heap* heap) : mbReviecedMsg(false), unk_0xA31(false), mbReceivePaused(false), unk_0xA33(false) {
+        Manager::Manager(EGG::Heap* heap) : mbReviecedMsg(false), mbReceiving(false), mbReceivePaused(false), mbNewTitleTblReady(false) {
             OSInitMutex(&mLock);
             OSInitMutex(&mAutoLock);
 
@@ -526,7 +526,7 @@ namespace ipl {
                 return;
             }
 
-            unk_0xA31 = true;
+            mbReceiving = true;
 
             NWC24UserId myUserId;
             getMyUserId(&myUserId);
@@ -910,8 +910,8 @@ namespace ipl {
 
             close();
 
-            unk_0xA33 = true;
-            unk_0xA31 = false;
+            mbNewTitleTblReady = true;
+            mbReceiving = false;
         }
 
         void Manager::addDlTask() {
@@ -996,7 +996,7 @@ namespace ipl {
         }
 
         BOOL Manager::getNewTitleTbl(u32* titleTbl) const {
-            if (!unk_0xA33) {
+            if (!mbNewTitleTblReady) {
                 return FALSE;
             }
 

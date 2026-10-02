@@ -648,7 +648,7 @@ namespace ipl {
                 }
 
                 if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN && System::isReceiveScheduleStopped()) {
-                    if (System::getNwc24Manager() && !System::getNwc24Manager()->isUnk0xA31()) {
+                    if (System::getNwc24Manager() && !System::getNwc24Manager()->isReceivingIdle()) {
                         goto scn_continue;
                     }
 
