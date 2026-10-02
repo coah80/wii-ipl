@@ -1752,7 +1752,7 @@ tone_candidates:
         }
     }
 user_character_search:
-    if (((struct __zi8_work_data_s*)work)->unk_0x12C && (getMode != 0 || !firstPhoneticPass) &&
+    if (((struct __zi8_work_data_s*)work)->uwdPtrCount && (getMode != 0 || !firstPhoneticPass) &&
         !options->countOnly && (match.nCand <= 1 || (getMode != 1 && getMode != 2)) &&
         Zi8GetZHuwdPtr(&userEntries, &userCount, work) && (getMode != 0 || match.nSeg <= 1)) {
         userIndex = 0;
