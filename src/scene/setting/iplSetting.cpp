@@ -3745,13 +3745,13 @@ namespace ipl {
             layout::Animator* animation = mpWaitLayout->getAnim(0);
             animation->initFrame();
             animation->restart();
-            mpWaitLayout->FindPaneByName("G_Wait")->SetVisible(true);
+            mpWaitLayout->FindPaneByName("N_Wait")->SetVisible(true);
             snd::getSystem()->startSE("WIPL_SE_COPYING");
         }
 
         void Setting::waitFinish() {
             mpWaitLayout->getAnim(0)->stop();
-            mpWaitLayout->FindPaneByName("G_Wait")->SetVisible(false);
+            mpWaitLayout->FindPaneByName("N_Wait")->SetVisible(false);
             snd::getSystem()->startSE("WIPL_SE_COPY_FINISH");
         }
 
