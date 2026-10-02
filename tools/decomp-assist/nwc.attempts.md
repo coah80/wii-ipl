@@ -55,3 +55,31 @@
   (pos never materialized as IV); mine gets pos-walking + counter (2 incrs).
   FindMarker-call, plain-recompute, pos-var forms all strength-reduce under
   this fn's register pressure. Documented SR wall.
+
+## wave 10 findings (FindMarker materialization, ptr-arith inlining)
+
+- **pos-local lever (proven)**: orig's `FindMarker` materializes `char* pos = input + offset`
+  per iteration — MWCC pins pos to a callee reg across the strncmp call (`add rN,in,off;
+  mr r3,rN; bl`). A recompute-in-arg form (`strncmp(input+offset,...)`) makes pos
+  transient in r3 and loses the callee pin. Returning `input + offset` (recomputed)
+  rather than `pos` matches base's site-dependent IV choice (counter+recompute at
+  low-pressure sites, dual walking-pos+counter at high-pressure sites — MWCC picks
+  per inlining context, same source).
+- **`start + 1` exprs (proven)**: orig's ExtractEncodedText never mutates `start` —
+  every use is `start + 1` (`end = FindMarker(start + 1, ...)`, `length = end - (start + 1)`,
+  decode args `(u8*)(start + 1)`). A `start++` mutation pins a dead extra callee reg
+  and changes the inlined-FindMarker arg from `addi (start+off),1` recompute to
+  walking. Closed 134/135 -> 135/135 (remaining = reg renames + _savegpr window).
+- **Redundant guard (proven)**: base emits `cmpwi end,0; beq skip` before the tail
+  `*encodedSizeOut` write even though `end` was NULL-checked earlier — orig's
+  source has a defensive `if (end != NULL)` MWCC can't fold (no cross-BB proof).
+- **Arg-check elision**: orig's ExtractEncodedText does NOT check `decoded == NULL`
+  (checks encoded, decodedSize, encodedSizeOut only).
+- ConvertDateToDays tail: two magic-divide chains share the 0x51EB851F constant;
+  base's scheduler emits `lis+addi` magic before the +299/-1 numerators, mine
+  interleaves — pure DAG-schedule order, stmt reorder no-op (verified).
+- QDecode/CheckMsgBoxSpace/ConvertDaysToDate: insn-equal pin-window swaps +
+  unrolled-loop scheduling permutation — documented tie-break families.
+- EncodeWord: base pins stack-arg (decodedSizeOut, 0x48(r1)) to r31 AND
+  re-materializes string addrs per-site into arg regs; mine CSEs addrs into
+  callee regs (competes for the same window). Whole-fn pin-order wall.
