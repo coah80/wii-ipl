@@ -205,7 +205,7 @@ void AxAdpcmSimplePlayer::init() {
 }
 
 int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
-    Header* head = mpBNSBuffer = (Header*)data;
+    mpBNSBuffer = (Header*)data;
 
     sSysPauseFlag = false;
 
@@ -224,7 +224,6 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
     ChannelInfo* chanInfoBufB[2];
     ChannelInfo* chanInfoBufA[2];
 
-    AdpcmCoeffs** pCoeffsBufB = NULL;
     int i;
     u32* channelStartOffsets;
     INFOBlock* infoBlock;
@@ -240,13 +239,13 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
 
     int chanCount;
     {
-        if (head->byteOrder != 0xFEFF) {
+        if (((Header*)data)->byteOrder != 0xFEFF) {
             chanCount = 0;
             goto clean_up;
         }
 
-        infoBlock = ADD_OFFSET(INFOBlock, data, head->infoHead.offset);
-        dataBlock = ADD_OFFSET(DATABlock, data, head->dataHead.offset);
+        infoBlock = ADD_OFFSET(INFOBlock, data, ((Header*)data)->infoHead.offset);
+        dataBlock = ADD_OFFSET(DATABlock, data, ((Header*)data)->dataHead.offset);
         if (infoBlock->head.sig != 'INFO') {
             chanCount = 0;
             goto clean_up;
@@ -268,8 +267,6 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
         pChanInfoBufB = chanInfoBufB;
         pChanDataBuf = chanDataBuf;
         pCoeffsBufA = coeffsBufA;
-        pCoeffsBufB = coeffsBufB;
-        pAxvpbBuf = axVoiceBuf;
         for (i = 0; chanCount = infoBlock->channelCount, i < chanCount; i++) {
             int chanStartOffs = channelStartOffsets[i];
             ChannelInfo* chanInfo = ADD_OFFSET(ChannelInfo, infoBlockDataBase, chanStartOffs);
@@ -278,8 +275,9 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
             pChanInfoBufB[i] = chanInfo;
             pChanDataBuf[i] = ADD_OFFSET(void, dataBlockDataBase, chanInfo->dataOff);
             pCoeffsBufA[i] = ADD_OFFSET(AdpcmCoeffs, infoBlockDataBase, chanInfo->coeffOff);
-            pCoeffsBufB[i] = ADD_OFFSET(AdpcmCoeffs, infoBlockDataBase, chanInfo->coeffOff);
+            coeffsBufB[i] = ADD_OFFSET(AdpcmCoeffs, infoBlockDataBase, chanInfo->coeffOff);
 
+            pAxvpbBuf = axVoiceBuf;
             pAxvpbBuf[i] = AXAcquireVoice(0x1f, VoiceCallback, 0);
             if (pAxvpbBuf[i] == NULL) {
                 chanCount = 0;
@@ -312,37 +310,33 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
             axAddr.currentAddressHi = (u32)currAddr >> 0x10;
             axAddr.currentAddressLo = (u32)currAddr & 0xFFFF;
 
-            axAdpcm.a[0][0] = pCoeffsBufB[i]->a[0][0];
-            axAdpcm.a[0][1] = pCoeffsBufB[i]->a[0][1];
-            axAdpcm.a[1][0] = pCoeffsBufB[i]->a[1][0];
-            axAdpcm.a[1][1] = pCoeffsBufB[i]->a[1][1];
-            axAdpcm.a[2][0] = pCoeffsBufB[i]->a[2][0];
-            axAdpcm.a[2][1] = pCoeffsBufB[i]->a[2][1];
-            axAdpcm.a[3][0] = pCoeffsBufB[i]->a[3][0];
-            axAdpcm.a[3][1] = pCoeffsBufB[i]->a[3][1];
-            axAdpcm.a[4][0] = pCoeffsBufB[i]->a[4][0];
-            axAdpcm.a[4][1] = pCoeffsBufB[i]->a[4][1];
-            axAdpcm.a[5][0] = pCoeffsBufB[i]->a[5][0];
-            axAdpcm.a[5][1] = pCoeffsBufB[i]->a[5][1];
-            axAdpcm.a[6][0] = pCoeffsBufB[i]->a[6][0];
-            axAdpcm.a[6][1] = pCoeffsBufB[i]->a[6][1];
-            axAdpcm.a[7][0] = pCoeffsBufB[i]->a[7][0];
-            axAdpcm.a[7][1] = pCoeffsBufB[i]->a[7][1];
-            axAdpcm.gain = pCoeffsBufB[i]->cfg.gain;
-            axAdpcm.pred_scale = pCoeffsBufB[i]->cfg.predScale;
-            axAdpcm.yn1 = pCoeffsBufB[i]->cfg.yn1;
-            axAdpcm.yn2 = pCoeffsBufB[i]->cfg.yn2;
+            axAdpcm.a[0][0] = coeffsBufB[i]->a[0][0];
+            axAdpcm.a[0][1] = coeffsBufB[i]->a[0][1];
+            axAdpcm.a[1][0] = coeffsBufB[i]->a[1][0];
+            axAdpcm.a[1][1] = coeffsBufB[i]->a[1][1];
+            axAdpcm.a[2][0] = coeffsBufB[i]->a[2][0];
+            axAdpcm.a[2][1] = coeffsBufB[i]->a[2][1];
+            axAdpcm.a[3][0] = coeffsBufB[i]->a[3][0];
+            axAdpcm.a[3][1] = coeffsBufB[i]->a[3][1];
+            axAdpcm.a[4][0] = coeffsBufB[i]->a[4][0];
+            axAdpcm.a[4][1] = coeffsBufB[i]->a[4][1];
+            axAdpcm.a[5][0] = coeffsBufB[i]->a[5][0];
+            axAdpcm.a[5][1] = coeffsBufB[i]->a[5][1];
+            axAdpcm.a[6][0] = coeffsBufB[i]->a[6][0];
+            axAdpcm.a[6][1] = coeffsBufB[i]->a[6][1];
+            axAdpcm.a[7][0] = coeffsBufB[i]->a[7][0];
+            axAdpcm.a[7][1] = coeffsBufB[i]->a[7][1];
+            axAdpcm.gain = coeffsBufB[i]->cfg.gain;
+            axAdpcm.pred_scale = coeffsBufB[i]->cfg.predScale;
+            axAdpcm.yn1 = coeffsBufB[i]->cfg.yn1;
+            axAdpcm.yn2 = coeffsBufB[i]->cfg.yn2;
 
             u32 ratio = infoBlock->sampleRate / 32000.0f * 65536.0f;
             axSrc.ratioHi = ratio >> 16;
             axSrc.ratioLo = ratio & 0xFFFF;
-            axSrc.currentAddressFrac = 0;
-            axSrc.last_samples[0] = 0;
-            axSrc.last_samples[1] = 0;
-            axSrc.last_samples[2] = 0;
-            axSrc.last_samples[3] = 0;
+            axSrc.last_samples[3] = axSrc.last_samples[2] = axSrc.last_samples[1] = axSrc.last_samples[0] = axSrc.currentAddressFrac = 0;
 
-            AXVPB* vpbA = axVoiceBuf[i];
+            AXVPB* vpbA = pAxvpbBuf[i];
             AXSetVoiceType(vpbA, 0);
             AXSetVoiceAddr(vpbA, &axAddr);
             AXSetVoiceAdpcm(vpbA, &axAdpcm);
@@ -359,7 +353,7 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
                     Voices[vpbA->index].getMix()->vL = 0;
                 }
             }
-            AXVPB* vpbB = axVoiceBuf[i];
+            AXVPB* vpbB = pAxvpbBuf[i];
             AXSetVoiceMix(vpbB, Voices[vpbA->index].getMix());
             static AXPBVE voiceVe = {32768, 0};
             AXSetVoiceVe(vpbB, &voiceVe);
