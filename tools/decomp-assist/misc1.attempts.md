@@ -420,3 +420,41 @@ base/decl-order all keep base-first binding.
 `CancelNand`/`CacheCommandComplete` are `static volatile`/`vu32` globals
 already (callback/cache-command flags — genuine async semantics). The
 lis/stw materialization slots are pure scheduler order, no further lever.
+
+## pass 2026-09-30b (BS2Tick callee-window + Getter_ rotation retry)
+
+### BS2Tick — bootArea decode LANDED
+- orig emits `_savegpr_26` (6 callee webs). Decoded the 6th web as TWO separate
+  `0x80000000` webs in case 9/10: r26 = `bootDisc` field reads live across the 4
+  strncmp calls, r27 = the strncmp arg base. `char *bootArea` local assigned
+  inside `if (bootDisc->rvlMagic == 0x5d1c9ea3)` and used as the strncmp arg
+  reproduces the two-web structure; savegpr_26 matches. Raw literal → volatile
+  `lis` (wrong); fn-scope shared bootDisc → regression.
+- Arm-layout: `if (GamePartition != 0) {State=37;} else {State=54; break;}` —
+  orig wanted beq-to-out-of-line-arm. LANDED.
+- Hoisted field: `u32 gamePartition = ((DVDPartitionInfo*)GamePartition)->partition`
+  local at case-0x25 top → orig loads field pre-BS2BootFromCache branch. LANDED.
+- `BannerAllocation + 0x20 - (BannerAllocation & 0x1f)` → orig's clrlwi+addi+subf
+  (OSRoundDown32B emits rlwinm+addi = wrong codegen). LANDED.
+- `u8 streaming` cached local (block-top decl, C89) — near-match order.
+- `*(vu32*)0x8000002c`/`*(vu16*)0x800030e6` qualifiers — no-op, kept (semantically
+  justified HW-reg accesses).
+- Progress: 1935→1938 insns vs orig 1940; text diffs ~1130→1123.
+
+### BS2Tick residual — all verified scheduler/web-ordering family
+- o249/254: orig remats `lis -0x8000` per-block (3 block-local webs) vs my CSE'd
+  shared r4 web. Const-CSE scope is allocator-internal.
+- o1151: `bge;b` vs `blt` titlePrefix<U — MWCC always folds to blt (3 forms tried:
+  nested if, duplicated tail, label-inside-arm — all emit blt).
+- o40/480/1470/1620/1831: store-value web bound to arg reg (r6/r4) + li-const
+  hoisting order — statement-reorder variants all no-op or regress.
+- bootDisc-in-0xb r26 pin vs my r3; r26↔r27 binding swap; &0x800030d4 r6 vs r0.
+
+### Getter_ (www_wiisetting) — 28 pure regname diffs, all levers exhausted
+- Tried: shared fn-scope `int i` (42-regression), early-init before surrounding
+  calls (32, worse — orig emits init at loop head), while-loop form (identical
+  codegen), case-block scope decl (identical), for-init decl, decl reorder.
+- Orig puts loop-B `i` at r31 — orig frees r31 (string-base web) just before the
+  loop; MWCC's global ordering gives the loop counter the freed deep slot. Mine
+  consistently picks r25 (lowest free). Deterministic allocator ordering; no
+  source-level lever found that shifts the class without rotating everything.
