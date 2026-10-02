@@ -348,3 +348,48 @@ _27 — ONE extra web pinned. Clusters of `lis rX,-0x8000` +member-offset
 loads identical but bound to different callees (r26↔r27). DvdProgress
 store weave same family as above. Finding which web orig remat'd instead
 of pinning = the remaining decode; 1940-insn scale, not yet found.
+
+## 2026-10-02b — odh s32-width + mullw operand order; BS2UpdateInit arg4 split
+
+### odh decodes (kept)
+- `s32 width` in cdj_c_colorConv: binds the width web to r8 (orig) vs r7
+  (u16) — volatile-reg class shift from the wider type. 36 diffs = floor;
+  remaining is dim/mask r7↔r9 + cbPlane/stride r22↔r29 pairwise swaps —
+  every decl-order permutation fixes one web and rotates the whole map
+  (padMask temp 38, stride-decl-last 58, ternary 58 — all worse).
+- decompressLoop: `blocksWide * (blockY << 6)` operand order fixed at the
+  ~1397 site (orig mullw(bw,by6) — had written by6-first). 86 diffs = pure
+  web rotations + add-operand commuting (MWCC commutes add operands by web
+  availability — source order can't pin them).
+- huffmanCoder: 3x repeated lwzx/split sites — orig keeps entry in the
+  table-base reg and splits lo→r0/hi→r5-reuse; rotation family, `|`
+  operand swap tested worse (38 vs 36).
+
+### BS2UpdateInit residual (39 diffs, precisely characterized)
+- Orig NEVER stores pFlags in Init (UpdateThread sets it later) — but my
+  `pFlags = Flags0` store is the only source form found that materializes
+  the &Flags0 fold-base web. Without it: 63 diffs (all .bss folds collapse
+  to per-access lis). With it: +2 insns net-1 (73 vs 72). The stw's VALUE
+  needs `addi r0,r30,0` — MWCC won't reuse r30 directly for the SDA store.
+- arg4 two-step: orig emits `addi r6,r30,0x1318` (&Thread.stack) then
+  `addi r6,r6,0x1000` (+sizeof) — arg4's &stack VN materializes BEFORE
+  arg1's &Thread (marshal eval order), so the +0x1000 can't merge into
+  the live &Thread web. Mine emits arg1 first, then folds arg4 to
+  `r6,r3,0x1318`. Named stackTop/stack locals, early assignment, split
+  stmts, &arr[i] — all fold to the single addi (MWCC remats the VN to the
+  cheapest form at use site).
+- Store-first ordering (before BS2Report): 47 — worse.
+
+### Twins (95.74, 1 insn each) — scheduler tie confirmed
+Orig materializes the callback `lis r6` FIRST in the else-arm marshal
+(before all arg loads); const-arg placement is scheduler freedom. `&`of,
+per-site temps (changes marshal order not the lis slot), branch-polarity
+swap (worse — arm order regresses). Same class as CheckBS2's `stw CC`
+one-slot residual.
+
+### BS2StartGame/StartGCGame shared head weave + diAddr
+`StartingGame = TRUE; while (CoverBlock.state)` — orig stores via
+`StartingGame@l(r29)` before the CoverBlock addi materializes; mine folds
+the store onto the r3=&CoverBlock web. volatile decl / vu32 HW reg /
+stmt reorder / anon base all no-op. diAddr r3↔r4 swap: diAddr/vu32/anon-
+base/decl-order all keep base-first binding.

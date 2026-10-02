@@ -916,7 +916,7 @@ void CArGBAOdh::cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size) {
 
 s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int format) {
     u32 paddedWidth;
-    u16 width;
+    s32 width;
     u16 height;
     u8* workPlane;
     int sourceStride;
@@ -1394,7 +1394,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
         coefficientIndex = odh_natural_order[naturalIndex];
         master->coefficients[coefficientIndex] = master->dcCoefficients[naturalIndex];
       }
-      statusOrOffset = ((u32)master->blockY << 6) * (u32)master->blocksWide +
+      statusOrOffset = (u32)master->blocksWide * ((u32)master->blockY << 6) +
               ((u32)master->blocksHigh * ((u32)master->blocksWide << 6) +
                (u32)master->blockX * 8);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
