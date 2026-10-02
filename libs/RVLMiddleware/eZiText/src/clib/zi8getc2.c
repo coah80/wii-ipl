@@ -490,7 +490,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
       ZI_WORK->unk_0x00 = '\0';
     }
   }
-  ZI_WORK->unk_0x18 = parameters->subLanguage;
+  ZI_WORK->subLanguage = parameters->subLanguage;
   ZI_WORK->unk_0x16 = Zi8GetFormatVersion(1,ZI_WORK) & 2;
   options->maxCount = ZI_WORK->unk_0x10;
   options->maxWordLength = ZI_WORK->unk_0x0A;

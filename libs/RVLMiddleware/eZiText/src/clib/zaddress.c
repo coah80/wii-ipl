@@ -55,7 +55,7 @@ ziU32 Zi8GetTableData(ziU8 lang, ziU8 tableIdx, ziU8 memberId ZI_NEED_WORK) {
     if (langIdx-- != 0) {
         tableData = ZI_WORK->langEntries[langIdx].tableData;
         if ((lang == ZI8_LANG_ZH) && (tableData[3] >= 4) &&
-            ((ZI_WORK->unk_0x18 == 1) || (ZI_WORK->unk_0x18 == 0x80) || (ZI_WORK->unk_0x18 == 0x40))) {
+            ((ZI_WORK->subLanguage == 1) || (ZI_WORK->subLanguage == 0x80) || (ZI_WORK->subLanguage == 0x40))) {
             offset = ((tableData[0x8B] << 0x10) + (tableData[0x8C] << 8) + tableData[0x8D]);
             if (offset != 0) {
                 tableData += offset;

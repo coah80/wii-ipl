@@ -24,17 +24,17 @@ ziU8 Zi8GetZHCharSet(ziPtr workData) {
         return 0;
     }
     if (Zi8GetTableCount(1, 10, workData) != 0) {
-        bak = ((struct __zi8_work_data_s*)workData)->unk_0x18;
-        ((struct __zi8_work_data_s*)workData)->unk_0x18 = 1;
+        bak = ((struct __zi8_work_data_s*)workData)->subLanguage;
+        ((struct __zi8_work_data_s*)workData)->subLanguage = 1;
         addr = Zi8GetTableAddress(1, 10, workData);
         p = (ziU8*)addr;
         v0 = (ziU16)((ziU16)p[0] | ((ziU16)p[1] << 8));
-        ((struct __zi8_work_data_s*)workData)->unk_0x18 = 0;
+        ((struct __zi8_work_data_s*)workData)->subLanguage = 0;
         addr = Zi8GetTableAddress(1, 10, workData);
         p = (ziU8*)addr;
         v1 = (ziU16)((ziU16)p[2] | ((ziU16)p[3] << 8));
         v2 = (ziU16)((ziU16)p[4] | ((ziU16)p[5] << 8));
-        ((struct __zi8_work_data_s*)workData)->unk_0x18 = bak;
+        ((struct __zi8_work_data_s*)workData)->subLanguage = bak;
         if (v0 != 0) {
             if (v0 > 0x4E20) {
                 charSet |= 8;
