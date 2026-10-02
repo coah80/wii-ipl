@@ -229,7 +229,7 @@ unsigned int Zi8MatchROMdata2(ziWChar* elements, ziU8 count, ziU8 language,
 
     if (reservedMode != 0) return 0;
     if (status == 0) {
-        ZI_WORK->unk_0x1768 = 0;
+        ZI_WORK->groupIndex = 0;
         ZI_WORK->unk_0x17EA = 0;
         if (group != 0 && *group == 0xc && language == 10 && ZI_WORK->unk_0x141C != 0) {
             ZI_WORK->unk_0x141E = 0x10;
@@ -242,7 +242,7 @@ search_segment:
     result = Zi8MatchROMdata1(elements + ZI_WORK->unk_0x17EA,
                              count - ZI_WORK->unk_0x17EA, language,
                              &ZI_WORK->unk_0x17F4[ZI_WORK->unk_0x17EA], capacity,
-                             mode, status, ZI_WORK->unk_0x1768, (char*)group,
+                             mode, status, ZI_WORK->groupIndex, (char*)group,
                              acceptPrefix, ZI_WORK);
     if ((ziU8)result != 0) {
         for (index = (ziU8)(ZI_WORK->unk_0x17EA + result); index != 0; index--) {
@@ -251,11 +251,11 @@ search_segment:
         result = (ziU8)(result + ZI_WORK->unk_0x17EA);
     } else {
         if (status != 0 || count == 1) goto finish_segments;
-        if (mode == 1 && ZI_WORK->unk_0x1768 == 0 &&
+        if (mode == 1 && ZI_WORK->groupIndex == 0 &&
             (ziU8)Zi8MatchROMdata1(elements + ZI_WORK->unk_0x17EA,
                                   count - ZI_WORK->unk_0x17EA, language,
                                   &ZI_WORK->unk_0x17F4[ZI_WORK->unk_0x17EA], capacity,
-                                  0, status, ZI_WORK->unk_0x1768, (char*)group,
+                                  0, status, ZI_WORK->groupIndex, (char*)group,
                                   acceptPrefix, ZI_WORK) != 0) goto finish_segments;
         if ((Zi8GetTableCount(language, 0x1f, ZI_WORK) & 4) == 0) {
             for (index = 0; index < count; index++) {
@@ -266,12 +266,12 @@ search_segment:
         for (index = ZI_WORK->maxCnt; index != 0; index--) {
             result = Zi8MatchROMdata1(elements + ZI_WORK->unk_0x17EA, index, language,
                                      &ZI_WORK->unk_0x17F4[ZI_WORK->unk_0x17EA], capacity,
-                                     1, 0, ZI_WORK->unk_0x1768, (char*)group,
+                                     1, 0, ZI_WORK->groupIndex, (char*)group,
                                      acceptPrefix, ZI_WORK);
             if ((ziU8)result != 0) {
                 ZI_WORK->unk_0x17EA += (ziU8)result;
                 if (ZI_WORK->unk_0x17EA == count) return 0;
-                ZI_WORK->unk_0x1768++;
+                ZI_WORK->groupIndex++;
                 status = 0;
                 ZI_WORK->unk_0x141E = 0;
                 if (ZI_WORK->dawgCtx.key == 0 && language == 10) {
