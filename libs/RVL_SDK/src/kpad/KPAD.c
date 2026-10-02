@@ -353,16 +353,19 @@ static void reset_kpad(KPADInside* kpad) {
 }
 
 void KPADGetProjectionPos(Vec2* dest, Vec2* src, const Rect* rect, f32 scale) {
-    f64 scaled;
-    f32 height = rect->bottom - rect->top;
-    f32 halfHeight = height * 0.5f;
-    f32 x = src->x * halfHeight;
-    f32 y = src->y * halfHeight;
-    x *= 1.2f;
-    y *= 1.2f;
-    scaled = 0.908 * scale;
-    dest->y = y;
-    dest->x = (f32)(x * scaled);
+    f32 aspect;
+    f32 halfHeight;
+    f32 half;
+    f32 x;
+    f32 height;
+    height = rect->bottom - rect->top;
+    half = 0.5f;
+    halfHeight = height * half;
+    x = src->x * halfHeight;
+    aspect = 1.2f;
+    x = aspect * x;
+    dest->y = aspect * (src->y * halfHeight);
+    dest->x = (f32)(x * (0.908 * scale));
 }
 
 void KPADSetSensorHeight(s32 chan, f32 sensorHeight) {
@@ -465,29 +468,24 @@ static void calc_button_repeat(KPADInside* kpad, u8 extension, s32 elapsed) {
 }
 
 static void calc_acc_horizon(KPADInside* kpad) {
-    f32 magnitude = (f32)sqrt(kpad->acceleration.x * kpad->acceleration.x + kpad->acceleration.y * kpad->acceleration.y);
+    f32 magnitude;
     f32 normalizedX;
     f32 normalizedY;
-    f32 targetY;
-    f32 targetX;
-    f32 productX;
-    f32 oldX;
-    f32 oldY;
     f32 blend;
     f32 projectedX;
-    f32 smoothing;
     f32 deltaX;
     f32 nextX;
     f32 nextY;
     f32 normalized;
-    f32 unitX;
-    f32 oldCircleX;
     f32 oldCircleY;
-    f32 unitY;
     f32 circleX;
+    f32 oldCircleX;
+    f32 unitY;
+    f32 unitX;
     f32 deltaCircleX;
     f32 circleY;
     f32 deltaCircleY;
+    magnitude = (f32)sqrt(kpad->acceleration.x * kpad->acceleration.x + kpad->acceleration.y * kpad->acceleration.y);
     if (magnitude == 0.0f || magnitude >= 2.0f) {
         return;
     }
@@ -497,17 +495,12 @@ static void calc_acc_horizon(KPADInside* kpad) {
         if (magnitude > 1.0f) {
             magnitude = 2.0f - magnitude;
         }
-        targetY = kpad->accelNormal.y;
-        targetX = kpad->accelNormal.x;
-        productX = targetX * normalizedX;
-        oldX = kpad->horizonAxis.x;
-        oldY = kpad->horizonAxis.y;
         blend = magnitude * kp_acc_horizon_pw;
-        projectedX = productX + targetY * normalizedY;
-        smoothing = magnitude * blend;
-        deltaX = smoothing * (projectedX - oldX);
-        nextX = oldX + deltaX;
-        nextY = oldY + smoothing * (((targetY * normalizedX) - (targetX * normalizedY)) - oldY);
+        projectedX = kpad->accelNormal.x * normalizedX + kpad->accelNormal.y * normalizedY;
+        magnitude *= blend;
+        deltaX = magnitude * (projectedX - kpad->horizonAxis.x);
+        nextX = kpad->horizonAxis.x + deltaX;
+        nextY = kpad->horizonAxis.y + magnitude * (((kpad->accelNormal.y * normalizedX) - (kpad->accelNormal.x * normalizedY)) - kpad->horizonAxis.y);
         normalized = (f32)sqrt(nextX * nextX + nextY * nextY);
         if (normalized != 0.0f) {
             unitX = nextX / normalized;
@@ -788,24 +781,18 @@ nextObject:
 
 static s8 select_1obj_first(KPADInside* kpad) {
     KPADDPDObject* object = kpad->dpdState.objects;
-    KPADDPDObject* end = kpad->dpdState.candidates;
-    f32 scale = kpad->dpdObjectScale;
-    f32 productX = kpad->horizonTangent.x * kpad->horizonAxis.x;
-    f32 productY = kpad->horizonTangent.y * kpad->horizonAxis.x;
-    f32 offsetX = productX + kpad->horizonTangent.y * kpad->horizonAxis.y;
-    f32 offsetY = productY - kpad->horizonTangent.x * kpad->horizonAxis.y;
-    offsetX *= scale;
-    offsetY *= scale;
+    f32 offsetX = kpad->horizonTangent.x * kpad->horizonAxis.x + kpad->horizonTangent.y * kpad->horizonAxis.y;
+    f32 offsetY = kpad->horizonTangent.y * kpad->horizonAxis.x - kpad->horizonTangent.x * kpad->horizonAxis.y;
+    offsetX *= kpad->dpdObjectScale;
+    offsetY *= kpad->dpdObjectScale;
     do {
         if ((s8)object->metadata.bytes.flags == 0) {
-            f32 x = object->x;
-            f32 y = object->y;
             Vec2 leftPosition;
             Vec2 rightPosition;
-            leftPosition.x = x - offsetX;
-            leftPosition.y = y - offsetY;
-            rightPosition.x = x + offsetX;
-            rightPosition.y = y + offsetY;
+            leftPosition.x = object->x - offsetX;
+            leftPosition.y = object->y - offsetY;
+            rightPosition.x = object->x + offsetX;
+            rightPosition.y = object->y + offsetY;
             if (leftPosition.x <= kpad->value4F4 || leftPosition.x >= kpad->value4FC || leftPosition.y <= kpad->value4F8 || leftPosition.y >= kpad->value500) {
                 if (rightPosition.x > kpad->value4F4 && rightPosition.x < kpad->value4FC && rightPosition.y > kpad->value4F8 && rightPosition.y < kpad->value500) {
                     kpad->dpdState.candidates[1] = *object;
@@ -822,7 +809,7 @@ static s8 select_1obj_first(KPADInside* kpad) {
                 return -1;
             }
         }
-    } while (++object < end);
+    } while (++object < kpad->dpdState.candidates);
     return 0;
 }
 
