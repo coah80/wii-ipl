@@ -46,7 +46,7 @@ namespace textinput {
                     bool updateTappingShift_(input::HKBManager&);
 #endif
                     void            updateShift(input::HKBManager& hkbManager);
-                    void controlKeyTriggeredHandler(input::HKBManager);
+                    bool controlKeyTriggeredHandler(input::HKBManager&);
 
                     Manager *mgr() { return mpManager; }
 
