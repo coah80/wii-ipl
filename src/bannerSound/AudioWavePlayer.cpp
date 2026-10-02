@@ -64,13 +64,13 @@ void SimpleWavePlayer::wavePacketCallback(WavePacketCallbackStatus status, WaveP
         return;
     }
 
-    if (self->unk_0xB5) {
+    if (self->mbFillInCallback) {
         MakeWave(player, packet, self);
     }
 }
 
 SimpleWavePlayer::SimpleWavePlayer() : mSetupParam(1, nw4r::snd::SAMPLE_FORMAT_PCM_S16, 32000, 1.0f, 1) {
-    unk_0xB5 = true;
+    mbFillInCallback = true;
     unk_0xB0 = false;
     mIsSetData = false;
     mIsPlaying = false;
@@ -196,7 +196,7 @@ void SimpleWavePlayer::stop() {
 
 void SimpleWavePlayer::update() {
     if (mIsPlaying) {
-        if (!unk_0xB5) {
+        if (!mbFillInCallback) {
             for (int i = 0; i < 3; i++) {
                 if (mWavePackets[i].GetAppendFlag()) {
                     continue;

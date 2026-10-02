@@ -43,7 +43,7 @@ private:
     bool mIsPlaying;         // 0xB2
     bool mIsSetBuf;          // 0xB3
     bool mThreadRunning;     // 0xB4
-    bool unk_0xB5;           // 0xB5
+    bool mbFillInCallback;           // 0xB5
 
     WaveFileAiff mAiff;  // 0xB8
     WaveFileWav mWav;    // 0xE8
