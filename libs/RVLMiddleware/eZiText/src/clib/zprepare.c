@@ -239,7 +239,7 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
     }
     if ((request->getMode == '\x01') || (request->getMode == '\f')) {
       match->nCand = Zi8GetPyPhonetic(request->elements,elementCount,match->phon,match->phon2,
-        &request->count,&match->first,&match->first2,__zi8_work_data);
+        &request->completion,&match->first,&match->first2,__zi8_work_data);
     }
     else {
       initial = 0;
@@ -250,7 +250,7 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
       previousFinal = 0;
       buffers.phoneticInput = request->elements;
       match->nCand = 0;
-      request->count = request->elementCount;
+      request->completion = request->elementCount;
       phoneticLength = 1;
       for (index = 0; index < elementCount; index++) {
         stroke = Zi8GetBpmfPhonetic(buffers.phoneticInput,phoneticLength,&initial,&final,&bestInitial,&bestFinal,
@@ -287,7 +287,7 @@ savePhonetic:
             goto savePhonetic;
           }
           if (match->nCand == 1) {
-            request->count = phoneticLength - 1;
+            request->completion = phoneticLength - 1;
           }
           buffers.phoneticInput = buffers.phoneticInput + phoneticLength - 1;
           phoneticLength = 0;
@@ -306,7 +306,7 @@ savePhonetic:
       }
     }
     if (((request->context & contextMask) != 0) &&
-      ((1 < match->nCand || (request->count != elementCount)))) {
+      ((1 < match->nCand || (request->completion != elementCount)))) {
       match->phon[0] = 0xFFFF;
       match->phon2[0] = 0xFFFF;
       match->nCand = 0;

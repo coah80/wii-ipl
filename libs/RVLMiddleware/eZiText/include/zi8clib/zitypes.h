@@ -163,12 +163,12 @@ typedef struct _ziGetParam {
     ziWChar* candidates;     // 0x18
     ziU8 maxCandidates;      // 0x1C
     ziWChar firstCandidate;  // 0x1E
-    ziU8 unk_0x20;           // 0x20
+    ziU8 count;              // 0x20  (EZTXGetParam.count)
 
-    ziU8 letters;   // 0x21
-    ziU8 count;     // 0x22
-    ziU8* scratch;  // 0x24
-    ziU32 unk_0x28; // 0x28
+    ziU8 letters;     // 0x21
+    ziU8 completion;  // 0x22  (EZTXGetParam.completion)
+    ziU8* scratch;    // 0x24
+    ziU32 unk_0x28;   // 0x28
 } ziGetParam;
 
 typedef struct _ziLanguageEntry {

@@ -425,8 +425,8 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
     charset <<= 4;
     skipCount = request->firstCandidate;
     request->letters = 0;
+    request->completion = 0;
     request->count = 0;
-    request->unk_0x20 = 0;
     if (getMode != 7 && getMode != 10 && getMode != 8 && getMode != 9) {
         Zi8PrepareMatch(request, &match, 0, work);
     } else {
@@ -720,7 +720,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
             return 0;
         }
         emitWords = 1;
-        if (request->count) request->count = request->elementCount;
+        if (request->completion) request->completion = request->elementCount;
     }
     if (!options->candidateMode) Zi8InitDupWordBuf(work);
     records = (ziU8*)Zi8GetTableAddress(1, 0, work);
@@ -930,13 +930,13 @@ engine_search:
             output[outputIndex++] = ' ';
             if (outputIndex > outputLimit) {
                 request->letters = emittedCount;
-                request->unk_0x20 = emittedCount;
+                request->count = emittedCount;
                 goto engine_finish;
             }
         } else output[emittedCount++] = character;
         if (emittedCount >= request->maxCandidates) {
             request->letters = emittedCount;
-            request->unk_0x20 = emittedCount;
+            request->count = emittedCount;
             goto engine_finish;
         }
     }
@@ -981,7 +981,7 @@ pud_candidate:
             ++rangeIndex;
         }
         if (rangeIndex == request->elementCount) {
-            if (!(request->context & 0x10)) request->count = request->elementCount;
+            if (!(request->context & 0x10)) request->completion = request->elementCount;
             candidateStatus = 1;
             character = currentSpelling[wordLength];
             candidateOrdinal = 0xFFFF;
@@ -1108,13 +1108,13 @@ pud_charset:
                     output[outputIndex++] = ' ';
                     if (outputIndex > outputLimit) {
                         request->letters = emittedCount;
-                        request->unk_0x20 = emittedCount;
+                        request->count = emittedCount;
                         goto engine_finish;
                     }
                 } else output[emittedCount++] = character;
                 if (emittedCount >= request->maxCandidates) {
                     request->letters = emittedCount;
-                    request->unk_0x20 = emittedCount;
+                    request->count = emittedCount;
                     goto engine_finish;
                 }
             }
@@ -1302,13 +1302,13 @@ context_word_lookup:
                         output[outputIndex++] = ' ';
                         if (outputIndex > outputLimit) {
                             request->letters = emittedCount;
-                            request->unk_0x20 = emittedCount;
+                            request->count = emittedCount;
                             goto engine_finish;
                         }
                     } else output[emittedCount++] = previousOrdinal;
                     if (emittedCount >= request->maxCandidates) {
                         request->letters = emittedCount;
-                        request->unk_0x20 = emittedCount;
+                        request->count = emittedCount;
                         goto engine_finish;
                     }
                 }
@@ -1321,7 +1321,7 @@ context_phrase_next:
         }
     }
 context_results_done:
-    if (request->wordCharCount) request->unk_0x20 = emittedCount;
+    if (request->wordCharCount) request->count = emittedCount;
     if (getOptions == 5) goto engine_finish;
     if ((wordLength && (getMode == 1 || getMode == 2) && match.nCand > 1) ||
         (wordLength && getMode == 0 && match.nSeg > 1)) {
@@ -2572,7 +2572,7 @@ filtered_accept:
                 if (totalResults >= options->maxResults) goto engine_finish;
             } else if (!options->countOnly) {
                 if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
-                if (filteringMode == 4) request->unk_0x20 = emittedCount + 1;
+                if (filteringMode == 4) request->count = emittedCount + 1;
                 if (emitWords) {
                     ++emittedCount;
                     outputIndex += rangeCount;

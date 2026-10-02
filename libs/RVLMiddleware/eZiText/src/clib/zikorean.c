@@ -52,7 +52,7 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     result = 0;
     state.characterIndex = 0xFF;
     state.currentCandidate = params->firstCandidate;
-    params->letters = params->count = params->unk_0x20 = 0;
+    params->letters = params->completion = params->count = 0;
     if ((argument != 0) && (*argument != 0)) {
         Zi8LogError(0x7D0, workData);
         return 0;
@@ -185,7 +185,7 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                 result++;
             }
             if (currentCharacter == 0) {
-                params->count = state.matched + 1;
+                params->completion = state.matched + 1;
             }
             currentCharacter += state.matched;
         } else {
@@ -199,14 +199,14 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                     state.currentCandidate--;
                 }
                 if (currentCharacter == 0) {
-                    params->count = 1;
+                    params->completion = 1;
                 }
             } else {
                 for (state.index = 0; state.index < state.tableCount31; state.index++) {
                     if ((state.table31[(state.index * 3)] == buffer[currentCharacter]) &&
                         ((state.table31 + state.index * 3)[1] == buffer[currentCharacter + 1])) {
                         if (currentCharacter == 0) {
-                            params->count = 1;
+                            params->completion = 1;
                         }
                         params->candidates[(ziU8)result] =
                         state.tableCount0 + (state.table31 + state.index * 3)[2];
@@ -218,7 +218,7 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                 if (state.index == state.tableCount31) {
                     if ((params->candidates[(ziU8)result] = buffer[currentCharacter]) < 0xFF) {
                         if (currentCharacter == 0) {
-                            params->count = 1;
+                            params->completion = 1;
                         }
                         params->candidates[(ziU8)result] += state.tableCount0;
                         result++;
