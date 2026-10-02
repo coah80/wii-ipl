@@ -55,17 +55,28 @@ namespace textinput {
         public:
             Animation() : mfAnimationTime(0.0f), mbInAnimation(false), mbSE(false), mpAnimObserver(NULL) {}
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(MYTIMANAGER_IMPLEMENTATION)
+#ifdef MYTIMANAGER_IMPLEMENTATION
+            inline virtual ~Animation() {}
+            inline virtual void startAnm(f32 start, f32 end, f32 duration, AnimObserver* observer, void* data);
+            inline virtual void calc();                                  // 0x0C
+            inline virtual f32 getValue();                               // 0x10
+            inline virtual bool isActive();                              // 0x14
+            inline virtual void setSEFlag(bool);                         // 0x18
+            inline virtual bool isSEFlag();                              // 0x1C
+            inline virtual void stop();                                  // 0x20
+#elif defined(TIINPUTFORM_IMPLEMENTATION)
             virtual void startAnm(f32 start, f32 end, f32 duration, AnimObserver* observer, void* data);
 #else
             virtual void startAnm(AnimObserver*, f32, f32, f32, void*);
 #endif  // 0x08
+#ifndef MYTIMANAGER_IMPLEMENTATION
             virtual void calc();                                         // 0x0C
             virtual f32 getValue();                                      // 0x10
             virtual bool isActive();                                     // 0x14
             virtual void setSEFlag(bool);                                // 0x18
             virtual bool isSEFlag();                                     // 0x1C
             virtual void stop();                                         // 0x20
+#endif
 
         private:
             f32 mfStartPoint;              // 0x04
