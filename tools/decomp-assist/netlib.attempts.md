@@ -101,3 +101,25 @@ normalize to in-line `bge`. Same wall as BufFull alloc block.
 Orig rematerializes the `*colon=0`/`*end=0` store-zero fresh after memcpy
 (web-split); mine shares headerCopy's NULL web. `'\0'` literal + late-init
 headerCopy inert — allocator-internal. Documented tie.
+
+## Pass 6 — md5 ProcessBlock 74.14 -> 81.68/81.71
+
+Two decodes landed:
+- `_k = *constant` as a separate temp BEFORE the lwbrx pair (orig emits `lwz const`
+  first, then the two word loads — a distinct constant web vs folding `*constant`
+  into the _wc expression). 74.14 -> 80.86.
+- `_p` pointer capture inside STEP + post-increment args at call sites
+  (`STEP(..., word++, 7)` and `STEP(..., block + *index++, 5)`). The `word++`
+  evaluates once into `_p`, so both lwbrx see the same address while the pointer
+  walks in place — reproduces orig's `addi r4,r4,4` per-step in-place walk
+  (vs MWCC's `base+offset` temps from `++word` statements). `wptr` local deleted.
+  index++ likewise folds to orig's stride-16/offset form. -> 81.68.
+- `(_wc + (a))` operand order -> 81.71.
+
+Rejected: `++(word)` inside shared macro tail (no-op; semantically wrong for
+rounds 2-4 anyway), `word[i]` args (type error), xw-before-k decl order (74.13),
+(a)+=(f) before loads (buildfix attempt broke), shift-assoc `((_xw + _k) + a)` (79.5).
+
+Residual (32 diff blocks): pure scheduler micro-order — orig prefetches
+next-step `lwz const`/`lwz idx`/`lwbrx` into the current step's tail; insn count
+306 = 306. Documented pipelining wall.

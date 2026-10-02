@@ -71,10 +71,12 @@ void NETMD5GetDigest(NETMD5Context* context, void* digest) {
 #define ROTATE(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
 #define STEP(a, b, c, d, f, word, n) \
     do { \
-        u32 _xw = __lwbrx((word), 0); \
-        u32 _wc = __lwbrx((word), 0) + *constant; \
+        u32* _p = (word); \
+        u32 _k = *constant; \
+        u32 _xw = __lwbrx(_p, 0); \
+        u32 _wc = __lwbrx(_p, 0) + _k; \
         (a) += (f); \
-        (a) = (b) + (((a) + _wc) << (n) | (_xw + (*constant + (a))) >> (32 - (n))); \
+        (a) = (b) + ((_wc + (a)) << (n) | (_xw + (_k + (a))) >> (32 - (n))); \
         ++constant; \
     } while (0)
 
@@ -85,36 +87,35 @@ static void ProcessBlock(NETMD5Context* context) {
     u32* word;
     u32* constant;
     u32* index;
-    u32* wptr;
     int round;
     u32* block;
     block = context->buffer32;
     word = block;
     constant = constants;
     for (round = 0; round < 4; ++round) {
-        STEP(a,b,c,d,(b & c) | (~b & d),word,7); ++word;
-        STEP(d,a,b,c,(a & b) | (~a & c),word,12); ++word;
-        STEP(c,d,a,b,(d & a) | (~d & b),word,17); ++word;
-        STEP(b,c,d,a,(c & d) | (~c & a),word,22); ++word;
+        STEP(a,b,c,d,(b & c) | (~b & d),word++,7);
+        STEP(d,a,b,c,(a & b) | (~a & c),word++,12);
+        STEP(c,d,a,b,(d & a) | (~d & b),word++,17);
+        STEP(b,c,d,a,(c & d) | (~c & a),word++,22);
     }
     index = indices;
     for (round = 0; round < 4; ++round) {
-        wptr = block + *index; STEP(a,b,c,d,(b & d) | (c & ~d),wptr,5); ++index;
-        wptr = block + *index; STEP(d,a,b,c,(a & c) | (b & ~c),wptr,9); ++index;
-        wptr = block + *index; STEP(c,d,a,b,(d & b) | (a & ~b),wptr,14); ++index;
-        wptr = block + *index; STEP(b,c,d,a,(c & a) | (d & ~a),wptr,20); ++index;
+        STEP(a,b,c,d,(b & d) | (c & ~d),block + *index++,5);
+        STEP(d,a,b,c,(a & c) | (b & ~c),block + *index++,9);
+        STEP(c,d,a,b,(d & b) | (a & ~b),block + *index++,14);
+        STEP(b,c,d,a,(c & a) | (d & ~a),block + *index++,20);
     }
     for (round = 0; round < 4; ++round) {
-        wptr = block + *index; STEP(a,b,c,d,d ^ b ^ c,wptr,4); ++index;
-        wptr = block + *index; STEP(d,a,b,c,c ^ a ^ b,wptr,11); ++index;
-        wptr = block + *index; STEP(c,d,a,b,b ^ d ^ a,wptr,16); ++index;
-        wptr = block + *index; STEP(b,c,d,a,a ^ c ^ d,wptr,23); ++index;
+        STEP(a,b,c,d,d ^ b ^ c,block + *index++,4);
+        STEP(d,a,b,c,c ^ a ^ b,block + *index++,11);
+        STEP(c,d,a,b,b ^ d ^ a,block + *index++,16);
+        STEP(b,c,d,a,a ^ c ^ d,block + *index++,23);
     }
     for (round = 0; round < 4; ++round) {
-        wptr = block + *index; STEP(a,b,c,d,c ^ (b | ~d),wptr,6); ++index;
-        wptr = block + *index; STEP(d,a,b,c,b ^ (a | ~c),wptr,10); ++index;
-        wptr = block + *index; STEP(c,d,a,b,a ^ (d | ~b),wptr,15); ++index;
-        wptr = block + *index; STEP(b,c,d,a,d ^ (c | ~a),wptr,21); ++index;
+        STEP(a,b,c,d,c ^ (b | ~d),block + *index++,6);
+        STEP(d,a,b,c,b ^ (a | ~c),block + *index++,10);
+        STEP(c,d,a,b,a ^ (d | ~b),block + *index++,15);
+        STEP(b,c,d,a,d ^ (c | ~a),block + *index++,21);
     }
     context->a += a;
     context->b += b;
