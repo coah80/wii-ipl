@@ -753,8 +753,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
         if (!componentTable) {
             componentCount = Zi8GetTableCount(1, 7, work);
             componentOrdinals = (ziU8*)Zi8GetTableAddress(1, 7, work);
-            componentCursor = (ziU8*)Zi8GetTableAddress(1, 2, work);
-            componentTable = componentCursor;
+            componentTable = componentCursor = (ziU8*)Zi8GetTableAddress(1, 2, work);
             componentCursor += 8;
             --componentCount;
             componentIndex = componentCount;

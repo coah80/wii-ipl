@@ -64,7 +64,7 @@ static NWC24Err ClearMBCEntry(MBCHeader* header, NWC24File* file, u32 offset);
 static NWC24Err MountVFMBox(NWC24MBoxType type);
 static NWC24Err CopyMsgObjToMBCFmt(const NWC24MsgObjPrivate* msg, MBCEntry* entry);
 static NWC24Err CopyMsgObjToPrvFmt(const MBCEntry* entry, NWC24MsgObjPrivate* msg) NO_INLINE;
-BOOL NWC24iIsMsgObjReadable(const MBCEntry* entry) NO_INLINE;
+BOOL NWC24iIsMsgObjReadable(MBCEntry* entry) NO_INLINE;
 NWC24Err NWC24CreateVF(const char* path, u32 size);
 
 static inline NWC24Err MakeCtrlPath(char* path, NWC24MBoxType type) {
@@ -221,7 +221,7 @@ NWC24Err NWC24GetMsgObj(NWC24MsgObj* msg, NWC24MBoxType type, u32 id) {
     return result;
 }
 
-BOOL NWC24iIsMsgObjReadable(const MBCEntry* entry) {
+BOOL NWC24iIsMsgObjReadable(MBCEntry* entry) {
     if (!(entry->type & 0x200000))
         return FALSE;
     if (entry->type & 0xFE000000)
