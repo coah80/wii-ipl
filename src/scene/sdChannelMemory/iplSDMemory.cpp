@@ -60,7 +60,7 @@ namespace ipl {
             "A", "B", "B_BtnA",
         };
 
-        static const char* sTitlePaneNames[] = {"A", "B", "B_BtnA", "C", "D"};
+        static const char* sTitlePaneNames[] = {"A", "B", "C", "D", "B_BtnA"};
         static const char* sAdditionalTitlePaneNames[] = {"B_00", "C_00", "D_00", "B_BtnA"};
         static const char* sDialogPaneNames[] = {"B_ArwR", "B_ArwL", "B_CalExit", "B_CalExit_00"};
 
