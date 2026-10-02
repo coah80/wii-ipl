@@ -1417,10 +1417,10 @@ namespace ipl {
                 mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(true);
             }
 
-            WWWRect* standardRect;
             WWWRect* wideRect;
-            void* wideBuffer = browser->GetTextureBuffer(1, &wideRect);
+            WWWRect* standardRect;
             void* standardBuffer = browser->GetTextureBuffer(0, &standardRect);
+            void* wideBuffer = browser->GetTextureBuffer(1, &wideRect);
             nw4r::ut::Rect projection4x3;
             System::getProjectionRect4x3(&projection4x3);
             int screenWidth = abs(static_cast<int>(projection4x3.GetWidth()));

@@ -133,10 +133,11 @@ int AOSSi_WLANGetBSSList(struct AOSSAccessPointList** output) {
     u8 macAddress[6];
     WDScanParam scan ATTRIBUTE_ALIGN(32);
     WD_Info info ATTRIBUTE_ALIGN(32);
-    int scanRetries = 0;
-    int cleanupRetries = 0;
-    int unlockRetries = 0;
     int startupRetries = 0;
+    int unlockRetries = 0;
+    int cleanupRetries = 0;
+    int scanRetries = 0;
+
     if (!allocateMemory || !releaseMemory) {
         return -1;
     }
