@@ -149,6 +149,7 @@ namespace textinput {
             void Update();
 
             u32 GetModifierState() const;
+            void SetCountry(u8 country);
             void SetModifierState(u32, u32);
 
 #if defined(TI_CELLPHONE_HKB_KEYSET)

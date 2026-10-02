@@ -5,8 +5,6 @@
 #include "keyboard/tiHKBManager.h"
 #include "keyboard/tiLayoutGather.h"
 
-extern "C" void SetCountry__Q39textinput5input10HKBManagerFUc();
-extern "C" textinput::input::HKBManager sInstance__Q39textinput5input10HKBManager;
 extern "C" void convertWCCode__Q49textinput8keyboard5hwkey10HWKeyboardCFw();
 extern "C" bool updateInput__Q49textinput8keyboard5hwkey10HWKeyboardFRQ39textinput5input10HKBManager();
 extern "C" void __dt__Q49textinput8keyboard5hwkey10HWKeyboardFv();
@@ -797,23 +795,12 @@ const u8 controlKeys[] = {
                 blr
             }
 
-            extern "C" asm void setLanguage__Q49textinput8keyboard5hwkey10HWKeyboardFQ29textinput11DestinationQ29textinput8Language() {
-                nofralloc
-                cmpwi r4, 2
-                bne setLanguage_L1
-                lis r4, scCountryMap_EU@ha
-                lis r3, sInstance__Q39textinput5input10HKBManager@ha
-                addi r4, r4, scCountryMap_EU@l
-                lbzx r4, r4, r5
-                addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
-                b SetCountry__Q39textinput5input10HKBManagerFUc
-            setLanguage_L1:
-                lis r4, scCountryMap_NonEU@ha
-                lis r3, sInstance__Q39textinput5input10HKBManager@ha
-                addi r4, r4, scCountryMap_NonEU@l
-                lbzx r4, r4, r5
-                addi r3, r3, sInstance__Q39textinput5input10HKBManager@l
-                b SetCountry__Q39textinput5input10HKBManagerFUc
+            void HWKeyboard::setLanguage(Destination destination, Language language) {
+                if (destination == DST_EU) {
+                    input::HKBManager::getInstance().SetCountry(scCountryMap_EU[language]);
+                } else {
+                    input::HKBManager::getInstance().SetCountry(scCountryMap_NonEU[language]);
+                }
             }
         }  // namespace hwkey
 
