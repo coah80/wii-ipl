@@ -1014,9 +1014,9 @@ namespace ipl {
                             ((((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x0001000844564458ULL ||
                              ((((ESTitleId)titleIdHi << 32) | titleIdLo) > 0x0001000844564458ULL &&
                               (((ESTitleId)titleIdHi << 32) | titleIdLo) == 0x000100084449534bULL)))) {
-                    ESTitleId titleId = *(ESTitleId*)((u8*)titleIds + titleIdOffset);
-                    ES_DeleteTitle(titleId);
+                    ES_DeleteTitle(*(ESTitleId*)((u8*)titleIds + titleIdOffset));
 
+                    ESTitleId titleId = *(ESTitleId*)((u8*)titleIds + titleIdOffset);
                     ticketViewList = NULL;
                     ESTicketView* ticketView = (ESTicketView*)ticketViews;
                     memset(ticketView, 0, sizeof(ticketViews));

@@ -504,3 +504,37 @@ Scope experiments (all built + measured, reverted):
 - `for (int i = 0;` init-decl: doesn't compile (i used post-loop).
 Conclusion: orig's deeper pins require extra callee-pinned webs that no decl-
 scope form reproduces; allocator-internal ordering. Documented wall.
+
+## pass-2026-09-30d — DUD titleId web decode (iplESMisc)
+
+DeleteUnauthorizedData 87.76→89.53, insns now EXACT 449/449, diffs 240.
+
+Root-caused the tail-block deficit: orig does NOT hold `titleId` in a local
+u64 — it re-reads `*(ESTitleId*)((u8*)titleIds + titleIdOffset)` per use:
+- ES_DeleteTitle marshal = `add r4,r28,r24; lwzx r3; lwz r4,4(r4)` fresh load
+- memset/GetTicketViews section loads the pair ONCE into callee r15/r16
+  (`lwzx r15,r28,r24; lwz r16,4(r4)` at 0x223c) which serves ALL later
+  OSReport/GetTicketViews marshals (`mr r7,r15; mr r8,r16`).
+
+Winning source form:
+    ES_DeleteTitle(*(ESTitleId*)((u8*)titleIds + titleIdOffset));
+    ESTitleId titleId = *(ESTitleId*)((u8*)titleIds + titleIdOffset);
+    // all later uses via titleId
+
+Failed variants: (a) `ESTitleId titleId = *(ESTitleId*)(...)` single local
+(BEFORE this pass's edit — MWCC emits a stack struct copy + extra pointer
+web: 448 insns, 262 diffs); (b) `titleId = hi<<32|lo` built from the live
+u32 pair — cleaner regs (441 insns, 89.10) but loses orig's reload shape;
+(c) inline deref at ALL 4 use sites — 450 insns, fuzzy 85.52 (reloads
+can't fold into the single callee pair).
+
+Orig's u64 compare-tree idiom also verified: hi-const base materialized
+once (`lis r23,0x00010000` then `addi r0,r23,{1,8}` per test), lo-consts
+via `r14 = lis 0x4449` + `addi r3,r14,{0x5343,0x534b}` or `lis+addi`;
+each equality test = xor/xor/or./beq; ordering tests = subfc/subfe/subfe/neg.
+Mine already matched that shape.
+
+Residual 240 diffs = callee-web rotation (titleIdHi/Lo pair r21/r22 vs
+orig r19/r20, ret marshal homes, ticketViewList/heap regs) + the 1-insn
+`addi r?,r?,8` extra offset web — same allocator-tie family as the rest
+of the leaf.
