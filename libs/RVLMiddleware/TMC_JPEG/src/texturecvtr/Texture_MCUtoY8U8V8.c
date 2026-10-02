@@ -428,21 +428,21 @@ static void TMCJPEG_814F11C4(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F17E0(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    s32 height;
-    s32 chromaYEnd;
-    s32 column;
-    u8* lumaTexture;
     s32 chromaXEnd;
-    u8* luminance;
+    s32 chromaYEnd;
+    u8* lumaTexture;
+    s32 height;
     u32 chromaTileWidth;
+    u8* luminance;
+    s32 column;
     u8* cbTexture;
-    s32 width;
+    s32 xEnd;
     u8* crTexture;
     u32 tileWidth;
     u8* cb;
     TMCCJPEGDecState* state;
     s32 yEnd;
-    s32 xEnd;
+    s32 width;
     u8* cr;
     s32 row;
 
@@ -554,9 +554,8 @@ static void TMCJPEG_814F1F48(TMCCJPEGDecWork* work, s32 x, s32 y) {
 }
 
 static void TMCJPEG_814F2570(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    u32 chromaTileWidth;
-    TMCCJPEGDecState* state;
     u8* lumaTexture;
+    TMCCJPEGDecState* state;
     u8* luminance;
     s32 column;
     s32 row;
@@ -596,13 +595,13 @@ static void TMCJPEG_814F2570(TMCCJPEGDecWork* work, s32 x, s32 y) {
         luminance += 8 - width;
     }
     y = (u32)y >> 1;
-    chromaTileWidth = state->chromaWidth >> 3;
+    tileWidth = state->chromaWidth >> 3;
     chromaEnd = y + 8 / state->scaleFactor;
     for (; y < chromaEnd; y++) {
         for (column = x; column < xEnd; column += 1) {
-            (cbTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * chromaTileWidth) << 5)] = *cb + 128;
+            (cbTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cb + 128;
             cb++;
-            (crTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * chromaTileWidth) << 5)] = *cr + 128;
+            (crTexture + ((y & 3) << 3) + (column & 7))[(s32)(((column >> 3) + (y >> 2) * tileWidth) << 5)] = *cr + 128;
             cr++;
         }
         cb += 8 - width;
