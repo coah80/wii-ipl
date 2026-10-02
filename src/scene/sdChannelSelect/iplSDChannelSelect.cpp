@@ -335,7 +335,7 @@ namespace ipl {
             return true;
         }
 
-        bool SDChannelSelect::enqueueChannelNotice(u32 controller, u32 page, u32 index, u32 value) {
+        bool SDChannelSelect::enqueueChannelNotice(u64 titleId, u32 value) {
             if (mCurrentSDState != 6) {
                 return false;
             }
@@ -344,7 +344,7 @@ namespace ipl {
             command.type = 10;
             command.arguments.values[0] = value;
             command.arguments.values[1] = (u32)&mFirstTitleCount;
-            command.titleId = ((u64)page << 32) | index;
+            command.titleId = titleId;
             mCommandQueue.push(command);
             return true;
         }
@@ -363,7 +363,7 @@ namespace ipl {
             return true;
         }
 
-        bool SDChannelSelect::enqueueStateNotice(u32 controller, u32 page, u32 index, u32 state) {
+        bool SDChannelSelect::enqueueStateNotice(u64 titleId, u32 state) {
             if (mCurrentSDState != 6) {
                 return false;
             }
@@ -372,7 +372,7 @@ namespace ipl {
             command.type = 7;
             command.arguments.values[0] = state;
             command.arguments.values[1] = 0;
-            command.titleId = ((u64)page << 32) | index;
+            command.titleId = titleId;
             mCommandQueue.push(command);
             return true;
         }

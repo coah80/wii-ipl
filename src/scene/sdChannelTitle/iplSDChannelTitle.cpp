@@ -736,8 +736,7 @@ extern "C" void iplSDChannelTitle_startCopyProgress(SDChannelTitle* scene) {
         if (channel->mStateFlags == 3) {
             scene->mState = 26;
             scene->mErrorMessage = 0xaf;
-        } else if (scene->mpChannelSelect->enqueueChannelNotice(0, static_cast<u32>(scene->mTitleId >> 32),
-                                                              static_cast<u32>(scene->mTitleId), reinterpret_cast<u32>(&scene->mTitleRange))) {
+        } else if (scene->mpChannelSelect->enqueueChannelNotice(scene->mTitleId, reinterpret_cast<u32>(&scene->mTitleRange))) {
             scene->mState = 20;
         } else {
             scene->mState = 26;
@@ -826,8 +825,7 @@ extern "C" void iplSDChannelTitle_updateCopyStart(SDChannelTitle* scene) {
         ESTitleId temporaryTitle = SCGetTmpTitleID();
         if (temporaryTitle && scene->mTitleId != temporaryTitle) {
             if (System::isReceiveScheduleStopped()) {
-                if (scene->mpChannelSelect->enqueueStateNotice(0, static_cast<u32>(temporaryTitle >> 32),
-                                                              static_cast<u32>(temporaryTitle), 1)) {
+                if (scene->mpChannelSelect->enqueueStateNotice(temporaryTitle, 1)) {
                     scene->mState = 16;
                 } else {
                     scene->mState = 26;
