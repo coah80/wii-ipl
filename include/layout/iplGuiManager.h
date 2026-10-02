@@ -24,7 +24,7 @@ namespace ipl {
                 mbDisableCon(bDisableCon) {}
 #endif
 
-#if defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE)
+#if defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SETTING_NOVTABLE)
                 virtual ~PaneManager();
 #else
                 virtual ~PaneManager() {}

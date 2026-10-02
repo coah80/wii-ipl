@@ -1,3 +1,4 @@
+#define IPL_SETTING_NOVTABLE
 #define IPL_SETTING_RECT_OUT_OF_LINE
 #define IPL_SETTING_IMPLEMENTATION
 #include "scene/setting/iplSetting.h"

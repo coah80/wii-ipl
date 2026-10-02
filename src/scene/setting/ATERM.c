@@ -1547,6 +1547,7 @@ s32 ATERMRunConfigProtocol(void) {
             break;
         case 5:
             {
+                s32 messageLength;
                 u8 optionIds[7] = {6, 0, 1, 2, 3, 4, 5};
                 AtermRequestOption8* shortOption = (AtermRequestOption8*)gAtermRequestOptions;
                 AtermRequestOption16* longOption;
@@ -1589,13 +1590,14 @@ s32 ATERMRunConfigProtocol(void) {
                     longOption++;
                 }
                 optionEnd = (u8*)longOption;
-                gAtermMessageLength = ATERMBuildEncryptedMessage((u16*)gAtermConfigurationResult.packetBuffer, 2,
+                messageLength = ATERMBuildEncryptedMessage((u16*)gAtermConfigurationResult.packetBuffer, 2,
                     (u16*)response->data, optionEnd - gAtermRequestOptions + 8, NULL);
+                gAtermMessageLength = messageLength;
                 sendAddress.length = 8;
                 sendAddress.family = 2;
                 sendAddress.address = 0xFFFFFFFF;
                 sendAddress.port = SOHtoNs(0xE601);
-                SOSendTo(socket, gAtermConfigurationResult.packetBuffer, gAtermMessageLength, 0, &sendAddress);
+                SOSendTo(socket, gAtermConfigurationResult.packetBuffer, messageLength, 0, &sendAddress);
                 lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
                 gAtermProtocolState = 6;
                 break;
@@ -1656,6 +1658,10 @@ s32 ATERMRunConfigProtocol(void) {
                             (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
                         u32 index;
                         u32 digestBytes;
+                        u32 state0;
+                        u32 state1;
+                        u32 state2;
+                        u32 state3;
                         memcpy(response->authentication.challenge,
                             optionValue, 8);
                         digestContext.bitCountHigh = 0;
@@ -1677,22 +1683,26 @@ s32 ATERMRunConfigProtocol(void) {
                         ATERMMd5Update(&digestContext, gAtermDigestFill,
                             digestBytes < 56 ? 56 - digestBytes : 120 - digestBytes);
                         ATERMMd5Update(&digestContext, digestLength, sizeof(digestLength));
-                        response->authentication.digest[0] = digestContext.state[0];
-                        response->authentication.digest[1] = digestContext.state[0] >> 8;
-                        response->authentication.digest[2] = digestContext.state[0] >> 16;
-                        response->authentication.digest[3] = digestContext.state[0] >> 24;
-                        response->authentication.digest[4] = digestContext.state[1];
-                        response->authentication.digest[5] = digestContext.state[1] >> 8;
-                        response->authentication.digest[6] = digestContext.state[1] >> 16;
-                        response->authentication.digest[7] = digestContext.state[1] >> 24;
-                        response->authentication.digest[8] = digestContext.state[2];
-                        response->authentication.digest[9] = digestContext.state[2] >> 8;
-                        response->authentication.digest[10] = digestContext.state[2] >> 16;
-                        response->authentication.digest[11] = digestContext.state[2] >> 24;
-                        response->authentication.digest[12] = digestContext.state[3];
-                        response->authentication.digest[13] = digestContext.state[3] >> 8;
-                        response->authentication.digest[14] = digestContext.state[3] >> 16;
-                        response->authentication.digest[15] = digestContext.state[3] >> 24;
+                        state0 = digestContext.state[0];
+                        state1 = digestContext.state[1];
+                        state2 = digestContext.state[2];
+                        state3 = digestContext.state[3];
+                        response->authentication.digest[0] = state0;
+                        response->authentication.digest[1] = state0 >> 8;
+                        response->authentication.digest[2] = state0 >> 16;
+                        response->authentication.digest[3] = state0 >> 24;
+                        response->authentication.digest[4] = state1;
+                        response->authentication.digest[5] = state1 >> 8;
+                        response->authentication.digest[6] = state1 >> 16;
+                        response->authentication.digest[7] = state1 >> 24;
+                        response->authentication.digest[8] = state2;
+                        response->authentication.digest[9] = state2 >> 8;
+                        response->authentication.digest[10] = state2 >> 16;
+                        response->authentication.digest[11] = state2 >> 24;
+                        response->authentication.digest[12] = state3;
+                        response->authentication.digest[13] = state3 >> 8;
+                        response->authentication.digest[14] = state3 >> 16;
+                        response->authentication.digest[15] = state3 >> 24;
                         {
                             u8* contextByte = (u8*)&digestContext;
                             for (index = 0; index < sizeof(digestContext); index++) {
@@ -1720,6 +1730,7 @@ s32 ATERMRunConfigProtocol(void) {
             {
                 AtermRequestOption16* option = (AtermRequestOption16*)response->authentication.decoded.options;
                 AtermSocketAddress sendAddress;
+                s32 messageLength;
                 memset(response->data, 0, 8);
                 memset(option, 0, 4);
                 option->type = SOHtoNs(0x102);
@@ -1728,13 +1739,14 @@ s32 ATERMRunConfigProtocol(void) {
                 memcpy(option->value, response->authentication.digest, 8);
                 gAtermReplyLength = (u8*)(option + 1) - response->data;
                 response->authentication.decoded.length = gAtermReplyLength - 8;
-                gAtermMessageLength = ATERMBuildEncryptedMessage((u16*)gAtermConfigurationResult.packetBuffer, 4,
+                messageLength = ATERMBuildEncryptedMessage((u16*)gAtermConfigurationResult.packetBuffer, 4,
                     (u16*)response->data, gAtermReplyLength, gAtermConfigurationResult.connectionPrefix);
+                gAtermMessageLength = messageLength;
                 sendAddress.length = 8;
                 sendAddress.family = 2;
                 sendAddress.address = 0xFFFFFFFF;
                 sendAddress.port = SOHtoNs(0xE601);
-                SOSendTo(socket, gAtermConfigurationResult.packetBuffer, gAtermMessageLength, 0, &sendAddress);
+                SOSendTo(socket, gAtermConfigurationResult.packetBuffer, messageLength, 0, &sendAddress);
                 lastSendTime = (u32)(OSGetTime() / (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
                 memset(&gScanSettings, 0, 0x254);
                 gAtermProtocolState = 8;
