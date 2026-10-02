@@ -127,3 +127,73 @@ The harness is supplemental behavioral validation, not a retail runtime test.
 
 GATE: focused decompilation improvement; full 43U/DOL and no-regression checks
 pass; exact-matching gate remains incomplete at 30/31. No linking claimed.
+
+## Follow-on: recover the last ESMisc structural differences
+
+Baseline for this follow-on is the accepted reconstruction `1f9db89d`:
+30/31 exact functions, function 95.830734%, unit 99.33143%, 446/449 instructions,
+data 4416/4416. The source/header correction remains intact.
+
+Natural source attempts, in order:
+
+| Attempt | Instructions | Function fuzzy | Disposition |
+| --- | ---: | ---: | --- |
+| Ticket helper uses error-first cleanup and returns early with no tickets | 446/449 | 95.830734% | Same generated code |
+| Caller gives aligned ticket scratch an explicit pointer lifetime | 448/449 | 98.004456% | Improved |
+| Move aligned ticket scratch into the ticket helper | 446/449 | 95.817375% | Rejected |
+| Scope caller's scratch pointer to successful title enumeration | 448/449 | 98.89755% | Retained |
+| Restore nested ticket helper with scoped scratch | 448/449 | 98.89755% | Same generated code |
+| Ticket helper returns its actual ES operation status | 449/449 | 99.14254% | Retained |
+
+The scratch pointer is initialized only in the block reached after successful
+second enumeration, and remains live across the title loop. This restores the
+saved scratch cursor and per-iteration 64-bit mask materialization. No pointer
+is used before initialization and no artificial use extends its lifetime.
+
+The private ticket helper now returns the status already obtained from
+ES_GetTicketViews or ES_DeleteTicket, including its zero-ticket early return
+and normal cleanup. Its caller intentionally discards that status. The return
+contract of an independently emitted original helper cannot be established
+because this helper was fully inlined; this is a natural equivalent source
+form whose zero-ticket branch structure is confirmed by the target. It does
+not overwrite the outer enumeration status or change the public ABI further.
+
+Final ctxdiff: 449/449 instructions, 74 differences. Every mnemonic,
+non-register operand, stack offset, resolved call target and branch target
+agrees. The remaining differences are register substitutions, including the
+title list, scratch cursor, title index, verifier flags and title halves. No
+register/declaration permutation search was performed after reaching this
+structural agreement.
+
+Measurements after a fresh full report:
+
+- ESMisc exact functions 30/31 -> 30/31
+- ESMisc exact code 9404/11200 -> 9404/11200
+- ESMisc fuzzy 99.33143% -> 99.8625%
+- DeleteUnauthorizedData fuzzy 95.830734% -> 99.14254%
+- Matched data 4416/4416 -> 4416/4416
+- Pool: all 114 strings identical
+- Literal audit: 204 arguments in 30 exact functions, no candidates/errors
+- Every other unit's full report is unchanged
+- Full 43U build/check and DOL SHA1 pass:
+  26116613f624061ba99c8d1a299aaa6efa85670d
+- The same 12 ASan/UBSan host control-flow scenarios pass on helper bodies
+  freshly extracted from this final candidate (LeakSanitizer disabled only
+  for the environment limitation already noted)
+- git diff --check passes
+
+This remains a partial matching improvement, not an exact function or unit.
+
+### Rejected ATERM ownership experiment
+
+Read-only target evidence identified that the old typed reply view spans the
+last eight bytes of one BSS object and the following option-buffer allocation.
+With parent approval, tried a real two-object protocol-workspace aggregate and
+corresponding narrow metadata consolidation. It preserved storage, addresses,
+all 17 exact functions and matched data, and reduced the main protocol from
+972 to 959 instructions (target 951). However, its unit fuzzy regressed from
+96.624664% to 96.49781%; wider grouping and a decoder-helper experiment also
+failed the no-regression condition. All ATERM source and symbol metadata were
+restored. Fresh report after restoration was identical to the accepted ESMisc
+baseline, and the DOL hash passed. Detailed rejected source/metadata and
+address evidence were kept privately for future work; none is in this commit.
