@@ -1465,8 +1465,9 @@ extern "C" BOOL iplSDChannelTitle_passesParentalCheck(SDChannelTitle* scene, EST
     return TRUE;
 }
 
-extern "C" void iplSDChannelTitle_onTitlePaneEvent(SDTitlePaneEventHandler* handler, u32 component,
-                                         u32 event, const controller::Interface* controller) {
+void SDTitlePaneEventHandler::onEvent(u32 component, u32 event, void* data) {
+    SDTitlePaneEventHandler* handler = this;
+    const controller::Interface* controller = static_cast<const controller::Interface*>(data);
     const char* paneName = handler->getPane(component)->GetName();
     switch (event) {
     case ::gui::EventHandler::ON_TRIG: {
@@ -1524,8 +1525,8 @@ extern "C" void iplSDChannelTitle_onTitlePaneEvent(SDTitlePaneEventHandler* hand
     }
 }
 
-extern "C" void iplSDChannelTitle_onTitleButtonEvent(SDTitleButtonEventHandler* handler, u32 component,
-                                         u32 event, const controller::Interface* controller) {
+void SDTitleButtonEventHandler::onEventDerived(u32 component, u32 event, const controller::Interface* controller) {
+    SDTitleButtonEventHandler* handler = this;
     const char* name = handler->getPane(component)->GetName();
     switch (event) {
     case 0:
@@ -1555,12 +1556,14 @@ void SDChannelTitle::startResetting() {
     snd::getSystem()->resetAllSound();
 }
 
-void SDTitleButtonEventHandler::onEventDerived(u32 component, u32 event, const controller::Interface* controller) {
-    iplSDChannelTitle_onTitleButtonEvent(this, component, event, controller);
+extern "C" void iplSDChannelTitle_onTitleButtonEvent(SDTitleButtonEventHandler* handler, u32 component,
+                                         u32 event, const controller::Interface* controller) {
+    handler->onEventDerived(component, event, controller);
 }
 
-void SDTitlePaneEventHandler::onEvent(u32 component, u32 event, void* data) {
-    iplSDChannelTitle_onTitlePaneEvent(this, component, event, static_cast<const controller::Interface*>(data));
+extern "C" void iplSDChannelTitle_onTitlePaneEvent(SDTitlePaneEventHandler* handler, u32 component,
+                                         u32 event, const controller::Interface* controller) {
+    handler->onEvent(component, event, const_cast<controller::Interface*>(controller));
 }
 
 }
