@@ -15,11 +15,11 @@ void Zi8Memset(ziPtr, ziU32, ziU32);
 
 ziBool Zi8_81480224(ziUserWord* word ZI_NEED_WORK) {
     ziU8 length;
-    ziU8 position;
     ziUwdNode* previous;
     ziUwdNode* current;
     ziUwdNode* added;
     ziUserWord* candidate;
+    ziU8 position;
     if (ZI_WORK->uwdCount >= 32) {
         Zi8LogError(0x19D, __zi8_work_data);
         return 0;
@@ -56,8 +56,7 @@ ziBool Zi8_81480224(ziUserWord* word ZI_NEED_WORK) {
         previous = current;
         current = current->next;
     }
-    length = ZI_WORK->uwdCount++;
-    added = &ZI_WORK->uwdNodes[length];
+    added = &ZI_WORK->uwdNodes[ZI_WORK->uwdCount++];
     if (previous == 0) {
         ZI_WORK->uwdList = added;
         added->next = current;

@@ -5660,3 +5660,2448 @@ zidawg1: exact 2 -> 2; matched_code 92 -> 92; matched_data 80 -> 80 / 80
 ziswordw: exact 1 -> 1; matched_code 364 -> 364; matched_data 32 -> 48 / 48
 ```
 All exact counts/code bytes preserved; matched data gains96 bytes. DAWG, WordW and UWD non-text sections100%; PUD extent gap remains code work. Eight remaining functions audited above, each with at least3 current-round distinct source attempts. No full unit code match claimed.
+
+Live origin baseline c7344eccc8eae6da233817807d35f26cdef7c7f3 built in this worker tree, then owned source restored and rebuilt. Current round starting quick gate passed; full gate remains required. Function-by-function comparison:
+```
+zi8pud2 ZiIsPhoneticChar: 100.0 -> 100.0
+zi8pud2 ZiGetZHWordSize: 100.0 -> 100.0
+zi8pud2 Zi8CopyZHSpelling: 100.0 -> 100.0
+zi8pud2 ZADP_Zi8SetPDremoveOpt: 100.0 -> 100.0
+zi8pud2 Zi8MatchPUDdata_ZHS: 98.13842 -> 98.13842
+zi8pud2 Zi8MatchPUDdata: 100.0 -> 100.0
+zi8pud2 Zi8_8147FD7C: 100.0 -> 100.0
+zi8uwd Zi8_81480224: 99.22414 -> 99.22414
+zi8uwd Zi8_814803F4: 100.0 -> 100.0
+zi8uwd Zi8_8148047C: 100.0 -> 100.0
+zi8uwd Zi8MatchUWDdata: 98.65323 -> 98.65323
+zidawg1 ZiDAWGGetChild: 96.67647 -> 96.67647
+zidawg1 ZiDAWGGetSibling: 96.78626 -> 96.78626
+zidawg1 ZiDAWGgetEOWattribute: 100.0 -> 100.0
+zidawg1 ZiDAWGgetCHARattribute: 99.0 -> 99.0
+zidawg1 ZiDAWGGetGraph: 100.0 -> 100.0
+zidawg1 ZiDAWGGetGraphInfo: 99.55224 -> 99.55224
+ziswordw Zi8IsWordW: 98.52164 -> 98.52164
+ziswordw Zi8ConvertUC2UserKey: 100.0 -> 100.0
+FUZZY REGRESSIONS: 0
+```
+
+### HIGH-f ZiDAWGGetChild
+Fetched origin 11f4b29c641ea4d738703e5b6b0e81a5b9e23f33; compiled origin function 96.67647%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x110 base 0x110 insns 68/68
+diffs 9: [33, 34, 35, 36, 37, 38, 39, 47, 49]
+    33 M lbz r5, 2(r3)
+       B lbz r0, 0(r3)
+    34 M lbz r0, 0(r3)
+       B clrlwi r0, r0, 0x19
+    35 M clrlwi r0, r0, 0x19
+       B slwi r5, r0, 0x10
+    36 M slwi r4, r0, 0x10
+       B lbz r0, 1(r3)
+    37 M lbz r0, 1(r3)
+       B clrlwi r0, r0, 0x10
+    38 M clrlwi r0, r0, 0x10
+       B slwi r4, r0, 8
+    39 M slwi r0, r0, 8
+       B lbz r0, 2(r3)
+    47 M slwi r31, r0, 8
+       B slwi r4, r0, 8
+    49 M add r31, r31, r0
+       B add r31, r4, r0
+```
+- Resume ZiDAWGGetChild, HIGH-f decode short offset as a single big endian expression: objdiff 96.67647 -> 93.72059; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 96.67647, 93.72059)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-f add low byte to biased upper two octets: objdiff 96.67647 -> 93.588234; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 96.67647, 93.588234)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-f bias upper octets before adding low byte: objdiff 96.67647 -> 93.588234; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 96.67647, 93.588234)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-f right associate complete three byte displacement: objdiff 96.67647 -> 92.70588; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 96.67647, 92.70588)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-f decode low octet first in equivalent serialized sum: objdiff 96.67647 -> 96.367645; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 96.67647, 96.367645)]; reverted.
+
+### HIGH-f ZiDAWGgetCHARattribute
+Fetched origin 11f4b29c641ea4d738703e5b6b0e81a5b9e23f33; compiled origin function 99.0%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0xf0 base 0xf0 insns 60/60
+diffs 12: [5, 14, 18, 19, 20, 29, 31, 32, 36, 37, 42, 43]
+     5 M mr r30, r3
+       B mr r31, r3
+    14 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    18 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    19 M clrlwi r3, r31, 0x18
+       B clrlwi r3, r30, 0x18
+    20 M lhz r0, 4(r30)
+       B lhz r0, 4(r31)
+    29 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    31 M lwz r3, 0xc(r30)
+       B lwz r3, 0xc(r31)
+    32 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    36 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    37 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    42 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    43 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+```
+- Resume ZiDAWGgetCHARattribute, HIGH-f scope complete decode and attribute result together: objdiff 99.0 -> 88.15; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (240, 256); source unwind 1808000000000000200800000000000030180000000000003808000000000000; fuzzy regressions [('ZiDAWGgetCHARattribute', 99.0, 88.15)]; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-f one-element dictionary context array parameter: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-f use current node address as typed mutable byte cursor: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-f load mapped attribute components in a single complete result assignment: objdiff 99.0 -> 98.666664; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGgetCHARattribute', 99.0, 98.666664)]; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-f positive valid-key guard before attribute table lookups: objdiff 99.0 -> 78.833336; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGgetCHARattribute', 99.0, 78.833336)]; reverted.
+
+### HIGH-f ZiDAWGGetGraphInfo
+Fetched origin 11f4b29c641ea4d738703e5b6b0e81a5b9e23f33; compiled origin function 99.55224%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x218 base 0x218 insns 134/134
+diffs 12: [5, 8, 10, 11, 85, 87, 94, 97, 98, 99, 102, 127]
+     5 M mr r25, r3
+       B mr r29, r3
+     8 M mr r3, r25
+       B mr r3, r29
+    10 M mr r29, r3
+       B mr r26, r3
+    11 M li r26, 0
+       B li r25, 0
+    85 M add r3, r29, r3
+       B add r3, r26, r3
+    87 M add r26, r3, r0
+       B add r25, r3, r0
+    94 M add r3, r29, r3
+       B add r3, r26, r3
+    97 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+    98 M lwz r0, 0x338(r25)
+       B lwz r0, 0x338(r29)
+    99 M cmplw r0, r29
+       B cmplw r0, r26
+   102 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+   127 M mr r3, r26
+       B mr r3, r25
+```
+- Resume ZiDAWGGetGraphInfo, HIGH-f scope the complete graph traversal and returned result together: objdiff 99.55224 -> 93.05224; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (536, 552); source unwind 1808000000000000200800000000000028080000000000004018000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 93.05224)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f dictionary context array parameter: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f graph base fixed after its lookup: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f entry bounds fixed-width byte pointer alongside graph base: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-f ZiDAWGGetSibling
+Fetched origin 11f4b29c641ea4d738703e5b6b0e81a5b9e23f33; compiled origin function 96.78626%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x20c base 0x20c insns 131/131
+diffs 23: [23, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+    23 M beq 172
+       B beq 176
+    45 M beq 52
+       B beq 56
+    46 M lbz r5, 2(r3)
+       B lbz r0, 0(r3)
+    47 M lbz r0, 0(r3)
+       B clrlwi r0, r0, 0x19
+    48 M clrlwi r0, r0, 0x19
+       B slwi r5, r0, 0x10
+    49 M slwi r4, r0, 0x10
+       B lbz r0, 1(r3)
+    50 M lbz r0, 1(r3)
+       B clrlwi r0, r0, 0x10
+    51 M slwi r0, r0, 8
+       B slwi r4, r0, 8
+    52 M add r4, r5, r4
+       B lbz r0, 2(r3)
+    53 M addis r4, r4, 1
+       B add r4, r5, r4
+    54 M addi r4, r4, -0x8000
+       B addis r4, r4, 1
+    55 M add r0, r28, r0
+       B addi r4, r4, -0x8000
+    56 M add r28, r4, r0
+       B add r0, r28, r0
+    57 M b 28
+       B add r28, r4, r0
+    58 M lbz r0, 0(r3)
+       B b 28
+    59 M clrlwi r0, r0, 0x10
+       B lbz r0, 0(r3)
+    60 M slwi r0, r0, 8
+       B clrlwi r0, r0, 0x10
+    61 M lbz r4, 1(r3)
+       B slwi r0, r0, 8
+    62 M add r0, r28, r0
+       B lbz r4, 1(r3)
+    63 M add r28, r4, r0
+       B add r0, r28, r0
+    64 M mr r3, r28
+       B add r28, r4, r0
+    65 M b 240
+       B mr r3, r28
+    66 M mr r3, r28
+       B b 236
+```
+- Resume ZiDAWGGetSibling, HIGH-f scope sibling header decode separately from depth-first traversal: objdiff 96.78626 -> 96.78626; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f add low octet to the biased high portion of serialized sibling displacement: objdiff 96.78626 -> 96.0458; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 96.0458)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f one-element input cursor array parameter: objdiff 96.78626 -> 96.78626; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f common return after direct sibling displacement and depth traversal: objdiff 96.78626 -> 94.25191; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 94.25191)]; reverted.
+
+### HIGH-f Zi8MatchPUDdata_ZHS
+Fetched origin e133119aa588aadbd41b48054b8463d0a9319185; compiled origin function 98.13842%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x574 base 0x588 insns 349/354
+--- insert mine 15:15 base 15:16
+  B   15 stw r31, 0x24(r1)
+--- replace mine 35:36 base 36:37
+  M   35 b 1232
+  B   36 b 1248
+--- replace mine 43:44 base 44:45
+  M   43 bne 184
+  B   44 bne 200
+--- replace mine 74:76 base 75:76
+  M   74 b 1076
+  M   75 lbz r3, 5(r26)
+  B   75 b 1092
+--- replace mine 77:78 base 77:81
+  M   77 slwi r0, r0, 8
+  B   77 clrlwi r0, r0, 0x10
+  B   78 slwi r3, r0, 8
+  B   79 lbz r0, 5(r26)
+  B   80 clrlwi r0, r0, 0x10
+--- replace mine 80:82 base 83:84
+  M   80 lbz r5, 3(r26)
+  M   81 lwz r4, 0x14(r1)
+  B   83 lwz r5, 0x14(r1)
+--- replace mine 83:84 base 85:89
+  M   83 slwi r3, r0, 8
+  B   85 clrlwi r0, r0, 0x10
+  B   86 slwi r4, r0, 8
+  B   87 lbz r0, 3(r26)
+  B   88 clrlwi r3, r0, 0x10
+--- delete mine 250:251 base 255:255
+  M  250 li r30, 0
+--- insert mine 252:252 base 256:257
+  B  256 mr r30, r27
+```
+- Resume Zi8MatchPUDdata_ZHS, HIGH-f initialize Chinese byte index from copied character count in loop initializer: objdiff 98.13842 -> 98.32204; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1396); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; SELECTED.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-f consume section count before assigning dictionary continuation count: objdiff 98.32204 -> 93.44068; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1448); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.13842, 93.44068)]; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-f decode section byte offset before forming its dictionary address: objdiff 98.32204 -> 93.00282; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1448); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.13842, 93.00282)]; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-f high-word-first section address grouping: objdiff 98.32204 -> 98.32204; data 48 -> 48; instruction-exact 6 -> 6; target/source sizes (1416, 1396); source unwind 180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000; fuzzy regressions []; reverted.
+
+### HIGH-f Zi8IsWordW
+Fetched origin e133119aa588aadbd41b48054b8463d0a9319185; compiled origin function 98.52164%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x680 base 0x680 insns 416/416
+diffs 12: [357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368]
+   357 M slwi r3, r0, 8
+       B clrlwi r0, r0, 0x10
+   358 M lbz r0, 0(r30)
+       B slwi r3, r0, 8
+   359 M or r0, r3, r0
+       B lbz r0, 0(r30)
+   360 M clrlwi r0, r0, 0x10
+       B or r0, r3, r0
+   361 M sth r0, 0xc(r1)
+       B clrlwi r0, r0, 0x10
+   362 M addi r30, r30, 2
+       B sth r0, 0xc(r1)
+   363 M lwz r3, 0x14(r1)
+       B addi r30, r30, 2
+   364 M addi r0, r3, 2
+       B lhz r0, 0xc(r1)
+   365 M stw r0, 0x14(r1)
+       B clrlwi r4, r0, 0x10
+   366 M lhz r0, 0xc(r1)
+       B lwz r3, 0x14(r1)
+   367 M clrlwi r4, r0, 0x10
+       B addi r3, r3, 2
+   368 M lwz r3, 0x14(r1)
+       B stw r3, 0x14(r1)
+```
+- Resume Zi8IsWordW, HIGH-f compare value against the next ordinal through preincremented cursor: objdiff 98.52164 -> 99.72356; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1660); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-f update ordinal cursor while forming the comparison operand: objdiff 98.52164 -> 99.72356; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1660); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-f combine byte advance and ordinal advancement in a sequenced comma expression: objdiff 98.52164 -> 99.07452; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1668); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8IsWordW, HIGH-f decode into the real word accumulator in two shifts before cursor comparison: objdiff 98.52164 -> 99.61539; data 48 -> 24; instruction-exact 1 -> 1; target/source sizes (1664, 1668); source unwind 30080000000000001808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-f Zi8_81480224
+Fetched origin e133119aa588aadbd41b48054b8463d0a9319185; compiled origin function 99.22414%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x1d0 base 0x1d0 insns 116/116
+diffs 15: [5, 16, 24, 25, 34, 50, 57, 63, 67, 73, 77, 90, 91, 93, 104]
+     5 M mr r25, r3
+       B mr r28, r3
+    16 M cmpwi r25, 0
+       B cmpwi r28, 0
+    24 M lbz r28, 2(r25)
+       B lbz r25, 2(r28)
+    25 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    34 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    50 M lbz r0, 3(r25)
+       B lbz r0, 3(r28)
+    57 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    63 M add r3, r26, r0
+       B add r3, r0, r26
+    67 M add r3, r25, r0
+       B add r3, r0, r28
+    73 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    77 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r25, 0x18
+    90 M lbz r28, 0x1c7(r31)
+       B lbz r3, 0x1c7(r31)
+    91 M addi r0, r28, 1
+       B addi r0, r3, 1
+    93 M clrlwi r0, r28, 0x18
+       B clrlwi r0, r3, 0x18
+   104 M stw r25, 4(r29)
+       B stw r28, 4(r29)
+```
+- Resume Zi8_81480224, HIGH-f use node count directly as the newly allocated candidate index: objdiff 99.22414 -> 99.18104; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 99.18104)]; reverted.
+- Resume Zi8_81480224, HIGH-f record pointer is read only during insertion and duplicate lookup: objdiff 99.22414 -> 99.13793; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 99.13793)]; reverted.
+- Resume Zi8_81480224, HIGH-f text offset precedes serialized record base in duplicate byte indexing: objdiff 99.22414 -> 99.22414; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8_81480224, HIGH-f dedicated node slot uses exhausted duplicate comparison position: objdiff 99.22414 -> 98.793106; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 98.793106)]; reverted.
+- Resume Zi8_81480224, HIGH-f one-element serialized word parameter: objdiff 99.22414 -> 99.22414; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-f Zi8MatchUWDdata
+Fetched origin e133119aa588aadbd41b48054b8463d0a9319185; compiled origin function 98.65323%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x7c0 base 0x7c0 insns 496/496
+diffs 144: [16, 18, 55, 60, 61, 79, 82, 102, 122, 134, 135, 143, 147, 172, 175, 177, 184, 186, 187, 188]
+    16 M stw r0, 0x38(r1)
+       B stw r0, 0x10(r1)
+    18 M stw r0, 0x14(r1)
+       B stw r0, 0xc(r1)
+    55 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+    60 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+    61 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+    79 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+    82 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+   102 M b 356
+       B b 348
+   122 M b 276
+       B b 268
+   134 M stw r0, 0x18(r1)
+       B stw r0, 0x14(r1)
+   135 M b 216
+       B b 208
+   143 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   147 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   172 M lwz r0, 0x18(r1)
+       B lwz r0, 0x14(r1)
+   175 M lwz r3, 0x18(r1)
+       B lwz r3, 0x14(r1)
+   177 M stw r0, 0x18(r1)
+       B stw r0, 0x14(r1)
+   184 M b 28
+       B b 20
+   186 M mr r0, r30
+       B addi r30, r30, 1
+   187 M addi r30, r30, 1
+       B cmpwi r28, 0
+   188 M stw r0, 0xc(r1)
+       B bgt -208
+   189 M cmpwi r28, 0
+       B lbz r0, 0x140(r31)
+   190 M bgt -216
+       B cmpwi r0, 0
+   191 M lbz r0, 0x140(r31)
+       B bne 24
+   192 M cmpwi r0, 0
+       B clrlwi r0, r24, 0x18
+   193 M bne 24
+       B cmpwi r0, 0
+   194 M clrlwi r0, r24, 0x18
+       B bne 12
+   195 M cmpwi r0, 0
+       B li r3, 0
+   196 M bne 12
+       B b 1176
+   197 M li r3, 0
+       B lwz r4, 0x40(r1)
+   198 M b 1168
+       B lwz r3, 0x40(r1)
+   199 M lwz r4, 0x40(r1)
+       B lhz r0, 4(r3)
+   200 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   201 M lhz r0, 4(r3)
+       B addi r0, r3, 8
+   202 M add r3, r4, r0
+       B stw r0, 0x38(r1)
+   203 M addi r0, r3, 8
+       B stw r0, 0x3c(r1)
+   204 M stw r0, 0x3c(r1)
+       B lwz r4, 0x40(r1)
+   205 M stw r0, 0x10(r1)
+       B lwz r3, 0x40(r1)
+   206 M lwz r4, 0x40(r1)
+       B lhz r0, 6(r3)
+   207 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   208 M lhz r0, 6(r3)
+       B addi r0, r3, 7
+   209 M add r3, r4, r0
+       B stw r0, 0x34(r1)
+   210 M addi r0, r3, 7
+       B lwz r4, 0x40(r1)
+   211 M stw r0, 0x34(r1)
+       B lwz r3, 0x40(r1)
+   212 M lwz r4, 0x40(r1)
+       B lhz r0, 2(r3)
+   213 M lwz r3, 0x40(r1)
+       B add r3, r4, r0
+   214 M lhz r0, 2(r3)
+       B addi r0, r3, 7
+   215 M add r3, r4, r0
+       B stw r0, 0x30(r1)
+   216 M addi r0, r3, 7
+       B lwz r3, 0x38(r1)
+   217 M stw r0, 0x30(r1)
+       B lwz r0, 0x34(r1)
+   218 M lwz r3, 0x10(r1)
+       B cmplw r3, r0
+   219 M lwz r0, 0x34(r1)
+       B bge 16
+   220 M cmplw r3, r0
+       B li r0, 1
+   221 M bge 16
+       B stw r0, 0x28(r1)
+   222 M li r0, 1
+       B b 780
+   223 M stw r0, 0x28(r1)
+       B li r0, 0
+   224 M b 772
+       B stw r0, 0x28(r1)
+   225 M li r0, 0
+       B b 768
+   226 M stw r0, 0x28(r1)
+       B lwz r3, 0x3c(r1)
+   227 M b 760
+       B lbz r0, 0(r3)
+   228 M lwz r3, 0x3c(r1)
+       B stw r0, 0x24(r1)
+   229 M lbz r0, 0(r3)
+       B lwz r4, 0x13c(r31)
+   230 M stw r0, 0x24(r1)
+       B lwz r3, 0x10(r1)
+   231 M lwz r4, 0x13c(r31)
+       B addi r0, r3, 1
+   232 M lwz r3, 0x14(r1)
+       B stw r0, 0x10(r1)
+   233 M addi r0, r3, 1
+       B cmpw r4, r3
+   234 M stw r0, 0x14(r1)
+       B bgt 24
+   235 M cmpw r4, r3
+       B lwz r3, 0x3c(r1)
+   236 M bgt 24
+       B lbz r0, 0(r3)
+   237 M lwz r3, 0x3c(r1)
+       B rlwinm r0, r0, 0, 0x18, 0x19
+   238 M lbz r0, 0(r3)
+       B cmpwi r0, 0
+   239 M rlwinm r0, r0, 0, 0x18, 0x19
+       B beq 96
+   240 M cmpwi r0, 0
+       B lwz r3, 0x3c(r1)
+   241 M beq 100
+       B lwz r0, 0x24(r1)
+   242 M lwz r3, 0x3c(r1)
+       B add r3, r3, r0
+   243 M lwz r0, 0x24(r1)
+       B stw r3, 0x3c(r1)
+   244 M add r0, r3, r0
+       B lwz r0, 0x30(r1)
+   245 M stw r0, 0x3c(r1)
+       B cmplw r3, r0
+   246 M lwz r3, 0x3c(r1)
+       B ble 684
+   247 M lwz r0, 0x30(r1)
+       B lwz r0, 0x28(r1)
+   248 M cmplw r3, r0
+       B cmpwi r0, 0
+   249 M ble 672
+       B bne 728
+   250 M lwz r0, 0x28(r1)
+       B li r0, 1
+   251 M cmpwi r0, 0
+       B stw r0, 0x28(r1)
+   252 M bne 716
+       B lwz r3, 0x30(r1)
+   253 M li r0, 1
+       B lwz r0, 0x3c(r1)
+   254 M stw r0, 0x28(r1)
+       B subf r3, r3, r0
+   255 M lwz r3, 0x30(r1)
+       B addi r0, r3, -1
+   256 M lwz r0, 0x3c(r1)
+       B stw r0, 0x24(r1)
+   257 M subf r3, r3, r0
+       B lwz r3, 0x40(r1)
+   258 M addi r0, r3, -1
+       B lwz r0, 0x24(r1)
+   259 M stw r0, 0x24(r1)
+       B add r3, r3, r0
+   260 M lwz r3, 0x40(r1)
+       B addi r0, r3, 8
+   261 M lwz r0, 0x24(r1)
+       B stw r0, 0x3c(r1)
+   262 M add r3, r3, r0
+       B b 620
+   263 M addi r0, r3, 8
+       B lwz r3, 0x3c(r1)
+   264 M stw r0, 0x3c(r1)
+       B lwz r0, 0x24(r1)
+   265 M b 608
+       B add r0, r3, r0
+   266 M lwz r3, 0x3c(r1)
+       B stw r0, 0x2c(r1)
+   267 M lwz r0, 0x24(r1)
+       B lwz r3, 0x2c(r1)
+   268 M add r0, r3, r0
+       B lwz r0, 0x30(r1)
+   269 M stw r0, 0x2c(r1)
+       B cmplw r3, r0
+   270 M lwz r3, 0x2c(r1)
+       B ble 32
+   271 M lwz r0, 0x30(r1)
+       B lwz r4, 0x40(r1)
+   272 M cmplw r3, r0
+       B lwz r3, 0x30(r1)
+   273 M ble 32
+       B lwz r0, 0x3c(r1)
+   274 M lwz r4, 0x3c(r1)
+       B subf r0, r3, r0
+   275 M lwz r3, 0x30(r1)
+       B add r3, r0, r4
+   276 M lwz r0, 0x40(r1)
+       B addi r0, r3, 7
+   277 M subf r0, r3, r0
+       B stw r0, 0x2c(r1)
+   278 M add r3, r4, r0
+       B lwz r29, 0x3c(r1)
+   279 M addi r0, r3, 7
+       B lbz r0, 0(r29)
+   280 M stw r0, 0x2c(r1)
+       B addi r29, r29, 1
+   281 M lwz r3, 0x3c(r1)
+       B clrlwi r0, r0, 0x18
+   282 M addi r29, r3, 1
+       B stw r0, 0x20(r1)
+   290 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+   295 M bne -212
+       B bne -220
+   296 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   299 M blt -228
+       B blt -236
+   300 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   303 M bge -244
+       B bge -252
+   307 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   310 M bne -272
+       B bne -280
+   314 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   317 M beq -300
+       B beq -308
+   336 M bne -376
+       B bne -384
+   351 M beq -436
+       B beq -444
+   360 M beq -472
+       B beq -480
+   366 M bne -496
+       B bne -504
+   379 M bne -548
+       B bne -556
+   385 M bne -572
+       B bne -580
+   391 M bne -596
+       B bne -604
+   409 M bne -668
+       B bne -676
+   416 M b -696
+       B b -704
+   423 M bne -780
+       B bne -788
+   430 M beq -808
+       B beq -816
+   440 M stw r0, 0x14(r1)
+       B stw r0, 0x10(r1)
+   441 M b -968
+       B b -976
+   453 M stw r0, 0x38(r1)
+       B stw r0, 0xc(r1)
+   455 M stw r0, 0x14(r1)
+       B stw r0, 0x10(r1)
+   456 M b -1028
+       B b -1036
+   464 M stw r0, 0x20(r1)
+       B stw r0, 0x18(r1)
+   465 M lwz r3, 0x20(r1)
+       B lwz r3, 0x18(r1)
+   483 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+   486 M lwz r0, 0x20(r1)
+       B lwz r0, 0x18(r1)
+```
+- Resume Zi8MatchUWDdata, HIGH-f prefix copy position advances before the loop continuation test: objdiff 98.65323 -> 98.854836; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1980); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8MatchUWDdata, HIGH-f scope continuation output language and text length together: objdiff 98.65323 -> 94.65524; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (1984, 1996); source unwind 4008000000000000100800000000000008080000000000007018000000000000; fuzzy regressions [('Zi8MatchUWDdata', 98.65323, 94.65524)]; reverted.
+- Resume Zi8MatchUWDdata, HIGH-f reuse prior text prefix bound for final duplicate scan: objdiff 98.65323 -> 98.229836; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1992); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8MatchUWDdata', 98.65323, 98.229836)]; reverted.
+- Resume Zi8MatchUWDdata, HIGH-f advance match cursor through a typed record header before reading text: objdiff 98.65323 -> 97.495964; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (1984, 1972); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8MatchUWDdata', 98.65323, 97.495964)]; reverted.
+- Resume Zi8MatchUWDdata, HIGH-f compare prior-prefix byte bounds using a positive while loop: objdiff 98.65323 -> 94.45564; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (1984, 2048); source unwind 4008000000000000100800000000000008080000000000006008000000000000; fuzzy regressions [('Zi8MatchUWDdata', 98.65323, 94.45564)]; reverted.
+
+### HIGH-f exhaustive declaration permutations ZiDAWGGetGraphInfo
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 1: ziU32 graph; | ziU8 depth; | ziU32 end; | ziS32 result;; structural/exact diffs (0, 12).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 2: ziU32 graph; | ziU8 depth; | ziS32 result; | ziU32 end;; structural/exact diffs (0, 12).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 3: ziU32 graph; | ziU32 end; | ziU8 depth; | ziS32 result;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 4: ziU32 graph; | ziU32 end; | ziS32 result; | ziU8 depth;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 5: ziU32 graph; | ziS32 result; | ziU8 depth; | ziU32 end;; structural/exact diffs (0, 12).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 6: ziU32 graph; | ziS32 result; | ziU32 end; | ziU8 depth;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 7: ziU8 depth; | ziU32 graph; | ziU32 end; | ziS32 result;; structural/exact diffs (0, 15).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 8: ziU8 depth; | ziU32 graph; | ziS32 result; | ziU32 end;; structural/exact diffs (0, 15).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 9: ziU8 depth; | ziU32 end; | ziU32 graph; | ziS32 result;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 10: ziU8 depth; | ziU32 end; | ziS32 result; | ziU32 graph;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 11: ziU8 depth; | ziS32 result; | ziU32 graph; | ziU32 end;; structural/exact diffs (0, 15).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 12: ziU8 depth; | ziS32 result; | ziU32 end; | ziU32 graph;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 13: ziU32 end; | ziU32 graph; | ziU8 depth; | ziS32 result;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 14: ziU32 end; | ziU32 graph; | ziS32 result; | ziU8 depth;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 15: ziU32 end; | ziU8 depth; | ziU32 graph; | ziS32 result;; structural/exact diffs (0, 16).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 16: ziU32 end; | ziU8 depth; | ziS32 result; | ziU32 graph;; structural/exact diffs (0, 16).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 17: ziU32 end; | ziS32 result; | ziU32 graph; | ziU8 depth;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 18: ziU32 end; | ziS32 result; | ziU8 depth; | ziU32 graph;; structural/exact diffs (0, 16).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 19: ziS32 result; | ziU32 graph; | ziU8 depth; | ziU32 end;; structural/exact diffs (0, 12).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 20: ziS32 result; | ziU32 graph; | ziU32 end; | ziU8 depth;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 21: ziS32 result; | ziU8 depth; | ziU32 graph; | ziU32 end;; structural/exact diffs (0, 15).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 22: ziS32 result; | ziU8 depth; | ziU32 end; | ziU32 graph;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 23: ziS32 result; | ziU32 end; | ziU32 graph; | ziU8 depth;; structural/exact diffs (0, 19).
+- HIGH-f ZiDAWGGetGraphInfo exhaustive candidate 24: ziS32 result; | ziU32 end; | ziU8 depth; | ziU32 graph;; structural/exact diffs (0, 16).
+Exhaustive final: 24 candidates; 99.55224 -> 99.55224; exact 2 -> 2; restored.
+
+### HIGH-f exhaustive declaration permutations Zi8_81480224 with direct candidate count
+- HIGH-f Zi8_81480224 exhaustive candidate 1: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 2: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 3: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 4: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 5: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 6: ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 7: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 8: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 9: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 10: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 11: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 12: ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 13: ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 14: ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 15: ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 16: ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 17: ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 18: ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 19: ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 20: ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 21: ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 22: ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 23: ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 24: ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 25: ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 26: ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 27: ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 28: ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 29: ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 30: ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 31: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 32: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 33: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 34: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 35: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 36: ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 37: ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 38: ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 39: ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 40: ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 41: ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 42: ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 43: ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 44: ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 45: ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 46: ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 47: ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 48: ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 49: ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 50: ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 51: ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 52: ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 53: ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 54: ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 55: ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 56: ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 57: ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 58: ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 59: ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 60: ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 61: ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 62: ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 63: ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 64: ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 65: ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 66: ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 67: ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 68: ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 69: ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 70: ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 71: ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 72: ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 73: ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 74: ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 75: ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 76: ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 77: ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 78: ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 79: ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 80: ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 81: ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 82: ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 83: ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 84: ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 85: ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 86: ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 87: ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 88: ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 89: ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 90: ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 91: ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 92: ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 93: ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 94: ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 95: ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 96: ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 97: ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 98: ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 99: ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 100: ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 101: ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 102: ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 103: ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 104: ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 105: ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 106: ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 107: ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 108: ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 109: ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 110: ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 111: ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 112: ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 113: ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 114: ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 115: ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 116: ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 117: ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 118: ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 119: ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 120: ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 121: ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 122: ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 123: ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 124: ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 125: ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 126: ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 127: ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 128: ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 129: ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 130: ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 131: ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 132: ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 133: ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 134: ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 135: ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 136: ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 137: ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 138: ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 139: ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 140: ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 141: ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 142: ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 143: ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 144: ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 145: ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 146: ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 147: ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 148: ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 149: ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 150: ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 151: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 152: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 153: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 154: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 155: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 156: ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 157: ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 158: ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 159: ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 160: ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 161: ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 162: ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 163: ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 164: ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 165: ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+
+### HIGH-f owned data symbol and relocation audit
+zi8pud2
+obj
+('extab', 48, '180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000', [('', 0, 0), ('@etb_813306C0', 0, 8), ('@etb_813306C8', 8, 8), ('@etb_813306D0', 16, 8), ('@etb_813306D8', 24, 8), ('@etb_813306E0', 32, 8), ('@etb_813306E8', 40, 8)])
+('extabindex', 72, '000000000000007c0000000000000000000000840000000000000000000000540000000000000000000005880000000000000000000000c800000000000000000000007400000000', [('', 0, 0), ('@eti_813313B0', 0, 12), ('@eti_813313BC', 12, 12), ('@eti_813313C8', 24, 12), ('@eti_813313D4', 36, 12), ('@eti_813313E0', 48, 12), ('@eti_813313EC', 60, 12)])
+  relocation (0, 1, 'ZiGetZHWordSize', 0)
+  relocation (8, 1, '@etb_813306C0', 0)
+  relocation (12, 1, 'Zi8CopyZHSpelling', 0)
+  relocation (20, 1, '@etb_813306C8', 0)
+  relocation (24, 1, 'ZADP_Zi8SetPDremoveOpt', 0)
+  relocation (32, 1, '@etb_813306D0', 0)
+  relocation (36, 1, 'Zi8MatchPUDdata_ZHS', 0)
+  relocation (44, 1, '@etb_813306D8', 0)
+  relocation (48, 1, 'Zi8MatchPUDdata', 0)
+  relocation (56, 1, '@etb_813306E0', 0)
+  relocation (60, 1, 'Zi8_8147FD7C', 0)
+  relocation (68, 1, '@etb_813306E8', 0)
+src
+('extab', 48, '180800000000000010080000000000001008000000000000680800000000000018080000000000000008000000000000', [('', 0, 0), ('@52', 0, 8), ('@76', 8, 8), ('@86', 16, 8), ('@219', 24, 8), ('@245', 32, 8), ('@259', 40, 8)])
+('extabindex', 72, '000000000000007c0000000000000000000000840000000000000000000000540000000000000000000005740000000000000000000000c800000000000000000000007400000000', [('', 0, 0), ('@53', 0, 12), ('@77', 12, 12), ('@87', 24, 12), ('@220', 36, 12), ('@246', 48, 12), ('@260', 60, 12)])
+  relocation (0, 1, 'ZiGetZHWordSize', 0)
+  relocation (8, 1, '@52', 0)
+  relocation (12, 1, 'Zi8CopyZHSpelling', 0)
+  relocation (20, 1, '@76', 0)
+  relocation (24, 1, 'ZADP_Zi8SetPDremoveOpt', 0)
+  relocation (32, 1, '@86', 0)
+  relocation (36, 1, 'Zi8MatchPUDdata_ZHS', 0)
+  relocation (44, 1, '@219', 0)
+  relocation (48, 1, 'Zi8MatchPUDdata', 0)
+  relocation (56, 1, '@245', 0)
+  relocation (60, 1, 'Zi8_8147FD7C', 0)
+  relocation (68, 1, '@259', 0)
+('.comment', 292, '436f646557617272696f720f04000001010200162c00000000000000000000000000000000000000000000000000000000000000000000010000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000040000000000000004000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000400000000', [])
+zidawg1
+obj
+('extab', 32, '1808000000000000200800000000000028080000000000003808000000000000', [('', 0, 0), ('@etb_81330728', 0, 8), ('@etb_81330730', 8, 8), ('@etb_81330738', 16, 8), ('@etb_81330740', 24, 8)])
+('extabindex', 48, '000000000000011000000000000000000000020c0000000000000000000000f000000000000000000000021800000000', [('', 0, 0), ('@eti_8133144C', 0, 12), ('@eti_81331458', 12, 12), ('@eti_81331464', 24, 12), ('@eti_81331470', 36, 12)])
+  relocation (0, 1, 'ZiDAWGGetChild', 0)
+  relocation (8, 1, '@etb_81330728', 0)
+  relocation (12, 1, 'ZiDAWGGetSibling', 0)
+  relocation (20, 1, '@etb_81330730', 0)
+  relocation (24, 1, 'ZiDAWGgetCHARattribute', 0)
+  relocation (32, 1, '@etb_81330738', 0)
+  relocation (36, 1, 'ZiDAWGGetGraphInfo', 0)
+  relocation (44, 1, '@etb_81330740', 0)
+src
+('extab', 32, '1808000000000000200800000000000028080000000000003808000000000000', [('', 0, 0), ('@34', 0, 8), ('@85', 8, 8), ('@108', 16, 8), ('@159', 24, 8)])
+('extabindex', 48, '000000000000011000000000000000000000020c0000000000000000000000f000000000000000000000021800000000', [('', 0, 0), ('@35', 0, 12), ('@86', 12, 12), ('@109', 24, 12), ('@160', 36, 12)])
+  relocation (0, 1, 'ZiDAWGGetChild', 0)
+  relocation (8, 1, '@34', 0)
+  relocation (12, 1, 'ZiDAWGGetSibling', 0)
+  relocation (20, 1, '@85', 0)
+  relocation (24, 1, 'ZiDAWGgetCHARattribute', 0)
+  relocation (32, 1, '@108', 0)
+  relocation (36, 1, 'ZiDAWGGetGraphInfo', 0)
+  relocation (44, 1, '@159', 0)
+('.comment', 244, '436f646557617272696f720f04000001010200162c00000000000000000000000000000000000000000000000000000000000000000000010000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000000000000000000004000000000000000400000000000000040000000000000000000000000000000000000000000000040000000000000000000000000000000400000000000000000000000000000000000000000000000400000000', [])
+ziswordw
+obj
+('extab', 16, '30080000000000001808000000000000', [('', 0, 0), ('@etb_81330760', 0, 8), ('@etb_81330768', 8, 8)])
+('extabindex', 24, '000000000000068000000000000000000000016c00000000', [('', 0, 0), ('@eti_813314A0', 0, 12), ('@eti_813314AC', 12, 12)])
+  relocation (0, 1, 'Zi8IsWordW', 0)
+  relocation (8, 1, '@etb_81330760', 0)
+  relocation (12, 1, 'Zi8ConvertUC2UserKey', 0)
+  relocation (20, 1, '@etb_81330768', 0)
+('.sdata2', 8, '0105000000000000', [('', 0, 0), ('lbl_81695018', 0, 1), ('lbl_81695019', 1, 1), ('lbl_8169501A', 2, 1), ('lbl_8169501B', 3, 1), ('lbl_8169501C', 4, 1), ('lbl_8169501D', 5, 1), ('lbl_8169501E', 6, 1), ('lbl_8169501F', 7, 1)])
+src
+('extab', 16, '30080000000000001808000000000000', [('', 0, 0), ('@129', 0, 8), ('@176', 8, 8)])
+('extabindex', 24, '000000000000068000000000000000000000016c00000000', [('', 0, 0), ('@130', 0, 12), ('@177', 12, 12)])
+  relocation (0, 1, 'Zi8IsWordW', 0)
+  relocation (8, 1, '@129', 0)
+  relocation (12, 1, 'Zi8ConvertUC2UserKey', 0)
+  relocation (20, 1, '@176', 0)
+('.sdata2', 8, '0105000000000000', [('', 0, 0), ('@32', 0, 8)])
+('.comment', 212, '436f646557617272696f720f04000001010200162c0000000000000000000000000000000000000000000000000000000000000000000001000000000000000400000000000000040000000000000004000000000000000800000000000000080000000000000004000000000000000400000000000000040000000000000004000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000', [])
+zi8uwd
+obj
+('extab', 32, '4008000000000000100800000000000008080000000000006808000000000000', [('', 0, 0), ('@etb_81330700', 0, 8), ('@etb_81330708', 8, 8), ('@etb_81330710', 16, 8), ('@etb_81330718', 24, 8)])
+('extabindex', 48, '00000000000001d00000000000000000000000880000000000000000000000480000000000000000000007c000000000', [('', 0, 0), ('@eti_81331410', 0, 12), ('@eti_8133141C', 12, 12), ('@eti_81331428', 24, 12), ('@eti_81331434', 36, 12)])
+  relocation (0, 1, 'Zi8_81480224', 0)
+  relocation (8, 1, '@etb_81330700', 0)
+  relocation (12, 1, 'Zi8_814803F4', 0)
+  relocation (20, 1, '@etb_81330708', 0)
+  relocation (24, 1, 'Zi8_8148047C', 0)
+  relocation (32, 1, '@etb_81330710', 0)
+  relocation (36, 1, 'Zi8MatchUWDdata', 0)
+  relocation (44, 1, '@etb_81330718', 0)
+src
+('extab', 32, '4008000000000000100800000000000008080000000000006808000000000000', [('', 0, 0), ('@69', 0, 8), ('@80', 8, 8), ('@88', 16, 8), ('@248', 24, 8)])
+('extabindex', 48, '00000000000001d00000000000000000000000880000000000000000000000480000000000000000000007c000000000', [('', 0, 0), ('@70', 0, 12), ('@81', 12, 12), ('@89', 24, 12), ('@249', 36, 12)])
+  relocation (0, 1, 'Zi8_81480224', 0)
+  relocation (8, 1, '@69', 0)
+  relocation (12, 1, 'Zi8_814803F4', 0)
+  relocation (20, 1, '@80', 0)
+  relocation (24, 1, 'Zi8_8148047C', 0)
+  relocation (32, 1, '@88', 0)
+  relocation (36, 1, 'Zi8MatchUWDdata', 0)
+  relocation (44, 1, '@248', 0)
+('.comment', 268, '436f646557617272696f720f04000001010200162c00000000000000000000000000000000000000000000000000000000000000000000010000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000040000000000000004000000000000000400000000000000000000000000000000000000000000000400000000000000000000000000000004000000000000000400000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', [])
+All owned data symbols are unwind descriptors/index records named for their functions (plus exact WordW formats .sdata2). No unpaired named object or proven oversized data object remains. PUD index size mismatch follows its 1396-byte source versus 1416-byte target function; no symbols.txt extent change is justified. Addresses, section totals and symbols.txt remain unchanged.
+- HIGH-f Zi8_81480224 exhaustive candidate 166: ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 167: ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 168: ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 169: ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 170: ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 171: ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 172: ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 173: ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 174: ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 175: ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 176: ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 177: ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 178: ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 179: ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 180: ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 181: ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 182: ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 183: ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 184: ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 185: ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 186: ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 187: ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 188: ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 189: ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 190: ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 191: ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 192: ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 193: ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 194: ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 195: ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 196: ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 197: ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 198: ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 199: ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 200: ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 201: ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 202: ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 203: ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 204: ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 205: ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 206: ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 207: ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 208: ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 209: ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 210: ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 211: ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 212: ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 213: ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 214: ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 215: ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 216: ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 217: ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 218: ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 219: ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 220: ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 221: ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 222: ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 223: ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 224: ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 225: ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 226: ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 227: ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 228: ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 229: ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 230: ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 231: ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 232: ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 233: ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 234: ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 235: ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 236: ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 237: ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 238: ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 239: ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 240: ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 241: ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 242: ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 243: ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 244: ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 245: ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 246: ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 247: ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 248: ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 249: ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 250: ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 251: ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 252: ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 253: ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 254: ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 255: ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 256: ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 257: ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 258: ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 259: ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 260: ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 261: ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 262: ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 263: ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 264: ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 265: ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 266: ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 267: ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 268: ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 269: ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 270: ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 271: ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 272: ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 273: ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 274: ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 275: ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 276: ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 277: ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 278: ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 279: ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 280: ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 281: ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 282: ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 283: ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 284: ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 285: ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 286: ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 287: ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 288: ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 289: ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 290: ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 291: ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 292: ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 293: ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 294: ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 295: ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 296: ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 297: ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 298: ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 299: ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 300: ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 301: ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 302: ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 303: ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 304: ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 305: ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 306: ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 307: ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 308: ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 309: ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 310: ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 311: ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 312: ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 313: ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 314: ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 315: ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 316: ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 317: ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 318: ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 319: ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 320: ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 321: ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 322: ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 323: ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 324: ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 325: ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 326: ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 327: ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 328: ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 329: ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 330: ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 331: ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 332: ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 333: ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 334: ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 335: ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 336: ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 337: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 338: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 339: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 340: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 341: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 342: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 343: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 344: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 345: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 346: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 347: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 348: ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 349: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 350: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 351: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 352: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 353: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 354: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 355: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 356: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 357: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 358: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 359: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 360: ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 361: ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 362: ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 363: ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 364: ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 365: ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 366: ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 367: ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 368: ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 369: ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 370: ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 371: ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 372: ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 373: ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 374: ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 375: ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 376: ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 377: ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 378: ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 379: ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 380: ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 381: ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 382: ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 383: ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 384: ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 385: ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 386: ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 387: ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 388: ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 389: ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 390: ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 391: ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 392: ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 393: ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 394: ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 395: ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 396: ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 397: ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 398: ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 399: ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 400: ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 401: ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 402: ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 403: ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 404: ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 405: ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 406: ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 407: ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 408: ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 409: ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 410: ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 411: ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 412: ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 413: ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 414: ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 415: ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 416: ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 417: ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 418: ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 419: ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 420: ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 421: ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 422: ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 423: ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 424: ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 425: ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 426: ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 427: ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 428: ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 429: ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 430: ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 431: ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 432: ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 433: ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 434: ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 435: ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 436: ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 437: ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 438: ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 439: ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 440: ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 441: ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 442: ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 443: ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 444: ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 445: ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 446: ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 447: ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 448: ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 449: ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 450: ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 451: ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 452: ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 453: ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 454: ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 455: ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 456: ziUwdNode* current; | ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 457: ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 458: ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 459: ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 460: ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 461: ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 462: ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 463: ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 464: ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 465: ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 466: ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 467: ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 468: ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 469: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 470: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 471: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 472: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 473: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 474: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 475: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 476: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 477: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 478: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 479: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 480: ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 481: ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 482: ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 483: ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 484: ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 485: ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 486: ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 487: ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 488: ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 489: ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 490: ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 491: ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 492: ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 493: ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 494: ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 495: ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 496: ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 497: ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 498: ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 499: ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 500: ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 501: ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 502: ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 503: ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 504: ziUwdNode* added; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 505: ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 506: ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 507: ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 508: ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 509: ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 510: ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 511: ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 512: ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 513: ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 514: ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 515: ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 516: ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 517: ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 518: ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 519: ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 520: ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 521: ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 522: ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 523: ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 524: ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 525: ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 526: ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 527: ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 528: ziUwdNode* added; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 529: ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 530: ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 531: ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 532: ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 533: ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 534: ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 535: ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 536: ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 537: ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 538: ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 539: ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 540: ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 541: ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 542: ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 543: ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 544: ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 545: ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 546: ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 547: ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 548: ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 549: ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 550: ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 551: ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 552: ziUwdNode* added; | ziUwdNode* previous; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 553: ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 554: ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 555: ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 556: ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 557: ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 558: ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 559: ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 560: ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUserWord* candidate; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 561: ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 562: ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 563: ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 564: ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 565: ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 566: ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUserWord* candidate; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 567: ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUserWord* candidate;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 568: ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUserWord* candidate; | ziU8 length;; structural/exact diffs (0, 16).
+- HIGH-f Zi8_81480224 exhaustive candidate 569: ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 570: ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziUserWord* candidate; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 571: ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 572: ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 573: ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 574: ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 575: ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 576: ziUwdNode* added; | ziUwdNode* current; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 577: ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 578: ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 579: ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 580: ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 581: ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 582: ziUwdNode* added; | ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 583: ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 584: ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 585: ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 586: ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 587: ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 588: ziUwdNode* added; | ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 589: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 590: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 591: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 592: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 593: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 594: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 595: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 596: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 597: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 598: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 599: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 600: ziUwdNode* added; | ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 601: ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 602: ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 603: ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 604: ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 605: ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 606: ziUserWord* candidate; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 607: ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 608: ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 609: ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 610: ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 611: ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 612: ziUserWord* candidate; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 613: ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 614: ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 615: ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 616: ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 617: ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 618: ziUserWord* candidate; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 619: ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 620: ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 621: ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 622: ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 623: ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 624: ziUserWord* candidate; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 625: ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 626: ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 627: ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 628: ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 629: ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 630: ziUserWord* candidate; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 631: ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 632: ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 633: ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 634: ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 635: ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 636: ziUserWord* candidate; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 637: ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 638: ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 639: ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 640: ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 641: ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 642: ziUserWord* candidate; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 643: ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 644: ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 645: ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 646: ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 647: ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 648: ziUserWord* candidate; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 649: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 650: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 651: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 652: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 653: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 654: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 655: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 656: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 657: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 658: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 659: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 660: ziUserWord* candidate; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 661: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 662: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 663: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 664: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 665: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 666: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 667: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 668: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 669: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 670: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 671: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 672: ziUserWord* candidate; | ziUwdNode* previous; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 673: ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 674: ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 675: ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 676: ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 677: ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 678: ziUserWord* candidate; | ziUwdNode* current; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 679: ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 680: ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* added; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 681: ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 682: ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 683: ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 684: ziUserWord* candidate; | ziUwdNode* current; | ziU8 position; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 685: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 686: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* added; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 687: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* added;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 688: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* added; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 689: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 690: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* previous; | ziUwdNode* added; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 691: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 692: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 693: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 694: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 695: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 696: ziUserWord* candidate; | ziUwdNode* current; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 697: ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 698: ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 699: ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 700: ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 701: ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 702: ziUserWord* candidate; | ziUwdNode* added; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 703: ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* previous; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 704: ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziU8 length; | ziUwdNode* current; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 705: ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 706: ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 707: ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 708: ziUserWord* candidate; | ziUwdNode* added; | ziU8 position; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 709: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziU8 position; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 710: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 length; | ziUwdNode* current; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 711: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziU8 length; | ziUwdNode* current;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 712: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziU8 position; | ziUwdNode* current; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 713: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 714: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* previous; | ziUwdNode* current; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 715: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziU8 position; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 716: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 length; | ziUwdNode* previous; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 717: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziU8 length; | ziUwdNode* previous;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 718: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziU8 position; | ziUwdNode* previous; | ziU8 length;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 719: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 length; | ziU8 position;; structural/exact diffs (0, 10).
+- HIGH-f Zi8_81480224 exhaustive candidate 720: ziUserWord* candidate; | ziUwdNode* added; | ziUwdNode* current; | ziUwdNode* previous; | ziU8 position; | ziU8 length;; structural/exact diffs (0, 10).
+Exhaustive final: 720 candidates; 99.22414 -> 99.48276; exact 2 -> 2; selected.
+
+### HIGH-f Zi8_81480224
+Fetched origin d8937f9e82e1531440b8a15d4e38d0fe19a46b7e; compiled origin function 99.22414%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x1d0 base 0x1d0 insns 116/116
+diffs 10: [5, 16, 24, 46, 50, 52, 55, 63, 67, 104]
+     5 M mr r26, r3
+       B mr r28, r3
+    16 M cmpwi r26, 0
+       B cmpwi r28, 0
+    24 M lbz r25, 2(r26)
+       B lbz r25, 2(r28)
+    46 M lwz r28, 4(r30)
+       B lwz r26, 4(r30)
+    50 M lbz r0, 3(r26)
+       B lbz r0, 3(r28)
+    52 M lbz r0, 3(r28)
+       B lbz r0, 3(r26)
+    55 M lbz r0, 2(r28)
+       B lbz r0, 2(r26)
+    63 M add r3, r28, r0
+       B add r3, r0, r26
+    67 M add r3, r26, r0
+       B add r3, r0, r28
+   104 M stw r26, 4(r29)
+       B stw r28, 4(r29)
+```
+- Resume Zi8_81480224, HIGH-f duplicate candidate read view const ziUserWord*: objdiff 99.48276 -> 99.48276; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8_81480224, HIGH-f duplicate candidate read view ziPtr: objdiff 99.48276 -> 98.75; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 98.75)]; reverted.
+- Resume Zi8_81480224, HIGH-f duplicate candidate read view ziU8*: objdiff 99.48276 -> 98.75; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 98.75)]; reverted.
+- Resume Zi8_81480224, HIGH-f read-only insertion input record retains mutable list bookkeeping: objdiff 99.48276 -> 99.31035; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions []; reverted.
+- Resume Zi8_81480224, HIGH-f generic serialized input handle with explicit typed header access: objdiff 99.48276 -> 99.05173; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 99.05173)]; reverted.
+- Resume Zi8_81480224, HIGH-f byte buffer API with typed word header and direct caller cursor: objdiff 99.48276 -> 99.05173; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (464, 464); source unwind 4008000000000000100800000000000008080000000000006808000000000000; fuzzy regressions [('Zi8_81480224', 99.22414, 99.05173)]; reverted.
+
+### HIGH-f ZiDAWGgetCHARattribute
+Fetched origin d8937f9e82e1531440b8a15d4e38d0fe19a46b7e; compiled origin function 99.0%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0xf0 base 0xf0 insns 60/60
+diffs 12: [5, 14, 18, 19, 20, 29, 31, 32, 36, 37, 42, 43]
+     5 M mr r30, r3
+       B mr r31, r3
+    14 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    18 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    19 M clrlwi r3, r31, 0x18
+       B clrlwi r3, r30, 0x18
+    20 M lhz r0, 4(r30)
+       B lhz r0, 4(r31)
+    29 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    31 M lwz r3, 0xc(r30)
+       B lwz r3, 0xc(r31)
+    32 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    36 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    37 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    42 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    43 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+```
+- Resume ZiDAWGgetCHARattribute, HIGH-f generic context interface with typed dictionary field views: objdiff 99.0 -> 98.5; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGgetCHARattribute', 99.0, 98.5)]; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-f work block typed explicitly as the caller-owned error context: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-f dictionary capacity as the left operand of invalid-key comparison: objdiff 99.0 -> 95.583336; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGgetCHARattribute', 99.0, 95.583336)]; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-f negative valid-key predicate retains error-first control flow: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-f bind generic dictionary handle once to its typed attribute-table owner: objdiff 99.0 -> 97.23333; data 80 -> 32; instruction-exact 2 -> 2; target/source sizes (240, 244); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGgetCHARattribute', 99.0, 97.23333)]; reverted.
+
+### HIGH-f Zi8MatchPUDdata_ZHS
+Fetched origin d8937f9e82e1531440b8a15d4e38d0fe19a46b7e; compiled origin function 98.13842%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x574 base 0x588 insns 349/354
+--- insert mine 15:15 base 15:16
+  B   15 stw r31, 0x24(r1)
+--- replace mine 35:36 base 36:37
+  M   35 b 1232
+  B   36 b 1248
+--- replace mine 43:44 base 44:45
+  M   43 bne 184
+  B   44 bne 200
+--- replace mine 74:76 base 75:76
+  M   74 b 1076
+  M   75 lbz r3, 5(r26)
+  B   75 b 1092
+--- replace mine 77:78 base 77:81
+  M   77 slwi r0, r0, 8
+  B   77 clrlwi r0, r0, 0x10
+  B   78 slwi r3, r0, 8
+  B   79 lbz r0, 5(r26)
+  B   80 clrlwi r0, r0, 0x10
+--- replace mine 80:82 base 83:84
+  M   80 lbz r5, 3(r26)
+  M   81 lwz r4, 0x14(r1)
+  B   83 lwz r5, 0x14(r1)
+--- replace mine 83:84 base 85:89
+  M   83 slwi r3, r0, 8
+  B   85 clrlwi r0, r0, 0x10
+  B   86 slwi r4, r0, 8
+  B   87 lbz r0, 3(r26)
+  B   88 clrlwi r3, r0, 0x10
+```
+- Resume Zi8MatchPUDdata_ZHS, HIGH-f serialized section offset/count as real big-endian halfwords natural: objdiff 98.32204 -> 94.75989; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1396); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.13842, 94.75989)]; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-f serialized section offset/count as real big-endian halfwords pragma-pack: objdiff 98.32204 -> 94.75989; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1396); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.13842, 94.75989)]; reverted.
+- Resume Zi8MatchPUDdata_ZHS, HIGH-f serialized section offset/count as real big-endian halfwords options-packed: objdiff 98.32204 -> 94.75989; data 48 -> 0; instruction-exact 6 -> 6; target/source sizes (1416, 1396); source unwind 180800000000000010080000000000001008000000000000600800000000000018080000000000000008000000000000; fuzzy regressions [('Zi8MatchPUDdata_ZHS', 98.13842, 94.75989)]; reverted.
+
+### HIGH-f serialized child offset expression search
+Associative sums of the same three octets and the format bias; no new cast or mask. Every candidate retains real displacement semantics and existing object ordering.
+- HIGH-f ZiDAWGGetChild arithmetic candidate 1: ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + 0x8000))); short 0; structural/exact diffs (6, 10).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 2: ((*(ziU8*)node & 0x7f) * 0x10000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + 0x8000)); short 0; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 3: (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*((ziU8*)node + 2) + 0x8000)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 4: (((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))) + 0x8000); short 0; structural/exact diffs (2, 6).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 5: ((((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)) + 0x8000); short 0; structural/exact diffs (2, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 6: ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + *((ziU8*)node + 2)))); short 0; structural/exact diffs (6, 10).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 7: ((*(ziU8*)node & 0x7f) * 0x10000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + *((ziU8*)node + 2))); short 0; structural/exact diffs (6, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 8: (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (0x8000 + *((ziU8*)node + 2))); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 9: (((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)) + *((ziU8*)node + 2)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 10: ((((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000) + *((ziU8*)node + 2)); short 0; structural/exact diffs (4, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 11: ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000))); short 0; structural/exact diffs (6, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 12: ((*(ziU8*)node & 0x7f) * 0x10000 + ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000)); short 0; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 13: (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 14: (((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + 0x8000); short 0; structural/exact diffs (2, 6).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 15: ((((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000); short 0; structural/exact diffs (2, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 16: ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 0; structural/exact diffs (6, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 17: ((*(ziU8*)node & 0x7f) * 0x10000 + ((*((ziU8*)node + 2) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 10).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 18: (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 19: (((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + 0x8000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 20: ((((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 21: ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)))); short 0; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 22: ((*(ziU8*)node & 0x7f) * 0x10000 + ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2))); short 0; structural/exact diffs (6, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 23: (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))); short 0; structural/exact diffs (6, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 24: (((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + *((ziU8*)node + 2)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 25: ((((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 26: ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 0; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 27: ((*(ziU8*)node & 0x7f) * 0x10000 + ((0x8000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 10).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 28: (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 29: (((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + *((ziU8*)node + 2))) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 30: ((((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 31: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + 0x8000))); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 32: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + 0x8000)); short 0; structural/exact diffs (7, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 33: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + (*((ziU8*)node + 2) + 0x8000)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 34: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))) + 0x8000); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 35: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)) + 0x8000); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 36: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + *((ziU8*)node + 2)))); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 37: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + *((ziU8*)node + 2))); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 38: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + (0x8000 + *((ziU8*)node + 2))); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 39: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)) + *((ziU8*)node + 2)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 40: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000) + *((ziU8*)node + 2)); short 0; structural/exact diffs (7, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 41: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000))); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 42: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000)); short 0; structural/exact diffs (7, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 43: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 44: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)) + 0x8000); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 45: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 46: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000))); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 47: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*((ziU8*)node + 2) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 48: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 49: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + 0x8000)) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 50: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 51: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)))); short 0; structural/exact diffs (7, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 52: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2))); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 53: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))); short 0; structural/exact diffs (11, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 54: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)) + *((ziU8*)node + 2)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 55: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)); short 0; structural/exact diffs (10, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 56: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000))); short 0; structural/exact diffs (7, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 57: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((0x8000 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 58: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (11, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 59: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + *((ziU8*)node + 2))) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 60: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (11, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 61: (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000))); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 62: (*((ziU8*)node + 2) + (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000)); short 0; structural/exact diffs (4, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 63: ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 64: ((*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + 0x8000); short 0; structural/exact diffs (2, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 65: (((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000); short 0; structural/exact diffs (2, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 66: (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 67: (*((ziU8*)node + 2) + (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 68: ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 69: ((*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 70: (((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 71: (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000))); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 72: (*((ziU8*)node + 2) + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000)); short 0; structural/exact diffs (7, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 73: ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 74: ((*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)) + 0x8000); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 75: (((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 76: (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000))); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 77: (*((ziU8*)node + 2) + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (10, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 78: ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 79: ((*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (11, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 80: (((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 81: (*((ziU8*)node + 2) + (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 0; structural/exact diffs (4, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 82: (*((ziU8*)node + 2) + ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 83: ((*((ziU8*)node + 2) + 0x8000) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 84: ((*((ziU8*)node + 2) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 85: (((*((ziU8*)node + 2) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 86: (*((ziU8*)node + 2) + (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000))); short 0; structural/exact diffs (7, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 87: (*((ziU8*)node + 2) + ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (10, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 88: ((*((ziU8*)node + 2) + 0x8000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 89: ((*((ziU8*)node + 2) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (11, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 90: (((*((ziU8*)node + 2) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 91: (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)))); short 0; structural/exact diffs (2, 6).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 92: (0x8000 + (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2))); short 0; structural/exact diffs (2, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 93: ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))); short 0; structural/exact diffs (6, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 94: ((0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + *((ziU8*)node + 2)); short 0; structural/exact diffs (4, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 95: (((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 96: (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 0; structural/exact diffs (2, 6).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 97: (0x8000 + (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (2, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 98: ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 99: ((0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 100: (((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 101: (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)))); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 102: (0x8000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2))); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 103: ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))); short 0; structural/exact diffs (11, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 104: ((0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)) + *((ziU8*)node + 2)); short 0; structural/exact diffs (7, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 105: (((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)); short 0; structural/exact diffs (10, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 106: (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000))); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 107: (0x8000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 108: ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (11, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 109: ((0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 110: (((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (11, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 111: (0x8000 + (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 0; structural/exact diffs (2, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 112: (0x8000 + ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (2, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 113: ((0x8000 + *((ziU8*)node + 2)) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 114: ((0x8000 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 115: (((0x8000 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 0; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 116: (0x8000 + (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000))); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 117: (0x8000 + ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (6, 9).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 118: ((0x8000 + *((ziU8*)node + 2)) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 119: ((0x8000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (9, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 120: (((0x8000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000); short 0; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 121: ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + 0x8000))); short 1; structural/exact diffs (8, 12).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 122: ((*(ziU8*)node & 0x7f) * 0x10000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + 0x8000)); short 1; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 123: (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*((ziU8*)node + 2) + 0x8000)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 124: (((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))) + 0x8000); short 1; structural/exact diffs (4, 8).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 125: ((((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)) + 0x8000); short 1; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 126: ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + *((ziU8*)node + 2)))); short 1; structural/exact diffs (8, 12).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 127: ((*(ziU8*)node & 0x7f) * 0x10000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + *((ziU8*)node + 2))); short 1; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 128: (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (0x8000 + *((ziU8*)node + 2))); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 129: (((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)) + *((ziU8*)node + 2)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 130: ((((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000) + *((ziU8*)node + 2)); short 1; structural/exact diffs (6, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 131: ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000))); short 1; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 132: ((*(ziU8*)node & 0x7f) * 0x10000 + ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000)); short 1; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 133: (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 134: (((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + 0x8000); short 1; structural/exact diffs (4, 8).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 135: ((((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000); short 1; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 136: ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 1; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 137: ((*(ziU8*)node & 0x7f) * 0x10000 + ((*((ziU8*)node + 2) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 12).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 138: (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 139: (((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + 0x8000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 140: ((((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 141: ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)))); short 1; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 142: ((*(ziU8*)node & 0x7f) * 0x10000 + ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2))); short 1; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 143: (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))); short 1; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 144: (((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + *((ziU8*)node + 2)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 145: ((((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 146: ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 1; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 147: ((*(ziU8*)node & 0x7f) * 0x10000 + ((0x8000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 12).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 148: (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 149: (((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + *((ziU8*)node + 2))) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 150: ((((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 151: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + 0x8000))); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 152: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + 0x8000)); short 1; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 153: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + (*((ziU8*)node + 2) + 0x8000)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 154: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))) + 0x8000); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 155: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)) + 0x8000); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 156: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + *((ziU8*)node + 2)))); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 157: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + *((ziU8*)node + 2))); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 158: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + (0x8000 + *((ziU8*)node + 2))); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 159: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)) + *((ziU8*)node + 2)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 160: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000) + *((ziU8*)node + 2)); short 1; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 161: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000))); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 162: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000)); short 1; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 163: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 164: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)) + 0x8000); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 165: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 166: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000))); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 167: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*((ziU8*)node + 2) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 168: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 169: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + 0x8000)) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (10, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 170: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 171: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)))); short 1; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 172: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2))); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 173: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))); short 1; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 174: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)) + *((ziU8*)node + 2)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 175: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)); short 1; structural/exact diffs (12, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 176: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000))); short 1; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 177: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((0x8000 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 178: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 179: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + *((ziU8*)node + 2))) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (10, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 180: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 181: (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000))); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 182: (*((ziU8*)node + 2) + (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000)); short 1; structural/exact diffs (6, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 183: ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 184: ((*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + 0x8000); short 1; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 185: (((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000); short 1; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 186: (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 187: (*((ziU8*)node + 2) + (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 188: ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 189: ((*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 190: (((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 191: (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000))); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 192: (*((ziU8*)node + 2) + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000)); short 1; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 193: ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 194: ((*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)) + 0x8000); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 195: (((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 196: (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000))); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 197: (*((ziU8*)node + 2) + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (12, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 198: ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 199: ((*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 200: (((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 201: (*((ziU8*)node + 2) + (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 1; structural/exact diffs (6, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 202: (*((ziU8*)node + 2) + ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 203: ((*((ziU8*)node + 2) + 0x8000) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 204: ((*((ziU8*)node + 2) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 205: (((*((ziU8*)node + 2) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 206: (*((ziU8*)node + 2) + (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000))); short 1; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 207: (*((ziU8*)node + 2) + ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (12, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 208: ((*((ziU8*)node + 2) + 0x8000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 209: ((*((ziU8*)node + 2) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 210: (((*((ziU8*)node + 2) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (10, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 211: (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)))); short 1; structural/exact diffs (4, 8).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 212: (0x8000 + (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2))); short 1; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 213: ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))); short 1; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 214: ((0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + *((ziU8*)node + 2)); short 1; structural/exact diffs (6, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 215: (((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 216: (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 1; structural/exact diffs (4, 8).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 217: (0x8000 + (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 218: ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 219: ((0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 220: (((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 221: (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)))); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 222: (0x8000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2))); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 223: ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))); short 1; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 224: ((0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)) + *((ziU8*)node + 2)); short 1; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 225: (((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)); short 1; structural/exact diffs (12, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 226: (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000))); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 227: (0x8000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 228: ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 229: ((0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 230: (((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 231: (0x8000 + (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 1; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 232: (0x8000 + ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 233: ((0x8000 + *((ziU8*)node + 2)) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 234: ((0x8000 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 235: (((0x8000 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 1; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 236: (0x8000 + (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000))); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 237: (0x8000 + ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 238: ((0x8000 + *((ziU8*)node + 2)) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 239: ((0x8000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 240: (((0x8000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000); short 1; structural/exact diffs (10, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 241: ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + 0x8000))); short 2; structural/exact diffs (8, 12).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 242: ((*(ziU8*)node & 0x7f) * 0x10000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + 0x8000)); short 2; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 243: (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*((ziU8*)node + 2) + 0x8000)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 244: (((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))) + 0x8000); short 2; structural/exact diffs (4, 8).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 245: ((((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)) + 0x8000); short 2; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 246: ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + *((ziU8*)node + 2)))); short 2; structural/exact diffs (8, 12).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 247: ((*(ziU8*)node & 0x7f) * 0x10000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + *((ziU8*)node + 2))); short 2; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 248: (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (0x8000 + *((ziU8*)node + 2))); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 249: (((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)) + *((ziU8*)node + 2)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 250: ((((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000) + *((ziU8*)node + 2)); short 2; structural/exact diffs (6, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 251: ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000))); short 2; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 252: ((*(ziU8*)node & 0x7f) * 0x10000 + ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000)); short 2; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 253: (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 254: (((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + 0x8000); short 2; structural/exact diffs (4, 8).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 255: ((((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000); short 2; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 256: ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 2; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 257: ((*(ziU8*)node & 0x7f) * 0x10000 + ((*((ziU8*)node + 2) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 12).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 258: (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 259: (((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + 0x8000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 260: ((((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 261: ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)))); short 2; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 262: ((*(ziU8*)node & 0x7f) * 0x10000 + ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2))); short 2; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 263: (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))); short 2; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 264: (((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + *((ziU8*)node + 2)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 265: ((((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 266: ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 2; structural/exact diffs (6, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 267: ((*(ziU8*)node & 0x7f) * 0x10000 + ((0x8000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 12).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 268: (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 269: (((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + *((ziU8*)node + 2))) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 270: ((((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 271: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + 0x8000))); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 272: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + 0x8000)); short 2; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 273: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + (*((ziU8*)node + 2) + 0x8000)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 274: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))) + 0x8000); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 275: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)) + 0x8000); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 276: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + *((ziU8*)node + 2)))); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 277: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + *((ziU8*)node + 2))); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 278: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + (0x8000 + *((ziU8*)node + 2))); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 279: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)) + *((ziU8*)node + 2)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 280: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000) + *((ziU8*)node + 2)); short 2; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 281: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000))); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 282: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000)); short 2; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 283: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 284: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)) + 0x8000); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 285: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 286: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000))); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 287: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*((ziU8*)node + 2) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 288: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 289: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + 0x8000)) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (10, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 290: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 291: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)))); short 2; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 292: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2))); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 293: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))); short 2; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 294: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)) + *((ziU8*)node + 2)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 295: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)); short 2; structural/exact diffs (12, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 296: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000))); short 2; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 297: (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((0x8000 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 298: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 299: ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + *((ziU8*)node + 2))) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (10, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 300: (((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 301: (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000))); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 302: (*((ziU8*)node + 2) + (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000)); short 2; structural/exact diffs (6, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 303: ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 304: ((*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + 0x8000); short 2; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 305: (((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000); short 2; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 306: (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 307: (*((ziU8*)node + 2) + (((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 308: ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 309: ((*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 310: (((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 311: (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000))); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 312: (*((ziU8*)node + 2) + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000)); short 2; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 313: ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + ((*(ziU8*)node & 0x7f) * 0x10000 + 0x8000)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 314: ((*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)) + 0x8000); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 315: (((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000) + 0x8000); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 316: (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000))); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 317: (*((ziU8*)node + 2) + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (12, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 318: ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 319: ((*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000)) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 320: (((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 321: (*((ziU8*)node + 2) + (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 2; structural/exact diffs (6, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 322: (*((ziU8*)node + 2) + ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 323: ((*((ziU8*)node + 2) + 0x8000) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 324: ((*((ziU8*)node + 2) + (0x8000 + (*(ziU8*)node & 0x7f) * 0x10000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 325: (((*((ziU8*)node + 2) + 0x8000) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 326: (*((ziU8*)node + 2) + (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000))); short 2; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 327: (*((ziU8*)node + 2) + ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (12, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 328: ((*((ziU8*)node + 2) + 0x8000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 329: ((*((ziU8*)node + 2) + (0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 330: (((*((ziU8*)node + 2) + 0x8000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (10, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 331: (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)))); short 2; structural/exact diffs (4, 8).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 332: (0x8000 + (((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2))); short 2; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 333: ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))); short 2; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 334: ((0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + *((ziU8*)node + 2)); short 2; structural/exact diffs (6, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 335: (((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 336: (0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 2; structural/exact diffs (4, 8).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 337: (0x8000 + (((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 338: ((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 13).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 339: ((0x8000 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 340: (((0x8000 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 341: (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2)))); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 342: (0x8000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2))); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 343: ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + ((*(ziU8*)node & 0x7f) * 0x10000 + *((ziU8*)node + 2))); short 2; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 344: ((0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)) + *((ziU8*)node + 2)); short 2; structural/exact diffs (9, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 345: (((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000) + *((ziU8*)node + 2)); short 2; structural/exact diffs (12, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 346: (0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000))); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 347: (0x8000 + ((((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 348: ((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 349: ((0x8000 + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2))) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 350: (((0x8000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (13, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 351: (0x8000 + (*((ziU8*)node + 2) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100))); short 2; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 352: (0x8000 + ((*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (4, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 353: ((0x8000 + *((ziU8*)node + 2)) + ((*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 354: ((0x8000 + (*((ziU8*)node + 2) + (*(ziU8*)node & 0x7f) * 0x10000)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 355: (((0x8000 + *((ziU8*)node + 2)) + (*(ziU8*)node & 0x7f) * 0x10000) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100); short 2; structural/exact diffs (8, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 356: (0x8000 + (*((ziU8*)node + 2) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000))); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 357: (0x8000 + ((*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (8, 11).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 358: ((0x8000 + *((ziU8*)node + 2)) + (((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + (*(ziU8*)node & 0x7f) * 0x10000)); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 359: ((0x8000 + (*((ziU8*)node + 2) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100)) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (11, 15).
+- HIGH-f ZiDAWGGetChild arithmetic candidate 360: (((0x8000 + *((ziU8*)node + 2)) + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100) + (*(ziU8*)node & 0x7f) * 0x10000); short 2; structural/exact diffs (10, 15).
+Arithmetic final: 360 candidates; score (2, 6); fuzzy 96.67647 -> 96.75; exact 2 -> 2; selected.
+
+### HIGH-f ZiDAWGGetChild
+Fetched origin d0a9514c9b9fe8ce0f7e891d570ca93b3cda79f1; compiled origin function 96.67647%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x110 base 0x110 insns 68/68
+diffs 6: [36, 37, 38, 39, 47, 49]
+    36 M lbz r4, 2(r3)
+       B lbz r0, 1(r3)
+    37 M lbz r0, 1(r3)
+       B clrlwi r0, r0, 0x10
+    38 M clrlwi r0, r0, 0x10
+       B slwi r4, r0, 8
+    39 M slwi r0, r0, 8
+       B lbz r0, 2(r3)
+    47 M slwi r31, r0, 8
+       B slwi r4, r0, 8
+    49 M add r31, r31, r0
+       B add r31, r4, r0
+```
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=False middle=False short=1: objdiff 96.75 -> 93.79412; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 96.67647, 93.79412)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=False middle=False short=2: objdiff 96.75 -> 93.79412; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 96.67647, 93.79412)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=False middle=True short=0: objdiff 96.75 -> 99.85294; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; SELECTED.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=False middle=True short=1: objdiff 99.85294 -> 96.89706; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=False middle=True short=2: objdiff 99.85294 -> 96.89706; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=True middle=False short=0: objdiff 99.85294 -> 96.75; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=True middle=False short=1: objdiff 99.85294 -> 93.79412; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 96.67647, 93.79412)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=True middle=False short=2: objdiff 99.85294 -> 93.79412; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetChild', 96.67647, 93.79412)]; reverted.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=True middle=True short=0: objdiff 99.85294 -> 99.85294; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=True middle=True short=1: objdiff 99.85294 -> 96.89706; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetChild, HIGH-f explicit serialized shifts high=True middle=True short=2: objdiff 99.85294 -> 96.89706; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-f ZiDAWGGetGraphInfo
+Fetched origin d0a9514c9b9fe8ce0f7e891d570ca93b3cda79f1; compiled origin function 99.55224%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x218 base 0x218 insns 134/134
+diffs 12: [5, 8, 10, 11, 85, 87, 94, 97, 98, 99, 102, 127]
+     5 M mr r25, r3
+       B mr r29, r3
+     8 M mr r3, r25
+       B mr r3, r29
+    10 M mr r29, r3
+       B mr r26, r3
+    11 M li r26, 0
+       B li r25, 0
+    85 M add r3, r29, r3
+       B add r3, r26, r3
+    87 M add r26, r3, r0
+       B add r25, r3, r0
+    94 M add r3, r29, r3
+       B add r3, r26, r3
+    97 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+    98 M lwz r0, 0x338(r25)
+       B lwz r0, 0x338(r29)
+    99 M cmplw r0, r29
+       B cmplw r0, r26
+   102 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+   127 M mr r3, r26
+       B mr r3, r25
+```
+- Resume ZiDAWGGetGraphInfo, HIGH-f move depth and key advancement to the traversal loop header: objdiff 99.55224 -> 98.80597; data 80 -> 0; instruction-exact 2 -> 2; target/source sizes (536, 540); source unwind 1808000000000000200800000000000028080000000000004008000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 98.80597)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f return graph result through the common traversal exit label: objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+
+### HIGH-f ZiDAWGgetCHARattribute
+Fetched origin d0a9514c9b9fe8ce0f7e891d570ca93b3cda79f1; compiled origin function 99.0%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0xf0 base 0xf0 insns 60/60
+diffs 12: [5, 14, 18, 19, 20, 29, 31, 32, 36, 37, 42, 43]
+     5 M mr r30, r3
+       B mr r31, r3
+    14 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    18 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    19 M clrlwi r3, r31, 0x18
+       B clrlwi r3, r30, 0x18
+    20 M lhz r0, 4(r30)
+       B lhz r0, 4(r31)
+    29 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    31 M lwz r3, 0xc(r30)
+       B lwz r3, 0xc(r31)
+    32 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    36 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    37 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    42 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    43 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+```
+- Resume ZiDAWGgetCHARattribute, HIGH-f explicit success branch owns the table reads and final attribute return: objdiff 99.0 -> 99.0; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGgetCHARattribute, HIGH-f compare escaped key nibble as positive inline form first: objdiff 99.0 -> 94.3; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (240, 240); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGgetCHARattribute', 99.0, 94.3)]; reverted.
+
+### HIGH-f ZiDAWGGetChild
+Fetched origin d0a9514c9b9fe8ce0f7e891d570ca93b3cda79f1; compiled origin function 96.67647%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x110 base 0x110 insns 68/68
+diffs 2: [47, 49]
+    47 M slwi r31, r0, 8
+       B slwi r4, r0, 8
+    49 M add r31, r31, r0
+       B add r31, r4, r0
+```
+- Resume ZiDAWGGetChild, HIGH-f short high shift followed by accumulation: objdiff 99.85294 -> 99.85294; data 80 -> 80; instruction-exact 2 -> 2; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetChild, HIGH-f complete two-byte big-endian value with high-byte shift: objdiff 99.85294 -> 100.0; data 80 -> 80; instruction-exact 2 -> 3; target/source sizes (272, 272); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; SELECTED.
+
+HIGH-f exact Child candidate: ordinary big-endian octet shifts and a complete short-offset expression select the target load schedule; 68/68 instructions, ctxdiff diffs0, objdiff100. No new cast/mask/object/symbol metadata. Full quick gate over all4 leaves:
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] objdiff: code 720/2136 data 48/120 functions 6/7 fuzzy 98.8876 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] instruction-exact functions: 6/7
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section .text size 2136 match 98.88764
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section extab size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section extabindex size 72 match 98.61111
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   below 100: Zi8MatchPUDdata_ZHS 98.32204
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] baseline: code 720/2136 data 48 functions 6 fuzzy 98.7659
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] objdiff: code 364/1664 data 80/80 functions 3/6 fuzzy 98.6995 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] instruction-exact functions: 3/6
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section .text size 1664 match 98.69952
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGGetSibling 96.78626
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGgetCHARattribute 99.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGGetGraphInfo 99.55224
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] baseline: code 92/1664 data 80 functions 2 fuzzy 98.1562
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] objdiff: code 364/2028 data 48/48 functions 1/2 fuzzy 98.7870 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] instruction-exact functions: 1/2
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section .sdata2 size 8 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section .text size 2028 match 98.78698
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section extab size 16 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section extabindex size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   below 100: Zi8IsWordW 98.52164
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] baseline: code 364/2028 data 48 functions 1 fuzzy 98.7870
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] objdiff: code 208/2656 data 80/80 functions 2/4 fuzzy 98.9036 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] instruction-exact functions: 2/4
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section .text size 2656 match 98.90362
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   below 100: Zi8_81480224 99.48276
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   below 100: Zi8MatchUWDdata 98.65323
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] baseline: code 208/2656 data 80 functions 2 fuzzy 98.8584
+regressions vs baseline: 0
+global matched_code_percent: 89.09380 -> 89.10287
+global fuzzy_match_percent: 99.51997 -> 99.52039
+global complete_code_percent: 65.95913 -> 65.95913
+global matched_data_percent: 99.36508 -> 99.36508
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+### HIGH-f ZiDAWGGetSibling
+Fetched origin f0d938021e0d806e865fe3b2fd0beaa89baa2e85; compiled origin function 96.78626%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x20c base 0x20c insns 131/131
+diffs 23: [23, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+    23 M beq 172
+       B beq 176
+    45 M beq 52
+       B beq 56
+    46 M lbz r5, 2(r3)
+       B lbz r0, 0(r3)
+    47 M lbz r0, 0(r3)
+       B clrlwi r0, r0, 0x19
+    48 M clrlwi r0, r0, 0x19
+       B slwi r5, r0, 0x10
+    49 M slwi r4, r0, 0x10
+       B lbz r0, 1(r3)
+    50 M lbz r0, 1(r3)
+       B clrlwi r0, r0, 0x10
+    51 M slwi r0, r0, 8
+       B slwi r4, r0, 8
+    52 M add r4, r5, r4
+       B lbz r0, 2(r3)
+    53 M addis r4, r4, 1
+       B add r4, r5, r4
+    54 M addi r4, r4, -0x8000
+       B addis r4, r4, 1
+    55 M add r0, r28, r0
+       B addi r4, r4, -0x8000
+    56 M add r28, r4, r0
+       B add r0, r28, r0
+    57 M b 28
+       B add r28, r4, r0
+    58 M lbz r0, 0(r3)
+       B b 28
+    59 M clrlwi r0, r0, 0x10
+       B lbz r0, 0(r3)
+    60 M slwi r0, r0, 8
+       B clrlwi r0, r0, 0x10
+    61 M lbz r4, 1(r3)
+       B slwi r0, r0, 8
+    62 M add r0, r28, r0
+       B lbz r4, 1(r3)
+    63 M add r28, r4, r0
+       B add r0, r28, r0
+    64 M mr r3, r28
+       B add r28, r4, r0
+    65 M b 240
+       B mr r3, r28
+    66 M mr r3, r28
+       B b 236
+```
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=False middle=False group=0: objdiff 96.78626 -> 96.78626; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=False middle=False group=1: objdiff 96.78626 -> 97.89313; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; SELECTED.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=False middle=False group=2: objdiff 97.89313 -> 96.0458; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 96.0458)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=False middle=True group=0: objdiff 97.89313 -> 97.73283; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=False middle=True group=1: objdiff 97.89313 -> 98.32061; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; SELECTED.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=False middle=True group=2: objdiff 98.32061 -> 96.05344; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 96.05344)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=True middle=False group=0: objdiff 98.32061 -> 96.78626; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=True middle=False group=1: objdiff 98.32061 -> 97.89313; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=True middle=False group=2: objdiff 98.32061 -> 96.0458; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 96.0458)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=True middle=True group=0: objdiff 98.32061 -> 96.78626; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=True middle=True group=1: objdiff 98.32061 -> 98.32061; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f serialized sibling shifts high=True middle=True group=2: objdiff 98.32061 -> 96.0458; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 96.0458)]; reverted.
+
+### HIGH-f ZiDAWGGetGraphInfo
+Fetched origin f0d938021e0d806e865fe3b2fd0beaa89baa2e85; compiled origin function 99.55224%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x218 base 0x218 insns 134/134
+diffs 12: [5, 8, 10, 11, 85, 87, 94, 97, 98, 99, 102, 127]
+     5 M mr r25, r3
+       B mr r29, r3
+     8 M mr r3, r25
+       B mr r3, r29
+    10 M mr r29, r3
+       B mr r26, r3
+    11 M li r26, 0
+       B li r25, 0
+    85 M add r3, r29, r3
+       B add r3, r26, r3
+    87 M add r26, r3, r0
+       B add r25, r3, r0
+    94 M add r3, r29, r3
+       B add r3, r26, r3
+    97 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+    98 M lwz r0, 0x338(r25)
+       B lwz r0, 0x338(r29)
+    99 M cmplw r0, r29
+       B cmplw r0, r26
+   102 M stw r0, 0x338(r25)
+       B stw r0, 0x338(r29)
+   127 M mr r3, r26
+       B mr r3, r25
+```
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 1, 2, 3) : objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 1, 3, 2) : objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 2, 1, 3) : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 2, 3, 1) : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 3, 1, 2) : objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 3, 2, 1) : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (1, 0, 2, 3) : objdiff 99.55224 -> 99.402985; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.402985)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (1, 0, 3, 2) : objdiff 99.55224 -> 99.402985; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.402985)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (1, 2, 0, 3) : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (2, 0, 1, 3) : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (2, 0, 3, 1) : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (2, 1, 0, 3) : objdiff 99.55224 -> 99.402985; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.402985)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 1, 2, 3) const : objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 1, 3, 2) const : objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 2, 1, 3) const : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 2, 3, 1) const : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 3, 1, 2) const : objdiff 99.55224 -> 99.55224; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (0, 3, 2, 1) const : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (1, 0, 2, 3) const : objdiff 99.55224 -> 99.402985; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.402985)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (1, 0, 3, 2) const : objdiff 99.55224 -> 99.402985; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.402985)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (1, 2, 0, 3) const : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (2, 0, 1, 3) const : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (2, 0, 3, 1) const : objdiff 99.55224 -> 99.25373; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.25373)]; reverted.
+- Resume ZiDAWGGetGraphInfo, HIGH-f initialize graph then result in leading declaration order (2, 1, 0, 3) const : objdiff 99.55224 -> 99.402985; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (536, 536); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetGraphInfo', 99.55224, 99.402985)]; reverted.
+
+### HIGH-f ZiDAWGGetSibling
+Fetched origin f0d938021e0d806e865fe3b2fd0beaa89baa2e85; compiled origin function 96.78626%, still open. Pool first:
+```
+POOL IDENTICAL up to 0 (mine=0 base=0)
+```
+Structural diagnosis (frame/save range already match):
+```
+src 0x20c base 0x20c insns 131/131
+diffs 19: [23, 45, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66]
+    23 M beq 172
+       B beq 176
+    45 M beq 52
+       B beq 56
+    50 M slwi r4, r0, 8
+       B clrlwi r0, r0, 0x10
+    51 M lbz r0, 2(r3)
+       B slwi r4, r0, 8
+    52 M add r4, r5, r4
+       B lbz r0, 2(r3)
+    53 M addis r4, r4, 1
+       B add r4, r5, r4
+    54 M addi r4, r4, -0x8000
+       B addis r4, r4, 1
+    55 M add r0, r28, r0
+       B addi r4, r4, -0x8000
+    56 M add r28, r4, r0
+       B add r0, r28, r0
+    57 M b 28
+       B add r28, r4, r0
+    58 M lbz r0, 0(r3)
+       B b 28
+    59 M clrlwi r0, r0, 0x10
+       B lbz r0, 0(r3)
+    60 M slwi r0, r0, 8
+       B clrlwi r0, r0, 0x10
+    61 M lbz r4, 1(r3)
+       B slwi r0, r0, 8
+    62 M add r0, r28, r0
+       B lbz r4, 1(r3)
+    63 M add r28, r4, r0
+       B add r0, r28, r0
+    64 M mr r3, r28
+       B add r28, r4, r0
+    65 M b 240
+       B mr r3, r28
+    66 M mr r3, r28
+       B b 236
+```
+- Resume ZiDAWGGetSibling, HIGH-f one displacement accumulator serves both direct and depth-first sibling paths: objdiff 98.32061 -> 98.89313; data 80 -> 32; instruction-exact 3 -> 3; target/source sizes (524, 520); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions []; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f separate lower serialized halfword from the high flag octet: objdiff 98.32061 -> 95.099236; data 80 -> 32; instruction-exact 3 -> 3; target/source sizes (524, 532); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 95.099236)]; reverted.
+- Resume ZiDAWGGetSibling, HIGH-f consume sibling lower halfword in the exhausted header value: objdiff 98.32061 -> 96.62595; data 80 -> 80; instruction-exact 3 -> 3; target/source sizes (524, 524); source unwind 1808000000000000200800000000000028080000000000003808000000000000; fuzzy regressions [('ZiDAWGGetSibling', 96.78626, 96.62595)]; reverted.
+
+## Fuzzy lane declaration search: ZiDAWGgetCHARattribute
+Structural diagnosis before register search:
+```
+src 0xf0 base 0xf0 insns 60/60
+diffs 12: [5, 14, 18, 19, 20, 29, 31, 32, 36, 37, 42, 43]
+     5 M mr r30, r3
+       B mr r31, r3
+    14 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    18 M clrlwi r31, r0, 0x18
+       B clrlwi r30, r0, 0x18
+    19 M clrlwi r3, r31, 0x18
+       B clrlwi r3, r30, 0x18
+    20 M lhz r0, 4(r30)
+       B lhz r0, 4(r31)
+    29 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    31 M lwz r3, 0xc(r30)
+       B lwz r3, 0xc(r31)
+    32 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    36 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    37 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+    42 M lwz r3, 8(r30)
+       B lwz r3, 8(r31)
+    43 M clrlwi r0, r31, 0x18
+       B clrlwi r0, r30, 0x18
+```
+- ZiDAWGgetCHARattribute declaration attempt 1: ziU8 key; | ziU32 attribute;; structural/exact diffs (0, 12).
+- ZiDAWGgetCHARattribute declaration attempt 2: ziU32 attribute; | ziU8 key;; structural/exact diffs (0, 12).
+Search final: 99.0 -> 99.0, exact 3 -> 3, regressions []; restored.
+
+### HIGH-f final post-clean audit
+Live origin 73a89b06e59c7c1127a491d0153a84b34013b2a7 still has identical owned source blobs and shared zi8 headers to the compiled baseline; function-by-function comparison is current.
+zi8pud2 ZiIsPhoneticChar: 100.0 -> 100.0
+zi8pud2 ZiGetZHWordSize: 100.0 -> 100.0
+zi8pud2 Zi8CopyZHSpelling: 100.0 -> 100.0
+zi8pud2 ZADP_Zi8SetPDremoveOpt: 100.0 -> 100.0
+zi8pud2 Zi8MatchPUDdata_ZHS: 98.13842 -> 98.32204
+zi8pud2 Zi8MatchPUDdata: 100.0 -> 100.0
+zi8pud2 Zi8_8147FD7C: 100.0 -> 100.0
+zi8pud2: exact 6 -> 6; code 720 -> 720/2136; data 48 -> 48/120
+zidawg1 ZiDAWGGetChild: 96.67647 -> 100.0
+zidawg1 ZiDAWGGetSibling: 96.78626 -> 98.32061
+zidawg1 ZiDAWGgetEOWattribute: 100.0 -> 100.0
+zidawg1 ZiDAWGgetCHARattribute: 99.0 -> 99.0
+zidawg1 ZiDAWGGetGraph: 100.0 -> 100.0
+zidawg1 ZiDAWGGetGraphInfo: 99.55224 -> 99.55224
+zidawg1: exact 2 -> 3; code 92 -> 364/1664; data 80 -> 80/80
+ziswordw Zi8IsWordW: 98.52164 -> 98.52164
+ziswordw Zi8ConvertUC2UserKey: 100.0 -> 100.0
+ziswordw: exact 1 -> 1; code 364 -> 364/2028; data 48 -> 48/48
+zi8uwd Zi8_81480224: 99.22414 -> 99.48276
+zi8uwd Zi8_814803F4: 100.0 -> 100.0
+zi8uwd Zi8_8148047C: 100.0 -> 100.0
+zi8uwd Zi8MatchUWDdata: 98.65323 -> 98.65323
+zi8uwd: exact 2 -> 2; code 208 -> 208/2656; data 80 -> 80/80
+FUZZY REGRESSIONS vs live origin/main: 0. No function disappeared. Instruction-exact gain: ZiDAWGGetChild, objdiff100 and ctxdiff diffs0;272 code bytes gained. All prior exact counts and matched data retained.
+
+Remaining open functions (completeness audit):
+Zi8MatchPUDdata_ZHS: 98.32204%; 7 distinct compiled HIGH-f source trials (additional declaration/arithmetic searches logged). 349/354 instructions; missing target prologue work-pointer spill and four byte-to-halfword narrowing instructions; matching new copy-counter initialization, all helpers exact. Unwind index follows function size. No dummy spill or no-op cast added.
+ZiDAWGGetSibling: 98.32061%; 19 distinct compiled HIGH-f source trials (additional declaration/arithmetic searches logged). 131/131; one target halfword narrowing operation absent, one redundant cursor move present. Real octet shifts improve the target load order; full data stays exact.
+ZiDAWGgetCHARattribute: 99.0%; 12 distinct compiled HIGH-f source trials (additional declaration/arithmetic searches logged). 60/60; twelve context/key register-home differences, instruction structure identical; both declaration orders exhausted.
+ZiDAWGGetGraphInfo: 99.55224%; 30 distinct compiled HIGH-f source trials (additional declaration/arithmetic searches logged). 134/134; twelve context/graph/result register-home differences; all24 declaration orders plus24 ordered graph/result initializers failed to select target homes.
+Zi8IsWordW: 98.52164%; 4 distinct compiled HIGH-f source trials (additional declaration/arithmetic searches logged). 416/416;12 positional differences in serialized high-byte narrowing and ordinal cursor update. Safe sequencing retained; adding a temp or folding cursor advance changes function size/data, so rejected.
+Zi8_81480224: 99.48276%; 11 distinct compiled HIGH-f source trials (additional declaration/arithmetic searches logged). 116/116; ten input/candidate pointer register-home and commuted pointer-add differences after all720 declaration permutations with a direct node-count expression.
+Zi8MatchUWDdata: 98.65323%; 5 distinct compiled HIGH-f source trials (additional declaration/arithmetic searches logged). 496/496; stack-home offsets, prefix postincrement result handling and parsed-header load sequence differ. Real loop/header/scope attempts all reverted because they lower fuzzy or matched data.
+
+No unresolved function is untried: all seven have at least3 distinct compiled source attempts this round. Final unit data: DAWG80/80,WordW48/48,UWD80/80; PUD48/120, extabindex gap is code-size work. No rename, extent correction or changed section total is justified. The task prompt lists PUD6/8; both the fresh target object and authoritative gate enumerate7 functions (6 exact), all7 accounted for.
+
+Final full gate over all4 units (without --quick):
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] objdiff: code 720/2136 data 48/120 functions 6/7 fuzzy 98.8876 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] instruction-exact functions: 6/7
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section .text size 2136 match 98.88764
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section extab size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   section extabindex size 72 match 98.61111
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2]   below 100: Zi8MatchPUDdata_ZHS 98.32204
+[libs/RVLMiddleware/eZiText/src/clib/zi8pud2] baseline: code 720/2136 data 48 functions 6 fuzzy 98.7659
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] objdiff: code 364/1664 data 80/80 functions 3/6 fuzzy 99.1827 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] instruction-exact functions: 3/6
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section .text size 1664 match 99.18269
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGGetSibling 98.32061
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGgetCHARattribute 99.0
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1]   below 100: ZiDAWGGetGraphInfo 99.55224
+[libs/RVLMiddleware/eZiText/src/clib/zidawg1] baseline: code 92/1664 data 80 functions 2 fuzzy 98.1562
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] objdiff: code 364/2028 data 48/48 functions 1/2 fuzzy 98.7870 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] instruction-exact functions: 1/2
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section .sdata2 size 8 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section .text size 2028 match 98.78698
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section extab size 16 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   section extabindex size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw]   below 100: Zi8IsWordW 98.52164
+[libs/RVLMiddleware/eZiText/src/clib/ziswordw] baseline: code 364/2028 data 48 functions 1 fuzzy 98.7870
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] objdiff: code 208/2656 data 80/80 functions 2/4 fuzzy 98.9036 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] instruction-exact functions: 2/4
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section .text size 2656 match 98.90362
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   below 100: Zi8_81480224 99.48276
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd]   below 100: Zi8MatchUWDdata 98.65323
+[libs/RVLMiddleware/eZiText/src/clib/zi8uwd] baseline: code 208/2656 data 80 functions 2 fuzzy 98.8584
+regressions vs baseline: 0
+global matched_code_percent: 89.09380 -> 89.10287
+global fuzzy_match_percent: 99.51997 -> 99.52067
+global complete_code_percent: 65.95913 -> 65.95913
+global matched_data_percent: 99.36508 -> 99.36508
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+Changed source files: zi8pud2.c(copy counter initialization), zi8uwd.c(candidate slot expression and declaration order), zidawg1.c(real serialized child/sibling displacement shifts); ziswordw.c unchanged. No new no-op cast/mask, assembly, volatile, forced section, dummy object, metadata extent or public symbol change. No full unit completion claimed.

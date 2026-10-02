@@ -22,10 +22,10 @@ ziU32 ZiDAWGGetChild(ziU32 node) {
         node += offset;
         if (((ziU32)header & 2) != 0) {
             if ((*(ziU8*)node & 0x80) != 0) {
-                offset = (*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2) + 0x8000;
+                offset = ((*(ziU8*)node & 0x7f) << 16) +
+                         ((((ziU32)*((ziU8*)node + 1) & 0xffff) << 8) + *((ziU8*)node + 2)) + 0x8000;
             } else {
-                offset = ((ziU32)*(ziU8*)node & 0xffff) * 0x100;
-                offset += (ziU32)*((ziU8*)node + 1);
+                offset = (((ziU32)*(ziU8*)node & 0xffff) << 8) + (ziU32)*((ziU8*)node + 1);
             }
         } else if (((ziU32)header & 8) != 0) {
             if ((*(ziU8*)node & 0x80) != 0) {
@@ -70,8 +70,8 @@ ziU8* ZiDAWGGetSibling(ziU8* cursor) {
             }
 
             if ((*cursor & 0x80) != 0) {
-                node += (*cursor & 0x7f) * 0x10000 + (ziU32)cursor[1] * 0x100 +
-                           (ziU32)cursor[2] + 0x8000;
+                node += (*cursor & 0x7f) * 0x10000 +
+                        (((ziU32)cursor[1] << 8) + (ziU32)cursor[2]) + 0x8000;
             } else {
                 node = cursor[1] + (node + (ziU16)*cursor * 0x100);
             }

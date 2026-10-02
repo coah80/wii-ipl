@@ -140,8 +140,7 @@ matched:
                 }
                 if (language == 1) {
                     byteOutput = (ziU8*)output;
-                    index = 0;
-                    for (copied = 0; index < (ziS32)wordSize && copied < capacity; copied++) {
+                    for (index = copied = 0; index < (ziS32)wordSize && copied < capacity; copied++) {
                         byteOutput[index] = word[index];
                         index++;
                         byteOutput[index] = word[index];
