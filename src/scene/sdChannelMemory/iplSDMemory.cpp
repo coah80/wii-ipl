@@ -30,23 +30,6 @@
 #include "utility/iplLayout.h"
 #include <revolution/os/OSTime.h>
 
-extern "C" bool iplSDChannelSelect_813DDB74(ipl::scene::SDChannelSelect* channelSelect,
-                                             ipl::scene::SDMemory::TitleRange* nandTitles,
-                                             ipl::scene::SDMemory::TitleRange* sdTitles,
-                                             ESTitleId* titleIds, wchar_t* titleNames, u32* titleCount,
-                                             s32 state);
-extern "C" bool iplSDChannelSelect_813DB5EC(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId titleId);
-extern "C" bool iplSDChannelSelect_813DB4D4(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId titleId, u32 flags);
-extern "C" bool iplSDChannelSelect_813DB530(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId** titleNames, ESTitleId** secondaryTitles);
-extern "C" bool iplSDChannelSelect_813DB478(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId titleId);
-extern "C" bool iplSDChannelSelect_813DB58C(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId** titles, ESTitleId** secondaryTitles,
-                                             ESTitleId** names);
-
 namespace ipl {
     namespace scene {
         typedef ::gui::Component GuiComponent;
@@ -725,8 +708,8 @@ namespace ipl {
             if (!mpMainLayout->isPlaying(-1)) {
                 switch (mProcessState) {
                 case 0:
-                    if (iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                   mTitleIds, &mTitleNames[0][0], &mTitleCount, 2)) {
+                    if (mpSDChannelSelect->collectTitlesForMode(&mNandTitleRange.mByteSize, &mSDTitleRange.mByteSize,
+                                                          mTitleIds, (char*)&mTitleNames[0][0], &mTitleCount, 2)) {
                         mDialogState = 4;
                         mpTitleLayout->getAnim(0)->initAnmFrame();
                         mpTitleLayout->getAnim(0)->play();
@@ -924,8 +907,8 @@ namespace ipl {
                     return;
                 }
 
-                if (iplSDChannelSelect_813DB530(mpSDChannelSelect, &mTitleListState.mpNames,
-                                                &mTitleListState.mpSecondaryTitles)) {
+                if (mpSDChannelSelect->enqueueErrorNotice((u32)&mTitleListState.mpNames,
+                                                     (u32)&mTitleListState.mpSecondaryTitles)) {
                     mDialogState = 19;
                     mCurrentTitleName[0] = L'\0';
                     mCurrentTitle = 0;
@@ -997,8 +980,8 @@ namespace ipl {
 
             if (iplSDMemory_containsTitleId(this, mTitleIds[mCurrentTitle], mSDTitleIds, mTitleNameCount) ||
                 iplSDMemory_containsTitleId(this, mTitleIds[mCurrentTitle], mNandTitleIds, mNandTitleCount)) {
-                ESTitleId titleId = mTitleIds[mCurrentTitle];
-                if (iplSDChannelSelect_813DB478(mpSDChannelSelect, titleId)) {
+                ESTitleId* curTitleId = &mTitleIds[mCurrentTitle];
+                if (mpSDChannelSelect->enqueueMoveNotice((u32)curTitleId - offsetof(SDMemory, mTitleIds), ((u32*)curTitleId)[0], ((u32*)curTitleId)[1])) {
                     mDialogState = 14;
                 } else {
                     System::getDialog()->terminate();
@@ -1048,7 +1031,7 @@ namespace ipl {
 
         void SDMemory::onDialogState16() {
             if (mTitleCount > mCurrentTitle && System::isReceiveScheduleStopped()) {
-                if (iplSDChannelSelect_813DB4D4(mpSDChannelSelect, mTitleIds[mCurrentTitle], 0)) {
+                if (mpSDChannelSelect->enqueueStateNotice(mTitleIds[mCurrentTitle], 0)) {
                     mDialogState = 16;
                 } else {
                     System::getDialog()->terminate();
@@ -1103,7 +1086,9 @@ namespace ipl {
                 System::getDialog()->setTitleForSDMemory(mCurrentTitleName);
 
                 const ESTitleId titleId = mTitleIds[mCurrentTitle];
-                if (iplSDChannelSelect_813DB5EC(mpSDChannelSelect, titleId)) {
+                if (mpSDChannelSelect->enqueueDeleteNotice((u32)&mTitleIds[mCurrentTitle] - offsetof(SDMemory, mTitleIds),
+                                                      ((u32*)&mTitleIds[mCurrentTitle])[0],
+                                                      ((u32*)&mTitleIds[mCurrentTitle])[1])) {
                     mDialogState = 18;
                 } else {
                     System::getDialog()->terminate();
@@ -1636,23 +1621,23 @@ namespace ipl {
                 switch (paneIndex) {
                 case 0:
                     animator = mpTitleLayout->getAnim(7);
-                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 0);
+                    mpSDChannelSelect->collectTitlesForMode(&mNandTitleRange.mByteSize, &mSDTitleRange.mByteSize,
+                                                       mTitleIds, (char*)&mTitleNames[0][0], &mTitleCount, 0);
                     break;
                 case 1:
                     animator = mpTitleLayout->getAnim(10);
-                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 1);
+                    mpSDChannelSelect->collectTitlesForMode(&mNandTitleRange.mByteSize, &mSDTitleRange.mByteSize,
+                                                       mTitleIds, (char*)&mTitleNames[0][0], &mTitleCount, 1);
                     break;
                 case 2:
                     animator = mpTitleLayout->getAnim(13);
-                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 2);
+                    mpSDChannelSelect->collectTitlesForMode(&mNandTitleRange.mByteSize, &mSDTitleRange.mByteSize,
+                                                       mTitleIds, (char*)&mTitleNames[0][0], &mTitleCount, 2);
                     break;
                 case 3:
                     animator = mpTitleLayout->getAnim(16);
-                    iplSDChannelSelect_813DDB74(mpSDChannelSelect, &mNandTitleRange, &mSDTitleRange,
-                                                mTitleIds, &mTitleNames[0][0], &mTitleCount, 3);
+                    mpSDChannelSelect->collectTitlesForMode(&mNandTitleRange.mByteSize, &mSDTitleRange.mByteSize,
+                                                       mTitleIds, (char*)&mTitleNames[0][0], &mTitleCount, 3);
                     break;
                 case 4:
                     animator = mpTitleLayout->getAnim(4);
@@ -1678,10 +1663,9 @@ namespace ipl {
                         mTitleListState.mSecondaryCount = 0;
                         mTitleListState.mpNames = mSDTitleIds;
                         mTitleListState.mNameCount = 0;
-                        iplSDChannelSelect_813DB58C(mpSDChannelSelect,
-                                                    &mTitleListState.mpTitles,
-                                                    &mTitleListState.mpSecondaryTitles,
-                                                    &mTitleListState.mpNames);
+                        mpSDChannelSelect->enqueueCommandNotice((u32)&mTitleListState.mpTitles,
+                                                       (u32)&mTitleListState.mpSecondaryTitles,
+                                                       (u32)&mTitleListState.mpNames);
                     }
 
                     if (paneIndex == 4) {

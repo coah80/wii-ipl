@@ -197,6 +197,7 @@ namespace ipl {
             friend class SDChannelSelectEventHandler;
             friend class SDChannelSelectButtonEventHandler;
 #endif
+            friend class SDMemory;
             void enqueueStartNotice();
             bool enqueueFinishNotice();
             bool enqueueNotice(u32 highTitleId, u32 lowTitleId, u32 result);
