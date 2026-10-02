@@ -1,3 +1,4 @@
+#define TIGUIMANAGER_IMPLEMENTATION
 #include "keyboard/tiGUIManager.h"
 #include "keyboard/tiUtil.h"
 
@@ -88,6 +89,20 @@ namespace textinput {
             return event;
         }
 
+        bool GUIComponent::isVisible() { return true; }
+
+        bool GUIComponent::isPointed(int point) { return mbPointed[point]; }
+
+        void GUIComponent::onMove(int point, f32 x, f32 y) { mFlightDuration[point]++; }
+
+        void GUIComponent::setPointed(int point, bool bEnable) { mbPointed[point] = bEnable; }
+
+        void GUIComponent::onPointIn(int point) { mFlightDuration[point] = 0; }
+
+        void GUIComponent::onPointOut(int point) { mFlightDuration[point] = 0; }
+
+        void GUIComponent::onDrag(f32 x, f32 y) {}
+
         GUIManager::~GUIManager() {
             IDToComponent* p = static_cast<IDToComponent*>(nw4r::ut::List_GetFirst(&mComponents));
             while (p != NULL) {
@@ -124,6 +139,8 @@ namespace textinput {
                 nw4r::ut::List_Append(&mComponents, p);
             }
         }
+
+        u32 GUIComponent::getID() { return mID; }
 
         GUIComponent* GUIManager::getComponent(u32 id) {
             IDToComponent* p = static_cast<IDToComponent*>(nw4r::ut::List_GetNth(&mComponents, (u16)id));
@@ -192,6 +209,29 @@ namespace textinput {
             return touched;
         }
 
+        u32 GUIComponent::updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release) {
+            GUIPointer pointer(point, x, y, hold, trig, release);
+            return updatePointerImpl(pointer);
+        }
+
+        void GUIManager::onEvent(GUIComponent& comp, u32 event, int point, void* data) {
+            if (mpEventHandler) {
+                mpEventHandler->setLatestEventCtrlNo(point);
+                mpEventHandler->onEvent(comp, event, data);
+            }
+            comp.onEvent(event, data);
+        }
+
+        bool GUIComponent::isTriggerTarget() { return mbTriggerTarget; }
+
+        void GUIComponent::onTrig(int point, u32 trig, Vec& dragPos) {
+            if (trig & mDraggingButton) {
+                mDraggingPos[point] = dragPos;
+                mbDragging[point] = true;
+                mFlightDuration[point] = 0;
+            }
+        }
+
         void GUIManager::calc() {
             for (IDToComponent* p = static_cast<IDToComponent*>(nw4r::ut::List_GetFirst(&mComponents)); p != NULL;
                  p = static_cast<IDToComponent*>(nw4r::ut::List_GetNext(&mComponents, p))) {
@@ -219,6 +259,8 @@ namespace textinput {
                 p->mpComponent->setDraggingButton(dragBtn);
             }
         }
+
+        void GUIComponent::setDraggingButton(u32 dragBtn) { mDraggingButton = dragBtn; }
 
         PaneManager::~PaneManager() {
             PaneToComponent* p = static_cast<PaneToComponent*>(nw4r::ut::List_GetFirst(&mPaneComponents));
@@ -290,6 +332,8 @@ namespace textinput {
             addComponent(pComponent);
         }
 
+        void PaneComponent::setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }
+
         PaneComponent* PaneManager::searchPaneComponent(const char* name) {
             for (u32 i = 0; i < nw4r::ut::List_GetSize(&mPaneComponents); i++) {
                 PaneToComponent* p = static_cast<PaneToComponent*>(nw4r::ut::List_GetNth(&mPaneComponents, (u16)i));
@@ -347,6 +391,8 @@ namespace textinput {
                 return false;
             }
         }
+
+        const nw4r::lyt::DrawInfo* PaneManager::getDrawInfo() { return mpDrawInfo; }
 
         #pragma push
         #pragma section sconst_type ".sdata2"
@@ -491,5 +537,11 @@ namespace textinput {
             }
             return true;
         }
+
+        u32 GUIComponent::updatePointer(const GUIPointer& pointer) { return updatePointerImpl(pointer); }
+
+        void GUIManager::setEventHandler(EventHandler* eventHandler) { mpEventHandler = eventHandler; }
+
+        bool GUIManager::update(int point, const KPADStatus* kpad, f32 x, f32 y, void* data) { return false; }
     }  // namespace gui
 }  // namespace textinput

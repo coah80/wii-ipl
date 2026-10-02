@@ -84,18 +84,20 @@ namespace textinput {
             Decolated(u16 maxLen) : StringBase(maxLen), field_0x18(0), field_0x1C(0), field_0x20(0), field_0x24(0) { initKanaConverter(); }
 #endif
 
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
+#ifdef TIMANAGER_IMPLEMENTATION
+            virtual ~Decolated();
+            enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
+            virtual void clear();
+            virtual void set(const wchar_t* string);
+            virtual void setLength(u16 length);
+#elif defined(TIINPUTFORM_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
             enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
             virtual void setLength(u16 length);
             virtual void clear();
-#endif
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
             virtual ~Decolated();
-#else
-            virtual ~Decolated() {}
+            virtual void set(const wchar_t* string);
 #endif
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-            virtual void set(const wchar_t* string);
             void setTranslateMode(TranslateMode mode);
             TranslateMode getTranslateMode() const { return static_cast<TranslateMode>(mTranslateMode); }
             void inputString(const wchar_t* string, TranslateMode mode);

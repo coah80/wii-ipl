@@ -283,6 +283,12 @@ void InputForm::create(MEMAllocator* allocator, inputform::EditBuffer* editBuffe
     mpScrollButton->create(allocator, mpMultiArcResourceAccessor);
 }
 
+gui::EventHandler* gui::GUIManager::changeEventHandler(gui::EventHandler* eventHandler) {
+    EventHandler* prevHandler = mpEventHandler;
+    mpEventHandler = eventHandler;
+    return prevHandler;
+}
+
 void InputForm::createAnimation(MEMAllocator* allocator) {
     for (u16 i = 0; i < 2; i++) {
         const PaneAnimations& entry = csPaneToAnimation[i];

@@ -57,6 +57,10 @@ namespace textinput {
 #ifdef TI_CELLPHONE_IMPLEMENTATION
             struct ChangePredictMode;
 #endif
+#ifdef TIMANAGER_IMPLEMENTATION
+            CommandReceiver() { clearSender(); }
+            virtual ~CommandReceiver();
+#endif
 #if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             struct Scroll {
                 bool absY;
@@ -75,7 +79,7 @@ namespace textinput {
             virtual void    clearSender();
             virtual void    onCommand(INPUT_COMMAND command, void* data);
             virtual void    addSender(CommandSender* cmdSend);
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#ifdef TIINPUTFORM_IMPLEMENTATION
             CommandReceiver() { clearSender(); }
             virtual ~CommandReceiver();
 #endif

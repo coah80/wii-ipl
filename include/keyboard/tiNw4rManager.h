@@ -32,8 +32,6 @@ namespace textinput {
 #endif
                 } Input;
 
-                virtual ~TiEventHandler() {}                                                            // 0x08
-
                 virtual void    onEvent(gui::GUIComponent& comp, u32 event, void* data);                    // 0x0C
 
                 virtual void    onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) = 0;  // 0x18
