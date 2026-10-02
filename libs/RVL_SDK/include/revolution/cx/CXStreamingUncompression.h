@@ -19,7 +19,7 @@ typedef struct CXUncompContextRL {
     u8* outData;   // 0x00
     int outDataLen;  // 0x04
     u32 size;      // 0x08
-    u16 unk_0x0C;  // 0x0C
+    u16 length;  // 0x0C
     u8 unk_0x0e;   // 0x0E
     u8 unk_0x0f;   // 0x0F
 } CXUncompContextRL;
@@ -28,7 +28,7 @@ typedef struct CXUncompContextLZ {
     u8* outData;   // 0x00
     int outDataLen;  // 0x04
     u32 size;      // 0x08
-    int unk_0x0C;  // 0x0C
+    int length;  // 0x0C
     u8 unk_0x10;   // 0x10
     u8 unk_0x11;   // 0x11
     u8 unk_0x12;   // 0x12
