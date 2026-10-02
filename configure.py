@@ -1892,7 +1892,7 @@ config.libs = [
         ]
     ),
     RVLSDKLib("kpr", [
-            Object(NonMatching, "kpr/kpr_lib.c"),
+            Object(Matching, "kpr/kpr_lib.c"),
         ]
     ),
     RVLSDKLib("usbkbd", [

@@ -144,8 +144,8 @@ const u16 kprLookupTable437[] = {
     0x00B0, 0x2219, 0x00B7, 0x221A, 0x207F, 0x00B2, 0x25A0, 0x00A0,
 };
 
-static void (*kprProcDeadKeysFP)(KPRQueue* queue);
-static void (*kprProcRomajiFP)(KPRQueue* queue);
+static void (*kprProcDeadKeysFP)(KPRQueue* queue) = NULL;
+static void (*kprProcRomajiFP)(KPRQueue* queue) = NULL;
 const char* __KPRVersion = "<< RVL_SDK - KPR \trelease build: Apr 20 2010 11:21:44 (0x4199_60831) >>";
 
 void KPRProcessDeadKeys(KPRQueue* queue);
