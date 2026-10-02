@@ -20,7 +20,7 @@ typedef struct _usbKbdAsyncMem {
     u32 state;       // 0x00
     void* kbd;       // 0x04
     char modifiers;  // 0x08
-    u8 unk_0x09;
+    u8 reserved;  // 0x09
     u8 keys[6];  // 0x0A
 } usbKbdAsyncMem;
 
