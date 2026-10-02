@@ -139,7 +139,7 @@ namespace ipl {
 
             bool received() { return mbReviecedMsg; }
             void prepNextReceive() { mbReviecedMsg = false; }
-            volatile bool isUnk0xA31() { return unk_0xA31 == false; }
+            volatile bool isReceivingIdle() { return mbReceiving == false; }
 
             BOOL isAppDlEnableLock(u32 appId) {
                 utility::autoMutexLock lock(mAutoLock);
@@ -175,9 +175,9 @@ namespace ipl {
             OSMutex mAutoLock;  // 0xA18
 
             bool mbReviecedMsg;
-            bool unk_0xA31;
+            bool mbReceiving;
             bool mbReceivePaused;  // 0xA32
-            bool unk_0xA33;
+            bool mbNewTitleTblReady;
 
             static Arg smArg;
 

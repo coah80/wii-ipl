@@ -353,7 +353,7 @@ FaderSceneCommand SDChannelTitle::calcFadeout() {
             mWpadStopTick = OSGetTick();
         }
         if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN && System::isReceiveScheduleStopped() &&
-            (!System::getNwc24Manager() || System::getNwc24Manager()->isUnk0xA31())) {
+            (!System::getNwc24Manager() || System::getNwc24Manager()->isReceivingIdle())) {
             OSReport("NWC24 Scheduler stopped.\n");
             NandSDWorker* worker = mpChannelSelect->getWorker();
             if (mNextScene == 17) {
