@@ -27,10 +27,10 @@ s32 WADImportDVDForBS(const char* path, void* buffer, u32 length);
 s32 WADImportDVDExForBS(const char* path, void* buffer, u32 length);
 
 static BS2UpdateEntry* pEntries = NULL;
-static u32 EntriesCount = 0;
+static vu32 EntriesCount = 0;
 static u32* pFlags = NULL;
 static void* MemAllocator = NULL;
-int State = 0;
+volatile int State = 0;
 BS2UpdateEntry* CurrentEntry = 0;
 static u32 RebootRequired = 0;
 static BOOL ContainsSeatTitles = 0;

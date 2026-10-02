@@ -458,3 +458,25 @@ lis/stw materialization slots are pure scheduler order, no further lever.
   loop; MWCC's global ordering gives the loop counter the freed deep slot. Mine
   consistently picks r25 (lowest free). Deterministic allocator ordering; no
   source-level lever found that shifts the class without rotating everything.
+
+## pass-2026-09-30c — UpdateThread volatile decode (verdict: landed)
+
+`volatile int State` + `static vu32 EntriesCount` — both are thread-state globals
+(State is read by BS2UpdateState/BS2GetUpdateEntry getters from other threads;
+EntriesCount is the entry-count the getters expose). Semantically justified, same
+class as the BS2Mach callback flags. Effect:
+- Orig emits per-exit `li 5; stw State` at the two MEM2-default sites — mine had
+  DCE'd them (selection_done's `if(EntriesCount==0)` stores State=5 anyway).
+  Volatile EntriesCount also produces orig's `stw r17; lwz r0` store-then-reload
+  of EntriesCount where mine forwarded the reg value.
+- UpdateThread 904→909 insns (orig 913), diffs 959→505, fuzzy ~92→94.30.
+- Broader volatile set (StartUpdate/CancelUpdate/RebootRequired/CurrentEntry/
+  ContainsSeatTitles/UpdateImportState/UpdateImportResult/pEntries/pFlags/
+  MemAllocator) = -0.45 fuzzy vs the two-var set; UpdateProgress volatile adds
+  +9 insns (overshoots 913→922, diffs 505→521). All reverted; kept exactly
+  State + EntriesCount.
+
+Residual (all documented ties): ~500 regname diffs — r15↔r18/r19↔r14/r22↔r23
+web rotations; 4-insn deficit = orig's per-site `li r3,0`/`lwzx` reloads
+(marshal-order + aliasing ties); no structural gaps remain — store/load order
+and branch shape now align.
