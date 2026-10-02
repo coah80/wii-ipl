@@ -386,14 +386,14 @@ NWC24Err NWC24ReadMsgTextEx(const NWC24MsgObj* msg, char* text, u32 capacity, ch
 }
 
 static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capacity, char* charset, u32 charsetCapacity, NWC24Encoding* encoding) {
-    const NWC24MsgObjPrivate* privateMsg = (const NWC24MsgObjPrivate*)msg;
+    char* buffer;
     NWC24MBoxType type;
     NWC24File file;
     NWC24Err result, closeResult;
     NWC24Err overflow = NWC24_OK;
     u32 length;
     u32 decodedSize;
-    char* buffer;
+    const NWC24MsgObjPrivate* privateMsg = (const NWC24MsgObjPrivate*)msg;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
     if (!(privateMsg->type & 0x200))
@@ -415,8 +415,8 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capa
     if (length == 0)
         return NWC24_ERR_NULL;
     if (length > capacity - 1) {
-        overflow = NWC24_ERR_OVERFLOW;
         length = capacity - 1;
+        overflow = NWC24_ERR_OVERFLOW;
     }
     result = NWC24iMBoxOpenStoredMsg(type, privateMsg->msgId, &file);
     switch (result) {
@@ -452,13 +452,16 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capa
                 result = NWC24FRead(text, length, &file);
                 text[length] = 0;
                 break;
-            case 2:
+            case 2: {
+                NWC24Err decodeResult;
                 decodedSize = 0;
-                result = ReadBase64Data(&file, &privateMsg->text, (u8*)text, length, &decodedSize);
-                if (result == NWC24_OK && decodedSize != privateMsg->textSize)
-                    result = NWC24_ERR_FORMAT;
+                decodeResult = ReadBase64Data(&file, &privateMsg->text, (u8*)text, length, &decodedSize);
+                if (decodeResult == NWC24_OK && decodedSize != privateMsg->textSize)
+                    decodeResult = NWC24_ERR_FORMAT;
+                result = decodeResult;
                 text[length] = 0;
                 break;
+            }
             case 3:
                 result = ReadQPText(privateMsg, &file, text, length);
                 break;
