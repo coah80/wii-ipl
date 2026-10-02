@@ -1052,8 +1052,19 @@ static inline s32 initialize_volume_cache(PFVOL_VOLUME* volume, PFVOL_DRIVER* dr
 }
 
 static inline s32 attach_mount(PFVOL_VOLUME* volume, PFVOL_DRIVER* driver) {
-    s32 error = clear_mount(volume);
-    if (error != 0) { pf_vol_set.last_error = error; volume->last_error = error; return error; }
+    s32 error = 0;
+    if ((volume->flags & 8) == 0) {
+        error = PFVOL_DoMountVolume(volume);
+        if (error == 0) {
+            volume->fsi_flag &= ~7;
+            PFDRV_ClearUnmountRequested(volume);
+            pf_vol_set.num_mounted_volumes++;
+        }
+    }
+    if (error == 0) {
+        PFDRV_ClearMountRequested(volume);
+    }
+    if (error != 0) { pf_vol_set.last_error = error; volume->last_error = error; return 0; }
     driver->stat |= 2;
     return 0;
 }
