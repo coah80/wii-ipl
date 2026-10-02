@@ -322,6 +322,8 @@ pf_s32 PFCLUSTER_CombineFiles(PFCLUSTER_ENT_ITER* p_first_iter, PFCLUSTER_ENT_IT
     pf_u32 first_spare_clusters;
     pf_u32 second_spare_clusters;
     pf_u32 excess_clusters;
+    pf_s32 second_allocated_clusters;
+    pf_u32 capacity_clusters;
     pf_u32 first_end_cluster;
     pf_u32 first_spare_cluster;
     pf_u32 second_spare_cluster;
@@ -370,8 +372,10 @@ pf_s32 PFCLUSTER_CombineFiles(PFCLUSTER_ENT_ITER* p_first_iter, PFCLUSTER_ENT_IT
         if (*p_second_iter->ffd.p_start_cluster != 0) {
             second_spare_clusters = p_second_iter->ffd.last_cluster.max_chain_index + 1 - second_used_clusters;
         }
-        if (-1U / cluster_size + 1 < (second_used_clusters + second_spare_clusters) + first_used_clusters) {
-            excess_clusters = (second_used_clusters + second_spare_clusters) + first_used_clusters - (-1U / cluster_size + 1);
+        second_allocated_clusters = second_used_clusters + second_spare_clusters;
+        capacity_clusters = -1U / cluster_size + 1;
+        if (capacity_clusters < first_used_clusters + second_allocated_clusters) {
+            excess_clusters = first_used_clusters + second_allocated_clusters - capacity_clusters;
             err = PFFAT_TraceClustersChain(&p_second_iter->ffd, second_spare_cluster,
                 cluster_size * ((p_second_iter->ffd.last_cluster.max_chain_index + 1 - excess_clusters) - second_used_clusters),
                 &end_cluster, &spare_cluster);
@@ -534,7 +538,7 @@ pf_s32 PFCLUSTER_DivideFile(PFCLUSTER_ENT_ITER* p_source_iter, PFCLUSTER_ENT_ITE
 
 pf_s32 PFCLUSTER_InsertCluster(PFCLUSTER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent,
     pf_u32 cluster_index, pf_u32 num_clusters, pf_u32* p_inserted_clusters) {
-    pf_s32 err;
+    pf_u32 requested_size;
     pf_u32 previous_cluster;
     pf_u32 next_cluster;
     pf_u32 success_size;
@@ -544,7 +548,7 @@ pf_s32 PFCLUSTER_InsertCluster(PFCLUSTER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent,
     pf_u32 allocated_size;
     pf_u32 first_cluster;
     pf_u32 last_cluster;
-    pf_u32 requested_size;
+    pf_s32 err;
     pf_u32 file_clusters;
     pf_u32 remainder;
     pf_u32 extra_size;
