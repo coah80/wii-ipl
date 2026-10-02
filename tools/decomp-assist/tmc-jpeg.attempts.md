@@ -657,3 +657,16 @@ GATE PASS
   `addi rN, r3, 0x1858+K` from any source form (var decls, per-case defs, &arr[N], ptr walks).
   Only an opaque param web (`static impl(work, convBuf)`) produces r4-based adds — but then
   impl stays a separate symbol (base has none) and `inline` re-folds.
+
+## w1009 idct/RGB565 coloring probes
+- idct_block_var Lumi/Col (37/53 ops): SIZE-exact, all diffs pure in-window reg
+  renames (stmw r18 same). Base's zero-check or-chain emits `or r0, NEW, ACC`
+  (accumulator on src2); `ac = bN | ac` source form is canonicalized back to
+  acc-src1 by MWCC. Flat-expression `(b4|b6|...|b3)` emits a TREE merge, not
+  base's linear chain — `ac |=` linear chain kept.
+- YUV444toRGB565 (11 ops): base coalesces red onto the correction operand web
+  and blue onto the last-use `value` web (`add r24,r25,r24; add r25,r25,r23`);
+  mine spawns r28 for red and reuses the dead correction web for blue.
+  red-first and blue-first source orders both regressed (15/14 ops) —
+  pure coloring perm.
+- iqdec_b65_frv32 (39 ops): all renames (r26/r29, r4/r7 pointer pairs).
