@@ -7,9 +7,9 @@
 static struct {
     struct {
         OSMessageQueue* queue;  // 0x00
-        void* unk_0x04;
+        void* messages;         // 0x04  (OSMessage* array for OSInitMessageQueue)
     } entries[MAX_PUH_SEM];  // 0x00
-    void* unk_0x14;
+    void* pad_0x14;  // unused
 } st_uhs_ker_msg_mng;
 
 s32 uhf_ker_send_message(int index, void* message) {
