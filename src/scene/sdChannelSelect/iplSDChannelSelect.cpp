@@ -1341,13 +1341,11 @@ namespace ipl {
                         wchar_t* titleName = System::getChannelManager()->getTitleName(
                             page, channelIndex, 0);
                         memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
-                        u32 nextTitleCount = *titleCount + 1;
-                        *titleCount = nextTitleCount;
+                        ++*titleCount;
 
-                        if (bytes < secondUsage[0] || blocks < secondUsage[1]) {
-                            continue;
+                        if (bytes >= secondUsage[0] && blocks >= secondUsage[1]) {
+                            return true;
                         }
-                        return true;
                     }
                 }
             }
