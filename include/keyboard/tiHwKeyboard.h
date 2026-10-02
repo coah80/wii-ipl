@@ -49,6 +49,7 @@ namespace textinput {
                     bool controlKeyTriggeredHandler(input::HKBManager&);
 
                     Manager *mgr() { return mpManager; }
+                    const Manager *mgr() const { return mpManager; }
 
                     Manager*    mpManager;  // 0x10
                     u8          field_0x14; // 0x14
