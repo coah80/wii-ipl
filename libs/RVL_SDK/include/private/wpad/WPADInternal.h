@@ -171,7 +171,7 @@ typedef struct WPADExtConfig {
 
 typedef struct WPADCB {
     WPADGameInfo gameInfo;  // 0x00
-    s32 unk_0x38[2];
+    s32 gameInfoStatus[2];  // 0x38
     u8 rxBufMain[RX_BUFFER_SIZE];       // 0x40
     u8 rxBufs[2][RX_BUFFER_SIZE];       // 0xA0
     WPADCommandQueue stdCmdQueue;       // 0x160
