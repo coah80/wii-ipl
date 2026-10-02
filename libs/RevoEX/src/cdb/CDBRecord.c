@@ -455,7 +455,7 @@ CDBErr CDBRecordGetId(CDBRecord* record, CDBId* id) {
     } else {
         CDBLock();
         if (record->file == NULL) {
-            CDBReportError("can't get CDBId of the record ; the record is closed\n");
+            CDBReportError("can't get maker code of the record ; the record is closed\n");
             err = CDB_ERROR_27;
         } else {
             CDBLock();
@@ -933,7 +933,7 @@ CDBErr CDBRecordDecrypt(CDBRecord* record, void* buffer, u32 size, u32* dataSize
     if (CDBRecordKeyCompareByDate(&comparisonKey, &record->key) != 0) {
         if (CDBIsPrintDebugMessage(3)) {
             CDBReport_(3);
-            OSReport("CDBRecordPrivateChangeOwner\n");
+            OSReport("ファイル名の改竄を検出\n");
         }
         return CDB_ERROR_32;
     }
