@@ -223,3 +223,11 @@ Verdict: remaining nwc24 diffs are all allocator/scheduler-internal homes; sourc
 - iSetMsgSubjectBase64 arg-pin r8-first: stmt reorder `second` before `workHalf` -> same 10; initialized-first-decl `u8* second = work + (workSize>>1)` -> same 10. MWCC emits arg copies by internal order. Reverted.
 - InitDlTask 3-web rotation (zero->r28/r29, strtoul1, strtoul2): stmt swap strtoul order -> 32 (worse). Reverted.
 - DecodeWord 140 (whole-fn permutation): base _savegpr_18 (14 callee) vs mine _savegpr_19 (13) — base has ONE MORE pinned web. Its `?` delimiter loop: `li r22,0` IV + `add r31,r18,r22` (encoded + IV, index-form; no walking `current` pointer). Tried: `encoded+offset` from consumedSize (178/180 -2), `encoded+consumedSize+offset` (142, _savegpr_20), `scanStart` alias ptr (181/180 +1), decl-order swap (same), `encodedWordPosition+offset` consumedSize-init loop (178/180 -2). All reverted. Open question: how orig emits encoded+offset with consumedSize absorbed — IV web may be `consumedSize+offset` merged where init `li 0` contradicts; or the scan genuinely starts at encoded[0] (semantically suspect vs `=?` prefix at index 1).
+
+## wave 20 — Mime mid-size fns (all insn-equal, no count-gaps)
+- CopyWithoutLinearWhiteSpaces 17->13: decl/init-order swap `u32 outputOffset` before `BOOL afterNewline` (committed). Remaining: flag->r11 vs r9, value->r9 vs r8, bound->r8 vs r11 — one extra pre-flag web in mine.
+- Failed there: `char value` top-decl / first-decl, `u32 capacity` (15), `capacity = *outputSize` at decl (16 — lwz hoists over flag init).
+- QDecode 25: input/output/counter trio r26-r28 rotation — base homes reversed creation order, allocator-internal.
+- ExtractEncodedText 13: per-inline FindMarker web numbering — markerLen/offset pairs swap r22<->r23 and r31<->r23 across the two inline sites.
+- DecodeMIMEHeaderFieldBody 41: arg cluster +1 shift (base r24-r27 consecutive vs mine r23,r24,r31,r25) + zero-web pinning (base re-materializes li r0/li r4 per store; mine shares r10/r30 webs). Same family as SetMsgSubjectAndTextPublic.
+- EncodeWord: rechecked — 51/51 diffs 0 for `NWC24EncodeWord` in Mime; earlier -1 was on a different EncodeWord symbol (MsgSubject path uses the Mime one — actually matching now).

@@ -459,8 +459,8 @@ static NWC24Err ExtractEncodedText(char* decoded, u32 decodedCapacity, u32* deco
                                    u32* encodedSizeOut);
 
 static BOOL CopyWithoutLinearWhiteSpaces(char* output, int* outputSize, char* input, int inputSize) {
-    BOOL afterNewline = FALSE;
     u32 outputOffset = 0;
+    BOOL afterNewline = FALSE;
     s32 capacity;
 
     if (output == NULL || outputSize == NULL || *outputSize == 0) {
