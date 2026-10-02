@@ -83,8 +83,8 @@ static u8* __nupNhttpBufFull(u8** buffer, unsigned long* length, unsigned long r
     }
 done:
     if (state->error != 0) {
-        next = NULL;
         *length = 0;
+        next = NULL;
     }
     return next;
 }

@@ -78,3 +78,26 @@ Normalized diff = 5 symbol-name artifacts only; raw diff = whole-fn callee-web
 rotation (orig binds &locals to r25/r22/r23 webs, mine r24/r25/r27 + one web escapes
 to r18). Decl-order rotation inert (all 4 orders = 98.11); per-block start/valueLength
 locals regressed (94.09) — shared decls confirmed. Documented wall.
+
+## Pass 5 (orchestrator resume — nup_nhttp gaps)
+
+### NhttpOp/BufFull/HttpStringFlush structure check
+All 9 nup_nhttp fns implemented — complete_code 22.6% reflects 3 sub-100 fns' whole
+sizes, not missing code. Same for nup (53.4%).
+
+### BufFull 96.44 -> 97.58
+done-block store order: `*length = 0; next = NULL;` (orig emits `li r0,0; li r30,0;
+stw r0` — separate zero materializations per use). Residual (3 blocks): cmplw
+operand order on `received + *length < received` (sum-temp/operand-swap inert),
+next==NULL alloc cold-block (`beq→alloc;b→merge` vs `bne` — goto/else forms inert),
+req>=0x8000 set-block same cold-block family. Documented wall.
+
+### HttpStringFlush 96.88 — cold-block, all forms inert
+Orig `blt→growth;b→merge` out-of-line growth block. Tried: double-goto
+(`if(req<total) goto grow; goto alloc;`), single-goto-skip, empty-else — all
+normalize to in-line `bge`. Same wall as BufFull alloc block.
+
+### NhttpOp 98.79 — single `li r29,0` placement
+Orig rematerializes the `*colon=0`/`*end=0` store-zero fresh after memcpy
+(web-split); mine shares headerCopy's NULL web. `'\0'` literal + late-init
+headerCopy inert — allocator-internal. Documented tie.
