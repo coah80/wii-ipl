@@ -3,6 +3,11 @@
 #define IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
 #define IPL_SDMEMORY_COMPLETION_PCT_ACCESSOR
 
+#define IPL_CHANNEL_TITLE_NOVTABLE
+#include "math/iplInterporation.h"
+#pragma dont_instantiate ipl::math::HermiteIntp<float>
+#undef IPL_CHANNEL_TITLE_NOVTABLE
+
 #include "scene/sdChannelTitle/iplSDChannelTitle.h"
 #include "scene/sdChannelSelect/iplSDChannelSelect.h"
 #include "system/iplSystem.h"
@@ -86,17 +91,17 @@ static inline void setMemoryTitleLists(SDMemory* memory, SDMemory::TitleRange sd
     memory->setTitleLists(sdRange, nandRange);
 }
 
-static const char* sButtonNames[2] = {"B_BtnA", "B_BtnB"};
+const char* sButtonNames[2] = {"B_BtnA", "B_BtnB"};
 
-static const int sCaptureSizes[2][2] = {{128, 96}, {176, 96}};
+extern const int sCaptureSizes[2][2] = {{128, 96}, {176, 96}};
 
-static const wchar_t sMissingTitle[] = L"???";
+extern const wchar_t sMissingTitle[] = L"???";
 
-static const char* sButtonGroups[7] = {
+const char* sButtonGroups[7] = {
     "G_FocusBtnA", "G_FocusBtnB", "G_SelectBtnA", "G_SelectBtnB",
     "G_OnOffBtnA", "G_OnOffBtnB", "G_OutBtn"
 };
-static const char* sButtonAnimationNames[6] = {
+const char* sButtonAnimationNames[6] = {
     "mn_SdcardMenuBanner_bc_FocusBtnA_off.brlan",
     "mn_SdcardMenuBanner_bc_FocusBtn_on.brlan",
     "mn_SdcardMenuBanner_bc_SelectBtn_Ac.brlan",
@@ -104,15 +109,15 @@ static const char* sButtonAnimationNames[6] = {
     "mn_SdcardMenuBanner_bc_OnBtn.brlan",
     "mn_SdcardMenuBanner_bc_OutBtn.brlan"
 };
-static const char* sBannerAnimationNames[3] = {
+const char* sBannerAnimationNames[3] = {
     "banner.brlan", "banner_Start.brlan", "banner_Loop.brlan"
 };
-static const char* sTexturePaneNames[3][4] = {
+const char* sTexturePaneNames[3][4] = {
     {"Fre_a", "Fre_d", "Fre_i", "Fre_l"},
     {"Fre_e", "Fre_f", "Fre_g", "Fre_h"},
     {"Fre_b", "Fre_c", "Fre_j", "Fre_k"}
 };
-static const char* sTextNames[2] = {"T_BtnA", "T_BtnB"};
+const char* sTextNames[2] = {"T_BtnA", "T_BtnB"};
 
 class SDTitlePaneEventHandler : public ::gui::EventHandler {
 public:

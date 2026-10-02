@@ -96,3 +96,58 @@ the weak emission without changing semantics.
 - ut_ArchiveFontBase: fuzzy 98.468, code 4164/5120, data 96/96. Only ConstructOpAnalyzeGLGR 91.79
   (20-diff scheduler window) + .sbss2 extent artifact.
 - DOL sha1 `26116613f624061ba99c8d1a299aaa6efa85670d` verified. No shims; both units stay NonMatching.
+
+## DECODE (round 3): HermiteIntp<f32> weak-UND parity — RESOLVED
+
+Orig's .o UND-references all three `HermiteIntp<f32>` weak fns (__ct__/__dt__/init via
+iplUtility.o GLOBAL ownership; `get` via iplChannelTitle.o GLOBAL at 0x813B5C60). Reproduced
+by: `IPL_CHANNEL_TITLE_NOVTABLE` gate scoped around `#include "math/iplInterporation.h"` +
+`#pragma dont_instantiate ipl::math::HermiteIntp<float>` + `#undef` (narrow scope — wider
+scope UNDs the gui vtables that orig's TU DID emit, shrinking .data to 0x5c8 vs orig 0x6a0),
+plus the out-of-line `HermiteIntp<f32>::get` def added to iplChannelTitle.cpp between
+draw/destroy (orig's own emission site — iplChannelTitle now fully 100%). UND set now matches
+orig for the whole HermiteIntp family; .sdata2 bytes identical (36B both).
+
+## DECODE (round 3): DynamicCast gate
+
+`IPL_SD_CHANNEL_TITLE_CPP` added to the `RuntimeTypeInfo.h` declared-only gate (with
+IPL_BOARD_OBJECT_EXTERNAL_DYNAMIC_CAST / IPL_MEMORYCARD_BASE_CPP) — orig UNDs
+`DynamicCast<Pane*,TextBox>`; previously emitted weak + pulled `typeInfo` UND extras.
+
+## DECODE (round 3): named-array binding
+
+8 file-scope arrays changed `static const` → `extern const`/`const` (sButtonNames,
+sCaptureSizes, sMissingTitle, sButtonGroups, sButtonAnimationNames, sBannerAnimationNames,
+sTexturePaneNames, sTextNames) — `const` alone leaves namespace-scope arrays internal in C++;
+`extern const` gives STB_GLOBAL matching orig's decls.
+
+## WALL: .data tail 0x44 = __vt__Q23gui7Manager emission
+
+orig's reconstructed .data tail (0x5c8-0x6a0) holds 4 gui vtables: ipl::gui::PaneManager
+(0x5C) + gui::EventHandler (0x18) + gui::Interface (0x20) + gui::Manager (0x44). Mine emits
+the first three (dedup'd differently) but NOT Manager vt: `new gui::PaneManager(...)` at
+~L218 resolves to `ipl::gui::PaneManager`; the ctor chain fully inlines → base-class
+`__vt__Q23gui7Manager` store DCE'd. Orig's TU emitted the ipl ctor standalone (weak) →
+gui::PaneManager ctor → Manager ctor → Manager vt. `IPL_GCW_PANEMANAGER_CTOR_OUT_OF_LINE`
+exists (NO_INLINE decl) but declaring-only UNDs the ctor — no TU defines it out-of-line, and
+orig's own .o shows the ctor as UND too (dedup'd; emission happened on ANOTHER TU). No
+source-level lever to force "call but emit locally"; section bytes .data now 0x65c vs 0x6a0
+(all sections still 100% fuzzy).
+
+## TIE: flushSaveBeforeExit 98.59 — refined to base-reg choice
+
+Remaining 2-insn diff is actually the &smArg materialization register: orig materializes
+`lis/addi` smArg into r3 → store-mgr in r4 (scratch) → heap→r4 → recv→r3 (chain). Mine puts
+smArg in r4/r5 → store-mgr in r3 → recv-first order. The reg choice is MWCC's web-home
+internal; it shifts with every source-form change (saveMgr-local, nested, saveHeap-early,
+mixed — 8+ variants total across sessions) but never lands r3. Same allocator-tie family as
+the leaf's other walls.
+
+## Status (round 3)
+
+- iplSDChannelTitle: fuzzy 99.98883, code 18476/18624, data 1976/1976. Only
+  flushSaveBeforeExit 98.59 (base-reg tie) + Manager-vt emission artifact.
+- ut_ArchiveFontBase: fuzzy 98.468, code 4164/5120, data 96/96. GLGR 91.79 (issue-order tie)
+  + .sbss2 extent artifact.
+- DOL sha1 `26116613f624061ba99c8d1a299aaa6efa85670d` verified. No shims; both stay
+  NonMatching.
