@@ -91,7 +91,7 @@ namespace ipl {
         extern "C" const u32 scLangLookup__Q23ipl7channel[][16];
 
         Manager::Manager(EGG::Heap* heap)
-            : mpHeap(heap), mState(INIT), mbCanRefresh(0), unk_0x1B81(false), mbSetDiskBannerInfo(false), mPrevNandResult(NAND_RESULT_OK),
+            : mpHeap(heap), mState(INIT), mbCanRefresh(0), mbDiskChannelReady(false), mbSetDiskBannerInfo(false), mPrevNandResult(NAND_RESULT_OK),
               mbLoadedChJump(false) {
             mpLockedMsgFile = NULL;
 
@@ -951,7 +951,7 @@ namespace ipl {
             int state = System::getBS2Manager()->getIPLState();
             if (state == bs2::IPL_STATE_RVL_GAME && mBS2State != bs2::IPL_STATE_RVL_GAME) {
                 mbSetDiskBannerInfo = setDiskBannerInfo(false);
-                unk_0x1B81 = true;
+                mbDiskChannelReady = true;
             } else if (state != bs2::IPL_STATE_RVL_GAME && state != mBS2State) {
                 setDiskBannerInfo(true);
             }
@@ -1076,7 +1076,7 @@ namespace ipl {
             ARCFileInfo readFile;
 
             if (unk) {
-                unk_0x1B81 = false;
+                mbDiskChannelReady = false;
             }
 
             int diskPage, diskIndex;

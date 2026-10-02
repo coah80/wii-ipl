@@ -467,7 +467,7 @@ namespace ipl {
                 mpDiskBnrLayout->calc();
             } else {
                 calcModuleChannel();
-                System::getChannelManager()->setUnk_0x1B81(false);
+                System::getChannelManager()->setDiskChannelReady(false);
             }
 
             if ((mState == STATE_NORMAL || mState == STATE_WAIT_TMD || mState == STATE_PREPARE_BOOT || mState == STATE_BOOT_SCENE) && !unk_0x90 &&
@@ -1220,7 +1220,7 @@ namespace ipl {
 #pragma ppc_iro_level 0
         void ChannelTitle::calcNormalParentalDialog() {
             if (mChanSceneID == SCENE_DISK_CHANNEL &&
-                (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_RVL_GAME || System::getChannelManager()->isUnk_0x1B81())) {
+                (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_RVL_GAME || System::getChannelManager()->isDiskChannelReady())) {
                 mParentalState = PARENTAL_STATE_FAILED;
             }
 
@@ -2064,7 +2064,7 @@ namespace ipl {
                         break;
                     }
                     case DISK_STATE_WII_DISK_IDLE: {
-                        if (BS2State != bs2::IPL_STATE_RVL_GAME || System::getChannelManager()->isUnk_0x1B81()) {
+                        if (BS2State != bs2::IPL_STATE_RVL_GAME || System::getChannelManager()->isDiskChannelReady()) {
                             mDiskState = DISK_STATE_EJECT;
                             mpDiskBnrAnims[DISK_ANIM_GRP_ALL][DISK_ANIM_DISK_EJECT]->play();
                             mpDiskBnrLayout->GetRootPane()->SetVisible(true);

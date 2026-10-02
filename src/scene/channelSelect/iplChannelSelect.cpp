@@ -1844,7 +1844,7 @@ namespace ipl {
             initChanZoomParam(myVec, 1);
             setChanZoomOrtho();
 
-            if (System::getChannelManager()->isUnk_0x1B81()) {
+            if (System::getChannelManager()->isDiskChannelReady()) {
                 if (System::getBS2Manager()->getIPLState() == bs2::IPL_STATE_RVL_GAME ||
                     System::getBS2Manager()->getIPLState() == bs2::IPL_STATE_DISK_UPDATE) {
                     if (mspDiskID != NULL) {
@@ -1856,7 +1856,7 @@ namespace ipl {
 
                             if (strncmp(diskID, mspDiskID, 4) == 0) {
                                 if (strncmp(diskMaker, mspDiskMaker, 2) == 0) {
-                                    System::getChannelManager()->setUnk_0x1B81(false);
+                                    System::getChannelManager()->setDiskChannelReady(false);
                                 }
                             }
                         }

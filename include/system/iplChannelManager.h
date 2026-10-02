@@ -365,8 +365,8 @@ namespace ipl {
             int getChJumpChanPage() { return mChJumpPage; }
             int getChJumpChanIndex() { return mChJumpIndex; }
 
-            void setUnk_0x1B81(bool flag) { unk_0x1B81 = flag; }
-            bool isUnk_0x1B81() { return unk_0x1B81; }
+            void setDiskChannelReady(bool flag) { mbDiskChannelReady = flag; }
+            bool isDiskChannelReady() { return mbDiskChannelReady; }
 
             void resetChJumpLoad() { mbLoadedChJump = false; }
             bool hasLoadedChJump() { return mbLoadedChJump; }
@@ -399,7 +399,7 @@ namespace ipl {
 
             int mBS2State;      // 0x1B7C
             bool mbCanRefresh;  // 0x1B80
-            bool unk_0x1B81;
+            bool mbDiskChannelReady;
 
             u8* mpDiskIconBuf;         // 0x1B84
             u8* mpDiskBannerBuf;       // 0x1B88
