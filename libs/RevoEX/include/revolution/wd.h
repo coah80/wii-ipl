@@ -87,11 +87,19 @@ typedef struct WD_Info_ {
     u8 unk_0x60[0x30];      // 0x60 (is it padding???)
 } PACKED WD_Info;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 s32 WDCheckEnableChannel(u16* enableChannel);
 s32 WDScanOnce(u8* scanBuffer, u32 scanBufferLen, WDScanParam* param);
 s32 WDGetPrivacyMode(WDBssDesc* bssDesc);
 
 BOOL WDFindInformationElement(WDInfoElement** outIE, u32* outIELength, WDBssDesc* bssDesc, int id);
 BOOL WDiFindVendorSpecificIE(WDVendorInfoElement** outIE, u32* outIELength, WDBssDesc* bssDesc, int id, u8* data, u8 mode);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // REVOLUTION_WD_H

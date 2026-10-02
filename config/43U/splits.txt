@@ -869,11 +869,12 @@ src/scene/setting/iplUSBAP.cpp:
 	.bss        start:0x810BC148 end:0x810BD498
 	.text       start:0x813FC520 end:0x813FC8FC
 	.data       start:0x81657B08 end:0x81657B18
-	.sbss       start:0x81698C08 end:0x81698C28
+	.sbss       start:0x81698C08 end:0x81698C20
 
 src/scene/setting/iplUSBAPThread.cpp:
 	.text       start:0x813FC8FC end:0x813FCA0C
 	.data       start:0x81657B18 end:0x81657B60
+	.sbss       start:0x81698C20 end:0x81698C28
 
 src/scene/setting/iplAOSSThread.cpp:
 	.bss        start:0x810BD498 end:0x810BD4A8
