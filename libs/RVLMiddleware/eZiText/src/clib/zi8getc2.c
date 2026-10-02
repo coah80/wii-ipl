@@ -339,11 +339,11 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
     if ((parameters->elementCount == 1) && (parameters->firstCandidate == 0)) {
       switch (parameters->language) {
       case 1:
-          if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->unk_0x01 == options->countOnly)) {
+          if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->countOnly == options->countOnly)) {
             switch(ZI_WORK->unk_0x00) {
             case '\0':
               if (parameters->elements[0] == 0xEF04) {
-                ZI_WORK->unk_0x01 = options->countOnly;
+                ZI_WORK->countOnly = options->countOnly;
                 ZI_WORK->unk_0x00 = '\x01';
               }
               break;
@@ -400,11 +400,11 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         break;
       case 0x11:
       default:
-          if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->unk_0x01 == options->countOnly)) {
+          if ((ZI_WORK->unk_0x00 == '\0') || (ZI_WORK->countOnly == options->countOnly)) {
             switch(ZI_WORK->unk_0x00) {
             case '\0':
               if (parameters->elements[0] == 0xEFF2) {
-                ZI_WORK->unk_0x01 = options->countOnly;
+                ZI_WORK->countOnly = options->countOnly;
                 ZI_WORK->unk_0x00 = '\x01';
               }
               break;
