@@ -325,10 +325,11 @@ s32 pfd_sddrv_init(FADisk* disk) {
     }
     if ((pfd_sddrv_flags(&g_pfd_sddrv_info) & 1) != 0) {
         OSReport("INFO SD Card driver is already initialize. pfd_sddrv_init()\n");
-        if (disk == g_pfd_sddrv_info.disk) {
-            return 0;
+        sd_result = 0;
+        if (disk != g_pfd_sddrv_info.disk) {
+            sd_result = -44;
         }
-        return -44;
+        return sd_result;
     }
     if ((g_pfd_sddrv_info.flags & 4) == 0) {
         g_pfd_sddrv_info.bytes_per_sector = 0x200;
