@@ -168,7 +168,7 @@ typedef struct _ziGetParam {
     ziU8 letters;   // 0x21
     ziU8 count;     // 0x22
     ziU8* scratch;  // 0x24
-    ziU32 unk_0x28; // 0x28
+    ziU32 pad_0x28; // 0x28  unused
 } ziGetParam;
 
 typedef struct _ziLanguageEntry {
