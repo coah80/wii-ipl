@@ -30,7 +30,7 @@ namespace ipl {
 
         SettingSelect::SettingSelect(EGG::Heap* heap, int arg)
             : Base(heap), ::gui::EventHandler(), mState(STATE_WAIT_BUTTON_FADE_IN), mPrevState(STATE_WAIT_BUTTON_FADE_IN), mSettingArg(arg),
-              mpLayout(NULL), mpLayoutFile(NULL), mpGui(NULL), unk_0x90(0), unk_0x94(0) {
+              mpLayout(NULL), mpLayoutFile(NULL), mpGui(NULL), mPendingSceneId(0), mExitSeqStep(0) {
             setSceneParentFlags(SCN_PARENTFLAG_CALC | SCN_PARENTFLAG_DRAW);
         }
 
@@ -222,7 +222,7 @@ namespace ipl {
 
         void SettingSelect::stt_1st_fadeout() {
             if (is_stopped_all_anm()) {
-                if (unk_0x90 != 0) {
+                if (mPendingSceneId != 0) {
                     System::getFader()->fadeOut();
                     CHANGE_STATE(STATE_WAIT_BLACK_OUT);
                 } else {
@@ -247,7 +247,7 @@ namespace ipl {
 
         void SettingSelect::stt_2nd_fadeout() {
             if (is_stopped_all_anm()) {
-                if (unk_0x90 != 0) {
+                if (mPendingSceneId != 0) {
                     CHANGE_STATE(STATE_WAIT_CHILD);
                     reset_gui();
                 } else {
@@ -309,7 +309,7 @@ namespace ipl {
                     case STATE_1ST_NORMAL: {
                         System::getChannelManager()->refreshAsync();
                         System::getFader()->fadeOut();
-                        unk_0x90 = 4;
+                        mPendingSceneId = SCENE_BOARD;
 
                         reserveAllSceneDestruction(SCENE_BOARD, NULL);
 
@@ -369,8 +369,8 @@ namespace ipl {
                 int backAnim = -1;
                 int inAnim = -1;
 
-                switch (unk_0x90) {
-                    case 13: {
+                switch (mPendingSceneId) {
+                    case SCENE_MEMORY: {
 #ifndef KOREAN_BUILD
                         backAnim = ANIM_WII_SAVE_DATA_BACK;
                         inAnim = ANIM_GC_SAVE_DATA_IN;
@@ -380,12 +380,12 @@ namespace ipl {
 #endif
                         break;
                     }
-                    case 14: {
+                    case SCENE_MEMORY_CARD: {
                         backAnim = ANIM_GC_SAVE_DATA_BACK;
                         inAnim = ANIM_WII_SAVE_DATA_IN;
                         break;
                     }
-                    case 12: {
+                    case SCENE_CHANNEL_EDIT: {
                         backAnim = ANIM_CHANNEL_BACK;
                         inAnim = ANIM_SAVE_DATA_IN;
                         if (mSettingArg == SettingSelectArg::ARG_START_SAVE_DATA) {
@@ -404,14 +404,14 @@ namespace ipl {
 
         void SettingSelect::stt_wait_child_anm() {
             if (is_stopped_all_anm()) {
-                switch (unk_0x90) {
-                    case 12: {
+                switch (mPendingSceneId) {
+                    case SCENE_CHANNEL_EDIT: {
                         static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->showWii();
                         CHANGE_STATE(STATE_2ND_NORMAL);
                         break;
                     }
-                    case 13:
-                    case 14: {
+                    case SCENE_MEMORY:
+                    case SCENE_MEMORY_CARD: {
                         static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->showWii();
 #ifndef KOREAN_BUILD
                         CHANGE_STATE(STATE_3RD_NORMAL);
@@ -422,7 +422,7 @@ namespace ipl {
                     }
                 }
 
-                unk_0x90 = 0;
+                mPendingSceneId = 0;
             }
         }
 
@@ -587,7 +587,7 @@ namespace ipl {
                     break;
                 }
                 case BTN_SETTING: {
-                    unk_0x90 = 18;
+                    mPendingSceneId = SCENE_SETTING;
                     flashAnim = ANIM_SETTING_FLASH;
                     outAnim = ANIM_DATA_MANAGE_OUT;
                     reserveAllSceneDestruction(SCENE_SETTING, (void*)Setting::ARG_NORMAL_PAGE);
@@ -596,7 +596,7 @@ namespace ipl {
                 }
                 case BTN_SAVEDATA: {
 #ifdef KOREAN_BUILD
-                    unk_0x90 = 13;
+                    mPendingSceneId = SCENE_MEMORY;
 #endif
                     flashAnim = ANIM_SAVE_DATA_FLASH;
                     outAnim = ANIM_CHANNEL_OUT;
@@ -611,7 +611,7 @@ namespace ipl {
                     break;
                 }
                 case BTN_CHANNEL: {
-                    unk_0x90 = 12;
+                    mPendingSceneId = SCENE_CHANNEL_EDIT;
                     flashAnim = ANIM_CHANNEL_FLASH;
                     outAnim = ANIM_SAVE_DATA_OUT;
                     createChildScene(SCENE_CHANNEL_EDIT, this, NULL);
@@ -623,7 +623,7 @@ namespace ipl {
                     break;
                 }
                 case BTN_WII_SAVE: {
-                    unk_0x90 = 13;
+                    mPendingSceneId = SCENE_MEMORY;
                     flashAnim = ANIM_WII_SAVE_DATA_FLASH;
                     outAnim = ANIM_GC_SAVE_DATA_OUT;
                     createChildScene(SCENE_MEMORY, this, NULL);
@@ -632,7 +632,7 @@ namespace ipl {
                     break;
                 }
                 case BTN_GC_SAVE: {
-                    unk_0x90 = 14;
+                    mPendingSceneId = SCENE_MEMORY_CARD;
                     flashAnim = ANIM_GC_SAVE_DATA_FLASH;
                     outAnim = ANIM_WII_SAVE_DATA_OUT;
                     createChildScene(SCENE_MEMORY_CARD, this, NULL);
@@ -689,7 +689,7 @@ namespace ipl {
         }
 
         void SettingSelect::calc_exit_sequence() {
-            switch (unk_0x94) {
+            switch (mExitSeqStep) {
                 case 0: {
                     prepare_exit_abort();
                     break;
@@ -720,13 +720,13 @@ namespace ipl {
 
                 System::getBS2Manager()->abort();
                 System::stopReceiveSchedule();
-                unk_0x94 = 1;
+                mExitSeqStep = 1;
             }
         }
 
         void SettingSelect::wait_decide_se() {
             if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
-                unk_0x94 = 2;
+                mExitSeqStep = 2;
             }
         }
 
@@ -734,7 +734,7 @@ namespace ipl {
             __WPADReconnect(TRUE);
             snd::getSystem()->stopAllSound(20);
             System::getFader()->fadeOut();
-            unk_0x94 = 3;
+            mExitSeqStep = 3;
         }
 
         void SettingSelect::finish_exit_reboot() {
