@@ -37,7 +37,11 @@ namespace ipl {
             u8  unk_0x06;          // 0x06
             u8  unk_0x07;          // 0x07
             u8  iconFmt[8];        // 0x08
-            u16 anmFrameBits;      // 0x10
+#ifdef IPL_MEMORY_CARD_MANAGER_CPP
+            volatile u16 anmFrameBits;
+#else
+            u16 anmFrameBits;
+#endif
 #ifdef IPL_MEMORY_CARD_MANAGER_CPP
             volatile s16 anmMax;
 #else

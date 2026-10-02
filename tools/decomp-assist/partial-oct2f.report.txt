@@ -1,0 +1,50 @@
+GATE PASS
+[src/scene/memoryCard/iplMemoryCardManager] instruction-exact functions: 18/26
+[src/scene/memoryCard/iplMemoryCardManager] objdiff: code 2572/5396 data None/None functions 18/26 fuzzy 97.8836 linked code 0
+before -> after: instruction-exact 17/26 -> 18/26; objdiff-exact 17/26 -> 18/26; code 2368/5396 -> 2572/5396; matched_data None/None -> None/None
+[src/scene/sdChannelTitle/iplSDChannelTitle] instruction-exact functions: 64/69
+[src/scene/sdChannelTitle/iplSDChannelTitle] objdiff: code 17444/18624 data 240/1976 functions 64/69 fuzzy 99.8935 linked code 0
+before -> after: instruction-exact 64/69 -> 64/69; objdiff-exact 64/69 -> 64/69; code 17444/18624 -> 17444/18624; matched_data 240/1976 -> 240/1976
+[src/keyboard/tiCandidateBox] instruction-exact functions: 108/112
+[src/keyboard/tiCandidateBox] objdiff: code 19988/24000 data 1132/4652 functions 109/112 fuzzy 99.4395 linked code 0
+before -> after: instruction-exact 108/112 -> 108/112; objdiff-exact 109/112 -> 109/112; code 19988/24000 -> 19988/24000; matched_data 1132/4652 -> 1132/4652
+[libs/RevoEX/src/nhttp/NHTTP_recvbuf] instruction-exact functions: 6/7
+[libs/RevoEX/src/nhttp/NHTTP_recvbuf] objdiff: code 1196/1692 data None/None functions 6/7 fuzzy 96.3641 linked code 0
+before -> after: instruction-exact 6/7 -> 6/7; objdiff-exact 6/7 -> 6/7; code 1196/1692 -> 1196/1692; matched_data None/None -> None/None
+Remaining nonmatching functions:
+isMoveEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl 99.830505%: directory row/column add operands r0/r3 reversed; 118/118 instructions, 2 diffs
+isCopyEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl 99.830505%: directory row/column add operands r0/r3 reversed; 118/118 instructions, 2 diffs
+isBannerEnable__Q33ipl5scene17MemoryCardManagerFUcs 92.30769%: restore stack-base setup scheduled seven instructions early; 26/26 instructions
+update_file_array__Q33ipl5scene17MemoryCardManagerFUc 99.72222%: r3/r4 allocation tie; explicitly skipped as requested; 90/90 instructions
+_create_icon__Q33ipl5scene17MemoryCardManagerFUcsl 87.55%: texture/TLUT row and column addresses merged across GX calls; 100/100 instructions,16 structural differences
+getComment__Q33ipl5scene17MemoryCardManagerFUcsi 98.94309%: callee-saved decoded pointer and row/column GPR coloring plus trim read pointer;123/123 instructions,20 GPR-only differences
+create_banner__Q33ipl5scene17MemoryCardManagerFUcs 90.42453%: validation icon pointer reused; target recomputes rendering pointer and separate cell bases;106/106 instructions,15 structural differences
+getBlocks__Q33ipl5scene17MemoryCardManagerFUcs 92.0%: restore stack-base setup scheduled before directory load;25/25 instructions
+calcFadein__Q33ipl5scene14SDChannelTitleFv 97.87234%: extra initialized unused optOut handler argument;48/47 instructions
+initCalcFadeout__Q33ipl5scene14SDChannelTitleFv 97.95918%: extra initialized unused optOut handler argument;50/49 instructions
+iplSDChannelTitle_startCopyProgress 98.62791%: extra initialized unused enqueue controller argument and title-word scheduling;87/86 instructions
+iplSDChannelTitle_updateCopyStart 98.3421%: extra initialized unused enqueue controller argument and title-word scheduling;77/76 instructions
+iplSDChannelTitle_flushSaveBeforeExit 98.5946%: smArg base GPR assignment and heap/manager reload order;37/37 instructions
+create__Q39textinput12candidatebox12LayoutByNW4RFP12MEMAllocator 92.71023%: UITextArea Init indexed addressing instead of advancing owner pointer; scroll/window name helper argument lifetimes;351/352 instructions
+createAnmPane___Q39textinput12candidatebox12LayoutByNW4RFP12MEMAllocator 96.56481%: animation pointer cached across CreateAnimTransform; entry reference restores216/216 structure but leaves53 GPR differences
+CalcPaneLocate___Q39textinput12candidatebox10UITextAreaFv 99.873566%: eleven f2/f3 substitutions in forward-loop calcStringWidth/height temporaries;435/435 instructions
+NHTTPi_compareTokenN_HdrRecvBuf 87.59677%: guard/read-width/LowerCase structure differs; best honest variant124/124 leaves five delimiter/ASCII-constant scheduling differences
+Validation: final nonquick gate all four; clean full43U build; DOL SHA1 26116613f624061ba99c8d1a299aaa6efa85670d; global regressions0; forbidden/readability0; all four pools identical.
+Every remaining unskipped function has >=3 distinct compiled source attempts; failed variations restored. 17 open including update_file_array user skip.
+New exact: create_icon__Q33ipl5scene17MemoryCardManagerFUcs,51/51 instructions,ctxdiff0,objdiff100. Volatile anmFrameBits is definition-level and scoped to IPL_MEMORY_CARD_MANAGER_CPP; target rereads duration at0xe94 on backedge0xebc->0xe90, without writes/calls in loop.
+Uncertainty: Candidate gate reports108 instruction-exact versus109 objdiff-exact. Existing onGUIEvent is objdiff100 and declsearch-normalizedscore0; odiff normalizes CR1 branch immediate incorrectly. Function not changed.
+Data limitation: matched_data is whole-section exact accounting and unchanged. SD three vtable names now pair (.data fuzzy10.087957) but anonymous pooled string/array boundaries and callback relocations remain. Candidate named data bytes/relocations pair after extent corrections, but source .data0xd7c differs from target0xda0 by36 bytes; weak extras were ignored, no padding/suppression added. scEmptyWChars has a final element1 vs target0; all-zero alternatives migrate it to .sbss and were restored.
+Retained config proof:7 same-address data names and five type extent corrections, no function rename/size/address edits, section totals preserved. See DATA PROOF / DATA EXTENT PROOF lines in attempts log.
+Files changed:
+config/43U/symbols.txt
+include/iplMemoryCardLib.h
+src/scene/memoryCard/iplMemoryCardManager.cpp
+tools/decomp-assist/partial-oct2f.attempts.md
+tools/decomp-assist/partial-oct2f.data-gate.txt
+tools/decomp-assist/partial-oct2f.final-gate.txt
+tools/decomp-assist/partial-oct2f.icon-gate.txt
+tools/decomp-assist/partial-oct2f.initial-gate.txt
+tools/decomp-assist/partial-oct2f.report.txt
+Commit hashes:
+fde9f8d5 identify sd title data objects and correct extents
+390d83ee match memory card icon frame duration reads
