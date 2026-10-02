@@ -19,21 +19,21 @@ typedef struct CXUncompContextRL {
     u8* outData;   // 0x00
     int outDataLen;  // 0x04
     u32 size;      // 0x08
-    u16 length;  // 0x0C
-    u8 unk_0x0e;   // 0x0E
-    u8 unk_0x0f;   // 0x0F
+    u16 length;    // 0x0C
+    u8 flags;      // 0x0E
+    u8 hdrLen;     // 0x0F
 } CXUncompContextRL;
 
 typedef struct CXUncompContextLZ {
     u8* outData;   // 0x00
     int outDataLen;  // 0x04
     u32 size;      // 0x08
-    int length;  // 0x0C
-    u8 unk_0x10;   // 0x10
-    u8 unk_0x11;   // 0x11
-    u8 unk_0x12;   // 0x12
-    u8 unk_0x13;   // 0x13
-    u8 unk_0x14;   // 0x14
+    int length;           // 0x0C
+    u8 lengthBytesLeft;   // 0x10
+    u8 flags;             // 0x11
+    u8 flagsLeft;         // 0x12
+    u8 hdrLen;            // 0x13
+    u8 lzType;            // 0x14
     u8 padding[3];
 } CXUncompContextLZ;
 
@@ -52,10 +52,10 @@ typedef struct CXUncompContextHuffman {
     u32 size;                                          // 0x08
     CXHuffmanDecodeTableEntry* decodeTable;            // 0x0C
     u32 bits;                                          // 0x10
-    u32 unk_0x14;                                      // 0x14
+    u32 wordBuffer;                                    // 0x14
     s16 decodeTableSize;                               // 0x18
     u8 bitsLeft;                                       // 0x1A
-    u8 unk_0x1b;                                       // 0x1B
+    u8 wordBits;                                       // 0x1B
     u8 depth;                                          // 0x1C
     u8 hdrLen;                                         // 0x1D
     u8 padding[2];                                     // 0x1E
