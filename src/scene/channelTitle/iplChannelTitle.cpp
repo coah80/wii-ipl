@@ -1767,7 +1767,7 @@ namespace ipl {
             data.threadTerminated = mbModuleTerminated;
 
             if (System::getNwc24Manager() == NULL || !System::getNwc24Manager()->isNewMessageThere(ES_TITLE_CODE(data.titleId))) {
-                data.unk_0x1A = false;
+                data.mbHasNewMessage = false;
             }
             System::getCSManager()->setData(data);
             if (!System::getCSManager()->init(mpModuleFile, mpModuleThread)) {

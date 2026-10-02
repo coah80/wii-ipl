@@ -436,10 +436,10 @@ namespace ipl {
                         data.titleId = System::getChannelManager()->getTitleID(mChanPage, mChanIndex);
                         data.threadTerminated = mbModuleTerminated;
                         data.unk_0x19 = true;
-                        data.unk_0x1A = true;
+                        data.mbHasNewMessage = true;
 
                         if (!(System::getNwc24Manager() != NULL && System::getNwc24Manager()->isNewMessageThere(ES_TITLE_CODE(data.titleId)))) {
-                            data.unk_0x1A = false;
+                            data.mbHasNewMessage = false;
                         }
 
                         System::getCSManager()->setData(data);
