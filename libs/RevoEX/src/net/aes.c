@@ -171,9 +171,9 @@ static const u32 AESiDecryptTable[] = {
 #define ROTATE(x,n) (((x) << (n)) | ((x) >> (32 - (n))))
 #define ENCRYPT(a,b,c,d) (((ROTATE(AESiEncryptTable[((b)>>16)&255],16) ^ ROTATE(AESiEncryptTable[(a)>>24],24)) ^ AESiEncryptTable[(d)&255]) ^ ROTATE(AESiEncryptTable[((c)>>8)&255],8))
 #define DECRYPT(a,b,c,d) (((ROTATE(AESiDecryptTable[((b)>>16)&255],16) ^ AESiDecryptTable[(d)&255]) ^ ROTATE(AESiDecryptTable[(a)>>24],24)) ^ ROTATE(AESiDecryptTable[((c)>>8)&255],8))
-#define SUBSTITUTE(table,a,b,c,d) (((u32)table[(a)>>24]<<24) | ((u32)table[((b)>>16)&255]<<16) | ((u32)table[((c)>>8)&255]<<8) | table[(d)&255])
+#define SUBSTITUTE(table,a,b,c,d) ((((u32)table[(a)>>24]<<24) | table[(d)&255]) | (((u32)table[((b)>>16)&255]<<16) | ((u32)table[((c)>>8)&255]<<8)))
 
-#define SUBSTITUTE_XOR(table,a,b,c,d) (((u32)table[(a)>>24]<<24) ^ ((u32)table[((b)>>16)&255]<<16) ^ ((u32)table[((c)>>8)&255]<<8) ^ table[(d)&255])
+#define SUBSTITUTE_XOR(table,a,b,c,d) (((((u32)table[(a)>>24]<<24) ^ table[(d)&255]) ^ ((u32)table[((c)>>8)&255]<<8)) ^ ((u32)table[((b)>>16)&255]<<16))
 
 void AESiEncryptBlock(AESContext* context, u32* output, const u32* input) {
     u32 rounds = context->rounds;
