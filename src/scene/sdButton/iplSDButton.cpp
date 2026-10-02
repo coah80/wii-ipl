@@ -31,7 +31,7 @@ namespace ipl {
         };
         // clang-format on
 
-        SDButton::SDButton(EGG::Heap* heap) : Base(heap), unk_0x54(0) {
+        SDButton::SDButton(EGG::Heap* heap) : Base(heap), mAnimWait(0) {
             setSceneParentFlags(SCN_PARENTFLAG_CALC | SCN_PARENTFLAG_DRAW);
 
             for (int i = 0; i < 2; i++) {
@@ -114,10 +114,10 @@ namespace ipl {
         }
 
         void SDButton::calc() {
-            if (unk_0x54 == 1) {
+            if (mAnimWait == 1) {
                 if (!mpLayout->isPlaying(ANIM_HELP_BTN_ROLL_ON)) {
                     reset_gui();
-                    unk_0x54 = 0;
+                    mAnimWait = 0;
                 }
             }
 
@@ -347,7 +347,7 @@ namespace ipl {
             switch (animNo) {
                 case IDANIM_HELP_BTN_CLICK: {
                     anim = mpLayout->getAnim(ANIM_HELP_BTN_ROLL_ON);
-                    unk_0x54 = 1;
+                    mAnimWait = 1;
                     break;
                 }
                 case IDANIM_ARROW_RIGHT_CLICK: {
