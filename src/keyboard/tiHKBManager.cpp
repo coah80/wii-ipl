@@ -338,8 +338,8 @@ void HKBManager::KeyState_::Update() {
     held = heldKeys;
     for (index = 0; index < 8; index++) {
         bit = 1 << index;
-        if ((current & bit) != 0) {
-            if ((previous & bit) == 0 || previousKeys[index] != currentKeys[index]) {
+        if (HasCurrentKey(index)) {
+            if (!HadPreviousKey(index) || previousKeys[index] != currentKeys[index]) {
                 triggered |= bit;
             }
         }
@@ -347,8 +347,8 @@ void HKBManager::KeyState_::Update() {
     released = 0;
     for (index = 0; index < 8; index++) {
         bit = 1 << index;
-        if ((previous & bit) != 0) {
-            if ((current & bit) == 0 || previousKeys[index] != currentKeys[index]) {
+        if (HadPreviousKey(index)) {
+            if (!HasCurrentKey(index) || previousKeys[index] != currentKeys[index]) {
                 released |= bit;
             }
         }
@@ -356,7 +356,7 @@ void HKBManager::KeyState_::Update() {
     repeated = 0;
     for (index = 0; index < 8; index++) {
         bit = 1 << index;
-        if ((current & bit) != 0) {
+        if (HasCurrentKey(index)) {
             if ((triggered & bit) != 0) {
                 repeatDelay[index] = 30;
                 repeated |= bit;
@@ -371,17 +371,14 @@ void HKBManager::KeyState_::Update() {
 }
 
 void HKBManager::KeyState_::UpdateModState_() {
+    u32 oldModifiers;
     u32 index;
-    u32 oldModifiers = modifiers;
+    oldModifiers = modifiers;
     modifiers = oldModifiers & 0xffffffd0;
     index = 0;
     for (; index < 8; index++) {
-        u32 keySet;
-        u8 slot;
-        keySet = current;
-        slot = index;
-        if ((keySet & (1 << slot)) != 0) {
-            u8 code = currentKeys[slot];
+        if (HasCurrentKey(static_cast<u8>(index))) {
+            u8 code = currentKeys[static_cast<u8>(index)];
             if (code == 0xe5 || code == 0xe1) {
                 modifiers |= 2;
             } else if (code == 0xe4 || code == 0xe0) {

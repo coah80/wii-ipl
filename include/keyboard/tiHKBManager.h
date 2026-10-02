@@ -20,6 +20,8 @@ namespace textinput {
             public:
                 void NotifyEvent(u8 down, u8 code);
                 void Update();
+                bool HasCurrentKey(u32 slot) const { return (current & (1 << slot)) != 0; }
+                bool HadPreviousKey(u32 slot) const { return (previous & (1 << slot)) != 0; }
                 void UpdateModState_();
                 void Clear() {
                     held = 0;

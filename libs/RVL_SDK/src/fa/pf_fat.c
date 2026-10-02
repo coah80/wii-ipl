@@ -784,6 +784,21 @@ s32 PFFAT_WriteClusterWithBuf(PFFAT_FFD* file, u32 cluster, u32 chainIndex,
     return 0;
 }
 
+static s32 PFFAT_WriteFATCopies(PF_VOLUME* volume, PF_CACHE_PAGE* page) {
+    u16 fatIndex;
+    u32 sector;
+    s32 firstError;
+
+    sector = page->sector;
+    firstError = 0;
+    for (fatIndex = 0; fatIndex < volume->bpb.num_active_FATs; fatIndex++) {
+        s32 error = PFSEC_WriteFAT(volume, page->p_buf, sector, 0, volume->bpb.bytes_per_sector);
+        if (error != 0 && firstError == 0) firstError = error;
+        sector += volume->bpb.sectors_per_FAT;
+    }
+    return firstError;
+}
+
 s32 PFFAT_DoAllocateChain(PFFAT_FFD* file, u32 chainLength, u32 chainIndex,
                           u32* firstAllocatedCluster,
                           u32* lastAllocatedCluster, s32 resetClusters)
@@ -793,13 +808,10 @@ s32 PFFAT_DoAllocateChain(PFFAT_FFD* file, u32 chainLength, u32 chainIndex,
     u32 firstFreeCluster;
     u32 lastFreeCluster;
     u32 cluster;
-    u32 currentSector;
-    PF_CACHE_PAGE* flushPage;
     u32 firstFlushError;
     s32 alreadyAllocated;
     s32 error;
     PF_CACHE_PAGE* page;
-    u16 completedFATs;
 
     volume = file->p_vol;
     eoc2 = fat_special_values[volume->bpb.fat_type].eoc2;
@@ -873,18 +885,7 @@ s32 PFFAT_DoAllocateChain(PFFAT_FFD* file, u32 chainLength, u32 chainIndex,
     file->last_cluster.max_chain_index = chainIndex;
     *lastAllocatedCluster = lastFreeCluster;
 
-    firstFlushError = 0;
-    currentSector = page->sector;
-    flushPage = page;
-    for (completedFATs = 0; completedFATs < volume->bpb.num_active_FATs;
-         completedFATs++) {
-        error = PFSEC_WriteFAT(volume, flushPage->p_buf, currentSector, 0,
-                               volume->bpb.bytes_per_sector);
-        if (error != 0 && firstFlushError == 0) {
-            firstFlushError = error;
-        }
-        currentSector += volume->bpb.sectors_per_FAT;
-    }
+    firstFlushError = PFFAT_WriteFATCopies(volume, page);
     if (firstFlushError != 0) {
         PFCACHE_FreeDataPage(volume, page);
         return firstFlushError;
