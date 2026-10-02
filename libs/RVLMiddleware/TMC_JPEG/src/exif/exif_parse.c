@@ -339,11 +339,12 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
 }
 
 static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, u8* entry) {
-    u16 tag;
     u16 type;
+    u16 tag;
 
     tag = readU16(entry, byteOrder);
-    type = (u16)readU16(entry + 2, byteOrder);
+    type = (u16)readU16(&entry[2], byteOrder);
+    tag = (u16)tag;
 
     switch (tag) {
         case 0x0111:

@@ -644,3 +644,16 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## IFD0_tag_parse mask-lever (w1009)
+- `tag = (u16)tag;` after `type = (u16)readU16(entry+2, byteOrder);` reproduces base's
+  extra `clrlwi` tag re-mask (SIZE now matches insn-for-insn except the bltlr leaf):
+  43 normalized diff ops -> 25. Residual: {tag,type} two-web coloring (base tag=r7/type=r8,
+  mine tag=r6->r8/type=r7) + the documented `bltlr` folded bound-leaf (the +1 SIZE).
+- `tag = (u16)readU16(entry)` inline-cast puts the mask at base's POSITION (mid-second-read)
+  but renames it r6->r8 (43 ops) — keep the separate-statement form.
+- set_converter{RGB565,RGBA8,Y8U8V8} all miss ONE insn: `addi r4, r3, 0x1858` (convBuf base).
+  Base keeps `work->convBuf` as a live web; MWCC folds every `convBuf + K` into
+  `addi rN, r3, 0x1858+K` from any source form (var decls, per-case defs, &arr[N], ptr walks).
+  Only an opaque param web (`static impl(work, convBuf)`) produces r4-based adds — but then
+  impl stays a separate symbol (base has none) and `inline` re-folds.
