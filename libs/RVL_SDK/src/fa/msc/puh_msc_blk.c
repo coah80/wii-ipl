@@ -87,8 +87,9 @@ s32 uhf_msc_blk_mount(FADisk* disk) {
 }
 
 s32 uhf_msc_blk_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* completed) {
-    s32 error;
     UHF_MSC_DEVICE* device;
+    u16 transfer_blocks;
+    s32 error;
     u32 block_size;
     u8* transfer_buffer;
     u32 transfer_limit;
@@ -102,7 +103,17 @@ s32 uhf_msc_blk_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* com
     if (blocks == 0) {
         return 0;
     }
-    device = uhf_msc_blk_find_device(disk);
+    device = NULL;
+    {
+        u32 index;
+        UHF_MSC_DEVICE* candidate;
+        for (candidate = uhg_msc_blk_device_tbl, index = 0; index < 8; candidate++, index++) {
+            if (candidate->disk == disk) {
+                device = &uhg_msc_blk_device_tbl[index];
+                break;
+            }
+        }
+    }
     if (device == NULL) {
         return -1;
     }
@@ -127,7 +138,7 @@ s32 uhf_msc_blk_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* com
         transfer_buffer = buffer;
     }
     do {
-        u16 transfer_blocks = transfer_limit;
+        transfer_blocks = transfer_limit;
         if (blocks <= transfer_limit) {
             transfer_blocks = blocks;
         }
@@ -186,7 +197,17 @@ s32 uhf_msc_blk_pwrite(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* co
     if (blocks == 0) {
         return 0;
     }
-    device = uhf_msc_blk_find_device(disk);
+    device = NULL;
+    {
+        u32 index;
+        UHF_MSC_DEVICE* candidate;
+        for (candidate = uhg_msc_blk_device_tbl, index = 0; index < 8; candidate++, index++) {
+            if (candidate->disk == disk) {
+                device = &uhg_msc_blk_device_tbl[index];
+                break;
+            }
+        }
+    }
     if (device == NULL) {
         return -1;
     }
