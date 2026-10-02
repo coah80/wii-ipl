@@ -8,11 +8,15 @@ extern ziU8 Zi8SyllablesROMdata(ziWChar* keys, ziU8 count, ziU8 lang, ziWChar* o
                                 ziU16 a, ziU8 b, ziU8* cntOut, ziU8 c ZI_NEED_WORK);
 
 typedef struct _ziSwParam {
-    ziU8 flag;
-    ziU8 unk_0x01[0xB];
-    ziS32 count;
-    ziU16 cap;
-    ziU8 unk_0x12[2];
+    ziU8 countOnly;      // 0x00 - same layout as ZiCandidateOptions
+    ziU8 maxWordLength;  // 0x01
+    ziU8 lookupMode;     // 0x02
+    ziU8 suffixOnly;     // 0x03
+    ziU8 controls[8];    // 0x04
+    ziS32 maxCount;      // 0x0C - signed view of ZiCandidateOptions.maxCount
+    ziU16 capacity;      // 0x10
+    ziU8 minWordLength;  // 0x12
+    ziU8 flags;          // 0x13
 } ziSwParam;
 
 ziU32 Zi8GetSyllablesCandidates(ziGetParam* param, ziSwParam* sw ZI_NEED_WORK) {
@@ -54,16 +58,16 @@ ziU32 Zi8GetSyllablesCandidates(ziGetParam* param, ziSwParam* sw ZI_NEED_WORK) {
         goto end;
     }
 
-    if (sw->flag != 0 || (param->getOptions & 0xFD) != 0x81) {
+    if (sw->countOnly != 0 || (param->getOptions & 0xFD) != 0x81) {
         out = buf;
         rem = 0x40;
     } else {
         out = (ziWChar*)param->candidates;
-        rem = sw->cap - 1;
+        rem = sw->capacity - 1;
     }
     if ((param->getOptions & 0xFD) == 0x80) {
         u28 = (ziU8*)param->candidates;
-        rem = sw->cap - 1;
+        rem = sw->capacity - 1;
     }
 
     if (rem <= param->elementCount) {
@@ -94,8 +98,8 @@ ziU32 Zi8GetSyllablesCandidates(ziGetParam* param, ziSwParam* sw ZI_NEED_WORK) {
         firstCand--;
         goto L5dc;
     }
-    if (sw->flag != 0) {
-        if (++count >= sw->count) goto end;
+    if (sw->countOnly != 0) {
+        if (++count >= sw->maxCount) goto end;
         goto L5dc;
     }
 
@@ -147,8 +151,8 @@ L464b:
             firstCand--;
             goto L560;
         }
-        if (sw->flag != 0) {
-            if (++count >= sw->count) goto end;
+        if (sw->countOnly != 0) {
+            if (++count >= sw->maxCount) goto end;
             goto L560;
         }
         if (u28 != 0) {
@@ -202,7 +206,7 @@ dec:
     goto L560;
 
 end:
-    if (sw->flag != 0) {
+    if (sw->countOnly != 0) {
         param->letters = 0;
     } else {
         param->letters = (ziU8)count;
