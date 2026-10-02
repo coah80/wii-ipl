@@ -47,95 +47,130 @@ s32 SOGetHostID(void) {
     return address;
 }
 
-SOHostEnt* SOGetHostByName(const char* name) {
+static inline int GetHostReply(const char* name, s32* rm, SOHostEnt** host) {
     HostReply* reply;
+    int length;
+    char* request;
     int result;
     int size;
-    int length;
-    SOHostEnt* host;
+    if (!name) return -28;
+    length = strlen(name);
+    size = (length + 32) & ~31;
+    request = SOiAlloc(12, size);
+    reply = SOiGetSysWork()->host;
+    if (!request) return -49;
+    strcpy(request, name);
+    result = IOS_Ioctl(*rm, 17, request, length + 1, reply, 0x460);
+    if (result >= 0) {
+        int displacement = (int)reply->nameStorage - (int)reply->host.name;
+        u8** address = reply->addresses;
+        while (*address) { *address += displacement; ++address; }
+        reply->host.aliases = (char**)((u8*)reply->host.aliases + displacement);
+        *host = &reply->host;
+        reply->host.name += displacement;
+        reply->host.addrList = (u8**)((u8*)reply->host.addrList + displacement);
+    }
+    SOiFree(12, request, size);
+    return result;
+}
+
+SOHostEnt* SOGetHostByName(const char* name) {
+    SOHostEnt* host = NULL;
     s32 rm;
-    char* request;
-    host = NULL;
-    if((result=SOiPrepare(NULL,&rm))==0) {
-        if(!name) result=-28;
-        else {
-            length=strlen(name);
-            size=(length+32)&~31;
-            request=SOiAlloc(12,size);
-            reply=SOiGetSysWork()->host;
-            if(!request) result=-49;
-            else {
-                strcpy(request,name);
-                result=IOS_Ioctl(rm,17,request,length+1,reply,0x460);
-                if(result>=0) {
-                    int displacement=(int)reply->nameStorage-(int)reply->host.name;
-                    u8** address=reply->addresses;
-                    while(*address) { *address+=displacement; ++address; }
-                    reply->host.aliases=(char**)((u8*)reply->host.aliases+displacement);
-                    host=&reply->host;
-                    reply->host.name+=displacement;
-                    reply->host.addrList=(u8**)((u8*)reply->host.addrList+displacement);
-                }
-                SOiFree(12,request,size);
-            }
-        }
-        SOiConclude(NULL,result);
+    int result;
+    if ((result = SOiPrepare(NULL, &rm)) == 0) {
+        result = GetHostReply(name, &rm, &host);
+        SOiConclude(NULL, result);
     }
     return host;
 }
 
-static int NameSize(const char* name) { return name ? strlen(name)+1 : 0; }
+static inline int NameSize(const char* name) {
+    if (name == NULL) {
+        return 0;
+    } else {
+        return strlen(name) + 1;
+    }
+}
+
+static inline int NameLength(const char* name) {
+    if (name == NULL) {
+        return 0;
+    } else {
+        return strlen(name);
+    }
+}
+
+static inline int ServiceSize(const char* node, const char* service) {
+    if (service == NULL) {
+        return 0;
+    } else {
+        return strlen(node) + 1;
+    }
+}
+
+static inline int GetAddressReply(const char* nodeName, const char* servName, const SOAddrInfo* hints,
+                                  SOAddrInfo** resultInfo, s32* rm) {
+    SOAddrInfo* requestHints;
+    AddrInfoRequest* request;
+    char* service;
+    int nodeLength;
+    AddrInfoReply* reply;
+    int size;
+    char* node;
+    int serviceLength;
+    int result;
+    serviceLength = ServiceSize(nodeName, servName);
+    nodeLength = NameSize(nodeName);
+    size=(((nodeLength+31)&~31)+((serviceLength+31)&~31)+95)&~31;
+    request=SOiAlloc(12,size);
+    if(!request) result=-49;
+    else {
+        reply=SOiAlloc(10,0x840);
+        if(!reply) { SOiFree(12,request,size); result=-49; }
+        else {
+            node=(char*)request->storage;
+            service=node+((NameSize(nodeName)+31)&~31);
+            requestHints=(SOAddrInfo*)(service+((ServiceSize(nodeName, servName)+31)&~31));
+            if(nodeName) strcpy(node,nodeName);
+            request->vectors[0].base=nodeName ? (u8*)node : NULL;
+            request->vectors[0].length=NameLength(nodeName);
+            if(servName) strcpy(service,servName);
+            request->vectors[1].base=servName ? (u8*)service : NULL;
+            request->vectors[1].length=NameLength(servName);
+            if(hints) memcpy(requestHints,hints,32);
+            else memset(requestHints,0,32);
+            if(requestHints->family==0) requestHints->family=2;
+            if(requestHints->family==23) {
+                *resultInfo=NULL; result=-68; SOiFree(10,reply,0x840);
+            } else {
+                request->vectors[2].base=(u8*)requestHints; request->vectors[2].length=32;
+                request->vectors[3].base=(u8*)reply; request->vectors[3].length=0x834;
+                result=IOS_Ioctlv(*rm,24,3,1,request->vectors);
+                if(result>=0) {
+                    SOAddrInfo* entry=reply->entries;
+                    u8* address=reply->addresses;
+                    *resultInfo=entry;
+                    while(entry) {
+                        entry->addr=address;
+                        if(entry->next) entry->next=entry+1;
+                        entry=entry->next;
+                        address+=28;
+                    }
+                } else { *resultInfo=NULL; SOiFree(10,reply,0x840); }
+            }
+            SOiFree(12,request,size);
+        }
+    }
+    return result;
+}
 
 int SOGetAddrInfo(const char* nodeName, const char* servName, const SOAddrInfo* hints, SOAddrInfo** resultInfo) {
     s32 rm;
-    int result,size;
-    AddrInfoRequest* request;
-    AddrInfoReply* reply;
-    char* node;
-    char* service;
-    SOAddrInfo* requestHints;
-    if((result=SOiPrepare(NULL,&rm))==0) {
-        size=(((NameSize(nodeName)+31)&~31)+((servName ? strlen(nodeName)+32 : 31)&~31)+95)&~31;
-        request=SOiAlloc(12,size);
-        if(!request) result=-49;
-        else {
-            reply=SOiAlloc(10,0x840);
-            if(!reply) { SOiFree(12,request,size); result=-49; }
-            else {
-                node=(char*)request->storage;
-                service=node+((NameSize(nodeName)+31)&~31);
-                requestHints=(SOAddrInfo*)(service+((servName ? strlen(nodeName)+32 : 31)&~31));
-                if(nodeName) strcpy(node,nodeName);
-                request->vectors[0].base=nodeName ? (u8*)node : NULL;
-                request->vectors[0].length=nodeName ? strlen(nodeName) : 0;
-                if(servName) strcpy(service,servName);
-                request->vectors[1].base=servName ? (u8*)service : NULL;
-                request->vectors[1].length=servName ? strlen(servName) : 0;
-                if(hints) memcpy(requestHints,hints,32);
-                else memset(requestHints,0,32);
-                if(requestHints->family==0) requestHints->family=2;
-                if(requestHints->family==23) {
-                    *resultInfo=NULL; result=-68; SOiFree(10,reply,0x840);
-                } else {
-                    request->vectors[2].base=(u8*)requestHints; request->vectors[2].length=32;
-                    request->vectors[3].base=(u8*)reply; request->vectors[3].length=0x834;
-                    result=IOS_Ioctlv(rm,24,3,1,request->vectors);
-                    if(result>=0) {
-                        SOAddrInfo* entry=reply->entries;
-                        u8* address=reply->addresses;
-                        *resultInfo=entry;
-                        while(entry) {
-                            entry->addr=address;
-                            if(entry->next) entry->next=entry+1;
-                            entry=entry->next;
-                            address+=28;
-                        }
-                    } else { *resultInfo=NULL; SOiFree(10,reply,0x840); }
-                }
-                SOiFree(12,request,size);
-            }
-        }
-        result=SOiConclude(NULL,result);
+    int result;
+    if ((result = SOiPrepare(NULL, &rm)) == 0) {
+        result = GetAddressReply(nodeName, servName, hints, resultInfo, &rm);
+        result = SOiConclude(NULL, result);
     }
     return result;
 }
