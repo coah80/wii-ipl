@@ -497,7 +497,23 @@ u32 HKBManager::KeySet::GetVCode() const {
 }
 
 u32 HKBManager::KeySet::IsValid() const {
-    return CheckValidity();
+    s8 keyIndex;
+    u32 keyDevice;
+    const HKBManager* owner;
+
+    owner = manager;
+    if (!owner) return false;
+    keyIndex = index;
+    if (keyIndex < 0 || keyIndex >= 8) return false;
+    keyDevice = device;
+    if (keyDevice >= 2) return false;
+    switch (type) {
+    case 0: return (owner->states[keyDevice].held & (1 << keyIndex)) != 0;
+    case 1: return (owner->states[keyDevice].triggered & (1 << keyIndex)) != 0;
+    case 2: return (owner->states[keyDevice].released & (1 << keyIndex)) != 0;
+    case 3: return (owner->states[keyDevice].repeated & (1 << keyIndex)) != 0;
+    }
+    return false;
 }
 
 HKBManager::KeySet HKBManager::KeySet::GetNext() const {
