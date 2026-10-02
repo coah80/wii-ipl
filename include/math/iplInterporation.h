@@ -163,7 +163,24 @@ namespace ipl {
             void init(const f32& start, const f32& end, f32 maxFrame, f32 startTangent, f32 endTangent, int playback = ANIM_TYPE_FORWARD,
                       f32 speed = 1.0f);
 
-            f32 get() const;
+            f32 get() const {
+                f32 var_f27 = mFrame;
+                f32 var_f28 = 1.0f / mMaxFrame;
+                f32 r =
+                    (mStart *
+                     (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
+                    (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
+                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
+                r +=
+                    (mStartTangent *
+                     (var_f27 + ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
+                                 (var_f28 * (2.0f * var_f27 * var_f27))))) +
+                    (mEndTangent * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
+                                (var_f28 * (var_f27 * var_f27))));
+
+                return r;
+            }
 
         protected:
             f32 mStart;
