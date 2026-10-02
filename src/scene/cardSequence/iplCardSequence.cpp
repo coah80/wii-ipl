@@ -850,14 +850,13 @@ iconSpeedDone:
         } else if (totalImageSize > 0) {
             result = CARDRead(&local.fileInfo, sThread->imageReadBuffer,
                               transferSize, iconAddressBase);
-            if (result < 0) {
-                goto closeFile;
+            if (result >= 0) {
+                memcpy(sThread->images[slot][fileNo],
+                       (u8*)sThread->imageReadBuffer + iconAddressOffset,
+                       totalImageSize);
+                DCStoreRange(sThread->images[slot][fileNo], transferSize);
+                result = 0;
             }
-            memcpy(sThread->images[slot][fileNo],
-                   (u8*)sThread->imageReadBuffer + iconAddressOffset,
-                   totalImageSize);
-            DCStoreRange(sThread->images[slot][fileNo], transferSize);
-            result = 0;
         }
     }
 
