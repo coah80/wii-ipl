@@ -577,7 +577,7 @@ static NWC24Err WriteFromField(NWC24MsgObjPrivate* msg) {
     Mail_memset(buffer, 0, 1024);
     Mail_strncat(buffer, "From: ", 1022);
     address = buffer + 6;
-    msg->unk_0x30.ptr = (const void*)(msg->length + 6);
+    msg->fromData.ptr = (const void*)(msg->length + 6);
     type = 1;
     if (msg->type & 0x100000)
         type = 2;
@@ -596,7 +596,7 @@ static NWC24Err WriteFromField(NWC24MsgObjPrivate* msg) {
         err = NWC24FWrite(NWC24WorkP->stringWork, total, m_pFile);
         if (err == NWC24_OK) {
             msg->length += total;
-            msg->unk_0x30.size = msg->length - (u32)msg->unk_0x30.ptr - 2;
+            msg->fromData.size = msg->length - (u32)msg->fromData.ptr - 2;
         }
     }
     return err;
@@ -612,7 +612,7 @@ static NWC24Err WriteToField(NWC24MsgObjPrivate* msg) {
     cursor += 4;
     index = 0;
     total = 4;
-    msg->unk_0x38.ptr = (const void*)(msg->length + 4);
+    msg->toData.ptr = (const void*)(msg->length + 4);
     remaining = 1018;
     for (; index < msg->numTo; ++index) {
         err = SynthesizeAddrStr(&msg->toAddrs[index], msg->type, cursor, remaining, &length);
@@ -641,7 +641,7 @@ static NWC24Err WriteToField(NWC24MsgObjPrivate* msg) {
         err = NWC24FWrite(NWC24WorkP->stringWork, total + 2, m_pFile);
         if (err == NWC24_OK) {
             msg->length += total + 2;
-            msg->unk_0x38.size = msg->length - (u32)msg->unk_0x38.ptr - 2;
+            msg->toData.size = msg->length - (u32)msg->toData.ptr - 2;
         }
     }
     return err;

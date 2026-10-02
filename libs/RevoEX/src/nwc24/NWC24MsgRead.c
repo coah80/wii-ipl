@@ -289,7 +289,7 @@ NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* address, u32 capacit
         default:
             return result;
     }
-    if (privateMsg->unk_0x30.size == 0)
+    if (privateMsg->fromData.size == 0)
         return NWC24_ERR_NULL;
     result = NWC24iMBoxOpenStoredMsg(type, privateMsg->msgId, &file);
     switch (result) {
@@ -300,9 +300,9 @@ NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* address, u32 capacit
     }
     result = NWC24FStreamInit(&stream, &file, 0, privateMsg->length, buffer, 1024);
     if (result == NWC24_OK) {
-        result = NWC24FStreamSeek(&stream, (u32)privateMsg->unk_0x30.ptr);
+        result = NWC24FStreamSeek(&stream, (u32)privateMsg->fromData.ptr);
         if (result == NWC24_OK)
-            result = NWC24iExtractAddrSpec(&stream, privateMsg->unk_0x30.size, 0, address, capacity);
+            result = NWC24iExtractAddrSpec(&stream, privateMsg->fromData.size, 0, address, capacity);
     }
     closeResult = NWC24iMBoxCloseMsg(&file);
     if (result != NWC24_OK)

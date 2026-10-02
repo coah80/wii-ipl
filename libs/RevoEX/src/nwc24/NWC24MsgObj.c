@@ -73,8 +73,8 @@ NWC24Err NWC24InitMsgObj(NWC24MsgObj* msg, NWC24MsgType type) {
         msgObj->attachedType[i] = NWC24_TEXT_PLAIN;
     }
 
-    NWC24Data_Init(&msgObj->unk_0x30);
-    NWC24Data_Init(&msgObj->unk_0x38);
+    NWC24Data_Init(&msgObj->fromData);
+    NWC24Data_Init(&msgObj->toData);
     NWC24Data_Init(&msgObj->unk_0x50);
     NWC24Data_Init(&msgObj->unk_0x58);
     NWC24Data_Init(&msgObj->unk_0xD0);
