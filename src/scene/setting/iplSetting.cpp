@@ -37,12 +37,6 @@ extern "C" int abs(int value);
 extern "C" void __VISetAdjustingValues(s32 horizontal, s32 vertical);
 
 namespace ipl {
-    namespace scene {
-        static s32 browserScrollDirection;
-    }
-}
-
-namespace ipl {
     class SensitivityDrawing {
     public:
         static void draw(nand::File* file);
@@ -149,6 +143,7 @@ namespace ipl {
 
         void* Setting::mem1Buffer_;
         void* Setting::mem2Buffer_;
+        static s32 browserScrollDirection;
 
         Setting::Setting(EGG::Heap* heap, int arg) : FaderSceneBase(heap) {
             unk_0x5C = 0;
@@ -417,7 +412,7 @@ namespace ipl {
                                          "Setup/ScreenSave.html", "Setup/ScreenSave.html",
                                          "Setup/ScreenSave.html", "Setup/ScreenSave.html",
                                          "Setup/ScreenSave.html", "Setup/ScreenSave.html",
-                                         "Setup/ScreenSave.html", "Calendar"};
+                                         "Setup/ScreenSave.html", "Setup/ScreenSave.html"};
 
             char basePath[100];
             char browserPath[100];
@@ -443,8 +438,8 @@ namespace ipl {
                 snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
                          languageCodes[System::getLanguage()], regionPages[regionIndex]);
             } else if (mInitialArgument == ARG_UNK_6) {
-                const char* pageNames[] = {"Display", "Sound", "Parental_Control", "Internet",
-                                           "Wiiconnect24", "Update", "Update"};
+                const char* pageNames[] = {"Calendar", "Display", "Sound", "Parental_Control",
+                                           "Internet", "Wiiconnect24", "Update"};
                 int directPage;
                 for (directPage = 0; directPage < 7; directPage++) {
                     if (strstr(mpStringBuffer->netSettingArg, pageNames[directPage]) != NULL) {
@@ -2167,8 +2162,8 @@ namespace ipl {
             const char* versionSuffix[12] = {"J", "U", "E", "", "", "J", "K", "", "", "", "", "C"};
             u32 versionData[24] = {
                 0x00010008, 0x48414B4A, 0x00010008, 0x48414B45, 0x00010008, 0x48414B50,
-                0, 0, 0, 0, 0, 0, 0x00010008, 0x48414B4A, 0x00010008, 0x48414B4B,
-                0, 0, 0, 0, 0, 0, 0x00010008, 0x48414B43,
+                0, 0, 0, 0, 0x00010008, 0x48414B4A, 0x00010008, 0x48414B4B,
+                0, 0, 0, 0, 0, 0, 0, 0, 0x00010008, 0x48414B43,
             };
             u32 region = System::getRegion();
             sprintf(mpStringBuffer->version, "Ver. %d.%d%s", 4, 3, versionSuffix[region]);
@@ -3848,6 +3843,13 @@ namespace ipl {
         BOOL Setting::isResetAcceptable() const {
             return mIsResetAcceptable;
         }
+
+        extern const wchar_t scNumber[10] = {
+            L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'
+        };
+        extern const wchar_t scNumber2[10] = {
+            L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7', L'8', L'9'
+        };
 
     }  // namespace scene
 }  // namespace ipl

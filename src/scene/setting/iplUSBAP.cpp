@@ -5,7 +5,7 @@
 static OSThread usbapThread;
 static u8 usbapStack[4096];
 static OSMessageQueue usbapMessageQ;
-static wchar_t usbapNickname[11];
+static wchar_t usbapNickname[12];
 static OSMessage registrationMessage;
 static void (*registrationCallback)(int);
 static s32 registrationMode;
