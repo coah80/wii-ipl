@@ -1546,24 +1546,26 @@ s32 PFFAT_FreeChain(PFFAT_FFD* file, u32 startCluster, u32 chainIndex,
                                               0, 1, page);
             chainIndex++;
         } else {
+            s32 entryError;
             currentPage = page;
             switch (volume->bpb.fat_type) {
             case FAT_12:
-                error = PFFAT12_WriteFATEntryWithBuf(
+                entryError = PFFAT12_WriteFATEntryWithBuf(
                     volume, (u16)startCluster, 0, currentPage);
                 break;
             case FAT_16:
-                error = PFFAT16_WriteFATEntryWithBuf(volume, startCluster, 0,
+                entryError = PFFAT16_WriteFATEntryWithBuf(volume, startCluster, 0,
                                                      currentPage);
                 break;
             case FAT_32:
-                error = PFFAT32_WriteFATEntryWithBuf(volume, startCluster, 0,
+                entryError = PFFAT32_WriteFATEntryWithBuf(volume, startCluster, 0,
                                                      currentPage);
                 break;
             default:
-                error = 15;
+                entryError = 15;
                 break;
             }
+            error = entryError;
         }
         if (error != 0) {
             PFCACHE_FreeDataPage(volume, page);
