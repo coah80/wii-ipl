@@ -78,9 +78,7 @@ void HKBManager::KBDListenerOwn::OnAttach(KBDDevEvent* event) {
 void HKBManager::KBDListenerOwn::OnDetach(KBDDevEvent* event) {
     u8 device = event->device;
     if (device >= 2) return;
-    HKBManager* owner = manager;
-    owner->attached[device] = 0;
-    owner->states[device].Clear();
+    manager->DetachDevice(event);
 }
 
 void HKBManager::KBDListenerOwn::OnKeyEvent(KBDKeyEvent* event) {
@@ -450,15 +448,7 @@ u32 HKBManager::KeySet::GetWChar() const {
     } else if ((static_cast<u32>(code) & 0xffff) < 0x20) {
         code = 0;
     }
-    u32 index = 0;
-    const HKBManager* owner = manager;
-    if (owner->allowedCharacters == 0) return code;
-    u32 count = owner->allowedCharacterCount;
-    if (count == 0) return code;
-    for (; index < count; index++) {
-        if ((static_cast<u32>(code) & 0xffff) == owner->allowedCharacters[index]) return code;
-    }
-    return 0;
+    return manager->FilterCharacter(code);
 }
 
 u32 HKBManager::KeySet::GetVCode() const {

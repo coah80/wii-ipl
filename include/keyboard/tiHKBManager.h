@@ -113,6 +113,20 @@ namespace textinput {
             static HKBManager& getInstance() { return sInstance; }
             void Initialize();
             void ClearState();
+            u32 FilterCharacter(u32 code) const {
+                if (allowedCharacters == 0) return code;
+                u32 count = allowedCharacterCount;
+                if (count == 0) return code;
+                for (u32 index = 0; index < count; index++) {
+                    if (static_cast<u16>(code) == allowedCharacters[index]) return code;
+                }
+                return 0;
+            }
+            void DetachDevice(KBDDevEvent* event) {
+                u8 device = event->device;
+                attached[device] = 0;
+                states[device].Clear();
+            }
             u32 GetModifierState() const;
             void SetCountry(u8 country);
             void SetModifierState(u32 state, u32 mask);
