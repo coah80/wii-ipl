@@ -1860,7 +1860,7 @@ config.libs = [
 
             Object(Matching,    "fa/msc/puh_msc.c"),
             Object(Matching,    "fa/msc/puh_msc_cmd.c"),
-            Object(NonMatching, "fa/msc/puh_msc_blk.c"),
+            Object(Matching,    "fa/msc/puh_msc_blk.c"),
         ]
     ),
     RVLSDKLib("sdi", [
