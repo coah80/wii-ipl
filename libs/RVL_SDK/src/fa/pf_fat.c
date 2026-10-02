@@ -1458,6 +1458,19 @@ s32 PFFAT_CountFreeClusters(PF_VOLUME* volume, u32* numFreeClusters)
     return 0;
 }
 
+static inline s32 PFFAT_ClearEntryWithBuf(PF_VOLUME* volume, u32 cluster, PF_CACHE_PAGE* page) {
+    switch (volume->bpb.fat_type) {
+    case FAT_12:
+        return PFFAT12_WriteFATEntryWithBuf(volume, (u16)cluster, 0, page);
+    case FAT_16:
+        return PFFAT16_WriteFATEntryWithBuf(volume, cluster, 0, page);
+    case FAT_32:
+        return PFFAT32_WriteFATEntryWithBuf(volume, cluster, 0, page);
+    default:
+        return 15;
+    }
+}
+
 s32 PFFAT_FreeChain(PFFAT_FFD* file, u32 startCluster, u32 chainIndex,
                     u32 size)
 {
@@ -1523,9 +1536,9 @@ s32 PFFAT_FreeChain(PFFAT_FFD* file, u32 startCluster, u32 chainIndex,
         }
         if (nextCluster == 0) {
             s32 firstFlushError;
-            PF_CACHE_PAGE* flushPage;
-            u16 fatIndex;
             u32 fatSector;
+            u16 fatIndex;
+            const PF_CACHE_PAGE* flushPage;
 
             firstFlushError = 0;
             flushPage = page;
@@ -1546,33 +1559,19 @@ s32 PFFAT_FreeChain(PFFAT_FFD* file, u32 startCluster, u32 chainIndex,
             PFCACHE_FreeDataPage(volume, page);
             return 0;
         }
-        if (chainIndex != -1) {
-            error = PFFAT_WriteClusterWithBuf(file, startCluster, chainIndex,
-                                              0, 1, page);
-            chainIndex++;
-        } else {
-            currentPage = page;
-            switch (volume->bpb.fat_type) {
-            case FAT_12:
-                error = PFFAT12_WriteFATEntryWithBuf(
-                    volume, (u16)startCluster, 0, currentPage);
-                break;
-            case FAT_16:
-                error = PFFAT16_WriteFATEntryWithBuf(volume, startCluster, 0,
-                                                     currentPage);
-                break;
-            case FAT_32:
-                error = PFFAT32_WriteFATEntryWithBuf(volume, startCluster, 0,
-                                                     currentPage);
-                break;
-            default:
-                error = 15;
-                break;
+        {
+            s32 writeError;
+            if (chainIndex != -1) {
+                writeError = PFFAT_WriteClusterWithBuf(file, startCluster, chainIndex,
+                                                  0, 1, page);
+                chainIndex++;
+            } else {
+                writeError = PFFAT_ClearEntryWithBuf(volume, startCluster, page);
             }
-        }
-        if (error != 0) {
-            PFCACHE_FreeDataPage(volume, page);
-            return error;
+            if (writeError != 0) {
+                PFCACHE_FreeDataPage(volume, page);
+                return writeError;
+            }
         }
         if (size != 0 && fileSize != 0) {
             if (fileSize <= clusterSize) {
@@ -1590,7 +1589,7 @@ s32 PFFAT_FreeChain(PFFAT_FFD* file, u32 startCluster, u32 chainIndex,
         s32 firstFlushError;
         u32 fatSector;
         u16 fatIndex;
-        PF_CACHE_PAGE* flushPage;
+        const PF_CACHE_PAGE* flushPage;
 
         firstFlushError = 0;
         flushPage = page;
