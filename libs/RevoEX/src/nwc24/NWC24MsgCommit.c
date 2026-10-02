@@ -330,7 +330,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
         }
         CHECK_WRITE(WriteString(msg, buffer));
         if (msg->type & 0x10000) {
-            msg->flags = msg->length;
+            msg->headerSize = msg->length;
             buffer = NWC24WorkP->stringWork;
             Mail_memset(buffer, 0, 1024);
             Mail_sprintf(buffer, "\r\n--%s", MultiPartDivider);
@@ -339,7 +339,7 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
         }
         CHECK_WRITE(WriteContentTypeField(msg));
         if (!(msg->type & 0x10000))
-            msg->flags = msg->length;
+            msg->headerSize = msg->length;
         text.ptr = (const void*)msg->length;
         { NWC24Err textResult = WritePlainText(msg);
         err = textResult == NWC24_ERR_NULL ? NWC24_OK : textResult; }
