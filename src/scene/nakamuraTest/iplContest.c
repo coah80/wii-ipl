@@ -25,16 +25,16 @@ typedef struct {
     undefined4 result;
     undefined4 errCode;
     HTTPTestState httpTestState;
-    undefined4 unk_0x030;
-    undefined4 unk_0x034;
-    undefined4 unk_0x038;
-    undefined4 unk_0x03c;
+    undefined4 natState;
+    undefined4 gsAvailable;
+    undefined4 natTimedOut;
+    undefined4 natFailed;
     OSTime detectStartTime;
     NHTTPConnection httpConnection;
     NHTTPRequest* httpRequest;
     NHTTPResponse* httpResponse;
     NCDProxyProfile proxy;
-    void* unk_0x7f0;
+    void* httpBuf;
     NAT nat;
 } StaticSession;
 
@@ -64,14 +64,14 @@ void IPLContestInitialize(void* heapBuf, NCDProxyProfile* proxy) {
     g_session.result = 0xFF00;
     g_session.errCode = 0;
     g_session.httpTestState = HTTP_TEST_NOT_STARTED;
-    g_session.unk_0x030 = 0;
+    g_session.natState = 0;
     g_session.detectStartTime = 0;
     g_session.httpConnection = 0;
     g_session.httpRequest = 0;
     g_session.httpResponse = NULL;
-    g_session.unk_0x034 = 0;
-    g_session.unk_0x038 = 0;
-    g_session.unk_0x03c = 1;
+    g_session.gsAvailable = 0;
+    g_session.natTimedOut = 0;
+    g_session.natFailed = 1;
     g_session.proxy = *proxy;
 }
 
@@ -100,7 +100,7 @@ int IPLContestProcess() {
                         g_session.errCode = g_session.errCode != 0 ? g_session.errCode : -52200;
                         OSReport("[error] Failed to start up NHTTP.\n");
                     } else {
-                        g_session.unk_0x7f0 = IPLContestAlloc(0x400);
+                        g_session.httpBuf = IPLContestAlloc(0x400);
                         g_session.httpTestState = HTTP_TEST_STARTED;
                         OSReport("Starting HTTP conectting test.\n");
                     }
@@ -108,7 +108,7 @@ int IPLContestProcess() {
                 }
                 case HTTP_TEST_STARTED: {
                     g_session.httpRequest =
-                        NHTTPCreateRequest("http://conntest.nintendowifi.net/", 0, g_session.unk_0x7f0, 0x400, sNHTTPReqCallback, 0);
+                        NHTTPCreateRequest("http://conntest.nintendowifi.net/", 0, g_session.httpBuf, 0x400, sNHTTPReqCallback, 0);
                     if (g_session.httpRequest == 0) {
                         g_session.httpTestState = HTTP_TEST_RESPONSE_ERRORED;
                         g_session.result |= 4;
@@ -156,9 +156,9 @@ int IPLContestProcess() {
                             NHTTPDestroyResponse(g_session.httpResponse);
                             g_session.httpResponse = NULL;
                         }
-                        if (g_session.unk_0x7f0 != NULL) {
-                            IPLContestFree(g_session.unk_0x7f0, 0);
-                            g_session.unk_0x7f0 = NULL;
+                        if (g_session.httpBuf != NULL) {
+                            IPLContestFree(g_session.httpBuf, 0);
+                            g_session.httpBuf = NULL;
                         }
                         g_session.httpTestState = HTTP_TEST_DONE;
                         NHTTPCleanupAsync(sNHTTPCleanupCallback);
@@ -176,9 +176,9 @@ int IPLContestProcess() {
                         NHTTPDestroyResponse(g_session.httpResponse);
                         g_session.httpResponse = NULL;
                     }
-                    if (g_session.unk_0x7f0 != NULL) {
-                        IPLContestFree(g_session.unk_0x7f0, 0);
-                        g_session.unk_0x7f0 = NULL;
+                    if (g_session.httpBuf != NULL) {
+                        IPLContestFree(g_session.httpBuf, 0);
+                        g_session.httpBuf = NULL;
                     }
                     g_session.httpTestState = HTTP_TEST_DONE;
                     NHTTPCleanupAsync(sNHTTPCleanupCallback);
@@ -198,11 +198,11 @@ int IPLContestProcess() {
                 OSReport("Port mapping detectioning test has been skipped.\n");
 
             } else
-                switch (g_session.unk_0x030) {
+                switch (g_session.natState) {
                     case 0: {
                         gsiMemoryCallbacksSet(IPLContestGSMalloc, IPLContestGSFree, IPLContestGSRealloc, IPLContestGSMemalign);
                         GSIStartAvailableCheckA("wiinat");
-                        g_session.unk_0x030 = 1;
+                        g_session.natState = 1;
                         OSReport("Starting GameSpy available check.\n");
                         break;
                     }
@@ -212,14 +212,14 @@ int IPLContestProcess() {
                                 break;
                             }
                             case GSIACAvailable: {
-                                g_session.unk_0x034 = 1;
-                                g_session.unk_0x030 = 2;
+                                g_session.gsAvailable = 1;
+                                g_session.natState = 2;
                                 OSReport("GameSpy server is currently available.\n");
                                 break;
                             }
                             default: {
-                                g_session.unk_0x034 = 0;
-                                g_session.unk_0x030 = 5;
+                                g_session.gsAvailable = 0;
+                                g_session.natState = 5;
                                 OSReport("GameSpy server is currently unavailable.\n");
                                 break;
                             }
@@ -228,7 +228,7 @@ int IPLContestProcess() {
                     }
                     case 2: {
                         NNStartNatDetection(onNatDetectionDone);
-                        g_session.unk_0x030 = 3;
+                        g_session.natState = 3;
                         OSReport("Port mapping detectioning test has been started.\n");
                         g_session.detectStartTime = OSGetTime();
                         break;
@@ -238,8 +238,8 @@ int IPLContestProcess() {
                         if (OSGetTime() - g_session.detectStartTime < OSMillisecondsToTicks((OSTime)90000)) {
                             break;
                         }
-                        g_session.unk_0x030 = 5;
-                        g_session.unk_0x038 = 1;
+                        g_session.natState = 5;
+                        g_session.natTimedOut = 1;
                         OSReport("[error] NAT timeout.\n");
                         break;
                     }
@@ -289,10 +289,10 @@ int IPLGetNATSupportCode(int conntype) {
 
     nat = g_session.nat;
 
-    if (g_session.unk_0x034 != 0) {
-        if (g_session.unk_0x038 != 0) {
+    if (g_session.gsAvailable != 0) {
+        if (g_session.natTimedOut != 0) {
             code = 11180;
-        } else if (g_session.unk_0x03c != 0) {
+        } else if (g_session.natFailed != 0) {
             code = 11170;
         } else {
             if (nat.mappingScheme == 0 && nat.mappings[2].publicPort == nat.mappings[1].publicPort * 2 - nat.mappings[0].publicPort) {
@@ -464,10 +464,10 @@ void sNHTTPCleanupCallback() {
 void onNatDetectionDone(gsi_bool success, NAT nat) {
     if (success) {
         g_session.nat = nat;
-        g_session.unk_0x03c = 0;
+        g_session.natFailed = 0;
     } else {
-        g_session.unk_0x03c = 1;
+        g_session.natFailed = 1;
     }
-    g_session.unk_0x030 = 4;
+    g_session.natState = 4;
     return;
 }
