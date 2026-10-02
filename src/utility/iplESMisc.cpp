@@ -892,8 +892,7 @@ namespace ipl {
             u8 ticketViews[0xe0] ALIGN32;
             u32 ticketViewCount;
             ESTicketView* ticketViewList;
-            s32 result;
-            s32 ret = ES_ListTitlesOnCard(NULL, &titleCount);
+            s32 result = ES_ListTitlesOnCard(NULL, &titleCount);
 
             if (result != ES_ERR_OK) {
                 OSReport("%s::%s: Failed to ES_ListTitlesOnCard1: %d\n", __FILE__, "InitSavedata", result);
@@ -902,7 +901,7 @@ namespace ipl {
             if (titleIds == NULL) {
                 OSReport("%s::%s: Unable to allocate\n", __FILE__, "InitSavedata");
             } else {
-                ret = ES_ListTitlesOnCard(titleIds, &titleCount);
+                result = ES_ListTitlesOnCard(titleIds, &titleCount);
                 if (result != ES_ERR_OK) {
                 OSReport("%s::%s: Failed to ES_ListTitlesOnCard2: %d\n", __FILE__, "InitSavedata", result);
                 } else {
@@ -1064,7 +1063,7 @@ namespace ipl {
             if (titleIds != NULL) {
                 heap->free(titleIds);
             }
-            return ret;
+            return result;
         }
 
         BOOL checkForNullTermination(char* str, u32 len) {
