@@ -1607,8 +1607,12 @@ namespace ipl {
 
         void Address::set_err_msg(wchar_t* errMsg, u32 errMsgLen, NWC24Err err) {
             memset(errMsg, 0, errMsgLen * sizeof(wchar_t));
-            wcsncat(errMsg, System::getMessage(MESG_ERROR_CODE), errMsgLen - wcslen(errMsg));
-            u32 msgId = MESG_ERROR_CODE;
+            union MessageValue {
+                const wchar_t* text;
+                u32 id;
+            } message;
+            message.text = System::getMessage(MESG_ERROR_CODE);
+            wcsncat(errMsg, message.text, errMsgLen - wcslen(errMsg));
 
             wchar_t errCode[32];
             memset(errCode, 0, sizeof(errCode));
@@ -1617,17 +1621,22 @@ namespace ipl {
 
             switch (err) {
                 case NWC24_ERR_NETWORK: {
-                    msgId = MESG_ERROR_NWC24_NETWORK;
+                    message.id = MESG_ERROR_NWC24_NETWORK;
                     break;
                 }
                 case NWC24_ERR_SERVER:
                 case NWC24_ERR_FULL: {
-                    msgId = MESG_ERROR_NWC24_SERVER;
+                    message.id = MESG_ERROR_NWC24_SERVER;
+                    break;
+                }
+                default: {
+                    message.id = reinterpret_cast<u32>(message.text);
                     break;
                 }
             }
 
-            wcsncat(errMsg, System::getMessage(msgId), errMsgLen - wcslen(errMsg));
+            message.text = System::getMessage(message.id);
+            wcsncat(errMsg, message.text, errMsgLen - wcslen(errMsg));
         }
 
         void Address::entry_friend() {
