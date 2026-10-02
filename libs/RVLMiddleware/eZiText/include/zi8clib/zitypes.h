@@ -321,7 +321,7 @@ struct __zi8_work_data_s {
         struct {
             ziU32 msb : 1;
         } bits;
-    } unk_0x1B28;
+    } pyFuzzy;  // 0x1B28
     union {
         ziU32 word;
         struct {
