@@ -12,7 +12,7 @@ static inline NWC24Err SelectMBox(const NWC24MsgObj* msg, NWC24MBoxType* type) {
     u32 msgType = msg->data[1];
     if (msgType & 0x10)
         *type = NWC24_MBOX_TYPE_SEND;
-    else if (msg->data[1] & 0x20)
+    else if (msgType & 0x20)
         *type = NWC24_MBOX_TYPE_RECV;
     else
         return NWC24_ERR_INVALID_VALUE;

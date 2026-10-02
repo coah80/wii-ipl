@@ -179,3 +179,24 @@
   PurgeOldestDlTask wants separate-ifs (double `mr r5,r3` carrier copies).
   Separate-ifs wins the aggregate (175/176 + 108/105); single-if, early-return,
   and assign-then-if all regress both callers.
+
+## wave 16 findings (CSE wall — final verdict)
+
+- **The CSE is purely address-keyed**: EVERY same-address access path
+  normalizes to the same VN and merges — `*((u32*)((u8*)msg+4))`,
+  `*((s32*)msg+1)`, `*(&msg->data[1])`, SelectMBox taking
+  `const NWC24MsgObjPrivate*` (`pmsg->type` member path), and a same-offset
+  union member (`union { u32 type; u32 msgType; }` — caller reads ->type,
+  SelectMBox reads ->msgType). All emit one `lwz` and merge.
+- **Bitfield does defeat it but wrong ops**: `u32 type : 20` member produced
+  the fused-extract form (`rlwinm. r0,r3,0x14,bit; srwi r0,r3,0xc`) on ONE
+  load — never a second lwz. `u32 type : 32` normalized to plain u32 (merge).
+  A `union { u32 type; u32 typeBits : 20; }` keeps ->type clean for all other
+  fns (FaceData stays diffs-0) but SelectMBox's read still fuses-extracts.
+- **Verdict**: only a true clobber or volatile breaks it (vetoed). Base's
+  second `lwz` at a different code position with no intervening call/store
+  means orig's suppression mechanism is internal to MWCC's block model —
+  likely a load in a non-dominated sibling block orig emitted differently
+  that we haven't found. Documented wall; committed form uses the
+  `type = NWC24_MBOX_TYPE_SEND` default-assign (insn-equal, plausible orig
+  idiom) for Field/Subject/Attached.
