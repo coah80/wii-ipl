@@ -231,3 +231,11 @@ Verdict: remaining nwc24 diffs are all allocator/scheduler-internal homes; sourc
 - ExtractEncodedText 13: per-inline FindMarker web numbering — markerLen/offset pairs swap r22<->r23 and r31<->r23 across the two inline sites.
 - DecodeMIMEHeaderFieldBody 41: arg cluster +1 shift (base r24-r27 consecutive vs mine r23,r24,r31,r25) + zero-web pinning (base re-materializes li r0/li r4 per store; mine shares r10/r30 webs). Same family as SetMsgSubjectAndTextPublic.
 - EncodeWord: rechecked — 51/51 diffs 0 for `NWC24EncodeWord` in Mime; earlier -1 was on a different EncodeWord symbol (MsgSubject path uses the Mime one — actually matching now).
+
+## wave 21 — ExtractCharset pointer-walk mechanism decode
+- Base's 2nd scan is a WALKING pointer (`mr r3,r25` + `addi r25`) + separate offset counter (`addi r28`), vs mine index-form `add + addi r3,r3,2` per iter. Base materializes `start+2` callee-pinned (r25) as the FindMarker `input` arg web, dead-after -> MWCC folds `input+offset` to `input++`.
+- On-match recompute: base `add r3,start,offset` + `addi r0,r3,2` = orig's `input + offset` with `input`=`start+2` expr reassociated -> `(start+offset)+2`.
+- `end` NULL: base `li r0,0` on loop-fallthrough (FindMarker `return NULL`), not early init.
+- Variants tried: named `charsetStart` pin (82/84 -2, pins but still index-form — MWCC won't walk a named web), manual walking scan `for(...;scan++)` + `end=start+offset+2` recompute (84/84 insn-equal, RIGHT structure, 44d whole-fn scatter), goto fallthrough `end=NULL` (40d, +1 web savegpr_23), nested-if tail (83/84 -1), size-arg re-assoc `-2` forms (35d same).
+- UNRESOLVED: how to make MWCC materialize `start+2` as a dead-temp callee web that feeds BOTH the size-arg subf AND the inlined input (walk target). Committed FindMarker form stays at 35d.
+- Manual walking scan is a legitimate orig-plausible form (keep as fallback evidence) — its scatter was arg-window +1 shift, same family as everywhere.
