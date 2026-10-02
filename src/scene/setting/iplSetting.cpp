@@ -1379,30 +1379,34 @@ namespace ipl {
                 return;
             }
 
-            ext_ead::www::BrowserThread* browser = surface->GetBrowserThread();
-            if (browser == NULL) {
+            // One pointer, overwritten by the standard-buffer fetch, so the
+            // browser `this` and standardBuffer share a callee-saved reg.
+            void* held = surface->GetBrowserThread();
+            if (held == NULL) {
                 return;
             }
-            if (browser->GetTextureBuffer(0, NULL) == NULL) {
+            if (static_cast<ext_ead::www::BrowserThread*>(held)->GetTextureBuffer(0, NULL) == NULL) {
                 return;
             }
 
             ext_ead::www::BrowserWindow* browserWindow =
-                static_cast<ext_ead::www::BrowserWindow*>(browser->mpBrowserWindows[0]);
-            if ((browserWindow != NULL ? browserWindow->unk_0x2C4[3] : 0) != 0) {
+                static_cast<ext_ead::www::BrowserWindow*>(static_cast<ext_ead::www::BrowserThread*>(held)->mpBrowserWindows[0]);
+            if ((browserWindow == NULL ? 0 : browserWindow->unk_0x2C4[3]) != 0) {
                 unk_0x91C[2] = 1;
                 mState = 0;
-                browserWindow = static_cast<ext_ead::www::BrowserWindow*>(browser->mpBrowserWindows[0]);
+                browserWindow = static_cast<ext_ead::www::BrowserWindow*>(static_cast<ext_ead::www::BrowserThread*>(held)->mpBrowserWindows[0]);
                 if (browserWindow != NULL) {
                     browserWindow->unk_0x2C4[3] = 0;
                 }
                 www::trasition::ScrollState scrollState = www::trasition::GetScrollState();
-                browserScrollDirection = scrollState == www::trasition::SCROLL_LEFT
-                                             ? 1
-                                             : (scrollState == www::trasition::SCROLL_RIGHT ? -1 : 0);
+                if (scrollState == www::trasition::SCROLL_LEFT) {
+                    browserScrollDirection = 1;
+                } else {
+                    browserScrollDirection = scrollState == www::trasition::SCROLL_RIGHT ? -1 : 0;
+                }
                 www::trasition::ResetScrollState();
-                void* changedWideBuffer = browser->GetTextureBuffer(1, NULL);
-                void* changedStandardBuffer = browser->GetTextureBuffer(0, NULL);
+                void* changedWideBuffer = static_cast<ext_ead::www::BrowserThread*>(held)->GetTextureBuffer(1, NULL);
+                void* changedStandardBuffer = static_cast<ext_ead::www::BrowserThread*>(held)->GetTextureBuffer(0, NULL);
                 OSReport("changed %p %p\n", changedStandardBuffer, changedWideBuffer);
                 ext_ead::www::Heap::reportLeaHeap();
             }
@@ -1415,8 +1419,9 @@ namespace ipl {
 
             WWWRect* standardRect;
             WWWRect* wideRect;
-            void* wideBuffer = browser->GetTextureBuffer(1, &wideRect);
-            void* standardBuffer = browser->GetTextureBuffer(0, &standardRect);
+            void* wideBuffer = static_cast<ext_ead::www::BrowserThread*>(held)->GetTextureBuffer(1, &wideRect);
+            held = static_cast<ext_ead::www::BrowserThread*>(held)->GetTextureBuffer(0, &standardRect);
+            void* standardBuffer = held;
             nw4r::ut::Rect projection4x3;
             System::getProjectionRect4x3(&projection4x3);
             int screenWidth = abs(static_cast<int>(projection4x3.GetWidth()));
@@ -1443,33 +1448,33 @@ namespace ipl {
                 int wideWidth = abs(static_cast<int>(projection16x9.GetWidth()));
                 int wideHeight = abs(static_cast<int>(projection16x9.GetHeight()));
                 f32 wideLeft = -wideWidth / 2;
-                f32 wideTop = wideHeight / 2;
+                f32 wideTopL = wideHeight / 2;
                 f32 wideRight = wideWidth / 2;
-                nw4r::ut::Rect leftSide(wideLeft, wideTop,
+                f32 wideTopR = wideHeight / 2;
+                nw4r::ut::Rect leftSide(wideLeft, wideTopL,
                     wideLeft + sideDescriptor->textureHeader->width,
-                    wideTop - sideDescriptor->textureHeader->height);
+                    wideTopL - sideDescriptor->textureHeader->height);
                 nw4r::ut::Rect rightSide(wideRight - sideDescriptor->textureHeader->width,
-                    wideTop, wideRight, wideTop - sideDescriptor->textureHeader->height);
-
+                    wideTopR, wideRight, wideTopR - sideDescriptor->textureHeader->height);
                 if (browserScrollDirection != 0) {
-                    nw4r::lyt::Material* wideMaterial =
+                    void* wideMaterial =
                         mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex0");
                     nw4r::lyt::Material* firstStandardMaterial =
                         mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex1");
                     nw4r::lyt::Material* secondStandardMaterial =
                         mpChangeLayout->FindPaneByName("N_Tra0")->FindMaterialByName("Tex2");
-                    wideMaterial->SetTexture(0, wideTexture);
+                    static_cast<nw4r::lyt::Material*>(wideMaterial)->SetTexture(0, wideTexture);
                     firstStandardMaterial->SetTexture(0, standardTexture);
                     secondStandardMaterial->SetTexture(0, standardTexture);
                     mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(true);
                     if (browserScrollDirection == 1) {
-                        utility::FrameController* animation = mpSecondAnimation;
-                        animation->initFrame();
-                        animation->restart();
+                        wideMaterial = mpSecondAnimation;
+                        static_cast<utility::FrameController*>(wideMaterial)->initFrame();
+                        static_cast<utility::FrameController*>(wideMaterial)->restart();
                     } else {
-                        utility::FrameController* animation = mpFirstAnimation;
-                        animation->initFrame();
-                        animation->restart();
+                        wideMaterial = mpFirstAnimation;
+                        static_cast<utility::FrameController*>(wideMaterial)->initFrame();
+                        static_cast<utility::FrameController*>(wideMaterial)->restart();
                     }
                     mpChangeLayout->calc();
                     browserScrollDirection = 0;
@@ -1509,13 +1514,44 @@ namespace ipl {
             }
 
             if (mpWiiSettingFlag->smthMsgData >= 2 && mpWiiSettingFlag->smthMsgData <= 7) {
-                GXRenderModeObj renderMode = *System::getRenderModeObj();
+                GXRenderModeObj* pRmode = System::getRenderModeObj();
+                GXRenderModeObj renderMode;
+                volatile GXRenderModeObj* srcMode = pRmode;
+                volatile GXRenderModeObj* dstMode = &renderMode;
+                int n = 12;
+                u8* src;
+                u8* dst = &renderMode.aa;
+                src = &pRmode->aa;
+                dstMode->viTVmode = srcMode->viTVmode;
+                dstMode->fbWidth = srcMode->fbWidth;
+                dstMode->efbHeight = srcMode->efbHeight;
+                dstMode->xfbHeight = srcMode->xfbHeight;
+                dstMode->viXOrigin = srcMode->viXOrigin;
+                dstMode->viYOrigin = srcMode->viYOrigin;
+                dstMode->viWidth = srcMode->viWidth;
+                dstMode->viHeight = srcMode->viHeight;
+                dstMode->xFBmode = srcMode->xFBmode;
+                dstMode->field_rendering = srcMode->field_rendering;
+                dstMode->aa = srcMode->aa;
+                for (; n != 0; n--) {
+                    dst[1] = src[1];
+                    dst[2] = src[2];
+                    src += 2;
+                    dst += 2;
+                }
+                dstMode->vfilter[0] = srcMode->vfilter[0];
+                dstMode->vfilter[1] = srcMode->vfilter[1];
+                dstMode->vfilter[2] = srcMode->vfilter[2];
+                dstMode->vfilter[3] = srcMode->vfilter[3];
+                dstMode->vfilter[4] = srcMode->vfilter[4];
+                dstMode->vfilter[5] = srcMode->vfilter[5];
+                dstMode->vfilter[6] = srcMode->vfilter[6];
                 u32 left;
                 u32 top;
                 u32 width;
                 u32 height;
                 GXGetScissor(&left, &top, &width, &height);
-                GXSetScissor(0, renderMode.efbHeight / 2 - 0xA4, renderMode.fbWidth, 0x132);
+                GXSetScissor(0, dstMode->efbHeight / 2 - 0xA4, dstMode->fbWidth, 0x132);
                 mpMainLayout->draw();
                 GXSetScissor(left, top, width, height);
             }
