@@ -914,7 +914,8 @@ void CArGBAOdh::cdj_c_setQuantizationTable(SArCDJ_OdhMaster* master, u32 quality
         for (i = 0; i < 64; i++) {
             temp = ((const u16*)gArAANScales)[i];
             temp *= quantization[table * 64 + i];
-            master->quantizationTables[table * 64 + i] = 0x4000000 / temp;
+            temp = 0x4000000 / temp;
+            master->quantizationTables[table * 64 + i] = temp;
         }
     }
 }
