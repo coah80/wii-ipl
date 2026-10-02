@@ -263,3 +263,18 @@ Verdict: remaining nwc24 diffs are all allocator/scheduler-internal homes; sourc
 - SetMsgSubjectAndTextPublic 65d: base colors `stringWork` (lwz 0(0) = NWC24WorkP->stringWork offset-0 member) FIRST at r22 — decl perms/early-fetch all regress or no-op. Allocator ordering unshiftable.
 - InitDlTask 31d: zero-web r28↔r29 — base colors nwc24IdHigh first; decl-order inert (4 perms identical).
 - ExtractCharset `char* start2` block-scope → 82/84 count-gap (over-shares the walk web); reverted.
+
+## wave-25 — pattern application to remaining ties (no wins)
+
+Applied the early-stmt-init + decl-order + for-IV pattern to every directive target:
+
+- **CopyWithoutLWS 13d**: value-hoist/top-decl/`u32 capacity`/`capacity-1` precompute — inert or worse (15/17). Committed s32-capacity form kept. Value↔cap-1↔outputOffset volatile rotation is allocator-internal.
+- **ExtractCharset 27d**: all 6 decl permutations inert. Decoded the walk: base's 2nd FindMarker runs `mr r3,r25` + `addi r25,r25,1` — the pinned `start+2` input web is MUTATED in-loop (IV-fold of `pos = input + offset` onto a dead-after pinned web). Match path recomputes `(start+offset)+2` (2 insns) vs mine's free pos web. A call-site-only `start2` local pins it and makes everything else structural-identical — but MWCC still chooses pos-recompute over the input++ fold. All input++/pos-walk source forms (`offset++,input++`, `pos++`) regress every other call site (ExtractEncodedText 0→47, DecodeWord count-gap) — committed index-form FindMarker is correct globally.
+- **DecodeMIMEBody 41d**: uniform +1 arg-window shift; base pins a zero web FIRST among callee webs (r23 for stb/stw zero-stores incl. the encodedSizeOut stack slot) — coloring not reachable via stmt/decl order.
+- **InitDlTask 31d**: r28↔r29 — base colors strtoul-result web before the {0}-store zero web; decl-order swaps, early-init stmts, store-order swap all inert. MWCC-internal web ordering.
+- **ConvertDateToDays 16d**: same tail = interleaved mulhw/mulli/srawi scheduling + operand-home choices on (yo+299)/(yo-1) magic-div chains.
+- **ConvertDaysToDate 79d**: whole-fn volatile-band rotation (base year→r10, magic→r9, temps→r7/r8; mine year→r7, magic→r10, temps→r8/r9).
+- **DateToOSCalendarTime 13d**: year-load web r5(base) vs r0(mine); named `u16 year` local, store reorder — inert or count-gap.
+- **CheckMsgBoxSpace 75d**: savegpr_22v23 (+1 callee web) — same universal wall; extra web isn't decl-reachable.
+
+Confirmed again: the "+1 callee web" family and the zero-web-first coloring are allocator-internal decisions with no source-level lever found across ~20 variants this wave.
