@@ -22,7 +22,9 @@ namespace textinput {
         #pragma section sconst_type ".sdata"
         extern "C" const char* scCommonTextAnimName = scT_prdc_Text_00;
         extern "C" const char* scCommonScrollAnimName = scP_prdc_scrl_Left;
-        extern "C" const wchar_t scEmptyWChars[4] = {0, 0, 0, 1};
+        #pragma explicit_zero_data on
+        extern "C" const wchar_t scEmptyWChars[4] = {0, 0, 0, 0};
+        #pragma explicit_zero_data reset
         extern "C" const char scP_OnBtn[8] = "P_OnBtn";
         extern "C" const char scB_OnBtn[8] = "B_OnBtn";
         #pragma pop
