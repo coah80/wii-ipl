@@ -957,7 +957,7 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
                 ((source_entry.start_cluster - 2) << volume->bpb.log2_sectors_per_cluster);
             for (index = 0; index < 5; index++, file++) {
                 if ((file->stat & 1) != 0 && (file->stat & 2) != 0) {
-                    if (file->dir_entry.p_vol == volume && file->dir_entry.entry_sector == directory_sector) { return 0x13; }
+                    if (volume == file->dir_entry.p_vol && directory_sector == file->dir_entry.entry_sector) { return 0x13; }
                     found = 0;
                     error = PFENT_ITER_FindCluster(&file->dir_entry, source_entry.start_cluster, &found);
                     if (error != 0) { return error; }
@@ -1123,7 +1123,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
                 ((source_entry.start_cluster - 2) << volume->bpb.log2_sectors_per_cluster);
             for (index = 0; index < 5; index++, file++) {
                 if ((file->stat & 1) != 0 && (file->stat & 2) != 0) {
-                    if (file->dir_entry.p_vol == volume && file->dir_entry.entry_sector == directory_sector) { return 0x13; }
+                    if (volume == file->dir_entry.p_vol && directory_sector == file->dir_entry.entry_sector) { return 0x13; }
                     found = 0;
                     error = PFENT_ITER_FindCluster(&file->dir_entry, source_entry.start_cluster, &found);
                     if (error != 0) { return error; }
@@ -1198,7 +1198,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     if (allocation_error != 0) {
         if (source_entry.num_entry_LFNs != 0 && (source_entry.small_letter_flag & 0x18) == 0) {
             source_entry.long_name[0] = saved_initial_char;
-            source_entry.entry_offset -= (source_entry.num_entry_LFNs & 0xff) * 32;
+            source_entry.entry_offset -= (pf_u16)((source_entry.num_entry_LFNs & 0xff) * 32);
         }
         update_entry = &source_entry;
     } else {
