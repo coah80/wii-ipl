@@ -580,7 +580,7 @@ void VIInit(void)
     u16 displayConfig;
     u32 __VIDVDStopFlag_Enable_old;
     s32 format;
-    u32 value;
+    u16 value;
     u32 tv;
     u32 bootromTv;
 
