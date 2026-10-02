@@ -135,10 +135,14 @@ s32 NHTTPi_SocSend_sub(s32 socket, const char* data, u32 length, s32 flags) {
         if(head>length) head=length;
         NHTTPi_memcpy(buffer,data,head);
         result=SOSend(socket,buffer,head,flags);
-        if(result<=0) return result;
-        sent=result;
-        if((u32)result<head) return result;
-        data+=result; length-=result;
+        if (result > 0) {
+            sent = result;
+            if ((u32)result < head) return result;
+            data += result;
+            length -= result;
+        } else {
+            return result;
+        }
     }
     if((s32)length>0) {
         head=length&~31;
