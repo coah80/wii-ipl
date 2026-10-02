@@ -368,6 +368,7 @@ int Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr optionData, ziPtr workDa
   ziU16 normalizedElements[64];
   unsigned int dictionaryStatus[14];
   ziU8 candidateBytes[64];
+  ZiAlphaWork *savedWork;
 
   prefixMode = 0;
   prefixTableFlags = 0;
@@ -406,6 +407,7 @@ int Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr optionData, ziPtr workDa
   contextEnabled = 0;
   keyLayoutCount = 0;
   keyLayout = 0;
+  savedWork = (ZiAlphaWork*)workData;
   phoneticInput = 0;
   phoneticSeparator = 0;
   if ((((((language == 0x7c) || (language == 0x7d)) || (language == 0x7b)) ||
