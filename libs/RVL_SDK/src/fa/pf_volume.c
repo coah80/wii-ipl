@@ -224,7 +224,7 @@ typedef struct PFVOL_SET {
 
 PFVOL_SET pf_vol_set;
 
-static s8 default_volume_label[12] = "NO NAME    ";
+static s8 default_volume_label[16] = "NO NAME    ";
 static const u8 deleted_entry_mark[8] = {0xE5};
 extern s32 PFDRV_mount(PFVOL_VOLUME* volume);
 extern s32 PFDRV_unmount(PFVOL_VOLUME* volume, u32 mode);

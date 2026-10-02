@@ -934,7 +934,7 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
         if (directory_is_open(&source_entry) != 0) { return 0x13; }
         if (current_directory_is_open(source_entry.p_vol, source_entry.start_cluster) != 0) { return 0x1C; }
         if (PFSTR_StrNCmp(&source_name, (const pf_s8*)"..", 1, 0, 2) == 0) { return 0x1C; }
-        if (PFSTR_StrNCmp(&source_name, (const pf_s8*)".", 1, 0, 1) == 0) { return 0x1C; }
+        if (PFSTR_StrNCmp(&source_name, (const pf_s8*)".\0\0\0\0\0\0", 1, 0, 1) == 0) { return 0x1C; }
         {
             PFDIR_SFD* file = ((PFDIR_VOLUME_DIRS*)volume)->sfds;
             pf_u32 directory_sector = volume->bpb.first_data_sector +
@@ -1056,7 +1056,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     pf_u32 position;
     pf_u32 found;
     pf_u16 time;
-    pf_u8 deleted_marker[1] = {0xE5};
+    pf_u8 deleted_marker[4] = {0xE5};
     pf_u16 saved_initial_char = 0;
     pf_u32 sector;
     pf_u32* next_sector;
@@ -1098,7 +1098,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
         error = PFPATH_SplitPath((PFDIR_STR*)old_path, &directory, &source_name);
         if (error != 0) { return error; }
         if (PFSTR_StrNCmp(&source_name, (const pf_s8*)"..", 1, 0, 2) == 0) { return 10; }
-        if (PFSTR_StrNCmp(&source_name, (const pf_s8*)".", 1, 0, 1) == 0) { return 10; }
+        if (PFSTR_StrNCmp(&source_name, (const pf_s8*)".\0\0\0\0\0\0", 1, 0, 1) == 0) { return 10; }
         {
             PFDIR_SFD* file = ((PFDIR_VOLUME_DIRS*)volume)->sfds;
             pf_u32 directory_sector = volume->bpb.first_data_sector +

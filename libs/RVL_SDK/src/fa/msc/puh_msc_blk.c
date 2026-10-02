@@ -2,6 +2,7 @@
 #include <string.h>
 
 UHF_MSC_DEVICE uhg_msc_blk_device_tbl[8];
+u32 uhg_msc_blk_msg_id;
 static u8* st_uhs_msc_blk_buf;
 extern void pdm_disk_notify_media_insert(FADisk* disk);
 s32 uhf_msc_blk_init(FADisk* disk);
