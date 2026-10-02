@@ -206,14 +206,14 @@ namespace textinput {
         #pragma push
         #pragma section const_type ".data"
         extern "C" const char scPaneNameTable[132] =
-            "B_OffBtn\0\0\0"
-            "P_JPOffBtn\0"
-            "P_CNOffBtn\0"
-            "P_CNOnBtn\0\0"
-            "B_prdc_scrl_Left\0\0\0"
-            "P_prdc_scrl_Left\0\0\0"
-            "B_prdc_scrl_Rght\0\0\0"
-            "P_prdc_scrl_Rght\0\0\0"
+            "B_OffBtn\0\0\0\0"
+            "P_JPOffBtn\0\0"
+            "P_CNOffBtn\0\0"
+            "P_CNOnBtn\0\0\0"
+            "B_prdc_scrl_Left\0\0\0\0"
+            "P_prdc_scrl_Left\0\0\0\0"
+            "B_prdc_scrl_Rght\0\0\0\0"
+            "P_prdc_scrl_Rght\0\0\0\0"
             "\0\0\0";
         extern "C" char scW_predictWindow[16] = "W_predictWindow";
         extern "C" const char scN_predictInput[15] = "N_predictInput";
