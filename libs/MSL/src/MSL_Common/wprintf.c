@@ -977,6 +977,8 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
     long double long_double_num;
     wchar_t buff[512];
     wchar_t* buff_ptr;
+    wchar_t* buff_end = buff + 511;
+    wchar_t* buff_end = buff + 511;
     const wchar_t* string_end;
     wchar_t fill_char = ' ';
 
@@ -1029,16 +1031,16 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
             if (format.argument_options == long_long_argument ||
                 format.argument_options == intmax_argument)
             {
-                if (!(buff_ptr = longlong2str(long_long_num, buff + 512, *fmt_ptr))) {
+                if (!(buff_ptr = longlong2str(long_long_num, buff_end, *fmt_ptr))) {
                     goto conversion_error;
                 }
             } else {
-                if (!(buff_ptr = long2str(long_num, buff + 512, *fmt_ptr))) {
+                if (!(buff_ptr = long2str(long_num, buff_end, *fmt_ptr))) {
                     goto conversion_error;
                 }
             }
 
-            num_chars = buff + 512 - 1 - buff_ptr;
+            num_chars = buff_end - buff_ptr;
             break;
 
         case 'o':
@@ -1071,16 +1073,16 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
                 || format.argument_options == intmax_argument
                )
             {
-                if (!(buff_ptr = longlong2str(long_long_num, buff + 512, *fmt_ptr))) {
+                if (!(buff_ptr = longlong2str(long_long_num, buff_end, *fmt_ptr))) {
                     goto conversion_error;
                 }
             } else {
-                if (!(buff_ptr = long2str(long_num, buff + 512, *fmt_ptr))) {
+                if (!(buff_ptr = long2str(long_num, buff_end, *fmt_ptr))) {
                     goto conversion_error;
                 }
             }
 
-            num_chars = buff + 512 - 1 - buff_ptr;
+            num_chars = buff_end - buff_ptr;
             break;
 
         case 'f':
@@ -1095,11 +1097,11 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
                 long_double_num = va_arg(args, double);
             }
 
-            if (!(buff_ptr = float2str(long_double_num, buff + 512, *fmt_ptr))) {
+            if (!(buff_ptr = float2str(long_double_num, buff_end, *fmt_ptr))) {
                 goto conversion_error;
             }
 
-            num_chars = buff + 512 - 1 - buff_ptr;
+            num_chars = buff_end - buff_ptr;
             break;
 
         case 'a':
@@ -1110,11 +1112,11 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
                 long_double_num = va_arg(args, double);
             }
 
-            if (!(buff_ptr = double2hex(long_double_num, buff + 512, *fmt_ptr))) {
+            if (!(buff_ptr = double2hex(long_double_num, buff_end, *fmt_ptr))) {
                 goto conversion_error;
             }
 
-            num_chars = buff + 512 - 1 - buff_ptr;
+            num_chars = buff_end - buff_ptr;
             break;
 
         case 's':
