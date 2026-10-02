@@ -26,7 +26,6 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
   ziU8 stroke;
   ziU8 contextMask;
   ziU8 mode;
-  ziU8 savedNibbles;
   struct {
     ziWChar* phoneticInput;
     ziU8* phoneticTable;
@@ -39,10 +38,12 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
   } buffers;
   ziU8 nibbles;
   ziU8 index;
+  ziU8 savedNibbles;
 
   stroke = 0;
   contextMask = 0x20;
   Zi8Memset(match,0,0x1ee);
+  savedNibbles = 0;
   nibbles = 0;
   elementIndex = 0;
   elementCount = request->elementCount;
@@ -61,6 +62,7 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
     match->comp = element = request->elements[0];
     if (Zi8IsComponent(element,__zi8_work_data) != 0) {
       elementIndex++;
+      savedNibbles = 1;
       buffers.component = (ziU8*)Zi8GetTableAddress(1,2,__zi8_work_data);
       buffers.componentIndex = (ziU8*)Zi8GetTableAddress(1,6,__zi8_work_data);
       buffers.componentIndex += (element - 0xef10) * 2;
