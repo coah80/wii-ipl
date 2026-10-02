@@ -141,7 +141,7 @@ pf_s32 pdm_part_get_start_sector(PDM_PARTITION* p_part) {
     }
     return 0;
 }
-pf_u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, pf_u32 sector, pf_u32 bps) {
+static inline pf_u32 partition_physical_sector(PDM_PARTITION* p_part, pf_u32 sector, pf_u32 bps) {
     pf_u16 media_bps;
     pf_u32 ratio;
     pf_u32 start;
@@ -157,6 +157,9 @@ pf_u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, pf_u32 sector, pf_u32 bps) {
     else if (ratio == 4) { start >>= 2; }
     else if (ratio == 8) { start >>= 3; }
     return sector + start;
+}
+pf_u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, pf_u32 sector, pf_u32 bps) NO_INLINE {
+    return partition_physical_sector(p_part, sector, bps);
 }
 pf_s32 pdm_part_get_partition(PDM_DISK* p_disk, pf_u32 id, PDM_PARTITION** pp_part) {
     pf_s32 err;
