@@ -68,8 +68,8 @@ namespace ipl {
             vBOOL mbAppearMsg;  // 0x0C
 
         private:
-            u32 unk_0x10;
-            int unk_0x14;
+            u32 mFocusState;
+            int mPendingFocusCmd;
             layout::Object* mpLayout;                          // 0x18
             gui::PaneManager* mpGui;                           // 0x1C
             layout::PaneAnimator* mpCurrentPaneAnim;           // 0x20
@@ -77,7 +77,7 @@ namespace ipl {
 
         public:
             utility::Date* mpDate;  // 0x38
-            u32 unk_0x3C;
+            u32 mPointCount;
 
             static const char* mscAnimPanes[ANIM_PANE_MAX];
 
