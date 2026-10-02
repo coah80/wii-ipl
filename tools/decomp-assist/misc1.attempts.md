@@ -59,3 +59,26 @@
   (bare-array __construct_array emission wall); wiisetting Getter_ 99.45 (i→r31 web);
   AxAdpcmPlayer start 99.78 (r25↔r26); iplESMisc DUD 88.79 + 32B data; wprintf 99.27
   (full rotation). All allocator-internal or emission-model walls, no banned tricks.
+
+## w1004 — resume findings
+
+### symbols.txt lever — extended
+- Renamed `lbl_81644834` → `strProps__Q23www10wiisetting` (0x64 at .data+0x794): paired → wiisetting matched_data 1180→1280. All legit named pairs now done for that unit; the rest is anon strings + jumptables (unpairable both sides).
+
+### huffmanDecoder (odh) — word-diff analysis
+- Diff = fn-wide web rotation, ~140/306 insns. Root cause isolated: PAIRWISE web-class swap — orig homes the hot running-bit web (bitOffset→bitCountAndMask) in callee r31 and `sourceCursor` (bitstream ptr) in VOLATILE r12; mine gives cursor callee r27 and the hot web volatile r10.
+- Orig emits load order bytesConsumed(0x20)→bitCount ptr(0x1c)→bitstream(0x10) identical to mine — web creation order same; pure allocator binding difference.
+- Tried: decl-order swap of the three init stmts (2 orders: 171 diffs both, worse), s32-vs-u32 types on bitOffset/bitCountAndMask (273, codegen change), removing the maxHuffmanBits copy local (171). All reverted to 140-diff base.
+- Root cause guess: MWCC's cost model ranks the cursor web higher in my IR — no source-level lever found that changes class assignment without changing codegen.
+
+### AxAdpcm start — zero-web variants (orchestrator req)
+- Pairwise swap: orig const-zero→r25, axSrc stack-addr(+0x28)→r26; mine zero→r26, addr→r25. Plus r28↔r31 mirror web.
+- Tried: memset(axSrc.last_samples,0,8) → 18 diffs (store form differs slightly, reverted); assigning fields from sSysPauseFlag → 148 (flag is .sdata load, not const-zero, reverted).
+- 14-diff base stays best.
+
+### iplESMisc DUD — verified structural
+- 449 vs 438 insns, ~300 word diffs: same family — orig's `ret` web is callee-pinned (r27) producing extra `mr` copies after every call; different .data base web (r21 vs r26). Decode structure is right; web pinning differs fn-wide.
+
+### Remaining state — everything else at documented walls
+- All data sections now 100% except www_wiisetting .data (anon literals/jumptables unpairable — extraction-boundary artifacts) and BS2Mach .data (None — merged pooled-literal objects, same artifact).
+- All code residuals: allocator-internal web-rotation/marshal-order ties or the above.
