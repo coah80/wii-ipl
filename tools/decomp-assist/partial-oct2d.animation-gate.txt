@@ -1,0 +1,25 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/scene/memoryCard/iplMemoryCardManager] pool: IDENTICAL
+[src/scene/memoryCard/iplMemoryCardManager] objdiff: code 2368/5396 data None/None functions 17/26 fuzzy 97.3610 linked code 0
+[src/scene/memoryCard/iplMemoryCardManager] instruction-exact functions: 17/26
+[src/scene/memoryCard/iplMemoryCardManager]   section .text size 5396 match 97.36101
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: isMoveEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl 99.830505
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: isCopyEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl 99.830505
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: isBannerEnable__Q33ipl5scene17MemoryCardManagerFUcs 92.30769
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: update_file_array__Q33ipl5scene17MemoryCardManagerFUc 99.72222
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: create_icon__Q33ipl5scene17MemoryCardManagerFUcs 86.17647
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: _create_icon__Q33ipl5scene17MemoryCardManagerFUcsl 87.55
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: getComment__Q33ipl5scene17MemoryCardManagerFUcsi 98.94309
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: create_banner__Q33ipl5scene17MemoryCardManagerFUcs 90.42453
+[src/scene/memoryCard/iplMemoryCardManager]   below 100: getBlocks__Q33ipl5scene17MemoryCardManagerFUcs 92.0
+[src/scene/memoryCard/iplMemoryCardManager] baseline: code 2032/5396 data None functions 16 fuzzy 97.2609
+regressions vs baseline: 0
+global matched_code_percent: 88.52293 -> 88.53414
+global fuzzy_match_percent: 99.44739 -> 99.44756
+global complete_code_percent: 62.78043 -> 62.78043
+global matched_data_percent: 92.12238 -> 92.12238
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+review note: include/iplMemoryCardLib.h: volatile object declaration (orchestrator checks the target really re-reads it) (+1 net), e.g. volatile s16 anmMax;
+GATE PASS

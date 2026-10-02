@@ -1,3 +1,4 @@
+#define IPL_MEMORY_CARD_MANAGER_CPP
 #include "scene/memoryCard/iplMemoryCardManager.h"
 #include "utility/iplCharacterCode.h"
 #include <revolution/sc.h>
@@ -252,7 +253,9 @@ void MemoryCardManager::update_icon_anm() {
             u32 file = mFile[slot][index].fileNo;
             if (file < 0x7f && dirs[slot][file].fileNo != 0) {
                 memorycard::IconState* icon = icons[slot] + file;
-                s32 frame = mFileCell[slot][file].iconAnmCounter + icon->anmDelta;
+                s8 delta = icon->anmDelta;
+                s16 currentFrame = mFileCell[slot][file].iconAnmCounter;
+                s32 frame = currentFrame + delta;
                 mFileCell[slot][file].iconAnmCounter = frame;
                 if ((s16)frame >= icons[slot][file].anmMax) {
                     if (icon->anmType == 4) {
