@@ -46,8 +46,8 @@ typedef struct NWC24MsgObjPrivate {
 #endif
     u32 date;  // 0x28
     u32 receivedDate;  // 0x2C
-    NWC24Data unk_0x30;
-    NWC24Data unk_0x38;
+    NWC24Data fromData;  // 0x30
+    NWC24Data toData;  // 0x38
     NWC24Data subject;  // 0x40
     NWC24Data text;     // 0x48
     NWC24Data unk_0x50;

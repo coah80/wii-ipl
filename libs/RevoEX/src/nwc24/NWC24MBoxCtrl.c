@@ -947,8 +947,8 @@ static NWC24Err MountVFMBox(NWC24MBoxType type) {
 }
 
 static NWC24Err CopyMsgObjToMBCFmt(const NWC24MsgObjPrivate* msg, MBCEntry* entry) {
-    u32 field1 = ((u32)msg->unk_0x30.ptr & 0xFFFFF) | (msg->unk_0x30.size << 20);
-    u32 field2 = ((u32)msg->unk_0x38.ptr & 0xFFFFF) | (msg->unk_0x38.size << 20);
+    u32 field1 = ((u32)msg->fromData.ptr & 0xFFFFF) | (msg->fromData.size << 20);
+    u32 field2 = ((u32)msg->toData.ptr & 0xFFFFF) | (msg->toData.size << 20);
     u32 field3 = ((u32)msg->subject.ptr & 0xFFFFF) | (msg->subject.size << 20);
     u32 field4 = ((u32)msg->unk_0x50.ptr & 0xFFFFF) | (msg->unk_0x50.size << 20);
     u32 field5 = ((u32)msg->unk_0x58.ptr & 0xFFFFF) | (msg->unk_0x58.size << 20);
@@ -1019,10 +1019,10 @@ static NWC24Err CopyMsgObjToPrvFmt(const MBCEntry* entry, NWC24MsgObjPrivate* ms
     msg->textSize = entry->textSize;
     msg->dwcId = entry->dwcId;
     msg->iconNew = entry->iconNew;
-    msg->unk_0x30.ptr = (void*)offset1;
-    msg->unk_0x30.size = size1;
-    msg->unk_0x38.ptr = (void*)offset2;
-    msg->unk_0x38.size = size2;
+    msg->fromData.ptr = (void*)offset1;
+    msg->fromData.size = size1;
+    msg->toData.ptr = (void*)offset2;
+    msg->toData.size = size2;
     msg->subject.ptr = (void*)offset3;
     msg->subject.size = size3;
     msg->unk_0x50.ptr = (void*)offset4;
