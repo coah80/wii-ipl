@@ -207,21 +207,32 @@ void ConvertDaysToDate(u16* year, u8* month, u8* day, s32 days) {
     for (;;) {
         u16 currentYear = *year;
         s32 previousDays = days;
-        BOOL leapYear = (currentYear % 4 == 0 && currentYear % 100 != 0) || currentYear % 400 == 0;
+        BOOL leapYear = TRUE;
+        BOOL commonLeapYear = FALSE;
+        if (currentYear % 4 == 0 && currentYear % 100 != 0) {
+            commonLeapYear = TRUE;
+        }
+        if (!commonLeapYear && currentYear % 400 != 0) {
+            leapYear = FALSE;
+        }
         days -= 365 + (leapYear != FALSE);
         if (days < 0) {
             days = previousDays;
             break;
         }
-        *year = *year + 1;
+        *year += 1;
+        continue;
     }
 
     for (;;) {
-        s32 previousDays = days;
-        if (*month == 2 && IsLeapYear(*year)) {
+        s32 previousDays;
+        u8 currentMonth;
+        previousDays = days;
+        currentMonth = *month;
+        if (currentMonth == 2 && IsLeapYear(*year)) {
             days -= 29;
         } else {
-            days -= DAYS_OF_MONTH[*month - 1];
+            days -= DAYS_OF_MONTH[currentMonth - 1];
         }
         if (days >= 0) {
             *month += 1;
