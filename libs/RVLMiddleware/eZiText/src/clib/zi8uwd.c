@@ -87,23 +87,24 @@ void Zi8_8148047C(ziPtr __zi8_work_data) {
     ZI_WORK->uwdList = 0;
 }
 ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 currentLength, ziU8 language, ziWChar* output, ziU16 capacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
-    ziWChar folded;
-    int fallback = 0;
-    int visited = 0;
-    int prefixLength;
-    int position, previousOffset;
     ziU32 size;
-    ziU8 entryLanguage;
-    ziU32 entryLength;
+    int fallback = 0;
+    int firstSegment;
+    ziUserDictionary* dictionary;
+    ziU8* text;
+    int position;
     ziU8* cursor;
     ziU8* begin;
     ziU8* boundary;
-    ziU8* end;
-    ziUserWord* candidate;
+    int entryLength;
+    int prefixLength;
     ziUserWord* previous;
-    ziUserWord* result;
-    ziUserDictionary* dictionary;
-    int firstSegment;
+    int visited = 0;
+    ziU8* end;
+    ziWChar folded;
+    int entryLanguage;
+    ziUserWord* candidate;
+    int previousOffset;
     Zi8LogError(100, __zi8_work_data);
     if (!(ZI_WORK->unk_0x138 <= 2 && ZI_WORK->unk_0x138 != 0 && ZI_WORK->unk_0x130[ZI_WORK->unk_0x138 - 1] != 0)) {
         Zi8ReplaceLastError(0x19C, __zi8_work_data);
@@ -111,16 +112,17 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
     }
     dictionary = ZI_WORK->unk_0x130[ZI_WORK->unk_0x138 - 1];
     if (continuation != 0) {
-        result = Zi8_814803F4(__zi8_work_data);
+        text = (ziU8*)Zi8_814803F4(__zi8_work_data);
         entryLength = 0;
-        if (result != 0) {
-            entryLanguage = result->language;
-            entryLength = result->length;
+        if (text != 0) {
+            language = ((ziUserWord*)text)->language;
+            entryLength = ((ziUserWord*)text)->length;
             if (entryLength >= capacity) {
                 Zi8_8148047C(__zi8_work_data);
                 return 0;
             }
-            for (position = 0; position < (ziS32)entryLength; position++) output[position] = Zi8ConvertUC2WC(result->text[position], entryLanguage, __zi8_work_data);
+            text = ((ziUserWord*)text)->text;
+            for (position = 0; position < (ziS32)entryLength; position++) output[position] = Zi8ConvertUC2WC(text[position], language, __zi8_work_data);
         }
         return entryLength;
     }
@@ -158,26 +160,37 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
         if (ZI_WORK->unk_0x140 == 0 && length == 0) return 0;
 rescan:
         begin = dictionary->entries + dictionary->current;
+        cursor = begin;
         boundary = (ziU8*)dictionary + dictionary->boundary + 7;
         end = (ziU8*)dictionary + dictionary->end + 7;
-        cursor = begin;
         if (begin < boundary) firstSegment = 1;
         else firstSegment = 0;
         while (firstSegment ? cursor < boundary : cursor < end) {
             size = *cursor;
             candidate = (ziUserWord*)cursor;
             position = visited++;
-            if ((ziS32)ZI_WORK->unk_0x13C <= position && (size & 0xC0) == 0) {
+            if ((ziS32)ZI_WORK->unk_0x13C > position || (candidate->size & 0xC0) != 0) {
+next:
+                cursor += size;
+                if (end < cursor) {
+                    if (firstSegment) break;
+                    firstSegment = 1;
+                    cursor = dictionary->entries + (cursor - end - 1);
+                }
+            } else {
                 previous = (ziUserWord*)(cursor + size);
                 if ((ziU8*)previous > end) previous = (ziUserWord*)(cursor + ((ziU8*)dictionary - end) + 7);
                 entryLanguage = candidate->language;
                 entryLength = candidate->length;
+                text = candidate->text;
                 if (entryLanguage == language && length <= entryLength && entryLength < capacity && (complete == 0 || entryLength == length) && (complete != 0 || entryLength != length)) {
                     for (position = 0; position < length; position++) {
-                        if (pattern[position] < 0xEFF1 || pattern[position] > 0xF010) {
-                            folded = Zi8ConvertUC2WC(candidate->text[position], language, __zi8_work_data);
+                        if (pattern[position] >= 0xEFF1 && pattern[position] <= 0xF010) {
+                            if (pattern[position] != Zi8ConvertUC2Key(text[position], language, __zi8_work_data)) goto next;
+                        } else {
+                            folded = Zi8ConvertUC2WC(text[position], language, __zi8_work_data);
                             if (folded != pattern[position] && (!ZI_WORK->unk_0x1F || !Zi8ChangeCharCase(0, &folded, language, __zi8_work_data) || folded != pattern[position])) goto next;
-                        } else if (pattern[position] != Zi8ConvertUC2Key(candidate->text[position], language, __zi8_work_data)) goto next;
+                        }
                     }
                     if (ZI_WORK->unk_0x140 != 0) {
                         if (ZI_WORK->unk_0x141[0] != previous->size || ZI_WORK->unk_0x141[1] != previous->language || ZI_WORK->unk_0x141[2] != previous->length) goto next;
@@ -187,13 +200,7 @@ rescan:
                     }
                     Zi8_81480224(candidate, __zi8_work_data);
                 }
-            }
-next:
-            cursor += size;
-            if (end < cursor) {
-                if (firstSegment) break;
-                firstSegment = 1;
-                cursor = dictionary->entries + (cursor - end - 1);
+                goto next;
             }
         }
         if (ZI_WORK->unk_0x140 != 0 && length != 0) {
@@ -208,16 +215,17 @@ next:
             goto rescan;
         }
     }
-    result = Zi8_814803F4(__zi8_work_data);
+    text = (ziU8*)Zi8_814803F4(__zi8_work_data);
     entryLength = 0;
-    if (result != 0) {
-        entryLanguage = result->language;
-        entryLength = result->length;
+    if (text != 0) {
+        language = ((ziUserWord*)text)->language;
+        entryLength = ((ziUserWord*)text)->length;
         if (entryLength >= capacity) {
             Zi8_8148047C(__zi8_work_data);
             return 0;
         }
-        for (position = 0; position < (ziS32)entryLength; position++) output[position] = Zi8ConvertUC2WC(result->text[position], entryLanguage, __zi8_work_data);
+        text = ((ziUserWord*)text)->text;
+            for (position = 0; position < (ziS32)entryLength; position++) output[position] = Zi8ConvertUC2WC(text[position], language, __zi8_work_data);
     }
     return entryLength;
 }

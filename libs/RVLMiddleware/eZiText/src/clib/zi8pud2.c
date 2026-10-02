@@ -49,22 +49,23 @@ void Zi8CopyZHSpelling(ziU8* source, ziWChar* output, ziU16 capacity, int size, 
         }
     }
 }
-ziU8 ZADP_Zi8SetPDremoveOpt(ziU8 option ZI_NEED_WORK) {
+ziU8 ZADP_Zi8SetPDremoveOpt(ziU8 option, struct __zi8_work_data_s* __zi8_work_data) {
     ziU8 previous;
-    previous = ZI_WORK->pdRemoveOpt;
-    ZI_WORK->pdRemoveOpt = option;
+    previous = __zi8_work_data->pdRemoveOpt;
+    __zi8_work_data->pdRemoveOpt = option;
     Zi8LogError(100, __zi8_work_data);
     return previous;
 }
 ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziWChar* spelling, ziU16 spellingCapacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
     ziWChar folded;
-    ziU32 entrySize;
-    int wordSize, copied;
+    ziPudSection* section;
+    int wordSize;
+    int copied;
     ziU8* word;
     int index;
-    int fallback = 0;
+    ziU32 entrySize;
     ziPudHeader* table;
-    ziPudSection* section;
+    int fallback = 0;
     if (!(ZI_WORK->pudCount <= 16 && ZI_WORK->pudCount != 0 && ZI_WORK->pudTable[ZI_WORK->pudCount - 1] != 0)) {
         Zi8LogError(0x4B0, __zi8_work_data);
         return 0;
@@ -168,16 +169,16 @@ matched:
         }
     }
 }
-ziU32 Zi8MatchPUDdata(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
+ziU32 Zi8MatchPUDdata(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziU8 complete, ziU8 continuation, struct __zi8_work_data_s* __zi8_work_data) {
     ziU32 result;
-    if (continuation == 0) ZI_WORK->pudCount = 1;
+    if (continuation == 0) __zi8_work_data->pudCount = 1;
     for (;;) {
         result = Zi8_8147FD7C(pattern, length, language, output, capacity, complete, continuation, __zi8_work_data);
         if ((ziU8)result != 0) break;
-        if (++ZI_WORK->pudCount <= 16) {
+        if (++__zi8_work_data->pudCount <= 16) {
             continuation = 0;
         } else {
-            ZI_WORK->pudCount = 1;
+            __zi8_work_data->pudCount = 1;
             break;
         }
     }
