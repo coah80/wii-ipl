@@ -619,7 +619,7 @@ vmFloat VmIntToFloat(vmU64 integer) {
     return result;
 }
 
-static s32 CHANSVmParseInt(CHANSVmObjHdr* obj, s32 base, u64* out) {
+static s32 CHANSVmParseInt(const CHANSVmObjHdr* obj, s32 base, u64* out) {
     u8 type = obj->type;
     u32 stringLength;
     u32 charCount;
