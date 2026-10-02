@@ -79,8 +79,9 @@ static s32 IterationPredicatorPriority(NWC24DlId taskId);
 static inline DlTaskListHeader* GetCachedDlHeader(void) {
     if (NWC24WorkP != NULL) {
         return (DlTaskListHeader*)NWC24WorkP->dlHead;
+    } else {
+        return NULL;
     }
-    return NULL;
 }
 
 static inline BOOL IsDlTaskOwner(u32 appId) {
@@ -1247,16 +1248,18 @@ static inline NWC24Err ValidateDlTaskUrl(NWC24DlTask* dlTask) {
 
 static inline NWC24Err FindFreeDlTask(NWC24DlTask* dlTask, u16 taskCount, u16 maxTaskCount) {
     DlTaskListHeader* header = GetCachedDlHeader();
-    NWC24DlId taskId;
+    u32 taskId;
     if (dlTask == NULL || taskCount > maxTaskCount || taskCount >= header->maxTaskCount || maxTaskCount > header->maxTaskCount) {
         return NWC24_ERR_INVALID_VALUE;
     }
-    for (taskId = taskCount; taskId < maxTaskCount; taskId++) {
+    taskId = taskCount;
+    while ((u16)taskId < maxTaskCount) {
         header = GetCachedDlHeader();
         if (header->entries[taskId].appId == 0) {
             ((DlTaskData*)dlTask)->id = taskId;
             return NWC24_OK;
         }
+        taskId++;
     }
     return NWC24_ERR_FULL;
 }

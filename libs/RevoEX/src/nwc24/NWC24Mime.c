@@ -334,11 +334,14 @@ static NWC24Err ConcatEncodedText(char* encoded, u32 encodedCapacity, u32* encod
                                   u32* decodedSizeOut);
 
 static inline NWC24Err AppendBounded(char* encoded, u32 encodedCapacity, u32 needed, const char* str, u32 strLen) {
-    if (Mail_strlen(encoded) + needed >= encodedCapacity) {
-        return NWC24_ERR_OVERFLOW;
+    NWC24Err result;
+    if (Mail_strlen(encoded) + needed < encodedCapacity) {
+        Mail_strncat(encoded, str, strLen);
+        result = NWC24_OK;
+    } else {
+        result = NWC24_ERR_OVERFLOW;
     }
-    Mail_strncat(encoded, str, strLen);
-    return NWC24_OK;
+    return result;
 }
 
 static NWC24Err EncodeWord(char* encoded, u32 encodedCapacity, u32* encodedSize, char* charset, u32 charsetSize, char encoding, u8* decoded,
@@ -374,14 +377,13 @@ static NWC24Err EncodeWord(char* encoded, u32 encodedCapacity, u32* encodedSize,
     }
     {
         char value[1];
-        NWC24Err appendResult;
         value[0] = encoding;
         if (encoding == 'B' || encoding == 'b' || encoding == 'Q' || encoding == 'q') {
-            appendResult = AppendBounded(encoded, encodedCapacity, 1, value, 1);
+            result = AppendBounded(encoded, encodedCapacity, 1, value, 1);
         } else {
-            appendResult = NWC24_ERR_INVALID_VALUE;
+            result = NWC24_ERR_INVALID_VALUE;
         }
-        if (appendResult != NWC24_OK) {
+        if (result != NWC24_OK) {
             *encoded = '\0';
             goto done;
         }
