@@ -411,3 +411,191 @@ libs/RVL_SDK/src/fa/msc/puh_msc_blk POOL IDENTICAL up to 0 (mine=0 base=0)
 libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32 POOL IDENTICAL up to 0 (mine=0 base=0)
 Fresh clean-build pwrite ctxdiff: 129/129 instructions, diffs 0. DOL SHA1 correct; regressions 0; forbidden patterns 0; readability warnings 0. Matched data remains 100% for all owned sections.
 Second accepted improvement: direct DC fast Huffman index expression raises JPEG fuzzy 98.9058 -> 99.03261; code count stays 0/1. Final clean full gate is PASS over all four units. Original inline-helper boundaries remain uncertain; rejected helper variants were restored.
+
+# Round 2
+Start a3b27c9ed0395c408f5c94ff657914456cc7d3f0; current origin/main a3b27c9ed0395c408f5c94ff657914456cc7d3f0
+libs/RVL_SDK/src/fa/pf_fat12 POOL IDENTICAL up to 0 (mine=0 base=0)
+src/keyboard/tiSignWindow POOL IDENTICAL up to 30 (mine=30 base=30)
+libs/RVL_SDK/src/fa/msc/puh_msc_blk POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32 POOL IDENTICAL up to 0 (mine=0 base=0)
+
+## Round 2 PFFAT12_ReadFATEntryWithBuf
+Origin/main source unchanged before starting. Pool empty. Frame 0x30 and 155 instructions identical. Structural comparison shows only error/offset registers exchanged; previous leading-declaration search exhausted all120 orders without exact match. New attempts vary real helper and state boundaries before register search.
+PFFAT12_ReadFATEntryWithBuf | R2 typed buffered-read state aggregate | 155/155 instructions; structural/exact differences (0, 0)
+PFFAT12_ReadFATEntryWithBuf | R2 FAT offset calculation inline helper | 155/155 instructions; structural/exact differences (0, 23)
+PFFAT12_ReadFATEntryWithBuf | R2 buffered-read inline boundary ('p_vol', 'p_page', 'cluster', 'p_value') | 155/155 instructions; structural/exact differences (3, 26)
+PFFAT12_ReadFATEntryWithBuf | R2 buffered-read inline boundary ('p_page', 'p_vol', 'p_value', 'cluster') | 155/155 instructions; structural/exact differences (3, 26)
+PFFAT12_ReadFATEntryWithBuf | R2 buffered-read inline boundary ('cluster', 'p_value', 'p_page', 'p_vol') | 155/155 instructions; structural/exact differences (3, 26)
+R2 FAT structural restore 155/155 instructions; structural/exact differences (0, 23)
+R2 retained real buffered-read state aggregate 155/155 instructions; structural/exact differences (0, 0)
+
+## R2 accepted FAT result
+Real buffered-read state aggregate scalar-replaces without changing frame or instructions. Exact-name objdiff100%, instruction-exact4/4, ctxdiff155/155 diffs0. No extra data or alignment object.
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/fa/pf_fat12] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_fat12] objdiff: code 2164/2164 data None/None functions 4/4 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/fa/pf_fat12] instruction-exact functions: 4/4
+[libs/RVL_SDK/src/fa/pf_fat12]   section .text size 2164 match 100.0
+[libs/RVL_SDK/src/fa/pf_fat12] baseline: code 1544/2164 data None functions 3 fuzzy 99.7597
+regressions vs baseline: 0
+global matched_code_percent: 88.64712 -> 88.66782
+global fuzzy_match_percent: 99.47315 -> 99.47333
+global complete_code_percent: 63.16065 -> 63.16065
+global matched_data_percent: 98.51344 -> 98.51344
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+
+## Round 2 create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator
+Origin/main unchanged before starting. Pool 30strings and3468data bytes identical. Same0x50frame and221instructions. Differences involve hoisted constructor vtables, animation record pointer/count. Previous scopes/loop/declsearch tried; new typed creation-state and constructor-helper boundaries.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R2 outer creation state | 221/221 instructions; structural/exact differences (0, 38)
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R2 creation state including inner index | 221/221 instructions; structural/exact differences (0, 63)
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R2 creation state including pane pointer | 221/221 instructions; structural/exact differences (0, 38)
+R2 Sign restore 221/221 instructions; structural/exact differences (0, 34)
+
+## Round 2 uhf_msc_blk_pread
+Origin/main source unchanged before starting. Pool empty and424/424data. Same0x40frame,129instructions, control flow and operands. Only transfer-block count and memcpy byte-count registers exchanged. Try genuine transfer-state aggregate and typed length temporary, then declaration search.
+uhf_msc_blk_pread | R2 full block transfer state | 129/129 instructions; structural/exact differences (0, 33)
+uhf_msc_blk_pread | R2 transfer count and limit state | 129/129 instructions; structural/exact differences (0, 28)
+uhf_msc_blk_pread | R2 copy length and transfer count state | 129/129 instructions; structural/exact differences (0, 10)
+R2 MSC restored 129/129 instructions; structural/exact differences (0, 10)
+
+## Round 2 TMCJPEGDEC_decode_iquant
+Origin/main source unchanged. No pool/data. Same0x50frame and276instructions. Structure differs in temporary aggregate-copy slots, AC fast-entry stack slot, helper subtraction/add operand order. New typed bit-reader/coefficient state and long-decoder helper state experiments; register search last.
+TMCJPEGDEC_decode_iquant | R2 bit-reader scalar state | 276/276 instructions; structural/exact differences (12, 54)
+TMCJPEGDEC_decode_iquant | R2 coefficient and Huffman scalar state | 276/276 instructions; structural/exact differences (12, 129)
+TMCJPEGDEC_decode_iquant | R2 typed long-Huffman decoder state | 276/276 instructions; structural/exact differences (12, 64)
+R2 JPEG structural restore 276/276 instructions; structural/exact differences (12, 50)
+R2 state member declsearch restored src/keyboard/tiSignWindow 221/221 instructions; structural/exact differences (0, 34)
+R2 state member declsearch restored libs/RVL_SDK/src/fa/msc/puh_msc_blk 129/129 instructions; structural/exact differences (0, 10)
+declaration block:
+          const char* forceName;
+          u32 animationCount;
+          u32 paneIndex;
+start (0, 38)
+best (0, 38) after 6 builds; source restored; best order was:
+        const char* forceName;
+        u32 animationCount;
+        u32 paneIndex;
+
+declaration block:
+          UHF_MSC_DEVICE* device;
+          u16 transfer_blocks;
+          s32 error;
+          u32 block_size;
+          u8* transfer_buffer;
+          u32 transfer_limit;
+          s32 cacheable;
+start (0, 33)
+best (0, 33) after 52 builds; source restored; best order was:
+        UHF_MSC_DEVICE* device;
+        u16 transfer_blocks;
+        s32 error;
+        u32 block_size;
+        u8* transfer_buffer;
+        u32 transfer_limit;
+        s32 cacheable;
+
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R2 per-pane animation state | 221/221 instructions; structural/exact differences (0, 65)
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R2 per-pane state with pane object | 221/221 instructions; structural/exact differences (0, 65)
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R2 typed sign-pane factory inline boundary | 221/221 instructions; structural/exact differences (0, 61)
+R2 Sign restored 221/221 instructions; structural/exact differences (0, 34)
+R2 transfer-state subset search 120 builds; retained 129/129 instructions; structural/exact differences (0, 10)
+TMCJPEGDEC_decode_iquant | R2 DC count subtraction directly into work | 276/276 instructions; structural/exact differences (12, 48)
+TMCJPEGDEC_decode_iquant | R2 long-helper consumed bit count explicit subtraction | 276/276 instructions; structural/exact differences (12, 50)
+TMCJPEGDEC_decode_iquant | R2 long symbol subtraction separate from addition | 276/276 instructions; structural/exact differences (12, 51)
+R2 JPEG retained 276/276 instructions; structural/exact differences (12, 48)
+
+## R2 open-function audit before final full gate
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator built, distinct R2 structural attempts 6; 221/221 instructions; structural/exact differences (0, 34)
+uhf_msc_blk_pread built, distinct R2 structural attempts 3; 129/129 instructions; structural/exact differences (0, 10)
+TMCJPEGDEC_decode_iquant built, distinct R2 structural attempts 6; 276/276 instructions; structural/exact differences (12, 46)
+FAT open-function audit: none remains; ReadFATEntryWithBuf155/155 instructions, diffs0 and unit4/4exact.
+declaration block:
+      TMCHuffmanEntry dcEntry;
+      u8* huff_sym;
+      const TMCHuffmanEntry* ac_fast;
+      s32 idx;
+      u32* huff_tbl;
+      s32 bit_pos;
+      u32 bit_data;
+      const TMCHuffmanEntry* dc_fast;
+      s32 r;
+      s32 blk0;
+      TMCHuffmanEntry acEntry;
+      s32 extra;
+      s32 t;
+      s32 zz;
+      s32 q;
+      u32 tmp;
+      const u8* zztbl;
+start (12, 48)
+improved (12, 46)
+best (12, 46) after 320 builds; kept in source:
+    TMCHuffmanEntry dcEntry;
+    u8* huff_sym;
+    const TMCHuffmanEntry* ac_fast;
+    s32 idx;
+    u32* huff_tbl;
+    s32 bit_pos;
+    u32 bit_data;
+    u32 tmp;
+    s32 r;
+    s32 blk0;
+    TMCHuffmanEntry acEntry;
+    s32 extra;
+    s32 t;
+    s32 zz;
+    s32 q;
+    const TMCHuffmanEntry* dc_fast;
+    const u8* zztbl;
+
+R2 MSC all120 nontrivial transfer-state field subsets built without improvement; restored original source. Sign outer/member/per-pane/factory boundaries all preserve221instructions but worsen colors; restored. JPEG only direct bit-count subtraction and improved declaration order retained; 46instruction differences remain, including12 structural stack/copy differences.
+
+## R2 final clean full gate
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/fa/pf_fat12] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_fat12] objdiff: code 2164/2164 data None/None functions 4/4 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/fa/pf_fat12] instruction-exact functions: 4/4
+[libs/RVL_SDK/src/fa/pf_fat12]   section .text size 2164 match 100.0
+[libs/RVL_SDK/src/fa/pf_fat12] baseline: code 1544/2164 data None functions 3 fuzzy 99.7597
+[src/keyboard/tiSignWindow] pool: IDENTICAL
+[src/keyboard/tiSignWindow] objdiff: code 6300/7184 data 3468/3468 functions 55/56 fuzzy 99.8914 linked code 0
+[src/keyboard/tiSignWindow] instruction-exact functions: 55/56
+[src/keyboard/tiSignWindow]   section .ctors size 4 match 100.0
+[src/keyboard/tiSignWindow]   section .data size 2672 match 100.0
+[src/keyboard/tiSignWindow]   section .rodata size 784 match 100.0
+[src/keyboard/tiSignWindow]   section .sdata size 8 match 100.0
+[src/keyboard/tiSignWindow]   section .text size 7184 match 99.891426
+[src/keyboard/tiSignWindow]   below 100: create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator 99.117645
+[src/keyboard/tiSignWindow] baseline: code 6300/7184 data 3468 functions 55 fuzzy 99.8914
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk] objdiff: code 1556/2072 data 424/424 functions 10/11 fuzzy 99.8938 linked code 0
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk] instruction-exact functions: 10/11
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   section .bss size 384 match 100.0
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   section .data size 32 match 100.0
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   section .sbss size 8 match 100.0
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   section .text size 2072 match 99.89382
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   below 100: uhf_msc_blk_pread 99.57365
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk] baseline: code 1556/2072 data 424 functions 10 fuzzy 99.8938
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] objdiff: code None/1104 data None/None functions 0/1 fuzzy 99.1051 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] instruction-exact functions: 0/1
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32]   section .text size 1104 match 99.10507
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32]   below 100: TMCJPEGDEC_decode_iquant 99.10507
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] baseline: code None/1104 data None functions 0 fuzzy 99.0326
+regressions vs baseline: 0
+global matched_code_percent: 88.64712 -> 88.66782
+global fuzzy_match_percent: 99.47315 -> 99.47335
+global complete_code_percent: 63.16065 -> 63.16065
+global matched_data_percent: 98.51344 -> 98.51344
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+libs/RVL_SDK/src/fa/pf_fat12 POOL IDENTICAL up to 0 (mine=0 base=0)
+src/keyboard/tiSignWindow POOL IDENTICAL up to 30 (mine=30 base=30)
+libs/RVL_SDK/src/fa/msc/puh_msc_blk POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32 POOL IDENTICAL up to 0 (mine=0 base=0)
+Fresh clean FAT ctxdiff155/155 diffs0. Code bytes1544->2164, exactfunctions3->4. Other exact counts unchanged. JPEG fuzzy99.03261->99.10507; declaration/direct-expression improvement remains partial. All owned data100%; no configuration/linking edits. Final full gate PASS, DOL correct, regressions0, forbidden0, readability0. Original JPEG inline-helper/copy layout remains uncertain.
