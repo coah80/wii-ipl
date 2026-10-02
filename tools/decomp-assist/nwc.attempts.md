@@ -249,3 +249,10 @@ Verdict: remaining nwc24 diffs are all allocator/scheduler-internal homes; sourc
 - CopyWithoutLinearWhiteSpaces: value hoist/type/int-s32/u32/outputSize-deref/cap-expr — all no-op or worse; stays at committed 13d (vol home rotation r8-r11).
 - DecodeWord 140: same +1-callee-web wall (savegpr_19v18); base homes `encoded` at r18 (lowest pin) = longest-live web, needs one more pinned web than any source form produces.
 - CONFIRMED PATTERN: all remaining nwc24 fn-level diffs are web-home rotations where base pins exactly ONE more callee web (savegpr_N vs savegpr_N+1) or assigns arg-copy homes in a different order — allocator-internal, no source lever found across ~40 variants this session.
+
+## wave 23 — in-loop-assignment + hold-live-across-call levers
+- FindMarker variants: `input++` walk-form (ExtractCharset 50, DecodeWord count-gap, ExtractEncodedText 46 — all regress; the dead-web SR won't fire through shared inline); `&start[2]` arg form (reassociates same).
+- DecodeWord: `wordBody` named local for encodedWordPosition+consumedSize (+1 insn), `encoded + encodedLength` shared-node (142, +1 web), `encodedWordPosition + encodedLength` arg (143), `encoded` direct in loop (142) — all regress vs committed 140. Base pins `encoded` at r18 (lowest pin, longest-live arg web); no source form reproduces the extra pinned web.
+- InitDlTask: `= ""` vs `= {0}` (same 31), byte-fill loop (166/144 count-gap — inline unroll is right).
+- IterateDlTask: `work = NWC24WorkP,` in-loop re-fetch (same 10 — hoists anyway).
+- Net: all remaining diffs confirmed as web-creation-order/home ties; no new lever landed this wave.
