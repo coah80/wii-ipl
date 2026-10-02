@@ -1032,6 +1032,7 @@ pf_u32 PFPATH_CheckExtShortNameSignature(PF_STR* p_str) {
 
 __declspec(section ".sdata2") pf_s8 pf_path_sig_c0 = 1;
 __declspec(section ".sdata2") pf_s8 pf_path_sig_c1 = 2;
+__declspec(export) const pf_u16 pf_path_sig_z0 = 0;
 pf_u32 PFPATH_CheckExtShortName(PF_STR* p_str, pf_u32 target, pf_bool wildcard) {
     pf_u32 result = 0;
     pf_s16 i;
@@ -1080,7 +1081,9 @@ pf_u32 PFPATH_CheckExtShortName(PF_STR* p_str, pf_u32 target, pf_bool wildcard) 
     return result;
 }
 
-__declspec(section ".sdata2") pf_s8 pf_path_idx_sig[4] = {1, 2};
+__declspec(section ".sdata2") pf_s8 pf_path_idx_sig0 = 1;
+__declspec(section ".sdata2") pf_s8 pf_path_idx_sig1 = 2;
+__declspec(export) const pf_u16 pf_path_sig_z1 = 0;
 
 pf_u32 PFPATH_GetExtShortNameIndex(PF_STR* p_str, pf_u32* p_index) {
     pf_bool result = PF_FALSE;
@@ -1091,8 +1094,8 @@ pf_u32 PFPATH_GetExtShortNameIndex(PF_STR* p_str, pf_u32* p_index) {
     pf_s8* p_c;
     pf_u16* p_wc;
 
-    sig[0] = pf_path_sig_byte0;
-    sig[1] = pf_path_sig_byte1;
+    sig[0] = pf_path_idx_sig0;
+    sig[1] = pf_path_idx_sig1;
     if (PFSTR_StrNCmp(p_str, sig, 1, 0, 2) == 0) {
         index = 0;
 
