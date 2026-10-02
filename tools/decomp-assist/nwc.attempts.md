@@ -207,3 +207,12 @@ Blocking fns per unit (diff counts, all count-matched): MsgSubject — NWC24SetM
 - iSetMsgSubjectBase64: arg-copy order — base pins work(r8)→r22 FIRST then r4..r7→r18..r21; mine arg-order. Web-creation order unmovable by: work-first stmt reorder, `second-work` re-derive (+1 insn, charset spilled), second-as-copy form. Second cluster: stack-reload scheduling (lwz r0/r3 + add order). Wall.
 - iDateToOSCalendarTime: year-web r0↔r5 + shared "0"-web (isLeapYear=0 / msec=0 / usec=0 coalesced) r5↔r0. Tried: isLeapYear init moved late (+1 insn), single-assign form (identical), interleaved-init (identical). Coloring tie.
 - ConvertDateToDays: magic-div interleave at tail — base materializes 0x51ec magic before yo+299; same insns, different operand emission/dest names. Scheduling tie.
+
+## Wave 18 — smallest-blocker decode passes (no flips; all web-coloring ties)
+- WriteMIMEAttachHeader (5): base assoc = type+=enc in-place then disp+typeSum→r0, mime+that→r3. Tried chained accumulation (`disp += type`; mime+disp) → -1 insn + savegpr_25 (extra web, reverted); paren-isolated pair sum → same 5 diffs; decl/stmt orders → normalized. Residual = type/disp r29↔r30 home swap + assoc — allocator tie.
+- iSetMsgSubjectBase64 (10): arg-copy order r8→r22 first (web-creation order: work pinned earliest) + stack-reload scheduling. work-first stmt reorder normalized; `second-work` re-derive +1. Wall.
+- iSetMsgSubjectQP (12): single secondSize-web r30↔r31 swap vs stack-reloaded loop local. Init-order flip regressed to 17 (swap moved to different web pair) — reverted.
+- CommitMsgInternal (18): two web-permutation clusters (flag→r23/r28, stringWork→r24/r23, err→r28/r23) — whole-function coloring.
+- iDateToOSCalendarTime (13): year-web r0↔r5 vs coalesced "0"-web (isLeapYear/msec/usec share one li 0 web). 3 init-position variants tried — coloring tie.
+- ConvertDateToDays (16): magic-div const-materialization + interleave order at tail — scheduling tie.
+Verdict: remaining nwc24 diffs are all allocator/scheduler-internal homes; source levers (assoc, decl order, stmt order, init position, accumulation direction) have been exhausted across ~15 forms this wave.
