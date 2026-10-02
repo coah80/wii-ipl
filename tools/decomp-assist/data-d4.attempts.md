@@ -265,3 +265,125 @@ GATE PASS
 ```
 
 Accepted improvement commits: 2348596d (real float-reference setter), fff3e072 (Color ownership), 8532b7bf (DestructorChain ownership).
+
+## High continuation: name/extent pairing (new origin/main branch)
+
+Starting data: tiInputForm 1036/3772, tiKeyboard 12/2708, MyTiManager 148/1132. Instruction-exact counts 216/221, 62/62, 91/91. Fetched origin before unit work; owned source equals origin/main and the full baseline quick gate passes. Prior three distinct attempts for each open tiInputForm function are retained above. User explicitly permits proven real-object extent corrections, leaving alignment bytes unowned without changing addresses, split ranges or section totals. Earlier claims that extra weak tables inherently prevented data matching were premature; rechecking symbol pairing with this new evidence.
+
+tiKeyboard pool identical (8 strings); source unchanged on origin/main after fetch.
+- 0x8165FA88 signwindow::Sample vtable extent 272 -> 268: source class compiler table is 268 bytes; all 61 outgoing virtual/thunk relocations agree at their relative offsets, and target's final four bytes are zero alignment without a relocation; the next table still begins at 0x8165FB98.
+- 0x8165FC78 predictlang::Base vtable extent 40 -> 36: compiler table is the two header words plus seven real virtual slots (36 bytes); all seven target relocations agree, and trailing four bytes are zero alignment; the next table remains 0x8165FCA0.
+- 0x81698D20 lbl_81698D20 -> defaultEventObserver__9textinput, same 4-byte extent: constructor loads this singleton when observer is NULL, and static init stores the allocated EventObserver pointer through the same target address; source loads/stores defaultEventObserver__9textinput.
+
+The extent-only trial passed with no regression but .data stayed 99.117645% because all eight pooled literals still had anonymous extraction names instead of actual compiler literal symbols. Each verified literal is now named with its actual compiler-owned name; future compiler numbering may change, but objdiff matches compiler-generated literals by bytes/relocations, not the numeric counter.
+
+- 0x8165F8F0 lbl_8165F8F0 -> @8031, same 13 bytes: compiler-pooled literal b'T_title_text'; target references setTitleText__Q29textinput7ManagerFPw .text+0x117A, setTitleText__Q29textinput7ManagerFPw .text+0x1192; source same-offset literal has these identical bytes. Compiler-generated names remain compiler-owned; no new source labels or string blob.
+- 0x8165F900 lbl_8165F900 -> @8076, same 27 bytes: compiler-pooled literal b'fs_VK_ascii_keytop_a.brlyt'; target references createPCTypeKeyboard__Q29textinput7ManagerFv .text+0x147E, createPCTypeKeyboard__Q29textinput7ManagerFv .text+0x148E; source same-offset literal has these identical bytes. Compiler-generated names remain compiler-owned; no new source labels or string blob.
+- 0x8165F920 lbl_8165F920 -> @8086, same 24 bytes: compiler-pooled literal b'fs_VK_cellPhone_a.brlyt'; target references createCellPhoneTypeKeyboard__Q29textinput7ManagerFv .text+0x15C6, createCellPhoneTypeKeyboard__Q29textinput7ManagerFv .text+0x15D2; source same-offset literal has these identical bytes. Compiler-generated names remain compiler-owned; no new source labels or string blob.
+- 0x8165F938 lbl_8165F938 -> @8090, same 22 bytes: compiler-pooled literal b'fs_VK_textBox_a.brlyt'; target references createInputForm__Q29textinput7ManagerFv .text+0x1652, createInputForm__Q29textinput7ManagerFv .text+0x1662; source same-offset literal has these identical bytes. Compiler-generated names remain compiler-owned; no new source labels or string blob.
+- 0x8165F950 lbl_8165F950 -> @8115, same 27 bytes: compiler-pooled literal b'fs_VK_predictInput_a.brlyt'; target references createCandidateBox__Q29textinput7ManagerFv .text+0x16F2, createCandidateBox__Q29textinput7ManagerFv .text+0x1702; source same-offset literal has these identical bytes. Compiler-generated names remain compiler-owned; no new source labels or string blob.
+- 0x8165F96C lbl_8165F96C -> @8148, same 22 bytes: compiler-pooled literal b'fs_VK_toolbar_a.brlyt'; target references createToolBar__Q29textinput7ManagerFv .text+0x1886, createToolBar__Q29textinput7ManagerFv .text+0x1896; source same-offset literal has these identical bytes. Compiler-generated names remain compiler-owned; no new source labels or string blob.
+- 0x8165F988 lbl_8165F988 -> @8156, same 24 bytes: compiler-pooled literal b'fs_prdicSelWidw_a.brlyt'; target references createPredictLanguageDialog__Q29textinput7ManagerFv .text+0x1932, createPredictLanguageDialog__Q29textinput7ManagerFv .text+0x1942; source same-offset literal has these identical bytes. Compiler-generated names remain compiler-owned; no new source labels or string blob.
+- 0x8165F9A0 lbl_8165F9A0 -> @8168, same 22 bytes: compiler-pooled literal b'fs_signWindow_a.brlyt'; target references createSignWindow__Q29textinput7ManagerFv .text+0x1A36, createSignWindow__Q29textinput7ManagerFv .text+0x1A42; source same-offset literal has these identical bytes. Compiler-generated names remain compiler-owned; no new source labels or string blob.
+
+tiKeyboard all-unit quick gate PASS: matched_data 12 -> 2708/2708, every owned non-text section 100%, instruction-exact 62/62 unchanged; zero regressions, correct retail DOL hash. Actual pooled literal identities plus proven vtable extents resolve pairing; extra compiler-emitted weak tables do not prevent the named-symbol route from reaching 100%.
+
+tiInputForm pool identical (20 strings), fetched origin and confirmed owned source unchanged. Symbol pairing corrections, all within its .data split 0x8165C820..0x8165D2D0; every address and section/split total remains unchanged:
+
+- 0x8165C990 jumptable_8165C990 -> @13162, extent 160 -> 160: 40-entry real switch table, all 40 outgoing relocation targets and addends agree with the source compiler table; references ToIndependentClass__Q39textinput9inputform13DeadKeyStreamFw .text+0x4F2 -> data+0x170; ToIndependentClass__Q39textinput9inputform13DeadKeyStreamFw .text+0x4FA -> data+0x170.
+- 0x8165CA30 jumptable_8165CA30 -> @13178, extent 40 -> 40: 10-entry real switch table, all 10 outgoing relocation targets and addends agree with the source compiler table; references setLanguage__Q39textinput9inputform4BaseFQ29textinput8Language .text+0xBFA -> data+0x210; setLanguage__Q39textinput9inputform4BaseFQ29textinput8Language .text+0xC02 -> data+0x210.
+- 0x8165CA58 jumptable_8165CA58 -> @13457, extent 52 -> 52: 13-entry real switch table, all 13 outgoing relocation targets and addends agree with the source compiler table; references onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv .text+0x28D2 -> data+0x238; onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv .text+0x28DA -> data+0x238.
+- 0x8165CA8C jumptable_8165CA8C -> @13456, extent 192 -> 192: 48-entry real switch table, all 48 outgoing relocation targets and addends agree with the source compiler table; references onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv .text+0xEB2 -> data+0x26C; onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv .text+0xEBA -> data+0x26C.
+- 0x8165CB4C jumptable_8165CB4C -> @13510, extent 148 -> 148: 37-entry real switch table, all 37 outgoing relocation targets and addends agree with the source compiler table; references onHKBCtrlCode__Q39textinput9inputform4BaseFQ29textinput7HVKCodeUl .text+0x65B2 -> data+0x32C; onHKBCtrlCode__Q39textinput9inputform4BaseFQ29textinput7HVKCodeUl .text+0x65BA -> data+0x32C.
+- 0x8165CC5C jumptable_8165CC5C -> @14933, extent 28 -> 28: 7-entry real switch table, all 7 outgoing relocation targets and addends agree with the source compiler table; references onAnmEvent__Q39textinput9inputform19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent .text+0xC09A -> data+0x43C; onAnmEvent__Q39textinput9inputform19NormalButtonAnmPaneFQ49textinput11nw4rmanager7AnmPane12AnmPaneEvent .text+0xC0A2 -> data+0x43C.
+- 0x8165C840 lbl_8165C840 -> csButtonAnimations__Q29textinput9inputform, extent 128 -> 128: two ButtonAnimations structs (64 bytes each), exact bytes and 18 outgoing relocations to pane names and animation-file objects; references __sinit_\tiInputForm_cpp .text+0xC50A -> data+0x20; __sinit_\tiInputForm_cpp .text+0xC512 -> data+0x20.
+- 0x8165C970 lbl_8165C970 -> @6599, extent 32 -> 32: compiler-owned constant b'\x00\xa4\x00\xac\x00\xaf\x00\xb2\x00\xb3\x00\xb6\x00\xb8\x00\xb9\x00\xbc\x00\xbd\x00\xbe\x00\xd0\x00\xde\x00\xf0\x00\xfe\x00\x00', exact 32 bytes; references onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv .text+0xFF2 -> data+0x150; onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv .text+0xFFA -> data+0x150; onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv .text+0x1436 -> data+0x150; onCommand__Q39textinput9inputform4BaseFQ39textinput15CommandReceiver13INPUT_COMMANDPv .text+0x143E -> data+0x150; onSpaceKeyHWKB__Q39textinput9inputform4BaseFUl .text+0x965A -> data+0x150; onSpaceKeyHWKB__Q39textinput9inputform4BaseFUl .text+0x9662 -> data+0x150; onSpaceKeyHWKB__Q39textinput9inputform4BaseFUl .text+0x97C2 -> data+0x150; onSpaceKeyHWKB__Q39textinput9inputform4BaseFUl .text+0x97CA -> data+0x150.
+- 0x8165CBE0 lbl_8165CBE0 -> @13512, extent 52 -> 13: compiler-owned constant b'T_2l_TextBox\x00', exact 13 bytes; references __ct__Q39textinput9inputform12LayoutByNW4RFPQ29textinput7ManagerPQ34nw4r3lyt24MultiArcResourceAccessorPCcPQ29textinput13EventObserverPCc .text+0x9A3E -> data+0x3C0; __ct__Q39textinput9inputform12LayoutByNW4RFPQ29textinput7ManagerPQ34nw4r3lyt24MultiArcResourceAccessorPCcPQ29textinput13EventObserverPCc .text+0x9A56 -> data+0x3C0; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xA9BA -> data+0x3C0; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xA9BE -> data+0x3C0; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xA9C2 -> data+0x3C0; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xA9CA -> data+0x3C0; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xA9E2 -> data+0x3C0; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xAA26 -> data+0x3C0; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xAA2A -> data+0x3C0; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xAB1A -> data+0x3C0; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xAB1E -> data+0x3C0.
+- 0x8165CBF0 recover @13580, 34 bytes previously absorbed into lbl_8165CBE0: separate compiler literal b'RevoIpl_RodinNTLGProM_32_I4.brfnt\x00'; references none in this unit.
+- 0x8165CC14 lbl_8165CC14 -> @13639, extent 14 -> 14: compiler-owned constant b'P_txtScrll_UP\x00', exact 14 bytes; references init__Q39textinput9inputform12LayoutByNW4RFv .text+0xA22A -> data+0x3F4; init__Q39textinput9inputform12LayoutByNW4RFv .text+0xA236 -> data+0x3F4.
+- 0x8165CC28 lbl_8165CC28 -> @13640, extent 36 -> 16: compiler-owned constant b'P_txtScrll_DOWN\x00', exact 16 bytes; references init__Q39textinput9inputform12LayoutByNW4RFv .text+0xA25A -> data+0x408; init__Q39textinput9inputform12LayoutByNW4RFv .text+0xA266 -> data+0x408.
+- 0x8165CC38 recover @13654, 17 bytes previously absorbed into lbl_8165CC28: separate compiler literal b'N_separateBarAll\x00'; references none in this unit.
+- 0x8165CC4C lbl_8165CC4C -> @13724, extent 13 -> 13: compiler-owned constant b'T_title_text\x00', exact 13 bytes; references setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xAB6E -> data+0x42C; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xAB7A -> data+0x42C; setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language .text+0xAB96 -> data+0x42C.
+- 0x8165D0D8 __vt__Q39textinput9inputform10EditBuffer -> __vt__Q39textinput9inputform10EditBuffer, extent 16 -> 12: real compiler vtable is 12 bytes, 1 method/thunk relocation slots; target trailing 4 bytes are zero and contain no relocation; references __dt__Q39textinput9inputform10EditBufferFv .text+0x2A -> data+0x8B8; __dt__Q39textinput9inputform10EditBufferFv .text+0x2E -> data+0x8B8.
+- 0x8165D228 __vt__Q29textinput4Base -> __vt__Q29textinput4Base, extent 48 -> 20: real compiler vtable is 20 bytes, 3 method/thunk relocation slots; target trailing 28 bytes are zero and contain no relocation; references none in this unit.
+- 0x8165D27C lbl_8165D258 -> @STRING@onOutOfLength__Q29textinput13EventObserverFv, extent 13 -> 13: function-generated string b'OutOfLength\n', actual literal extent 13, target final 0 bytes zero alignment; references none in this unit.
+- 0x8165D28C @STRING@GetTextColor__Q34nw4r3lyt7TextBoxCFUl -> @STRING@GetTextColor__Q34nw4r3lyt7TextBoxCFUl, extent 68 -> 65: function-generated string b'Error#004\nAn error has occurred.\nThe system files are corrupted.', actual literal extent 65, target final 3 bytes zero alignment; references none in this unit.
+
+Initial tiInputForm name-pairing trial reached data 3772/3772 but the gate rejected its DOL hash. Isolated the cause to making the duplicate OutOfLength literal globally visible under the inline function-generated name: iplSystem already owns a global literal under that exact name at 0x81634699. Restoring only the old literal name restored the retail hash, proving the other changes preserve it. The source inline literal is translation-unit compiler-owned data; extract this duplicate as scope:local with its actual source symbol name to preserve the existing global literal's binding. All 43U object symbol tables were checked: no other unit refers to the old lbl_8165D258 symbol. No address/extent/content changes; no real function or public API scope changed.
+
+Neighbour-literal relocation/type proofs strengthened by target disassembly: LayoutByNW4R::create establishes r30 from the .data base relocation, then instruction .text+0x9D6C passes r30+0x3D0 to the resource accessor to load RevoIpl_RodinNTLGProM_32_I4.brfnt; this independently proves the 34-byte literal at 0x8165CBF0 rather than relying on byte similarity alone. LayoutByNW4R::calc at .text+0xA6BC passes the .data base+0x418 to its virtual setVisible for N_separateBarAll, proving the distinct 17-byte object at 0x8165CC38. Both remain ordinary compiler-pooled source literals.
+
+tiInputForm corrected local-string trial passes the all-unit quick gate: every non-text section 100%, matched_data 1036 -> 3772/3772, instruction-exact 216/221 unchanged, no regressions, correct retail DOL hash. All extra weak tables remain genuine compiler output and require no suppression.
+
+MyTiManager: fetched origin, owned source unchanged; pool identical (7 strings). Recover each compiler literal identity, preserving all extents:
+
+- 0x81667E38 lbl_81667E38 -> @8346, same 25 bytes: compiler literal b'WiiBitmapFontType2.brfnt\x00'; relocation loads createMemoInputForm__Q49textinput6extend4memo7ManagerFv .text+0x9BA, createMemoInputForm__Q49textinput6extend4memo7ManagerFv .text+0x9CE, createLetterInputForm__Q49textinput6extend4memo7ManagerFv .text+0xAE2, createLetterInputForm__Q49textinput6extend4memo7ManagerFv .text+0xAF6, __sinit_\MyTiManager_cpp .text+0x4E22, __sinit_\MyTiManager_cpp .text+0x4E26.
+- 0x81667E58 lbl_81667E58 -> @8347, same 16 bytes: compiler literal b'my_Memo_a.brlyt\x00'; relocation loads createMemoInputForm__Q49textinput6extend4memo7ManagerFv .text+0x9BE, createMemoInputForm__Q49textinput6extend4memo7ManagerFv .text+0x9D2.
+- 0x81667E68 lbl_81667E68 -> @8369, same 17 bytes: compiler literal b'my_LetterL.brlyt\x00'; relocation loads createLetterInputForm__Q49textinput6extend4memo7ManagerFv .text+0xAE6, createLetterInputForm__Q49textinput6extend4memo7ManagerFv .text+0xAFA.
+- 0x81667E7C lbl_81667E7C -> @8385, same 22 bytes: compiler literal b'fs_VK_textBox_a.brlyt\x00'; relocation loads createInputForm__Q49textinput6extend4memo7ManagerFv .text+0xC22, createInputForm__Q49textinput6extend4memo7ManagerFv .text+0xC36.
+- 0x81667E94 lbl_81667E94 -> @8386, same 25 bytes: compiler literal b'WiiBitmapFontType1.brfnt\x00'; relocation loads createInputForm__Q49textinput6extend4memo7ManagerFv .text+0xC26, createInputForm__Q49textinput6extend4memo7ManagerFv .text+0xC3A, createBigTextInputForm__Q49textinput6extend4memo7ManagerFv .text+0xC82, createBigTextInputForm__Q49textinput6extend4memo7ManagerFv .text+0xC96.
+- 0x81667EB0 lbl_81667EB0 -> @8402, same 22 bytes: compiler literal b'fs_VK_textBox_b.brlyt\x00'; relocation loads createBigTextInputForm__Q49textinput6extend4memo7ManagerFv .text+0xC7E, createBigTextInputForm__Q49textinput6extend4memo7ManagerFv .text+0xC92.
+- 0x81667EC8 lbl_81667EC8 -> @8410, same 17 bytes: compiler literal b'fs_VK_bg_a.brlyt\x00'; relocation loads createBG__Q49textinput6extend4memo7ManagerFv .text+0xCF2, createBG__Q49textinput6extend4memo7ManagerFv .text+0xCFA.
+
+MyTiManager literal identities pass the all-unit quick gate with no regressions and preserved DOL hash. All seven genuine pooled literal objects now pair by compiler identity, while every retained vtable has the real exact method slots. Unit matched_data remains 148/1132 because the target-only lbl_816681E8 object is still unpaired. It is 40 zero bytes at 0x816681E8..0x81668210, after the 320-byte Manager vtable; source .data ends at offset 0x3B0. No incoming relocation in any original 43U object and no outgoing relocation prove a real type or name for those bytes. No source object was fabricated, no hidden flag added, no zero-size annotation or symbol deletion used to force the score. Remaining extent/ownership is explicitly uncertain. This commit improves real symbol pairing, not the unit's aggregate data measure.
+
+Advisory literal_reference_diff.py over all three units, --all-functions: 35 arguments checked in 373 analyzed functions, no candidates/errors; LayoutByNW4R::create skipped because source/target function sizes differ. This is additional literal evidence, not proof for the unknown zero tail.
+
+## Continuation final verification
+
+Final full gate ran without --quick and rebuilt from a clean 43U build. tiInputForm data 1036 -> 3772/3772 and tiKeyboard 12 -> 2708/2708 now reach the entire data goal; MyTiManager remains 148/1132, with .data 97.92531% and only the unpaired 40-byte tail requiring ownership/type evidence. No code bodies were changed in this continuation. Instruction-exact counts remain 216/221, 62/62 and 91/91; code bytes remain 46980/50656, 8368/8368 and 20196/20196. Checked every changed symbols.txt annotation: all 70 removed/added lines belong to the three assigned split ranges. All section totals stay unchanged.
+
+Open-function completeness audit: calcCursorPos, LayoutByNW4R::create and LayoutByNW4R::setLanguage each have the three distinct source-level attempts recorded earlier in this same log; all were restored and remain open only for code work. Every function in tiKeyboard and MyTiManager is already exact. The two additional objdiff-100% tiInputForm functions excluded from instruction-exact counts are unchanged, preserving the baseline definition.
+
+Tool-source evidence for the pairing method: the installed objdiff-cli is v3.4.5. Its official [find_symbol implementation](https://github.com/encounter/objdiff/blob/v3.4.5/objdiff-core/src/diff/mod.rs#L690) pairs compiler-generated literal/table symbols by exact bytes and relocations, independent of their numeric counters. [diff_generic_section](https://github.com/encounter/objdiff/blob/v3.4.5/objdiff-core/src/diff/data.rs#L511) requires every target-owned symbol to pair at 100%; extra source weak symbols do not prevent this route. The seven now-paired MyTiManager literals and every genuine retained vtable are exact, but the unknown target-owned 40-byte object is still unpaired; it was left intact.
+
+Accepted commits: a6c8a274 (tiKeyboard data 100%), 4ba13948 (tiInputForm data 100%), 78403153 (MyTiManager's seven compiler literal identities, without an aggregate gain).
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/keyboard/tiInputForm] pool: IDENTICAL
+[src/keyboard/tiInputForm] objdiff: code 46980/50656 data 3772/3772 functions 218/221 fuzzy 99.5781 linked code 0
+[src/keyboard/tiInputForm] instruction-exact functions: 216/221
+[src/keyboard/tiInputForm]   section .bss size 96 match 100.0
+[src/keyboard/tiInputForm]   section .ctors size 4 match 100.0
+[src/keyboard/tiInputForm]   section .data size 2736 match 100.0
+[src/keyboard/tiInputForm]   section .rodata size 760 match 100.0
+[src/keyboard/tiInputForm]   section .sbss size 32 match 100.0
+[src/keyboard/tiInputForm]   section .sdata size 40 match 100.0
+[src/keyboard/tiInputForm]   section .sdata2 size 104 match 100.0
+[src/keyboard/tiInputForm]   section .text size 50656 match 99.578094
+[src/keyboard/tiInputForm]   below 100: calcCursorPos__Q39textinput9inputform4BaseFff 91.622696
+[src/keyboard/tiInputForm]   below 100: create__Q39textinput9inputform12LayoutByNW4RFP12MEMAllocatorPQ39textinput9inputform10EditBuffer 95.02809
+[src/keyboard/tiInputForm]   below 100: setLanguage__Q39textinput9inputform12LayoutByNW4RFQ29textinput8Language 96.44726
+[src/keyboard/tiInputForm] baseline: code 46980/50656 data 1036 functions 218 fuzzy 99.5781
+[src/keyboard/tiKeyboard] pool: IDENTICAL
+[src/keyboard/tiKeyboard] objdiff: code 8368/8368 data 2708/2708 functions 62/62 fuzzy 100.0000 linked code 8368
+[src/keyboard/tiKeyboard] instruction-exact functions: 62/62
+[src/keyboard/tiKeyboard]   section .ctors size 4 match 100.0
+[src/keyboard/tiKeyboard]   section .data size 2696 match 100.0
+[src/keyboard/tiKeyboard]   section .sbss size 8 match 100.0
+[src/keyboard/tiKeyboard]   section .text size 8368 match 100.0
+[src/keyboard/tiKeyboard] baseline: code 8368/8368 data 12 functions 62 fuzzy 100.0000
+[src/keyboard/MyTiManager] pool: IDENTICAL
+[src/keyboard/MyTiManager] objdiff: code 20196/20196 data 148/1132 functions 91/91 fuzzy 100.0000 linked code 0
+[src/keyboard/MyTiManager] instruction-exact functions: 91/91
+[src/keyboard/MyTiManager]   section .bss size 72 match 100.0
+[src/keyboard/MyTiManager]   section .ctors size 4 match 100.0
+[src/keyboard/MyTiManager]   section .data size 984 match 97.92531
+[src/keyboard/MyTiManager]   section .sbss size 16 match 100.0
+[src/keyboard/MyTiManager]   section .sdata size 24 match 100.0
+[src/keyboard/MyTiManager]   section .sdata2 size 32 match 100.0
+[src/keyboard/MyTiManager]   section .text size 20196 match 100.0
+[src/keyboard/MyTiManager] baseline: code 20196/20196 data 148 functions 91 fuzzy 100.0000
+regressions vs baseline: 0
+global matched_code_percent: 88.70241 -> 88.70241
+global fuzzy_match_percent: 99.47499 -> 99.47499
+global complete_code_percent: 63.21193 -> 63.54459
+global matched_data_percent: 98.77142 -> 99.06781
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+note: no baseline for merge-base 6ebe56bc; compared against nearest snapshotted ancestor 69c235ff (1 commits back)
+note: config touched: config/43U/symbols.txt (orchestrator reviews every config/symbols change)
+GATE PASS
+```
