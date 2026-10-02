@@ -1344,3 +1344,221 @@ OPEN TMCJPEGDEC_IdctBlock4x4_Col 83.89781% | 3 distinct compiledR6trials | 137/1
 Finalclean ctxdiff:PFVOL_p_rmvvol64/64diffs0;PFENT_ITER_GetLFNEntryName73/73diffs0;uhf_msc_blk_pread129/129diffs0. No code/data/regression failures. No untried remaining function.
 R6 files: config/43U/symbols.txt;libs/RVL_SDK/src/fa/pf_volume.c;libs/RVL_SDK/src/fa/pf_entry_iterator.c;libs/RVL_SDK/src/fa/msc/puh_msc_blk.c;tools/decomp-assist/fz3.attempts.md. Commits:2f84a3fe exactvolume+markerextent;5ce59884 iteratorstructuralimprovement;78c76f31 exactMSC;673020e0 exactiterator. HIGH650cc87e/98cb7171 predateR6 retained.
 Uncertainty: original mode3 Hangul converter source/inline boundary is unavailable; dynamiccounter and dead newline comparison are proven targetinstructions, generic helper/class attempts constant-fold. Marker1-byteextent proof recorded above; no otherdataownership changes.
+
+# Round7 XHIGH, fresh branch HEAD72cf3991. Each trial logs first differing instruction and source construct, with original always restored until accepted by gate.
+libs/RevoEX/src/so/SOOption | R7 pool run before tuning; current source alreadyorigin/main; data ownership audit starts with target extents and relocation names.
+libs/RVL_SDK/src/fa/pf_volume | R7 pool run before tuning; current source alreadyorigin/main; data ownership audit starts with target extents and relocation names.
+libs/RVL_SDK/src/fa/pf_entry_iterator | R7 pool run before tuning; current source alreadyorigin/main; data ownership audit starts with target extents and relocation names.
+src/keyboard/tiString | R7 pool run before tuning; current source alreadyorigin/main; data ownership audit starts with target extents and relocation names.
+src/keyboard/tiSignWindow | R7 pool run before tuning; current source alreadyorigin/main; data ownership audit starts with target extents and relocation names.
+libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var | R7 pool run before tuning; current source alreadyorigin/main; data ownership audit starts with target extents and relocation names.
+libs/RevoEX/src/so/SOOption | R7 data 0/0; no unpaired owned data indicated.
+SOGetInterfaceOpt | R7 extent 0x814b476c+0x1dc=0x814b4948; next SOSetInterfaceOpt 0x814b4948; overlap False
+SOGetInterfaceOpt | R7 immediate stack store/reload evidence []; no unsupported volatile changes authorized.
+libs/RVL_SDK/src/fa/pf_volume | R7 data 210976/210976; no unpaired owned data indicated.
+PFVOL_attach | R7 extent 0x815e2364+0x2c0=0x815e2624; next PFVOL_detach 0x815e2624; overlap False
+PFVOL_attach | R7 immediate stack store/reload evidence []; no unsupported volatile changes authorized.
+PFVOL_regctx | R7 extent 0x815e4220+0x12c=0x815e434c; next PFVOL_unregctx 0x815e434c; overlap False
+PFVOL_regctx | R7 immediate stack store/reload evidence []; no unsupported volatile changes authorized.
+libs/RVL_SDK/src/fa/pf_entry_iterator | R7 data 24/24; no unpaired owned data indicated.
+PFENT_ITER_FindCluster | R7 extent 0x815d3414+0x3b4=0x815d37c8; next PFENT_ITER_Retreat 0x815d37c8; overlap False
+PFENT_ITER_FindCluster | R7 immediate stack store/reload evidence [(144, ('stw', 'r0, 0x20(r1)'), ('lwz', 'r0, 0x20(r1)'))]; no unsupported volatile changes authorized.
+src/keyboard/tiString | R7 data 288/288; no unpaired owned data indicated.
+inputChar__Q39textinput8tistring9DecolatedFw | R7 extent 0x81432ce4+0x220=0x81432f04; next confirmKana__Q39textinput8tistring9DecolatedFv 0x81432f04; overlap False
+inputChar__Q39textinput8tistring9DecolatedFw | R7 immediate stack store/reload evidence []; no unsupported volatile changes authorized.
+src/keyboard/tiSignWindow | R7 data 3468/3468; no unpaired owned data indicated.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 extent 0x81430e50+0x374=0x814311c4; next __dt__Q49textinput8keyboard10signwindow7AnmPaneFv 0x814311c4; overlap False
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 immediate stack store/reload evidence []; no unsupported volatile changes authorized.
+libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var | R7 data 0/0; no unpaired owned data indicated.
+TMCJPEGDEC_IdctBlock4x4 | R7 extent 0x814ef490+0x220=0x814ef6b0; next TMCJPEGDEC_IdctBlock2x2 0x814ef6b0; overlap False
+TMCJPEGDEC_IdctBlock4x4 | R7 immediate stack store/reload evidence []; no unsupported volatile changes authorized.
+TMCJPEGDEC_IdctBlock4x4_Col | R7 extent 0x814ef810+0x224=0x814efa34; next TMCJPEGDEC_IdctBlock2x2_Col 0x814efa34; overlap False
+TMCJPEGDEC_IdctBlock4x4_Col | R7 immediate stack store/reload evidence []; no unsupported volatile changes authorized.
+SOGetInterfaceOpt | R7 fresh fetch origin source identical; first5 level parameter r25 vstarget26 and optionr28 vstarget25;119instructions/frame0x30/branchforms andstoresotherwiseidentical. No overlappingextent or adjacentstackstore/reload. Const input helper and response views before declaration search.
+SOGetInterfaceOpt | R7 const length input in OptionLength inline boundary | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R7 read-only view of typed selection object | objdiff 89.31933; 122/119 instructions; structural/exact (21, 116); first (0, ('stwu', 'r1, -0x40(r1)'), ('stwu', 'r1, -0x30(r1)'))
+SOGetInterfaceOpt | R7 const selectors and returned response read view | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+PFVOL_attach | R7 fresh fetch origin unchanged; true first142 beq distance differs because target143 mr0,r3 gives mountstatus distinct from public return0r3.174/176 frame0x20. Successful source li3,0 afterClearMount vs targetli0,0. Inline helper/public early return boundary first, novolatileproof or extentoverlap.
+PFVOL_attach | R7 public zero-return on mount error instead of discarded helper result | objdiff 100.0; 176/176 instructions; structural/exact (0, 0); first None
+EXACT CANDIDATE /tmp/fz3-r7-candidates/PFVOL_attach_public_zero_return_on_mount_error_instead_of_discarded_helper_result.txt
+PFVOL_attach | R7 exact candidate preserves s32 mount error separately from public zero return; no artificial data or volatile; attach inline helper not called bythispath.176/176differences0.
+PFVOL_attach | R7 quick GATE PASS,0regressions forbidden readability,36/37vs35/37 exact code17692/17992vs16988 data210976/210976, ctxdiff176/176diffs0. DOL26116613f624061ba99c8d1a299aaa6efa85670d.
+PFVOL_regctx | R7 fresh origin unchanged; first16 free slotr5 vsr8, statusr8 vsr5,75/75/frame0x10, nobranchformdifferences/noadjacentstackreloadproof. Const context table view and inline slot boundary next.
+PFVOL_regctx | R7 const context array view for registration scan | objdiff 99.0; 75/75 instructions; structural/exact (0, 15); first (16, ('li', 'r5, 0'), ('li', 'r8, 0'))
+PFVOL_regctx | R7 const single context input helper for active status | objdiff 99.066666; 75/75 instructions; structural/exact (0, 14); first (16, ('li', 'r7, 0'), ('li', 'r8, 0'))
+PFVOL_regctx | R7 const context helper plus declaration order index free id error | objdiff 100.0; 75/75 instructions; structural/exact (0, 0); first None
+EXACT CANDIDATE /tmp/fz3-r7-candidates/PFVOL_regctx_const_context_helper_plus_declaration_order_index_free_id_error.txt
+PFVOL_regctx | R7 exact from real const input helper boundary ContextStatus, then declaration order context_index/free_context_index/context_id/error. Targetfree_slotr8 statusr5;75/75diffs0. const pointer selected load/temporary allocation; no volatile.
+PFVOL_regctx | R7 quick GATE PASS volume37/37vs35/37, allcode17992/17992 alldata210976/210976,0regressions forbidden readability; targetDOLhash. ctxdiff75/75diffs0.
+PFENT_ITER_FindCluster | R7 first39 sharedconstantone r7 vstarget8, shifted entriesr8 vstarget7,237/237/frame0xA0. Definitionvolatile evidence is iter.index, not current_cluster: iterator beginsstack0x20; target144 stw r0,0x20(r1) immediately145 lwz r0,0x20(r1), thencmp. Test private struct fieldqualifier with laterunitregressionaudit.
+PFENT_ITER_FindCluster | R7 volatile iterator index field proven by immediate stack reload | objdiff 96.8903; 240/237 instructions; structural/exact (16, 202); first (18, ('b', '856'), ('b', '844'))
+PFENT_ITER_FindCluster | R7 const iterator input helper returns sector entry count | objdiff 99.81013; 237/237 instructions; structural/exact (0, 8); first (39, ('li', 'r7, 1'), ('li', 'r8, 1'))
+PFENT_ITER_FindCluster | R7 const directory entry input parameter | objdiff 85.27426; 227/237 instructions; structural/exact (47, 233); first (2, ('li', 'r9, 0'), ('li', 'r6, 0'))
+PFENT_ITER_FindCluster | R7 const entry view only for initial iterator setup | objdiff 99.81013; 237/237 instructions; structural/exact (0, 8); first (39, ('li', 'r7, 1'), ('li', 'r8, 1'))
+PFENT_ITER_FindCluster | R7 const cluster input in hint initialization boundary | objdiff 99.81013; 237/237 instructions; structural/exact (0, 8); first (39, ('li', 'r7, 1'), ('li', 'r8, 1'))
+PFENT_ITER_FindCluster | R7 reuse initial cluster field for hint sentinel assignments | objdiff 99.81013; 237/237 instructions; structural/exact (0, 8); first (39, ('li', 'r7, 1'), ('li', 'r8, 1'))
+inputChar__Q39textinput8tistring9DecolatedFw | R7 fresh origin unchanged; first65mode3branch size125/136frame0x30. Missing dynamicappend, initialNUL, deadnewlinecmp and countmask; no localvolatile evidence or symboloverlap. Constinput character and builder views test missing helper boundary honestly.
+inputChar__Q39textinput8tistring9DecolatedFw | R7 const character pointer in mode3 inline append boundary | objdiff 90.132355; 125/136 instructions; structural/exact (18, 73); first (10, ('beq', '428'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R7 const stream view for mode3 termination and length | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R7 const stream reference preserves builder termination boundary | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 fresh origin unchanged221/frame0x50, first48 vtableconstantr26 vstarget25,34operand-only diffs constructor/table/counter registers. Const pane metadata helper before declaration permutations; no adjacentstack reload or extent overlap.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 const pane metadata in complete construction helper | objdiff 98.07692; 221/221 instructions; structural/exact (0, 61); first (48, ('lis', 'r26, 0'), ('lis', 'r25, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 const pane metadata reference in construction boundary | objdiff 98.07692; 221/221 instructions; structural/exact (0, 61); first (48, ('lis', 'r26, 0'), ('lis', 'r25, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 animation bound read directly through const pane metadata | objdiff 96.47059; 221/221 instructions; structural/exact (3, 128); first (5, ('li', 'r19, 0'), ('li', 'r14, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 readonly pane table base as named loop input | objdiff 99.162895; 221/221 instructions; structural/exact (0, 32); first (48, ('lis', 'r26, 0'), ('lis', 'r25, 0'))
+TMCJPEGDEC_IdctBlock4x4 | R7 fresh origin unchanged136/frame0x120. First2 sourceptrr3 vsr8;19form/93operanddiffs, rowstores1,2,3,0 vtarget0,1,2,3 andload/mathoperand ordering. disasm_fn fails no.rela.text; ctxdiff/Capstone andtarget.s authoritative. Noextentoverlap orstackreloadproof. Const coefficient view first.
+TMCJPEGDEC_IdctBlock4x4 | R7 const source pointer for both IDCT passes | objdiff 85.44118; 136/136 instructions; structural/exact (19, 93); first (2, ('addi', 'r3, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 const transform input behind full inline boundary | objdiff 78.338234; 130/136 instructions; structural/exact (47, 133); first (2, ('addi', 'r10, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 const public coefficient input with unit-guarded prototype | objdiff 85.44118; 136/136 instructions; structural/exact (19, 93); first (2, ('addi', 'r3, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 readonly source with first-row stores0 1 2 3 and shared rotation | objdiff 78.492645; 136/136 instructions; structural/exact (39, 93); first (2, ('addi', 'r3, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 read-only transform descriptor includes output pointer and stride | objdiff 85.588234; 136/136 instructions; structural/exact (19, 93); first (2, ('addi', 'r7, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 fresh origin unchanged137/frame0x120; first8 coefficientb r5 vsr10,31form/48operand differences, math operand d+b/rot+sum and load/store scheduling firstpass. Pointers7/8alreadytarget. Const source view then inline row boundary; no volatile/extentproof.
+TMCJPEGDEC_IdctBlock4x4_Col | R7 const coefficient source pointer for signed IDCT passes | objdiff 83.89781; 137/137 instructions; structural/exact (31, 48); first (8, ('lwz', 'r5, 4(r7)'), ('lwz', 'r10, 4(r7)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 const signed transform input behind full inline boundary | objdiff 79.9927; 139/137 instructions; structural/exact (35, 135); first (1, ('addi', 'r5, r3, 0x60'), ('li', 'r0, 2'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 readonly source and target d+b rotation+sum operand order | objdiff 83.86131; 137/137 instructions; structural/exact (31, 48); first (8, ('lwz', 'r5, 4(r7)'), ('lwz', 'r10, 4(r7)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 odd coefficient recombination inside inline arithmetic boundary | objdiff 79.55474; 137/137 instructions; structural/exact (33, 81); first (2, ('addi', 'r8, r3, 0x60'), ('addi', 'r7, r3, 0x60'))
+signcreate | R7 retain candidate readonly named pane table input reduces34to32operand differences221/221structural0,99.117645->99.162895. declsearch13builds nofurtherchange. Actual table remainsmutabledata withsameaddress andextent; view only const, dataowned100.
+signcreate | R7 quick GATE PASS,99.162895vs99.117645,55/56 unchanged code6300/7184 data3468/3468;0regressions forbidden readability andtargetDOL. ctxdiff32operands. Constructor-vtable/table relocation load ordering also remains; lis/addi placeholders hide symbol ordering, so not all32differences are onlyregister choices.
+SOGetInterfaceOpt | R7 success-scoped immutable command and response pointer bases | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R7 response immutable pointers scoped after selector stores | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R7 unsigned local selector with public API preserved | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R7 unsigned selector check in inline boundary | objdiff 94.94118; 124/119 instructions; structural/exact (9, 112); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+TMCJPEGDEC_IdctBlock4x4 | R7 readonly eight-coefficient row view for first pass | objdiff 85.661766; 136/136 instructions; structural/exact (19, 89); first (2, ('addi', 'r3, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 descending paired-row index derives both pass pointers | objdiff 74.94853; 131/136 instructions; structural/exact (42, 134); first (2, ('li', 'r7, 0x60'), ('addi', 'r8, r3, 0x60'))
+IDCT R7 new structural hypothesis: target firstpass paired rows may be automatic unrolling of four single-row iterations, ratherthan hand-written pairedsource. Next test restores natural4-rowloop withsource/destination stride8; no pragmas.
+TMCJPEGDEC_IdctBlock4x4 | R7 natural four-row loop lets compiler unroll paired rows | objdiff 78.213234; 130/136 instructions; structural/exact (36, 134); first (2, ('addi', 'r12, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+IDCT R7 natural4rowloop IS auto-unrolled2 as target, but savesr27..31 withstmw/lmw ratherthan4individualsave/restore, explaining exactly130vs136. Firstpass body40instructions matches targetcount. Scope evdiff separately from columnphase before moretuning.
+TMCJPEGDEC_IdctBlock4x4 | R7 auto unrolled loop with row-local even difference | objdiff 78.213234; 130/136 instructions; structural/exact (36, 134); first (2, ('addi', 'r12, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 auto unrolled rows with all arithmetic temporaries scoped to row | objdiff 78.58088; 130/136 instructions; structural/exact (36, 131); first (3, ('stmw', 'r27, 0x10c(r1)'), ('stw', 'r31, 0x11c(r1)'))
+TMCJPEGDEC_IdctBlock4x4 | R7 auto unrolled rows with const coefficient source | objdiff 78.213234; 130/136 instructions; structural/exact (36, 134); first (2, ('addi', 'r12, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 auto unrolled rows preserve b plus d subtree | objdiff 78.26471; 130/136 instructions; structural/exact (33, 134); first (2, ('addi', 'r12, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 auto unrolled rows recombine odd sum before rotation | objdiff 78.26471; 130/136 instructions; structural/exact (33, 134); first (2, ('addi', 'r12, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 auto unrolled rows compute even difference inside output expressions | objdiff 76.85294; 130/136 instructions; structural/exact (37, 134); first (2, ('stmw', 'r27, 0x10c(r1)'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 auto unrolled rows rotate before adding odd coefficient pair | objdiff 78.213234; 130/136 instructions; structural/exact (36, 134); first (2, ('addi', 'r12, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 natural four-row signed IDCT loop with shared temporaries | objdiff 99.48905; 137/137 instructions; structural/exact (0, 12); first (53, ('lwz', 'r9, 0x20(r6)'), ('lwz', 'r10, 0x20(r6)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 natural signed rows with scoped coefficient and butterfly locals | objdiff 99.48905; 137/137 instructions; structural/exact (0, 12); first (53, ('lwz', 'r9, 0x20(r6)'), ('lwz', 'r10, 0x20(r6)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 natural signed rows retain sum plus rotation expression | objdiff 99.34306; 137/137 instructions; structural/exact (0, 14); first (12, ('add', 'r3, r10, r12'), ('add', 'r3, r12, r10'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 natural signed rows declare immutable coefficient values in body | objdiff 97.44526; 137/137 instructions; structural/exact (0, 41); first (8, ('lwz', 'r30, 4(r7)'), ('lwz', 'r10, 4(r7)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 natural signed IDCT with second-pass d plus b operand tree | objdiff 99.52555; 137/137 instructions; structural/exact (0, 12); first (53, ('lwz', 'r9, 0x20(r6)'), ('lwz', 'r10, 0x20(r6)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 natural signed IDCT second-pass b c declaration lifetimes | objdiff 98.868614; 137/137 instructions; structural/exact (0, 28); first (8, ('lwz', 'r11, 4(r7)'), ('lwz', 'r10, 4(r7)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 scoped column coefficients | objdiff 99.30657; 137/137 instructions; structural/exact (0, 13); first (53, ('lwz', 'r8, 0x20(r6)'), ('lwz', 'r10, 0x20(r6)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 scoped column coefficients c before b | objdiff 99.30657; 137/137 instructions; structural/exact (0, 13); first (53, ('lwz', 'r8, 0x20(r6)'), ('lwz', 'r10, 0x20(r6)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 scoped column butterfly terms | objdiff 99.52555; 137/137 instructions; structural/exact (0, 12); first (53, ('lwz', 'r9, 0x20(r6)'), ('lwz', 'r10, 0x20(r6)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 scoped column butterfly terms reversed sums | objdiff 99.52555; 137/137 instructions; structural/exact (0, 12); first (53, ('lwz', 'r9, 0x20(r6)'), ('lwz', 'r10, 0x20(r6)'))
+TMCJPEGDEC_IdctBlock4x4_Col | R7 EXACT: natural four-row loop auto-unrolls two rows with target load/store scheduling, first53 instructions exact; second-pass scoped coefficient/butterfly locals and d+b operand order reduce remaining12registerdiffs. declsearch28builds gives137/137 anddiffs0, objdiff100. Quick GATE PASS5/6code1260/1804 versus4/6code712; poolidentical, global0regressions forbidden readability, correctDOL. No data symbols or extents changed.
+TMCJPEGDEC_IdctBlock4x4 | R7 fresh fetch origin still unchanged136/85.625; transfer proven natural signed-row odddiff/oddsum/even difference before rotation order, then tune unsigned column phase independently.
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned rows with odd and even differences before rotation | objdiff 94.30147; 136/136 instructions; structural/exact (2, 86); first (2, ('addi', 'r12, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned rows with target d plus b addition subtree | objdiff 94.22794; 136/136 instructions; structural/exact (2, 86); first (2, ('addi', 'r12, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned rows use expression for odd difference | objdiff 94.30147; 136/136 instructions; structural/exact (2, 86); first (2, ('addi', 'r12, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned rows share scoped butterfly locals | objdiff 97.09559; 136/136 instructions; structural/exact (0, 51); first (50, ('rlwinm', 'r6, r5, 2, 0xe, 0x1d'), ('rlwinm', 'r3, r5, 2, 0xe, 0x1d'))
+TMCJPEGDEC_IdctBlock4x4 | R7 scoped natural row arithmetic reproduces first50instructions exactly136/frame0x120. Remaining unsigned-column operands51; leading5scalar declsearch32builds reduces to49; no structural differences, now separate column lifetimes and pointer declarations.
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned columns scoped butterfly coefficients | objdiff 96.13971; 136/136 instructions; structural/exact (0, 71); first (10, ('lwz', 'r31, 0xc(r8)'), ('lwz', 'r28, 0xc(r8)'))
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned columns have distinct input pointer lifetime | objdiff 97.64706; 136/136 instructions; structural/exact (0, 45); first (53, ('addi', 'r6, r1, 0x14'), ('addi', 'r11, r1, 0x14'))
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned columns distinct pointer and scoped math | objdiff 96.36029; 136/136 instructions; structural/exact (0, 67); first (10, ('lwz', 'r31, 0xc(r8)'), ('lwz', 'r28, 0xc(r8)'))
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned columns reorder source and index declarations | objdiff 97.42647; 136/136 instructions; structural/exact (0, 49); first (50, ('rlwinm', 'r6, r5, 2, 0xe, 0x1d'), ('rlwinm', 'r3, r5, 2, 0xe, 0x1d'))
+TMCJPEGDEC_IdctBlock4x4 | R7 all9column scalar declaration search146builds reduces45to42operand differences,136/136forms0. Firstpass remains exact; source,clamp temp,coefficients and index register choices in columnpass remain. Scoped column pointer distinguishes pass lifetimes.
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned columns readonly temporary-buffer pointer | objdiff 98.01471; 136/136 instructions; structural/exact (0, 42); first (53, ('addi', 'r6, r1, 0x14'), ('addi', 'r11, r1, 0x14'))
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned columns use target descending loop index | objdiff 98.01471; 136/136 instructions; structural/exact (0, 42); first (53, ('addi', 'r6, r1, 0x14'), ('addi', 'r11, r1, 0x14'))
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned columns signed index preserves four iteration counter | objdiff 98.01471; 136/136 instructions; structural/exact (0, 42); first (53, ('addi', 'r6, r1, 0x14'), ('addi', 'r11, r1, 0x14'))
+TMCJPEGDEC_IdctBlock4x4 | R7 natural unsigned columns output pointer declared outside row body | objdiff 96.39706; 136/136 instructions; structural/exact (2, 46); first (52, ('addi', 'r7, r1, 0x14'), ('subf', 'r31, r5, r3'))
+TMCJPEGDEC_IdctBlock4x4 | R7 source pointer before coefficient declarations | objdiff 97.79412; 136/136 instructions; structural/exact (0, 46); first (50, ('rlwinm', 'r6, r5, 2, 0xe, 0x1d'), ('rlwinm', 'r3, r5, 2, 0xe, 0x1d'))
+TMCJPEGDEC_IdctBlock4x4 | R7 source pointer after coefficient declarations | objdiff 97.79412; 136/136 instructions; structural/exact (0, 46); first (50, ('rlwinm', 'r6, r5, 2, 0xe, 0x1d'), ('rlwinm', 'r3, r5, 2, 0xe, 0x1d'))
+TMCJPEGDEC_IdctBlock4x4 | R7 source pointer after buffer and loop variables | objdiff 97.79412; 136/136 instructions; structural/exact (0, 46); first (50, ('rlwinm', 'r6, r5, 2, 0xe, 0x1d'), ('rlwinm', 'r3, r5, 2, 0xe, 0x1d'))
+TMCJPEGDEC_IdctBlock4x4 | R7 unsigned column transform isolated in readonly inline phase | objdiff 90.07353; 130/136 instructions; structural/exact (10, 132); first (3, ('stmw', 'r27, 0x10c(r1)'), ('stw', 'r31, 0x11c(r1)'))
+TMCJPEGDEC_IdctBlock4x4 | R7 column phase block owns coefficient and math locals | objdiff 96.47059; 136/136 instructions; structural/exact (0, 67); first (10, ('lwz', 'r31, 0xc(r8)'), ('lwz', 'r28, 0xc(r8)'))
+TMCJPEGDEC_IdctBlock4x4 | R7 column phase block owns only output address and coefficients | objdiff 97.79412; 136/136 instructions; structural/exact (0, 44); first (53, ('addi', 'r6, r1, 0x14'), ('addi', 'r11, r1, 0x14'))
+TMCJPEGDEC_IdctBlock4x4 | R7 column phase block owns only rotation and sums | objdiff 97.42647; 136/136 instructions; structural/exact (0, 47); first (53, ('addi', 'r6, r1, 0x14'), ('addi', 'r11, r1, 0x14'))
+TMCJPEGDEC_IdctBlock4x4 | R7 column phase declares index and pointer before assignment | objdiff 98.01471; 136/136 instructions; structural/exact (0, 42); first (53, ('addi', 'r6, r1, 0x14'), ('addi', 'r11, r1, 0x14'))
+TMCJPEGDEC_IdctBlock4x4 | R7 column phase initializes index before source after separate declarations | objdiff 98.01471; 136/136 instructions; structural/exact (0, 42); first (53, ('addi', 'r6, r1, 0x14'), ('addi', 'r11, r1, 0x14'))
+TMCJPEGDEC_IdctBlock4x4 | R7 reuse sp for temporary-buffer column input | objdiff 97.79412; 136/136 instructions; structural/exact (0, 46); first (50, ('rlwinm', 'r6, r5, 2, 0xe, 0x1d'), ('rlwinm', 'r3, r5, 2, 0xe, 0x1d'))
+TMCJPEGDEC_IdctBlock4x4 | R7 reuse dp for temporary-buffer column input | objdiff 97.79412; 136/136 instructions; structural/exact (0, 46); first (50, ('rlwinm', 'r6, r5, 2, 0xe, 0x1d'), ('rlwinm', 'r3, r5, 2, 0xe, 0x1d'))
+TMCJPEGDEC_IdctBlock4x4 | R7 column index shares u16 output coordinate type | objdiff 96.83088; 137/136 instructions; structural/exact (6, 51); first (53, ('addi', 'r6, r1, 0x14'), ('addi', 'r11, r1, 0x14'))
+TMCJPEGDEC_IdctBlock4x4 | R7 column traversal expressed by source end pointer | objdiff 71.92647; 131/136 instructions; structural/exact (51, 134); first (2, ('addi', 'r7, r3, 0x60'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 readonly column butterfly helper with named result references | objdiff 87.94118; 130/136 instructions; structural/exact (12, 132); first (3, ('stmw', 'r27, 0x10c(r1)'), ('stw', 'r31, 0x11c(r1)'))
+TMCJPEGDEC_IdctBlock4x4 | R7 mutable column butterfly helper input for retail alias assumptions | objdiff 87.94118; 130/136 instructions; structural/exact (12, 132); first (3, ('stmw', 'r27, 0x10c(r1)'), ('stw', 'r31, 0x11c(r1)'))
+TMCJPEGDEC_IdctBlock4x4 | R7 readonly column butterfly helper with rotation output first | objdiff 87.94118; 130/136 instructions; structural/exact (12, 132); first (3, ('stmw', 'r27, 0x10c(r1)'), ('stw', 'r31, 0x11c(r1)'))
+TMCJPEGDEC_IdctBlock4x4 | R7 full natural unsigned transform with readonly inline input boundary | objdiff 87.463234; 130/136 instructions; structural/exact (11, 134); first (2, ('stmw', 'r27, 0x10c(r1)'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 full natural unsigned transform with mutable inline input boundary | objdiff 87.463234; 130/136 instructions; structural/exact (11, 134); first (2, ('stmw', 'r27, 0x10c(r1)'), ('addi', 'r8, r3, 0x60'))
+TMCJPEGDEC_IdctBlock4x4 | R7 retain natural four-row unsigned pass:85.625->98.01471,136/136 identical instruction forms, first50instructions exact. Remaining42operands are cyclic r6-r11 allocation in column input/output/clamp temporaries; saved coefficients, pitch/index and arithmetic order now exact. Tested const input, scoped phase/math helpers, natural descending loop, source lifetime/assignment/decl permutations; helpers add fifth saved register and130vs136, rejected. Quick GATE PASS with signed4x4still100,0regressions forbidden/readability andcorrectDOL. Both target.extents exact, novolatile proof ordatachanges.
+signcreate | R7 fresh fetch origin remains99.117645, our acceptedreadonlytable99.162895. Inspect constructor constant-hoist relocation order explicitly; next isolate metadata lookup and immutable localpointer forms.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 immutable pane metadata pointer instead of readonly reference | objdiff 99.162895; 221/221 instructions; structural/exact (0, 32); first (48, ('lis', 'r26, 0'), ('lis', 'r25, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 readonly pane metadata lookup inline boundary | objdiff 98.77828; 221/221 instructions; structural/exact (0, 44); first (48, ('lis', 'r26, 0'), ('lis', 'r25, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 immutable allocated pane buffer inputs to constructors | objdiff 98.30317; 221/221 instructions; structural/exact (0, 54); first (48, ('lis', 'r26, 0'), ('lis', 'r25, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R7 immutable readonly pane table base declaration | objdiff 99.162895; 221/221 instructions; structural/exact (0, 32); first (48, ('lis', 'r26, 0'), ('lis', 'r25, 0'))
+R7 pre-final completeness audit | SOGetInterfaceOpt | 7 successfully compiled distinct source-attempt log entries; remaining function re-listed for full gate.
+R7 pre-final completeness audit | PFENT_ITER_FindCluster | 6 successfully compiled distinct source-attempt log entries; remaining function re-listed for full gate.
+R7 pre-final completeness audit | inputChar__Q39textinput8tistring9DecolatedFw | 3 successfully compiled distinct source-attempt log entries; remaining function re-listed for full gate.
+R7 pre-final completeness audit | create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | 8 successfully compiled distinct source-attempt log entries; remaining function re-listed for full gate.
+R7 pre-final completeness audit | TMCJPEGDEC_IdctBlock4x4 | 45 successfully compiled distinct source-attempt log entries; remaining function re-listed for full gate.
+R7 data audit | all six owned target data objects paired at100 percent; SOOption/IDCT own no data, pf_volume210976, entry_iterator24, tiString288, tiSignWindow3468. No rename, extent, address or section-total changes required this round. Weak deduplicated extras untouched. Prior extent audit proves no overlapping open function sizes.
+
+# R7 final clean full gate over all six owned units (non --quick)
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/so/SOOption] pool: IDENTICAL
+[libs/RevoEX/src/so/SOOption] objdiff: code 816/1292 data None/None functions 3/4 fuzzy 99.9226 linked code 0
+[libs/RevoEX/src/so/SOOption] instruction-exact functions: 3/4
+[libs/RevoEX/src/so/SOOption]   section .text size 1292 match 99.9226
+[libs/RevoEX/src/so/SOOption]   below 100: SOGetInterfaceOpt 99.78992
+[libs/RevoEX/src/so/SOOption] baseline: code 816/1292 data None functions 3 fuzzy 99.9226
+[libs/RVL_SDK/src/fa/pf_volume] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_volume] objdiff: code 17992/17992 data 210976/210976 functions 37/37 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/fa/pf_volume] instruction-exact functions: 37/37
+[libs/RVL_SDK/src/fa/pf_volume]   section .bss size 210944 match 100.0
+[libs/RVL_SDK/src/fa/pf_volume]   section .data size 16 match 100.0
+[libs/RVL_SDK/src/fa/pf_volume]   section .sdata size 8 match 100.0
+[libs/RVL_SDK/src/fa/pf_volume]   section .sdata2 size 8 match 100.0
+[libs/RVL_SDK/src/fa/pf_volume]   section .text size 17992 match 100.0
+[libs/RVL_SDK/src/fa/pf_volume] baseline: code 16988/17992 data 210976 functions 35 fuzzy 99.9333
+[libs/RVL_SDK/src/fa/pf_entry_iterator] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_entry_iterator] objdiff: code 6932/7880 data 24/24 functions 15/16 fuzzy 99.9772 linked code 0
+[libs/RVL_SDK/src/fa/pf_entry_iterator] instruction-exact functions: 15/16
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .sdata size 24 match 100.0
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .text size 7880 match 99.97716
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   below 100: PFENT_ITER_FindCluster 99.81013
+[libs/RVL_SDK/src/fa/pf_entry_iterator] baseline: code 6932/7880 data 24 functions 15 fuzzy 99.9772
+[src/keyboard/tiString] pool: IDENTICAL
+[src/keyboard/tiString] objdiff: code 4632/5176 data 288/288 functions 41/42 fuzzy 98.9629 linked code 0
+[src/keyboard/tiString] instruction-exact functions: 41/42
+[src/keyboard/tiString]   section .data size 288 match 100.0
+[src/keyboard/tiString]   section .text size 5176 match 98.962906
+[src/keyboard/tiString]   below 100: inputChar__Q39textinput8tistring9DecolatedFw 90.132355
+[src/keyboard/tiString] baseline: code 4632/5176 data 288 functions 41 fuzzy 98.9629
+[src/keyboard/tiSignWindow] pool: IDENTICAL
+[src/keyboard/tiSignWindow] objdiff: code 6300/7184 data 3468/3468 functions 55/56 fuzzy 99.8970 linked code 0
+[src/keyboard/tiSignWindow] instruction-exact functions: 55/56
+[src/keyboard/tiSignWindow]   section .ctors size 4 match 100.0
+[src/keyboard/tiSignWindow]   section .data size 2672 match 100.0
+[src/keyboard/tiSignWindow]   section .rodata size 784 match 100.0
+[src/keyboard/tiSignWindow]   section .sdata size 8 match 100.0
+[src/keyboard/tiSignWindow]   section .text size 7184 match 99.896996
+[src/keyboard/tiSignWindow]   below 100: create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator 99.162895
+[src/keyboard/tiSignWindow] baseline: code 6300/7184 data 3468 functions 55 fuzzy 99.8914
+[libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var] objdiff: code 1260/1804 data None/None functions 5/6 fuzzy 99.4013 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var] instruction-exact functions: 5/6
+[libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var]   section .text size 1804 match 99.40133
+[libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var]   below 100: TMCJPEGDEC_IdctBlock4x4 98.01471
+[libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var] baseline: code 712/1804 data None functions 4 fuzzy 90.7738
+regressions vs baseline: 0
+global matched_code_percent: 89.19062 -> 89.24243
+global fuzzy_match_percent: 99.52355 -> 99.52917
+global complete_code_percent: 66.23504 -> 66.23504
+global matched_data_percent: 99.36508 -> 99.36508
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+libs/RevoEX/src/so/SOOption | exact 3/4 -> 3/4 | code bytes 816 -> 816/1292 | data bytes 0 -> 0/0
+R7 remaining | SOGetInterfaceOpt | 99.78992% | 119/119 identical instruction forms; five callee-saved selector/level register operands differ, first instruction5 mr r25,r4 vsr26. | 7 distinct successful source trials this round; no untried functions.
+libs/RVL_SDK/src/fa/pf_volume | exact 35/37 -> 37/37 | code bytes 16988 -> 17992/17992 | data bytes 210976 -> 210976/210976
+libs/RVL_SDK/src/fa/pf_entry_iterator | exact 15/16 -> 15/16 | code bytes 6932 -> 6932/7880 | data bytes 24 -> 24/24
+R7 remaining | PFENT_ITER_FindCluster | 99.81013% | 237/237 identical forms; eight sector-mask and entries-per-sector register operands differ, first shared1 value r7 vsr8. Volatile iterator-index trial adds three reloads, rejected. | 6 distinct successful source trials this round; no untried functions.
+src/keyboard/tiString | exact 41/42 -> 41/42 | code bytes 4632 -> 4632/5176 | data bytes 288 -> 288/288
+R7 remaining | inputChar__Q39textinput8tistring9DecolatedFw | 90.132355% | 125/136; Hangul-mode append path optimized to constant index/count; target dynamic append, newline comparison and final count mask remain. No adjacent-stack reload or extent proof supports volatility or resizing. | 3 distinct successful source trials this round; no untried functions.
+src/keyboard/tiSignWindow | exact 55/56 -> 55/56 | code bytes 6300 -> 6300/7184 | data bytes 3468 -> 3468/3468
+R7 remaining | create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | 99.162895% | 221/221 identical forms;32 operands remain, including constructor/table relocation hoist order and loop/register allocation. First lis AnmPane r26 vsr25. | 8 distinct successful source trials this round; no untried functions.
+libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var | exact 4/6 -> 5/6 | code bytes 712 -> 1260/1804 | data bytes 0 -> 0/0
+R7 remaining | TMCJPEGDEC_IdctBlock4x4 | 98.01471% | 136/136 identical forms;42 operands, first column pointer r6 vsr11 at instruction53. First50 instructions exact; remaining unsigned column/clamp registers cycle r6-r11. | 45 distinct successful source trials this round; no untried functions.
+R7 final files: libs/RVL_SDK/src/fa/pf_volume.c; src/keyboard/tiSignWindow.cpp; libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var.c; tools/decomp-assist/fz3.attempts.md. Source commits451eaff8,becfba47,5058e494,4cd94ca2,8a89a5ba. Three new exact functions,1552 newly matched code bytes; all data unchanged100%, all six poolsidentical, correctDOL,0globalregressions/forbidden/readability. No remaining proof uncertainty for accepted changes; original Hangul helper boundary and remaining compiler allocation are unresolved as logged. No source/header/config changes after clean full gate; final commit is log only.

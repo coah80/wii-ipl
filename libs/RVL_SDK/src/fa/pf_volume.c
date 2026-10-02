@@ -1105,7 +1105,13 @@ s32 PFVOL_attach(PFVOL_DRIVER* driver, s32 notify_command, void* callback_data) 
     pf_vol_set.num_attached_drives++;
     if (PFDRV_IsInserted(volume) != 0) {
         driver->stat |= 0x10;
-        attach_mount(volume, driver);
+        error = clear_mount(volume);
+        if (error != 0) {
+            pf_vol_set.last_error = error;
+            volume->last_error = error;
+            return 0;
+        }
+        driver->stat |= 2;
     }
     return 0;
 }
@@ -1469,17 +1475,21 @@ s32 PFVOL_setcode(PFVOL_CHARCODE* code_set) {
     return copy_codeset(code_set);
 }
 
+static inline u32 ContextStatus(const PFVOL_CONTEXT* context) {
+    return context->stat & 1;
+}
+
 s32 PFVOL_regctx(void) {
-    s32 context_id;
-    s32 free_context_index;
     u32 context_index;
+    s32 free_context_index;
+    s32 context_id;
     s32 error;
     error = PFSYS_GetCurrentContextID(&context_id);
     if (error != 0) { pf_vol_set.last_error = 26; return 26; }
     free_context_index = 0;
     for (context_index = 1; context_index < 4; context_index++) {
         u32 stat;
-        stat = pf_vol_set.context[context_index - 1].stat & 1;
+        stat = ContextStatus(&pf_vol_set.context[context_index - 1]);
         if (stat != 0 && pf_vol_set.context[context_index - 1].context_id == context_id) { break; }
         if (stat == 0 && free_context_index == 0) { free_context_index = context_index; }
     }
