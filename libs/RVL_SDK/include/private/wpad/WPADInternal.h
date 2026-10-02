@@ -223,7 +223,7 @@ typedef struct WPADCB {
     u16 filterDiffExt;             // 0x900
     u16 filterSameExt;             // 0x902
     s64 lastReportSendTime;        // 0x908
-    u8 unk_0x910;
+    u8 suppressDisconnect;  // 0x910
     u8 calibrated;          // 0x911
     u16 comboHeld;          // 0x912
     u8 encryptionKey[16];   // 0x914

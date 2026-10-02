@@ -190,7 +190,7 @@ static s32 WPADiSendData(s32 chan, WPADCommand command) {
 
     if (status == WPAD_ERR_COMMUNICATION_ERROR) {
         if ((s32)OSTicksToSeconds(__OSGetSystemTime() - p->lastReportSendTime) > 1 && _sleepTime != 0) {
-            if (!p->unk_0x910) {
+            if (!p->suppressDisconnect) {
                 p->lastReportSendTime = __OSGetSystemTime();
                 WPADiDisconnect(chan, FALSE);
             } else {
@@ -1263,7 +1263,7 @@ static void __ClearControlBlock(s32 chan) {
 
     p->lastControllerDataUpdate = __OSGetSystemTime();
     p->lastReportSendTime = __OSGetSystemTime();
-    p->unk_0x910 = 0;
+    p->suppressDisconnect = 0;
     p->unk_0x8C9 = 0;
     p->unk_0x8C4 = 0;
     p->wmReadDataPtr = NULL;
@@ -2692,7 +2692,7 @@ static void __SendData(s32 chan, WPADCommand command) {
                 u32 time;
                 memcpy(&time, command.dataBuf, sizeof(u32));
                 p->lastReportSendTime = __OSGetSystemTime() + time;
-                p->unk_0x910 = 1;
+                p->suppressDisconnect = 1;
                 return;
             }
             default: {
@@ -2704,7 +2704,7 @@ static void __SendData(s32 chan, WPADCommand command) {
         p->cmdBlkCB = command.cmdCB;
         p->lastReportID = reportID;
         p->lastReportSendTime = __OSGetSystemTime() + OSSecondsToTicks(2);
-        p->unk_0x910 = 0;
+        p->suppressDisconnect = 0;
 
         OSRestoreInterrupts(enabled);
     }
