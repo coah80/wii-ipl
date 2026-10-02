@@ -729,11 +729,10 @@ namespace ipl {
                 return;
             }
 
-            if (OSGetTime() - mOperationStartTime < OS_TIMER_CLOCK) {
-                return;
-            }
-            setDialogMessage(1, 0);
-            int result = mpSDWorker->get_async_result();
+            switch (OSGetTime() - mOperationStartTime < OS_TIMER_CLOCK) {
+            default:
+                setDialogMessage(1, 0);
+                int result = mpSDWorker->get_async_result();
             if (result == NandSDWorker::RESULT_OK ||
                 result == NandSDWorker::RESULT_SD_APP_LOC_NOT_FOUND) {
                 for (int channelIndex = 0; channelIndex < mPageCount * 12;
@@ -807,6 +806,10 @@ namespace ipl {
                 mbSDCardBroken = true;
             }
             refreshAfterSDTitleList();
+                break;
+            case true:
+                return;
+            }
         }
 
         void SDChannelSelect::handleSDMountComplete() {
