@@ -52,14 +52,14 @@ static u32 BannerBuffer = 0;
 static u32 BannerAvailable = 0;
 static u32 Allocator = 0;
 BOOL StartingGame = FALSE;
-static u32 RestartRequested = 0;
-static u32 PartitionOpen = 0;
+static vu32 RestartRequested = 0;
+static vu32 PartitionOpen = 0;
 static u32 CacheSeekComplete = 0;
-static u32 LoadingTitle = 0;
-BOOL FatalErrorFlag = FALSE;
+static vu32 LoadingTitle = 0;
+volatile BOOL FatalErrorFlag = FALSE;
 BOOL RetryErrorFlag = FALSE;
 BOOL UpdateErrorFlag = FALSE;
-BOOL AbortFlag = FALSE;
+volatile BOOL AbortFlag = FALSE;
 volatile int CacheFailed = 0;
 volatile int RegionValid = 0;
 static volatile int NandPending = 0;
@@ -1523,9 +1523,9 @@ BS2State BS2Tick() {
         status = CheckBS2CommandStatus();
         if (status != 0) {
             if (((*(vu32 *)0x8000002c) & 0xf0000000) == 0)
-                (*(u16 *)0x800030e6) = 0x8002;
+                (*(vu16 *)0x800030e6) = 0x8002;
             else
-                (*(u16 *)0x800030e6) = DriveInfo.deviceCode | 0x8000;
+                (*(vu16 *)0x800030e6) = DriveInfo.deviceCode | 0x8000;
             State = BS2_STT_8;
         }
         break;
