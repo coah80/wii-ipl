@@ -11,11 +11,16 @@ static void (*registrationCallback)(int);
 static s32 registrationMode;
 static u16 enabledChannels;
 static u8* scanBuffer;
-struct RegisteredAccessPoints {
-    u8 count;
-    u8 addresses[20][6];
-};
-static RegisteredAccessPoints* registeredAccessPoints;
+// Registration buffer: a count byte followed by twenty MAC addresses.
+static u8* registeredAccessPoints;
+
+static inline int FindRegisteredAddress(const u8* registered, const u8* address) {
+    int index;
+    for (index = 0; index < 20; ++index) {
+        if (memcmp(address, &registered[index * WD_BSSID_LENGTH + 1], WD_BSSID_LENGTH) == 0) break;
+    }
+    return index;
+}
 
 extern "C" {
 static void* DoRegistration(void*);
@@ -26,7 +31,7 @@ extern "C" BOOL USBAPStartRegistration(void*, void*, u32 priority, u32 mode,
                                       u16* buffer, u8* accessPoints) {
     BOOL interrupts = OSDisableInterrupts();
     scanBuffer = (u8*)buffer;
-    registeredAccessPoints = (RegisteredAccessPoints*)accessPoints;
+    registeredAccessPoints = accessPoints;
     if (usbapThread.state != 0 && !OSIsThreadTerminated(&usbapThread)) {
         OSRestoreInterrupts(interrupts);
         return FALSE;
@@ -78,8 +83,13 @@ struct USBAPScan {
 };
 
 static void* DoRegistration(void*) {
-    BOOL success;
+    int failed, found, index;
+    s32 count;
+    WDBssDesc* accessPoint;
     int result;
+    int address;
+    const u8* registered;
+    BOOL success;
     if (WDCheckEnableChannel(&enabledChannels) != 0) {
         success = FALSE;
         if (registrationCallback != NULL) {
@@ -116,25 +126,20 @@ static void* DoRegistration(void*) {
         memset(scan.ssidMask, 0, 8);
         memset(&scan.ssidMask[8], 255, 24);
         if (WDScanOnce(scanBuffer, 2048, (WDScanParam*)&scan) == 0) {
-            u16 count = *(u16*)scanBuffer;
-            WDBssDesc* accessPoint = (WDBssDesc*)&scanBuffer[2];
-            int found = 0;
-            int failed = 0;
-            for (int index = 0; index < count; ++index) {
+            count = *(u16*)scanBuffer;
+            accessPoint = (WDBssDesc*)&scanBuffer[2];
+            found = 0;
+            failed = 0;
+            for (index = 0; index < count; ++index) {
                 if (accessPoint->ssidLength == 32 && strncmp((char*)accessPoint->ssid, "NWCUSBAP", 8) == 0) {
-                    RegisteredAccessPoints* registered = registeredAccessPoints;
-                    int address;
-                    for (address = 0; address < 20; ++address) {
-                        if (memcmp(accessPoint->bssid, registered->addresses[address], 6) == 0) {
-                            break;
-                        }
-                    }
+                    registered = registeredAccessPoints;
+                    address = FindRegisteredAddress(registered, accessPoint->bssid);
                     if (address == 20) {
                         USBAPSSID* response = (USBAPSSID*)accessPoint->ssid;
                         if (response->flags == 1) {
-                            memcpy(registeredAccessPoints->addresses[registeredAccessPoints->count], accessPoint->bssid, 6);
+                            memcpy(&registeredAccessPoints[registeredAccessPoints[0] * WD_BSSID_LENGTH + 1], accessPoint->bssid, WD_BSSID_LENGTH);
                             found = 1;
-                            ++registeredAccessPoints->count;
+                            ++registeredAccessPoints[0];
                         } else if (response->flags == 0) {
                             failed = 1;
                         }
