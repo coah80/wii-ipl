@@ -297,3 +297,214 @@ GATE PASS
 
 Before -> after: iplSetting data 1040 -> 1680, instruction-exact 105 -> 105, code 30760 -> 30760; iplUSBAP data 40 -> 4984, instruction-exact 4 -> 4, code 988 -> 988; ATERM data 18504 -> 18504, instruction-exact 14 -> 14, code 9296 -> 9296; AOSS data 3896 -> 3928, instruction-exact 15 -> 15, code 6436 -> 6436.
 Net data gain 5616 bytes. All 22 remaining nonexact functions have three distinct compiled source trials. USBAP and AOSS data goals are complete. iplSetting .data and ATERM .data/.sbss remain open.
+
+# Data lane round 2
+
+Base 775167f4. Fetched origin/main 12960310; the intervening progress commit changes none of the four assigned units or symbols. Applied unslop to the log and final report. All four initial pools are identical. This round permits proven symbol extent corrections while retaining every address and section total, as explicitly requested.
+
+Initial matched_data: iplSetting 1680/5696; ATERM 18504/18864; NHTTP_os_RVL 8/72; iplDate 316/356. Code bytes are 30760, 9296, 548, 2868 respectively.
+
+## Proven extent corrections
+
+- iplDate mscMaxDate at .bss:0x810B7324, extent 28 -> 12: utility::Date contains exactly three int fields at 0, 4, 8; its static initializer calls the Date constructor at that address, and the compiler object's mscMaxDate is 12 bytes. The following 16 bytes remain in the same 40-byte section, unowned by mscMaxDate.
+- ATERM gAtermSelectedBssid at .sbss:0x81698CD4, extent 8 -> 6: ATERMDiscoverAccessPoints and ATERMBuildAssociationRequest copy exactly six MAC-address bytes; the source object is u8[6] at the identical +0x44 offset. Cancellation remains +0x4c and the two intervening alignment bytes remain in the unchanged 80-byte section.
+
+- NHTTP_os_RVL .data:0x8166D100, lbl_8166D100 -> __FUNCTION__$378 and extent 64 -> 26: exact NHTTPi_CheckCurrentThread loads this section base at .text+0x17a/+0x17e, passes its zero-offset "NHTTPi_CheckCurrentThread" literal as OSReport's second argument, and the source compiler emits that 26-byte char literal under __FUNCTION__$378; following format/file literals and alignment remain in the unchanged 64-byte section.
+- iplSetting __vt__Q33ipl5scene7Setting at .data:0x8165779C, extent 252 -> 104: the source class has 26 vtable words including both base-table ABI headers, matching the retail vtable's 22 function relocations and four header words; the following 148 bytes are linker-deduplicated weak vtables, not Setting slots. Addresses and the 4016-byte section are unchanged.
+
+## iplSetting data identity proofs
+
+- .data:0x81656928, lbl_81656928 -> @16807, extent 13 -> 13: char[13] literal 'G_ListUpDown'; retail incoming relocation .data+0x90, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656935, lbl_81656935 -> @16808, extent 12 -> 12: char[12] literal 'G_ListInOut'; retail incoming relocation .data+0x94, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656941, lbl_81656941 -> @16821, extent 9 -> 9: char[9] literal 'G_Denpa1'; retail incoming relocation .data+0xc8, same resolved source data offset; addresses and section total unchanged.
+- .data:0x8165694A, lbl_8165694A -> @16822, extent 9 -> 9: char[9] literal 'G_Denpa2'; retail incoming relocation .data+0xcc, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656953, lbl_81656953 -> @16823, extent 9 -> 9: char[9] literal 'G_Denpa3'; retail incoming relocation .data+0xd0, same resolved source data offset; addresses and section total unchanged.
+- .data:0x8165695C, lbl_8165695C -> @16824, extent 9 -> 9: char[9] literal 'G_Denpa4'; retail incoming relocation .data+0xd4, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656965, lbl_81656965 -> @16825, extent 9 -> 9: char[9] literal 'G_Denpa5'; retail incoming relocation .data+0xd8, same resolved source data offset; addresses and section total unchanged.
+- .data:0x8165696E, lbl_8165696E -> @16826, extent 114 -> 9: char[9] literal 'G_Denpa6'; retail incoming relocation .data+0xdc, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816569E0, lbl_816569E0 -> @16833, extent 24 -> 24: char[24] literal 'my_AP_a_ArwAppear.brlan'; retail incoming relocation .data+0x284, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816569F8, lbl_816569F8 -> @16834, extent 22 -> 22: char[22] literal 'my_AP_a_ArwLost.brlan'; retail incoming relocation .data+0x288, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656A0E, lbl_81656A0E -> @16835, extent 25 -> 25: char[25] literal 'my_AP_a_ArwFocusOn.brlan'; retail incoming relocation .data+0x28c, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656A27, lbl_81656A27 -> @16836, extent 26 -> 26: char[26] literal 'my_AP_a_ArwFocusOff.brlan'; retail incoming relocation .data+0x290, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656A41, lbl_81656A41 -> @16837, extent 24 -> 24: char[24] literal 'my_AP_a_ArwSelect.brlan'; retail incoming relocation .data+0x294, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656A59, lbl_81656A59 -> @16838, extent 23 -> 23: char[23] literal 'my_AP_a_ScrollUp.brlan'; retail incoming relocation .data+0x298, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656A70, lbl_81656A70 -> @16839, extent 25 -> 25: char[25] literal 'my_AP_a_ScrollDown.brlan'; retail incoming relocation .data+0x29c, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656A89, lbl_81656A89 -> @16840, extent 25 -> 25: char[25] literal 'my_AP_a_BtnFocusOn.brlan'; retail incoming relocation .data+0x2a0, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656AA2, lbl_81656AA2 -> @16841, extent 26 -> 26: char[26] literal 'my_AP_a_BtnFocusOff.brlan'; retail incoming relocation .data+0x2a4, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656ABC, lbl_81656ABC -> @16842, extent 25 -> 25: char[25] literal 'my_AP_a_ListAppear.brlan'; retail incoming relocation .data+0x2a8, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656AD5, lbl_81656AD5 -> @16843, extent 23 -> 23: char[23] literal 'my_AP_a_ListLost.brlan'; retail incoming relocation .data+0x2ac, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656AEC, lbl_81656AEC -> @16844, extent 21 -> 21: char[21] literal 'my_AP_a_Denpa0.brlan'; retail incoming relocation .data+0x2b0, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656B01, lbl_81656B01 -> @16845, extent 21 -> 21: char[21] literal 'my_AP_a_Denpa1.brlan'; retail incoming relocation .data+0x2b4, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656B16, lbl_81656B16 -> @16846, extent 21 -> 21: char[21] literal 'my_AP_a_Denpa2.brlan'; retail incoming relocation .data+0x2b8, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656B2B, lbl_81656B2B -> @16847, extent 21 -> 21: char[21] literal 'my_AP_a_Denpa3.brlan'; retail incoming relocation .data+0x2bc, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656B40, lbl_81656B40 -> @16848, extent 22 -> 22: char[22] literal 'my_AP_a_LockOff.brlan'; retail incoming relocation .data+0x2c0, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656B56, lbl_81656B56 -> @16849, extent 98 -> 21: char[21] literal 'my_AP_a_LockOn.brlan'; retail incoming relocation .data+0x2c4, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656BB8, lbl_81656BB8 -> @25442, extent 15 -> 15: char[15] literal '***Destruct!!\n'; retail incoming relocation .text+0x1da, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656BC7, lbl_81656BC7 -> @25443, extent 184 -> 28: char[28] literal ' ... bs2 manager restarted\n'; retail incoming relocation .text+0x31e, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656C7F, lbl_81656C7F -> @25618, extent 168 -> 15: char[15] literal 'iplSetting.cpp'; retail incoming relocation .text+0x7726, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656D27, lbl_81656D27 -> @17193, extent 12 -> 12: char[12] literal 'marc:%s/%s/'; retail incoming relocation .sdata2+0x0, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656D33, lbl_81656D33 -> @17194, extent 32 -> 32: char[32] literal 'file:dvd/html/IPLSetting/%s/%s/'; retail incoming relocation .sdata2+0x4, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656D53, lbl_81656D53 -> @17197, extent 13 -> 13: char[13] literal 'index01.html'; retail incoming relocation .rodata+0xe8, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656D60, lbl_81656D60 -> @17198, extent 29 -> 29: char[29] literal 'Internet/Internet_index.html'; retail incoming relocation .rodata+0xec, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656D7D, lbl_81656D7D -> @17199, extent 26 -> 26: char[26] literal 'Setup/startup_index1.html'; retail incoming relocation .rodata+0xf0, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656D97, lbl_81656D97 -> @17200, extent 25 -> 25: char[25] literal 'Update/Update_index.html'; retail incoming relocation .rodata+0xf4, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656DB0, lbl_81656DB0 -> @17201, extent 13 -> 13: char[13] literal 'index02.html'; retail incoming relocation .rodata+0xf8, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656DBD, lbl_81656DBD -> @17225, extent 22 -> 22: char[22] literal 'Setup/ScreenSave.html'; retail incoming relocation .rodata+0x15c, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656DD3, lbl_81656DD3 -> @17226, extent 30 -> 30: char[30] literal 'Country/US_Country_flame.html'; retail incoming relocation .rodata+0x160, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656DF1, lbl_81656DF1 -> @17247, extent 9 -> 9: char[9] literal 'Calendar'; retail incoming relocation .rodata+0x18c, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656DFA, lbl_81656DFA -> @17250, extent 17 -> 17: char[17] literal 'Parental_Control'; retail incoming relocation .rodata+0x198, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656E0B, lbl_81656E0B -> @17251, extent 9 -> 9: char[9] literal 'Internet'; retail incoming relocation .rodata+0x19c, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656E14, lbl_81656E14 -> @17252, extent 145 -> 13: char[13] literal 'Wiiconnect24'; retail incoming relocation .rodata+0x1a0, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656EA5, lbl_81656EA5 -> @25747, extent 102 -> 27: char[27] literal 'HTML String Alloc Size:%d\n'; retail incoming relocation .text+0x10ee, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656F0B, lbl_81656F0B -> @26292, extent 85 -> 15: char[15] literal 'WIPL_SE_DECIDE'; retail incoming relocation .text+0x7466, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81656F60, jumptable_81656F60 -> @26300, extent 416 -> 416: 104 ordered switch-table relocations target calcNormal__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x81657100, jumptable_81657100 -> @26299, extent 72 -> 72: 18 ordered switch-table relocations target calcNormal__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x816571DD, lbl_816571DD -> @26502, extent 15 -> 15: char[15] literal 'changed %p %p\n'; retail incoming relocation .text+0x2f52, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816571EC, lbl_816571EC -> @26534, extent 24 -> 24: char[24] literal 'initHTMLText pageId:%d\n'; retail incoming relocation .text+0x387a, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81657204, jumptable_81657204 -> @26536, extent 68 -> 68: 17 ordered switch-table relocations target initHTMLText__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x81657248, lbl_81657248 -> @26538, extent 23 -> 23: char[23] literal 'initMessage pageId:%d\n'; retail incoming relocation .text+0x39ea, same resolved source data offset; addresses and section total unchanged.
+- .data:0x8165725F, lbl_8165725F -> @26623, extent 24 -> 24: char[24] literal 'initKeyboard formId:%d\n'; retail incoming relocation .text+0x3a3a, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81657277, lbl_81657277 -> @26624, extent 25 -> 25: char[25] literal '\x83L\x81[\x83{\x81[\x83h: %d %d %d %d\n'; retail incoming relocation .text+0x3bb6, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81657290, jumptable_81657290 -> @26628, extent 92 -> 92: 23 ordered switch-table relocations target initKeyboard__Q33ipl5scene7SettingFPCc in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x816572EC, lbl_816572EC -> @26776, extent 14 -> 14: char[14] literal 'formID:%d %s\n'; retail incoming relocation .text+0x3ed2, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816572FC, jumptable_816572FC -> @26779, extent 92 -> 92: 23 ordered switch-table relocations target calcKeyboard__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x81657358, jumptable_81657358 -> @26778, extent 92 -> 92: 23 ordered switch-table relocations target calcKeyboard__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x816573B4, lbl_816573B4 -> @26797, extent 14 -> 14: char[14] literal 'setstring:%d\n'; retail incoming relocation .text+0x4212, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816573C4, jumptable_816573C4 -> @26799, extent 64 -> 64: 16 ordered switch-table relocations target calcSetting__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x81657404, lbl_81657404 -> @26824, extent 21 -> 21: char[21] literal 'Keyboard Confirm:%d\n'; retail incoming relocation .text+0x433a, same resolved source data offset; addresses and section total unchanged.
+- .data:0x8165741C, jumptable_8165741C -> @26826, extent 84 -> 84: 21 ordered switch-table relocations target onTextInputOK__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x81657470, lbl_81657470 -> @26829, extent 23 -> 23: char[23] literal 'SCGetOwnerNickName:%d\n'; retail incoming relocation .text+0x462a, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81657487, lbl_81657487 -> @26841, extent 14 -> 14: char[14] literal 'privacy : %s\n'; retail incoming relocation .text+0x4742, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81657495, lbl_81657495 -> @26844, extent 38 -> 38: char[38] literal 'initHTMLText initString:%s length:%d\n'; retail incoming relocation .text+0x47c6, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816574BB, lbl_816574BB -> @26860, extent 13 -> 13: char[13] literal 'Ver. %d.%d%s'; retail incoming relocation .text+0x4bba, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816574C8, lbl_816574C8 -> @26868, extent 22 -> 22: char[22] literal 'nicknameFlag:1 %d %s\n'; retail incoming relocation .text+0x4c8e, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816574DE, lbl_816574DE -> @26875, extent 19 -> 19: char[19] literal 'securityFlag:1 %s\n'; retail incoming relocation .text+0x4d06, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816574F1, lbl_816574F1 -> @26964, extent 20 -> 20: char[20] literal '%03d.%03d.%03d.%03d'; retail incoming relocation .text+0x5662, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81657508, jumptable_81657508 -> @27234, extent 92 -> 92: 23 ordered switch-table relocations target setDefaultBackString__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x81657564, jumptable_81657564 -> @27409, extent 40 -> 40: 10 ordered switch-table relocations target scanAP__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x8165758C, lbl_8165758C -> @27784, extent 21 -> 21: char[21] literal 'SET DATA : %d %s %d\n'; retail incoming relocation .text+0x7272, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816575A1, lbl_816575A1 -> @27785, extent 16 -> 16: char[16] literal 'WIPL_SE_BT_PUSH'; retail incoming relocation .text+0x739a, same resolved source data offset; addresses and section total unchanged.
+- .data:0x816575B4, jumptable_816575B4 -> @27880, extent 44 -> 44: 11 ordered switch-table relocations target setUpdate___Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x816575E0, jumptable_816575E0 -> @28125, extent 48 -> 48: 12 ordered switch-table relocations target setNUP__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- .data:0x81657610, lbl_81657610 -> @28151, extent 10 -> 10: char[10] literal 'error:%d\n'; retail incoming relocation .text+0x8252, same resolved source data offset; addresses and section total unchanged.
+- .data:0x8165761A, lbl_8165761A -> @28277, extent 13 -> 13: char[13] literal 'NandSDWorker'; retail incoming relocation .text+0x8966, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81657627, lbl_81657627 -> @28287, extent 27 -> 27: char[27] literal 'USB SCGetOwnerNickName:%d\n'; retail incoming relocation .text+0x8a12, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81657642, lbl_81657642 -> @28326, extent 42 -> 42: char[42] literal 'm_AOSSThread : Terminated with Error(%d)\n'; retail incoming relocation .text+0x8c96, same resolved source data offset; addresses and section total unchanged.
+- .data:0x8165766C, lbl_8165766C -> @28370, extent 16 -> 16: char[16] literal 'WIPL_SE_COPYING'; retail incoming relocation .text+0x8fe2, same resolved source data offset; addresses and section total unchanged.
+- .data:0x8165767C, lbl_8165767C -> @28383, extent 132 -> 20: char[20] literal 'WIPL_SE_COPY_FINISH'; retail incoming relocation .text+0x9062, same resolved source data offset; addresses and section total unchanged.
+- .data:0x81657700, jumptable_81657700 -> @28442, extent 132 -> 132: 33 ordered switch-table relocations target setSE__Q33ipl5scene7SettingFv in both objects; target code references this table at the same data offset; addresses and section total unchanged.
+- Added sSettingAPPaneNames__Q23ipl5scene at .data:0x81656978, extent 104: create retail +0x813F0F48/+0x813F0F4C loads animation base +0x284 and pane base +0x90, then indexes these 26-element pointer arrays for bindToGroup; every pointed-to literal relocation agrees with source. No address or section-total change.
+- Added sSettingAPAnimations__Q23ipl5scene at .data:0x81656B6C, extent 76: create retail +0x813F0F48/+0x813F0F4C loads animation base +0x284 and pane base +0x90, then indexes these 19-element pointer arrays for bindToGroup; every pointed-to literal relocation agrees with source. No address or section-total change.
+
+## ATERM jump-table identity proofs
+
+- .data:0x81657DB8, jumptable_81657DB8 -> @2462, extent unchanged 40: both objects reference this switch table from ATERMParseAssociationResponse and have 10 ordered relocations into that same function; the first two tables have identical function-relative destinations, the third retains its 11 code-derived differences.
+- .data:0x81657DE0, jumptable_81657DE0 -> @2514, extent unchanged 132: both objects reference this switch table from ATERMApplyScanSecuritySettings and have 33 ordered relocations into that same function; the first two tables have identical function-relative destinations, the third retains its 11 code-derived differences.
+- .data:0x81657E64, jumptable_81657E64 -> @2631, extent unchanged 44: both objects reference this switch table from ATERMRunConfigProtocol and have 11 ordered relocations into that same function; the first two tables have identical function-relative destinations, the third retains its 11 code-derived differences.
+
+## Round 2 accepted data audit
+
+Quick gate over all four units: GATE PASS; regressions 0, forbidden additions 0, readability warnings 0. Source code is unchanged in this round. Matched code bytes remain Setting 30760/37884, ATERM 9296/19204, NHTTP 548/548, Date 2868/2868. Instruction-exact counts remain 105/112, 14/26, 11/11, 19/19 respectively.
+
+- Setting .data: 95.14304%, up from 6.807248%; all other non-text sections 100%. Normalized relocation comparison finds 23 changed function-relative destinations in initKeyboard, 46 in the two calcKeyboard switch tables, and four in scanAP. All other retail data relocations agree. The 31 source-only relocations belong to deduplicated weak data after the real Setting vtable; those objects are ignored, not suppressed. Matched_data remains 1680/5696 because the report counts only fully matched sections.
+- ATERM .data: 92.14286%, up from 22.857143%; all other non-text sections 100%. Its eleven remaining relocation differences belong exclusively to ATERMRunConfigProtocol. Raw section bytes, object offsets, extents, and all other data relocation targets agree. Matched_data 18504 -> 18584/18864.
+- NHTTP: every non-text section 100%, matched_data 8 -> 72/72.
+- Date: every non-text section 100%, matched_data 316 -> 356/356.
+
+The remaining Setting and ATERM data gaps require matching their owning functions. This task explicitly classifies these as code work rather than data work; no switch-table entry, extent, or function label was altered to hide them. All remaining below-100 functions already have three distinct compiled source trials recorded above from the landed round. Their source is unchanged, so those trials still cover this round's open functions.
+
+## Round 2 final full gate and coverage
+src/scene/setting/iplSetting: matched_data 1680 -> 1680/5696; matched_code unchanged 30760/37884; all extracted section sizes unchanged.
+- createBrowser__Q33ipl5scene7SettingFv: 98.8505%; code instruction/control-flow mismatch; verified three distinct previously compiled trials in this log, no source changes this round.
+- draw__Q33ipl5scene7SettingFv: 91.525314%; code instruction/control-flow mismatch; verified three distinct previously compiled trials in this log, no source changes this round.
+- initKeyboard__Q33ipl5scene7SettingFPCc: 98.38498%; code instruction/control-flow mismatch; verified three distinct previously compiled trials in this log, no source changes this round.
+- calcKeyboard__Q33ipl5scene7SettingFv: 98.0%; code instruction/control-flow mismatch; verified three distinct previously compiled trials in this log, no source changes this round.
+- convertRevIP__Q33ipl5scene7SettingFPUcPCc: 98.69863%; code register allocation/scheduling; verified three distinct previously compiled trials in this log, no source changes this round.
+- scanAP__Q33ipl5scene7SettingFv: 95.39338%; code instruction/control-flow mismatch; verified three distinct previously compiled trials in this log, no source changes this round.
+src/scene/setting/ATERM: matched_data 18504 -> 18584/18864; matched_code unchanged 9296/19204; all extracted section sizes unchanged.
+- ATERMStartNetworkStack: 97.91558%; code register allocation/scheduling; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMFindChangedApRecord: 99.56896%; code register allocation/scheduling; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMDiscoverAccessPoints: 95.304184%; code register allocation/scheduling; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMBuildEncryptedMessage: 99.791664%; code register allocation/scheduling; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMBuildAssociationRequest: 93.44361%; code register allocation/scheduling; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMParseAssociationResponse: 99.56204%; code register allocation/scheduling; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMRunConfigProtocol: 87.43323%; code instruction/control-flow mismatch; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMi_AutoConfigThread: 94.75%; code branch/call scheduling mismatch; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMAesKeyWrap: 99.0%; code register allocation/scheduling; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMAesExpandEncryptKey: 98.94403%; code register allocation/scheduling; verified three distinct previously compiled trials in this log, no source changes this round.
+- ATERMMd5Update: 91.263885%; code instruction/control-flow mismatch; verified three distinct previously compiled trials in this log, no source changes this round.
+libs/RevoEX/src/nhttp/NHTTP_os_RVL: matched_data 8 -> 72/72; matched_code unchanged 548/548; all extracted section sizes unchanged.
+src/scene/calendar/iplDate: matched_data 316 -> 356/356; matched_code unchanged 2868/2868; all extracted section sizes unchanged.
+
+Final non-quick gate output (all four units, clean rebuild):
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/scene/setting/iplSetting] pool: IDENTICAL
+[src/scene/setting/iplSetting] objdiff: code 30760/37884 data 1680/5696 functions 106/112 fuzzy 99.1581 linked code 0
+[src/scene/setting/iplSetting] instruction-exact functions: 105/112
+[src/scene/setting/iplSetting]   section .bss size 456 match 100.0
+[src/scene/setting/iplSetting]   section .data size 4016 match 95.14304
+[src/scene/setting/iplSetting]   section .rodata size 640 match 100.0
+[src/scene/setting/iplSetting]   section .sbss size 16 match 100.0
+[src/scene/setting/iplSetting]   section .sdata size 504 match 100.0
+[src/scene/setting/iplSetting]   section .sdata2 size 64 match 100.0
+[src/scene/setting/iplSetting]   section .text size 37884 match 99.15806
+[src/scene/setting/iplSetting]   below 100: createBrowser__Q33ipl5scene7SettingFv 98.8505
+[src/scene/setting/iplSetting]   below 100: draw__Q33ipl5scene7SettingFv 91.525314
+[src/scene/setting/iplSetting]   below 100: initKeyboard__Q33ipl5scene7SettingFPCc 98.38498
+[src/scene/setting/iplSetting]   below 100: calcKeyboard__Q33ipl5scene7SettingFv 98.0
+[src/scene/setting/iplSetting]   below 100: convertRevIP__Q33ipl5scene7SettingFPUcPCc 98.69863
+[src/scene/setting/iplSetting]   below 100: scanAP__Q33ipl5scene7SettingFv 95.39338
+[src/scene/setting/iplSetting] baseline: code 30760/37884 data 1680 functions 106 fuzzy 99.1581
+[src/scene/setting/ATERM] pool: IDENTICAL
+[src/scene/setting/ATERM] objdiff: code 9296/19204 data 18584/18864 functions 15/26 fuzzy 96.5836 linked code 0
+[src/scene/setting/ATERM] instruction-exact functions: 14/26
+[src/scene/setting/ATERM]   section .bss size 8160 match 100.0
+[src/scene/setting/ATERM]   section .data size 280 match 92.14286
+[src/scene/setting/ATERM]   section .rodata size 10280 match 100.0
+[src/scene/setting/ATERM]   section .sbss size 80 match 100.0
+[src/scene/setting/ATERM]   section .sdata size 56 match 100.0
+[src/scene/setting/ATERM]   section .sdata2 size 8 match 100.0
+[src/scene/setting/ATERM]   section .text size 19204 match 96.583626
+[src/scene/setting/ATERM]   below 100: ATERMStartNetworkStack 97.91558
+[src/scene/setting/ATERM]   below 100: ATERMFindChangedApRecord 99.56896
+[src/scene/setting/ATERM]   below 100: ATERMDiscoverAccessPoints 95.304184
+[src/scene/setting/ATERM]   below 100: ATERMBuildEncryptedMessage 99.791664
+[src/scene/setting/ATERM]   below 100: ATERMBuildAssociationRequest 93.44361
+[src/scene/setting/ATERM]   below 100: ATERMParseAssociationResponse 99.56204
+[src/scene/setting/ATERM]   below 100: ATERMRunConfigProtocol 87.43323
+[src/scene/setting/ATERM]   below 100: ATERMi_AutoConfigThread 94.75
+[src/scene/setting/ATERM]   below 100: ATERMAesKeyWrap 99.0
+[src/scene/setting/ATERM]   below 100: ATERMAesExpandEncryptKey 98.94403
+[src/scene/setting/ATERM]   below 100: ATERMMd5Update 91.263885
+[src/scene/setting/ATERM] baseline: code 9296/19204 data 18504 functions 15 fuzzy 96.5836
+[libs/RevoEX/src/nhttp/NHTTP_os_RVL] pool: IDENTICAL
+[libs/RevoEX/src/nhttp/NHTTP_os_RVL] objdiff: code 548/548 data 72/72 functions 11/11 fuzzy 100.0000 linked code 548
+[libs/RevoEX/src/nhttp/NHTTP_os_RVL] instruction-exact functions: 11/11
+[libs/RevoEX/src/nhttp/NHTTP_os_RVL]   section .data size 64 match 100.0
+[libs/RevoEX/src/nhttp/NHTTP_os_RVL]   section .sdata size 8 match 100.0
+[libs/RevoEX/src/nhttp/NHTTP_os_RVL]   section .text size 548 match 100.0
+[libs/RevoEX/src/nhttp/NHTTP_os_RVL] baseline: code 548/548 data 8 functions 11 fuzzy 100.0000
+[src/scene/calendar/iplDate] pool: IDENTICAL
+[src/scene/calendar/iplDate] objdiff: code 2868/2868 data 356/356 functions 19/19 fuzzy 100.0000 linked code 2868
+[src/scene/calendar/iplDate] instruction-exact functions: 19/19
+[src/scene/calendar/iplDate]   section .bss size 40 match 100.0
+[src/scene/calendar/iplDate]   section .ctors size 4 match 100.0
+[src/scene/calendar/iplDate]   section .data size 104 match 100.0
+[src/scene/calendar/iplDate]   section .rodata size 168 match 100.0
+[src/scene/calendar/iplDate]   section .sdata size 32 match 100.0
+[src/scene/calendar/iplDate]   section .sdata2 size 8 match 100.0
+[src/scene/calendar/iplDate]   section .text size 2868 match 100.0
+[src/scene/calendar/iplDate] baseline: code 2868/2868 data 316 functions 19 fuzzy 100.0000
+regressions vs baseline: 0
+global matched_code_percent: 88.57407 -> 88.57407
+global fuzzy_match_percent: 99.45531 -> 99.45531
+global complete_code_percent: 62.98463 -> 63.07103
+global matched_data_percent: 97.19820 -> 97.20825
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+note: no baseline for merge-base 775167f4; compared against nearest snapshotted ancestor 547637bf (1 commits back)
+note: config touched: config/43U/symbols.txt (orchestrator reviews every config/symbols change)
+GATE PASS
+```
