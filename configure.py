@@ -1045,7 +1045,7 @@ config.libs = [
             Object(Matching,    "net/crc.c"),
             Object(NonMatching, "net/md5.c"),
             Object(Matching,    "net/sha1.c"),
-            Object(NonMatching, "net/hmac.c"),
+            Object(Matching, "net/hmac.c"),
             Object(Matching,    "net/neterrorcode.c"),
             Object(Matching,    "net/NETVersion.c"),
             Object(NonMatching, "net/aes.c"),
@@ -1097,7 +1097,7 @@ config.libs = [
     RevoEXLib("so", [
             Object(Matching,    "so/SOCommon.c"),
             Object(NonMatching, "so/SOBasic.c"),
-            Object(NonMatching, "so/SOInformation.c"),
+            Object(Matching, "so/SOInformation.c"),
             Object(NonMatching, "so/SOOption.c"),
         ]
     ),
