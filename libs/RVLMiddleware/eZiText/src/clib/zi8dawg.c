@@ -159,7 +159,7 @@ ziU8* NextDawgGroup(ziU8* group, ziU8 language, ziPtr __zi8_work_data)
         Zi8LogError(0x962,ZI_WORK);
         return 0;
       }
-      if (ZI_WORK->unk_0x141D == 0) {
+      if (ZI_WORK->advanceGroup == 0) {
         return group;
       }
     }
@@ -231,7 +231,7 @@ unsigned int Zi8MatchROMdata2(ziWChar* elements, ziU8 count, ziU8 language,
     if (status == 0) {
         ZI_WORK->unk_0x1768 = 0;
         ZI_WORK->matchOffset = 0;
-        if (group != 0 && *group == 0xc && language == 10 && ZI_WORK->unk_0x141C != 0) {
+        if (group != 0 && *group == 0xc && language == 10 && ZI_WORK->forceAltGraph != 0) {
             ZI_WORK->graphTableId = 0x10;
         } else {
             ZI_WORK->graphTableId = 0;
