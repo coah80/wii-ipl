@@ -230,8 +230,8 @@ struct __zi8_work_data_s {
     ziU8 unk_0x12D;
     ziU8 unk_0x12E;
     ziU8 unk_0x12F;
-    ziPtr unk_0x130[2];
-    ziU8 unk_0x138;
+    ziPtr uwdDicts[2];  // 0x130
+    ziU8 uwdDictCount;  // 0x138
     ziU8 unk_0x139[3];
     ziU32 unk_0x13C;
     ziU8 unk_0x140;

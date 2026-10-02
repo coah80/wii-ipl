@@ -105,11 +105,11 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
     int position;
     int prefixLength;
     Zi8LogError(100, __zi8_work_data);
-    if (!(ZI_WORK->unk_0x138 <= 2 && ZI_WORK->unk_0x138 != 0 && ZI_WORK->unk_0x130[ZI_WORK->unk_0x138 - 1] != 0)) {
+    if (!(ZI_WORK->uwdDictCount <= 2 && ZI_WORK->uwdDictCount != 0 && ZI_WORK->uwdDicts[ZI_WORK->uwdDictCount - 1] != 0)) {
         Zi8ReplaceLastError(0x19C, __zi8_work_data);
         return 0;
     }
-    dictionary = ZI_WORK->unk_0x130[ZI_WORK->unk_0x138 - 1];
+    dictionary = ZI_WORK->uwdDicts[ZI_WORK->uwdDictCount - 1];
     if (continuation != 0) {
         text = (ziU8*)Zi8_814803F4(__zi8_work_data);
         entryLength = 0;
