@@ -35,7 +35,14 @@ u8 g_pfd_sddrv_buf[0x200];
 
 static FAInsertCallback g_attach_func = 0;
 static FAEjectCallback g_detach_func = 0;
+u32 g_callback_status;
 u32 g_event;
+u32 g_inserted_status;
+u32 g_removed_status;
+u32 g_attach_status;
+u32 g_detach_status;
+u32 g_sddrv_work0;
+u32 g_sddrv_work1;
 
 extern u8 pfd_get_media_drv_char(FADisk*, s8*, u32);
 extern void pdm_disk_notify_media_insert(FADisk*);
