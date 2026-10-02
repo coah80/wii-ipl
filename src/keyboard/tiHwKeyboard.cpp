@@ -5,15 +5,7 @@
 #include "keyboard/tiHKBManager.h"
 #include "keyboard/tiLayoutGather.h"
 
-extern "C" bool updateInput__Q49textinput8keyboard5hwkey10HWKeyboardFRQ39textinput5input10HKBManager();
-extern "C" void __dt__Q49textinput8keyboard5hwkey10HWKeyboardFv();
-extern "C" void create__Q29textinput4BaseFP12MEMAllocator();
-extern "C" void init__Q49textinput8keyboard5hwkey10HWKeyboardFv();
-extern "C" void setCommandReceiver__Q29textinput13CommandSenderFPQ29textinput15CommandReceiver();
-extern "C" void sendCommand__Q29textinput13CommandSenderFUlPv();
-extern "C" void updateFromReceiver__Q29textinput13CommandSenderFUlPv();
 
-typedef void (*KeyboardDataFunction)();
 
 namespace textinput {
 
@@ -481,20 +473,7 @@ const u8 controlKeys[] = {
                 return code;
             }
 
-#pragma push
-#pragma section const_type ".data"
-extern "C" KeyboardDataFunction const __vt__Q49textinput8keyboard5hwkey10HWKeyboard[9] = {
-    NULL,
-    NULL,
-    __dt__Q49textinput8keyboard5hwkey10HWKeyboardFv,
-    create__Q29textinput4BaseFP12MEMAllocator,
-    init__Q49textinput8keyboard5hwkey10HWKeyboardFv,
-    setCommandReceiver__Q29textinput13CommandSenderFPQ29textinput15CommandReceiver,
-    sendCommand__Q29textinput13CommandSenderFUlPv,
-    updateFromReceiver__Q29textinput13CommandSenderFUlPv,
-    reinterpret_cast<KeyboardDataFunction>(updateInput__Q49textinput8keyboard5hwkey10HWKeyboardFRQ39textinput5input10HKBManager)
-};
-#pragma pop
+
 
             void HWKeyboard::setLanguage(Destination destination, Language language) {
                 if (destination == DST_EU) {

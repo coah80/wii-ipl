@@ -15,7 +15,7 @@ namespace textinput {
 #endif
                 public:
                     HWKeyboard(Manager *);
-#ifdef TIMANAGER_IMPLEMENTATION
+#if defined(TIMANAGER_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)
                     inline ~HWKeyboard();
 #else
                     ~HWKeyboard();
@@ -29,7 +29,7 @@ namespace textinput {
                     wchar_t convertWCCode(wchar_t code) const;
 #endif
 
-#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+#if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)
                     void            updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
 #else
                     virtual void    updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);
