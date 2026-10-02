@@ -1138,7 +1138,7 @@ prepareCandidate:
                     Zi8ChangeWordCase(wordCursor - prefixCount,language,workData);
                   }
                   if ((((ZiAlphaOptions*)optionData)->suffixOnly != '\0') &&
-                     ((int)((ZiAlphaOptions*)optionData)->maxWordLength < (int)(wordLength + prefixCount))) {
+                     ((wordLength + prefixCount) > ((ZiAlphaOptions*)optionData)->maxWordLength)) {
                     wordLength = ((ZiAlphaOptions*)optionData)->maxWordLength - prefixCount;
                     wordCursor[wordLength] = 0;
                   }
@@ -1210,11 +1210,11 @@ emitCandidate:
                           for (index = 0; index <= wordLength; index++) {
                             if (wordCursor[index] != ((ZiAlphaOptions*)optionData)->dictionary[index]) break;
                           }
-                          if ((((((ZiAlphaWork*)workData)->operation != '\0') || ((int)wordLength <= index))
+                          if ((((((ZiAlphaWork*)workData)->operation != '\0') || (index >= wordLength))
                               && ((((ZiAlphaWork*)workData)->operation == '\0' ||
                                   ((exactLengthOnly == 0 ||
-                                   ((int)(ziU16)Zi8WCharCount(((ZiAlphaOptions*)optionData)->dictionary,workData) <= index)))))) &&
-                             ((exactLengthOnly != 0 || ((int)wordLength <= index)))) {
+                                   (index >= (int)(ziU16)Zi8WCharCount(((ZiAlphaOptions*)optionData)->dictionary,workData))))))) &&
+                             ((exactLengthOnly != 0 || (index >= wordLength)))) {
                             candidateCount = 1;
                             goto finishCandidates;
                           }
@@ -1373,7 +1373,7 @@ finishDictionaryPass:;
        (((parameters->elementCount == 1 &&
          (((Zi8GetTableCount(parameters->language,0x1f,workData)) & 0x40) == 0)) &&
         (*parameters->elements >= 0xeff1)))))) &&
-     ((*parameters->elements < 0xf011 &&
+     ((*parameters->elements <= 0xf010 &&
       ((Zi8getKeyLayout(parameters->language,*parameters->elements,&punctuationBuffer[0],1,workData)) != '\0')))) {
     punctuationCandidate = ZI8_TRUE;
   }
@@ -1569,17 +1569,17 @@ checkPrefixFields:
 
 finishCandidates:
               ((ZiAlphaWork*)workData)->usePrefixAsElements = 0;
-              if (((ZiAlphaOptions*)optionData)->countOnly == '\0') {
-                parameters->letters = candidateCount;
+              if (((ZiAlphaOptions*)optionData)->countOnly != '\0') {
+                parameters->letters = 0;
               }
               else {
-                parameters->letters = 0;
+                parameters->letters = candidateCount;
               }
               wordCursor[-prefixCount] = 0;
               if (((((ZiAlphaOptions*)optionData)->countOnly == '\0') && (((ZiAlphaOptions*)optionData)->lookupMode == '\0')) && (parameters->elementCount != 0)) {
                 elementIndex = parameters->elementCount - 1;
                 if (((primaryVowelRestriction) || (secondaryVowelRestriction)) &&
-                   ((((ZiAlphaWork*)workData)->prefixEnabled < 2 ||
+                   ((((ZiAlphaWork*)workData)->prefixEnabled <= 1 ||
                     (parameters->elements[elementIndex] == 0xEFF1)))) {
                   index = 0;
                   while (elementIndex >= 0) {
