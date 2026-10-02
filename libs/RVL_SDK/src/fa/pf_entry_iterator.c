@@ -511,8 +511,8 @@ pf_s32 PFENT_ITER_FindCluster(PF_DIR_ENT* p_ent, pf_u32 cluster, pf_bool* p_is_f
     iter.ffd.cluster_link.buffer = PF_NULL;
     iter.log2_entries_per_sector = p_ent->p_vol->bpb.log2_bytes_per_sector - 5;
     iter.file_sector_index = sector_index;
-    entries_per_sector = 1 << iter.log2_entries_per_sector;
-    iter.offset_mask = entries_per_sector - 1;
+    iter.offset_mask = (1U << iter.log2_entries_per_sector) - 1;
+    entries_per_sector = 1U << iter.log2_entries_per_sector;
     iter.p_vol = p_ent->p_vol;
     iter.sector = p_ent->entry_sector;
     iter.offset = p_ent->entry_offset;
