@@ -79,9 +79,9 @@ typedef struct NWC24MsgObjPrivate {
     u32 textSize;        // 0xE4
     u32 dwcId;           // 0xEC
     u32 iconNew;         // 0xF0
-    u32 unk_0xF4;
-    u32 unk_0xF8;
-    u32 unk_0xFC;
+    u32 pad_0xF4;
+    u32 pad_0xF8;
+    u32 pad_0xFC;
 } NWC24MsgObjPrivate;
 
 #ifdef __cplusplus
