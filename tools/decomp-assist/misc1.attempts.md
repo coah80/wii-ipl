@@ -100,3 +100,32 @@
 ### AxAdpcm start — extra-web variants
 - Removed `chanData` local (pass chanDataBuf[i] twice): 208 diffs — reverted.
 - Added `AdpcmCoeffs* coeffs = pCoeffsBufB[i]` local (cached member ptr reused ×18): IDENTICAL 14 diffs — kept (more readable, plausibly orig's own form).
+
+## w1006 — AxAdpcm start decode: member-load + direct-array webs
+
+`start` 14 diffs -> 1 (fuzzy 99.962). Verified decodes:
+- `mpBNSBuffer = (Header*)data;` member store; `sSysPauseFlag = false;` then
+  `if (mpBNSBuffer == NULL)` — orig emits `lwz r0,0(r3)` member RELOAD for the
+  check (the `stb` to the global breaks member CSE), while field reads go
+  through `(Header*)data` (param r4). No `head` local.
+- Removing the `pCoeffsBufB`/`pAxvpbBuf`-mixed structure: direct
+  `coeffsBufB[i]` uses collapse the coeffsB access to ONE base web (r26) and
+  resolves the r25<->r26 pairwise swap (const-zero vs coeffsBufB base).
+- symbols.txt: orig `lbl_` literals renamed to my emitted names
+  (`@4196/@4197/@4202` sdata2 fp literals, `voiceVe$3399` sdata) — pairs all
+  name-bearing diffs. Numbers are MWCC anon-counter values; rename must track
+  source edits (counter shifts on decl changes).
+
+Remaining 1-diff: hoist-block emits `addi r26,r1,0x28` (coeffsBufB base) one
+slot after `addi r17,r1,0x38` (axVoiceBuf base) vs orig's ascending-offset
+order. Tried: dead/live pCoeffsBufB alias (rotation), decl-init form, pointer
+decl order (r16/r17 rotation), array decl swap (breaks stack offsets),
+pAxvpbBuf removal (remat + mass rotation), in-loop assignment (315 vs 316).
+Scheduler-internal tie; no source lever found.
+
+huffmanDecoder: `u16* table` single-web decode (reassigned per site) regressed
+(185 vs 140) — MWCC SSA-splits the local, adds a 10th callee web
+(_savegpr_22). Reverted.
+iplESMisc DUD: u64 `titleId` local + `(u32)((titleId>>32)&0xFFFFFF)` /
+`NANDTitleIdLo` arg forms — neutral (575 disasm-diff lines both ways); fn-wide
+reg-rotation, not localized. Reverted.
