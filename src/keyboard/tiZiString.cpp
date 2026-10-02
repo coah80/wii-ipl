@@ -111,12 +111,13 @@ void WithZi::init() {
 
 void WithZi::clearCandidates() {
     if (mbDictionaryOpen != 0) {
+        u16* const candidates = CandidatesBuffer;
         mInputLength = 0;
         mCandidateCount = 0;
         memset(ElementBuffer, 0, 0x1fe);
-        memset(CandidatesBuffer, 0, 0x200);
-        memset(CandidatesBuffer + 0x100, 0, 0x1fe);
-        memset(CandidatesBuffer + 0x200, 0, 0x200);
+        memset(candidates, 0, 0x200);
+        memset(candidates + 0x100, 0, 0x1fe);
+        memset(candidates + 0x200, 0, 0x200);
         memset(CandidatedWord, 0, 0x1400);
         memset(&mSearch, 0, sizeof(mSearch) + sizeof(mSearchState));
         mSearch.language = getPredictLanguage();
@@ -125,7 +126,7 @@ void WithZi::clearCandidates() {
         mSearch.context = 1;
         mSearch.getOptions = 0x81;
         mSearch.elements = reinterpret_cast<wchar_t*>(ElementBuffer);
-        mSearch.candidates = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
+        mSearch.candidates = reinterpret_cast<wchar_t*>(&candidates[0x200]);
         mSearch.maxCandidates = 0x28;
         mSearch.elementCount = 0;
         mSearch.firstCandidate = 0;
@@ -510,12 +511,14 @@ scanDone:
 }
 
 u32 WithZi::setElementBuffer() {
+    u16* elements;
+    u16* candidates;
+    u16 inputCharacter;
     u32 count = 0;
     memset(ElementBuffer, 0, 0x1fe);
     memset(&CandidatesBuffer[0x100], 0, 0x1fe);
-    u16* elements = ElementBuffer;
-    u16* candidates = CandidatesBuffer;
-    u16 inputCharacter;
+    elements = ElementBuffer;
+    candidates = CandidatesBuffer;
     while ((inputCharacter = candidates[static_cast<u16>(count)]) != 0 && static_cast<u16>(count) < 0xff) {
         u16 index = count;
         elements[index] = inputCharacter;

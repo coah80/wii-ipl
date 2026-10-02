@@ -120,10 +120,11 @@ NWC24Err NWC24iMinutesToOSCalendarTime(OSCalendarTime* calendar, s32 minutes) {
 NWC24Err NWC24iDateToOSCalendarTime(OSCalendarTime* calendar, const NWC24Date* date) {
     BOOL isLeapYear;
     s32 days;
+    const u16 year = date->year;
 
     isLeapYear = 0;
 
-    calendar->year = date->year;
+    calendar->year = year;
     calendar->mon = date->month - 1;
     calendar->mday = date->day;
     calendar->hour = date->hour;
@@ -132,7 +133,7 @@ NWC24Err NWC24iDateToOSCalendarTime(OSCalendarTime* calendar, const NWC24Date* d
     calendar->msec = 0;
     calendar->usec = 0;
     calendar->yday = date->day + DAYS_OF_YEAR[date->month - 1] - 1;
-    if (((date->year % 4 == 0 && date->year % 100 != 0) || date->year % 400 == 0)) {
+    if (((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)) {
         isLeapYear = 1;
     }
     if (isLeapYear && date->month > 2) {
@@ -227,8 +228,9 @@ void ConvertDaysToDate(u16* year, u8* month, u8* day, s32 days) {
     for (;;) {
         s32 previousDays;
         u8 currentMonth;
+        const u8* parsedMonth = month;
         previousDays = days;
-        currentMonth = *month;
+        currentMonth = *parsedMonth;
         if (currentMonth == 2 && IsLeapYear(*year)) {
             days -= 29;
         } else {
