@@ -259,8 +259,8 @@ namespace ipl {
 
             f32 mChanThumbOff_X;  // 0xD0
             f32 mChanThumbOff_Y;  // 0xD4
-            math::VEC3 unk_0xD8;
-            math::VEC2 unk_0xE4;
+            math::VEC3 mOrthoTrans;
+            math::VEC2 mOrthoScale;
             f32 mScaleAdjust;  // 0xEC
 
             int mDiskState;       // 0xF0
