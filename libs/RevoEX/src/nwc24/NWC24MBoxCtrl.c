@@ -782,7 +782,7 @@ static NWC24Err DuplicationCheck(MBCHeader* header, const NWC24MsgObjPrivate* ms
                 duplicateOffset = offset;
                 continue;
             }
-            if (msg->unk_0x1C != 0 && entry->crc == msg->unk_0x1C && entry->type == msg->type && entry->length == msg->length &&
+            if (msg->crc != 0 && entry->crc == msg->crc && entry->type == msg->type && entry->length == msg->length &&
                 entry->flags == msg->unk_0x10 && (s32)entry->date == (s32)msg->date) {
                 duplicateId = entry->msgId;
                 duplicateOffset = offset;
@@ -959,7 +959,7 @@ static NWC24Err CopyMsgObjToMBCFmt(const NWC24MsgObjPrivate* msg, MBCEntry* entr
     entry->flags = msg->unk_0x10;
     entry->tag = msg->tag;
     entry->ledPattern = msg->ledPattern;
-    entry->crc = msg->unk_0x1C;
+    entry->crc = msg->crc;
     entry->fromIdHigh = msg->fromIdHigh;
     entry->fromIdLow = msg->fromIdLow;
     entry->date = msg->date;
@@ -1006,7 +1006,7 @@ static NWC24Err CopyMsgObjToPrvFmt(const MBCEntry* entry, NWC24MsgObjPrivate* ms
     msg->unk_0x10 = entry->flags;
     msg->tag = entry->tag;
     msg->ledPattern = entry->ledPattern;
-    msg->unk_0x1C = entry->crc;
+    msg->crc = entry->crc;
     msg->fromIdHigh = entry->fromIdHigh;
     msg->fromIdLow = entry->fromIdLow;
     msg->date = entry->date;

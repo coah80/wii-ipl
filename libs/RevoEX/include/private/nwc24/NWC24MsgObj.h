@@ -31,7 +31,7 @@ typedef struct NWC24MsgObjPrivate {
     u32 tag;             // 0x14
     u32 ledPattern;      // 0x18
 #if defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
-    u32 unk_0x1C;
+    u32 crc;  // 0x1C
 #endif
 #if defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
     union {
