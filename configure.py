@@ -1696,7 +1696,7 @@ config.libs = [
             Object(Matching,    "fa/pf_dir.c"),
             Object(Matching,    "fa/pf_entry.c"),
             Object(Matching,    "fa/pf_entry_iterator.c"),
-            Object(NonMatching, "fa/pf_fat.c"),
+            Object(Matching,    "fa/pf_fat.c"),
             Object(Matching, "fa/pf_fat12.c"),
             Object(Matching,    "fa/pf_fat16.c"),
             Object(Matching,    "fa/pf_fat32.c"),
