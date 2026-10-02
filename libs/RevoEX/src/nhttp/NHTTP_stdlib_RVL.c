@@ -67,10 +67,11 @@ s32 NHTTPi_strToHex(const char* string, s32 length) {
     s32 value;
     BOOL started;
     if(length>8) return -1;
-    if((length==8) & (*string>='7')) return -1;
+    if((length==8) & (*string>'7')) return -1;
     value=0; started=FALSE;
     for(; length>0; --length,++string) {
-        s8 character=LowerCase(*string);
+        u8 rawCharacter = *(const u8*)string;
+        s8 character = LowerCase((s8)rawCharacter);
         if(character>='0' && character<='9') { value=(value<<4)+character-'0'; started=TRUE; }
         else if(character>='a' && character<='f') { value=(value<<4)+character-'a'+10; started=TRUE; }
         else {
@@ -103,9 +104,9 @@ s32 NHTTPi_strToInt(const char* string, s32 length) {
 
 s32 NHTTPi_intToStr(char* destination, u32 value) {
     u32 scales[9]={1000000000,100000000,10000000,1000000,100000,10000,1000,100,10};
-    BOOL started;
-    int digit;
     char* output;
+    int digit;
+    BOOL started;
     s32 length;
     output = destination;
     length = 0;
@@ -135,18 +136,22 @@ s32 NHTTPi_compareToken(const char* left, const char* right) {
 }
 
 s32 NHTTPi_strtonum(const char* string, u32 length) {
-    int digits=0;
-    s32 value=0;
-    while(length--) {
-        int character=*string++;
-        if(character==' ') continue;
-        if((character>='0') & (character<='9')) {
-            value=value*10+character-'0';
+    int character;
+    s32 value;
+    int digits;
+    digits = 0;
+    value = 0;
+    for (; length != 0; --length, ++string) {
+        u8 rawCharacter = *(const u8*)string;
+        character = (s8)rawCharacter;
+        if (character == ' ') continue;
+        if ((character >= '0') & (character <= '9')) {
+            value = value * 10 + character - '0';
             ++digits;
-            if(digits>9) return -1;
+            if (digits > 9) return -1;
         }
     }
-    if(digits==0) return -1;
+    if (digits == 0) return -1;
     return value;
 }
 
