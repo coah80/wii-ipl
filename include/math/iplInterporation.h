@@ -96,7 +96,7 @@ namespace ipl {
         template <>
         class LinearIntp<VEC3> : public Interporation<VEC3> {
         public:
-            LinearIntp() {}
+            LinearIntp();
             virtual ~LinearIntp();
             VEC3 get() const;
         };

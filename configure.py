@@ -816,7 +816,7 @@ config.libs = [
             Object(Matching,    "scene/memoryCard/iplMemoryCardBase.cpp"),
             Object(NonMatching, "scene/memoryCard/iplMemoryCardManager.cpp"),
             Object(Matching,    "scene/memoryCard/iplGCSaveData.cpp"),
-            Object(NonMatching, "scene/memoryCard/iplGCWindow.cpp"),
+            Object(Matching, "scene/memoryCard/iplGCWindow.cpp"),
         ]
     ),
     IPLSection("textBalloon", [
