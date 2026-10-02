@@ -71,7 +71,7 @@ namespace ipl {
             mSelectedFaceId = -1;
             mpNigaoe = NULL;
             mbClosing = false;
-            unk_0x7D = true;
+            mbResetAcceptable = true;
             mNwc24ErrCountdown = 0;
             mbToFriend = false;
 
@@ -385,7 +385,7 @@ namespace ipl {
 
             snd::getSystem()->startSE("WIPL_SE_DECIDE");
 
-            unk_0x7D = false;
+            mbResetAcceptable = false;
 
             // Copy letter contents
             wmemcpy(mWCString, getMemoInputForm()->getSendString()->getWCString(), WC_STRING_LENGTH);
@@ -409,7 +409,7 @@ namespace ipl {
                 closeNWC24();
             }
 
-            unk_0x7D = true;
+            mbResetAcceptable = true;
 
             // Button animation
             button->animation(Button::IDANIM_SELECT_CREATE_R);

@@ -36,7 +36,7 @@ namespace ipl {
         }
 
         TextWriter::TextWriter(EGG::Heap* heap)
-            : FaderSceneBase(heap), mState(STATE_NORMAL), mSelectedFaceId(-1), mpNigaoe(NULL), mbClosing(false), unk_0x7D(true),
+            : FaderSceneBase(heap), mState(STATE_NORMAL), mSelectedFaceId(-1), mpNigaoe(NULL), mbClosing(false), mbResetAcceptable(true),
               mNwc24ErrCountdown(0) {
             setSceneParentFlags(SCN_PARENTFLAG_DRAW | SCN_PARENTFLAG_CALC);
         }
@@ -87,7 +87,7 @@ namespace ipl {
             mSelectedFaceId = -1;
             mpNigaoe = NULL;
             mbClosing = false;
-            unk_0x7D = true;
+            mbResetAcceptable = true;
             mNwc24ErrCountdown = 0;
 
             // Text balloon for Mii face
@@ -398,7 +398,7 @@ namespace ipl {
 
             snd::getSystem()->startSE("WIPL_SE_DECIDE");
 
-            unk_0x7D = false;
+            mbResetAcceptable = false;
 
             // Copy memo contents
             wmemcpy(mWCString, getMemoInputForm()->getSendString()->getWCString(), WC_STRING_LENGTH);
@@ -412,7 +412,7 @@ namespace ipl {
 
             closeNWC24();
 
-            unk_0x7D = true;
+            mbResetAcceptable = true;
 
             // Receive sent memo
             System::receiveImmediately();
