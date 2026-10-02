@@ -37,6 +37,9 @@ force_active:
 
 # textinput::toolbar::csPaneToAnimation points one past the end of csAninationFile.
 block_relocations:
+    # Run establishes a fixed stack at 0x81600000, not __pformatter + 0x280.
+    - source: .text:0x8137B468
+    - source: .text:0x8137B46C
     - source: .data:0x8165E15C
     - source: .data:0x8165E19C
 

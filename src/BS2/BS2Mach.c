@@ -242,8 +242,6 @@ BOOL BS2IsDiagDisc() { return (u8)(*(u8 *)OSPhysicalToCached(OS_ADDR_BOOT_INFO) 
 extern vu32 BS2VideoMode;
 extern vu32 __DVDLayoutFormat;
 
-extern void __pformatter(void);
-
 asm void Run(u32 entryPoint, void *start, u32 blockCount, u32 argument) {
     // clang-format off
 #ifdef __MWERKS__
@@ -282,8 +280,9 @@ asm void Run(u32 entryPoint, void *start, u32 blockCount, u32 argument) {
     li      r30, 0
     li      r31, 0
 
-    lis     r1, __pformatter+640@h
-    ori     r1, r1, (__pformatter+640)@l
+    // The application stack is fixed; it is unrelated to the formatter.
+    lis     r1, 0x8160
+    ori     r1, r1, 0
     li      r6, 0
 
     b       Run_loop_entry
