@@ -521,7 +521,8 @@ void ipl::scene::AddressEdit::create() {
         set_textbox(textPane, friendText);
         textPane = (mpCodeLayout)
             ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true);
-        set_textbox(textPane, mString.mDisplayText);
+        friendText = mString.mDisplayText;
+        set_textbox(textPane, friendText);
         mState = 0;
             break;
     }
@@ -2779,7 +2780,7 @@ void ipl::scene::AddressEdit::set_err_msg(wchar_t* outErrMsg, u32 outErrMsgLen, 
     swprintf(nwc24ErrStr, sizeof(nwc24ErrStr) / sizeof(wchar_t), L"%06d\n", errorCode);
     wcsncat(outErrMsg, nwc24ErrStr, outErrMsgLen - wcslen(outErrMsg));
 
-    u32 messageId = MESG_ERROR_NWC24_SERVER;
+    u32 messageId;
     switch (nwc24Err) {
         case NWC24_ERR_NETWORK:
             messageId = MESG_ERROR_NWC24_NETWORK;
@@ -2865,10 +2866,7 @@ void ipl::scene::AddressEdit::get_friendinfo() {
     memcpy(&ipl::scene::sFriendInfo, &mpFriendCache->getInfo(mSelectedFriend),
         sizeof(ipl::scene::sFriendInfo));
     mString.setName(reinterpret_cast<const wchar_t*>(ipl::scene::sFriendInfo.attr.name));
-    const wchar_t* name = mString.mName;
-    nw4r::lyt::Pane* namePane =
-        mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
-    set_textbox(namePane, name);
+    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true), mString.mName);
 
     wchar_t wiiNo[0x100];
     wchar_t email[0x102];
@@ -2881,10 +2879,7 @@ void ipl::scene::AddressEdit::get_friendinfo() {
         ipl::utility::CharacterCode::ANSIToUTF16(email, reinterpret_cast<const u8*>(&ipl::scene::sFriendInfo.addr), 0x102);
         mString.setEMail(email);
     }
-    const wchar_t* displayText = mString.mDisplayText;
-    nw4r::lyt::Pane* friendCodePane =
-        mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true);
-    set_textbox(friendCodePane, displayText);
+    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true), mString.mDisplayText);
     memcpy(&mCreateID, &ipl::scene::sFriendInfo.attr.fdId, sizeof(mCreateID));
 }
 
