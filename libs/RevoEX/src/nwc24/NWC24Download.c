@@ -735,7 +735,6 @@ static inline NWC24Err UpdateDlTaskAccessTime(NWC24DlTask* dlTask) {
 
 NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
     DlTaskData* task = (DlTaskData*)dlTask;
-    OSTime universalTime;
     NWC24Err result;
 
     result = ValidateDlTask(dlTask, TRUE);
