@@ -28,3 +28,30 @@
   manual-vs-savegpr family.
 - DecodeMIMEHeaderFieldBody lever confirmed: local mutation copies keep args
   unpinned (95.76).
+
+## Wave 9 (agent/w0929/nwc24)
+
+- MBoxCheck store-forward: 6 alias-provenance forms tried (whole-struct escape
+  via named MBCOldestMsg + &mailbox arg, return-value getter + member
+  assign/read, *idp read, box-> member access, header->oldestId re-derive).
+  ALL still forward: MWCC coalesces the producing load into the arg reg (r4)
+  whenever the value flows to the call. Base's `stw r0,8(r1); lwz r4,8(r1)`
+  requires producer != arg reg - pure scheduling, exhausted.
+- PurgeOldestDlTask: state-init store-order cracked - orig assigns
+  `comparisonValue, selectedValue, sortMode, comparisonId, initialized, valid`
+  (member-init ORDER moves MWCC's stw emission order). Dropped `selectedId`
+  copy. Tail remains r5 result-carrier + r30/r31 window swap (-6, same family).
+- RemoveDlTask block-form tail (`if (result >= OK) {id=0xffff}`) REGRESSED
+  both callers - early-return form is correct.
+- ManageDlTaskListForMenu: RemoveDlTask(taskPointer) var reuse +1.
+- SetDlTaskAccessTime: hand-rolled -3/-9 chain replaced with shared
+  ValidateDlTask(dlTask, FALSE) - identical chain shape, plausible orig reuse.
+- UpdateDlTask 249/253: base pins r28-r31 with MANUAL stw saves (interleaved
+  mr r31,r3) not _savegpr_28; mine pins r27-r31 -> _savegpr_27. Epilogue-
+  restructure attempts didn't change the save decision (manual-vs-savegpr
+  is driven by pin count + mwcc internal cost model).
+- CheckDlHeaderConsistency 212/212 = mr-emit-order only (addi r31 first).
+- DecodeWord 181/180: base's loop = single offset counter + `add` recompute
+  (pos never materialized as IV); mine gets pos-walking + counter (2 incrs).
+  FindMarker-call, plain-recompute, pos-var forms all strength-reduce under
+  this fn's register pressure. Documented SR wall.

@@ -538,19 +538,7 @@ static NWC24Err DecodeWord(char* charsetData, u32 charsetCapacity, char* decoded
     if (encodedSizeOut != NULL) {
         *encodedSizeOut = 0;
     }
-    {
-        const char* marker = "=?";
-        u32 markerLength = Mail_strlen(marker);
-        s32 offset;
-        encodedWordPosition = NULL;
-        for (offset = 0; offset <= encodedSize; offset++) {
-            char* pos = (char*)encoded + offset;
-            if (Mail_strncmp(pos, marker, markerLength) == 0) {
-                encodedWordPosition = pos;
-                break;
-            }
-        }
-    }
+    encodedWordPosition = FindMarker((char*)encoded, encodedSize, "=?");
     if (encodedWordPosition == (char*)encoded) {
         result = ExtractCharset(charsetData, charsetCapacity, &consumedSize, (char*)encoded, encodedSize);
         if (result != NWC24_OK) {
