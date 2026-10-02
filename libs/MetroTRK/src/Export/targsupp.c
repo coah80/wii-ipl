@@ -1,32 +1,45 @@
-
-// Yes, versions other than 4.3U align by 8.
 #if defined(VERSION_43U)
 #pragma function_align 32
 #else
 #pragma function_align 8
-#endif  // VERSION_43U
+#endif
 
 #include <TRK_Hollywood_Revolution.h>
 
 #pragma force_active on
 
-// Encapsulating function to get the file to align properly
-asm void __targsupp() {
-    // clang-format off
-#ifdef __MWERKS__ 
+// clang-format off
+asm DSIOResult TRKAccessFile(MessageCommandID cmd, unsigned int handle, int* count, unsigned char* buffer) {
+#ifdef __MWERKS__
     nofralloc
-    entry TRKAccessFile
-        twi 31, r0, 0
-        blr
-    entry TRKOpenFile
-        twi 31, r0, 0
-        blr
-    entry TRKCloseFile
-        twi 31, r0, 0
-        blr
-    entry TRKPositionFile
-        twi 31, r0, 0
-        blr
-#endif // __MWERKS__
-    // clang-format on
+    twi 31, r0, 0
+    blr
+#endif
 }
+
+#pragma function_align 8
+
+asm DSIOResult TRKOpenFile() {
+#ifdef __MWERKS__
+    nofralloc
+    twi 31, r0, 0
+    blr
+#endif
+}
+
+asm DSIOResult TRKCloseFile() {
+#ifdef __MWERKS__
+    nofralloc
+    twi 31, r0, 0
+    blr
+#endif
+}
+
+asm DSIOResult TRKPositionFile() {
+#ifdef __MWERKS__
+    nofralloc
+    twi 31, r0, 0
+    blr
+#endif
+}
+// clang-format on
