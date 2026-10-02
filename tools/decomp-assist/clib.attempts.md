@@ -50,3 +50,18 @@
 Old leaf tip f2afe0e8 beat upstream on: zoemdata +34.2, ziswordw +10.5,
 zi8uwd +7.3, zidawg1 +1.7, zi8pud2 +0.7, zi81key/zmtkey marginal.
 Upstream won on: zi8alpha +4.5, zi8cgetc +16, zconvert +0.4, zkokeyp +0.1.
+
+## zi81key Get1KeyPressCandidates mr+clrlwi staging wall (~10 forms)
+
+Base pattern at each `Zi8IsMatch1Key(...,Zi8GetPCode(pt,ph),...)` site:
+`bl GetPCode; mr r5,r3; <arg1/arg2 setup>; clrlwi r5,r5,0x10; bl` — call result
+parked RAW in the arg3 reg, narrowed at the marshal slot. Mine fuses:
+`clrlwi r5,r3,0x10` at call exit. Tried: `(ziU16)` cast (folds), `& 0xffff` mask
+(folds into same fused clrlwi), u32/s32 extern decl + mask (still fused),
+`Zi8UInt/ziU16/int/register pcode` inner-scope local (all SPILL to stack —
+named locals never stay in volatile arg regs in this fn), `(ziU16)(ziU32)` cast
+chain (folds), ziU16 param on IsMatch1Key (breaks callee: +3 insns inside).
+The stage-vs-fuse choice is MWCC's arg-scheduling: it narrows at call-exit when
+r3 is dead, at marshal-slot only when the raw web escapes — and no reachable
+source form makes the u16 result web escape. Same wall family as zi8cgetc's
+22 "return-value move displacement" diffs. UNSOLVED.

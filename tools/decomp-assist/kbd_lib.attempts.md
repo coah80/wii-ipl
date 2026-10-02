@@ -227,3 +227,39 @@ KBDResetChannel remains objdiff 100% with identical raw instruction bytes. Its g
   no relocs, no .text reads. Blind `=0` static is banned filler. Leftover.
 - kbdEventHandler/KBDSetModState/KBDTranslateHidCode: insn-count-equal
   residual regname/sched swaps; probed variants regressed.
+
+## kbd_led_handler select-vs-branch wall (~20 forms)
+
+Orig tail: `cmpwi r3,1; bne->0xcd8(li r3,7); li r3,0; b join; li7; join` — the
+standard `if(c)err=0 else err=7` if-lowering with both constants materialized in
+their own incoming blocks. MWCC if-converts EVERY leaf-const diamond into the
+branchless select (addi/subfic/nor|or/srawi/andc+clrlwi ~6 insns) regardless of
+source form: if/else both polarities, ?:, both-goto diamond, early-init+single-
+arm (7 or 0 — the shared value remats in the dominator, not a branch block),
+3-def web (init+else re-def), switch (emits beq->case+b->default trampoline, not
+bne->default), param reassign (success=0/7), calls-in-arms (no tail merge),
+u8 err. Decoded real wins kept: `callback` local removed (kbdLCBuf[index] direct
+indexing produces orig's lwzx r12 cbAddress), still selects. Remaining fuzzy
+delta = the ~2-insn select-vs-branch shape + arg reg r3-vs-r0. UNSOLVED.
+
+## KBDSetLedsAsync/KBDSetLeds loop decode (partial win)
+Orig's cmdbuf scan loop uses `base + byteOfs` indexed lwzx/stwx
+(`lwzx r0,r6,r4` / `stwx r0,r6,r4`, r6=&kbdCmdBuf const, r4=ofs +=0x20),
+NOT a walked pointer. Reproduced EXACTLY in KBDSetLedsAsync via
+`*(u32*)&((u8*)kbdCmdBuf)[index * sizeof(KBDLEDCommand)]` with
+`for (index = 0, ofs = 0; index < 12; index++, ofs += sizeof(...))` —
+the unused-in-body `ofs` header tracker steers MWCC's IV choice.
+In KBDSetLeds the same source gives ptr-walk + slwi-at-store instead
+(different reg pressure / no r31 data-base pooling) — near-equal 78v79.
+`u32 index` (not s32) produces orig's `cmplwi` post-loop check.
+
+## channel-keep-vs-product-remat wall (both SetLeds fns)
+Orig parks `channel` (mr r31/r26,r3) and REMATERIALIZES `channel*0x268`
+at every `kbdData[channel]` site (flags check → temp mulli r0/r3,
+found-branch → mulli r5,r26, call-arg → mulli r3,r26). Mine CSEs the
+product into one callee web (mulli r30,r3 keep). Tried: kbdChannelFlags
+inline vs direct .flags reads, flags local, data=&kbdData[channel]
+local (keeps PTR — worse), byte-view u32 access (normalizes & CSEs
+identically), decl reorder — all keep-product. The remat choice is
+MWCC's x*K-address rematerialization heuristic; the product web spans
+two calls so cost is identical — allocator tie. UNSOLVED, ~2 insns.

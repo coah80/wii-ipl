@@ -583,9 +583,9 @@ static void kbd_led_handler(BOOL success, void* callbackArg) {
 }
 
 USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, void* callbackArg) {
-    s32 index;
-    u32 ofs;
     u8 ledBits;
+    u32 index;
+    u32 ofs;
     BOOL interrupts;
     USBKBDErr result;
     if (!kbdInitialized) {
@@ -600,8 +600,8 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
     ledBits = leds;
     interrupts = OSDisableInterrupts();
     for (index = 0, ofs = 0; index < 12; index++, ofs += sizeof(KBDLEDCommand)) {
-        if (*(u32*)&((u8*)kbdCmdBuf)[ofs] == 0) {
-            *(u32*)&((u8*)kbdCmdBuf)[ofs] = (u32)kbdData[channel].device;
+        if (*(u32*)&((u8*)kbdCmdBuf)[index * sizeof(KBDLEDCommand)] == 0) {
+            *(u32*)&((u8*)kbdCmdBuf)[index * sizeof(KBDLEDCommand)] = (u32)kbdData[channel].device;
             break;
         }
     }
@@ -624,7 +624,6 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
 
 USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     u32 index;
-    KBDLEDCommand* command;
     BOOL interrupts;
     USBKBDErr result;
     u8 ledBits;
@@ -639,15 +638,11 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     }
     ledBits = leds & 0xff;
     interrupts = OSDisableInterrupts();
-    index = 0;
-    command = kbdCmdBuf;
-    while (index < 12) {
-        if (command->device == 0) {
-            command->device = (u32)kbdData[channel].device;
+    for (index = 0; index < 12; index++) {
+        if (*(u32*)&((u8*)kbdCmdBuf)[index * sizeof(KBDLEDCommand)] == 0) {
+            *(u32*)&((u8*)kbdCmdBuf)[index * sizeof(KBDLEDCommand)] = (u32)kbdData[channel].device;
             break;
         }
-        index++;
-        command++;
     }
     OSRestoreInterrupts(interrupts);
     if (index == 12) {
