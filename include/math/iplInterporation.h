@@ -266,6 +266,32 @@ namespace ipl {
         };
 #endif
 
+#ifdef IPL_CHANNEL_SELECT_CPP
+        template <>
+        class HermiteIntp<f32> : public utility::FrameController {
+        public:
+            HermiteIntp() {}
+            virtual ~HermiteIntp() {}
+
+            void init(const f32& start, const f32& end, f32 maxFrame, f32 startTangent,
+                      f32 endTangent, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f) {
+                mStart = start;
+                mEnd = end;
+                utility::FrameController::init(playback, maxFrame, 0.0f, speed);
+                mStartTangent = startTangent;
+                mEndTangent = endTangent;
+            }
+
+            inline f32 get() const;
+
+        protected:
+            f32 mStart;
+            f32 mEnd;
+            f32 mStartTangent;
+            f32 mEndTangent;
+        };
+#endif
+
 #ifdef IPL_SD_CHANNEL_SELECT_CPP
 }  // namespace math
 }  // namespace ipl

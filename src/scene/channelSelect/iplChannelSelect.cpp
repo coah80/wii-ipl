@@ -1,3 +1,5 @@
+#define IPL_CHANNEL_SELECT_CPP
+
 #include <decomp/ide.h>
 #include "iplSceneUI.h"
 
@@ -43,8 +45,7 @@ namespace ipl {
             return r;
         }
 
-        template <>
-        f32 HermiteIntp<f32>::get() const {
+        inline f32 HermiteIntp<f32>::get() const {
             f32 var_f27 = mFrame;
             f32 var_f28 = 1.0f / mMaxFrame;
             f32 r = (mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -

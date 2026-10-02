@@ -27,7 +27,11 @@ namespace ipl {
             void init(int type, f32 maxFrame, f32 minFrame, f32 speed = 1.0f);
             void initFrame();
 
+#ifdef IPL_CHANNEL_SELECT_CPP
+            virtual inline void calc();
+#else
             virtual void calc();  // 0x0C
+#endif
 
             void setMaxFrame(f32 value) { mMaxFrame = value; }
             f32 getMaxFrame() const { return mMaxFrame; }
