@@ -1,0 +1,44 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/utility/iplESMisc] pool: DIVERGES at string 83 (mine=114 orig=114)
+[src/utility/iplESMisc] objdiff: code 9404/11200 data 4416/4416 functions 30/31 fuzzy 96.7604 linked code 0
+[src/utility/iplESMisc] instruction-exact functions: 30/31
+[src/utility/iplESMisc]   section .data size 4384 match 100.0
+[src/utility/iplESMisc]   section .sdata size 32 match 100.0
+[src/utility/iplESMisc]   section .text size 11200 match 96.76036
+[src/utility/iplESMisc]   below 100: DeleteUnauthorizedData__Q33ipl7utility6ESMiscFPQ23EGG4Heap 79.797325
+[src/utility/iplESMisc] baseline: code 9404/11200 data None functions 30 fuzzy 96.7604
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL] pool: IDENTICAL
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL] objdiff: code 1388/2248 data 112/112 functions 11/14 fuzzy 87.9359 linked code 0
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL] instruction-exact functions: 11/14
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   section .data size 72 match 100.0
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   section .rodata size 40 match 100.0
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   section .text size 2248 match 87.93594
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   below 100: NHTTPi_strnicmp 99.76471
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   below 100: NHTTPi_compareToken 54.622223
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   below 100: NHTTPi_Base64Encode 60.285713
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL] baseline: code 1008/2248 data 72 functions 10 fuzzy 87.1886
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] objdiff: code None/2844 data None/None functions 0/2 fuzzy 88.8031 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] instruction-exact functions: 0/2
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var]   section .text size 2844 match 88.80309
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var]   below 100: TMCJPEGDEC_IdctBlock_Lumi 82.31518
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var]   below 100: TMCJPEGDEC_IdctBlock_Col 92.47577
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] baseline: code None/2844 data None functions 0 fuzzy 88.8031
+[libs/RevoEX/src/net/md5] pool: IDENTICAL
+[libs/RevoEX/src/net/md5] objdiff: code 600/1824 data 456/456 functions 3/4 fuzzy 61.9452 linked code 0
+[libs/RevoEX/src/net/md5] instruction-exact functions: 3/4
+[libs/RevoEX/src/net/md5]   section .data size 448 match 100.0
+[libs/RevoEX/src/net/md5]   section .sdata size 8 match 100.0
+[libs/RevoEX/src/net/md5]   section .text size 1824 match 61.945175
+[libs/RevoEX/src/net/md5]   below 100: ProcessBlock 43.290848
+[libs/RevoEX/src/net/md5] baseline: code 600/1824 data 456 functions 3 fuzzy 61.9452
+regressions vs baseline: 0
+global matched_code_percent: 88.57407 -> 88.58676
+global fuzzy_match_percent: 99.45531 -> 99.45589
+global complete_code_percent: 63.16065 -> 63.16065
+global matched_data_percent: 97.79842 -> 98.04156
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+note: config touched: config/43U/symbols.txt (orchestrator reviews every config/symbols change)
+GATE PASS

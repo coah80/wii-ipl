@@ -102,23 +102,25 @@ s32 NHTTPi_strToInt(const char* string, s32 length) {
     return value;
 }
 
+static inline u32 TakeDecimalDigit(u32* remaining, u32 scale) {
+    u32 digit = *remaining / scale;
+    *remaining -= digit * scale;
+    return digit;
+}
+
 s32 NHTTPi_intToStr(char* destination, u32 value) {
     u32 scales[9]={1000000000,100000000,10000000,1000000,100000,10000,1000,100,10};
-    char* output;
     int digit;
     BOOL started;
     s32 length;
-    output = destination;
     length = 0;
     started = FALSE;
     for(digit=0; digit<9; ++digit) {
         if(value>=scales[digit]) {
-            u32 quotient=value/scales[digit];
+            u32 quotient=TakeDecimalDigit(&value, scales[digit]);
             started=TRUE;
-            ++length;
-            *output++=quotient+'0';
-            value-=quotient*scales[digit];
-        } else if(started) { *output++='0'; ++length; }
+            destination[length++]=quotient+'0';
+        } else if(started) { destination[length++]='0'; }
     }
     destination[length]=value+'0';
     return length+1;
