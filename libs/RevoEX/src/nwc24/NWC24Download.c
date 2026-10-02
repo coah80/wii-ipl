@@ -1240,8 +1240,8 @@ static inline NWC24Err ValidateDlTaskUrl(NWC24DlTask* dlTask) {
         const char* url = task->url;
         result = NWC24iCheckStringLength(url, 7, 0x100);
         if (result >= NWC24_OK) {
-            if (strncmp(url, "http://", 7) != 0 && strncmp(url, "https://", 8) != 0) { result = NWC24_ERR_FORMAT; }
-            else { result = NWC24_OK; }
+            if (strncmp(url, "http://", 7) == 0 || strncmp(url, "https://", 8) == 0) { result = NWC24_OK; }
+            else { result = NWC24_ERR_FORMAT; }
         }
         if (result < NWC24_OK) { return result; }
         return NWC24_OK;
