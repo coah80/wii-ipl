@@ -9,3 +9,22 @@
 - NWC24CommitMsgInternal/WriteMIMEAttachHeader: ndiff-0, residual fuzzy from one r23<->r24 home swap at ~0x770 (cascade from earlier live range).
 - NWC24MsgSubject fns: reg-name/arg-staging diffs only; ReadMsgSubjectPublic missing `mr r8,r26` staging; iSetMsgSubjectBase64 +12 same-stream.
 - ConvertDaysToDate: 57 regname diffs + one extra tail block (`*month++` + b) vs orig's fall-through return.
+
+## Wave 8 (agent/w0929/nwc24 post-veto)
+
+- Veto compliance: `volatile u32 type` member gate REMOVED from NWC24MsgObj.h.
+  MsgRead 14/16 -> 11/16 (orchestrator-accepted: CSE wall documented, no legal barrier).
+- SelectMBox TBAA-pair experiment (SelectMBox(NWC24MsgObj*) reading data[1]):
+  committed as 6d3792ef but claims diffs-0 were wrong - loads STILL merge
+  (verified ReadMsgField 101/102). Confirms MWCC load-RLE is type-insensitive/
+  address-keyed: provably-same address merges regardless of struct member path.
+- MBoxCheck store-forward: 3 forms tried. Struct+out-param: `stw` kept, reload
+  forwarded (-1). Plain locals: promoted entirely (-2). `*idp` read: same.
+  Base's `stw r0,8(r1); lwz r4,8(r1)` requires producer-reg != consumer-reg AND
+  no fold - pure scheduling, no source lever found.
+- UpdateDlTask 249/253: base saves r28-r31 MANUALLY (interleaved `stw`+`mr`),
+  mine pins r27-r31 -> `_savegpr_27`. Extra pinned reg = second workP temp
+  (r27 vs r28 reuse). Removing `taskId` local didn't drop a reg. Documented
+  manual-vs-savegpr family.
+- DecodeMIMEHeaderFieldBody lever confirmed: local mutation copies keep args
+  unpinned (95.76).

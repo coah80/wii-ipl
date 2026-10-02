@@ -231,7 +231,7 @@ done:
 
 NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u32 subjectSize, const u16* text, u32 textSize,
                                          NWC24EncodingRegion region, u16 alternative, u8* work, u32 workSize) {
-    NWC24Work* nwcWork;
+    char* stringWork;
     NWC24MsgObjPrivate* privateMsg = (NWC24MsgObjPrivate*)msg;
     u32 textSourceSize;
     u32 textWorkSize;
@@ -263,22 +263,22 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
         goto done;
     }
 
-    nwcWork = NWC24WorkP;
-    result = NWC24iDetectEncodingToSend(nwcWork->stringWork, 0x40, subject, subjectSize, text, textSize, region);
+    stringWork = NWC24WorkP->stringWork;
+    result = NWC24iDetectEncodingToSend(stringWork, 0x40, subject, subjectSize, text, textSize, region);
     switch (result) {
         case NWC24_OK:
             break;
         default:
             goto done;
     }
-    if (NWC24ParseCharsetStr(&charset, nwcWork->stringWork) != NWC24_OK) {
+    if (NWC24ParseCharsetStr(&charset, stringWork) != NWC24_OK) {
         charset = 0;
     }
     textWorkSize = (workSize * textSize) / (textSize + subjectSize * 4);
     subjectWorkSize = workSize - textWorkSize;
     subjectWork = work + textWorkSize;
     textSourceSize = textSize;
-    result = NWC24iConvertFromInternalEncoding(work, &textWorkSize, text, &textSourceSize, nwcWork->stringWork, 0x40, region, alternative);
+    result = NWC24iConvertFromInternalEncoding(work, &textWorkSize, text, &textSourceSize, stringWork, 0x40, region, alternative);
     switch (result) {
         case NWC24_OK:
             break;
@@ -286,7 +286,7 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
             goto done;
     }
 
-    result = ENCIs7BitEncoding(&is7Bit, nwcWork->stringWork);
+    result = ENCIs7BitEncoding(&is7Bit, stringWork);
     if (!is7Bit || (result != ENC_OK)) {
         switch (region) {
             case 0:
@@ -315,7 +315,7 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
             goto done;
     }
     if (charset == 0) {
-        result = NWC24iSetMsgSubjectPlain(msg, subject, subjectSize, region, alternative, subjectWork, subjectWorkSize, charset, nwcWork->stringWork);
+        result = NWC24iSetMsgSubjectPlain(msg, subject, subjectSize, region, alternative, subjectWork, subjectWorkSize, charset, stringWork);
         goto done;
     }
     switch (region) {
@@ -335,10 +335,10 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
             break;
     }
     if (result == 3) {
-        result = NWC24iSetMsgSubjectQP(msg, subject, subjectSize, region, alternative, subjectWork, subjectWorkSize, charset, nwcWork->stringWork);
+        result = NWC24iSetMsgSubjectQP(msg, subject, subjectSize, region, alternative, subjectWork, subjectWorkSize, charset, stringWork);
     } else {
         result =
-            NWC24iSetMsgSubjectBase64(msg, subject, subjectSize, region, alternative, subjectWork, subjectWorkSize, charset, nwcWork->stringWork);
+            NWC24iSetMsgSubjectBase64(msg, subject, subjectSize, region, alternative, subjectWork, subjectWorkSize, charset, stringWork);
     }
 
 done:

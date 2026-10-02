@@ -736,14 +736,12 @@ static inline NWC24Err UpdateDlTaskAccessTime(NWC24DlTask* dlTask) {
 NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
     DlTaskData* task = (DlTaskData*)dlTask;
     DlTaskListHeader* header;
-    u16 taskId;
     OSTime universalTime;
     NWC24Err result;
 
     result = ValidateDlTask(dlTask, TRUE);
     if (result != NWC24_OK) { return result; }
-    taskId = task->id;
-    if (taskId == 0xffff || taskId >= GetCachedDlHeader()->maxTaskCount) { return NWC24_ERR_INVALID_VALUE; }
+    if (task->id == 0xffff || task->id >= GetCachedDlHeader()->maxTaskCount) { return NWC24_ERR_INVALID_VALUE; }
     result = UpdateDlTaskAccessTime(dlTask);
     if (result < NWC24_OK) { return result; }
     result = ValidateDlTask(dlTask, TRUE);

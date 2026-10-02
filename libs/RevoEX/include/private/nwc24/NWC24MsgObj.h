@@ -18,11 +18,7 @@ extern "C" {
 
 typedef struct NWC24MsgObjPrivate {
     u32 msgId;   // 0x00
-#ifdef NWC24_MSG_READ
-    volatile u32 type;  // 0x04
-#else
     u32 type;    // 0x04
-#endif
     u32 length;  // 0x08
     u32 appId;   // 0x0C
 #ifdef NWC24_MSG_READ
