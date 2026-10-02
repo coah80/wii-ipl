@@ -136,7 +136,7 @@ descend:
         records[context->cnt].node = ZiDAWGGetChild(records[context->cnt - 1].node);
         if (records[context->cnt].node == (ziU8*)0) goto next_sibling;
         context->cnt++;
-        if (ZI_WORK->unk_0x141F < context->cnt) ZI_WORK->unk_0x141F = context->cnt;
+        if (ZI_WORK->maxCnt < context->cnt) ZI_WORK->maxCnt = context->cnt;
         goto update_current;
 next_sibling:
         while (context->cnt != 0) {
@@ -238,7 +238,7 @@ unsigned int Zi8MatchROMdata2(ziWChar* elements, ziU8 count, ziU8 language,
         }
     }
 search_segment:
-    ZI_WORK->unk_0x141F = 1;
+    ZI_WORK->maxCnt = 1;
     result = Zi8MatchROMdata1(elements + ZI_WORK->unk_0x17EA,
                              count - ZI_WORK->unk_0x17EA, language,
                              &ZI_WORK->unk_0x17F4[ZI_WORK->unk_0x17EA], capacity,
@@ -262,8 +262,8 @@ search_segment:
                 if (elements[index] == 0xeff1) goto finish_segments;
             }
         }
-        if (ZI_WORK->unk_0x141F > capacity) goto finish_segments;
-        for (index = ZI_WORK->unk_0x141F; index != 0; index--) {
+        if (ZI_WORK->maxCnt > capacity) goto finish_segments;
+        for (index = ZI_WORK->maxCnt; index != 0; index--) {
             result = Zi8MatchROMdata1(elements + ZI_WORK->unk_0x17EA, index, language,
                                      &ZI_WORK->unk_0x17F4[ZI_WORK->unk_0x17EA], capacity,
                                      1, 0, ZI_WORK->unk_0x1768, (char*)group,

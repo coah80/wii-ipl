@@ -273,7 +273,7 @@ struct __zi8_work_data_s {
     ziU8 unk_0x141C;
     ziU8 unk_0x141D;
     ziU8 unk_0x141E;
-    ziU8 unk_0x141F;
+    ziU8 maxCnt;  // 0x141F
     ziU8 unk_0x1420[4];
     zi8DawgCtx dawgCtx;    // 0x1424
     ziU8 unk_0x1760[4];    // 0x1760
