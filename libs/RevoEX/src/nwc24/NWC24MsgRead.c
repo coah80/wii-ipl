@@ -408,8 +408,10 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capa
             return result;
     }
     length = privateMsg->textSize;
-    if (length == 0)
-        length = privateMsg->text.size;
+    switch (length) {
+        case 0: length = privateMsg->text.size; break;
+        default: break;
+    }
     if (length == 0)
         return NWC24_ERR_NULL;
     if (length > capacity - 1) {
@@ -468,11 +470,11 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capa
     }
 close:
     closeResult = NWC24iMBoxCloseMsg(&file);
-    if (result == NWC24_OK)
-        result = closeResult;
-    if (result == NWC24_OK)
-        result = overflow;
-    return result;
+    if (result != NWC24_OK)
+        closeResult = result;
+    if (closeResult != NWC24_OK)
+        overflow = closeResult;
+    return overflow;
 }
 
 NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 index, u8* output, u32 capacity) {
