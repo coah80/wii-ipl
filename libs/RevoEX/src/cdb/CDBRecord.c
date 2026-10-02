@@ -367,6 +367,19 @@ CDBErr CDBRecordSeek(CDBRecord* record, s32 offset, CDBSeek seek) {
     return err;
 }
 
+CDBErr CDBRecordGetFileSize(CDBRecord* record, u32* size) {
+    CDBErr err;
+    CDBLock();
+    if ((s32)record->file == 0) {
+        CDBReportError("can't get file size of the record ; the record is closed\n");
+        err = CDB_ERROR_27;
+    } else {
+        err = CDBRecordFileGetFileSize(record, size);
+    }
+    CDBUnlock();
+    return err;
+}
+
 CDBErr CDBRecordGetDataSize(CDBRecord* record, u32* size) {
     CDBErr err;
     CDBLock();
@@ -723,14 +736,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
             return CDB_ERROR_OK;
         }
     }
-    CDBLock();
-    if ((s32)record->file == 0) {
-        CDBReportError("can't get file size of the record ; the record is closed\n");
-        err = CDB_ERROR_27;
-    } else {
-        err = CDBRecordFileGetFileSize(record, &fileSize);
-    }
-    CDBUnlock();
+    err = CDBRecordGetFileSize(record, &fileSize);
     CDBAttrSetFileSize(&recordFile->attr, fileSize);
     if (err != CDB_ERROR_OK) {
         return CDB_ERROR_OK;
