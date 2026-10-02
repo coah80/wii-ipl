@@ -9,9 +9,10 @@ NWC24Err ReadBase64Data(NWC24File* file, const NWC24Data* data, u8* output, u32 
 NWC24Err ReadQPText(const NWC24MsgObjPrivate* msg, NWC24File* file, char* output, u32 capacity);
 
 static inline NWC24Err SelectMBox(const NWC24MsgObjPrivate* msg, NWC24MBoxType* type) {
-    if (msg->type & 0x10)
+    u32 msgType = msg->type;
+    if (msgType & 0x10)
         *type = NWC24_MBOX_TYPE_SEND;
-    else if (msg->type & 0x20)
+    else if (msgType & 0x20)
         *type = NWC24_MBOX_TYPE_RECV;
     else
         return NWC24_ERR_INVALID_VALUE;
@@ -75,7 +76,8 @@ NWC24Err NWC24ReadMsgFaceData(const NWC24MsgObj* msg, u8* faceData) {
     char* buffer;
     u32 length;
     NWC24Err result;
-    if ((privateMsg->type & 2) && !(privateMsg->type & 0x1000))
+    u32 msgType = privateMsg->type;
+    if ((msgType & 2) && !(msgType & 0x1000))
         return NWC24_ERR_NOT_FOUND;
     buffer = NWC24WorkP->stringWork;
     Mail_memset(buffer, 0, 1024);
@@ -408,13 +410,12 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capa
             return result;
     }
     length = privateMsg->textSize;
-    if (length == 0)
-        length = privateMsg->text.size;
+    length = length != 0 ? length : privateMsg->text.size;
     if (length == 0)
         return NWC24_ERR_NULL;
     if (length > capacity - 1) {
-        overflow = NWC24_ERR_OVERFLOW;
         length = capacity - 1;
+        overflow = NWC24_ERR_OVERFLOW;
     }
     result = NWC24iMBoxOpenStoredMsg(type, privateMsg->msgId, &file);
     switch (result) {
