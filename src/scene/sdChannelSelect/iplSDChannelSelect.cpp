@@ -1695,7 +1695,7 @@ namespace ipl {
             if (mState == 2 && !mpLayout->isPlaying(0)) {
                 SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
                 if (button != NULL) {
-                    button->setEventHandler(mpButtonEventHandler);
+                    button->setEventHandler((::gui::EventHandler*)button, mpButtonEventHandler);
                     mState = 3;
                     if (mCurrentPage > 0) {
                         button->initArrowAppearance(1, true);
@@ -2257,7 +2257,7 @@ namespace ipl {
                     mbRightArrowVisible = false;
                 }
 
-                button->setEventHandler(mpButtonEventHandler);
+                button->setEventHandler((::gui::EventHandler*)button, mpButtonEventHandler);
                 TVRCManager::getHandle()->setEnable(TRUE);
                 snd::getSystem()->startBGM("WIPL_BGM_MENU");
                 clearNoticeQueue();
@@ -2639,7 +2639,7 @@ namespace ipl {
                 button->animation(SDButton::IDANIM_ARROW_RIGHT_DISAPPEAR);
             }
             button->disableBtn();
-            button->setEventHandler(NULL);
+            button->setEventHandler((::gui::EventHandler*)button, NULL);
             mCurrentChannelIndex = index;
             mState = 5;
             snd::getSystem()->startSE("WIPL_SE_BT_PUSH");
@@ -3480,7 +3480,7 @@ namespace ipl {
 
                                 if (strcmp(paneName,
                                            SDButton::smButtonName[SDButton::BTN_WII_MENU]) == 0) {
-                                    button->setEventHandler(NULL);
+                                    button->setEventHandler((::gui::EventHandler*)button, NULL);
                                     mpScene->mState = 4;
                                     snd::getSystem()->startSE("WIPL_SE_DECIDE");
                                     return;

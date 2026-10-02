@@ -1,4 +1,5 @@
 #define IPL_SDMEMORY_TITLE_CACHE_ACCESS
+
 #define IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
 #define IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
 #define IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
@@ -53,8 +54,8 @@ namespace ipl {
 
         void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth);
 
-        void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
-                               const nw4r::ut::Color& second) NO_INLINE;
+        void setTitleRowColors(nw4r::lyt::TextBox* textBox, GXColor first,
+                               GXColor second) NO_INLINE;
 
         static const char* sControlPaneNames[] = {
             "A", "B", "B_BtnA",
@@ -162,10 +163,16 @@ namespace ipl {
                 mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(false);
                 nw4r::lyt::Pane* expandedButton = mpTitleLayout->FindPaneByName("N_Btn_4");
                 expandedButton->SetVisible(true);
+||||||| parent of f3413243 (sceneleft: iplAddress set_err_msg/movePane_onDrag decodes, SDChannelSelect static setEventHandler)
+                mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(false);
+                mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(true);
                 mDisplayMode = 4;
             } else {
                 nw4r::lyt::Pane* compactButton = mpTitleLayout->FindPaneByName("N_Btn_3");
                 compactButton->SetVisible(true);
+                mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(false);
+||||||| parent of f3413243 (sceneleft: iplAddress set_err_msg/movePane_onDrag decodes, SDChannelSelect static setEventHandler)
+                mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(true);
                 mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(false);
                 mDisplayMode = 3;
             }
@@ -1263,13 +1270,12 @@ namespace ipl {
         void SDMemory::drawTransferTitles() {
             const nw4r::math::VEC3& translation = mpDialogLayout->FindPaneByName("N_Memo")->GetTranslate();
             nw4r::math::VEC3 memoPosition;
+            f32 bodyY = translation.y;
             memoPosition.x = translation.x;
-            memoPosition.y = translation.y;
+            memoPosition.y = bodyY;
             memoPosition.z = translation.z;
             mpDialogLayout->FindPaneByName("header_header");
             nw4r::lyt::Pane* bodyPane = mpDialogLayout->FindPaneByName("header_body");
-
-            f32 bodyY = memoPosition.y;
             if (bodyY < 500.0f) {
                 mpDialogLayout->draw("header_header");
             }
@@ -1288,9 +1294,12 @@ namespace ipl {
             if (mNandTitleCount != 0) {
                 const wchar_t* messageForCount = System::getMessage(0xCB);
                 const wchar_t* newline = wcsstr(messageForCount, L"\n");
-                while (newline != NULL) {
-                    ++lineCount;
-                    newline = wcsstr(newline + 1, L"\n");
+                if (newline != NULL) {
+                    const wchar_t* separator = L"\n";
+                    while (newline != NULL) {
+                        ++lineCount;
+                        newline = wcsstr(newline + 1, separator);
+                    }
                 }
 
                 const wchar_t* messageLine = System::getMessage(0xCB);
@@ -1298,13 +1307,14 @@ namespace ipl {
                     mpDialogLayout->FindPaneByName("T_Header_body"));
                 s32 totalLines = lineCount + 1;
                 s32 lineIndex = 0;
+                const wchar_t* lineSeparator = L"\n";
                 if (lineIndex < totalLines) {
-                    do {
-                    const wchar_t* lineEnd = wcsstr(messageLine, L"\n");
+                    while (lineIndex < totalLines) {
+                    const wchar_t* lineEnd = wcsstr(messageLine, lineSeparator);
                     if (lineEnd == NULL) {
                         utility::layout::set_string(messageText, messageLine);
                     } else {
-                        u32 lineLength = static_cast<u32>(lineEnd - messageLine);
+                        s32 lineLength = lineEnd - messageLine;
                         wcsncpy(mCurrentTitleName, messageLine, lineLength);
                         mCurrentTitleName[lineLength] = L'\0';
                         utility::layout::set_string(messageText, mCurrentTitleName);
@@ -1320,7 +1330,7 @@ namespace ipl {
 
                     messageOffset -= bodyHeight;
                     ++lineIndex;
-                    } while (lineIndex < totalLines);
+                    }
                 }
             }
 
@@ -1347,17 +1357,13 @@ namespace ipl {
                     GXColor gxActive;
                     writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
                     ++nandTitleIndex;
-                    nw4r::ut::Color active0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxActive);
-                    setTitleRowColors(titleText,
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)),
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)));
+                    GXColor activeColor = gxActive;
+                    setTitleRowColors(titleText, activeColor, activeColor);
                 } else {
                     GXColor gxInactive;
                     writeFourFlagBytes(&gxInactive.r, 0x64, 0x64, 0x64, 0xFF);
-                    nw4r::ut::Color inactive0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxInactive);
-                    setTitleRowColors(titleText,
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)),
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)));
+                    GXColor inactiveColor = gxInactive;
+                    setTitleRowColors(titleText, inactiveColor, inactiveColor);
                 }
 
                 nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
@@ -1409,8 +1415,8 @@ namespace ipl {
             flags[3] = fourth;
         }
 
-        void setTitleRowColors(nw4r::lyt::TextBox* textBox, const nw4r::ut::Color& first,
-                               const nw4r::ut::Color& second) NO_INLINE {
+        void setTitleRowColors(nw4r::lyt::TextBox* textBox, GXColor first,
+                               GXColor second) NO_INLINE {
             textBox->SetTextColors(first, second);
         }
 

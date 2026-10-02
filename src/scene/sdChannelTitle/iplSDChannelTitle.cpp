@@ -282,7 +282,7 @@ FaderSceneCommand SDChannelTitle::calcFadein() {
     if (!mpFade->isPlaying()) {
         iplSDChannelTitle_playBannerIntro(this);
         SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
-        button->setEventHandler(mpButtonEventHandler);
+        button->setEventHandler((::gui::EventHandler*)button, mpButtonEventHandler);
         button->animation(13);
         button->animation(14);
         mState = 1;
@@ -344,7 +344,7 @@ void SDChannelTitle::initCalcFadeout() {
         button->animation(15);
         button->animation(16);
     }
-    button->setEventHandler(NULL);
+    button->setEventHandler((::gui::EventHandler*)button, NULL);
 }
 
 FaderSceneCommand SDChannelTitle::calcFadeout() {
@@ -736,7 +736,8 @@ extern "C" void iplSDChannelTitle_startCopyProgress(SDChannelTitle* scene) {
         if (channel->mStateFlags == 3) {
             scene->mState = 26;
             scene->mErrorMessage = 0xaf;
-        } else if (scene->mpChannelSelect->enqueueChannelNotice(scene->mTitleId, reinterpret_cast<u32>(&scene->mTitleRange))) {
+        } else if (scene->mpChannelSelect->enqueueChannelNotice(0, static_cast<u32>(scene->mTitleId >> 32),
+                                                              static_cast<u32>(scene->mTitleId), reinterpret_cast<u32>(&scene->mTitleRange))) {
             scene->mState = 20;
         } else {
             scene->mState = 26;
@@ -825,7 +826,8 @@ extern "C" void iplSDChannelTitle_updateCopyStart(SDChannelTitle* scene) {
         ESTitleId temporaryTitle = SCGetTmpTitleID();
         if (temporaryTitle && scene->mTitleId != temporaryTitle) {
             if (System::isReceiveScheduleStopped()) {
-                if (scene->mpChannelSelect->enqueueStateNotice(temporaryTitle, 1)) {
+                if (scene->mpChannelSelect->enqueueStateNotice(0, static_cast<u32>(temporaryTitle >> 32),
+                                                              static_cast<u32>(temporaryTitle), 1)) {
                     scene->mState = 16;
                 } else {
                     scene->mState = 26;
@@ -1354,8 +1356,7 @@ extern "C" void iplSDChannelTitle_flushSaveBeforeExit(SDChannelTitle* scene, int
         System::getSaveData()->pushTitleCache(scene->mTitleId);
     }
     System::getSaveData()->getSDPrevPage() = scene->mPage;
-    EGG::Heap* saveHeap = System::getMem2App();
-    scene->mpSaveFile = System::getSaveData()->flushAsync(saveHeap);
+    scene->mpSaveFile = System::getSaveData()->flushAsync(System::getMem2App());
     __WPADReconnect(TRUE);
 }
 

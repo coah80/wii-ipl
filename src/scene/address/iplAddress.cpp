@@ -1589,7 +1589,7 @@ namespace ipl {
                     math::VEC2 offset;
                     offset.y = sPageOffset.y * PAGE_MAX;
                     offset.x = sPageOffset.x * PAGE_MAX;
-                    add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), math::VEC2(offset));
                     mpLayout->getAnim(4)->setAnmType(0);
                     mpLayout->getAnim(4)->play();
                     set_page_text("T_nmbr_b", mPage + 1);
@@ -1613,6 +1613,9 @@ namespace ipl {
             } message;
             message.text = System::getMessage(MESG_ERROR_CODE);
             wcsncat(errMsg, message.text, errMsgLen - wcslen(errMsg));
+||||||| parent of f3413243 (sceneleft: iplAddress set_err_msg/movePane_onDrag decodes, SDChannelSelect static setEventHandler)
+            wcsncat(errMsg, System::getMessage(MESG_ERROR_CODE), errMsgLen - wcslen(errMsg));
+            u32 msgId = MESG_ERROR_CODE;
 
             wchar_t errCode[32];
             memset(errCode, 0, sizeof(errCode));
@@ -1777,10 +1780,11 @@ namespace ipl {
             nw4r::math::VEC3 baseTrans = mpLayout->FindPaneByName("N_base_move")->GetTranslate();
             math::VEC2 pos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
             nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_name_move"));
-            const u16* name = mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX).attr.name;
+            const NWC24FriendInfo& info = mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX);
 
             f32 width = 0.0f;
-            if (textBox != NULL && name != NULL) {
+            const u16* name;
+            if (textBox != NULL && (name = info.attr.name) != NULL) {
                 textBox->GetFont()->GetWidth();
                 for (; *name != 0; name++) {
                     width += textBox->GetFont()->GetCharWidth(*name);
@@ -1940,11 +1944,10 @@ namespace ipl {
         }
 
         void FriendListCache::update(u32 index, const wchar_t* name, u64 fdId) {
-            NWC24FriendInfo* info = &mInfos[index];
-            info->attr.fdId = fdId;
-            memset(info->attr.name, 0, sizeof(info->attr.name));
-            wcsncpy((wchar_t*)info->attr.name, name, 10);
-            System::getNwc24Manager()->updateFriendInfo(info, index);
+            mInfos[index].attr.fdId = fdId;
+            memset(mInfos[index].attr.name, 0, sizeof(mInfos[index].attr.name));
+            wcsncpy((wchar_t*)mInfos[index].attr.name, name, 10);
+            System::getNwc24Manager()->updateFriendInfo(&mInfos[index], index);
         }
 
         void FriendListCache::del(u32 index) {

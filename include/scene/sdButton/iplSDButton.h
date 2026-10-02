@@ -103,6 +103,13 @@ namespace ipl {
 #endif
 
             void setEventHandler(::gui::EventHandler * event);
+||||||| parent of f3413243 (sceneleft: iplAddress set_err_msg/movePane_onDrag decodes, SDChannelSelect static setEventHandler)
+#ifdef IPL_SD_CHANNEL_SELECT_CPP
+            void setEventHandler(::gui::EventHandler * event,
+                                 ::gui::EventHandler * optOutEvent = NULL);
+#else
+            void setEventHandler(::gui::EventHandler * event, ::gui::EventHandler * optOutEvent);
+#endif
 
             void setText(const char* paneName, u32 msgId);
             void setText(const char* paneName, const wchar_t* text);
