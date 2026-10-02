@@ -772,7 +772,7 @@ config.libs = [
         ]
     ),
     IPLSection("channelTitle", [
-            Object(Equivalent,  "scene/channelTitle/iplChannelTitle.cpp"),
+            Object(Matching,    "scene/channelTitle/iplChannelTitle.cpp"),
         ]
     ),
     IPLSection("faceSelect", [
