@@ -14,7 +14,7 @@
 namespace ipl {
     namespace bs2 {
         Manager::Manager(EGG::Heap* pHeap)
-            : mIPLState(IPL_STATE_NO_DISK), mState(BS2_STT_NO_DISK), unk_0x0C(true), unk_0x0D(false), unk_0x0E(false), unk_0x0F(false),
+            : mIPLState(IPL_STATE_NO_DISK), mState(BS2_STT_NO_DISK), mbTickEnabled(true), mbUpdateRequested(false), mbAbortRequested(false), mbRestartRequested(false),
               mbIsDiagDisc(false), mbIncludesSeatTitles(false), mbHasBanner(FALSE), mUnlockedState(BS2_STT_NO_DISK), mbStartUpdate(false),
               mEntries(NULL), mEntrySize(1), mEntryOffset(0) {
             mpBannerBuffer = new (pHeap, DEFAULT_ALIGN) u8[BS2_DEFAULT_BANNER_SIZE];
@@ -30,13 +30,13 @@ namespace ipl {
                 return mIPLState;
             }
 
-            if (unk_0x0F && !System::isNandFull()) {
+            if (mbRestartRequested && !System::isNandFull()) {
                 BS2RestartStateMachine();
 
-                unk_0x0C = true;
+                mbTickEnabled = true;
                 mIPLState = IPL_STATE_NO_DISK;
-                unk_0x0F = false;
-            } else if (unk_0x0C) {
+                mbRestartRequested = false;
+            } else if (mbTickEnabled) {
                 BOOL old = OSDisableInterrupts();
 
                 mState = BS2Tick();
@@ -51,7 +51,7 @@ namespace ipl {
 
                 if (mbIsDiagDisc && System::isRsrcLoaded()) {
                     __WPADReconnect(TRUE);
-                    unk_0x0C = false;
+                    mbTickEnabled = false;
                     bootNewSystem();
                 }
             }
@@ -65,7 +65,7 @@ namespace ipl {
         }
 
         void Manager::startUpdate() {
-            unk_0x0D = true;
+            mbUpdateRequested = true;
             mbStartUpdate = true;
             mPrevEntry = 0;
             mPrevFound = 0;
@@ -88,11 +88,11 @@ namespace ipl {
         }
 
         void Manager::reserveRVLGame() {
-            unk_0x0C = false;
+            mbTickEnabled = false;
         }
 
         void Manager::reserveGCGame() {
-            unk_0x0C = false;
+            mbTickEnabled = false;
         }
 
         void Manager::startRVLGame() {
@@ -103,13 +103,13 @@ namespace ipl {
         }
 
         void Manager::abort() {
-            unk_0x0E = true;
-            unk_0x0F = false;
+            mbAbortRequested = true;
+            mbRestartRequested = false;
         }
 
         void Manager::restart() {
-            unk_0x0E = false;
-            unk_0x0F = true;
+            mbAbortRequested = false;
+            mbRestartRequested = true;
 
             System::checkNandOverFlowFlagAsync();
         }
@@ -195,7 +195,7 @@ namespace ipl {
                     break;
                 }
                 case BS2_STT_64: {
-                    unk_0x0C = false;
+                    mbTickEnabled = false;
                     mIPLState = IPL_STATE_8;
                     break;
                 }
@@ -216,25 +216,25 @@ namespace ipl {
         }
 
         void Manager::execTick(BS2State state) {
-            if (unk_0x0D) {
+            if (mbUpdateRequested) {
                 if (state == BS2_STT_UPDATE_DISK) {
                     BS2StartUpdate();
                 } else {
                     mbStartUpdate = false;
                 }
-            } else if (unk_0x0E) {
+            } else if (mbAbortRequested) {
                 if (state == BS2_STT_NO_DISK || state == BS2_STT_COVER_OPEN || state == BS2_STT_55 || state == BS2_STT_WRONG_DISK ||
                     state == BS2_STT_66 || state == BS2_STT_67 || state == BS2_STT_68 || state == BS2_STT_FATAL_ERROR ||
                     state == BS2_STT_UPDATE_FAILED || state == BS2_STT_DIRTY_DISK) {
-                    unk_0x0C = false;
+                    mbTickEnabled = false;
                     mIPLState = IPL_STATE_8;
                 } else {
                     BS2AbortStateMachine();
                 }
             }
 
-            unk_0x0D = false;
-            unk_0x0E = false;
+            mbUpdateRequested = false;
+            mbAbortRequested = false;
         }
 
         void Manager::updateTick() {
