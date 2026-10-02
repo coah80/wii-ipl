@@ -139,7 +139,7 @@ ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* 
 
     data = (ziU8*)Zi8GetTableAddress(1, 1, ZI_WORK);
     data += ((ziU8*)nodeAddress)[0xB] + (((ziU8*)nodeAddress)[0xA] << 8) + ((((ziU8*)nodeAddress)[9] & 0xF) << 16);
-    if (ZI_WORK->unk_0x16 != 0) {
+    if (ZI_WORK->cangjieEnabled != 0) {
         switch (data[0] & 7) {
         case 2:
             data += 2;
@@ -346,7 +346,7 @@ match_code:
             traversal.soundIndex = initialCode;
         }
         sound = (ziU8*)(tableAddress + ((node[9] & 0xF) * 0x10000 + (node[0xB] + node[0xA] * 0x100)));
-        if (ZI_WORK->unk_0x16 != 0) {
+        if (ZI_WORK->cangjieEnabled != 0) {
             switch (sound[0] & 7) {
             case 2:
                 sound += 2;

@@ -491,7 +491,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
     }
   }
   ZI_WORK->subLanguage = parameters->subLanguage;
-  ZI_WORK->unk_0x16 = Zi8GetFormatVersion(1,ZI_WORK) & 2;
+  ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1,ZI_WORK) & 2;
   options->maxCount = ZI_WORK->unk_0x10;
   options->maxWordLength = ZI_WORK->unk_0x0A;
   ZI_WORK->unk_0x0A = -1;
@@ -558,7 +558,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
     }
     else if ((parameters->language == 1) &&
             ((((parameters->getMode == 7 || (parameters->getMode == 8)) || (parameters->getMode == 10)) || (parameters->getMode == 9)))) {
-      if (ZI_WORK->unk_0x16 != '\0') {
+      if (ZI_WORK->cangjieEnabled != '\0') {
         candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
       } else {
         error = 0x708;

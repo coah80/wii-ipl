@@ -215,7 +215,7 @@ struct __zi8_work_data_s {
     ziU32 unk_0x0C;
     ziU32 unk_0x10;
     ziU16 unk_0x14;
-    ziU8 unk_0x16;
+    ziU8 cangjieEnabled;  // 0x16
     ziU8 unk_0x17;
     ziU8 subLanguage;  // 0x18
     ziU8 unk_0x19;

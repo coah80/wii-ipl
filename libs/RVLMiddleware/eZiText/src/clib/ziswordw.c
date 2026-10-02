@@ -103,10 +103,10 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
                 if (length == 1) return 1;
                 count = --length;
                 ordinals[count] |= 0x8000;
-                ZI_WORK->unk_0x16 = Zi8GetFormatVersion(1, __zi8_work_data) & 2;
+                ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1, __zi8_work_data) & 2;
                 entry = (ziChineseEntry*)Zi8GetTableAddress(1, 0, __zi8_work_data) + ordinals[0];
                 data = (ziU8*)Zi8GetTableAddress(1, 1, __zi8_work_data) + ((entry->offsetHigh & 15) << 16 | ((entry->offsetLow[0] << 8) | entry->offsetLow[1]));
-                if (ZI_WORK->unk_0x16 != 0) {
+                if (ZI_WORK->cangjieEnabled != 0) {
                     switch (*data & 7) {
                     case 2:
                         offset = 2;
