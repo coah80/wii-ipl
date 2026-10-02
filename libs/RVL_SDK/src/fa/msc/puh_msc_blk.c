@@ -86,9 +86,14 @@ s32 uhf_msc_blk_mount(FADisk* disk) {
     return ((device->flags >> 2) & 1) - 1;
 }
 
+static inline u16 ReadTransferBlocks(u32 remaining, u32 limit) {
+    u16 count = limit;
+    if (remaining <= limit) { count = remaining; }
+    return count;
+}
+
 s32 uhf_msc_blk_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* completed) {
-    UHF_MSC_DEVICE* device;
-    u16 transfer_blocks;
+    struct { UHF_MSC_DEVICE* device; u16 blocks; } transfer;
     s32 error;
     u32 block_size;
     u8* transfer_buffer;
@@ -103,24 +108,24 @@ s32 uhf_msc_blk_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* com
     if (blocks == 0) {
         return 0;
     }
-    device = NULL;
+    transfer.device = NULL;
     {
         u32 index;
         UHF_MSC_DEVICE* candidate;
         for (candidate = uhg_msc_blk_device_tbl, index = 0; index < 8; candidate++, index++) {
             if (candidate->disk == disk) {
-                device = &uhg_msc_blk_device_tbl[index];
+                transfer.device = &uhg_msc_blk_device_tbl[index];
                 break;
             }
         }
     }
-    if (device == NULL) {
+    if (transfer.device == NULL) {
         return -1;
     }
-    if (!(device->flags & 4)) {
+    if (!(transfer.device->flags & 4)) {
         return -1;
     }
-    block_size = device->block_size;
+    block_size = transfer.device->block_size;
     if (block_size == 0) {
         return -1;
     }
@@ -138,21 +143,18 @@ s32 uhf_msc_blk_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* com
         transfer_buffer = buffer;
     }
     do {
-        transfer_blocks = transfer_limit;
-        if (blocks <= transfer_limit) {
-            transfer_blocks = blocks;
-        }
-        error = usbh_msc_read10(device, sector, transfer_blocks, transfer_buffer, sense);
+        transfer.blocks = ReadTransferBlocks(blocks, transfer_limit);
+        error = usbh_msc_read10(transfer.device, sector, transfer.blocks, transfer_buffer, sense);
         if (error == 0) {
             if (!cacheable) {
-                memcpy(buffer, transfer_buffer, transfer_blocks * block_size);
-                buffer += transfer_blocks * block_size;
+                memcpy(buffer, transfer_buffer, transfer.blocks * block_size);
+                buffer += transfer.blocks * block_size;
             } else {
-                transfer_buffer += transfer_blocks * block_size;
+                transfer_buffer += transfer.blocks * block_size;
             }
-            blocks -= transfer_blocks;
-            sector += transfer_blocks;
-            *completed += transfer_blocks;
+            blocks -= transfer.blocks;
+            sector += transfer.blocks;
+            *completed += transfer.blocks;
             if (blocks == 0) {
                 break;
             }
@@ -162,8 +164,8 @@ s32 uhf_msc_blk_pread(FADisk* disk, u8* buffer, u32 sector, u32 blocks, u32* com
                     case 11:
                         break;
                     case 34:
-                        if (device->disk != NULL) {
-                            pdm_disk_notify_media_insert(device->disk);
+                        if (transfer.device->disk != NULL) {
+                            pdm_disk_notify_media_insert(transfer.device->disk);
                         }
                         break;
                     default:

@@ -225,7 +225,6 @@ typedef struct PFVOL_SET {
 PFVOL_SET pf_vol_set;
 
 static s8 default_volume_label[12] = "NO NAME    ";
-static const u8 deleted_entry_mark[8] = {0xE5};
 extern s32 PFDRV_mount(PFVOL_VOLUME* volume);
 extern s32 PFDRV_unmount(PFVOL_VOLUME* volume, u32 mode);
 extern s32 PFDRV_format(PFVOL_VOLUME* volume, const u8* format_options);
@@ -588,7 +587,7 @@ s32 PFVOL_p_rmvvol(PFVOL_VOLUME* volume) {
     u32 logical_position;
     u32 entry_position;
     u32 processed;
-    u8 deleted = deleted_entry_mark[0];
+    u8 deleted[1] = {0xE5};
     s32 error;
 
     error = PFENT_GetRootDir(volume, &root_entry);
@@ -603,7 +602,7 @@ s32 PFVOL_p_rmvvol(PFVOL_VOLUME* volume) {
         return error;
     }
     if (entry_position != 999999) {
-        error = PFSEC_WriteData(volume, &deleted, entry.entry_sector, entry.entry_offset, 1, &processed, 0);
+        error = PFSEC_WriteData(volume, deleted, entry.entry_sector, entry.entry_offset, 1, &processed, 0);
         if (error != 0) {
             return error;
         }
