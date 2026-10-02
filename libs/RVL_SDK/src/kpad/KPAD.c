@@ -276,14 +276,15 @@ static inline f32 object_interval_distance(f32 interval) {
 const f32 sensorIntervalConversion = 0.383864f;
 
 static void reset_kpad(KPADInside* kpad) {
-    f32 upperY;
+    f32 sensorDistance;
     f32 distanceValue;
     f32 zero;
-    f32 sensorDistance;
+    f32 upperY;
     f32 lowerY;
     f32 one;
     f32 negativeOne;
     KPADDPDObject* object;
+    f32 calibratedDistance;
     negativeOne = -1.0f;
     one = 1.0f;
     zero = 0.0f;
@@ -299,8 +300,9 @@ static void reset_kpad(KPADInside* kpad) {
     kpad->value508 = negativeOne / kp_err_dist_speed;
     kpad->value50C = kp_ah_circle_radius * kp_ah_circle_radius;
     kpad->value514 = kp_err_dist_min;
-    distanceValue = kp_dist_vv1 / sensorDistance;
-    kpad->value510 = kp_dist_vv1;
+    calibratedDistance = kp_dist_vv1;
+    distanceValue = calibratedDistance / sensorDistance;
+    kpad->value510 = calibratedDistance;
     kpad->status.release = 0;
     kpad->status.trig = 0;
     kpad->status.hold = 0;
@@ -854,26 +856,33 @@ static s8 select_1obj_continue(KPADInside* kpad) {
     }
     *matchedCandidate = *source;
     {
-        f32 axisX = kpad->horizonTangent.x;
-        f32 normX = kpad->horizonAxis.x;
-        f32 axisY = kpad->horizonTangent.y;
-        f32 normY = kpad->horizonAxis.y;
-        f32 distance = kpad->dpdObjectDistance;
-        f32 horizontal = axisX * normX;
-        f32 vertical = axisY * normX;
-        f32 offsetX;
-        f32 directionX;
+        f32 distance;
+        f32 normY;
+        f32 vertical;
         f32 directionY;
+        f32 offsetX;
+        f32 axisY;
+        f32 horizontal;
+        f32 axisX;
+        f32 directionX;
+        f32 normX;
         f32 offsetY;
         f32 tangentY;
         f32 tangentX;
+        axisX = kpad->horizonTangent.x;
+        normX = kpad->horizonAxis.x;
+        axisY = kpad->horizonTangent.y;
+        normY = kpad->horizonAxis.y;
+        distance = kpad->dpdObjectDistance;
+        horizontal = axisX * normX;
+        vertical = axisY * normX;
         tangentY = axisY * normY;
         tangentX = axisX * normY;
         directionX = horizontal + tangentY;
         directionY = vertical - tangentX;
-        offsetX = directionX * distance;
+        offsetX = distance * directionX;
         kpad->dpdObjectDirection.x = directionX;
-        offsetY = directionY * distance;
+        offsetY = distance * directionY;
         kpad->dpdObjectDirection.y = directionY;
         if (matchedCandidate == kpad->dpdState.candidates) {
             kpad->dpdState.candidates[1].x = matchedCandidate->x + offsetX;
