@@ -224,7 +224,7 @@ struct __zi8_work_data_s {
     ziU8 unk_0x1F;
     ziU16 unk_0x20[0x40];
     ziU16 unk_0xA0[0x42];
-    ziU16* unk_0x124[1];
+    ziU16* zhUwdPtrs[1];  // 0x124
     ziU8* unk_0x128;
     ziU8 unk_0x12C;
     ziU8 unk_0x12D;
