@@ -203,7 +203,7 @@ unsigned int Zi8MatchROMdata1(ziWChar *elements, ziU8 count, ziU8 language, ziWC
   if (ZI_WORK->unk_0x1764 == 0) {
     result = Zi8MatchROMdata0(elements,count,language & 0xff,output,capacity & 0xffff,
                              mode & 0xff,status & 0xff,0,1,acceptPrefix,0,&ZI_WORK->dawgCtx,
-                             ZI_WORK->unk_0x1760,ZI_WORK);
+                             ZI_WORK->search,ZI_WORK);
   }
   else {
     while (*ZI_WORK->unk_0x1764 != 0xff) {
@@ -211,7 +211,7 @@ unsigned int Zi8MatchROMdata1(ziWChar *elements, ziU8 count, ziU8 language, ziWC
                                capacity & 0xffff,mode & 0xff,status & 0xff,
                                *ZI_WORK->unk_0x1764,
                                ZI_WORK->unk_0x1764[1],acceptPrefix,0,
-                               &ZI_WORK->dawgCtx,ZI_WORK->unk_0x1760,ZI_WORK);
+                               &ZI_WORK->dawgCtx,ZI_WORK->search,ZI_WORK);
       if ((result & 0xff) != 0) break;
       ZI_WORK->unk_0x1764 += 2;
       status = 0;
@@ -380,6 +380,6 @@ void Zi8SyllablesROMdata(ziWChar *elements, ziU8 count, ziU8 language, ziWChar *
     }
   }
   Zi8MatchROMdata0(elements,count,language & 0xff,output,capacity,1,status,graphTable,keyTable,0,(ziU8 *)prefixLength,
-                   &ZI_WORK->dawgCtx,ZI_WORK->unk_0x1760,ZI_WORK);
+                   &ZI_WORK->dawgCtx,ZI_WORK->search,ZI_WORK);
   return;
 }
