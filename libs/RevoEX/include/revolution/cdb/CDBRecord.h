@@ -62,7 +62,7 @@ typedef struct _CDBRecordKey {
 } CDBRecordKey;
 
 typedef struct _CDBRecord {
-    u32 unk_0x00;
+    u32 database;  // 0x00
     void* cryptBuf;    // 0x04
     CDBRecordKey key;  // 0x08
     void* file;        // 0x38
