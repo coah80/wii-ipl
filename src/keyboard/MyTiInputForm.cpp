@@ -23,7 +23,7 @@ namespace memo {
 class EventHandler : public inputform::EventHandler {
 public:
     EventHandler(InputForm* form) : inputform::EventHandler(form), mpMemoForm(form) {}
-    virtual ~EventHandler() {}
+    virtual ~EventHandler();
     virtual void onTiEvent(gui::PaneComponent*, u32, Input*);
 private:
     InputForm* mpMemoForm;
@@ -48,14 +48,14 @@ protected:
 class WholePane : public AnmPane {
 public:
     WholePane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { meKeyType = 0; }
-    virtual ~WholePane() {}
+    virtual ~WholePane();
     virtual void onAnmEvent(AnmPaneEvent event);
 };
 
 class NigaoePane : public AnmPane {
 public:
     NigaoePane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : AnmPane(pane, observer) { meKeyType = 1; }
-    virtual ~NigaoePane() {}
+    virtual ~NigaoePane();
     virtual void onAnmEvent(AnmPaneEvent event);
 };
 
@@ -81,7 +81,7 @@ private:
 class SimpleAnmPane : public nw4rmanager::AnmPane {
 public:
     SimpleAnmPane(nw4r::lyt::Pane* pane, nw4rmanager::AnmObserver* observer) : nw4rmanager::AnmPane(pane, observer) {}
-    virtual ~SimpleAnmPane() {}
+    virtual ~SimpleAnmPane();
     virtual void init();
     virtual void changeAnimation(u32 id);
 };
@@ -792,8 +792,12 @@ void AnmPane::changeAnimation(u32 id) {
 }
 u32 AnmPane::getKeyType() const { return meKeyType; }
 void AnmPane::init() { meState = 0; }
+NigaoePane::~NigaoePane() {}
 void NigaoePane::onAnmEvent(AnmPaneEvent) {}
+WholePane::~WholePane() {}
 bool InputForm::isInScroll() { return mExScrollAnm.isActive(); }
+EventHandler::~EventHandler() {}
+SimpleAnmPane::~SimpleAnmPane() {}
 
 }
 }
