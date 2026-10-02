@@ -155,6 +155,30 @@ extern "C" const char scN_KOR[];
 extern "C" const char scN_CHN[];
 #pragma pop
 extern "C" const f32 scInputFormZeroF;
+extern "C" const f32 scInputForm640F;
+extern "C" const f64 scInputFormF32ConvertMagic;
+extern "C" const f32 scInputFormOneF;
+extern "C" const f32 scInputFormHalfF;
+extern "C" const f32 scInputFormDegToFIdxF;
+extern "C" const f32 scInputForm150F;
+extern "C" const f32 scInputForm30F;
+extern "C" const f32 scInputForm50F;
+extern "C" const f32 scInputForm10F;
+extern "C" const f32 scInputForm52F;
+extern "C" const f32 scInputFormTwoF;
+extern "C" const f32 scInputForm140F;
+extern "C" const f32 scInputForm90F;
+extern "C" const f32 scInputForm253F;
+extern "C" const f32 scInputForm20F;
+extern "C" const u8 scInputFormColorRU8;
+extern "C" const u8 scInputFormColorGU8;
+extern "C" const u8 scInputFormColorBU8;
+extern "C" const u8 scInputFormColorAU8;
+extern "C" const f32 scInputForm255F;
+extern "C" const f32 scInputForm127F;
+extern "C" const f32 scInputForm14592F;
+extern "C" const f64 scInputFormF64ConvertMagic;
+extern "C" const f32 scInputForm15F;
 extern "C" void _savegpr_20();
 extern "C" void _restgpr_20();
 extern "C" void _savegpr_27();
@@ -386,31 +410,6 @@ extern "C" const wchar_t pppURLCheck[2][10] = {L"http://", L"https://"};
 
 #pragma pop
 
-extern "C" const f32 scInputFormZeroF = 0.0f;
-extern "C" const f32 scInputForm640F = 640.0f;
-extern "C" const f64 scInputFormF32ConvertMagic = 4503601774854144.0;
-extern "C" const f32 scInputFormOneF = 1.0f;
-extern "C" const f32 scInputFormHalfF = 0.5f;
-extern "C" const f32 scInputFormDegToFIdxF = 0.7111111f;
-extern "C" const f32 scInputForm150F = 150.0f;
-extern "C" const f32 scInputForm30F = 30.0f;
-extern "C" const f32 scInputForm50F = 50.0f;
-extern "C" const f32 scInputForm10F = 10.0f;
-extern "C" const f32 scInputForm52F = 52.0f;
-extern "C" const f32 scInputFormTwoF = 2.0f;
-extern "C" const f32 scInputForm140F = 140.0f;
-extern "C" const f32 scInputForm90F = 90.0f;
-extern "C" const f32 scInputForm253F = 253.0f;
-extern "C" const f32 scInputForm20F = 20.0f;
-extern "C" const u8 scInputFormColorRU8 = 0xff;
-extern "C" const u8 scInputFormColorGU8 = 0x32;
-extern "C" const u8 scInputFormColorBU8 = 0x32;
-extern "C" const u8 scInputFormColorAU8 = 0;
-extern "C" const f32 scInputForm255F = 255.0f;
-extern "C" const f32 scInputForm127F = 127.0f;
-extern "C" const f32 scInputForm14592F = 14592.0f;
-extern "C" const f64 scInputFormF64ConvertMagic = 4503599627370496.0;
-extern "C" const f32 scInputForm15F = 15.0f;
 f32 sfColorPhase;
 
 bool mbHyphen = true;
@@ -1234,7 +1233,7 @@ void LayoutByNW4R::calc() {
     if (getPane(separator)) setVisible(static_cast<const LanguagePaneData*>(mpLanguageData)->separator, mbRepeat);
     else setVisible("N_separateBarAll", mbRepeat);
     if (!mScrollAnm.isActive()) {
-        if (0.0f > mfScrollY) up = true;
+        if (inputform::scInputFormZeroF > mfScrollY) up = true;
         if (mfMinScrollY < mfScrollY) down = true;
         if (mbUpVisible != up) {
             mbUpVisible = up;
@@ -1352,12 +1351,12 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
         util::replaceChar(animationName, 17, name, 0, 'P');
         if (event == 4 && (input->trigger & 0x800) && !mpInputForm->isInScroll()) {
             if (mpInputForm->isAbleToUp() && util::strcmp("P_txtScrll_UP", animationName)) {
-                textdrawer::Base::CursorPos movement = {0, 0.0f, 0.0f};
+                textdrawer::Base::CursorPos movement = {0, inputform::scInputFormZeroF, inputform::scInputFormZeroF};
                 movement.fCursorY = mpInputForm->getLineHeight();
                 mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
                 mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
             } else if (mpInputForm->isAbleToDown() && util::strcmp("P_txtScrll_DOWN", animationName)) {
-                textdrawer::Base::CursorPos movement = {0, 0.0f, 0.0f};
+                textdrawer::Base::CursorPos movement = {0, inputform::scInputFormZeroF, inputform::scInputFormZeroF};
                 movement.fCursorY = -mpInputForm->getLineHeight();
                 mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
                 mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
@@ -1368,7 +1367,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
                 if (component->isDragging(input->controller)) {
                     u32 duration = mpInputForm->getFlightDuration(input->controller, name);
                     if (duration >= 60 && duration % 20 == 0) {
-                        textdrawer::Base::CursorPos movement = {0, 0.0f, 0.0f};
+                        textdrawer::Base::CursorPos movement = {0, inputform::scInputFormZeroF, inputform::scInputFormZeroF};
                         movement.fCursorY = mpInputForm->getLineHeight();
                         mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
                         mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
@@ -1378,7 +1377,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
                 if (component->isDragging(input->controller)) {
                     u32 duration = mpInputForm->getFlightDuration(input->controller, name);
                     if (duration >= 60 && duration % 20 == 0) {
-                        textdrawer::Base::CursorPos movement = {0, 0.0f, 0.0f};
+                        textdrawer::Base::CursorPos movement = {0, inputform::scInputFormZeroF, inputform::scInputFormZeroF};
                         movement.fCursorY = -mpInputForm->getLineHeight();
                         mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
                         mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
@@ -1521,15 +1520,15 @@ bool Base::findURL(u32* start, u32* end, const wchar_t* string, u32 from, u32 to
 void Base::autoScroll() {
     if (mScrollAnm.isActive()) return;
     if (u32(meScrollFlag - SF_ScrollOn) > 1) return;
-    f32 cursorY = mfCursorY + getLineHeight() / 2.0f;
-    if (cursorY < 0.0f) {
-        s32 lines = s32(cursorY / getLineHeight() - 1.0f);
-        mScrollAnm.startAnm(mfScrollY, mfScrollY - lines * getLineHeight(), 15.0f, NULL, NULL);
+    f32 cursorY = mfCursorY + getLineHeight() / inputform::scInputFormTwoF;
+    if (cursorY < inputform::scInputFormZeroF) {
+        s32 lines = s32(cursorY / getLineHeight() - inputform::scInputFormOneF);
+        mScrollAnm.startAnm(mfScrollY, mfScrollY - lines * getLineHeight(), inputform::scInputForm15F, NULL, NULL);
         onSE(static_cast<sound::SE>(11));
     }
     if (cursorY >= (mRect.top - mRect.bottom) * getScale().y) {
         s32 lines = s32((cursorY - (mRect.top - mRect.bottom) * getScale().y) / getLineHeight()) + 1;
-        mScrollAnm.startAnm(mfScrollY, mfScrollY - lines * getLineHeight(), 15.0f, NULL, NULL);
+        mScrollAnm.startAnm(mfScrollY, mfScrollY - lines * getLineHeight(), inputform::scInputForm15F, NULL, NULL);
         onSE(static_cast<sound::SE>(11));
     }
     meScrollFlag = SF_NoScroll;
@@ -1541,7 +1540,7 @@ void textinput::util::Animation::startAnm(f32 start, f32 end, f32 duration, Anim
     mfStartPoint = start;
     mfEndPoint = end;
     mfAnimationTime = duration;
-    mfCurrentFrame = 0.0f;
+    mfCurrentFrame = inputform::scInputFormZeroF;
     mbInAnimation = true;
     mpAnimObserver = observer;
     mpData = data;
@@ -1569,12 +1568,12 @@ inline void DeadKeyStream::init() {
 
 void Base::init() {
     meInputMode = IM_Direct;
-    mfCursorX = 0.0f;
-    mfCursorY = 0.0f;
-    mfScrollX = 0.0f;
-    mfScrollY = 0.0f;
-    mfSustainTimer = 0.0f;
-    mfCursorTimer = 0.0f;
+    mfCursorX = scInputFormZeroF;
+    mfCursorY = scInputFormZeroF;
+    mfScrollX = scInputFormZeroF;
+    mfScrollY = scInputFormZeroF;
+    mfSustainTimer = scInputFormZeroF;
+    mfCursorTimer = scInputFormZeroF;
     muGlobalAlpha = 255;
     mDKStream.init();
     SetFixedWidth(GetFont()->GetWidth());
@@ -1765,16 +1764,16 @@ void Base::updateCandidateState_() {
 
 void Base::moveCursorUp() {
     f32 y = mfCursorY;
-    if (-(mfCursorY - mfScrollY) >= 0.0f) {
+    if (-(mfCursorY - mfScrollY) >= scInputFormZeroF) {
         u32 start, end;
         mpString->getCursorPos(&start, &end);
         if (start == 0 && end == 0) onSE(static_cast<sound::SE>(6));
         else onSE(static_cast<sound::SE>(5));
         mpString->setCursorPos(0);
     } else {
-        y = mfCursorY >= 0.0f ? mfCursorY : 0.0f;
+        y = mfCursorY >= scInputFormZeroF ? mfCursorY : scInputFormZeroF;
         f32 lineHeight = getLineHeight();
-        f32 targetY = 1.0f + (y - lineHeight);
+        f32 targetY = scInputFormOneF + (y - lineHeight);
         u32 position = calcCursorPos(mfCursorX, targetY);
         mpString->setCursorPos(position);
         onSE(static_cast<sound::SE>(5));
@@ -1792,7 +1791,7 @@ void Base::moveCursorDown() {
     } else {
         f32 lineHeight = getLineHeight();
         f32 y = mfCursorY + lineHeight;
-        mpString->setCursorPos(calcCursorPos(mfCursorX, 1.0f + y));
+        mpString->setCursorPos(calcCursorPos(mfCursorX, scInputFormOneF + y));
         onSE(static_cast<sound::SE>(5));
     }
     meScrollFlag = SF_ScrollOn;
@@ -2417,8 +2416,8 @@ void Base::onPressRight() {
     meScrollFlag = SF_ScrollOn;
 }
 
-inline f32 nextColorPhase(f32 phase) { phase += 2.0f; return phase; }
-inline f32 colorSine(f32 phase) { return nw4r::math::SinFIdx(phase * 0.7111111f); }
+inline f32 nextColorPhase(f32 phase) { phase += scInputFormTwoF; return phase; }
+inline f32 colorSine(f32 phase) { return nw4r::math::SinFIdx(phase * inputform::scInputFormDegToFIdxF); }
 void Base::calc() {
     if (mScrollAnm.isActive()) {
         f32 scroll = mScrollAnm.getValue();
@@ -2426,28 +2425,28 @@ void Base::calc() {
         mfDrawScrollY = mfScrollY;
     }
     if (!mScrollAnm.isActive()) autoScroll();
-    if (!mpString->isOnSustain()) mfSustainTimer = 1.0f + mfSustainTimer;
+    if (!mpString->isOnSustain()) mfSustainTimer = inputform::scInputFormOneF + mfSustainTimer;
     mScrollAnm.calc();
     f32 wave = colorSine(sfColorPhase);
     mSelectedColor.r = 2;
     mSelectedColor.g = 90;
     mSelectedColor.b = 253;
-    mSelectedColor.a = static_cast<u8>(150.0f + 30.0f * wave);
+    mSelectedColor.a = static_cast<u8>(inputform::scInputForm150F + inputform::scInputForm30F * wave);
     if (mpString->isOnSustain()) {
         mSelectedColor.r = 52;
         mSelectedColor.g = 140;
         mSelectedColor.b = 253;
-        mSelectedColor.a = static_cast<u8>(50.0f + 10.0f * wave);
-    } else if (mfSustainTimer <= 50.0f) {
-        mSelectedColor.r = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, 0.0f, 52.0f, 0.0f, 50.0f, 2.0f, 0.0f));
-        mSelectedColor.g = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, 0.0f, 140.0f, 0.0f, 50.0f, 90.0f, 0.0f));
-        u8 blue = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, 0.0f, 253.0f, 0.0f, 50.0f, 253.0f, 0.0f));
+        mSelectedColor.a = static_cast<u8>(inputform::scInputForm50F + inputform::scInputForm10F * wave);
+    } else if (mfSustainTimer <= inputform::scInputForm50F) {
+        mSelectedColor.r = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, inputform::scInputFormZeroF, inputform::scInputForm52F, inputform::scInputFormZeroF, inputform::scInputForm50F, inputform::scInputFormTwoF, inputform::scInputFormZeroF));
+        mSelectedColor.g = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, inputform::scInputFormZeroF, inputform::scInputForm140F, inputform::scInputFormZeroF, inputform::scInputForm50F, inputform::scInputForm90F, inputform::scInputFormZeroF));
+        u8 blue = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, inputform::scInputFormZeroF, inputform::scInputForm253F, inputform::scInputFormZeroF, inputform::scInputForm50F, inputform::scInputForm253F, inputform::scInputFormZeroF));
         f32 phase = sfColorPhase;
-        f32 angle = phase * 0.7111111f;
+        f32 angle = phase * inputform::scInputFormDegToFIdxF;
         mSelectedColor.b = blue;
         wave = nw4r::math::SinFIdx(angle);
-        f32 alpha = util::hermiteInterporation(mfSustainTimer, 0.0f, 50.0f, 0.0f, 50.0f, 150.0f, 0.0f);
-        mSelectedColor.a = static_cast<u8>(alpha + 20.0f * wave);
+        f32 alpha = util::hermiteInterporation(mfSustainTimer, inputform::scInputFormZeroF, inputform::scInputForm50F, inputform::scInputFormZeroF, inputform::scInputForm50F, inputform::scInputForm150F, inputform::scInputFormZeroF);
+        mSelectedColor.a = static_cast<u8>(alpha + inputform::scInputForm20F * wave);
     }
     u32 cursorTimer = muCursorTimer + 8;
     f32 phase = sfColorPhase;
@@ -2463,9 +2462,9 @@ Base::~Base() {}
 
 Base::Base(Manager* manager) : CommandReceiver(), textdrawer::Base(), candidatebox::CandidateBoxCaller(),
     mpString(NULL), mpUnfixString(NULL), mpZiString(NULL), meInputMode(IM_Direct), mePredictMode(PM_USEn),
-    mbPredictOn(false), mbDoWordWrap(true), mbRightWithSpace(true), mfCursorX(0.0f), mfCursorY(0.0f),
-    mfScrollX(0.0f), mfScrollY(0.0f), mScrollAnm(), mfSustainTimer(0.0f), meScrollFlag(SF_NoScroll),
-    muWordWrapCounter(0), muLimitStringLength(1024), muLimitRowNum(9999), mfCursorTimer(0.0f), muGlobalAlpha(255),
+    mbPredictOn(false), mbDoWordWrap(true), mbRightWithSpace(true), mfCursorX(inputform::scInputFormZeroF), mfCursorY(inputform::scInputFormZeroF),
+    mfScrollX(inputform::scInputFormZeroF), mfScrollY(inputform::scInputFormZeroF), mScrollAnm(), mfSustainTimer(inputform::scInputFormZeroF), meScrollFlag(SF_NoScroll),
+    muWordWrapCounter(0), muLimitStringLength(1024), muLimitRowNum(9999), mfCursorTimer(inputform::scInputFormZeroF), muGlobalAlpha(255),
     mCharColor(0xffffffff), mpAllocator(NULL), mpManager(manager), mDKStream(), meLanguage(USA),
     mbZuSelected(false), mbCursorSelected(false), mriManager(muLimitStringLength), mpCursorLine(NULL),
     mCursorLinePos(0), mbLineDraw(true), muSpecifyLineDrawCount(0), muCursorTimer(0) {
@@ -2596,7 +2595,7 @@ namespace inputform {
 }
 
 f32 textinput::util::Animation::getValue() {
-    return hermiteInterporation(mfCurrentFrame, 0.0f, mfStartPoint, 0.0f, mfAnimationTime, mfEndPoint, 0.0f);
+    return hermiteInterporation(mfCurrentFrame, inputform::scInputFormZeroF, mfStartPoint, inputform::scInputFormZeroF, mfAnimationTime, mfEndPoint, inputform::scInputFormZeroF);
 }
 
 namespace inputform {
@@ -2646,7 +2645,7 @@ namespace inputform {
 void textinput::util::Animation::calc() {
     if (mbInAnimation) {
         if (mfCurrentFrame < mfAnimationTime) {
-            mfCurrentFrame = 1.0f + mfCurrentFrame;
+            mfCurrentFrame = inputform::scInputFormOneF + mfCurrentFrame;
         } else {
             if (mbInAnimation && mpAnimObserver) {
                 mpAnimObserver->onAnmEvent(AnimObserver::AE_1, mpData);
@@ -2834,9 +2833,9 @@ void gui::GUIComponent::init() {
     if (mbInitialize) return;
     for (int point = 0; point < GUI_POINTS_MAX; ++point) {
         mbPointed[point] = false;
-        mDraggingPos[point].x = 0.0f;
-        mDraggingPos[point].y = 0.0f;
-        mDraggingPos[point].z = 0.0f;
+        mDraggingPos[point].x = inputform::scInputFormZeroF;
+        mDraggingPos[point].y = inputform::scInputFormZeroF;
+        mDraggingPos[point].z = inputform::scInputFormZeroF;
         mbDragging[point] = false;
         mFlightDuration[point] = 0;
     }
@@ -2950,10 +2949,10 @@ u32 Base::isOverRowLimit(u32 limit, const wchar_t* string) {
     mpString->getCursorPos(&cursorStart, &cursorEnd);
     for (;;) {
         DrawInfo info;
-        info.rect.left = 0.0f;
-        info.rect.top = 0.0f;
-        info.rect.right = 0.0f;
-        info.rect.bottom = 0.0f;
+        info.rect.left = scInputFormZeroF;
+        info.rect.top = scInputFormZeroF;
+        info.rect.right = scInputFormZeroF;
+        info.rect.bottom = scInputFormZeroF;
         kana = false;
         if (meLanguage == KR && !kanaHandled && cursorStart == pos) {
             kanaHandled = true;
@@ -3041,10 +3040,10 @@ bool Base::onCursor(CursorPos* cursor) {
                 }
                 if (*predicted == 0xFFFE) SetTextColor(csZiStringColorLeft);
                 DrawInfo glyph;
-                glyph.rect.left = 0.0f;
-                glyph.rect.top = 0.0f;
-                glyph.rect.right = 0.0f;
-                glyph.rect.bottom = 0.0f;
+                glyph.rect.left = scInputFormZeroF;
+                glyph.rect.top = scInputFormZeroF;
+                glyph.rect.right = scInputFormZeroF;
+                glyph.rect.bottom = scInputFormZeroF;
                 glyph.character = *predicted;
                 calcRect(glyph);
                 f32 width = glyph.rect.GetWidth();
@@ -3060,10 +3059,10 @@ bool Base::onCursor(CursorPos* cursor) {
     }
     if (meDestination == DST_JP && candidate) {
         DrawInfo glyph;
-        glyph.rect.left = 0.0f;
-        glyph.rect.top = 0.0f;
-        glyph.rect.right = 0.0f;
-        glyph.rect.bottom = 0.0f;
+        glyph.rect.left = scInputFormZeroF;
+        glyph.rect.top = scInputFormZeroF;
+        glyph.rect.right = scInputFormZeroF;
+        glyph.rect.bottom = scInputFormZeroF;
         glyph.character = candidate;
         calcRect(glyph);
         f32 left = glyph.rect.left + GetCursorX();
@@ -3071,7 +3070,7 @@ bool Base::onCursor(CursorPos* cursor) {
         f32 right = glyph.rect.right + GetCursorX();
         f32 bottomEdge = GetCursorY() + GetFontHeight();
         candidateBackground.a = muGlobalAlpha;
-        debug::drawBox_(left, top, right, bottomEdge, 0.0f, 1.0f, candidateBackground);
+        debug::drawBox_(left, top, right, bottomEdge, scInputFormZeroF, scInputFormOneF, candidateBackground);
         SetupGX();
         SetTextColor(mCharColor);
         switch (candidate) {
@@ -3079,19 +3078,19 @@ bool Base::onCursor(CursorPos* cursor) {
         case 0x3000: {
             DrawInfo space;
             DrawInfo marker;
-            space.rect.left = 0.0f;
-            space.rect.top = 0.0f;
-            space.rect.right = 0.0f;
-            space.rect.bottom = 0.0f;
-            marker.rect.left = 0.0f;
-            marker.rect.top = 0.0f;
-            marker.rect.right = 0.0f;
-            marker.rect.bottom = 0.0f;
+            space.rect.left = scInputFormZeroF;
+            space.rect.top = scInputFormZeroF;
+            space.rect.right = scInputFormZeroF;
+            space.rect.bottom = scInputFormZeroF;
+            marker.rect.left = scInputFormZeroF;
+            marker.rect.top = scInputFormZeroF;
+            marker.rect.right = scInputFormZeroF;
+            marker.rect.bottom = scInputFormZeroF;
             space.character = candidate;
             marker.character = 0xE057;
             calcRect(space);
             calcRect(marker);
-            f32 offset = ((space.rect.GetWidth() - marker.rect.GetWidth()) / 2.0f) * getScale().x;
+            f32 offset = ((space.rect.GetWidth() - marker.rect.GetWidth()) / scInputFormTwoF) * getScale().x;
             MoveCursorX(offset);
             Print(0xE057);
             MoveCursorX(offset);
@@ -3119,10 +3118,10 @@ bool Base::onCursor(CursorPos* cursor) {
         wchar_t character = *kana;
         if (mbPredictOn) character = util::HankakuToZenkaku(character);
         DrawInfo glyph;
-        glyph.rect.left = 0.0f;
-        glyph.rect.top = 0.0f;
-        glyph.rect.right = 0.0f;
-        glyph.rect.bottom = 0.0f;
+        glyph.rect.left = scInputFormZeroF;
+        glyph.rect.top = scInputFormZeroF;
+        glyph.rect.right = scInputFormZeroF;
+        glyph.rect.bottom = scInputFormZeroF;
         glyph.character = character;
         calcRect(glyph);
         if (meLanguage == JP) {
@@ -3131,7 +3130,7 @@ bool Base::onCursor(CursorPos* cursor) {
             f32 right = glyph.rect.right + GetCursorX();
             f32 bottomEdge = GetCursorY() + GetFontHeight();
             kanaBackground.a = muGlobalAlpha;
-            debug::drawBox_(left, top, right, bottomEdge, 0.0f, 1.0f, kanaBackground);
+            debug::drawBox_(left, top, right, bottomEdge, scInputFormZeroF, scInputFormOneF, kanaBackground);
             SetupGX();
             mCharColor.a = muGlobalAlpha;
             SetTextColor(mCharColor);
@@ -3160,7 +3159,7 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
     const wchar_t* string = mpString->getWCString();
     if (!*string) return 0;
     cursorX = getScale().x;
-    lineTop = 0.0f;
+    lineTop = scInputFormZeroF;
     lineBottom = lineTop;
     nw4r::math::VEC2 scale = getScale();
     u32 pos = 0;
@@ -3168,10 +3167,10 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
     mbHyphen = false;
     while (*string) {
         DrawInfo info;
-        info.rect.left = 0.0f;
-        info.rect.top = 0.0f;
-        info.rect.right = 0.0f;
-        info.rect.bottom = 0.0f;
+        info.rect.left = scInputFormZeroF;
+        info.rect.top = scInputFormZeroF;
+        info.rect.right = scInputFormZeroF;
+        info.rect.bottom = scInputFormZeroF;
         info.character = *string;
         calcRect(info);
         lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
@@ -3202,7 +3201,7 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
             if (!string[1] && localY >= lineTop && localY <= lineBottom) return pos + 1;
         } else {
             if (x >= cursorX && x < right && localY >= lineTop && localY < lineBottom) {
-                if (cursorX + 0.5f * (right - cursorX) > x) return pos;
+                if (cursorX + scInputFormHalfF * (right - cursorX) > x) return pos;
                 return pos + 1;
             }
             cursorX += scale.x * (info.rect.right - info.rect.left);
@@ -3211,17 +3210,17 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
         ++pos;
         if (!*string && localY >= lineTop && localY <= lineBottom) return pos;
     }
-    if (lineTop + (lineBottom - lineTop) * 0.5f <= localY) {
-        return Base::calcCursorPos(x, 1.0f + lineTop + mfScrollY);
+    if (lineTop + (lineBottom - lineTop) * scInputFormHalfF <= localY) {
+        return Base::calcCursorPos(x, scInputFormOneF + lineTop + mfScrollY);
     }
-    return Base::calcCursorPos(x, 1.0f);
+    return Base::calcCursorPos(x, scInputFormOneF);
 }
 
 nw4r::math::VEC2 Base::getGlobalLeftTopPos() const {
     nw4r::math::VEC3 position;
     position.x = mRect.left;
     position.y = mRect.bottom;
-    position.z = 0.0f;
+    position.z = scInputFormZeroF;
     PSMTXMultVec(mMtx, position, position);
     return nw4r::math::VEC2(position.x, -position.y);
 }
@@ -3264,7 +3263,7 @@ bool Base::doWordWrap(const wchar_t* string, u32 pos, f32 width) {
         }
     }
 
-    f32 stringWidth = 0.0f;
+    f32 stringWidth = inputform::scInputFormZeroF;
     f32 zero = stringWidth;
     u32 index;
     u32 hyphenPos;
@@ -3279,10 +3278,10 @@ bool Base::doWordWrap(const wchar_t* string, u32 pos, f32 width) {
             break;
         }
         WordWrapDrawInfo drawInfo;
-        drawInfo.left = 0.0f;
-        drawInfo.top = 0.0f;
-        drawInfo.right = 0.0f;
-        drawInfo.bottom = 0.0f;
+        drawInfo.left = inputform::scInputFormZeroF;
+        drawInfo.top = inputform::scInputFormZeroF;
+        drawInfo.right = inputform::scInputFormZeroF;
+        drawInfo.bottom = inputform::scInputFormZeroF;
         drawInfo.character = *stringPtr;
         calcRect(reinterpret_cast<DrawInfo&>(drawInfo));
         characterWrap = false;
@@ -3354,8 +3353,8 @@ bool Base::isOverLine(const DrawInfo& drawInfo) {
 
 void Base::drawFixString(u32 position) {
     CursorPos cursor;
-    cursor.fCursorX = 0.0f;
-    cursor.fCursorY = 0.0f;
+    cursor.fCursorX = inputform::scInputFormZeroF;
+    cursor.fCursorY = inputform::scInputFormZeroF;
     cursor.uCursorPos = position;
     mCharColor.a = muGlobalAlpha;
     SetTextColor(mCharColor);
@@ -3368,7 +3367,7 @@ void Base::drawFixString(u32 position) {
 void Base::draw() {
     SetCursor(getScale().x, mfScrollY);
     nw4r::math::VEC2 scale = getScale();
-    nw4r::ut::Rect clip(0.0f, 0.0f, 0.0f, 0.0f);
+    nw4r::ut::Rect clip(inputform::scInputFormZeroF, inputform::scInputFormZeroF, inputform::scInputFormZeroF, inputform::scInputFormZeroF);
     nw4r::math::VEC2 origin = getGlobalLeftTopPos();
     clip.left = origin.x;
     clip.bottom = origin.y;
@@ -3381,14 +3380,14 @@ void Base::draw() {
 }
 
 void Base::drawCursor(f32 x, f32 y) {
-    f32 opacity = static_cast<u32>(muGlobalAlpha) / 255.0f;
+    f32 opacity = static_cast<u32>(muGlobalAlpha) / inputform::scInputForm255F;
     mfCursorX = x;
     mfCursorY = y;
-    GXColor color = {scInputFormColorRU8, scInputFormColorGU8, scInputFormColorBU8, scInputFormColorAU8};
-    f32 pulse = nw4r::math::SinFIdx(0.7111111f * muCursorTimer);
-    color.a = static_cast<s32>(opacity * (127.0f + 127.0f * pulse));
+    GXColor color = {inputform::scInputFormColorRU8, inputform::scInputFormColorGU8, inputform::scInputFormColorBU8, inputform::scInputFormColorAU8};
+    f32 pulse = nw4r::math::SinFIdx(inputform::scInputFormDegToFIdxF * muCursorTimer);
+    color.a = static_cast<s32>(opacity * (inputform::scInputForm127F + inputform::scInputForm127F * pulse));
     f32 width = mfViewWidth - mfViewX;
-    debug::drawLine_(mfCursorX, 2.0f + mfCursorY, mfCursorX, (mfCursorY + GetFontHeight()) - 2.0f, 0.0f, static_cast<u8>(14592.0f / width), color);
+    debug::drawLine_(mfCursorX, inputform::scInputFormTwoF + mfCursorY, mfCursorX, (mfCursorY + GetFontHeight()) - inputform::scInputFormTwoF, inputform::scInputFormZeroF, static_cast<u8>(inputform::scInputForm14592F / width), color);
 }
 
 void Base::doScroll(Scroll* scroll) {
@@ -3399,7 +3398,7 @@ void Base::doScroll(Scroll* scroll) {
         mfDrawScrollY = mfScrollY;
     } else {
         mfScrollX += scroll->x;
-        mScrollAnm.startAnm(mfScrollY, mfScrollY + scroll->y, 15.0f, NULL, NULL);
+        mScrollAnm.startAnm(mfScrollY, mfScrollY + scroll->y, inputform::scInputForm15F, NULL, NULL);
     }
     onSE(static_cast<sound::SE>(11));
 }
@@ -3421,7 +3420,7 @@ void Base::doBeforeDrawProcess(const wchar_t* string, u32 position, const DrawIn
         f32 top = info.rect.top + GetCursorY();
         f32 right = info.rect.right + GetCursorX();
         f32 bottom = info.rect.bottom + GetCursorY();
-        debug::drawBox_(left, top, right, bottom, 0.0f, 1.0f, mSelectedColor);
+        debug::drawBox_(left, top, right, bottom, inputform::scInputFormZeroF, inputform::scInputFormOneF, mSelectedColor);
     }
 }
 
@@ -3562,7 +3561,7 @@ void Base::setPredictMode(PredictMode predictMode) {
 }
 
 nw4r::math::VEC2 Base::getScale() const {
-    return nw4r::math::VEC2(1.0f, 1.0f);
+    return nw4r::math::VEC2(inputform::scInputFormOneF, inputform::scInputFormOneF);
 }
 
 bool LayoutByNW4R::isAbleToUp() {
@@ -3587,10 +3586,10 @@ bool LayoutByNW4R::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 r
         nw4r::math::VEC2 point;
         point.x = x;
         point.y = y;
-        if (-y < getGlobalLeftTopPos().y + (mRect.top - mRect.bottom) / 2.0f) {
-            point.y = getGlobalLeftTopPos().y - 1.0f;
+        if (-y < getGlobalLeftTopPos().y + (mRect.top - mRect.bottom) / inputform::scInputFormTwoF) {
+            point.y = getGlobalLeftTopPos().y - inputform::scInputFormOneF;
         } else {
-            point.y = 1.0f + ((mRect.top - mRect.bottom) + getGlobalLeftTopPos().y);
+            point.y = inputform::scInputFormOneF + ((mRect.top - mRect.bottom) + getGlobalLeftTopPos().y);
         }
         onCommand(static_cast<INPUT_COMMAND>(16), &point);
     }
@@ -3691,3 +3690,29 @@ u32 Base::getDrawCacheStartPos() const {
 }
 }
 }
+
+extern "C" const f32 scInputFormZeroF = 0.0f;
+extern "C" const f32 scInputForm640F = 640.0f;
+extern "C" const f64 scInputFormF32ConvertMagic = 4503601774854144.0;
+extern "C" const f32 scInputFormOneF = 1.0f;
+extern "C" const f32 scInputFormHalfF = 0.5f;
+extern "C" const f32 scInputFormDegToFIdxF = 0.7111111f;
+extern "C" const f32 scInputForm150F = 150.0f;
+extern "C" const f32 scInputForm30F = 30.0f;
+extern "C" const f32 scInputForm50F = 50.0f;
+extern "C" const f32 scInputForm10F = 10.0f;
+extern "C" const f32 scInputForm52F = 52.0f;
+extern "C" const f32 scInputFormTwoF = 2.0f;
+extern "C" const f32 scInputForm140F = 140.0f;
+extern "C" const f32 scInputForm90F = 90.0f;
+extern "C" const f32 scInputForm253F = 253.0f;
+extern "C" const f32 scInputForm20F = 20.0f;
+extern "C" const u8 scInputFormColorRU8 = 0xff;
+extern "C" const u8 scInputFormColorGU8 = 0x32;
+extern "C" const u8 scInputFormColorBU8 = 0x32;
+extern "C" const u8 scInputFormColorAU8 = 0;
+extern "C" const f32 scInputForm255F = 255.0f;
+extern "C" const f32 scInputForm127F = 127.0f;
+extern "C" const f32 scInputForm14592F = 14592.0f;
+extern "C" const f64 scInputFormF64ConvertMagic = 4503599627370496.0;
+extern "C" const f32 scInputForm15F = 15.0f;

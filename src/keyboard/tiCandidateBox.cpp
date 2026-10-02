@@ -407,20 +407,21 @@ namespace textinput {
             for (u16 i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
                 pane = NULL;
                 const PaneToAnimation& p = scCandidatePaneData.panes[i];
+                const char* paneName = p.paneName;
                 switch (p.type) {
                     case KT_ScrollButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(CandidateScrollAnmPane));
-                        pane = new (pBtnBuf) CandidateScrollAnmPane(getPane(p.paneName), NULL);
+                        pane = new (pBtnBuf) CandidateScrollAnmPane(getPane(paneName), NULL);
                         break;
                     }
                     case KT_CandidateText: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(CandidateTextAnmPane));
-                        pane = new (pBtnBuf) CandidateTextAnmPane(getPane(p.paneName), NULL);
+                        pane = new (pBtnBuf) CandidateTextAnmPane(getPane(paneName), NULL);
                         break;
                     }
                     case KT_OnOffButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(OnOffAnmPane));
-                        pane = new (pBtnBuf) OnOffAnmPane(getPane(p.paneName), &mOnOffButton);
+                        pane = new (pBtnBuf) OnOffAnmPane(getPane(paneName), &mOnOffButton);
                         break;
                     }
 
@@ -1783,4 +1784,8 @@ namespace textinput {
         }
 
     }  // namespace candidatebox
+
+    namespace gui {
+        u16 GUIComponent::getFlightDuration(int point) { return mFlightDuration[point]; }
+    }
 }  // namespace textinput

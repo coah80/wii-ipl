@@ -69,8 +69,8 @@ ziU32 Zi8_81483264(const ziGetParam* param ZI_NEED_WORK) {
         return 1;
     }
 
-    for (i = 0; i < param->maxCandidates; i++) {
-        ((ziU16*)param->scratch)[i] = 0;
+    for (i = 0; i < ((volatile ziGetParam*)param)->maxCandidates; i++) {
+        ((ziU16*)((volatile ziGetParam*)param)->scratch)[i] = 0;
     }
 
     Zi8LogError(0x64, ZI_WORK);

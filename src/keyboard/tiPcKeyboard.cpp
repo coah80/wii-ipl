@@ -19,7 +19,7 @@ namespace textinput {
             extern SelectorPosition chinesePosition;
             extern SelectorPosition koreanPosition;
 
-            static const wchar_t* PREDICT_CAPTIONS[] = {L"", L"", L"Eng", L"Fra", L"Esp", L"EN", L"DE", L"FR", L"ES", L"IT", L"NL", L"CN", L"KR"};
+            static const wchar_t* PREDICT_CAPTIONS[] = {L"\0\0\0", L"\0\0\0", L"Eng", L"Fra", L"Esp", L"EN", L"DE", L"FR", L"ES", L"IT", L"NL", L"CN", L"KR"};
 
             static const GridKey csGridKeyboard[] = {
                 {"P_Gkey_00", {0xe0, 0x21, 0x0, 0x0}},         {"P_Gkey_01", {0xe1, 0x3f, 0x3042, 0x30a2}},
@@ -2689,7 +2689,7 @@ namespace textinput {
                             if (name[0] == 'B') {
                                 char animationName[17];
                                 util::replaceChar(animationName, sizeof(animationName), name, 0, 'P');
-                                if (strncmp(name + 5, "Chng", 4) == 0 || strncmp(name + 7, "Chng", 4) == 0 || strncmp(name + 7, "prdc", 4) == 0) {
+                                if (strncmp(name + 5, "Chng", 4) == 0 || strncmp(name + 7, "Chng", 4) == 0 || strncmp(name + 7, "prdc\0\0\0", 4) == 0) {
                                     util::replaceChar(animationName, sizeof(animationName), name, 0, 'W');
                                 }
                                 nw4rmanager::AnmPane* animation = mpKeyboard->searchAnmPane(animationName);
@@ -3201,5 +3201,14 @@ namespace textinput {
             SelectorPosition koreanPosition = {{-209.0f, -90.0f, 0.0f}};
 
         }
+    }
+
+    namespace gui {
+        bool GUIComponent::isDragging(int point) { return mbDragging[point]; }
+        void GUIComponent::setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }
+
+        void EventHandler::onEvent(GUIComponent& comp, u32 event, void* data) {}
+        void EventHandler::setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }
+        int EventHandler::getLatestEventCtrlNo() { return muLatestEventCtrlNo; }
     }
 }

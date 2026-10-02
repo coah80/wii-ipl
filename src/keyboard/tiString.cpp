@@ -14,7 +14,9 @@ void KPRSetMode(KPRQueue*, u32);
 
 namespace textinput {
 namespace tistring {
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
 Decolated::~Decolated() {}
+#endif
 void StringBase::create(MEMAllocator* allocator) {
     mpAllocator = allocator;
     mpszString = static_cast<wchar_t*>(MEMAllocFromAllocator(allocator, muMaxLength << 1));

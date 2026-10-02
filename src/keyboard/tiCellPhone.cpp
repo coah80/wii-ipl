@@ -1434,4 +1434,8 @@ namespace textinput {
 
         }
     }
+
+    namespace gui {
+        void GUIComponent::setFlightDuration(int point, u16 flightDir) { mFlightDuration[point] = flightDir; }
+    }
 }
