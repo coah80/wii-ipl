@@ -272,7 +272,7 @@ struct __zi8_work_data_s {
     ziU16 capacity;  // 0x141A
     ziU8 unk_0x141C;
     ziU8 unk_0x141D;
-    ziU8 unk_0x141E;
+    ziU8 graphTableId;  // 0x141E
     ziU8 maxCnt;  // 0x141F
     ziU8 unk_0x1420[4];
     zi8DawgCtx dawgCtx;    // 0x1424

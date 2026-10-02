@@ -39,10 +39,10 @@ ziU32 Zi8MatchROMdata0(ziWChar* elements, ziU8 count, ziU8 language,
         }
         if (mode == 1) acceptPrefix = 0;
     } else {
-        if (ZI_WORK->unk_0x141E != 0 && graphTable == 0xc &&
-            Zi8GetTableSize(language, ZI_WORK->unk_0x141E, ZI_WORK) != 0) {
-            graphData = (ziU8*)Zi8GetTableAddress(language, ZI_WORK->unk_0x141E, ZI_WORK);
-            keyTable = ZI_WORK->unk_0x141E + 1;
+        if (ZI_WORK->graphTableId != 0 && graphTable == 0xc &&
+            Zi8GetTableSize(language, ZI_WORK->graphTableId, ZI_WORK) != 0) {
+            graphData = (ziU8*)Zi8GetTableAddress(language, ZI_WORK->graphTableId, ZI_WORK);
+            keyTable = ZI_WORK->graphTableId + 1;
         } else {
             if (Zi8GetTableSize(language, graphTable, ZI_WORK) == 0) {
                 Zi8LogError(0x961, ZI_WORK);
@@ -232,9 +232,9 @@ unsigned int Zi8MatchROMdata2(ziWChar* elements, ziU8 count, ziU8 language,
         ZI_WORK->unk_0x1768 = 0;
         ZI_WORK->matchOffset = 0;
         if (group != 0 && *group == 0xc && language == 10 && ZI_WORK->unk_0x141C != 0) {
-            ZI_WORK->unk_0x141E = 0x10;
+            ZI_WORK->graphTableId = 0x10;
         } else {
-            ZI_WORK->unk_0x141E = 0;
+            ZI_WORK->graphTableId = 0;
         }
     }
 search_segment:
@@ -273,14 +273,14 @@ search_segment:
                 if (ZI_WORK->matchOffset == count) return 0;
                 ZI_WORK->unk_0x1768++;
                 status = 0;
-                ZI_WORK->unk_0x141E = 0;
+                ZI_WORK->graphTableId = 0;
                 if (ZI_WORK->dawgCtx.key == 0 && language == 10) {
                     for (index = 0; index < ZI_WORK->matchOffset; index++) {
                         switch (ZI_WORK->unk_0x17F4[index]) {
                         case 0x61:
                         case 0x6f:
                         case 0x75:
-                            ZI_WORK->unk_0x141E = 0x10;
+                            ZI_WORK->graphTableId = 0x10;
                             goto search_segment;
                         }
                     }
