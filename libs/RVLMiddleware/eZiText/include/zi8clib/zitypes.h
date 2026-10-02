@@ -228,7 +228,7 @@ struct __zi8_work_data_s {
     ziU8* unk_0x128;
     ziU8 uwdPtrCount;  // 0x12C
     ziU8 unk_0x12D;
-    ziU8 unk_0x12E;
+    ziU8 uwdPrioritySort;  // 0x12E
     ziU8 unk_0x12F;
     ziPtr uwdDicts[2];  // 0x130
     ziU8 uwdDictCount;  // 0x138

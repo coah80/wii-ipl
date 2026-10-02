@@ -41,7 +41,7 @@ ziBool Zi8_81480224(ziUserWord* word ZI_NEED_WORK) {
     current = ZI_WORK->uwdList;
     while (current != 0) {
         candidate = (ziUserWord*)current->word;
-        if (ZI_WORK->unk_0x12E == 1 && candidate->priority < word->priority) break;
+        if (ZI_WORK->uwdPrioritySort == 1 && candidate->priority < word->priority) break;
         if (candidate->length == length) {
             position = 0;
             while (position < length) {
