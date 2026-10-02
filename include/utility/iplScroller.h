@@ -32,8 +32,8 @@ namespace ipl {
             void set_arw_param();
 
             int mState;  // 0x04
-            math::VEC2 unk_0x08;
-            math::VEC2 unk_0x10;
+            math::VEC2 mCurPos;
+            math::VEC2 mStartPos;
             f32 mSpeed;      // 0x18
             f32 mSoundFreq;  // 0x1C
         };
@@ -55,7 +55,7 @@ namespace ipl {
             void init() {
                 mState = 0;
                 mScroll = 0.0f;
-                unk_0x3C = 0.0f;
+                mVelocity = 0.0f;
                 mUpLimit = 0.0f;
                 mDownLimit = 0.0f;
             }
@@ -92,11 +92,11 @@ namespace ipl {
             int mState;      // 0x30
             f32 mDownLimit;  // 0x34
             f32 mUpLimit;    // 0x38
-            f32 unk_0x3C;
+            f32 mVelocity;
             f32 mScroll;  // 0x40
-            f32 unk_0x44;
-            f32 unk_0x48;
-            f32 unk_0x4C;
+            f32 mAnimFrom;
+            f32 mFriction;
+            f32 mAccel;
         };
     }  // namespace utility
 }  // namespace ipl
