@@ -127,12 +127,18 @@ s32 NHTTPi_intToStr(char* destination, u32 value) {
 }
 
 s32 NHTTPi_compareToken(const char* left, const char* right) {
+    int leftCharacter, rightCharacter;
+    s8 leftByte;
+    goto loop;
     for (;;) {
-        int rightCharacter=LowerCase(*right);
-        int leftCharacter=LowerCase(*left);
-        if(leftCharacter!=rightCharacter) break;
-        if(*left==0 || *left==' ') return 0;
+        if((s8)*left==0 || (s8)*left==' ') return 0;
         ++left; ++right;
+loop:
+        rightCharacter=*right + 0x20;
+        if(!((*right>='A') & (*right<='Z'))) rightCharacter=*right;
+        leftByte=(s8)*left;
+        leftCharacter=LowerCase(leftByte);
+        if(leftCharacter!=rightCharacter) break;
     }
     return -1;
 }
