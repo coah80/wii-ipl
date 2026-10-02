@@ -743,15 +743,16 @@ NWC24Err NWC24iSetMsgSubjectQP(NWC24MsgObj* msg, const u16* subject, u32 subject
                                u32 workSize, NWC24Charset charset, char* charsetName) {
     u32 workHalf;
     u32 sourceOffset;
-    u32 secondSize;
+    u32 charsetLength;
     u8* second;
     u32 subjectLength;
     u32 lineLength;
-    u32 outputLength;
+    u32 secondSize;
     u32 total;
     u32 combinedLength;
     u32 i;
-    u32 charsetLength;
+    u32 outputLength;
+    u32 firstCharsetLength;
     NWC24Err result;
 
     secondSize = workSize - (workSize >> 1);
@@ -770,8 +771,8 @@ NWC24Err NWC24iSetMsgSubjectQP(NWC24MsgObj* msg, const u16* subject, u32 subject
                     work[i] = ' ';
                 }
             }
-            charsetLength = strlen(charsetName);
-            NWC24iDetectBreakPoint(&lineLength, charset, work, subjectLength, (0x38 - charsetLength) / 3);
+            firstCharsetLength = strlen(charsetName);
+            NWC24iDetectBreakPoint(&lineLength, charset, work, subjectLength, (0x38 - firstCharsetLength) / 3);
             result = NWC24EncodeWord(second, secondSize, &outputLength, charsetName, 0x40, 'Q', work, lineLength);
             switch (result) {
                 default:
