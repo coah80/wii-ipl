@@ -624,7 +624,6 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
 
 USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     u32 index;
-    KBDLEDCommand* command;
     BOOL interrupts;
     USBKBDErr result;
     u8 ledBits;
@@ -634,20 +633,16 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     if (channel >= 4) {
         return 4;
     }
-    if ((s32)kbdChannelFlags(channel) == 1 || (s32)kbdChannelFlags(channel) == 4) {
+    if ((s32)kbdData[(s32)channel].flags == 1 || (s32)kbdData[(s32)channel].flags == 4) {
         return 5;
     }
     ledBits = leds & 0xff;
     interrupts = OSDisableInterrupts();
-    index = 0;
-    command = kbdCmdBuf;
-    while (index < 12) {
-        if (command->device == 0) {
-            command->device = (u32)kbdData[channel].device;
+    for (index = 0; index < 12; index++) {
+        if (kbdCmdBuf[(s32)index].device == 0) {
+            kbdCmdBuf[(s32)index].device = (u32)kbdData[channel].device;
             break;
         }
-        index++;
-        command++;
     }
     OSRestoreInterrupts(interrupts);
     if (index == 12) {
@@ -655,7 +650,7 @@ USBKBDErr KBDSetLeds(u32 channel, u32 leds) {
     }
     result = USBKBDSetLED((u32)kbdData[channel].device, ledBits,
                           (USBKBDCmdLED*)&kbdCmdBuf[index]);
-    kbdCmdBuf[index].device = 0;
+    kbdCmdBuf[(s32)index].device = 0;
     switch (result) {
     default:
         return 7;
