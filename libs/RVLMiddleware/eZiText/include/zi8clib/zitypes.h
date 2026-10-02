@@ -267,7 +267,7 @@ struct __zi8_work_data_s {
     ziU8 unk_0x140C[4];
     ziU32 formats;  // 0x1410
     ziU8 unk_0x1414[4];
-    ziU8 unk_0x1418;
+    ziU8 formatCount;
     ziU8 unk_0x1419;
     ziU16 unk_0x141A;
     ziU8 unk_0x141C;
