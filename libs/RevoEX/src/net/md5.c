@@ -72,7 +72,7 @@ static inline u32 rotateSum(u32 state, const u32* word, u32 constant, int shift)
     // Each rotation half reads its own byte-reversed message word.
     u32 right = __lwbrx((void*)word, 0);
     u32 left = __lwbrx((void*)word, 0);
-    return ((state + (left + constant)) << shift) | ((right + (constant + state)) >> (32 - shift));
+    return ((state + (constant + left)) << shift) | ((constant + (state + right)) >> (32 - shift));
 }
 
 #define STEP(a, b, c, d, f, word, n) ((a) = (b) + rotateSum((a) + (f), word, *constant, n))
@@ -90,10 +90,10 @@ static void ProcessBlock(NETMD5Context* context) {
     word = block;
     constant = constants;
     for (round = 0; round < 4; ++round) {
-        STEP(a,b,c,d,(b & c) | (~b & d),word,7); ++word; ++constant;
-        STEP(d,a,b,c,(a & b) | (~a & c),word,12); ++word; ++constant;
-        STEP(c,d,a,b,(d & a) | (~d & b),word,17); ++word; ++constant;
-        STEP(b,c,d,a,(c & d) | (~c & a),word,22); ++word; ++constant;
+        STEP(a,b,c,d,(b & c) | (~b & d),word++,7); ++constant;
+        STEP(d,a,b,c,(a & b) | (~a & c),word++,12); ++constant;
+        STEP(c,d,a,b,(d & a) | (~d & b),word++,17); ++constant;
+        STEP(b,c,d,a,(c & d) | (~c & a),word++,22); ++constant;
     }
     index = indices;
     for (round = 0; round < 4; ++round) {
