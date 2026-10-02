@@ -239,3 +239,13 @@ Verdict: remaining nwc24 diffs are all allocator/scheduler-internal homes; sourc
 - Variants tried: named `charsetStart` pin (82/84 -2, pins but still index-form — MWCC won't walk a named web), manual walking scan `for(...;scan++)` + `end=start+offset+2` recompute (84/84 insn-equal, RIGHT structure, 44d whole-fn scatter), goto fallthrough `end=NULL` (40d, +1 web savegpr_23), nested-if tail (83/84 -1), size-arg re-assoc `-2` forms (35d same).
 - UNRESOLVED: how to make MWCC materialize `start+2` as a dead-temp callee web that feeds BOTH the size-arg subf AND the inlined input (walk target). Committed FindMarker form stays at 35d.
 - Manual walking scan is a legitimate orig-plausible form (keep as fallback evidence) — its scatter was arg-window +1 shift, same family as everywhere.
+
+## wave 22 — scoped-switch-result + post-loop-web arg experiments
+- CheckMsgBoxSpace: no error-return switch arms in the pfrest idiom sense — its switch assigns textSize per-arm then joins (already the join-consume shape). `textSize` uninit: no effect. 75d = duff-unrolled EstimateBase64Size interleave + savegpr_23v22 (+1 web wall).
+- ExtractCharset post-loop-web arg: `FindMarker(start+2,...)` IS the post-loop-web form — verified via full disasm that base's match-path recomputes `(start+offset)+2` (FindMarker `return input+offset` reassociated). The missing piece remains forcing `start+2` into a callee-pinned dead-temp; named pins don't walk, raw expr reassociates per-iter.
+- FindMarker `pos` removed (inline `input+offset` in strncmp arg): WORSE everywhere (ExtractEncodedText 13->49) — `pos` local is required, it's a real orig object.
+- ExtractEncodedText: `end` early-init (no change), buffer-end-subtraction size arg (16d, reverted).
+- QDecode: decl reorder (41d) + decl-init'd input/output (51d) both regress — early arg webs force different save window.
+- CopyWithoutLinearWhiteSpaces: value hoist/type/int-s32/u32/outputSize-deref/cap-expr — all no-op or worse; stays at committed 13d (vol home rotation r8-r11).
+- DecodeWord 140: same +1-callee-web wall (savegpr_19v18); base homes `encoded` at r18 (lowest pin) = longest-live web, needs one more pinned web than any source form produces.
+- CONFIRMED PATTERN: all remaining nwc24 fn-level diffs are web-home rotations where base pins exactly ONE more callee web (savegpr_N vs savegpr_N+1) or assigns arg-copy homes in a different order — allocator-internal, no source lever found across ~40 variants this session.
