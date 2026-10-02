@@ -113,6 +113,8 @@ namespace textinput {
 #ifdef TIMANAGER_IMPLEMENTATION
             virtual void setTitleText(wchar_t* titleText);
             void initAspect();
+#elif defined(MYTIMANAGER_IMPLEMENTATION)
+            virtual void setTitleText(wchar_t* titleText);
 #else
             virtual void                                setTitleText(const wchar_t* titleText);
 #endif
