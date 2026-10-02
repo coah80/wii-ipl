@@ -43,13 +43,13 @@ namespace ipl {
         mMessageID = msgId;
 
         // Debug related? (seems to be incomplete; unused)
-        unk_0x0C = arg2;
-        unk_0x10 = arg3;
+        mArg2 = arg2;
+        mArg3 = arg3;
         if (arg1) {
-            strncpy(unk_0x14, arg1, sizeof(unk_0x14));
-            unk_0x14[sizeof(unk_0x14) - 1] = 0;
+            strncpy(mArg1, arg1, sizeof(mArg1));
+            mArg1[sizeof(mArg1) - 1] = 0;
         } else {
-            memset(unk_0x14, 0, sizeof(unk_0x14));
+            memset(mArg1, 0, sizeof(mArg1));
         }
 
         curThread = OSGetCurrentThread();
