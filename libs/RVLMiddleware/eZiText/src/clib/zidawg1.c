@@ -1,7 +1,7 @@
 #include <zi8clib/zierror.h>
 #include <zi8clib/zitypes.h>
 
-extern ziU16 nodeHeaderTable[16];
+extern const ziU16 nodeHeaderTable[16];
 
 ziU32 ZiDAWGGetChild(ziU32 node) {
     ziU32 base;
@@ -43,9 +43,9 @@ ziU32 ZiDAWGGetChild(ziU32 node) {
 }
 
 ziU8* ZiDAWGGetSibling(ziU8* cursor) {
-    ziU16 header;
-    ziU8* node;
     ziS32 depth;
+    ziU8* node;
+    ziU16 header;
     ziS32 offset;
 
     depth = 0;
@@ -127,7 +127,7 @@ ziU8 ZiDAWGgetEOWattribute(ziU32 node) {
     return (nodeHeaderTable[*(ziU8*)node >> 4] & 0x10) > 0;
 }
 
-ziU32 ZiDAWGgetCHARattribute(ziPtr context, ziU32 node, ziPtr __zi8_work_data) {
+ziU32 ZiDAWGgetCHARattribute(zi8DawgCtx* context, ziU32 node, ziPtr __zi8_work_data) {
     ziU8 key;
     ziU32 attribute;
 
@@ -137,15 +137,15 @@ ziU32 ZiDAWGgetCHARattribute(ziPtr context, ziU32 node, ziPtr __zi8_work_data) {
         key = (ziU32)*(ziU8*)node & 0xf;
     }
 
-    if (key > ((zi8DawgCtx*)context)->cap) {
+    if (key > context->cap) {
         Zi8LogError(0x138b, __zi8_work_data);
         return 0;
     }
 
     attribute = key << 24;
-    attribute |= ((ziU8*)((zi8DawgCtx*)context)->p0C)[key] << 16;
-    attribute += ((ziU32)((ziU8*)((zi8DawgCtx*)context)->p08)[key * 2] & 0xFFFF) << 8;
-    attribute += ((ziU8*)((zi8DawgCtx*)context)->p08)[key * 2 + 1];
+    attribute |= ((ziU8*)context->p0C)[key] << 16;
+    attribute |= (((ziU32)((ziU8*)context->p08)[key * 2] & 0xFFFF) << 8) +
+                 ((ziU8*)context->p08 + key * 2)[1];
     Zi8LogError(0x64, __zi8_work_data);
     return attribute;
 }
@@ -158,9 +158,9 @@ ziU32 ZiDAWGGetGraph(ziPtr context) {
 
 ziU32 ZiDAWGGetGraphInfo(zi8DawgCtx* context, ziU8* entry, ziU16* keys) {
     ziU32 graph;
-    ziS32 result;
-    ziU32 end;
     ziU8 depth;
+    ziU32 end;
+    ziS32 result;
 
     graph = ZiDAWGGetGraph(context);
     result = 0;
@@ -203,7 +203,7 @@ checkEntry:
             break;
         }
 
-        end = (ziU32)(entry + (((ziU16)entry[0] << 8) + entry[1]) * 10 + 10);
+        end = (((ziU16)entry[0] << 8) + entry[1]) * 10 + ((ziU32)entry + 10);
         entry += 10;
         depth++;
         keys++;

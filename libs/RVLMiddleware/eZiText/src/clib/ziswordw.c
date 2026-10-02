@@ -26,18 +26,18 @@ ziPtr Zi8GetTableAddress(ziU8, ziU8 ZI_NEED_WORK);
 ziU16 Zi8Uni2Ord(ziWChar ZI_NEED_WORK);
 
 ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
-    int offset;
+    int unmatched;
     ziU8 group;
     ziU8 remaining;
     ziU16 value;
-    ziWChar* cursor;
+    ziChineseEntry* table;
     ziSearchState search;
     ziGetParam request;
     ziWChar ordinals[65];
     int count;
-    int unmatched;
+    int offset;
     ziChineseEntry* entry;
-    ziChineseEntry* table;
+    ziWChar* cursor;
     ziU8* data;
     ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0};
     ziU32 savedFormats = ZI_WORK->unk_0x1410;
