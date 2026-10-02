@@ -282,7 +282,7 @@ FaderSceneCommand SDChannelTitle::calcFadein() {
     if (!mpFade->isPlaying()) {
         iplSDChannelTitle_playBannerIntro(this);
         SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
-        button->setEventHandler(mpButtonEventHandler, NULL);
+        button->setEventHandler(mpButtonEventHandler);
         button->animation(13);
         button->animation(14);
         mState = 1;
@@ -344,7 +344,7 @@ void SDChannelTitle::initCalcFadeout() {
         button->animation(15);
         button->animation(16);
     }
-    button->setEventHandler(NULL, NULL);
+    button->setEventHandler(NULL);
 }
 
 FaderSceneCommand SDChannelTitle::calcFadeout() {

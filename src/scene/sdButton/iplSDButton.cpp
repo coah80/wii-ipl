@@ -328,7 +328,7 @@ namespace ipl {
             return isSceneCreated();
         }
 
-        void SDButton::setEventHandler(::gui::EventHandler* event, ::gui::EventHandler* optOutEvent) {
+        void SDButton::setEventHandler(::gui::EventHandler* event) {
             mpGui->setEventHandler(event);
         }
 

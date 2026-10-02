@@ -368,19 +368,19 @@ namespace nw4r {
 
                 u32 sheetOffsetsScratchSize;
 
-                dataBlockCount = font->hdr.dataBlocks;               // 0x0E
                 sheetGlyphCount = font->glgr.inner.sheetGlyphCount;  // 0x1C
+                dataBlockCount = font->hdr.dataBlocks;               // 0x0E
                 // countName = font->glgr.inner.nameCount;
                 countSheet = font->glgr.inner.sheetCount;
                 // count0A = font->glgr.inner.smthCount_0x0a;
                 // count0C = font->glgr.inner.smthCount_0x0c;
-                sheetOffsetsSize = ROUNDUP(countSheet * sizeof(u16), 4);
-                sheetOffsetsScratch = (u16*)ROUNDDOWN((u32)((u8*)font + ctx->remWorkSpace()) - sheetOffsetsSize, 2);
-
                 stepSheetFlags = detail::CalcSizeFlagSet(countSheet);
                 flagsSheetsOff = detail::CalcOffsetSheetFlags(font->glgr.inner.nameCount, countSheet, font->glgr.inner.smthCount_0x0a,
                                                               font->glgr.inner.smthCount_0x0c);
                 flagsSheets = (const u32*)font + (flagsSheetsOff >> 2);
+
+                sheetOffsetsSize = ROUNDUP(countSheet * sizeof(u16), 4);
+                sheetOffsetsScratch = (u16*)ROUNDDOWN((u32)((u8*)font + ctx->remWorkSpace()) - sheetOffsetsSize, 2);
 
                 pGlgr = &font->glgr;
                 ENSURE_WORK_HAS_SIZE(ctx, glgrEnd - (u8*)font + sheetOffsetsSize);
