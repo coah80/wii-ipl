@@ -20,7 +20,7 @@ namespace textinput {
 #else
                     ~HWKeyboard();
 #endif
-#ifdef TIMANAGER_IMPLEMENTATION
+#if defined(TIMANAGER_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)
                     void setLanguage(Destination destination, Language language);
 #endif
 
