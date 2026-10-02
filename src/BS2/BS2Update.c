@@ -14,11 +14,11 @@ typedef struct UpdateThreadData {
     u8 stack[4096];
 } UpdateThreadData;
 
-static u32 Flags0[BS2_UPDATE_ENTRY_COUNT];
-static u32 Flags1[BS2_UPDATE_ENTRY_COUNT];
-static UpdateThreadData Thread;
-static BS2UpdateHeader UpdateHeader0 ALIGN32;
-static BS2UpdateHeader UpdateHeader1 ALIGN32;
+static u32 Flags0[BS2_UPDATE_ENTRY_COUNT] = {0};
+static u32 Flags1[BS2_UPDATE_ENTRY_COUNT] = {0};
+static UpdateThreadData Thread = {0};
+static BS2UpdateHeader UpdateHeader0 ALIGN32 = {0};
+static BS2UpdateHeader UpdateHeader1 ALIGN32 = {0};
 
 #define UPDATE_DISC_ENTRIES ((BS2UpdateEntry*)0x80480000)
 
@@ -26,25 +26,25 @@ s32 WADCheckImport(u64 titleId, u16 titleVersion);
 s32 WADImportDVDForBS(const char* path, void* buffer, u32 length);
 s32 WADImportDVDExForBS(const char* path, void* buffer, u32 length);
 
-static BS2UpdateEntry* pEntries;
-static u32 EntriesCount;
-static u32* pFlags;
-static void* MemAllocator;
-int State;
-BS2UpdateEntry* CurrentEntry;
-static u32 RebootRequired;
-static BOOL ContainsSeatTitles;
-static u32 UpdateImportState;
-static u32 UpdateImportResult;
-u32 StartUpdate;
-u32 CancelUpdate;
-static u32 UpdateProgress;
-static s32 rc;
-static u64 VersionIOS;
-static u32 VersionMEM2;
-static u32 VersionES;
-static u32 ConsoleType;
-static void* FatalFunc;
+static BS2UpdateEntry* pEntries = NULL;
+static u32 EntriesCount = 0;
+static u32* pFlags = NULL;
+static void* MemAllocator = NULL;
+int State = 0;
+BS2UpdateEntry* CurrentEntry = 0;
+static u32 RebootRequired = 0;
+static BOOL ContainsSeatTitles = 0;
+static u32 UpdateImportState = 0;
+static u32 UpdateImportResult = 0;
+u32 StartUpdate = 0;
+u32 CancelUpdate = 0;
+static u32 UpdateProgress = 0;
+static s32 rc = 0;
+static u64 VersionIOS = 0;
+static u32 VersionMEM2 = 0;
+static u32 VersionES = 0;
+static u32 ConsoleType = 0;
+static void* FatalFunc = NULL;
 
 #pragma force_active on
 char* getSuffix(const char* path) {
@@ -174,7 +174,7 @@ product_region_checked:
         goto selection_done;
     }
     strcpy(scratch.updatePath, "__update.inf");
-    strcat(scratch.updatePath, "-");
+    strcat(scratch.updatePath, ".");
     strcat(scratch.updatePath, scratch.productArea);
     if (DVDConvertPathToEntrynum(scratch.updatePath) < 0) {
         switch (SCGetProductArea()) {
@@ -271,7 +271,7 @@ product_region_checked:
         }
     }
     strcpy(scratch.seatPath, "__seatholder.inf");
-    strcat(scratch.seatPath, "-");
+    strcat(scratch.seatPath, ".");
     strcat(scratch.seatPath, scratch.productArea);
     if (DVDConvertPathToEntrynum(scratch.seatPath) < 0) {
         switch (SCGetProductArea()) {

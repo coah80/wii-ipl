@@ -38,9 +38,10 @@ extern "C" RakuStatus sRakuStatus;
 RakuStatus sRakuStatus;
 extern "C" OSMessageQueue sRakuMsgQueue;
 OSMessageQueue sRakuMsgQueue;
-static OSTime startTime;
-static bool active;
-static OSMessage messageSlot;
+static u32 startTimeHigh = 0;
+static u32 startTimeLow = 0;
+static bool active = false;
+static OSMessage messageSlot = NULL;
 static int displayState = 1;
 
 extern "C" {
@@ -81,7 +82,9 @@ private:
 void RakuRakuThread::syncRakuProgress() {
     BOOL interrupts = OSDisableInterrupts();
     sRakuStatus.progress = *(RakuProgress*)this;
-    startTime = OSGetTime();
+    OSTime time = OSGetTime();
+    startTimeHigh = time >> 32;
+    startTimeLow = time;
     OSRestoreInterrupts(interrupts);
 }
 
@@ -137,7 +140,9 @@ int RakuRakuThread::start() {
         return 0;
     }
     BOOL interrupts = OSDisableInterrupts();
-    startTime = OSGetTime();
+    OSTime time = OSGetTime();
+    startTimeHigh = time >> 32;
+    startTimeLow = time;
     mHeap = MEMCreateExpHeapEx(mHeapBuffer, 0x40000, 2);
     MEMInitAllocatorForExpHeap(&sRakuAllocator, mHeap, 32);
     mPriority = OSGetThreadPriority(OSGetCurrentThread()) - 1;
@@ -213,7 +218,7 @@ int RakuRakuThread::getState() {
     default: displayState = 1; break;
     }
     if (displayState != 6 && displayState != 7 &&
-        ((u32)OSGetTime() - (u32)startTime) / (OS_TIMER_CLOCK / 1000) >= 90000) {
+        ((u32)OSGetTime() - startTimeLow) / (OS_TIMER_CLOCK / 1000) >= 90000) {
         OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
     }
     OSRestoreInterrupts(interrupts);
