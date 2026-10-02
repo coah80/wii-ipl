@@ -941,10 +941,10 @@ engine_search:
         }
     }
 pud_search:
-    if (((struct __zi8_work_data_s*)work)->unk_0x12D) {
+    if (((struct __zi8_work_data_s*)work)->pudCountAlt) {
         savedPudCount = ((struct __zi8_work_data_s*)work)->pudCount;
         wordSearchPhase = 1;
-        ((struct __zi8_work_data_s*)work)->pudCount = ((struct __zi8_work_data_s*)work)->unk_0x12D;
+        ((struct __zi8_work_data_s*)work)->pudCount = ((struct __zi8_work_data_s*)work)->pudCountAlt;
     }
 pud_start:
     if (((options->countOnly && getOptions != 5) || !wordLength || getMode == 5 ||
@@ -1328,7 +1328,7 @@ context_results_done:
         wordLength = 0;
         savedPudCount = ((struct __zi8_work_data_s*)work)->pudCount;
         wordSearchPhase = 2;
-        ((struct __zi8_work_data_s*)work)->pudCount = ((struct __zi8_work_data_s*)work)->unk_0x12D;
+        ((struct __zi8_work_data_s*)work)->pudCount = ((struct __zi8_work_data_s*)work)->pudCountAlt;
         goto pud_start;
     }
 dictionary_search:
