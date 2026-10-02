@@ -1704,6 +1704,9 @@ void ipl::scene::AddressEdit::stt_wait_btn_fadein() {
 }
 
 void ipl::scene::AddressEdit::stt_wait_btn_fadeout() {
+    nw4r::lyt::Pane* label;
+    const wchar_t* message;
+    ipl::utility::FrameController* animator;
     bool friendFinished;
     if (mpFriendCache->getInfo(mSelectedFriend).attr.status == 2) {
         friendFinished = !mpCodeLayout->getAnim(0x15)->isPlaying();
@@ -1715,11 +1718,11 @@ void ipl::scene::AddressEdit::stt_wait_btn_fadeout() {
     friendFinished &= !mpCodeLayout->getAnim(0x17)->isPlaying();
 
     if (friendFinished) {
-        nw4r::lyt::Pane* label = mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_card_msg_00", true);
-        const wchar_t* message = ipl::System::getMessage(0x30);
+        label = mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_card_msg_00", true);
+        message = ipl::System::getMessage(0x30);
         set_textbox(label, message);
         ipl::System::getDialog()->callS2Btn2(0x142, 0x141, true);
-        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1c);
+        animator = mpCodeLayout->getAnim(0x1c);
         animator->initFrame();
         animator->restart();
         mState = 4;
