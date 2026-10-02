@@ -538,3 +538,21 @@ Residual 240 diffs = callee-web rotation (titleIdHi/Lo pair r21/r22 vs
 orig r19/r20, ret marshal homes, ticketViewList/heap regs) + the 1-insn
 `addi r?,r?,8` extra offset web — same allocator-tie family as the rest
 of the leaf.
+
+## pass-2026-09-30e — UpdateThread lwzx reload + wpformatter def-order
+
+UpdateThread residual rechecked: orig emits TWO `lwzx r0,r18,r4` loads of
+`discEntries[UpdateProgress].type` (0xce8 + 0xd00) — mine CSEs to one and
+reuses r0 across the block edge. Tried `CurrentEntry->type` for the second
+check → emits `lwz r0,0(r3)` (wrong form, +1 insn, reverted). Orig's second
+lwzx is a non-CSE'd re-read of the same indexed expr — a value-numbering
+artifact with no clean source form found (banned volatile-cast would force
+it; skipping per owner rules).
+
+wpformatter prologue ordering characterized: orig binds buff_end→r15
+(deepest callee pin) and the rodata-pool base→r16; mine binds pool→r16,
+buff_end→r25. Both are prologue-materialized consts whose addi order
+differs by one slot (r16-addi before buff_end-addi in orig). Tried
+uninit-decl + assign after `chars_written = 0` → materialization position
+unchanged (MWCC hoists loop-invariant consts regardless of def site).
+Same 3-web rotation wall; reverted.
