@@ -200,3 +200,10 @@
   that we haven't found. Documented wall; committed form uses the
   `type = NWC24_MBOX_TYPE_SEND` default-assign (insn-equal, plausible orig
   idiom) for Field/Subject/Attached.
+
+## Wave 17 — closest-flip sweep (blocking fns enumerated; all insn-equal ties)
+Blocking fns per unit (diff counts, all count-matched): MsgSubject — NWC24SetMsgSubjectAndTextPublic 65, NWC24iSetMsgSubjectQP 12, NWC24iSetMsgSubjectBase64 10. MsgCommit — NWC24CommitMsgInternal 18, CheckMsgBoxSpace 75, WriteMIMEAttachHeader 5. DateParser — NWC24iDateToOSCalendarTime 13, ConvertDateToDays 16, ConvertDaysToDate 79. MsgRead — NWC24ReadMsgTextInternal (insn-equal), NWC24ReadMsgFromAddr -1 (SelectMBox CSE wall), NWC24ReadMsgAttached -1 (same wall), NWC24ReadMsgMBRegDate/MBDelay/etc. diff 0.
+- WriteMIMEAttachHeader: 2-web home swap (type→r30/disp→r29 vs r29/r30) + assoc ((mime+disp)+type vs mime+(disp+type)). Tried: expr assoc reorder, decl reorder, stmt merge (+= into strlen expr → extra web, savegpr_25 vs _24, reverted). Wall: MWCC normalizes assoc; home assignment is allocator-internal.
+- iSetMsgSubjectBase64: arg-copy order — base pins work(r8)→r22 FIRST then r4..r7→r18..r21; mine arg-order. Web-creation order unmovable by: work-first stmt reorder, `second-work` re-derive (+1 insn, charset spilled), second-as-copy form. Second cluster: stack-reload scheduling (lwz r0/r3 + add order). Wall.
+- iDateToOSCalendarTime: year-web r0↔r5 + shared "0"-web (isLeapYear=0 / msec=0 / usec=0 coalesced) r5↔r0. Tried: isLeapYear init moved late (+1 insn), single-assign form (identical), interleaved-init (identical). Coloring tie.
+- ConvertDateToDays: magic-div interleave at tail — base materializes 0x51ec magic before yo+299; same insns, different operand emission/dest names. Scheduling tie.
