@@ -51,3 +51,20 @@ So the zeros cannot be a standalone source-level object. Two remaining theories:
 ControlPaneEventHandler` compiling in the same TU (abstract can't instantiate);
 (2) same wall as MyTiLetterForm's "six trailing target zeros were not recreated
 with padding" — an accepted tail artifact.
+
+## Trailing .data zeros SOLVED — deduplicated weak vtables
+
+The 148B all-zero tail = three weak vtables emitted in this TU then deduplicated
+at link (dtk extraction shows zeros+no relocs, consistent with the MyTiInputForm
+and iplSetting findings in data-d3/data-d4):
+
+  __vt__ipl::gui::PaneManager  0x5c  (bb4..c10)
+  __vt__gui::EventHandler      0x18  (c10..c28)
+  __vt__gui::Interface         0x20  (c28..c48)
+
+Earlier decl-only gates (IPL_SDMEMORY_DECL_ONLY_GUI /
+IPL_SDMEMORY_PANEMANAGER_DECL_ONLY / IPL_SDMEMORY_DECL_ONLY_SCROLLER) suppressed
+the weak emission; removing them emits the vtables in the same tail order and
+.data becomes byte-identical (3144B, data 100%). Lesson: an orig data region of
+zeros with no relocs after vtables = deduplicated weak vtable, NOT an all-zero
+object — .bss-promotion analysis was the wrong frame.
