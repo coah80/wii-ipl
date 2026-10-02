@@ -259,7 +259,6 @@ unlock:
 }
 
 int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionStatus* status) {
-    int retries = 0;
     int result = 0;
     WD_Info info ATTRIBUTE_ALIGN(32);
     NCDIfConfig* interfaceConfig = &AOSSi_NcdIfConfig;
@@ -307,6 +306,7 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
         result = -1;
     }
     if (result == 0) {
+        int retries = 0;
         while (!NCDIsInterfaceDecided()) {
             if (AOSSi_cancel_flag == 1) {
                 result = -1;
@@ -325,9 +325,11 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
         if (WD_GetInfo(&info) == 0) {
             status->channel = info.channel;
         }
-        status->ssidLength = interfaceConfig->netif.wireless.config.manual.ssidLength;
-        memcpy(status->ssid, interfaceConfig->netif.wireless.config.manual.ssid,
-               interfaceConfig->netif.wireless.config.manual.ssidLength);
+        {
+            u16 ssidLength = interfaceConfig->netif.wireless.config.manual.ssidLength;
+            status->ssidLength = ssidLength;
+            memcpy(status->ssid, interfaceConfig->netif.wireless.config.manual.ssid, ssidLength);
+        }
     } else {
         status->connected = 0;
     }

@@ -38,6 +38,14 @@ extern "C" RakuStatus sRakuStatus;
 RakuStatus sRakuStatus;
 extern "C" OSMessageQueue sRakuMsgQueue;
 OSMessageQueue sRakuMsgQueue;
+
+extern "C" void syncRakuProgress__Q33ipl5scene14RakuRakuThreadFv();
+
+struct RakuThreadGlobals {
+    MEMAllocator allocator[1];
+    RakuStatus status[1];
+    OSMessageQueue queue;
+};
 static u32 startTimeHigh = 0;
 static u32 startTimeLow = 0;
 static bool active = false;
@@ -136,26 +144,27 @@ void RakuRakuThread::destroy() {
 }
 
 int RakuRakuThread::start() {
+    RakuThreadGlobals* shared = (RakuThreadGlobals*)&sRakuAllocator;
     if (active || mHeapBuffer == NULL) {
         return 0;
     }
     BOOL interrupts = OSDisableInterrupts();
     OSTime time = OSGetTime();
-    startTimeHigh = time >> 32;
-    startTimeLow = time;
+    startTimeLow = (u32)time;
+    startTimeHigh = (u32)(time >> 32);
     mHeap = MEMCreateExpHeapEx(mHeapBuffer, 0x40000, 2);
-    MEMInitAllocatorForExpHeap(&sRakuAllocator, mHeap, 32);
+    MEMInitAllocatorForExpHeap(&shared->allocator[0], mHeap, 32);
     mPriority = OSGetThreadPriority(OSGetCurrentThread()) - 1;
     active = true;
     mFinished = 0;
-    memset(&sRakuStatus.configuration, 0, sizeof(RakuConfiguration));
-    memset(&sRakuStatus.progress, 0, sizeof(RakuProgress));
+    memset(&shared->status[0].configuration, 0, sizeof(RakuConfiguration));
+    memset(&shared->status[0].progress, 0, sizeof(RakuProgress));
     SOLibraryConfig socketConfig;
     socketConfig.alloc = RakuSocketAlloc;
     socketConfig.free = RakuSocketFree;
     SOInit(&socketConfig);
     ATERMi_ApConfigStart(mPriority, 200,
-        progressCallback,
+        (void (*)(RakuProgress*))&syncRakuProgress__Q33ipl5scene14RakuRakuThreadFv,
         RakuAtermAlloc, RakuAtermFree, 4096);
     if (!mRunning) {
         mRunning = 1;
@@ -230,41 +239,44 @@ int RakuRakuThread::cancel() {
 }
 
 int RakuRakuThread::finish(NCDApConfig* config, int* result) {
+    RakuThreadGlobals* shared = (RakuThreadGlobals*)&sRakuAllocator;
     if (!active) {
         if (result != NULL) {
             *result = -99;
         }
         return 1;
     }
-    s32 state = sRakuStatus.progress.state;
-    if ((u32)(state - 6) > 1) {
-        return 0;
-    }
-    if (!mFinished) {
-        if (state == 6) {
-            ATERMi_ApConfigGetResult(&sRakuStatus.configuration);
-            printInfo();
+    s32 state = shared->status[0].progress.state;
+    if ((u32)(state - 6) <= 1) {
+        if (!mFinished) {
+            if (state == 6) {
+                ATERMi_ApConfigGetResult(&shared->status[0].configuration);
+                printInfo();
+            }
+            OSSendMessage(&shared->queue, (OSMessage)1, 0);
+            return 0;
         }
-        OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
+        SOFinish();
+        active = false;
+        destroy();
+    } else {
         return 0;
     }
-    SOFinish();
-    active = false;
-    destroy();
     if (config != NULL) {
-        RakuConfiguration* settings = &sRakuStatus.configuration;
-        memcpy(config->ssid, settings->ssid, 32);
-        config->ssidLength = strlen(settings->ssid);
+        memcpy(config->ssid, shared->status[0].configuration.ssid, 32);
+        config->ssidLength = strlen(shared->status[0].configuration.ssid);
+        RakuConfiguration* settings = &shared->status[0].configuration;
+        int index;
         if (settings->security == 1) {
             config->privacy.mode = 1;
             config->privacy.wep40.keyId = settings->keyId;
-            for (int index = 0; index < 4; ++index) {
+            for (index = 0; index < 4; ++index) {
                 memcpy(config->privacy.wep40.key[index], settings->wepKeys[index], 5);
             }
         } else if (settings->security == 2) {
             config->privacy.mode = 2;
             config->privacy.wep104.keyId = settings->keyId;
-            for (int index = 0; index < 4; ++index) {
+            for (index = 0; index < 4; ++index) {
                 memcpy(config->privacy.wep104.key[index], settings->wepKeys[index], 13);
             }
         } else if (settings->security == 4) {
@@ -278,7 +290,7 @@ int RakuRakuThread::finish(NCDApConfig* config, int* result) {
         }
     }
     if (result != NULL) {
-        *result = sRakuStatus.progress.result;
+        *result = shared->status[0].progress.result;
     }
     return 1;
 }

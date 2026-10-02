@@ -438,8 +438,8 @@ namespace ipl {
                 snprintf(browserPath, sizeof(browserPath), basePath, regionCodes[regionIndex],
                          languageCodes[System::getLanguage()], regionPages[regionIndex]);
             } else if (mInitialArgument == ARG_UNK_6) {
-                const char* pageNames[] = {"Calendar", "Display", "Sound", "Parental_Control",
-                                           "Internet", "Wiiconnect24", "Update"};
+                const char* pageNames[] = {"Calendar", "Display", "Sound", "Parental_Control", "Internet",
+                                           "Wiiconnect24", "Update"};
                 int directPage;
                 for (directPage = 0; directPage < 7; directPage++) {
                     if (strstr(mpStringBuffer->netSettingArg, pageNames[directPage]) != NULL) {
@@ -462,7 +462,6 @@ namespace ipl {
                     directPagePath = "index03.html";
                     break;
                 case 7:
-                default:
                     directPagePath = "index01.html";
                     break;
                 }
@@ -1370,7 +1369,7 @@ namespace ipl {
             if (!mBrowserCreated) {
                 utility::Graphics::setOrtho(0);
                 nw4r::ut::Rect background(-1000.0f, -1000.0f, 1000.0f, 1000.0f);
-                GXColor color = {0, 0, 0, 0xFF};
+                static const GXColor color = {0, 0, 0, 0xFF};
                 utility::Graphics::drawPolygon(background, color);
                 return;
             }
@@ -1390,7 +1389,7 @@ namespace ipl {
 
             ext_ead::www::BrowserWindow* browserWindow =
                 static_cast<ext_ead::www::BrowserWindow*>(browser->mpBrowserWindows[0]);
-            if ((browserWindow != NULL ? browserWindow->unk_0x2C4[3] : 0) != 0) {
+            if ((browserWindow == NULL ? 0 : browserWindow->unk_0x2C4[3]) != 0) {
                 unk_0x91C[2] = 1;
                 mState = 0;
                 browserWindow = static_cast<ext_ead::www::BrowserWindow*>(browser->mpBrowserWindows[0]);
@@ -1398,9 +1397,13 @@ namespace ipl {
                     browserWindow->unk_0x2C4[3] = 0;
                 }
                 www::trasition::ScrollState scrollState = www::trasition::GetScrollState();
-                browserScrollDirection = scrollState == www::trasition::SCROLL_LEFT
-                                             ? 1
-                                             : (scrollState == www::trasition::SCROLL_RIGHT ? -1 : 0);
+                if (scrollState == www::trasition::SCROLL_LEFT) {
+                    browserScrollDirection = 1;
+                } else if (scrollState == www::trasition::SCROLL_RIGHT) {
+                    browserScrollDirection = -1;
+                } else {
+                    browserScrollDirection = 0;
+                }
                 www::trasition::ResetScrollState();
                 void* changedWideBuffer = browser->GetTextureBuffer(1, NULL);
                 void* changedStandardBuffer = browser->GetTextureBuffer(0, NULL);
@@ -1408,7 +1411,7 @@ namespace ipl {
                 ext_ead::www::Heap::reportLeaHeap();
             }
 
-            if (!mpSecondAnimation->isPlaying() && !mpFirstAnimation->isPlaying()) {
+            if (!(mpSecondAnimation->isPlaying() || mpFirstAnimation->isPlaying())) {
                 mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(false);
             } else {
                 mpChangeLayout->FindPaneByName("N_Tra0")->SetVisible(true);
@@ -1443,14 +1446,15 @@ namespace ipl {
                 System::getProjectionRect16x9(&projection16x9);
                 int wideWidth = abs(static_cast<int>(projection16x9.GetWidth()));
                 int wideHeight = abs(static_cast<int>(projection16x9.GetHeight()));
-                f32 wideLeft = -wideWidth / 2;
-                f32 wideTop = wideHeight / 2;
-                f32 wideRight = wideWidth / 2;
-                nw4r::ut::Rect leftSide(wideLeft, wideTop,
-                    wideLeft + sideDescriptor->textureHeader->width,
-                    wideTop - sideDescriptor->textureHeader->height);
-                nw4r::ut::Rect rightSide(wideRight - sideDescriptor->textureHeader->width,
-                    wideTop, wideRight, wideTop - sideDescriptor->textureHeader->height);
+                f32 negHalfWideWidth = -wideWidth / 2;
+                f32 posHalfWideWidth = wideWidth / 2;
+                f32 posHalfWideHeight = wideHeight / 2;
+                nw4r::ut::Rect leftSide(negHalfWideWidth, posHalfWideHeight,
+                    negHalfWideWidth + sideDescriptor->textureHeader->width,
+                    posHalfWideHeight - sideDescriptor->textureHeader->height);
+                nw4r::ut::Rect rightSide(posHalfWideWidth - sideDescriptor->textureHeader->width,
+                    posHalfWideHeight, posHalfWideWidth,
+                    posHalfWideHeight - sideDescriptor->textureHeader->height);
 
                 if (browserScrollDirection != 0) {
                     nw4r::lyt::Material* wideMaterial =
@@ -1510,7 +1514,8 @@ namespace ipl {
             }
 
             if (mpWiiSettingFlag->smthMsgData >= 2 && mpWiiSettingFlag->smthMsgData <= 7) {
-                GXRenderModeObj renderMode = *System::getRenderModeObj();
+                GXRenderModeObj renderMode;
+                renderMode = *System::getRenderModeObj();
                 u32 left;
                 u32 top;
                 u32 width;
@@ -1606,10 +1611,10 @@ namespace ipl {
             OSReport("initKeyboard formId:%d\n", mpWiiSettingData->data[0x11]);
             memset(unk_0x938, 0, sizeof(unk_0x938));
 
-            int invalidInput = 0;
+            int stringLimit;
             keyboard::Manager::KeyboardType keyboardType = keyboard::Manager::LETTER;
-            int rowLimit = 0;
-            int stringLimit = 0;
+            int rowLimit;
+            int invalidInput = 0;
             int productArea = static_cast<s8>(SCGetProductArea());
 
             switch (mpWiiSettingData->data[0x11]) {
@@ -1711,14 +1716,16 @@ namespace ipl {
             }
 
             if (productArea == 11) {
-                System::getKeyboard()->memoFrm()->setZiDictionary(System::getKeyboard()->getZiOemDic(), System::getKeyboard()->getZiSystemDic());
+                void* sysDic = System::getKeyboard()->getZiSystemDic();
+                void* oemDic = System::getKeyboard()->getZiOemDic();
+                System::getKeyboard()->memoFrm()->setZiDictionary(oemDic, sysDic);
             }
 
             keyboard::Manager::KeyboardSetting setting;
-            setting.type = keyboardType;
+            setting.rowLimit = rowLimit;
             setting.wcString = reinterpret_cast<const wchar_t*>(unk_0x938);
             setting.stringLimit = stringLimit;
-            setting.rowLimit = rowLimit;
+            setting.type = keyboardType;
             System::getKeyboard()->start(0, setting);
 
             if (invalidInput != 0) {
@@ -1738,7 +1745,6 @@ namespace ipl {
                 if (mKeyboardState.pressOK) {
                     onTextInputOK();
                     u8 formId = mpWiiSettingData->data[0x11];
-                    formText = NULL;
                     switch (formId) {
                         case 1:
                             formText = mpStringBuffer->nickname;
@@ -1809,7 +1815,8 @@ namespace ipl {
                         memcpy(mpStringBuffer->asterisks, mpStringBuffer->securityKey, sizeof(mpStringBuffer->securityKey));
                         mpStringBuffer->asterisks[0x41] = 0;
                         while (mpStringBuffer->asterisks[index] != 0) {
-                            mpStringBuffer->asterisks[index++] = '*';
+                            mpStringBuffer->asterisks[index] = '*';
+                            index++;
                         }
                         if (index > 0x20) {
                             mpStringBuffer->asterisks[0x20] = '\n';
@@ -1821,7 +1828,6 @@ namespace ipl {
                     }
                 } else {
                     u8 formId = mpWiiSettingData->data[0x11];
-                    formText = NULL;
                     switch (formId) {
                         case 1:
                             formText = mpStringBuffer->nickname;
@@ -2716,34 +2722,34 @@ namespace ipl {
                 case 6: {
                     int animationIndex = unk_0x918;
                     unk_0xB9C = 1;
-                    if (!mpMainLayout->getAnim(animationIndex)->isPlaying()) {
-                        unk_0x78 = 5;
-                        setAPDraw();
-                        if (unk_0x91C[0] != 0) {
-                            mpMainLayout->getAnim(0xa)->initAnmFrame();
-                        } else {
-                            mpMainLayout->getAnim(0xb)->initAnmFrame();
-                        }
-                        if (unk_0x914 == 0) {
-                            mpMainLayout->FindPaneByName("N_AP1")->SetVisible(false);
-                        } else if (unk_0x914 == 1) {
-                            mpMainLayout->FindPaneByName("N_AP1")->SetVisible(true);
-                        }
-                        if (mAPScanList.count == unk_0x914 + 4) {
-                            mpMainLayout->FindPaneByName("N_AP6")->SetVisible(false);
-                        } else if (mAPScanList.count == unk_0x914 + 5) {
-                            mpMainLayout->FindPaneByName("N_AP6")->SetVisible(true);
-                        }
-                        mpMainLayout->FindPaneByName("N_AP0")->SetVisible(true);
-                        mpMainLayout->FindPaneByName("N_AP7")->SetVisible(true);
+                    if (!(mpMainLayout->getAnim(animationIndex)->isPlaying() & 0x07FFFFFF)) {
+                            unk_0x78 = 5;
+                            setAPDraw();
+                            if (unk_0x91C[0] != 0) {
+                                mpMainLayout->getAnim(0xa)->initAnmFrame();
+                            } else {
+                                mpMainLayout->getAnim(0xb)->initAnmFrame();
+                            }
+                            if (unk_0x914 == 0) {
+                                mpMainLayout->FindPaneByName("N_AP1")->SetVisible(false);
+                            } else if (unk_0x914 == 1) {
+                                mpMainLayout->FindPaneByName("N_AP1")->SetVisible(true);
+                            }
+                            if (mAPScanList.count == unk_0x914 + 4) {
+                                mpMainLayout->FindPaneByName("N_AP6")->SetVisible(false);
+                            } else if (mAPScanList.count == unk_0x914 + 5) {
+                                mpMainLayout->FindPaneByName("N_AP6")->SetVisible(true);
+                            }
+                            mpMainLayout->FindPaneByName("N_AP0")->SetVisible(true);
+                            mpMainLayout->FindPaneByName("N_AP7")->SetVisible(true);
                     }
                     break;
                 }
                 case 7:
                     unk_0xB9C = 1;
-                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
-                        updateScroll();
-                        unk_0x78 = 6;
+                    if (!(mpMainLayout->getAnim(unk_0x918)->isPlaying() & 0x07FFFFFF)) {
+                            updateScroll();
+                            unk_0x78 = 6;
                     }
                     break;
                 case 8:
@@ -2751,13 +2757,13 @@ namespace ipl {
                     unk_0x91C[2] = 0;
                     break;
                 case 9:
-                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
-                        resetFuncMsgQ();
-                        unk_0x78 = 1;
-                        unk_0x918 = -1;
-                        mpPaneManager->init();
-                        mpMainLayout->getAnim(0x14)->initFrame();
-                        mpMainLayout->calc();
+                    if (!(mpMainLayout->getAnim(unk_0x918)->isPlaying() & 0x07FFFFFF)) {
+                            resetFuncMsgQ();
+                            unk_0x78 = 1;
+                            unk_0x918 = -1;
+                            mpPaneManager->init();
+                            mpMainLayout->getAnim(0x14)->initFrame();
+                            mpMainLayout->calc();
                     }
                     break;
             }
@@ -3577,14 +3583,16 @@ namespace ipl {
                     }
                 }
                 break;
-            case 2:
-                if (HasUSBAPResult(&unk_0x91C[1])) {
-                    www::wiisetting::setFuncResult(unk_0x91C[1]);
+            case 2: {
+                volatile u8* result = &unk_0x91C[1];
+                if (*result != 0) {
+                    www::wiisetting::setFuncResult(*result);
                     unk_0x84 = 1;
-                    unk_0x91C[1] = 0;
+                    *result = 0;
                     resetFuncMsgQ();
                 }
                 break;
+            }
             }
         }
 
