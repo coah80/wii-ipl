@@ -1215,6 +1215,7 @@ static inline void __nupSetStatus(NUPContextInfo* context, s32 status) {
 }
 
 extern "C" void* __nupOp(void* argument) {
+    static u32 lo;
     u8* response = 0;
     ESTmdView* tmdView = 0;
     u32 currentDeviceId;
