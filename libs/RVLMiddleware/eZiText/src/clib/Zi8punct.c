@@ -33,7 +33,7 @@ ziS32 Zi8Punctuation(ziGetParam* param ZI_NEED_WORK) {
                     break;
                 }
             } else {
-                if (count >= (ziS32)ZI_WORK->unk_0x0C) {
+                if (count >= (ziS32)ZI_WORK->targetCount) {
                     return count;
                 }
             }
