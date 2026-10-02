@@ -51,12 +51,17 @@ namespace ipl {
                 mArg.mOrthoScale = scale;
             }
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            static void setOrthoTrans(const math::VEC3& translate);
+            static void setOrthoScale(const math::VEC2& scale);
+#else
             static void setOrthoTrans(const math::VEC3& translate) { mArg.mOrthoTrans = translate; }
 
             static void setOrthoScale(const math::VEC2& scale) NO_INLINE {
                 mArg.mOrthoScale.x = scale.x;
                 mArg.mOrthoScale.y = scale.y;
             }
+#endif
 
         private:
             static Arg mArg;

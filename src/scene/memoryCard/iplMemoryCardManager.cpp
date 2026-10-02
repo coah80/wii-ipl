@@ -237,10 +237,7 @@ bool MemoryCardManager::isIconValidate(u8 slot, s16 index) {
 
 bool MemoryCardManager::isBannerEnable(u8 slot, s16 index) {
     CardIcons* icons = reinterpret_cast<CardIcons*>(memorycard::getIconStateArray());
-    u32 file = mFile[slot][index].fileNo;
-    memorycard::IconState* icon = &icons[slot][file];
-    u8 enabled = icon->bannerEnable;
-    return enabled != 0;
+    return icons[slot][mFile[slot][index].fileNo].bannerEnable != 0;
 }
 
 void MemoryCardManager::update_icon_anm() {

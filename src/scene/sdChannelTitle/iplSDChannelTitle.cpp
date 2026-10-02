@@ -3,6 +3,10 @@
 #define IPL_SDMEMORY_DIALOG_STATE_ACCESSOR
 #define IPL_SDMEMORY_COMPLETION_PCT_ACCESSOR
 
+#define IPL_CHANNEL_TITLE_NOVTABLE
+#include "math/iplInterporation.h"
+#undef IPL_CHANNEL_TITLE_NOVTABLE
+
 #include "scene/sdChannelTitle/iplSDChannelTitle.h"
 #include "scene/sdChannelSelect/iplSDChannelSelect.h"
 #include "system/iplSystem.h"
@@ -1552,16 +1556,6 @@ void SDTitleButtonEventHandler::onEventDerived(u32 component, u32 event, const c
 
 void SDChannelTitle::startResetting() {
     snd::getSystem()->resetAllSound();
-}
-
-extern "C" void iplSDChannelTitle_onTitleButtonEvent(SDTitleButtonEventHandler* handler, u32 component,
-                                         u32 event, const controller::Interface* controller) {
-    handler->onEventDerived(component, event, controller);
-}
-
-extern "C" void iplSDChannelTitle_onTitlePaneEvent(SDTitlePaneEventHandler* handler, u32 component,
-                                         u32 event, const controller::Interface* controller) {
-    handler->onEvent(component, event, const_cast<controller::Interface*>(controller));
 }
 
 }
