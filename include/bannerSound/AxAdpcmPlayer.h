@@ -16,12 +16,12 @@ public:
     AXVPB* getAXVPB() { return mpVPB; }
     u32 getState() { return mState; }
     u32 getUnk_0x08() { return unk_0x08; }
-    int getUnk_0x0C() { return unk_0x0C; }
+    int getUpdateFlag() { return mUpdateFlag; }
 
     void setAXVPB(AXVPB* newVal) { mpVPB = newVal; }
     void setState(u32 newVal) { mState = newVal; }
     void setUnk_0x08(u32 newVal) { unk_0x08 = newVal; }
-    void setUnk_0x0C(u32 newVal) { unk_0x0C = newVal; }
+    void setUpdateFlag(u32 newVal) { mUpdateFlag = newVal; }
 
     AXPBMIX* getMix() { return &mMix; }
 
@@ -31,7 +31,7 @@ private:
     AXVPB* mpVPB;  // 0x00
     u32 mState;    // 0x04
     u32 unk_0x08;  // 0x08
-    int unk_0x0C;  // 0x0c
+    int mUpdateFlag;  // 0x0c
     AXPBMIX mMix;  // 0x10
 };
 

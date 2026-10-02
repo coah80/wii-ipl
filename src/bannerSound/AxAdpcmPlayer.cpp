@@ -53,7 +53,7 @@ void AudioFrameCallback() {
 
     for (i = 0; i < AX_VOICE_MAX; i++) {
         VoiceInfo* currVoice = &Voices[i];
-        if (currVoice->getAXVPB() == NULL && currVoice->getUnk_0x0C() != 2) {
+        if (currVoice->getAXVPB() == NULL && currVoice->getUpdateFlag() != 2) {
             continue;
         }
 
@@ -108,7 +108,7 @@ void AudioFrameCallback() {
             currVoice->setState(0);
             currVoice->setUnk_0x08(0);
         }
-        currVoice->setUnk_0x0C(0);
+        currVoice->setUpdateFlag(0);
     }
     return;
 }
@@ -370,7 +370,7 @@ clean_up:
             }
             Voices[axVoiceBuf[i]->index].setAXVPB(axVoiceBuf[i]);
             Voices[axVoiceBuf[i]->index].setState(1);
-            Voices[axVoiceBuf[i]->index].setUnk_0x0C(1);
+            Voices[axVoiceBuf[i]->index].setUpdateFlag(1);
         }
         if (handle != NULL) {
             for (u32 i = 0; i < chanCount; i++) {
@@ -397,7 +397,7 @@ bool AxAdpcmHandle::setVolume(f32 newVolume) {
         mix.vR = newVolume * mpVoices[i]->getMix()->vR;
 
         AXSetVoiceMix(mpVoices[i]->getAXVPB(), &mix);
-        mpVoices[i]->setUnk_0x0C(1);
+        mpVoices[i]->setUpdateFlag(1);
         a = true;
     }
     return a;
@@ -416,7 +416,7 @@ void AxAdpcmSimplePlayer::stop(AxAdpcmHandle* handle) {
             }
 
             handle->getVoice(i)->setState(7);
-            handle->getVoice(i)->setUnk_0x0C(1);
+            handle->getVoice(i)->setUpdateFlag(1);
             if (handle->getVoice(i)->getUnk_0x08() != 0) {
                 handle->getVoice(i)->setUnk_0x08(0);
             }
@@ -440,8 +440,8 @@ void AxAdpcmSimplePlayer::setVolume(AxAdpcmHandle* handle, f32 volume) {
 
 void AxAdpcmSimplePlayer::calc() {
     for (int i = 0; i < AX_VOICE_MAX; i++) {
-        if (Voices[i].getUnk_0x0C() == 1) {
-            Voices[i].setUnk_0x0C(2);
+        if (Voices[i].getUpdateFlag() == 1) {
+            Voices[i].setUpdateFlag(2);
         }
     }
 }
