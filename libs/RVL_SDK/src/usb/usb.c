@@ -41,13 +41,13 @@ typedef struct USBCommandBlock {
     USBCallback callback;        // 0x00
     USBIsoCallback isoCallback;  // 0x04
     void* callbackArg;           // 0x08
-    void* unkIsoArg;             // 0x0C
+    void* isoArg;                // 0x0C
 
-    char unk_0x10[0x4];
+    char pad_0x10[0x4];
 
     void* clean[USB_NCLEAN_MAX];  // 0x14
     u32 nclean;                   // 0x34
-    char unk_0x38[0x40 - 0x38];
+    char pad_0x38[0x40 - 0x38];
     union {
         char path[FS_MAX_PATH];
         USBMsg msg;
@@ -174,7 +174,7 @@ static s32 _intrBlkCtrlIsoCb(s32 result, void* arg) {
         block->callback(result, block->callbackArg);
     } else if (block->isoCallback != NULL) {
         USB_LOG("calling iso callback\n");
-        block->isoCallback(result, block->unkIsoArg, block->callbackArg);
+        block->isoCallback(result, block->isoArg, block->callbackArg);
     }
 
     IOSFree(block);

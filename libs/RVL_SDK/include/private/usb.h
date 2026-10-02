@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 typedef void (*USBCallback)(IOSError result, void* arg);
-typedef void (*USBIsoCallback)(IOSError err, void* unkIsoArg, void* cbArg);
+typedef void (*USBIsoCallback)(IOSError err, void* isoArg, void* cbArg);
 
 IOSError IUSB_OpenLib();
 IOSError IUSB_CloseLib();
