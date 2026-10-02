@@ -78,7 +78,7 @@ ziU8* ZiDAWGGetSibling(ziU8* cursor) {
 
             if ((*cursor & 0x80) != 0) {
                 node += (((const ziDawgLongOffset*)cursor)->flags & 0x7f) * 0x10000 +
-                        (((ziU32)(ziU16)cursor[1] << 8) +
+                        (((ziU32)(ziU16)((const ziDawgLongOffset*)cursor)->middle << 8) +
                          ((const ziDawgLongOffset*)cursor)->low) + 0x8000;
             } else {
                 node = cursor[1] + (node + (ziU16)*cursor * 0x100);
