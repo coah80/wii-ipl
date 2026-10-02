@@ -17,7 +17,7 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
 
     Zi8Memset(__zi8_work_data, 0, 0x1B44);
     ZI_WORK->unk_0x08 = 1;
-    ZI_WORK->unk_0x09 = 1;
+    ZI_WORK->formatFlags = 1;
     ZI_WORK->unk_0x0A = 0xFF;
     ZI_WORK->unk_0x10 = 0x64;
     *(ziU16*)&ZI_WORK->unk_0x0C = 0xFFFF;
