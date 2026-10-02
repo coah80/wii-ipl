@@ -188,7 +188,7 @@ namespace ipl {
             static const char* mscClockPaneNames[3];
             static const char* mscMaskPaneName;
 
-#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_OBJ_CPP)
+#if defined(IPL_SD_CHANNEL_TITLE_CPP) || defined(IPL_SD_CHANNEL_OBJ_CPP) || defined(IPL_SD_CHANNEL_MEMORY_CPP)
         public:
 #else
         private:
@@ -204,11 +204,11 @@ namespace ipl {
             bool enqueuePageNotice();
             bool enqueueResultNotice(u32 result);
             bool enqueueChannelNotice(u64 titleId, u32 value);
-            bool enqueueMoveNotice(u32 controller, u32 page, u32 index);
+            bool enqueueMoveNotice(u64 titleId);
             bool enqueueStateNotice(u64 titleId, u32 state);
-            bool enqueueErrorNotice(u32 page, u32 index);
-            bool enqueueCommandNotice(u32 page, u32 index, u32 command);
-            bool enqueueDeleteNotice(u32 controller, u32 page, u32 index);
+            bool enqueueErrorNotice(ESTitleId** titleIds, ESTitleId** secondaryTitles);
+            bool enqueueCommandNotice(ESTitleId** titles, ESTitleId** secondaryTitles, ESTitleId** names);
+            bool enqueueDeleteNotice(u64 titleId);
             void clearCommandQueue();
             void clearNoticeQueue();
             void calcChannelObjects();

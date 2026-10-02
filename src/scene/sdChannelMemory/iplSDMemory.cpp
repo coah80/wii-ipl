@@ -1,3 +1,4 @@
+#define IPL_SD_CHANNEL_MEMORY_CPP
 #define IPL_SDMEMORY_TITLE_CACHE_ACCESS
 #define IPL_SDMEMORY_SCROLLER_INIT_OUT_OF_LINE
 #define IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
@@ -33,17 +34,6 @@ extern "C" bool iplSDChannelSelect_813DDB74(ipl::scene::SDChannelSelect* channel
                                              ipl::scene::SDMemory::TitleRange* sdTitles,
                                              ESTitleId* titleIds, wchar_t* titleNames, u32* titleCount,
                                              s32 state);
-extern "C" bool iplSDChannelSelect_813DB5EC(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId titleId);
-extern "C" bool iplSDChannelSelect_813DB4D4(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId titleId, u32 flags);
-extern "C" bool iplSDChannelSelect_813DB530(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId** titleNames, ESTitleId** secondaryTitles);
-extern "C" bool iplSDChannelSelect_813DB478(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId titleId);
-extern "C" bool iplSDChannelSelect_813DB58C(ipl::scene::SDChannelSelect* channelSelect,
-                                             ESTitleId** titles, ESTitleId** secondaryTitles,
-                                             ESTitleId** names);
 
 namespace ipl {
     namespace scene {
@@ -922,8 +912,8 @@ namespace ipl {
                     return;
                 }
 
-                if (iplSDChannelSelect_813DB530(mpSDChannelSelect, &mTitleListState.mpNames,
-                                                &mTitleListState.mpSecondaryTitles)) {
+                if (mpSDChannelSelect->enqueueErrorNotice(&mTitleListState.mpNames,
+                                                        &mTitleListState.mpSecondaryTitles)) {
                     mDialogState = 19;
                     mCurrentTitleName[0] = L'\0';
                     mCurrentTitle = 0;
@@ -996,7 +986,7 @@ namespace ipl {
             if (iplSDMemory_containsTitleId(this, mTitleIds[mCurrentTitle], mSDTitleIds, mTitleNameCount) ||
                 iplSDMemory_containsTitleId(this, mTitleIds[mCurrentTitle], mNandTitleIds, mNandTitleCount)) {
                 ESTitleId titleId = mTitleIds[mCurrentTitle];
-                if (iplSDChannelSelect_813DB478(mpSDChannelSelect, titleId)) {
+                if (mpSDChannelSelect->enqueueMoveNotice(titleId)) {
                     mDialogState = 14;
                 } else {
                     System::getDialog()->terminate();
@@ -1046,7 +1036,7 @@ namespace ipl {
 
         void SDMemory::onDialogState16() {
             if (mTitleCount > mCurrentTitle && System::isReceiveScheduleStopped()) {
-                if (iplSDChannelSelect_813DB4D4(mpSDChannelSelect, mTitleIds[mCurrentTitle], 0)) {
+                if (mpSDChannelSelect->enqueueStateNotice(mTitleIds[mCurrentTitle], 0)) {
                     mDialogState = 16;
                 } else {
                     System::getDialog()->terminate();
@@ -1101,7 +1091,7 @@ namespace ipl {
                 System::getDialog()->setTitleForSDMemory(mCurrentTitleName);
 
                 const ESTitleId titleId = mTitleIds[mCurrentTitle];
-                if (iplSDChannelSelect_813DB5EC(mpSDChannelSelect, titleId)) {
+                if (mpSDChannelSelect->enqueueDeleteNotice(titleId)) {
                     mDialogState = 18;
                 } else {
                     System::getDialog()->terminate();
@@ -1679,10 +1669,9 @@ namespace ipl {
                         mTitleListState.mSecondaryCount = 0;
                         mTitleListState.mpNames = mSDTitleIds;
                         mTitleListState.mNameCount = 0;
-                        iplSDChannelSelect_813DB58C(mpSDChannelSelect,
-                                                    &mTitleListState.mpTitles,
-                                                    &mTitleListState.mpSecondaryTitles,
-                                                    &mTitleListState.mpNames);
+                        mpSDChannelSelect->enqueueCommandNotice(&mTitleListState.mpTitles,
+                                                                &mTitleListState.mpSecondaryTitles,
+                                                                &mTitleListState.mpNames);
                     }
 
                     if (paneIndex == 4) {

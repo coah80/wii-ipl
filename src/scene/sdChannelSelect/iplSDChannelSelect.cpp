@@ -349,7 +349,7 @@ namespace ipl {
             return true;
         }
 
-        bool SDChannelSelect::enqueueMoveNotice(u32 controller, u32 page, u32 index) {
+        bool SDChannelSelect::enqueueMoveNotice(u64 titleId) {
             if (mCurrentSDState != 6) {
                 return false;
             }
@@ -358,7 +358,7 @@ namespace ipl {
             command.type = 6;
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
-            command.titleId = ((u64)page << 32) | index;
+            command.titleId = titleId;
             mCommandQueue.push(command);
             return true;
         }
@@ -377,36 +377,36 @@ namespace ipl {
             return true;
         }
 
-        bool SDChannelSelect::enqueueErrorNotice(u32 page, u32 index) {
+        bool SDChannelSelect::enqueueErrorNotice(ESTitleId** titleIds, ESTitleId** secondaryTitles) {
             if (mCurrentSDState != 6) {
                 return false;
             }
 
             SDChannelSelectCommand command;
             command.type = 11;
-            command.arguments.values[0] = page;
-            command.arguments.values[1] = index;
+            command.arguments.values[0] = reinterpret_cast<u32>(titleIds);
+            command.arguments.values[1] = reinterpret_cast<u32>(secondaryTitles);
             command.titleId = 0;
             mCommandQueue.push(command);
             return true;
         }
 
-        bool SDChannelSelect::enqueueCommandNotice(u32 page, u32 index, u32 commandType) {
+        bool SDChannelSelect::enqueueCommandNotice(ESTitleId** titles, ESTitleId** secondaryTitles, ESTitleId** names) {
             if (mCurrentSDState != 6) {
                 return false;
             }
 
             SDChannelSelectCommand command;
-            command.arguments.values[0] = page;
+            command.arguments.values[0] = reinterpret_cast<u32>(titles);
             command.type = 12;
-            command.arguments.values[1] = index;
-            command.arguments.values[2] = commandType;
+            command.arguments.values[1] = reinterpret_cast<u32>(secondaryTitles);
+            command.arguments.values[2] = reinterpret_cast<u32>(names);
             command.titleId = 0;
             mCommandQueue.push(command);
             return true;
         }
 
-        bool SDChannelSelect::enqueueDeleteNotice(u32 controller, u32 page, u32 index) {
+        bool SDChannelSelect::enqueueDeleteNotice(u64 titleId) {
             if (mCurrentSDState != 6) {
                 return false;
             }
@@ -416,7 +416,7 @@ namespace ipl {
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
             command.arguments.values[2] = 0;
-            command.titleId = ((u64)page << 32) | index;
+            command.titleId = titleId;
             mCommandQueue.push(command);
             return true;
         }
