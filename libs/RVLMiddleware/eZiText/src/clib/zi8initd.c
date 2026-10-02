@@ -44,7 +44,7 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
     ZI_WORK->unk_0x1874 = 0x2D;
     ZI_WORK->language = 0;
     ZI_WORK->unk_0x1C[3] = 0;
-    ZI_WORK->unk_0x141A = 0x100;
+    ZI_WORK->capacity = 0x100;
     Zi8SetLatinSearchOrder(0, 0, ZI_WORK);
     ZADP_Zi8SetPDremoveOpt(1, ZI_WORK);
     ZI_WORK->unk_0x17 = 5;
