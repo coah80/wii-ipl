@@ -202,18 +202,21 @@ cleanup:
 }
 
 extern "C" {
-static long __nupHttpStringFlush(u8* data, unsigned long length, unsigned long requested, void* context) {
-    HttpString* text = (HttpString*)context;
+static inline unsigned long HttpStringGrowthSize(HttpString* text, unsigned long total, unsigned long requested) {
+    if (requested >= total) return requested;
+    requested = text->growth + total;
+    text->growth <<= 1;
+    if (text->growth >= text->maximumGrowth) text->growth = text->maximumGrowth;
+    return requested;
+}
+static inline long AppendHttpString(unsigned long length, u8* data, unsigned long requested, HttpString* text) {
+    u8* next;
     unsigned long total;
-    total = length + text->length;
+    total = text->length + length;
     long result = 0;
     if (total > text->capacity) {
-        if (requested >= total) {} else {
-            requested = text->growth + total;
-            text->growth <<= 1;
-            if (text->growth < text->maximumGrowth) {} else text->growth = text->maximumGrowth;
-        }
-        u8* next = (u8*)nup::__nupMalloc(requested);
+        requested = HttpStringGrowthSize(text, total, requested);
+        next = (u8*)nup::__nupMalloc(requested);
         if (next == NULL) { result = -5000; goto done; }
         if (text->buffer != NULL) {
             memcpy(next, text->buffer, text->length);
@@ -225,6 +228,9 @@ static long __nupHttpStringFlush(u8* data, unsigned long length, unsigned long r
     text->length += length;
 done:
     return result;
+}
+static long __nupHttpStringFlush(u8* data, unsigned long length, unsigned long requested, void* context) {
+    return AppendHttpString(length, data, requested, (HttpString*)context);
 }
 }
 static int __nupNhttpOpString(u8** output, unsigned long* outputLength, char* url, NHTTPReqMethod method, char* headers, u8* body, unsigned long bodyLength, unsigned long limit, ProgressCallback progress, void* context) NO_INLINE;

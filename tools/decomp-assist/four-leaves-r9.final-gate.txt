@@ -1,0 +1,43 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/nup/nup_nhttp] pool: IDENTICAL
+[libs/RVL_SDK/src/nup/nup_nhttp] objdiff: code 2588/2588 data 144/144 functions 9/9 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/nup/nup_nhttp] instruction-exact functions: 9/9
+[libs/RVL_SDK/src/nup/nup_nhttp]   section .data size 120 match 100.0
+[libs/RVL_SDK/src/nup/nup_nhttp]   section .sdata size 24 match 100.0
+[libs/RVL_SDK/src/nup/nup_nhttp]   section .text size 2588 match 100.0
+[libs/RVL_SDK/src/nup/nup_nhttp] baseline: code 2364/2588 data 144 functions 8 fuzzy 99.7295
+[src/utility/iplESMisc] pool: DIVERGES at string 83 (mine=114 orig=114)
+[src/utility/iplESMisc] objdiff: code 9404/11200 data None/4416 functions 30/31 fuzzy 96.7604 linked code 0
+[src/utility/iplESMisc] instruction-exact functions: 30/31
+[src/utility/iplESMisc]   section .data size 4384 match 95.18044
+[src/utility/iplESMisc]   section .sdata size 32 match 98.4127
+[src/utility/iplESMisc]   section .text size 11200 match 96.76036
+[src/utility/iplESMisc]   below 100: DeleteUnauthorizedData__Q33ipl7utility6ESMiscFPQ23EGG4Heap 79.797325
+[src/utility/iplESMisc] baseline: code 9404/11200 data None functions 30 fuzzy 96.7604
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL] pool: IDENTICAL
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL] objdiff: code 1008/2248 data 72/112 functions 10/14 fuzzy 87.1886 linked code 0
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL] instruction-exact functions: 10/14
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   section .data size 72 match 100.0
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   section .rodata size 40 match 94.73685
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   section .text size 2248 match 87.188614
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   below 100: NHTTPi_strnicmp 99.76471
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   below 100: NHTTPi_intToStr 95.57895
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   below 100: NHTTPi_compareToken 54.622223
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL]   below 100: NHTTPi_Base64Encode 60.285713
+[libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL] baseline: code 1008/2248 data 72 functions 10 fuzzy 87.1886
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] objdiff: code None/2844 data None/None functions 0/2 fuzzy 88.8031 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] instruction-exact functions: 0/2
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var]   section .text size 2844 match 88.80309
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var]   below 100: TMCJPEGDEC_IdctBlock_Lumi 82.31518
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var]   below 100: TMCJPEGDEC_IdctBlock_Col 92.47577
+[libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var] baseline: code None/2844 data None functions 0 fuzzy 88.8031
+regressions vs baseline: 0
+global matched_code_percent: 88.52293 -> 88.53040
+global fuzzy_match_percent: 99.44739 -> 99.44762
+global complete_code_percent: 62.78043 -> 62.78043
+global matched_data_percent: 92.12238 -> 92.12238
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
