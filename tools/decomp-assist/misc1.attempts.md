@@ -190,3 +190,34 @@ reg-rotation, not localized. Reverted.
   closest alternate ordering), in-loop assignment, decl-first/decl-last —
   all mass-rotate. The web set is exquisitely balanced at the committed
   form. Parked at 1-diff.
+
+## w0929 — AxAdpcm 1-diff RESOLVED + BS2Update lever check (w1016)
+
+- **AxAdpcm `start` SOLVED — 0 diffs, unit flipped to Matching.** The
+  winning form: keep `AXVPB** pAxvpbBuf` decl but move its assignment
+  INSIDE the loop right before first use
+  (`pAxvpbBuf = axVoiceBuf; pAxvpbBuf[i] = AXAcquireVoice(...)`), and
+  route ALL in-loop uses through it (`pAxvpbBuf[i]` for the acquire
+  store, null-check, and the vpbA/vpbB reads), while the clean_up loops
+  keep direct `axVoiceBuf[i]` (orig remats `addi r6,r1,0x38` there).
+  The in-loop DEF births the &axVoiceBuf web after coeffsBufB's (use
+  order 279<281) so its addi hoists to position 6; the web is still
+  callee-pinned (r17) because the named local crosses calls inside the
+  iteration. Prior "in-loop assignment" failure mixed `pAxvpbBuf[i]` and
+  direct `axVoiceBuf[i]` uses — two competing webs → rotation. Verified:
+  fuzzy 100.0 all 13 fns, matched_code 3088/3088, matched_data
+  6476/6476, DOL sha1 intact after Object(Matching) flip.
+- Also tried this pass: for-init `i = 0, pAxvpbBuf = axVoiceBuf` (same
+  swap — init materializes pre-loop), `AdpcmCoeffs** pCoeffsBufB` extra
+  alias (84-line rotation — extra live web), pure direct `axVoiceBuf[i]`
+  with no alias (191 — &axVoiceBuf demoted to per-use remat, 6th callee
+  web lost → cascade), swap roles pCoeffsBufB-alias + axVoiceBuf-direct
+  (189 — same demotion).
+- **BS2UpdateInit scoped-switch lever: inapplicable** — Init is
+  straight-line (reports, version reads, field stores, memsets,
+  OSCreateThread/OSResumeThread); the `switch (SCGetProductArea())` and
+  `OSGetPhysicalMem2Size()` branches all live in UpdateThread.
+  UpdateThread's residual is the 437-line callee-web rotation (orig
+  births many distinct const-0 webs r15/r17/r18 + scratch base r22 vs
+  my shared zeros r20/r21 + base r23) — not a switch-dispatch shape;
+  call structure already identical (3× SCGetProductArea, same sites).
