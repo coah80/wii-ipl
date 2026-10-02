@@ -1,6 +1,20 @@
+#define EGG_AUDIO_EXPMGR_NO_INLINE_VIRTUALS
+
 #include <egg/core.h>
 
 namespace EGG {
+    class Sample : public SimpleAudioMgrWithFx {
+    public:
+        Sample();
+        virtual ~Sample();
+    };
+
+    Sample::Sample() {
+    }
+
+    Sample::~Sample() {
+    }
+
     SimpleAudioMgrWithFx::SimpleAudioMgrWithFx() {
     }
 

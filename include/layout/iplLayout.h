@@ -103,7 +103,11 @@ namespace ipl {
                  */
                 Object(EGG::Heap* heap, nand::LayoutFile* file, const char* directory, const char* fileName);
 
+#ifdef IPL_CHANNEL_TITLE_NOVTABLE
+                virtual ~Object() {}
+#else
                 virtual ~Object();
+#endif
 
                 void                    initLocationAdjust();
 
