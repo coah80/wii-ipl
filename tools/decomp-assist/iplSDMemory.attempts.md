@@ -80,3 +80,15 @@ decl-only `operator=(const Color&)` + inlined implicit copy-ctor in this TU.
 Direct pass (`setTitleRowColors(t, c, c)`) removes 32 insns; named copies emit
 `bl __as__` instead of memberwise bytes — neither matches. Remaining residual:
 frame +0x20 slot layout + reg-web coloring (insn-equal tie).
+
+## enqueue*/collect member-call conversion (post-rebase cleanup)
+Removed the six `extern "C" bool iplSDChannelSelect_813Dxxxx` address-suffixed
+stubs (banned identifier style). All 10 call sites now call real private member
+fns via `mpSDChannelSelect->` with `friend class SDMemory` added to
+iplSDChannelSelect.h (orig must have granted SDMemory access to the private
+enqueue* members). Arg semantics decoded from callee impls: enqueue*Notice
+page/index params are the u64 titleId halves (caller passes ((u32*)&entry)[0/1]
+for the two-u32-arg callees; the raw u64 for enqueueStateNotice(u64,u32) which
+emits pad-r4 + u64 in r5:r6 exactly as orig). The arg1 = this+i*8 pointer for
+the 3-u32 callees is reproduced via `(u32)&mTitleIds[i] - offsetof(SDMemory,
+mTitleIds)`. All call sites byte-identical after conversion.
