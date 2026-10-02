@@ -119,3 +119,24 @@
   (no pointer var at all) — MWCC's phase model gives arg-reg materialization.
 - Remaining PurgeOldest -1: base's dead `cmpwi err,0; mr r3,err; bge;b` tail —
   a folded `if(err>=0) return; return` that MWCC won't re-emit from source.
+
+## wave 13 findings (index-IV recompute, store-forward ordering)
+
+- **Index-IV + recompute lever (proven, DecodeWord 181->180 insn-equal)**:
+  pointer-walk IVs (`pos++` + separate count) cost a dual increment; orig used
+  `for (i...) { pos = start + i; ... }` — single index IV, pointer recomputed
+  per iteration as `add r31,base,idx`. Rewrite `ptr++`-walks as indexed recompute
+  when base shows `add rX,base,rI` inside the loop.
+- **MBoxCheck store-forward narrowed to scheduling**: baseline (struct
+  {oldestId, header} + u32* getter + member read) now emits
+  `lwz r4,0x20(r4); stw r4,8` — MWCC binds the RHS load straight into the arg
+  reg. Base binds it to r0 (scratch) then `stw;lwz` — an arg-marshal schedule
+  where r4 was still busy. ~10 forms (void* getter, separate locals, punned
+  reads, assignment-expr args) all forward the store. Wall: not a provenance
+  issue, pure scheduling.
+- **EncodeWord result-carrier pin**: base carries `result` in r3 across
+  appends (li r3,-8/-3/0); mine pins r31 (costs savegpr_21 vs _22 + renames).
+  The -1 insn is the 4-char `||` chain's last-term polarity (bne-else vs
+  beq-append); `&&` inversion emits identically.
+- **"?" literal via `li r4,reloc`**: base materializes short-string args via
+  li+reloc inline (no pin); mine pinned r25 for it. Minor.
