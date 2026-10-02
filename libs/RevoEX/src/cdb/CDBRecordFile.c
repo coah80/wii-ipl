@@ -264,8 +264,8 @@ CDBErr CDBRecordFileReadData(CDBRecord* record, void* buffer, u32 size, u32* rea
     CDBCryptBuf* cryptBuf = record->cryptBuf;
 
     if (cryptBuf != NULL) {
-        u32 unk = cryptBuf->unk_0x3EC00 - cryptBuf->unk_0x3EC04;
-        if (cryptBuf->unk_0x3EC00 < unk) {
+        u32 unk = cryptBuf->size - cryptBuf->offset;
+        if (cryptBuf->size < unk) {
             unk = 0;
         }
 
@@ -274,8 +274,8 @@ CDBErr CDBRecordFileReadData(CDBRecord* record, void* buffer, u32 size, u32* rea
         }
 
         if (unk != 0) {
-            memcpy(buffer, (u8*)&cryptBuf->buffer[cryptBuf->unk_0x3EC04], unk);
-            cryptBuf->unk_0x3EC04 += unk;
+            memcpy(buffer, (u8*)&cryptBuf->buffer[cryptBuf->offset], unk);
+            cryptBuf->offset += unk;
         }
 
         if (readSize != NULL) {
@@ -300,16 +300,16 @@ CDBErr CDBRecordFileSeekData(CDBRecord* record, u32 offset, CDBSeek seek) {
     if (cryptBuf != NULL) {
         switch (seek) {
             case CDB_SEEK_BEGIN: {
-                cryptBuf->unk_0x3EC04 = sizeof(CDBAttrBuf);
-                cryptBuf->unk_0x3EC04 += offset;
+                cryptBuf->offset = sizeof(CDBAttrBuf);
+                cryptBuf->offset += offset;
                 break;
             }
             case CDB_SEEK_END: {
-                cryptBuf->unk_0x3EC04 = (cryptBuf->unk_0x3EC00 - 1) - offset;
+                cryptBuf->offset = (cryptBuf->size - 1) - offset;
                 break;
             }
             case CDB_SEEK_CUR: {
-                cryptBuf->unk_0x3EC04 += offset;
+                cryptBuf->offset += offset;
                 break;
             }
         }
@@ -329,7 +329,7 @@ int CDBRecordFileTellData(CDBRecord* record) {
     CDBCryptBuf* cryptBuf = record->cryptBuf;
 
     if (cryptBuf != NULL) {
-        return cryptBuf->unk_0x3EC04 - sizeof(CDBAttrBuf);
+        return cryptBuf->offset - sizeof(CDBAttrBuf);
     }
     return CDBFTellData(&recordFile->bridgeFile, record->key.location);
 }

@@ -13,8 +13,8 @@ typedef struct _CDBCryptBuf {
         u32 buffer32[0xFB00];
     };  // 0x00
 
-    u32 unk_0x3EC00;
-    u32 unk_0x3EC04;
+    u32 size;  // 0x3EC00
+    u32 offset;  // 0x3EC04
     BOOL allocated;  // 0x3EC08
     u8 unk_0x3EC0C[0x34];
 } CDBCryptBuf;
