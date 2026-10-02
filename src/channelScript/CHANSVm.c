@@ -7207,7 +7207,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
     u32 cmpLow;
     struct {
         CHANSVmObjType operandTypes[2];
-        u64 floatBits;
+        double floatLiteral;
         CHANSVmObjHdr copies[2];
         CHANSVmObjHdr load;
         CHANSVmObjHdr operand;
@@ -7291,8 +7291,8 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                 case CHANS_VM_OP_LOAD_FLOAT: {
                     opSize = 9;
                     operandBuf = VmGetOperand(vm, 1, 9);
-                    memcpy(&scratch.floatBits, operandBuf, 8);
-                    result = CHANSVmSetFloat(vm, &pVm->accumulator, *(double*)&scratch.floatBits);
+                    memcpy(&scratch.floatLiteral, operandBuf, 8);
+                    result = CHANSVmSetFloat(vm, &pVm->accumulator, scratch.floatLiteral);
                     break;
                 }
 
@@ -7769,8 +7769,8 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                                 arrayIdx = (u32)stackPtr->value.int_v;
                                 goto set_index_ok;
                             case CHANS_VM_OBJ_TYPE_FLOAT: {
-                                double stackFloat = *(double*)stackPtr;
-                                if (stackFloat <= 4294967294.0 && 0.0 <= stackFloat) {
+                                double stackFloat = stackPtr->value.float_v;
+                                if (stackFloat >= 0.0 && stackFloat <= 4294967294.0) {
                                     arrayIdx = (u32)stackFloat;
                                     goto set_index_ok;
                                 }
@@ -8004,34 +8004,27 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     if (pVm->pActiveCtx->stackDepth != 0 && pVm->pObjStackTopBuf + sizeof(CHANSVmObjHdr) <= pVm->pHeapEnd) {
                         CHANSVmObjHdr* stackTop = (CHANSVmObjHdr*)pVm->pObjStackTopBuf;
                         isTypeMatch = 0;
-                        if (pVm->accumulator.type == stackTop->type) {
+                        if (stackTop->type == pVm->accumulator.type) {
                             switch (stackTop->type) {
                                 case CHANS_VM_OBJ_TYPE_INTEGER: {
-                                    u32 low1 = *(u32*)stackTop;
-                                    u32 low2 = *(u32*)&pVm->accumulator;
-                                    u32 high1 = *((u32*)stackTop + 1);
-                                    u32 high2 = *((u32*)&pVm->accumulator + 1);
-                                    u32 xor1 = low1 ^ low2;
-                                    u32 xor2 = high1 ^ high2;
-                                    isTypeMatch = !(xor1 | xor2);
+                                    isTypeMatch = stackTop->value.int_v == pVm->accumulator.value.int_v;
                                     goto end_branch_check;
                                 }
                                 case CHANS_VM_OBJ_TYPE_FLOAT: {
-                                    double stackFloat = stackTop->value.float_v;
-                                    double accFloat = pVm->accumulator.value.float_v;
-                                    isTypeMatch = stackFloat == accFloat ? 1 : 0;
+                                    isTypeMatch = stackTop->value.float_v == pVm->accumulator.value.float_v;
                                     goto end_branch_check;
                                 }
                                 case CHANS_VM_OBJ_TYPE_STRING: {
                                     u32 len1, len2;
-                                    CHANSVmObjHdr* stackObj = (CHANSVmObjHdr*)pVm->pObjStackTopBuf;
+                                    const vmWStringObjVal* accumulatorString = pVm->accumulator.value.wstring_v;
+                                    const vmWStringObjVal* stackString = stackTop->value.wstring_v;
                                     u32 strEqual;
                                     isTypeMatch = 0;
-                                    len1 = stackObj->value.wstring_v->len;
-                                    len2 = pVm->accumulator.value.wstring_v->len;
+                                    len1 = stackString->len;
+                                    len2 = accumulatorString->len;
                                     if (len1 == len2) {
                                         strEqual = 0;
-                                        if (len1 == 0 || memcmp(stackObj->value.wstring_v->spData, pVm->accumulator.value.wstring_v->spData, len1) == 0) {
+                                        if (len1 == 0 || memcmp(stackString->spData, accumulatorString->spData, len1) == 0) {
                                             strEqual = 1;
                                         }
                                         if (strEqual) {
