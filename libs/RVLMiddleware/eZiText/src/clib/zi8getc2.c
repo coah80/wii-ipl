@@ -41,9 +41,9 @@ ziBool Zi8ZHsetPYfuzzyPairs(ziFuzzyPYPairs pairs ZI_NEED_WORK) {
 
 ziBool Zi8ZHsetZYfuzzyPairs(ziFuzzyZYPairs pairs ZI_NEED_WORK) {
     if (pairs.ziDefault) {
-        ZI_WORK->unk_0x1B2C.word = *(const ziU32*)&Zi8ZYdefaultFuzzyPairs;
+        ZI_WORK->zyFuzzy.word = *(const ziU32*)&Zi8ZYdefaultFuzzyPairs;
     } else {
-        ZI_WORK->unk_0x1B2C.word = *(ziU32*)&pairs;
+        ZI_WORK->zyFuzzy.word = *(ziU32*)&pairs;
     }
     return 1;
 }
