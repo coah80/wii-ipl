@@ -1266,10 +1266,10 @@ namespace ipl {
             memoPosition.x = translation.x;
             memoPosition.y = translation.y;
             memoPosition.z = translation.z;
+            f32 bodyY = memoPosition.y;
             mpDialogLayout->FindPaneByName("header_header");
             nw4r::lyt::Pane* bodyPane = mpDialogLayout->FindPaneByName("header_body");
 
-            f32 bodyY = memoPosition.y;
             if (bodyY < 500.0f) {
                 mpDialogLayout->draw("header_header");
             }
@@ -1282,15 +1282,18 @@ namespace ipl {
                 ++child;
             }
 
-            s32 lineCount = 0;
             f32 messageOffset = 0.0f;
             f32 bodyHeight = bodyPane->GetSize().height;
             if (mNandTitleCount != 0) {
                 const wchar_t* messageForCount = System::getMessage(0xCB);
+                s32 lineCount = 0;
                 const wchar_t* newline = wcsstr(messageForCount, L"\n");
-                while (newline != NULL) {
-                    ++lineCount;
-                    newline = wcsstr(newline + 1, L"\n");
+                if (newline != NULL) {
+                    const wchar_t* separator = L"\n";
+                    while (newline != NULL) {
+                        ++lineCount;
+                        newline = wcsstr(newline + 1, separator);
+                    }
                 }
 
                 const wchar_t* messageLine = System::getMessage(0xCB);
@@ -1298,9 +1301,10 @@ namespace ipl {
                     mpDialogLayout->FindPaneByName("T_Header_body"));
                 s32 totalLines = lineCount + 1;
                 s32 lineIndex = 0;
-                if (lineIndex < totalLines) {
-                    do {
-                    const wchar_t* lineEnd = wcsstr(messageLine, L"\n");
+                if (totalLines > 0) {
+                    const wchar_t* lineSep = L"\n";
+                    while (lineIndex < totalLines) {
+                    const wchar_t* lineEnd = wcsstr(messageLine, lineSep);
                     if (lineEnd == NULL) {
                         utility::layout::set_string(messageText, messageLine);
                     } else {
@@ -1320,7 +1324,7 @@ namespace ipl {
 
                     messageOffset -= bodyHeight;
                     ++lineIndex;
-                    } while (lineIndex < totalLines);
+                    }
                 }
             }
 
@@ -1345,19 +1349,19 @@ namespace ipl {
                 utility::layout::set_string(titleText, mTitleNames[titleIndex]);
                 if (nandTitleIndex < mNandTitleCount && mTitleIds[titleIndex] == mNandTitleIds[nandTitleIndex]) {
                     GXColor gxActive;
-                    writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
                     ++nandTitleIndex;
-                    nw4r::ut::Color active0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxActive);
+                    writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
+                    GXColor gxActiveCopy = gxActive;
                     setTitleRowColors(titleText,
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)),
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)));
+                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActiveCopy)),
+                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActiveCopy)));
                 } else {
                     GXColor gxInactive;
                     writeFourFlagBytes(&gxInactive.r, 0x64, 0x64, 0x64, 0xFF);
-                    nw4r::ut::Color inactive0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxInactive);
+                    GXColor gxInactiveCopy = gxInactive;
                     setTitleRowColors(titleText,
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)),
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)));
+                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactiveCopy)),
+                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactiveCopy)));
                 }
 
                 nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
