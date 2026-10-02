@@ -1,0 +1,46 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/keyboard/tiPcKeyboard] pool: IDENTICAL
+[src/keyboard/tiPcKeyboard] objdiff: code 28064/28484 data 18548/18564 functions 140/141 fuzzy 99.9860 linked code 0
+[src/keyboard/tiPcKeyboard] instruction-exact functions: 140/141
+[src/keyboard/tiPcKeyboard]   section .bss size 16 match None
+[src/keyboard/tiPcKeyboard]   section .ctors size 4 match 100.0
+[src/keyboard/tiPcKeyboard]   section .data size 12576 match 100.0
+[src/keyboard/tiPcKeyboard]   section .rodata size 5816 match 100.0
+[src/keyboard/tiPcKeyboard]   section .sbss size 8 match 100.0
+[src/keyboard/tiPcKeyboard]   section .sdata size 136 match 100.0
+[src/keyboard/tiPcKeyboard]   section .sdata2 size 8 match 100.0
+[src/keyboard/tiPcKeyboard]   section .text size 28484 match 99.985954
+[src/keyboard/tiPcKeyboard]   below 100: setTranslateMode__Q49textinput8keyboard6pctype4BaseFQ59textinput8keyboard6pctype4Base13TranslateMode 99.04762
+[src/keyboard/tiPcKeyboard] baseline: code 28064/28484 data 18548 functions 140 fuzzy 99.9860
+[libs/RVL_SDK/src/axfx/AXFXChorusExp] pool: IDENTICAL
+[libs/RVL_SDK/src/axfx/AXFXChorusExp] objdiff: code 2684/2684 data 48/48 functions 7/7 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/axfx/AXFXChorusExp] instruction-exact functions: 7/7
+[libs/RVL_SDK/src/axfx/AXFXChorusExp]   section .sdata2 size 48 match 100.0
+[libs/RVL_SDK/src/axfx/AXFXChorusExp]   section .text size 2684 match 100.0
+[libs/RVL_SDK/src/axfx/AXFXChorusExp] baseline: code 2180/2684 data 48 functions 6 fuzzy 94.3502
+[libs/RVL_SDK/src/fa/pdm_partition] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pdm_partition] objdiff: code 2276/3716 data None/None functions 18/20 fuzzy 93.5985 linked code 0
+[libs/RVL_SDK/src/fa/pdm_partition] instruction-exact functions: 18/20
+[libs/RVL_SDK/src/fa/pdm_partition]   section .text size 3716 match 93.598495
+[libs/RVL_SDK/src/fa/pdm_partition]   below 100: pdm_part_is_master_boot_sector 86.5
+[libs/RVL_SDK/src/fa/pdm_partition]   below 100: pdm_part_get_start_sector 82.56159
+[libs/RVL_SDK/src/fa/pdm_partition] baseline: code 2276/3716 data None functions 18 fuzzy 93.5985
+[libs/RevoEX/src/net/aes] pool: IDENTICAL
+[libs/RevoEX/src/net/aes] objdiff: code 1116/2752 data 2800/2800 functions 7/9 fuzzy 76.8445 linked code 0
+[libs/RevoEX/src/net/aes] instruction-exact functions: 7/9
+[libs/RevoEX/src/net/aes]   section .data size 200 match 100.0
+[libs/RevoEX/src/net/aes]   section .rodata size 2592 match 100.0
+[libs/RevoEX/src/net/aes]   section .sdata2 size 8 match 100.0
+[libs/RevoEX/src/net/aes]   section .text size 2752 match 76.844475
+[libs/RevoEX/src/net/aes]   below 100: AESiEncryptBlock 60.348103
+[libs/RevoEX/src/net/aes]   below 100: AESiDecryptBlock 61.49004
+[libs/RevoEX/src/net/aes] baseline: code 1116/2752 data 2800 functions 7 fuzzy 76.8445
+regressions vs baseline: 0
+global matched_code_percent: 88.52293 -> 88.53975
+global fuzzy_match_percent: 99.44739 -> 99.45245
+global complete_code_percent: 62.78043 -> 62.78043
+global matched_data_percent: 92.12238 -> 92.12238
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
