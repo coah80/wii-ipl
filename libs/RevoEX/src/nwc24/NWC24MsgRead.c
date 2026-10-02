@@ -8,8 +8,8 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capa
 NWC24Err ReadBase64Data(NWC24File* file, const NWC24Data* data, u8* output, u32 capacity, u32* outputSize);
 NWC24Err ReadQPText(const NWC24MsgObjPrivate* msg, NWC24File* file, char* output, u32 capacity);
 
-static inline NWC24Err SelectMBox(const NWC24MsgObjPrivate* msg, NWC24MBoxType* type) {
-    u32 msgType = msg->type;
+static inline NWC24Err SelectMBox(const NWC24MsgObj* msg, NWC24MBoxType* type) {
+    u32 msgType = msg->data[1];
     if (msgType & 0x10)
         *type = NWC24_MBOX_TYPE_SEND;
     else if (msgType & 0x20)
@@ -31,9 +31,9 @@ NWC24Err NWC24ReadMsgField(const NWC24MsgObj* msg, char* fieldName, u8* output, 
     NWC24Err closeResult;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
-    if (!(msg->data[1] & 0x200))
+    if (!(privateMsg->type & 0x200))
         return NWC24_ERR_PROTECTED;
-    result = SelectMBox(privateMsg, &type);
+    result = SelectMBox(msg, &type);
     switch (result) {
         case NWC24_OK:
             break;
@@ -278,13 +278,13 @@ NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* address, u32 capacit
     NWC24Err result, closeResult;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
-    if (!(msg->data[1] & 0x200))
+    if (!(privateMsg->type & 0x200))
         return NWC24_ERR_PROTECTED;
     buffer = NWC24WorkP->stringWork;
     Mail_memset(buffer, 0, 1024);
     if (!(privateMsg->type & 2))
         return NWC24_ERR_NOT_SUPPORTED;
-    result = SelectMBox(privateMsg, &type);
+    result = SelectMBox(msg, &type);
     switch (result) {
         case NWC24_OK:
             break;
@@ -321,9 +321,9 @@ NWC24Err NWC24ReadMsgSubject(const NWC24MsgObj* msg, char* subject, u32 capacity
     NWC24Err result, closeResult;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
-    if (!(msg->data[1] & 0x200))
+    if (!(privateMsg->type & 0x200))
         return NWC24_ERR_PROTECTED;
-    result = SelectMBox(privateMsg, &type);
+    result = SelectMBox(msg, &type);
     switch (result) {
         case NWC24_OK:
             break;
@@ -398,11 +398,11 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capa
     char* buffer;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
-    if (!(msg->data[1] & 0x200))
+    if (!(privateMsg->type & 0x200))
         return NWC24_ERR_PROTECTED;
     buffer = NWC24WorkP->stringWork;
     *encoding = 0;
-    result = SelectMBox(privateMsg, &type);
+    result = SelectMBox(msg, &type);
     switch (result) {
         case NWC24_OK:
             break;
@@ -454,8 +454,10 @@ static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capa
             case 2:
                 decodedSize = 0;
                 result = ReadBase64Data(&file, &privateMsg->text, (u8*)text, length, &decodedSize);
-                if (result == NWC24_OK && decodedSize != privateMsg->textSize)
-                    result = NWC24_ERR_FORMAT;
+                if (result == NWC24_OK) {
+                    if (decodedSize != privateMsg->textSize)
+                        result = NWC24_ERR_FORMAT;
+                }
                 text[length] = 0;
                 break;
             case 3:
@@ -480,15 +482,15 @@ NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 index, u8* output, u32
     const NWC24MsgObjPrivate* privateMsg = (const NWC24MsgObjPrivate*)msg;
     NWC24File file;
     NWC24MBoxType type;
-    u32 decodedSize;
     NWC24Err result, closeResult;
+    u32 decodedSize;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
-    if (!(msg->data[1] & 0x200))
+    if (!(privateMsg->type & 0x200))
         return NWC24_ERR_PROTECTED;
     if (index >= privateMsg->numAttached)
         return NWC24_ERR_NOT_FOUND;
-    result = SelectMBox(privateMsg, &type);
+    result = SelectMBox(msg, &type);
     switch (result) {
         case NWC24_OK:
             break;
@@ -506,8 +508,10 @@ NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 index, u8* output, u32
     }
     decodedSize = 0;
     result = ReadBase64Data(&file, &privateMsg->attached[index], output, capacity, &decodedSize);
-    if (result == NWC24_OK && decodedSize != privateMsg->attachedSize[index])
-        result = NWC24_ERR_FORMAT;
+    if (result == NWC24_OK) {
+        if (decodedSize != privateMsg->attachedSize[index])
+            result = NWC24_ERR_FORMAT;
+    }
     closeResult = NWC24iMBoxCloseMsg(&file);
     if (result == NWC24_OK)
         result = closeResult;
