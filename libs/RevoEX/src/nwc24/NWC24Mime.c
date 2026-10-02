@@ -232,12 +232,16 @@ static NWC24Err QEncode(char* encoded, u32 encodedCapacity, u32* encodedSize, u8
 
 static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, char* encoded, u32 encodedSize, u32* encodedSizeOut, int flags) {
     u32 encodedOffset;
-    u32 decodedOffset = 0;
+    u32 decodedOffset;
+    u8 value;
     char* input;
     char* output;
-    u8 value = 0;
-    NWC24Err result = NWC24_OK;
+    NWC24Err result;
     int valid;
+
+    decodedOffset = 0;
+    value = 0;
+    result = NWC24_OK;
 
     if (decoded == NULL)
         return NWC24_ERR_INVALID_VALUE;
