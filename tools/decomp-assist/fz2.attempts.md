@@ -383,3 +383,176 @@ Instruction-exact functions / matched code bytes / matched data bytes, before ->
 - pf_file: 44->45 / 17368->17820 / no data symbols.
 - zconvert: 3->3 / 1380->1380 / 112->112.
 Commit ac0541dd contains the exact source improvement. Remaining eZiText compiler coloring fixes are unknown.
+
+# Round 3 expanded fuzzy lane
+Baseline c44fbd720965dadcc282b8cea9f6fba352c2f559
+libs/RVLMiddleware/eZiText/src/clib/zmtkey: POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RVLMiddleware/eZiText/src/clib/zconvert: POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RevoEX/src/nhttp/NHTTP_socket_RVL: POOL IDENTICAL up to 0 (mine=0 base=0)
+src/scene/channelSelect/iplChannelObj: POOL IDENTICAL up to 20 (mine=20 base=20)
+src/scene/board/iplBoard: POOL IDENTICAL up to 18 (mine=18 base=18)
+libs/NW4R/src/lyt/lyt_window: POOL IDENTICAL up to 1 (mine=1 base=1)
+- Zi8getKeyLayout / r3 byte pair index shift rather than multiply: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r3 sum offset explicitly grouped with key header: 182/182 instructions; structural 0, positional differences 16
+- Zi8getKeyLayout / r3 explicit mapped key failure comparison: 182/182 instructions; structural 0, positional differences 16
+- Zi8ConvertUC2Key / r3 separate entry value byte assembly: 207/207 instructions; structural 2, positional differences 22
+- Zi8ConvertUC2Key / r3 use shift for character stride: 207/207 instructions; structural 0, positional differences 18
+- Zi8ConvertUC2Key / r3 explicit braces around user key return: 207/207 instructions; structural 0, positional differences 18
+- NHTTPi_SocRecv_sub / r3 memcpy source offset evaluated into local: BUILD FAIL nclude/private/bte -DNDEBUG=1 -DTARGET_RVL -ipa file -fp_contract off -lang=c -MMD -c libs/RevoEX/src/nhttp/NHTTP_socket_RVL.c -o build/43U/src/libs/RevoEX/src/nhttp && "/usr/bin/python3" tools/transform_dep.py build/43U/src/libs/RevoEX/src/nhttp/NHTTP_socket_RVL.d build/43U/src/libs/RevoEX/src/nhttp/NHTTP_socket_RVL.d ### mwcceppc.exe Compiler: #    File: libs\RevoEX\src\nhttp\NHTTP_socket_RVL.c # ------------------------------------------------- #      99:             u8* source = buffer + connection->recvBufOffset;  #   Error:             ^^ #   (10141) expression syntax error #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed. 
+- NHTTPi_SocRecv_sub / r3 pass source offset plus buffer in opposite operand order: 67/67 instructions; structural 0, positional differences 4
+- NHTTPi_SocRecv_sub / r3 narrow unsigned count local reused for copy length: 67/67 instructions; structural 0, positional differences 4
+- NHTTPi_SocRecv_sub / r3 copy source local declared before body: 67/67 instructions; structural 0, positional differences 4
+- NHTTPi_SocRecv_sub / r3 copy offset local declared before body: 67/67 instructions; structural 0, positional differences 4
+- NHTTPi_SocRecv_sub / r3 inline received copy boundary: 67/67 instructions; structural 0, positional differences 4
+- NHTTPi_SocSend_sub / r3 leading send positive branch with negative else: 102/102 instructions; structural 0, positional differences 0; EXACT candidate retained
+- NHTTPi_SocSend_sub / r3 leading send nested complete transfer branch: 102/102 instructions; structural 4, positional differences 5
+- NHTTPi_SocSend_sub / r3 leading send separate nonpositive and short branches: 102/102 instructions; structural 4, positional differences 5
+
+Round 3 structural diagnosis:
+- Zi8getKeyLayout: 182/182, unchanged frame and branches, language/count r26/r27 tie remains.
+- Zi8ConvertUC2Key: 207/207, unchanged frame and branches, work/key r27/r28 tie remains.
+- NHTTPi_SocRecv_sub: 67/67, identical 0x20 frame, only memcpy argument scheduling differs in four instructions.
+- NHTTPi_SocSend_sub: 101/102, aligned frame identical, leading partial transfer uses early returns while target has a positive-result block and negative else, with two redundant branch boundaries. Positive block restored exact 102/102.
+- NHTTPi_SocSend: 43/43, identical 0x10 frame, SSL id field load precedes register save in target but follows it in ours.
+- setLangPane: 195/195, stack byte arrays misplaced and language code indexing uses byte stride where target has four-byte records; loop pointer temporaries differ.
+- calcCursorAnim: objdiff 100%, three conditional CR1 branch operands in ctxdiff are misdecoded by odiff as absolute offsets. disasm_fn decodes real local relative branches; no source change needed. The instruction-exact gate count discrepancy is advisory-tool normalization, not a new unmatched function.
+- appendRecord: 283/283, frame 0x90 vs target 0xa0; interrupt saves promoted to registers whereas target stores three flags beside the address-taken dataSize slot.
+- DrawFrame: 376/376, instruction skeleton and float schedule identical; saved register allocation shifted, static texture-coordinate map placed in r31 instead of r21; data .sdata2 gap requires separate inspection.
+- NHTTPi_SocSend / r3 direct SSL id field reads without saved local: 43/43 instructions; structural 2, positional differences 3
+- NHTTPi_SocSend / r3 SSL id initialization before result declaration: 43/43 instructions; structural 2, positional differences 3
+- NHTTPi_SocSend / r3 assignment in SSL comparison instead of initializer: 43/43 instructions; structural 2, positional differences 3
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 language code records represented as ten four-byte strings: 196/195 instructions; structural 16, positional differences 120
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 language records and uncached fallback group names: 196/195 instructions; structural 16, positional differences 120
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 language records and four-byte RSO name buffer: 196/195 instructions; structural 25, positional differences 126
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 record read state groups interrupt saves with address-taken size: BUILD FAIL :6 #       Z:\mnt\drive2\projects\wii-ipl-workers\data- #   d6\include\scene\iplSceneManager.h:14 #       Z:\mnt\drive2\projects\wii-ipl-workers\data-d6\include\iplSceneUI.h:11 #       Z:\mnt\drive2\projects\wii-ipl-workers\data- #   d6\src\scene\board\iplBoard.cpp:4) ### mwcceppc.exe Compiler: #    File: src\scene\board\iplBoard.cpp # ------------------------------------- #     508:             if (!cdbManager->getDataSize(record, &interrupts.dataSize)) {  #   Error:                                                              ^^^^^^^^ #   (10140) undefined identifier 'dataSize' #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed. 
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 record read state before metadata declarations: BUILD FAIL workers\data- #   d6\include\scene\iplSceneBase.h:6 #       Z:\mnt\drive2\projects\wii-ipl-workers\data- #   d6\include\scene\iplSceneManager.h:14 #       Z:\mnt\drive2\projects\wii-ipl-workers\data-d6\include\iplSceneUI.h:11 #       Z:\mnt\drive2\projects\wii-ipl-workers\data- #   d6\src\scene\board\iplBoard.cpp:4) ### mwcceppc.exe Compiler: #    File: src\scene\board\iplBoard.cpp # ------------------------------------- #     449:             struct RecordReadState {  #   Error:                                    ^ #   (10296) class 'ipl::scene::Board::RecordReadState' redefined #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed. 
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 independent interrupt state locals instead of promotable struct: 283/283 instructions; structural 52, positional differences 48
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 four-byte language records and stop after fallback group: 196/195 instructions; structural 8, positional differences 54
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 records fallback stop and explicit current group pointer: 196/195 instructions; structural 8, positional differences 66
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 records fallback stop and uncached fallback group: 195/195 instructions; structural 4, positional differences 8
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 corrected read state with escaping data size: 283/283 instructions; structural 29, positional differences 29
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 corrected read state declared before metadata: 283/283 instructions; structural 38, positional differences 38
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 corrected read state reverse interrupt declaration order: 283/283 instructions; structural 29, positional differences 29
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 four-byte records with eight-byte RSO names: 195/195 instructions; structural 1, positional differences 5
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 four-byte records names8 and null-terminated fallback table: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 null-terminated fallback table preserving six-byte names: 195/195 instructions; structural 3, positional differences 7
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 shared group declaration: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 iterator initializer from group expression: 195/195 instructions; structural 3, positional differences 5
+
+## lyt_window round3
+- Fetch origin: owned source unchanged; pool identical. DrawFrame 376/376, frame0xe0 identical; inlined texture helper allocation shifts preserved argument registers; inspect declaration lifetime before register search.
+- DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc / r3 declare colors before material setup: 372/376 instructions; structural 90, positional differences 374
+- DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc / r3 declare geometry before texture coordinates: 376/376 instructions; structural 0, positional differences 119
+- DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc / r3 draw quad use conditional colors temporary: 364/376 instructions; structural 188, positional differences 373
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 group declared before language: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 group declared before found flag: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 group and outer iterator both explicit: 196/195 instructions; structural 4, positional differences 191
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 pane iterator declared before group pointers: BUILD FAIL \wii-ipl-workers\data- #   d6\include\system\iplSystem.h:15 #       Z:\mnt\drive2\projects\wii-ipl-workers\data-d6\include\iplSystem.h:9 #       Z:\mnt\drive2\projects\wii-ipl-workers\data- #   d6\src\scene\channelSelect\iplChannelObj.cpp:8) ### mwcceppc.exe Compiler: #    File: src\scene\channelSelect\iplChannelObj.cpp # -------------------------------------------------- #     645: st().GetBeginIter(); it != layout->GetGroupList().GetEndIter(); paneIt++) {  #   Error:                                                                 ^^^^^^ #   (10140) undefined identifier 'paneIt' #   Too many errors printed, aborting program  User break, cancelled... ninja: build stopped: subcommand failed. 
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 pane list reference instead of group pointer: 195/195 instructions; structural 6, positional differences 6
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 unified metadata and read state structure: 279/283 instructions; structural 18, positional differences 258
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 separate pane iterator declarations: 199/195 instructions; structural 9, positional differences 86
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 const group pointer: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 pane iterators prefix increment: 187/195 instructions; structural 51, positional differences 93
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 metadata zeroing loop: 284/283 instructions; structural 23, positional differences 249
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 read state constructor initializes type array: 277/283 instructions; structural 20, positional differences 265
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 shared inline visibility helper: 153/195 instructions; structural 77, positional differences 103
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 group references instead of pointers: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 found flag integer boolean: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 group pointer declaration before assignment in each branch: 195/195 instructions; structural 0, positional differences 4
+- setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object / r3 pane iterator comparison reversed: 195/195 instructions; structural 14, positional differences 14
+- DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc / r3 texture flip helper uses explicit selected entry pointer: 376/376 instructions; structural 0, positional differences 119
+- DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc / r3 texture flip helper uses table pointer indexing: 376/376 instructions; structural 0, positional differences 119
+- DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc / r3 texture helper y index declaration first: 376/376 instructions; structural 0, positional differences 119
+- appendRecord__Q33ipl5scene5BoardFP10_CDBRecord / r3 read state owns interrupt flags and scalar metadata: 283/283 instructions; structural 59, positional differences 58
+
+### Round 3 declaration search and data ownership audit
+- Zi8getKeyLayout: 52 declaration orders after structural attempts, best (0,16), original restored.
+- NHTTPi_SocRecv_sub: two leading declaration orders, best (0,4), original restored.
+- NHTTPi_SocSend: two leading declaration orders, best (2,3), original restored; remaining three differences are SSL-id load scheduling, not a frame mismatch.
+- setLangPane: two initialized language declarations and 23 expanded leading declaration orders, best (0,4); target still colors both group pointers r30 whereas compiler selects r28. The four-byte language records, eight-byte RSO name buffer and null-terminated/first-match fallback correct the structural skeleton; all fuzzy candidates restored because no exact function gained.
+- appendRecord: grouping flags with escaping dataSize forces the target spills and frame; best structural experiment 29 stack-slot differences. Expanded declaration search 76 orders stopped at (45,57); all candidates restored because none exact. Unified metadata structures and their zero-initialization alternatives failed to reproduce the target local layout without extra initialization instructions.
+- DrawFrame: 52 declaration orders, best (0,119); helper index declarations and explicit selected-entry/table pointers leave allocation unchanged. All candidates restored.
+- Data: zmtkey 60/60, zconvert 112/112, ChannelObj 2216/2216, Board 896/896; NHTTP has no data symbols. No symbol-name or extent edit justified in these units.
+- lyt_window relocation proof: target .sdata2 offsets0..19 are five distinct RGBA byte quartets used by GetVtxColorElement, SetVtxColorElement, DrawFrame4/8, GetVtxColor and SetVtxColor; target offsets40..43 are scLytFatalColorR/G/B/A used by GetFrameMaterial. Ours emits only the shared named quartet at0..3; this is a real 16-byte duplicate-constant emission gap, not a missing-name pair or weak vtable. No fake objects, labels or extent changes added. Target .sdata2 total48, source24; remaining float/double constants retain proper relocation uses.
+- Audit: every objdiff-open function has at least three distinct successful source-level experiments in this round. NHTTPi_SocSend_sub is exact and committed; others remain open as documented. calcCursorAnim is already objdiff100 and is only an instruction-normalization artifact.
+
+- Advisory literal_reference_diff: 182 functions analyzed, 86 arguments checked, zero candidates/errors/skips. This checks actual string bytes at corresponding uses and does not claim complete data matching.
+- Zi8ConvertUC2Key: final corrected leading-declarations range127..132, 36 orders, best(0,18); original restored. The preceding wider range accidentally included the first if statement and its invalid permutations were discarded.
+- Final successful-attempt count audit: Zi8getKeyLayout=3, Zi8ConvertUC2Key=3, NHTTPi_SocRecv_sub=5, NHTTPi_SocSend_sub=3, NHTTPi_SocSend=3, setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object=23, appendRecord__Q33ipl5scene5BoardFP10_CDBRecord=8, DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc=6.
+
+## Round 3 final full gate (all six units)
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] objdiff: code 1488/2216 data 60/60 functions 3/4 fuzzy 99.8466 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] instruction-exact functions: 3/4
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   section .text size 2216 match 99.84657
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   section extab size 24 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   section extabindex size 36 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey]   below 100: Zi8getKeyLayout 99.53297
+[libs/RVLMiddleware/eZiText/src/clib/zmtkey] baseline: code 1488/2216 data 60 functions 3 fuzzy 99.8466
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] pool: IDENTICAL
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] objdiff: code 1380/2208 data 112/112 functions 3/4 fuzzy 99.8370 linked code 0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] instruction-exact functions: 3/4
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section .rodata size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section .text size 2208 match 99.83696
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section extab size 32 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   section extabindex size 48 match 100.0
+[libs/RVLMiddleware/eZiText/src/clib/zconvert]   below 100: Zi8ConvertUC2Key 99.565216
+[libs/RVLMiddleware/eZiText/src/clib/zconvert] baseline: code 1380/2208 data 112 functions 3 fuzzy 99.8370
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL] pool: IDENTICAL
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL] objdiff: code 1700/2140 data None/None functions 8/10 fuzzy 99.5701 linked code 0
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL] instruction-exact functions: 8/10
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL]   section .text size 2140 match 99.57009
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL]   below 100: NHTTPi_SocRecv_sub 99.55224
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL]   below 100: NHTTPi_SocSend 95.34884
+[libs/RevoEX/src/nhttp/NHTTP_socket_RVL] baseline: code 1292/2140 data None functions 7 fuzzy 98.9907
+[src/scene/channelSelect/iplChannelObj] pool: IDENTICAL
+[src/scene/channelSelect/iplChannelObj] objdiff: code 10144/10924 data 2216/2216 functions 55/56 fuzzy 99.7993 linked code 0
+[src/scene/channelSelect/iplChannelObj] instruction-exact functions: 54/56
+[src/scene/channelSelect/iplChannelObj]   section .data size 1240 match 100.0
+[src/scene/channelSelect/iplChannelObj]   section .rodata size 784 match 100.0
+[src/scene/channelSelect/iplChannelObj]   section .sdata size 120 match 100.0
+[src/scene/channelSelect/iplChannelObj]   section .sdata2 size 72 match 100.0
+[src/scene/channelSelect/iplChannelObj]   section .text size 10924 match 99.79934
+[src/scene/channelSelect/iplChannelObj]   below 100: setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object 97.18974
+[src/scene/channelSelect/iplChannelObj] baseline: code 10144/10924 data 2216 functions 55 fuzzy 99.7993
+[src/scene/board/iplBoard] pool: IDENTICAL
+[src/scene/board/iplBoard] objdiff: code 19144/20276 data 896/896 functions 93/94 fuzzy 99.8765 linked code 0
+[src/scene/board/iplBoard] instruction-exact functions: 93/94
+[src/scene/board/iplBoard]   section .data size 744 match 100.0
+[src/scene/board/iplBoard]   section .rodata size 104 match 100.0
+[src/scene/board/iplBoard]   section .sdata size 40 match 100.0
+[src/scene/board/iplBoard]   section .sdata2 size 8 match 100.0
+[src/scene/board/iplBoard]   section .text size 20276 match 99.8765
+[src/scene/board/iplBoard]   below 100: appendRecord__Q33ipl5scene5BoardFP10_CDBRecord 97.78799
+[src/scene/board/iplBoard] baseline: code 19144/20276 data 896 functions 93 fuzzy 99.8765
+[libs/NW4R/src/lyt/lyt_window] pool: IDENTICAL
+[libs/NW4R/src/lyt/lyt_window] objdiff: code 9848/11352 data 268/316 functions 20/21 fuzzy 99.7586 linked code 0
+[libs/NW4R/src/lyt/lyt_window] instruction-exact functions: 20/21
+[libs/NW4R/src/lyt/lyt_window]   section .ctors size 4 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .data size 256 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .sbss size 8 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .sdata2 size 48 match 66.66667
+[libs/NW4R/src/lyt/lyt_window]   section .text size 11352 match 99.75864
+[libs/NW4R/src/lyt/lyt_window]   below 100: DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc 98.17819
+[libs/NW4R/src/lyt/lyt_window] baseline: code 9848/11352 data 268 functions 20 fuzzy 99.7586
+regressions vs baseline: 0
+global matched_code_percent: 88.66222 -> 88.67584
+global fuzzy_match_percent: 99.47330 -> 99.47371
+global complete_code_percent: 63.16065 -> 63.16065
+global matched_data_percent: 98.51344 -> 98.51344
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+Before -> after instruction-exact functions / objdiff code bytes / matched data bytes:
+- zmtkey: 3/4 -> 3/4; 1488 -> 1488; 60 -> 60.
+- zconvert: 3/4 -> 3/4; 1380 -> 1380; 112 -> 112.
+- NHTTP_socket_RVL: 7/10 -> 8/10; 1292 -> 1700; no data symbols.
+- iplChannelObj: instruction gate 54/56 -> 54/56 (objdiff 55/56 unchanged, calcCursorAnim decoding artifact); 10144 -> 10144; 2216 -> 2216.
+- iplBoard: 93/94 -> 93/94; 19144 -> 19144; 896 -> 896.
+- lyt_window: 20/21 -> 20/21; 9848 -> 9848; 268 -> 268.
+Final full gate passes, correct DOL SHA1, zero regressions, zero net forbidden patterns and zero readability warnings. NHTTPi_SocSend_sub has 102/102 instructions and ctxdiff diffs0 after the clean build. Remaining compiler allocation/local layout fixes and the lyt_window duplicate-constant emission are unresolved. Only NHTTP_socket_RVL.c and this attempts log differ from round3 baseline; source improvement commit bf69c042.
