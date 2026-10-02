@@ -278,3 +278,13 @@ Applied the early-stmt-init + decl-order + for-IV pattern to every directive tar
 - **CheckMsgBoxSpace 75d**: savegpr_22v23 (+1 callee web) — same universal wall; extra web isn't decl-reachable.
 
 Confirmed again: the "+1 callee web" family and the zero-web-first coloring are allocator-internal decisions with no source-level lever found across ~20 variants this wave.
+
+## wave-26 — smallest-first probes (no wins)
+
+- **iSetMsgSubjectBase64 10d**: two residuals: (a) arg-save cluster order — base emits work's pinned copy (r22) SECOND after msg, before r4-r7 copies; mine emits r4-r8 in arg-index order. Tried: use-reorder (`second = work + (workSize>>1)` first), decl-init forms (`u8* second = work + workHalf`, `u32 workHalf = workSize >> 1`) — all inert. The copy order is MWCC-internal web numbering, not use/decl order. (b) tail: `total += outputLength - 1` vs `sourceOffset += subjectLength` interleave — scheduling only.
+- **iSetMsgSubjectQP 12d**: two-web r30↔r31 swap (secondSize vs a spilled workHalf reload). 3 decl-order variants — inert or worse.
+- **CommitMsgInternal 18d**: two identical blocks — flag-extract web (clrlwi/srwi) ↔ workP web swap r23/r24/r28. Same rotation family.
+- **ConvertDateToDays 16d**: reordered div operand defs 4 ways (commonLeapDays first, interleaved, split -=) — MWCC scheduler ignores source order for independent straight-line chains; inert or worse.
+- **DateToOSCalendarTime 13d**: (wave-25) year-load home r5 vs r0 — member-path/cast forms don't change web size/home.
+
+Universal wall stands: web numbering/home-coloring driven by allocator-internal order, not reachable via decl order, use order, or stmt order.
