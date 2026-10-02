@@ -360,17 +360,16 @@ pf_bool PFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_patter
 pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* matched_end) {
     pf_u32 read_char;
     pf_s32 recursive_error;
-    pf_u16 name_char;
+    pf_s32 name_width;
     pf_u16 pattern_char;
     pf_u16 converted_pattern;
     pf_u16 converted_name;
-    pf_s32 name_width;
+    pf_u16 name_char;
     pf_s32 pattern_width;
-    PF_PATH_VOLUME_SET* volume = &pf_vol_set;
 
     while (*pattern != 0) {
-        pattern_width = volume->codeset.oem_char_width(pattern);
-        name_width = volume->codeset.oem_char_width(name);
+        pattern_width = pf_vol_set.codeset.oem_char_width(pattern);
+        name_width = pf_vol_set.codeset.oem_char_width(name);
         if (pattern_width == 1) {
             read_char = pf_toupper(*pattern);
         } else {
@@ -399,18 +398,18 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
         }
         case '*': {
             do {
-                pattern_width = volume->codeset.oem_char_width(pattern);
-                if (pattern_width != 1) {
-                    read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)pattern);
-                } else {
+                pattern_width = pf_vol_set.codeset.oem_char_width(pattern);
+                if (pattern_width == 1) {
                     read_char = pf_toupper(*pattern);
+                } else {
+                    read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)pattern);
                 }
                 pattern_char = (pf_u16)read_char;
                 pattern += pattern_width;
                 if (pattern_char == '?') {
                     if (name_char == 0) { return 1; }
                     name += name_width;
-                    name_width = volume->codeset.oem_char_width(name);
+                    name_width = pf_vol_set.codeset.oem_char_width(name);
                     if (name_width == 1) { read_char = pf_toupper(*name); }
                     else { read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)name); }
                     name_char = (pf_u16)read_char;
@@ -428,7 +427,7 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
                     }
                     if (*matched_end != 0) { return recursive_error; }
                 }
-                name_width = volume->codeset.oem_char_width(name);
+                name_width = pf_vol_set.codeset.oem_char_width(name);
                 if (name_width == 1) {
                     read_char = pf_toupper(*name);
                 } else {
