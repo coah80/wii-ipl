@@ -106,8 +106,8 @@ void GCWindow::init(const math::VEC3& translate, MemoryCardManager* manager, u8 
     }
     int blocks = mpMemoryCardManager->getBlocks(cardState, cardIndex);
     DigitTable digitTable = scNumber;
-    int blockCount = static_cast<u16>(blocks);
     wchar_t decimal[5] = {0};
+    int blockCount = static_cast<u16>(blocks);
     int skipCount = 0;
     wchar_t blockText[5] = {0};
     decimal[0] = digitTable.w[blockCount / 1000];
@@ -123,8 +123,7 @@ void GCWindow::init(const math::VEC3& translate, MemoryCardManager* manager, u8 
     wcscpy(blockText, decimal + skipCount);
     set_textbox("T_Block_00", blockText);
     mTranslate = translate;
-    math::VEC3 zero(0.0f, 0.0f, 0.0f);
-    mLinearInterp.init(ANIM_TYPE_FORWARD, 12.0f, 0.0f, mTranslate, zero, 1.0f);
+    mLinearInterp.init(ANIM_TYPE_FORWARD, 12.0f, 0.0f, mTranslate, math::VEC3(0.0f, 0.0f, 0.0f), 1.0f);
     mLinearInterp.initFrame();
     mLinearInterp.restart();
     math::VEC3 position = mLinearInterp.get();
