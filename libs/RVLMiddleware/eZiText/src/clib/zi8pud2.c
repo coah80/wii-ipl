@@ -126,7 +126,7 @@ matchText:
                         if (pattern[index] != Zi8ConvertUC2Key(word[index], language, __zi8_work_data)) goto next;
                     } else {
                         folded = Zi8ConvertUC2WC(word[index], language, __zi8_work_data);
-                        if (folded != pattern[index] && (!ZI_WORK->unk_0x1F || !Zi8ChangeCharCase(0, &folded, language, __zi8_work_data) || folded != pattern[index])) goto next;
+                        if (folded != pattern[index] && (!ZI_WORK->ignoreCase || !Zi8ChangeCharCase(0, &folded, language, __zi8_work_data) || folded != pattern[index])) goto next;
                     }
                 }
 matched:
