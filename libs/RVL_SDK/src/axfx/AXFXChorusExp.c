@@ -157,8 +157,20 @@ void AXFXChorusExpCallback(AXFX_BUFFERUPDATE* update, AXFX_CHORUS_EXP* fx) {
         if (fx->delay.outPos >= fx->delay.sizeFP) fx->delay.outPos = 0;
     }
 }
+static inline void chorus_gradient(AXFX_CHORUS_EXP_LFO* lfo, f32 depth, f32 step) {
+    depth /= step;
+    lfo->gradFactor = 65536.0f * depth;
+}
 static BOOL __InitParams(AXFX_CHORUS_EXP* fx) {
-    f32 delay, depth, step;
+    f32 delay;
+    f32 depth;
+    f32 step;
+    u32 channel;
+    u32 sample;
+    s32 stepSamp;
+    s32 phaseAdd;
+    s32 depthSamp;
+
     if (fx->delayTime < 0.1f || fx->delayTime > 50.0f) return FALSE;
     if (fx->depth < 0.0f || fx->depth > 1.0f) return FALSE;
     if (fx->rate < 0.1f || fx->rate > 2.0f) return FALSE;
@@ -168,32 +180,28 @@ static BOOL __InitParams(AXFX_CHORUS_EXP* fx) {
     fx->lfo.table = __AXFXGetLfoSinTable();
     delay = 32.0f * fx->delayTime;
     depth = delay * fx->depth;
-    if (delay <= depth) {
+    if (depth >= delay) {
         depth -= 1.0f;
         if (depth < 0.0f) depth = 0.0f;
     }
-    fx->lfo.depthSamp = 65536.0f * depth;
-    fx->lfo.phaseAdd = 65536.0f * (256.0f * fx->rate / 32000.0f);
-    step = (32000.0f / fx->rate) * (1.0f / 256.0f);
-    fx->lfo.stepSamp = 65536.0f * step;
-    fx->lfo.gradFactor = 65536.0f * (depth / step);
     fx->lfo.lastNum = -1;
     fx->lfo.phase = 0;
     fx->lfo.sign = 0;
     fx->lfo.lastValue = 0;
     fx->lfo.grad = 0;
-    fx->history[0][0] = 0.0f;
-    fx->history[0][1] = 0.0f;
-    fx->history[0][2] = 0.0f;
-    fx->history[0][3] = 0.0f;
-    fx->history[1][0] = 0.0f;
-    fx->history[1][1] = 0.0f;
-    fx->history[1][2] = 0.0f;
-    fx->history[1][3] = 0.0f;
-    fx->history[2][0] = 0.0f;
-    fx->history[2][1] = 0.0f;
-    fx->history[2][2] = 0.0f;
-    fx->history[2][3] = 0.0f;
+    depthSamp = 65536.0f * depth;
+    phaseAdd = 65536.0f * (256.0f * fx->rate / 32000.0f);
+    step = (32000.0f / fx->rate) / 256.0f;
+    stepSamp = 65536.0f * step;
+    fx->lfo.depthSamp = depthSamp;
+    fx->lfo.phaseAdd = phaseAdd;
+    fx->lfo.stepSamp = stepSamp;
+    chorus_gradient(&fx->lfo, depth, step);
+    for (channel = 0; channel < 3; channel++) {
+        for (sample = 0; sample < 4; sample++) {
+            fx->history[channel][sample] = 0.0f;
+        }
+    }
     fx->histIndex = 0;
     return TRUE;
 }
