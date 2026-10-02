@@ -1472,17 +1472,17 @@ s32 PFVOL_setcode(PFVOL_CHARCODE* code_set) {
 
 s32 PFVOL_regctx(void) {
     s32 context_id;
-    s32 free_context_index;
     u32 context_index;
+    s32 free_context_index;
     s32 error;
     error = PFSYS_GetCurrentContextID(&context_id);
     if (error != 0) { pf_vol_set.last_error = 26; return 26; }
     free_context_index = 0;
     for (context_index = 1; context_index < 4; context_index++) {
         u32 stat;
-        stat = pf_vol_set.context[context_index - 1].stat & 1;
-        if (stat != 0 && pf_vol_set.context[context_index - 1].context_id == context_id) { break; }
-        if (stat == 0 && free_context_index == 0) { free_context_index = context_index; }
+        if ((pf_vol_set.context[context_index - 1].stat & 1) != 0 &&
+            pf_vol_set.context[context_index - 1].context_id == context_id) { break; }
+        if ((pf_vol_set.context[context_index - 1].stat & 1) == 0 && free_context_index == 0) { free_context_index = context_index; }
     }
     if (context_index == 4) {
         if (free_context_index != 0) {
