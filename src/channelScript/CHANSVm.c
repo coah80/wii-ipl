@@ -7441,8 +7441,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     }
 
                     if (leftOp == vmNull || rightOp == vmNull) {
-                        result = CHANS_VM_ERR_RESULT_TYPE;
-                        break;
+                        return CHANS_VM_ERR_RESULT_TYPE;
                     }
 
                     result = opFunc(vm, convTypeIdx, &pVm->accumulator, leftOp, rightOp);
@@ -7882,8 +7881,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                             computedAddr += pVm->pActiveCtx->pc + 5;
                         }
                         if (computedAddr < 1 || computedAddr >= pVm->pActiveCtx->pDbg->codeSize) {
-                            result = CHANS_VM_ERR_CODE_RANGE;
-                            break;
+                            return CHANS_VM_ERR_CODE_RANGE;
                         }
                         pVm->pActiveCtx->pc = computedAddr;
                         opSize = 0;
@@ -7931,8 +7929,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                         computedAddr += pVm->pActiveCtx->pc + 4;
                     }
                     if (computedAddr < 1 || computedAddr >= pVm->pActiveCtx->pDbg->codeSize) {
-                        result = CHANS_VM_ERR_CODE_RANGE;
-                        break;
+                        return CHANS_VM_ERR_CODE_RANGE;
                     }
                     pVm->pActiveCtx->pc = computedAddr;
                     opSize = 0;
@@ -7957,11 +7954,13 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                 }
 
                 case CHANS_VM_OP_DELETE_INDIRECT: {
-                    result = CHANS_VM_ERR_DELETE_INDIRECT;
-                    if (pVm->accumulator.type == CHANS_VM_TYPE_INDEX_REF) {
-                        foundObj = VmGetArrayElement(vm, &pVm->accumulator, *((u32*)&pVm->accumulator.value + 1), vmFalse);
-                        result = VmDeleteCommon(vm, foundObj);
+                    CHANSVmObjHdr* accumulator = &pVm->accumulator;
+                    CHANSVmErr deleteResult = CHANS_VM_ERR_DELETE_INDIRECT;
+                    if (accumulator->type == CHANS_VM_TYPE_INDEX_REF) {
+                        foundObj = VmGetArrayElement(vm, accumulator, accumulator->value.data.len, vmFalse);
+                        deleteResult = VmDeleteCommon(vm, foundObj);
                     }
+                    result = deleteResult;
                     break;
                 }
 
