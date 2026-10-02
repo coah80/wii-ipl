@@ -47,7 +47,7 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
     ZI_WORK->capacity = 0x100;
     Zi8SetLatinSearchOrder(0, 0, ZI_WORK);
     ZADP_Zi8SetPDremoveOpt(1, ZI_WORK);
-    ZI_WORK->unk_0x17 = 5;
+    ZI_WORK->zhPudMinPrefix = 5;
     ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1, ZI_WORK) & 2;
     ZI_WORK->pyFuzzy.bits.msb = 1;
     ZI_WORK->unk_0x1B2C.bits.msb = 1;
