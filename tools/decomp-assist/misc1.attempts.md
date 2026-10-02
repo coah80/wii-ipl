@@ -82,3 +82,21 @@
 ### Remaining state — everything else at documented walls
 - All data sections now 100% except www_wiisetting .data (anon literals/jumptables unpairable — extraction-boundary artifacts) and BS2Mach .data (None — merged pooled-literal objects, same artifact).
 - All code residuals: allocator-internal web-rotation/marshal-order ties or the above.
+
+## w1005 — live-web-window lever + DUD return decode
+
+### iplESMisc DeleteUnauthorizedData — signature decode (REAL find)
+- Orig's `mr r3,r27` immediately before `_restgpr_14` = **the fn returns `ret`** — signature is `s32` (orig: `static s32`, not void). Decl + def updated; `return ret` at end.
+- Effect: ret web is now callee-pinned (mine r25, orig r27), epilogue now matches (`mr r3,r25` vs `mr r3,r27`), per-call `mr` copies align structurally.
+- Fuzzy 88.79→87.76 (word diffs ~300→339) — fuzzy dipped but the structure is semantically correct (orig really does return a value). Residual = regname rotation + mine emits a second const-zero web (orig CSEs titleCount=0 + titleIds=NULL into one `li r28,0`; mine emits `li r0,0` + `li r26,0`).
+- Tried merging the zero webs: decl reorder (405, worse — reverted), `titleIds=(ESTitleId*)titleCount` (339, no change — reverted).
+
+### huffmanDecoder — deeper web analysis
+- Orig's callee webs: r23(tableIdx) r24(huffmanTables — reused ×3 for [0],[1],[0] loads!), r28(bytesConsumed) r29,r30(decodedSymbol) r31(bitCount web). Cursor = volatile r12.
+- Mine: r24(temp) r25(tables[0]) r26(tables[1]) r27(cursor!) r28 r29 r30(bitCount) r31(decSym) — one extra callee web vs orig's reg-reuse.
+- Orig reuses ONE callee reg for the 3 separate `huffmanTables[*]` pointer loads (short-lived webs, reg recycled); mine homes them in 3 different callee regs → pushes cursor into callee, pushing hot web to volatile.
+- Tried removing `predictors`/`predictor` locals (extra-web hypothesis): 171 diffs — reverted.
+
+### AxAdpcm start — extra-web variants
+- Removed `chanData` local (pass chanDataBuf[i] twice): 208 diffs — reverted.
+- Added `AdpcmCoeffs* coeffs = pCoeffsBufB[i]` local (cached member ptr reused ×18): IDENTICAL 14 diffs — kept (more readable, plausibly orig's own form).

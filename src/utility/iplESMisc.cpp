@@ -888,7 +888,7 @@ namespace ipl {
         static char FUNC_DELETE_TICKETS_FORCE[] = "DeleteTicketsForce";
         static char FUNC_INIT_SAVEDATA[] = "InitSavedata";
 
-        void ESMisc::DeleteUnauthorizedData(EGG::Heap* heap) {
+        s32 ESMisc::DeleteUnauthorizedData(EGG::Heap* heap) {
             u32 titleCount = 0;
             ESTitleId* titleIds = NULL;
             char path[88];
@@ -1054,7 +1054,7 @@ namespace ipl {
             if (titleIds != NULL) {
                 heap->free(titleIds);
             }
-            return;
+            return ret;
         }
 
         BOOL checkForNullTermination(char* str, u32 len) {
