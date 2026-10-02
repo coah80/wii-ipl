@@ -397,6 +397,8 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
     s32 result;
     u32 fileOffset;
     WADFileEntry* allocatedFiles;
+    void* fileNames;
+    void* titleList;
     BOOL streamOpened;
     u32 transferId;
     u32 contentCount;
@@ -406,9 +408,11 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
     u32 skipTitleMeta = flags & 4;
     WADFileHeader* fileHeader;
 
-    streamOpened = FALSE;
     fileOffset = 0;
+    fileNames = 0;
+    titleList = 0;
     allocatedFiles = 0;
+    streamOpened = FALSE;
     memset(&workspace.unpackInfo, 0, sizeof(WADUnpackInfo));
     if (fileListOut != 0) {
         *fileListOut = 0;
@@ -521,6 +525,12 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
 
 cleanup:
     _WADFreeMemory(&workspace.unpackInfo, allocator);
+    if (fileNames != 0) {
+        _WADMemFree(allocator, fileNames);
+    }
+    if (titleList != 0) {
+        _WADMemFree(allocator, titleList);
+    }
     if ((fileListOut != 0) && (result != 0)) {
         if (allocatedFiles != 0) {
             _WADMemFree(allocator, allocatedFiles);
@@ -3523,6 +3533,9 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         parts.titleMetaSize = header.tmdSize;
         parts.titleMeta = readBuffer + sectionOffset;
         sectionOffset += (header.tmdSize + 0x3F) & ~0x3F;
+    }
+    if (header.contentSize != 0) {
+        contentBuffer = readBuffer + sectionOffset;
     }
     contentBuffer = readBuffer + sectionOffset;
     remainingBufferSize = bufferSize - sectionOffset;
