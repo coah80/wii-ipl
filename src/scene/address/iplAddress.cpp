@@ -1179,8 +1179,14 @@ namespace ipl {
                 return;
             }
 
-            if (mState != STATE_NORMAL || mMode != 0) {
-                return;
+            switch (mState) {
+                case STATE_NORMAL:
+                    if (mMode == 0) {
+                        break;
+                    }
+                    // fallthrough
+                default:
+                    return;
             }
 
             if (!mpFriendCache->isThere(buttonNo + mPage * BTN_MAX)) {
@@ -1425,10 +1431,7 @@ namespace ipl {
 
                     if (con->downTrg(controller::BTN_INTERACT)) {
                         Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                        if (mState != STATE_COVER_NORMAL && mState != STATE_NORMAL) {
-                            break;
-                        }
-
+                        if (mState == STATE_COVER_NORMAL || mState == STATE_NORMAL) {
                         if (Button::cmpButtonName(paneName, Button::BTN_EXIT) == 0) {
                             MailAddressSelect* mailAddrSel = static_cast<MailAddressSelect*>(System::getScene(SCENE_MAIL_ADDRESS_SELECT));
                             button->animation(Button::IDANIM_SELECT_CALENDAR_EXIT);
@@ -1477,7 +1480,7 @@ namespace ipl {
                             snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
                             onPreviousPage();
                         }
-                        break;
+                        }
                     }
                     // fallthrough
                 }
@@ -1789,8 +1792,8 @@ namespace ipl {
                 for (; *name != 0; name++) {
                     width += textBox->GetFont()->GetCharWidth(*name);
                 }
+                width += 0.01f;
             }
-            width += 0.01f;
 
             nw4r::ut::Rect rect;
             nw4r::ut::Rect rect4x3;
