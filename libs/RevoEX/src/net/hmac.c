@@ -19,6 +19,9 @@ typedef struct HMACContext {
     u8 key[64];
 } HMACContext;
 
+char hmac_file_name[] = "hmac.c";
+char hmac_newline[] = "\n";
+
 void NETHMACInit(HMACContext* context, const DigestInterface* interface, const void* key, u32 length) {
     u8 innerKey[64];
     u32 i;
@@ -27,9 +30,9 @@ void NETHMACInit(HMACContext* context, const DigestInterface* interface, const v
     const char* function = "NETHMACInit";
     context->interface = *interface;
     if (context->interface.contextSize > 96 || context->interface.blockSize > 64) {
-        OSReport("%s(%d):[warning in %s]", "hmac.c", 100, function);
+        OSReport("%s(%d):[warning in %s]", hmac_file_name, 100, function);
         OSReport("specified interface needs too large workmemory.");
-        OSReport("\n");
+        OSReport(hmac_newline);
         return;
     }
     if (length <= context->interface.blockSize) {

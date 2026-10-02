@@ -123,3 +123,22 @@ rounds 2-4 anyway), `word[i]` args (type error), xw-before-k decl order (74.13),
 Residual (32 diff blocks): pure scheduler micro-order — orig prefetches
 next-step `lwz const`/`lwz idx`/`lwbrx` into the current step's tail; insn count
 306 = 306. Documented pipelining wall.
+
+## Pass 6b — hmac globals + remaining wall checks
+
+### hmac .sdata STB_GLOBAL decode
+Orig emits `lbl_81697AB0` (7B "hmac.c") + `lbl_81697AB8` (2B "\n") as STB_GLOBAL
+.sdata objects — real file-scope non-static char arrays in the original source.
+Decoded as `char hmac_file_name[]` + `char hmac_newline[]`; call sites updated.
+Codegen unchanged (93.36) — remaining Init diffs are (a) pool/work callee-web
+swap (r29/r31 rotation family), (b) `i` counter binding r4-vs-r3 in the unrolled
+xor loop. Levers tried: ptr-idx/ptr-walk loop forms (84-87, regress), int-i
+(77, regress — wrong cmp type), decl-swap (no-op).
+
+### Base64Encode 86.54 — parked
+count→r7-vs-r10 binding + `li` placement among stores + `lbzx` scheduling.
+declswap/reset-late/count-=3/!=3 all no-op or regress. 63=63 insns otherwise.
+
+### SOGetSockName 96.67 — parked
+Single `mr r3,r28` marshal-order placement diff (r3 arg last vs first).
+63=63 insns, reply-web identical. Scheduler-internal.
