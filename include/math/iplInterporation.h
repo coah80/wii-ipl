@@ -7,6 +7,10 @@
 
 #include "utility/iplFrameController.h"
 
+#ifdef IPL_GC_WINDOW_CPP
+#include "math/iplMathTypes.h"
+#endif
+
 #ifdef IPL_GCW_INTP_CTOR_OUT_OF_LINE
 #include "global/decomp/utils.h"
 #endif
@@ -38,6 +42,33 @@ namespace ipl {
             T mEnd;
         };
 
+#ifdef IPL_GC_WINDOW_CPP
+        template <>
+        class Interporation<VEC3> : public utility::FrameController {
+        public:
+            virtual ~Interporation();
+
+            void init(int playback, f32 maxFrame, f32 minFrame, const VEC3& start,
+                      const VEC3& end, f32 speed = 1.0f) {
+                mStart = start;
+                mEnd = end;
+                utility::FrameController::init(playback, maxFrame, minFrame, speed);
+            }
+
+            const VEC3& getStart() { return mStart; }
+            const VEC3& getEnd() { return mEnd; }
+
+            void playBackwards() {
+                mAnmType = ANIM_TYPE_BACKWARD;
+                mState = ANIM_STATE_PLAY;
+            }
+
+        protected:
+            VEC3 mStart;
+            VEC3 mEnd;
+        };
+#endif
+
         template <typename T>
         class LinearIntp : public Interporation<T> {
         public:
@@ -60,6 +91,16 @@ namespace ipl {
 #endif
             T get2() const { return (((mStart * (mMaxFrame - mFrame)) + (mEnd * mFrame)) / mMaxFrame); }
         };
+
+#ifdef IPL_GC_WINDOW_CPP
+        template <>
+        class LinearIntp<VEC3> : public Interporation<VEC3> {
+        public:
+            LinearIntp() {}
+            virtual ~LinearIntp();
+            VEC3 get() const;
+        };
+#endif
 
 
 #ifdef IPL_CHANNEL_TITLE_NOVTABLE

@@ -1734,11 +1734,13 @@ namespace ipl {
             }
         }
 
+        extern "C" char scSE_WSD_SELECT[] = "WSD_SELECT";
+
         void ChannelSelect::preparePageScrolling(int nextState) {
             mbModuleSceneChange = true;
             mState = nextState;
             unk_0x185 = false;
-            snd::getSystem()->startSE("WSD_SELECT");
+            snd::getSystem()->startSE(scSE_WSD_SELECT);
         }
 
         void ChannelSelect::startPageScroll(int nextState) {
@@ -2087,7 +2089,6 @@ namespace ipl {
             mpMoveLytDrop->getAnim()->initAnmFrame();
         }
 
-        extern "C" char scSE_WSD_SELECT[] = "WSD_SELECT";
         extern "C" char scSE_WIPL_SE_CH_TARGETTING[] = "WIPL_SE_CH_TARGETTING";
         extern "C" char scSE_WIPL_SE_CH_HOLD[] = "WIPL_SE_CH_HOLD";
         extern "C" char scSE_WIPL_SE_CH_SET[] = "WIPL_SE_CH_SET";
