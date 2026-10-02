@@ -562,11 +562,13 @@ static inline u32 kbdChannelFlags(u32 channel) {
 }
 
 static void kbd_led_handler(BOOL success, void* callbackArg) {
+    const KBDLEDCallbackData* callback;
     u32 index;
     u32 err;
     index = (u32)callbackArg;
+    callback = &kbdLCBuf[index];
     kbdCmdBuf[index].device = 0;
-    if (kbdLCBuf[index].callbackAddress == (USBKBDCmdLEDCallback)(u32)kbdCmdBuf[index].device) {
+    if (callback->callbackAddress == (USBKBDCmdLEDCallback)(u32)kbdCmdBuf[index].device) {
         return;
     }
     switch (success) {

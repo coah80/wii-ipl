@@ -202,33 +202,40 @@ static inline NWC24Err WriteMBNoReplyField(NWC24MsgObjPrivate* msg) {
     return err;
 }
 
-static inline NWC24Err WriteMBRegDateField(NWC24MsgObjPrivate* msg, u32 flags) {
+typedef struct {
+    u32 flags;
+    char* buffer;
+} MBFieldWork;
+
+static inline NWC24Err WriteMBRegDateField(NWC24MsgObjPrivate* msg) {
+    MBFieldWork field;
     NWC24Err err;
     s32 length;
-    char* buffer;
-    if (!flags)
+    field.flags = msg->msgBoardFlags.raw & 0xFFFF;
+    if (!field.flags)
         return NWC24_OK;
-    buffer = NWC24WorkP->stringWork;
-    Mail_memset(buffer, 0, 1024);
-    Mail_sprintf(buffer, "X-Wii-MB-RegDate: %04X\r\n", flags);
-    length = STD_strnlen(buffer, 1024);
-    err = NWC24FWrite(buffer, length, m_pFile);
+    field.buffer = NWC24WorkP->stringWork;
+    Mail_memset(field.buffer, 0, 1024);
+    Mail_sprintf(field.buffer, "X-Wii-MB-RegDate: %04X\r\n", field.flags);
+    length = STD_strnlen(field.buffer, 1024);
+    err = NWC24FWrite(field.buffer, length, m_pFile);
     if (err == NWC24_OK)
         msg->length += length;
     return err;
 }
 
-static inline NWC24Err WriteMBDelayField(NWC24MsgObjPrivate* msg, u32 flags) {
+static inline NWC24Err WriteMBDelayField(NWC24MsgObjPrivate* msg) {
+    MBFieldWork field;
     NWC24Err err;
     s32 length;
-    char* buffer;
-    if (!flags)
+    field.flags = msg->msgBoardFlags.raw & 0xFF0000;
+    if (!field.flags)
         return NWC24_OK;
-    buffer = NWC24WorkP->stringWork;
-    Mail_memset(buffer, 0, 1024);
-    Mail_sprintf(buffer, "X-Wii-MB-Delay: %02X\r\n", flags >> 16);
-    length = STD_strnlen(buffer, 1024);
-    err = NWC24FWrite(buffer, length, m_pFile);
+    field.buffer = NWC24WorkP->stringWork;
+    Mail_memset(field.buffer, 0, 1024);
+    Mail_sprintf(field.buffer, "X-Wii-MB-Delay: %02X\r\n", field.flags >> 16);
+    length = STD_strnlen(field.buffer, 1024);
+    err = NWC24FWrite(field.buffer, length, m_pFile);
     if (err == NWC24_OK)
         msg->length += length;
     return err;
@@ -306,8 +313,8 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
             CHECK_WRITE(WriteIconNewField(msg));
             if (msg->msgBoardFlags.raw != 0) {
                 CHECK_WRITE(WriteMBNoReplyField(msg));
-                { u16 dateFlags = msg->msgBoardFlags.raw; CHECK_WRITE(WriteMBRegDateField(msg, dateFlags)); }
-                CHECK_WRITE(WriteMBDelayField(msg, msg->msgBoardFlags.raw & 0xFF0000));
+                CHECK_WRITE(WriteMBRegDateField(msg));
+                CHECK_WRITE(WriteMBDelayField(msg));
             }
         }
         CHECK_WRITE(WriteExtraFields(msg));
