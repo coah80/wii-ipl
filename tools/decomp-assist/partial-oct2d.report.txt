@@ -1,0 +1,58 @@
+Full final clean gate (not --quick):
+[src/scene/sdChannelTitle/iplSDChannelTitle] objdiff: code 17444/18624 data 240/1976 functions 64/69 fuzzy 99.8935 linked code 0
+[src/scene/sdChannelTitle/iplSDChannelTitle] instruction-exact functions: 64/69
+[src/keyboard/tiCandidateBox] objdiff: code 19988/24000 data 1132/4652 functions 109/112 fuzzy 99.4395 linked code 0
+[src/keyboard/tiCandidateBox] instruction-exact functions: 108/112
+[libs/RevoEX/src/nhttp/NHTTP_recvbuf] objdiff: code 1196/1692 data None/None functions 6/7 fuzzy 96.3641 linked code 0
+[libs/RevoEX/src/nhttp/NHTTP_recvbuf] instruction-exact functions: 6/7
+[src/scene/memoryCard/iplMemoryCardManager] objdiff: code 2368/5396 data None/None functions 17/26 fuzzy 97.3610 linked code 0
+[src/scene/memoryCard/iplMemoryCardManager] instruction-exact functions: 17/26
+GATE PASS
+
+Before -> after (instruction-exact; objdiff exact; matched code bytes; matched data bytes):
+src/scene/sdChannelTitle/iplSDChannelTitle: instruction 64/69 -> 64/69; objdiff 64/69 -> 64/69; code 17444/18624 -> 17444/18624; data 240/1976 -> 240/1976
+src/keyboard/tiCandidateBox: instruction 108/112 -> 108/112; objdiff 109/112 -> 109/112; code 19988/24000 -> 19988/24000; data 1132/4652 -> 1132/4652
+libs/RevoEX/src/nhttp/NHTTP_recvbuf: instruction 6/7 -> 6/7; objdiff 6/7 -> 6/7; code 1196/1692 -> 1196/1692; data None/None -> None/None
+src/scene/memoryCard/iplMemoryCardManager: instruction 16/26 -> 17/26; objdiff 16/26 -> 17/26; code 2032/5396 -> 2368/5396; data None/None -> None/None
+
+Exact source change: update_icon_anm, 84/84 instructions, objdiff 100%, ctxdiff diffs 0 after clean build.
+Target loads anmMax from the same address at 0xa6c and 0xa88, with no intervening store or call. Definition-level volatile preserves those observed reads; source-defined IPL_MEMORY_CARD_MANAGER_CPP macro isolates this field change from every other translation unit. Separate signed delta/currentFrame locals fix the final three register differences.
+Source commit: c7843729 (match memory card icon animation updates).
+DOL SHA1: 26116613f624061ba99c8d1a299aaa6efa85670d; regressions 0, forbidden additions 0, readability warnings 0; all four pools IDENTICAL.
+No fuzzy-only experiment retained. Units remain NonMatching as instructed.
+
+Remaining functions (current, restored objdiff percentages; unique successfully compiled source hashes):
+calcFadein__Q33ipl5scene14SDChannelTitleFv: 97.87234%; attempts 3; 48/47 instructions; extra initialization of unused opt-out handler argument. Three meaningful handler/snapshot variants unchanged.
+initCalcFadeout__Q33ipl5scene14SDChannelTitleFv: 97.95918%; attempts 3; 50/49; extra unused opt-out handler argument. Three state/handler/reference variants unchanged.
+iplSDChannelTitle_startCopyProgress: 98.62791%; attempts 3; 87/86; unused controller argument initialization and title-word/receiver scheduling. Three argument/local/reference variants failed exactness.
+iplSDChannelTitle_updateCopyStart: 98.3421%; attempts 3; 77/76; unused controller argument initialization and title argument scheduling. Three variants failed exactness.
+iplSDChannelTitle_flushSaveBeforeExit: 98.5946%; attempts 6; 37/37; global base/save-manager r3/r4 choice and heap/manager load ordering. Six variants plus declaration search unchanged.
+create__Q39textinput12candidatebox12LayoutByNW4RFP12MEMAllocator: 92.71023%; attempts 3; 351/352; inline Init indexed loop versus target advancing pointer, plus inline button/window name lifetimes. Advancing cursors improved this function but regressed one exact sibling; restored.
+createAnmPane___Q39textinput12candidatebox12LayoutByNW4RFP12MEMAllocator: 96.56481%; attempts 3; 214/216; cached animation file versus target reload through animation entry pointer. Entry-pointer and leading indices reached 216/216 with zero structural differences but 53 register differences; declaration search unchanged; restored.
+CalcPaneLocate___Q39textinput12candidatebox10UITextAreaFv: 99.873566%; attempts 3; 435/435; eleven float register differences in second inline string-width expansion. Three variants and six declaration permutations unchanged.
+NHTTPi_compareTokenN_HdrRecvBuf: 87.59677%; attempts 17; 126/124 and frame 0x20/0x30. Positive guard, word character, and ternary lower-case helper reach 124/124 and target frame, with five loop-invariant initialization scheduling differences (97.32258%). Helper/local/loop variations and declaration search failed exactness; restored.
+isMoveEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl: 99.830505%; attempts 3; 118/118; two directory row/cell add operand swaps. Pointer operand order, typed row, inline accessor, and declaration search failed exactness.
+isCopyEnable__Q33ipl5scene17MemoryCardManagerFUcUlPl: 99.830505%; attempts 3; 118/118; same two directory address add operand swaps. Three variants and declaration search failed exactness.
+isBannerEnable__Q33ipl5scene17MemoryCardManagerFUcs: 92.30769%; attempts 3; 26/26; restore-base r11 initialization scheduled seven instructions early. Three result/row/lookup variants and declaration search unchanged.
+update_file_array__Q33ipl5scene17MemoryCardManagerFUc: 99.72222%; attempts 0; Known r3/r4 register tie; explicitly skipped by task.
+create_icon__Q33ipl5scene17MemoryCardManagerFUcs: 86.17647%; attempts 3; 51/51; file/frame register lifetimes, counter/frame-bits load order, and row/cell arithmetic. Three variants and declaration search failed exactness.
+_create_icon__Q33ipl5scene17MemoryCardManagerFUcsl: 87.55%; attempts 3; 100/100; target separate row/column arithmetic and destination lifetime across texture/TLUT calls, plus register differences. Three typed row/accessor variants failed exactness.
+getComment__Q33ipl5scene17MemoryCardManagerFUcsi: 98.94309%; attempts 4; 123/123; twenty saved-register and trim-pointer differences. Four source variants plus 24 declaration-search builds failed exactness.
+create_banner__Q33ipl5scene17MemoryCardManagerFUcs: 90.42453%; attempts 3; 106/106; target reconstructs icon row/cell after validation and keeps separate texture/TLUT offsets. Three scope/row/local variants failed exactness.
+getBlocks__Q33ipl5scene17MemoryCardManagerFUcs: 92.0%; attempts 3; 25/25; restore-base r11 initialization scheduled eight instructions early. Three local-result/row/helper variants failed exactness.
+
+Count limitation: onGUIEvent__Q39textinput12candidatebox10UITextAreaFRQ39textinput3gui13PaneComponentUlPQ49textinput11nw4rmanager14TiEventHandler5Input: objdiff 100%, gate disassembler differences [(251, ('bge', -23279), ('bge', -21251)), (268, ('bgt', -23347), ('bgt', -21319))]; proper last-branch-operand normalization score (0, 0)
+The gate normalizer uses the first branch operand, which is CR1 for these two instructions; proper last-operand normalization gives (0,0). Reported gate count stays 108/112, while objdiff is 109/112, both unchanged. This function already matches and was not modified.
+Other limitations: unchanged existing data scores remain below 100%; no linking claim. The new volatile declaration requires orchestrator source review, supported by the target-read evidence above.
+
+Files changed:
+include/iplMemoryCardLib.h
+src/scene/memoryCard/iplMemoryCardManager.cpp
+tools/decomp-assist/partial-oct2d.animation-gate.txt
+tools/decomp-assist/partial-oct2d.attempts.md
+tools/decomp-assist/partial-oct2d.initial-gate.txt
+tools/decomp-assist/partial-oct2d.final-gate.txt
+tools/decomp-assist/partial-oct2d.report.txt
+
+Attempt evidence: tools/decomp-assist/partial-oct2d.attempts.md; transient per-attempt sources, target/source disassembly and ctxdiff files saved under /tmp/partial-oct2d.
+Every remaining open function has at least three distinct compiled source attempts, except the explicitly excluded update_file_array.
