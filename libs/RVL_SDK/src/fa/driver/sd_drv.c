@@ -749,7 +749,8 @@ s32 pfd_sddrv_get_total_sectors(u32* sectors, u16* bytes_per_sector) {
         minimum_multiplier = multiplier >= 9 ? multiplier : 9;
         max_multiplier = minimum_multiplier <= 11 ? minimum_multiplier : 11;
         multiplier_factor = 1;
-        multiplier_factor <<= (u16)(max_multiplier - 9);
+        max_multiplier = (u16)(max_multiplier - 9);
+        multiplier_factor = (u16)(multiplier_factor << max_multiplier);
         *sectors = cluster_blocks * multiplier_factor;
     } else {
         *sectors = ((csd[1] >> 8 & 0x3fffff) + 1) * 0x400;
