@@ -506,7 +506,7 @@ s32 pfd_sddrv_finalize(FADisk* disk) {
         }
         g_pfd_sddrv_info.device = 0;
     }
-    g_pfd_sddrv_info.flags &= ~1;
+    g_pfd_sddrv_info.flags = g_pfd_sddrv_info.flags & ~1;
     g_pfd_sddrv_info.media_inserted = 0;
     g_pfd_sddrv_info.disk = 0;
     g_pfd_sddrv_info.drive = 0;
