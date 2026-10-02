@@ -65,19 +65,19 @@ ziU16 Zi8Uni2Ptr(ziU16 ch, ziE12* buf ZI_NEED_WORK) {
         }
     }
     e = (ziU8*)table;
-    if (WORKP->unk_0x1B18 != ZI8_NULL && WORKP->unk_0x1B24 == WORKP->subLanguage) {
-        if ((ziU16)ch >= WORKP->unk_0x1B1C && (ziU16)ch <= WORKP->unk_0x1B1E) {
-            i = (ziU16)(ch - WORKP->unk_0x1B1C);
+    if (WORKP->unicodeMap != ZI8_NULL && WORKP->unicodeMapSubLang == WORKP->subLanguage) {
+        if ((ziU16)ch >= WORKP->unicodeRange1Min && (ziU16)ch <= WORKP->unicodeRange1Max) {
+            i = (ziU16)(ch - WORKP->unicodeRange1Min);
             goto map;
         }
-        if ((ziU16)ch >= WORKP->unk_0x1B20 && (ziU16)ch <= WORKP->unk_0x1B22) {
-            i = (ziU16)(WORKP->unk_0x1B1E + (ch - WORKP->unk_0x1B20) -
-                        WORKP->unk_0x1B1C + 1);
+        if ((ziU16)ch >= WORKP->unicodeRange2Min && (ziU16)ch <= WORKP->unicodeRange2Max) {
+            i = (ziU16)(WORKP->unicodeRange1Max + (ch - WORKP->unicodeRange2Min) -
+                        WORKP->unicodeRange1Min + 1);
             goto map;
         }
         return 0xFFFF;
     map:
-        i = WORKP->unk_0x1B18[i];
+        i = WORKP->unicodeMap[i];
         if (i != 0xFFFF) {
             e = (ziU8*)table + i * 0xC;
             if (hi == e[6] && lo == e[7]) {

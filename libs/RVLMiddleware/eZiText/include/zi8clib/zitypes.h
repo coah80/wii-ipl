@@ -309,12 +309,12 @@ struct __zi8_work_data_s {
     ziWChar unk_0x1A92[0x41];
     ziU8 unk_0x1B14;
     ziU8 unk_0x1B15[3];
-    ziU16* unk_0x1B18;
-    ziU16 unk_0x1B1C;
-    ziU16 unk_0x1B1E;
-    ziU16 unk_0x1B20;
-    ziU16 unk_0x1B22;
-    ziU8 unk_0x1B24;
+    ziU16* unicodeMap;     // 0x1B18
+    ziU16 unicodeRange1Min; // 0x1B1C
+    ziU16 unicodeRange1Max; // 0x1B1E
+    ziU16 unicodeRange2Min; // 0x1B20
+    ziU16 unicodeRange2Max; // 0x1B22
+    ziU8 unicodeMapSubLang; // 0x1B24
     ziU8 unk_0x1B25[3];
     union {
         ziU32 word;
