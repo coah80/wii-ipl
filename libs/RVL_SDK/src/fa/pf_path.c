@@ -321,41 +321,7 @@ pf_u32 PFPATH_DoMatchFileNameWithPattern(pf_u16 c_name, PF_FILE_NAME_ITER* p_nam
     return 1;
 }
 
-pf_bool PFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_pattern, pf_bool is_long_name) {
-    pf_u16 c_name;
-    pf_u16 c_pat;
-    PF_FILE_NAME_ITER name;
-    PF_STR pattern;
-    pf_bool result;
-
-    result = PF_TRUE;
-    name.buf = file_name;
-    name.current = 0;
-    name.kind = is_long_name;
-    name.index = 0;
-
-    pattern = *p_pattern;
-
-    if (PFSTR_GetCodeMode(p_pattern) == 1) {
-        if (is_long_name == PF_FALSE && (pf_vol_set.setting & 0x02) == 0x02 && PFPATH_CheckExtShortNameSignature(&pattern) == 1) {
-            result = PFPATH_CheckExtShortNameSignature(&pattern);
-            if (result == 1) {
-                name.index += 2;
-                pattern.p_head += 2;
-            }
-        }
-    } else if ((pf_vol_set.setting & 0x02) == 0x02 && is_long_name == PF_FALSE &&
-               PFSTR_StrNCmp(p_pattern, (pf_s8*)".", 1, 0, 1) != 0 && PFSTR_StrNCmp(p_pattern, (pf_s8*)"..", 1, 0, 2) != 0 &&
-               PFPATH_CheckExtShortName(p_pattern, 1, PF_FALSE) == 0) {
-        result = PF_FALSE;
-    }
-    if (result == PF_TRUE) {
-        c_name = PFPATH_GetNextCharOfFileName(&name);
-        c_pat = PFPATH_GetNextCharOfPattern(&pattern, is_long_name);
-        result = PFPATH_DoMatchFileNameWithPattern(c_name, &name, c_pat, &pattern, is_long_name);
-    }
-    return result;
-}
+pf_bool PFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_pattern, pf_bool is_long_name);
 
 pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* matched_end) {
     pf_u32 read_char;
@@ -575,6 +541,42 @@ PF_VOLUME* PFPATH_GetVolumeFromPath(PF_STR* p_path) {
         p_vol = PFVOL_GetCurrentVolume();
     }
     return p_vol;
+}
+
+pf_bool PFPATH_MatchFileNameWithPattern(const pf_s8* file_name, PF_STR* p_pattern, pf_bool is_long_name) {
+    pf_u16 c_name;
+    pf_u16 c_pat;
+    PF_FILE_NAME_ITER name;
+    PF_STR pattern;
+    pf_bool result;
+
+    result = PF_TRUE;
+    name.buf = file_name;
+    name.current = 0;
+    name.kind = is_long_name;
+    name.index = 0;
+
+    pattern = *p_pattern;
+
+    if (PFSTR_GetCodeMode(p_pattern) == 1) {
+        if (is_long_name == PF_FALSE && (pf_vol_set.setting & 0x02) == 0x02 && PFPATH_CheckExtShortNameSignature(&pattern) == 1) {
+            result = PFPATH_CheckExtShortNameSignature(&pattern);
+            if (result == 1) {
+                name.index += 2;
+                pattern.p_head += 2;
+            }
+        }
+    } else if ((pf_vol_set.setting & 0x02) == 0x02 && is_long_name == PF_FALSE &&
+               PFSTR_StrNCmp(p_pattern, (pf_s8*)".", 1, 0, 1) != 0 && PFSTR_StrNCmp(p_pattern, (pf_s8*)"..", 1, 0, 2) != 0 &&
+               PFPATH_CheckExtShortName(p_pattern, 1, PF_FALSE) == 0) {
+        result = PF_FALSE;
+    }
+    if (result == PF_TRUE) {
+        c_name = PFPATH_GetNextCharOfFileName(&name);
+        c_pat = PFPATH_GetNextCharOfPattern(&pattern, is_long_name);
+        result = PFPATH_DoMatchFileNameWithPattern(c_name, &name, c_pat, &pattern, is_long_name);
+    }
+    return result;
 }
 
 pf_s32 PFPATH_putShortName(pf_u8* pDirEntry, const pf_s8* short_name, pf_u8 attr) {
