@@ -46,17 +46,17 @@ namespace ipl {
                 }
                 if (mButton != 0) {
                     if (down(BTN_INTERACT)) {
-                        unk_0x08++;
+                        mDecideHoldCount++;
                     } else {
-                        unk_0x08 = 0;
+                        mDecideHoldCount = 0;
                         mButton = 0;
                     }
                 } else {
-                    unk_0x08 = 0;
+                    mDecideHoldCount = 0;
                 }
             } else {
                 mButton = 0;
-                unk_0x08 = 0;
+                mDecideHoldCount = 0;
             }
 
             switch (mRumbleType) {
@@ -109,7 +109,7 @@ namespace ipl {
             return NULL;
         }
         int ipl::controller::Base::decide() const {
-            return unk_0x08 == 5;
+            return mDecideHoldCount == 5;
         }
         int ipl::controller::Base::rumble(int type) {
             int ret = FALSE;
@@ -130,44 +130,44 @@ namespace ipl {
         }
         void ipl::controller::Revolution::read() {
             if (!isValidDpd()) {
-                unk_0x20->pos.y = 1.0f / 0.0f;
-                unk_0x20->pos.x = 1.0f / 0.0f;
-                unk_0x20->speed = 0.0f;
-                unk_0x20->vec.y = 0.0f;
-                unk_0x20->vec.x = 0.0f;
+                mpKpadStatus->pos.y = 1.0f / 0.0f;
+                mpKpadStatus->pos.x = 1.0f / 0.0f;
+                mpKpadStatus->speed = 0.0f;
+                mpKpadStatus->vec.y = 0.0f;
+                mpKpadStatus->vec.x = 0.0f;
             }
 
-            unk_0x1E = unk_0x1D;
+            mbWasPinching = mbPinching;
             if (isValidBtn()) {
-                if (unk_0x1E == 0) {
+                if (mbWasPinching == 0) {
                     if (down(0x800) && down(0x400)) {
-                        unk_0x1D = 1;
+                        mbPinching = 1;
                     }
                 } else if (!down(0x800) || !down(0x400)) {
-                    unk_0x1D = 0;
+                    mbPinching = 0;
                 }
             } else {
-                unk_0x1D = 0;
+                mbPinching = 0;
             }
 
             Base::read();
         }
         bool ipl::controller::Revolution::isValidDpd() const {
-            if (unk_0x1C != 0) {
+            if (mbForceInvalid != 0) {
                 return false;
             }
 
-            return (unk_0x20->wpad_err == 0 || unk_0x20->wpad_err == -7) && unk_0x20->dpd_valid_fg != 0;
+            return (mpKpadStatus->wpad_err == 0 || mpKpadStatus->wpad_err == -7) && mpKpadStatus->dpd_valid_fg != 0;
         }
         bool ipl::controller::Revolution::isValidBtn() const {
-            u8 val = unk_0x20->wpad_err;
+            u8 val = mpKpadStatus->wpad_err;
 
             return (u8)(val + 7) <= 7 && ((1 << (val + 7)) & 0xA1) != 0;
         }
         bool ipl::controller::Revolution::down(u32 mButton) const {
             bool ret = false;
             if (isValidBtn()) {
-                if (unk_0x20->hold & (mButton & 0xFFFF)) {
+                if (mpKpadStatus->hold & (mButton & 0xFFFF)) {
                     ret = true;
                 }
             }
@@ -177,7 +177,7 @@ namespace ipl {
         ipl::math::VEC2 ipl::controller::Revolution::getDpdProjectionPos() const {
             math::VEC2 ret;
             Vec2 dest;
-            Vec2 src = {unk_0x20->pos.x, unk_0x20->pos.y};
+            Vec2 src = {mpKpadStatus->pos.x, mpKpadStatus->pos.y};
             nw4r::ut::Rect nw4r_rect;  // constructor shouldn't be inlined
             Rect kpad_rect;
 
@@ -216,9 +216,9 @@ namespace ipl {
             y = fy;
         }
         ipl::controller::Classic::Classic(int arg0, KPADStatus& arg1) : Revolution(arg0, arg1) {
-            unk_0x24.x = 0.01f;
-            unk_0x24.y = 0.01f;
-            unk_0x2C = 0;
+            mClassicCursorPos.x = 0.01f;
+            mClassicCursorPos.y = 0.01f;
+            mClassicCursorTimer = 0;
         }
         ipl::controller::Base::~Base() {
         }
@@ -230,32 +230,32 @@ namespace ipl {
         }
         void ipl::controller::Classic::read() {
             if (!Revolution::isValidDpd()) {
-                math::VEC2 lstick(unk_0x20->ex_status.cl.lstick.x, unk_0x20->ex_status.cl.lstick.y);
+                math::VEC2 lstick(mpKpadStatus->ex_status.cl.lstick.x, mpKpadStatus->ex_status.cl.lstick.y);
 
                 if (lstick.x * lstick.x + lstick.y * lstick.y > 0.0036f) {
-                    unk_0x24.x = math::abs_clamp(unk_0x24.x + unk_0x20->ex_status.cl.lstick.x * 0.05f, 1.8f);
-                    unk_0x24.y = math::abs_clamp(unk_0x24.y - unk_0x20->ex_status.cl.lstick.y * 0.05f, 1.2f);
+                    mClassicCursorPos.x = math::abs_clamp(mClassicCursorPos.x + mpKpadStatus->ex_status.cl.lstick.x * 0.05f, 1.8f);
+                    mClassicCursorPos.y = math::abs_clamp(mClassicCursorPos.y - mpKpadStatus->ex_status.cl.lstick.y * 0.05f, 1.2f);
                 }
 
-                math::VEC2 rstick = math::VEC2(unk_0x20->ex_status.cl.rstick.x, unk_0x20->ex_status.cl.rstick.y);
+                math::VEC2 rstick = math::VEC2(mpKpadStatus->ex_status.cl.rstick.x, mpKpadStatus->ex_status.cl.rstick.y);
                 if (getClassicHoldFlag() != 0 || lstick.x * lstick.x + lstick.y * lstick.y > 0.0036f ||
                     rstick.x * rstick.x + rstick.y * rstick.y > 0.0036f) {
-                    unk_0x2C = 180;
+                    mClassicCursorTimer = 180;
                 }
 
-                if (--unk_0x2C < 0) {
-                    unk_0x2C = 0;
+                if (--mClassicCursorTimer < 0) {
+                    mClassicCursorTimer = 0;
                 }
             } else {
-                unk_0x24.y = 0.01f;
-                unk_0x24.x = 0.01f;
-                unk_0x2C = 0;
+                mClassicCursorPos.y = 0.01f;
+                mClassicCursorPos.x = 0.01f;
+                mClassicCursorTimer = 0;
             }
 
             Revolution::read();
         }
         int ipl::controller::Classic::getClassicHoldFlag() const {
-            return unk_0x20->ex_status.cl.hold;
+            return mpKpadStatus->ex_status.cl.hold;
         }
         template <>
         f32 ipl::math::abs_clamp<f32>(const f32& x, const f32& y) {
@@ -270,7 +270,7 @@ namespace ipl {
         ipl::math::VEC2 ipl::controller::Classic::getHorizon() const {
             math::VEC2 ret;
             if (Revolution::isValidDpd()) {
-                ret.set(unk_0x20->horizon.x, unk_0x20->horizon.y);
+                ret.set(mpKpadStatus->horizon.x, mpKpadStatus->horizon.y);
             } else {
                 ret.x = 1.0f;
                 ret.y = -0.2679492f;
@@ -280,9 +280,9 @@ namespace ipl {
         ipl::math::VEC2 ipl::controller::Classic::getDpdPos() const {
             math::VEC2 ret;
             if (Revolution::isValidDpd()) {
-                ret.set(unk_0x20->pos.x, unk_0x20->pos.y);
-            } else if (unk_0x2C != 0) {
-                ret = unk_0x24;
+                ret.set(mpKpadStatus->pos.x, mpKpadStatus->pos.y);
+            } else if (mClassicCursorTimer != 0) {
+                ret = mClassicCursorPos;
             } else {
                 ret.x = (1.0f / 0.0f);
                 ret.y = (1.0f / 0.0f);
@@ -296,9 +296,9 @@ namespace ipl {
         ipl::math::VEC2 ipl::controller::Classic::getDpdProjectionPos() const {
             math::VEC2 ret;
             if (Revolution::isValidDpd()) {
-                ret.set(unk_0x20->pos.x, unk_0x20->pos.y);
-            } else if (unk_0x2C != 0) {
-                ret = unk_0x24;
+                ret.set(mpKpadStatus->pos.x, mpKpadStatus->pos.y);
+            } else if (mClassicCursorTimer != 0) {
+                ret = mClassicCursorPos;
             } else {
                 ret.set(1.0f / 0.0f, 1.0f / 0.0f);
             }
@@ -454,7 +454,7 @@ void ipl::controller::Master::setForceInvalid(bool flag) {
             return -1;
         }
         void ipl::controller::Base::setForceInvalid(bool flag) {
-            unk_0x1C = flag;
+            mbForceInvalid = flag;
         }
         int ipl::controller::Base::getType() const {
             return mType;
@@ -463,65 +463,65 @@ void ipl::controller::Master::setForceInvalid(bool flag) {
             return mChan;
         }
         KPADStatus* ipl::controller::Revolution::getKPADStatus() const {
-            return unk_0x20;
+            return mpKpadStatus;
         }
         f32 ipl::controller::Revolution::getDpdDistance() const {
-            return unk_0x20->dist;
+            return mpKpadStatus->dist;
         }
         int ipl::controller::Revolution::getReleaseFlag() const {
-            return unk_0x20->release;
+            return mpKpadStatus->release;
         }
         int ipl::controller::Revolution::getTrigFlag() const {
-            return unk_0x20->trig;
+            return mpKpadStatus->trig;
         }
         int ipl::controller::Revolution::getHoldFlag() const {
-            return unk_0x20->hold;
+            return mpKpadStatus->hold;
         }
         int ipl::controller::Revolution::pinchOffTrg() const {
             int ret = 0;
-            if (isValidBtn() && unk_0x1D == 0 && unk_0x1E != 0) {
+            if (isValidBtn() && mbPinching == 0 && mbWasPinching != 0) {
                 ret = 1;
             }
             return ret;
         }
         int ipl::controller::Revolution::pinch() const {
             int ret = 0;
-            if (isValidBtn() && unk_0x1D != 0) {
+            if (isValidBtn() && mbPinching != 0) {
                 ret = 1;
             }
             return ret;
         }
         int ipl::controller::Revolution::pinchTrg() const {
             int ret = 0;
-            if (isValidBtn() && unk_0x1D != 0 && unk_0x1E == 0) {
+            if (isValidBtn() && mbPinching != 0 && mbWasPinching == 0) {
                 ret = 1;
             }
             return ret;
         }
         bool ipl::controller::Revolution::repeat(u32 button) const {
-            return down(button) && (unk_0x20->hold & 0x80000000) != 0;
+            return down(button) && (mpKpadStatus->hold & 0x80000000) != 0;
         }
         BOOL ipl::controller::Classic::isValidDpdClassic() const {
-            return unk_0x2C != 0;
+            return mClassicCursorTimer != 0;
         }
         bool ipl::controller::Classic::isValidDpd() const {
-            if (unk_0x1C != 0) {
+            if (mbForceInvalid != 0) {
               return false;
             }
 
-            return (Revolution::isValidDpd() != 0) || (unk_0x2C != 0);
+            return (Revolution::isValidDpd() != 0) || (mClassicCursorTimer != 0);
         }
         int ipl::controller::Classic::getClassicReleaseFlag() const {
-            return unk_0x20->ex_status.cl.release;
+            return mpKpadStatus->ex_status.cl.release;
         }
         int ipl::controller::Classic::getClassicTrigFlag() const {
-            return unk_0x20->ex_status.cl.trig;
+            return mpKpadStatus->ex_status.cl.trig;
         }
         bool ipl::controller::Classic::upTrg(u32 button) const {
             bool ret = false;
             if (isValidBtn()) {
                 bool pressed = true;
-                KPADStatus* status = unk_0x20;
+                KPADStatus* status = mpKpadStatus;
                 if ((status->release & (button & 0xFFFF)) == 0) {
                     if ((status->ex_status.cl.release & (button >> 16)) == 0) {
                         pressed = false;
@@ -537,7 +537,7 @@ void ipl::controller::Master::setForceInvalid(bool flag) {
             bool ret = false;
             if (isValidBtn()) {
                 bool pressed = true;
-                KPADStatus* status = unk_0x20;
+                KPADStatus* status = mpKpadStatus;
                 if ((status->trig & (button & 0xFFFF)) == 0) {
                     if ((status->ex_status.cl.trig & (button >> 16)) == 0) {
                         pressed = false;
@@ -553,8 +553,8 @@ void ipl::controller::Master::setForceInvalid(bool flag) {
             bool ret = false;
             if (isValidBtn()) {
                 bool pressed = true;
-                if ((unk_0x20->hold & (button & 0xFFFF)) == 0) {
-                    if ((unk_0x20->ex_status.cl.hold & (button >> 16)) == 0) {
+                if ((mpKpadStatus->hold & (button & 0xFFFF)) == 0) {
+                    if ((mpKpadStatus->ex_status.cl.hold & (button >> 16)) == 0) {
                         pressed = false;
                     }
                 }
@@ -565,15 +565,15 @@ void ipl::controller::Master::setForceInvalid(bool flag) {
             return ret;
         }
         ipl::math::VEC2 ipl::controller::Revolution::getHorizon() const {
-            return math::VEC2(unk_0x20->horizon.x, unk_0x20->horizon.y);
+            return math::VEC2(mpKpadStatus->horizon.x, mpKpadStatus->horizon.y);
         }
         ipl::math::VEC2 ipl::controller::Revolution::getDpdPos() const {
-            return math::VEC2(unk_0x20->pos.x, unk_0x20->pos.y);
+            return math::VEC2(mpKpadStatus->pos.x, mpKpadStatus->pos.y);
         }
         bool ipl::controller::Revolution::upTrg(u32 button) const {
             bool ret = false;
             if (isValidBtn()) {
-                if (unk_0x20->release & (button & 0xFFFF)) {
+                if (mpKpadStatus->release & (button & 0xFFFF)) {
                     ret = true;
                 }
             }
@@ -582,7 +582,7 @@ void ipl::controller::Master::setForceInvalid(bool flag) {
         bool ipl::controller::Revolution::downTrg(u32 button) const {
             bool ret = false;
             if (isValidBtn()) {
-                if (unk_0x20->trig & (button & 0xFFFF)) {
+                if (mpKpadStatus->trig & (button & 0xFFFF)) {
                     ret = true;
                 }
             }
