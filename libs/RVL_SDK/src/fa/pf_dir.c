@@ -143,7 +143,7 @@ extern pf_s32 PFFAT_FreeChain(PFDIR_FFD* ffd, pf_u32 start_cluster, pf_u32 chain
 static inline pf_u32 current_directory_is_open(PF_VOLUME* volume, pf_u32 cluster) {
     pf_u32 index;
     for (index = 0; index < 4; index++) {
-        if (pf_vol_set.volume_state.volumes[index].p_vol == volume) {
+        if (volume == pf_vol_set.volume_state.volumes[index].p_vol) {
             PFDIR_VOLUME_DIRS* state = (PFDIR_VOLUME_DIRS*)pf_vol_set.volume_state.volumes[index].p_vol;
             PF_CUR_DIR* directory = state->current_dirs;
             pf_u32 slot;
