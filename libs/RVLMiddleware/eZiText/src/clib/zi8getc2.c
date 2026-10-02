@@ -521,7 +521,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
              ((ziU8)Zi8IsCharacter(parameters->elements[0],ZI_WORK) != 0)))) {
       saved.convertedElementCount = Zi8GetCharInfo(parameters->elements[0],characterInfo,0x10,1,ZI_WORK);
       if (saved.convertedElementCount == 0) {
-        parameters->letters = parameters->count = parameters->unk_0x20 = 0;
+        parameters->letters = parameters->completion = parameters->count = 0;
         candidateCount = 0;
         error = 900;
       }
@@ -540,7 +540,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         parameters->elements = saved.savedElements;
         parameters->elementCount = saved.savedElementCount;
         parameters->getMode = saved.savedGetMode;
-        parameters->count = 1;
+        parameters->completion = 1;
       }
     }
     else if ((parameters->language == 1) && (parameters->getMode == 0xf)) {
