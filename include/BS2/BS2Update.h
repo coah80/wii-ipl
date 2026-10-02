@@ -24,7 +24,7 @@ typedef struct BS2UpdateHeader {
 
 typedef struct BS2UpdateEntry {
     // Update Meta Data
-    u32  type;              // 0x00
+    vu32 type;              // 0x00
     u32  attr;              // 0x04
     u32  size;              // 0x08
     u32  depend;            // 0x0C
