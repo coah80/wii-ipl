@@ -1068,7 +1068,7 @@ filterVowelCandidate:
                     (((ZiAlphaWork*)workData)->requiredLength != parameters->elementCount)) &&
                    (((((ZiAlphaWork*)workData)->prefixLength == '\0' ||
                      (((ZiAlphaWork*)workData)->prefixLength + 1 >= parameters->elementCount)) && (dictionaryExact != 0)))
-                   ))) && ((((completionAllowed && (prefixCount == 0)) && (dictionaryKind != 0xb)) &&
+                   ))) && ((((currentVowelRestriction && (prefixCount == 0)) && (dictionaryKind != 0xb)) &&
                            ((((int)dictionaryIndex < (int)(unsigned int)((ZiAlphaWork*)workData)->dictionaryCount &&
                              (((ZiAlphaOptions*)optionData)->lookupMode == '\0')) &&
                             (((ZiAlphaWork*)workData)->dictionaries[language] == 0)))))) {
@@ -1084,7 +1084,7 @@ filterVowelCandidate:
                   goto retryDictionary;
                 }
               }
-              if ((((((dictionaryExact == 0) || (!completionAllowed)) || (prefixCount != 0)) ||
+              if ((((((dictionaryExact == 0) || (!currentVowelRestriction)) || (prefixCount != 0)) ||
                    ((dictionaryKind == 0xb ||
                     (dictionaryIndex >= ((ZiAlphaWork*)workData)->dictionaryCount)))) ||
                   (elements == 0)) ||
@@ -1367,7 +1367,7 @@ emitCandidate:
               }
             }
 retryDictionary:;
-          } while (dictionaryKind != 0);
+          } while (dictionaryIndex != 0);
         }
 finishDictionaryPass:;
   }
@@ -1406,13 +1406,13 @@ finishDictionaryPass:;
     secondLanguagePass = ZI8_TRUE;
     languagePassCount = 0;
     language = parameters->subLanguage;
+    completionAllowed = secondaryCompletionAllowed;
+    currentVowelRestriction = secondaryVowelRestriction;
     dictionaryStatus[9] = 0;
     dictionaryStatus[5] = 0;
     dictionaryStatus[6] = 0;
     dictionaryStatus[7] = 0;
     dictionaryStatus[8] = 0;
-    completionAllowed = secondaryCompletionAllowed;
-    currentVowelRestriction = secondaryVowelRestriction;
     if (switchedLanguage) {
       secondLanguagePass = ZI8_FALSE;
       dictionaryStatus[1] = 0;
@@ -1426,14 +1426,15 @@ finishDictionaryPass:;
   if (language == 0) {
     language = parameters->language;
   }
-  completionAllowed = secondaryCompletionAllowed;
-  currentVowelRestriction = secondaryVowelRestriction;
   if (language == parameters->language) {
     completionAllowed = primaryCompletionAllowed;
     currentVowelRestriction = primaryVowelRestriction;
+  } else {
+    completionAllowed = secondaryCompletionAllowed;
+    currentVowelRestriction = secondaryVowelRestriction;
   }
-  if ((((ZiAlphaOptions*)optionData)->lookupMode != '\0') || ((!currentVowelRestriction && (!completionAllowed)))) goto finishCandidates;
-  if ((completionAllowed) &&
+  if ((((ZiAlphaOptions*)optionData)->lookupMode != '\0') || ((!completionAllowed && (!currentVowelRestriction)))) goto finishCandidates;
+  if ((currentVowelRestriction) &&
      ((((((ZiAlphaWork*)workData)->suffixMode == '\0' && (2 < (int)elementCount)) &&
        (elements[elementCount - 2] == 0xeff1)) &&
       ((int)((ZiAlphaWork*)workData)->prefixCount == elementCount - 2)))) {
@@ -1444,66 +1445,65 @@ finishDictionaryPass:;
     prefixPrepared = ZI8_TRUE;
     goto preparePrefix;
   }
-  if (!((((completionAllowed) && (((ZiAlphaWork*)workData)->suffixMode != '\0')) &&
-      ((((ZiAlphaWork*)workData)->suffixLocked == '\0' && (2 < (int)elementCount)))) &&
-     (((elements[elementCount - 2] == 0xeff1 &&
-       ((int)((ZiAlphaWork*)workData)->suffixCount == elementCount - 2)) ||
-      (((int)((ZiAlphaWork*)workData)->suffixCount == elementCount - 1 &&
-       ((Zi8IsAlphaPunct(elements[elementCount - 1])) != '\0'))))))) {
-tryAlternatePrefix:
-    if ((prefixPrepared) && (1 < ((ZiAlphaWork*)workData)->alternatePrefixCount)) {
-      if (language == parameters->language) {
-        if (primaryMatched) {
-          ((ZiAlphaWork*)workData)->alternatePrefixCount = 0;
-        }
-      }
-      else if (secondaryMatched) {
-        ((ZiAlphaWork*)workData)->alternatePrefixCount = 0;
-      }
-      if (((ZiAlphaWork*)workData)->alternatePrefixCount != '\0') {
+  if (currentVowelRestriction && ((ZiAlphaWork*)workData)->suffixMode != 0 &&
+      ((ZiAlphaWork*)workData)->suffixLocked == 0 && elementCount > 2 &&
+      ((elements[elementCount - 2] == 0xEFF1 &&
+        ((ZiAlphaWork*)workData)->suffixCount == elementCount - 2) ||
+       (((ZiAlphaWork*)workData)->suffixCount == elementCount - 1 &&
+        Zi8IsAlphaPunct(elements[elementCount - 1]) != 0))) {
+    if (((ZiAlphaWork*)workData)->prefixEnabled >= 1 && elements[elementCount - 1] == 0xEFF1) {
+      goto checkPrefixPunctuation;
+    }
+    if (!primaryMatched && !secondaryMatched) {
+      ((ZiAlphaWork*)workData)->suffixLocked = 1;
+      ((ZiAlphaWork*)workData)->suffixElementCount = parameters->elementCount - 1;
+      if (prefixCount != 0) {
         wordCursor -= prefixCount;
         elements -= prefixCount;
         elementCount = elementCount + prefixCount;
         wordCapacity = wordCapacity + prefixCount;
         prefixCount = 0;
-        prefixPrepared = ZI8_FALSE;
-        ((ZiAlphaWork*)workData)->suffixMode = 0;
-        ((ZiAlphaWork*)workData)->suffixLocked = 0;
-        ((ZiAlphaWork*)workData)->suffixCount = 0;
-        for (index = 0; index < (int)(unsigned int)((ZiAlphaWork*)workData)->alternatePrefixCount; index = index + 1) {
-          ((ZiAlphaWork*)workData)->prefix[index] =
-               ((ZiAlphaWork*)workData)->alternatePrefix[index];
-        }
-        ((ZiAlphaWork*)workData)->prefixCount = (ziU8)index;
-        if (((ZiAlphaWork*)workData)->language == parameters->language) {
-          ((ZiAlphaWork*)workData)->language = parameters->subLanguage;
-        }
-        else {
-          ((ZiAlphaWork*)workData)->language = parameters->language;
-        }
+      }
+      goto preparePrefix;
+    }
+  }
+  if ((prefixPrepared) && (1 < ((ZiAlphaWork*)workData)->alternatePrefixCount)) {
+    if (language == parameters->language) {
+      if (primaryMatched) {
         ((ZiAlphaWork*)workData)->alternatePrefixCount = 0;
       }
     }
-    if ((((primaryMatched) && (secondaryMatched)) || (elementCount == 0)) ||
-       (((language == parameters->language && (primaryMatched)) || ((language == parameters->subLanguage && (secondaryMatched))))))
-    goto finishCandidates;
-    if (completionAllowed) goto checkPrefixPunctuation;
-  } else {
-    if ((((ZiAlphaWork*)workData)->prefixEnabled == '\0') || (elements[elementCount - 1] != 0xeff1)) {
-      if ((!primaryMatched) && (!secondaryMatched)) {
-        ((ZiAlphaWork*)workData)->suffixLocked = 1;
-        ((ZiAlphaWork*)workData)->suffixElementCount = parameters->elementCount - 1;
-        if (prefixCount != 0) {
-          wordCursor -= prefixCount;
-          elements -= prefixCount;
-          elementCount = elementCount + prefixCount;
-          wordCapacity = wordCapacity + prefixCount;
-          prefixCount = 0;
-        }
-        goto preparePrefix;
-      }
-      goto tryAlternatePrefix;
+    else if (secondaryMatched) {
+      ((ZiAlphaWork*)workData)->alternatePrefixCount = 0;
     }
+    if (((ZiAlphaWork*)workData)->alternatePrefixCount != '\0') {
+      wordCursor -= prefixCount;
+      elements -= prefixCount;
+      elementCount = elementCount + prefixCount;
+      wordCapacity = wordCapacity + prefixCount;
+      prefixCount = 0;
+      prefixPrepared = ZI8_FALSE;
+      ((ZiAlphaWork*)workData)->suffixMode = 0;
+      ((ZiAlphaWork*)workData)->suffixLocked = 0;
+      ((ZiAlphaWork*)workData)->suffixCount = 0;
+      for (index = 0; index < (int)(unsigned int)((ZiAlphaWork*)workData)->alternatePrefixCount; index = index + 1) {
+        ((ZiAlphaWork*)workData)->prefix[index] =
+             ((ZiAlphaWork*)workData)->alternatePrefix[index];
+      }
+      ((ZiAlphaWork*)workData)->prefixCount = (ziU8)index;
+      if (((ZiAlphaWork*)workData)->language == parameters->language) {
+        ((ZiAlphaWork*)workData)->language = parameters->subLanguage;
+      }
+      else {
+        ((ZiAlphaWork*)workData)->language = parameters->language;
+      }
+      ((ZiAlphaWork*)workData)->alternatePrefixCount = 0;
+    }
+  }
+  if ((((primaryMatched) && (secondaryMatched)) || (elementCount == 0)) ||
+     (((language == parameters->language && (primaryMatched)) || ((language == parameters->subLanguage && (secondaryMatched))))))
+  goto finishCandidates;
+  if (currentVowelRestriction) {
 checkPrefixPunctuation:
     if ((1 < ((ZiAlphaWork*)workData)->prefixEnabled) &&
        (parameters->elements[parameters->elementCount - 1] != 0xEFF1))
