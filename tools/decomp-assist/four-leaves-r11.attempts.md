@@ -163,3 +163,28 @@ FINAL POOL libs/RevoEX/src/net/md5: POOL IDENTICAL up to 0 (mine=0 base=0) |
 FINAL OPEN AUDIT ProcessBlock: objdiff=43.290848%, 7 distinct successful source hashes; structural/exact,lengths=((225, 300), 294, 306); 294/306 retained instructions, frame0x20. Indexed addresses, duplicated swapped loads, associated rotation sums and sequential cursor scheduling differ. Honest typed helper/materialized addresses reach306/306; seven source variants and93 declaration builds leave36 structural differences.
 COMPLETENESS AUDIT PASS: all 7 remaining functions have at least3 distinct successful source-level attempts logged in this MAX round; build failures excluded. No experimental source/header changes retained. No untried function remains.
 FINAL FULL GATE PASS: all4 owned units, clean43U build, SHA1 26116613f624061ba99c8d1a299aaa6efa85670d; exact30/31,11/14,0/2,3/4; matched_code9404,1388,0,600; matched_data4416,112,0,456. Regression0, forbidden0, readability0. NHTTPi_intToStr95/95 ctxdiff0 after clean build. Seven remaining functions audited14/6/19/10/8/8/7 distinct successful MAX source attempts, all at least3. No additional source changes after final gate.
+
+## md5 ProcessBlock — w1010/smallflips round (0457e29c)
+- DECODE: base's per-step `addi r4,r4,4` index-pointer advances are `*index++`
+  post-increment inside the STEP arg (`block + *index++`); separate `++index`
+  stmts get merged to one `addi +16` per unrolled iteration by MWCC. With the
+  increment inside the expression: 294/306 -> 306/306 exact SIZE.
+- Also landed: `u32 b,c,d,a` state-decl order (a last) -> 32 ops; ptr decls
+  `word; block; constant; index; round;` (block last) -> 32; states-first is
+  load-bearing (ptrs-first decl = 62).
+- Residual 32 ops: pure web-coloring {word:r4/r7, block:r8/r9, const:r9/r8,
+  a:r0 stays, b/c/d shifted by word's home}. ~10 decl/assign/type forms tried.
+- zidawg1 CHARattribute {ctx<->key} r30/r31 + GetGraphInfo {ctx,graph,result}
+  r25/r26/r29: decl-order, alias, for-loop forms all invariant (7/9 ops).
+- zi8uwd: `word->priority > candidate->priority` IS orig's operand order
+  (base `bgt`); `position[candidate->text]`/`*(position+text)` forms don't
+  flip the `add` operand order; `*(position+4+(u8*)candidate)` does flip it
+  but reshuffles webs to 15 ops. Kept `<` form at 8 ops.
+- SOGetSockName: memcpy arg-materialization order (mr r3 last vs first):
+  inline dest, temp len, ptr-arith dest — all invariant (2 ops).
+- FAAttach: index r0-vs-r5 scratch home — inline-index (129), u32/two-stmt/
+  decl-init (121-126), store-order swap — all invariant or regress (6 ops).
+- iplKeyboard create: base saves 6 callee regs (arcLink->r26 separate from
+  multiArc->r30); mine coalesces to 5. allocator-hoist, no-paren new,
+  split-decl forms invariant (48 ops). Extra weak emissions (onEvent/onInput/
+  onOutOfLength/3 dtors) are upstream state, not leaf-introduced.
