@@ -370,24 +370,24 @@ void KPADGetProjectionPos(Vec2* dest, Vec2* src, const Rect* rect, f32 scale) {
 
 void KPADSetSensorHeight(s32 chan, f32 sensorHeight) {
     KPADInside* kpad;
+    f32 halfHeightSquared;
     f32 halfHeight;
     f32 barOffsetX;
     f32 barDiagonal;
     f32 halfWidthSquared;
     f32 halfWidth;
     f32 negativeSensorHeight;
-    f32 barDiagonalSquared;
-    f32 halfHeightSquared;
+    f32 zero;
     halfWidth = 1.0f;
-    kpad = &inside_kpads[chan];
+    kpad = chan + inside_kpads;
     halfHeight = 0.75f;
     negativeSensorHeight = -sensorHeight;
     halfWidthSquared = halfWidth * halfWidth;
     halfHeightSquared = halfHeight * halfHeight;
-    kpad->sensorBarCenter.x = 0.0f;
+    zero = 0.0f;
+    kpad->sensorBarCenter.x = zero;
     kpad->sensorBarCenter.y = negativeSensorHeight;
-    barDiagonalSquared = halfWidthSquared + halfHeightSquared;
-    barDiagonal = (f32)sqrt(barDiagonalSquared);
+    barDiagonal = (f32)sqrt(halfWidthSquared + halfHeightSquared);
     barOffsetX = kpad->sensorBarCenter.x;
     if (barOffsetX < 0.0f) {
         halfWidth += barOffsetX;
