@@ -176,7 +176,8 @@ s32 ConvertDateToDays(u16 year, u8 month, u8 day) {
     }
 
 validDate:
-    daysOfYear = day - 1 + DAYS_OF_YEAR[month - 1];
+    daysOfYear = day - 1;
+    daysOfYear += DAYS_OF_YEAR[month - 1];
     if (month >= 3) {
         isLeapYear = 0;
         if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
@@ -217,20 +218,17 @@ void ConvertDaysToDate(u16* year, u8* month, u8* day, s32 days) {
 
     for (;;) {
         s32 previousDays = days;
-        if (*month == 2) {
-            BOOL leapYear = IsLeapYear(*year);
-            if (leapYear) {
-                days -= 29;
-            } else {
-                days -= DAYS_OF_MONTH[*month - 1];
-            }
+        if (*month == 2 && IsLeapYear(*year)) {
+            days -= 29;
         } else {
             days -= DAYS_OF_MONTH[*month - 1];
         }
         if (days < 0) {
-            *day += previousDays;
-            return;
+            days = previousDays;
+            break;
         }
         *month = *month + 1;
     }
+
+    *day += days;
 }

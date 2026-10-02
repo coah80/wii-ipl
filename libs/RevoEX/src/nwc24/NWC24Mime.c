@@ -231,11 +231,11 @@ static NWC24Err QEncode(char* encoded, u32 encodedCapacity, u32* encodedSize, u8
 }
 
 static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, char* encoded, u32 encodedSize, u32* encodedSizeOut, int flags) {
-    u32 decodedOffset = 0;
     u32 encodedOffset;
+    u32 decodedOffset = 0;
+    u8 value = 0;
     char* input;
     char* output;
-    u8 value = 0;
     NWC24Err result = NWC24_OK;
 
     if (decoded == NULL)
@@ -255,7 +255,7 @@ static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, ch
     input = encoded;
     output = decoded;
     for (encodedOffset = 0; encodedOffset < encodedSize; encodedOffset++) {
-        if (decodedCapacity <= decodedOffset) {
+        if (decodedOffset >= decodedCapacity) {
             result = NWC24_ERR_OVERFLOW;
             break;
         }
@@ -265,15 +265,15 @@ static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, ch
             decodedOffset++;
         } else if (*input == '=' && encodedOffset + 2 < encodedSize) {
             BOOL validHex = TRUE;
-            u32 inputAfterEqual = encodedOffset + 1;
-            char* current = ++input;
-            if (*current == ' ' || *current == '\t') {
-                char* next = current + 1;
+            input++;
+            encodedOffset++;
+            if (*input == ' ' || *input == '\t') {
+                char* next = input + 1;
                 u32 scan = 1;
-                while (inputAfterEqual + scan + 1 < encodedSize) {
+                while (encodedOffset + scan + 1 < encodedSize) {
                     if (*next == '\r' && next[1] == '\n') {
-                        inputAfterEqual += scan;
-                        current = next;
+                        encodedOffset += scan;
+                        input = next;
                         break;
                     }
                     if (*next != ' ' && *next != '\t') {
@@ -283,29 +283,27 @@ static NWC24Err QDecode(char* decoded, u32 decodedCapacity, u32* decodedSize, ch
                     scan++;
                 }
             }
-            if (*current == '\r' && current[1] == '\n') {
-                current += 2;
-                encodedOffset = inputAfterEqual + 1;
-                input = current;
+            if (*input == '\r' && input[1] == '\n') {
+                input += 2;
+                encodedOffset++;
             } else {
-                int high = Util_xtoi(*current);
+                int high = Util_xtoi(*input);
                 int low;
                 if (high >= 0) {
                     value = (high & 0x0F) << 4;
                 }
                 if (high < 0) { validHex = FALSE; }
-                low = Util_xtoi(current[1]);
+                low = Util_xtoi(input[1]);
                 if (low >= 0) {
                     value |= low & 0x0F;
                 }
                 if (low < 0) { validHex = FALSE; }
-                current += 2;
+                input += 2;
                 if (validHex) {
                     *output++ = (char)value;
                     decodedOffset++;
                 }
-                encodedOffset = inputAfterEqual + 1;
-                input = current;
+                encodedOffset++;
             }
         } else {
             *output++ = *input++;
@@ -501,8 +499,9 @@ static BOOL CopyWithoutLinearWhiteSpaces(char* output, int* outputSize, char* in
 }
 
 static inline char* FindMarker(char* input, u32 size, const char* marker) {
-    u32 markerLength = Mail_strlen(marker);
     u32 offset;
+    u32 markerLength;
+    markerLength = Mail_strlen(marker);
     for (offset = 0; offset <= size; offset++) {
         char* current = input + offset;
         if (Mail_strncmp(current, marker, markerLength) == 0)
@@ -512,11 +511,11 @@ static inline char* FindMarker(char* input, u32 size, const char* marker) {
 }
 static inline char* FindMarkerAfterPrefix(char* input, u32 size, u32 prefix, const char* marker) {
     u32 markerLength = Mail_strlen(marker);
-    char* current = input + prefix;
     u32 offset;
+    char* current = input + prefix;
     for (offset = 0; offset <= size; offset++) {
         if (Mail_strncmp(current, marker, markerLength) == 0) {
-            return input + offset + prefix;
+            return input + prefix + offset;
         }
         current++;
     }
@@ -695,8 +694,9 @@ static NWC24Err ExtractCharset(char* charset, u32 charsetCapacity, u32* charsetS
     return NWC24_OK;
 }
 static inline char* FindMarkerOffsetPrefix(char* input, u32 size, u32 prefix, const char* marker) {
-    u32 markerLength = Mail_strlen(marker);
     u32 offset;
+    u32 markerLength;
+    markerLength = Mail_strlen(marker);
     for (offset = 0; offset <= size; offset++) {
         if (Mail_strncmp(input + offset + prefix, marker, markerLength) == 0) {
             return input + prefix + offset;

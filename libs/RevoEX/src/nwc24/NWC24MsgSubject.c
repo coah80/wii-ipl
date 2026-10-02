@@ -828,8 +828,8 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
     NWC24Err result;
 
     workHalf = workSize >> 1;
-    secondSize = workSize - workHalf;
     second = work + workHalf;
+    secondSize = workSize - workHalf;
     charsetLength = strlen(charsetName);
     lineLength = ((0x36 - charsetLength) * 3) >> 2;
     if (lineLength > workHalf) {
@@ -849,7 +849,7 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
                 charsetLength = strlen(charsetName);
                 lineLength = (((0x3E - charsetLength) * 3) >> 2) + 1;
                 total = outputLength - 1;
-                for (; sourceOffset < subjectSize; sourceOffset += subjectLength) {
+                for (; sourceOffset < subjectSize;) {
                     subjectLength = subjectSize - sourceOffset;
                     workHalf = lineLength;
                     if (secondSize - total < 3) {
@@ -864,6 +864,7 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
                     switch (result) { case NWC24_OK: case NWC24_ERR_OVERFLOW: break; default: goto done; }
                     result = NWC24EncodeWord(second + total, secondSize - total, &outputLength, charsetName, 0x40, 'B', work, workHalf - 1);
                     switch (result) { case NWC24_OK: break; default: goto done; }
+                    sourceOffset += subjectLength;
                     total = total + outputLength - 1;
                 }
                 result = NWC24SetMsgSubject(msg, (char*)second, total);
