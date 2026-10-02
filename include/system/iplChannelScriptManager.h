@@ -33,7 +33,7 @@ namespace ipl {
                 u64 titleId;               // 0x10
                 bool threadTerminated;     // 0x18
                 bool unk_0x19;
-                bool unk_0x1A;
+                bool mbHasNewMessage;  // 0x1A
 
                 EGG::ExpHeap* getHeap() { return heap; }
             } CSData;

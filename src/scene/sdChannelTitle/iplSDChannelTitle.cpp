@@ -1118,7 +1118,7 @@ extern "C" void iplSDChannelTitle_updateScriptLoad(SDChannelTitle* scene) {
     data.titleId = scene->mTitleId;
     data.threadTerminated = scene->mbScriptFailed;
     if (!System::getNwc24Manager() || !System::getNwc24Manager()->isNewMessageThere(static_cast<u32>(data.titleId & 0xffffffffULL))) {
-        data.unk_0x1A = false;
+        data.mbHasNewMessage = false;
     }
     System::getCSManager()->setData(data);
     if (!System::getCSManager()->init(scene->mpScriptFile, scene->mpRsoThread)) {
