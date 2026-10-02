@@ -19,11 +19,11 @@ typedef void tUUSB_CBACK(UINT8, INT8);
 typedef struct
 {
 	char	pad0_[4];
-	UINT16	at_0x04;
-	UINT16	at_0x06;
-	UINT16	at_0x08;
+	UINT16	vendorId;	// 0x04
+	UINT16	productId;	// 0x06
+	UINT16	taskId;	// 0x08
 	char	pad1_[1];
-	char	at_0x0b;
+	char	pad_0x0b;	// 0x0b unused
 	char	pad2_[1]; // for stack
 } tUUSB;
 

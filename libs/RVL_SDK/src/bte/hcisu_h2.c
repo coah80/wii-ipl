@@ -421,10 +421,10 @@ BOOLEAN hcisu_h2_open(tHCI_CFG *_p_cfg)
 	tHCI_CFG *p_cfg = _p_cfg;
 	tUUSB uusb;
 
-	uusb.at_0x0b = 0;
-	uusb.at_0x04 = p_cfg->at_0x00;
-	uusb.at_0x06 = p_cfg->at_0x02;
-	uusb.at_0x08 = hcisu_h2_cb.task_id;
+	uusb.pad_0x0b = 0;
+	uusb.vendorId = p_cfg->vendorId;
+	uusb.productId = p_cfg->productId;
+	uusb.taskId = hcisu_h2_cb.task_id;
 
 	hcisu_h2_cb.open_state = 2;
 
