@@ -55,7 +55,7 @@ namespace textinput {
         public:
             Animation() : mfAnimationTime(0.0f), mbInAnimation(false), mbSE(false), mpAnimObserver(NULL) {}
 
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(MYTIMANAGER_IMPLEMENTATION)
             virtual void startAnm(f32 start, f32 end, f32 duration, AnimObserver* observer, void* data);
 #else
             virtual void startAnm(AnimObserver*, f32, f32, f32, void*);
