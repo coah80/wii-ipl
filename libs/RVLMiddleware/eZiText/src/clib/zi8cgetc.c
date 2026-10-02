@@ -603,37 +603,37 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
             } else {
                 switch ((int)match.phon2[index] >> 9) {
                 case 24: case 25:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->cANDch) ordinalIndex = 0xFDFF;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->cANDch) ordinalIndex = 0xFDFF;
                     break;
                 case 26: case 27:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->sANDsh) ordinalIndex = 0xFDFF;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->sANDsh) ordinalIndex = 0xFDFF;
                     break;
                 case 28: case 29:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->zANDzh) ordinalIndex = 0xFDFF;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->zANDzh) ordinalIndex = 0xFDFF;
                     break;
                 case 56: case 59:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->fANDh) ordinalIndex = 0xF9FF;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->fANDh) ordinalIndex = 0xF9FF;
                     break;
                 case 52: case 55:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->bANDp) ordinalIndex = 0xF9FF;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->bANDp) ordinalIndex = 0xF9FF;
                     break;
                 case 60: case 63:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->gANDk) ordinalIndex = 0xF9FF;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->gANDk) ordinalIndex = 0xF9FF;
                     break;
                 case 38:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->nANDl && ((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->rANDn) ordinalIndex = 0xE1FF;
-                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->nANDl) ordinalIndex = 0xE5FF;
-                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->rANDn) ordinalIndex = 0xE3FF;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->nANDl && ((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->rANDn) ordinalIndex = 0xE1FF;
+                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->nANDl) ordinalIndex = 0xE5FF;
+                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->rANDn) ordinalIndex = 0xE3FF;
                     break;
                 case 43:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->nANDl && ((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->lANDr) ordinalIndex = 0xE1FF;
-                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->lANDr) ordinalIndex = 0xF1FF;
-                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->nANDl) ordinalIndex = 0xE5FF;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->nANDl && ((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->lANDr) ordinalIndex = 0xE1FF;
+                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->lANDr) ordinalIndex = 0xF1FF;
+                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->nANDl) ordinalIndex = 0xE5FF;
                     break;
                 case 44:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->rANDn && ((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->lANDr) ordinalIndex = 0xE1FF;
-                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->rANDn) ordinalIndex = 0xE3FF;
-                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->lANDr) ordinalIndex = 0xF1FF;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->rANDn && ((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->lANDr) ordinalIndex = 0xE1FF;
+                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->rANDn) ordinalIndex = 0xE3FF;
+                    else if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->lANDr) ordinalIndex = 0xF1FF;
                     break;
                 }
             }
@@ -662,10 +662,10 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
             } else {
                 switch (match.phon2[index] & 0x1F0) {
                 case 0x60: case 0xE0: case 0x160:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->anANDang) ordinalIndex = 0xFFF7;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->anANDang) ordinalIndex = 0xFFF7;
                     break;
                 case 0x70:
-                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->enANDeng) ordinalIndex = 0xFFF7;
+                    if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->zyFuzzy.word)->enANDeng) ordinalIndex = 0xFFF7;
                     break;
                 }
             }

@@ -50,8 +50,8 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
     ZI_WORK->unk_0x17 = 5;
     ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1, ZI_WORK) & 2;
     ZI_WORK->unk_0x1B28.bits.msb = 1;
-    ZI_WORK->unk_0x1B2C.bits.msb = 1;
-    zyFuzzy = ZI_WORK->unk_0x1B2C.word;
+    ZI_WORK->zyFuzzy.bits.msb = 1;
+    zyFuzzy = ZI_WORK->zyFuzzy.word;
     pzyFuzzy = &zyFuzzy;
     Zi8ZHsetZYfuzzyPairs(pzyFuzzy, ZI_WORK);
     pyFuzzy = ZI_WORK->unk_0x1B28.word;
