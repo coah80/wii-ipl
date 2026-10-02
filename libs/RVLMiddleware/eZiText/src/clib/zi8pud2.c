@@ -102,7 +102,7 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
             wordSize = *word++;
             entrySize = wordSize;
             if (language == 1) {
-                if (ZI_WORK->unk_0x17 > *word) goto next;
+                if (ZI_WORK->zhPudMinPrefix > *word) goto next;
                 wordSize--;
                 entrySize--;
                 word++;
