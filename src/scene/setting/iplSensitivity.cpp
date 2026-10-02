@@ -17,7 +17,15 @@ namespace ipl {
 class SensitivityDrawing {
 public:
     static void draw(nand::File* texture);
+private:
+    static void verticalScale(f32 height, f32& scale);
+    static f32 horizontalScale(f32 width);
+    static f32 projectY(s32 y, f32 scale);
 };
+
+void SensitivityDrawing::verticalScale(f32 height, f32& scale) { scale = 0.5f * height / 768.0f; }
+f32 SensitivityDrawing::horizontalScale(f32 width) { return 0.5f * width / 1024.0f; }
+f32 SensitivityDrawing::projectY(s32 y, f32 scale) { return (y - 384) * scale; }
 
 void SensitivityDrawing::draw(nand::File* texture) {
     GXRenderModeObj renderMode = *System::getRenderModeObj();
@@ -47,8 +55,9 @@ void SensitivityDrawing::draw(nand::File* texture) {
         GXInitTexObjWrapMode(&image, GX_MIRROR, GX_MIRROR);
         f32 width = projection.GetWidth();
         f32 height = projection.GetHeight();
-        f32 horizontalScale = (0.5f * width) / 1024.0f;
-        f32 verticalScale = (0.5f * height) / 768.0f;
+        f32 horizontalScale = SensitivityDrawing::horizontalScale(width);
+        f32 verticalScale;
+        SensitivityDrawing::verticalScale(height, verticalScale);
         int sample = WPADGetLatestIndexInBuf(controller->getChannel());
         DPDObject* object;
         DPDObject* first;
@@ -76,7 +85,7 @@ void SensitivityDrawing::draw(nand::File* texture) {
             if (object->size != 0) {
                 f32 radius = 0.15f * (object->size + 25);
                 f32 x = (object->x - 512) * horizontalScale;
-                f32 y = (object->y - 384) * verticalScale;
+                f32 y = projectY(object->y, verticalScale);
                 GXColor foreground = {255, 255, 255, 255};
                 nw4r::ut::Rect rectangle(x - radius, -y + radius - -45.0f,
                                          x + radius, -y - radius - -45.0f);
