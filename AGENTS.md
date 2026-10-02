@@ -78,6 +78,12 @@ Helper tools live in `tools/decomp-assist/`:
   between your object and the original. This is the main iteration loop.
 - `disasm_fn.py <object> <symbol>` — disassembly with relocation-resolved call
   names, so you can see which real functions are being called.
+- `literal_reference_diff.py [unit ...]` — advisory check of actual narrow-string
+  bytes passed at corresponding calls, including addresses derived from a shared
+  data base. Defaults to functions scored 100% in the live report; use
+  `--all-functions` to include other equal-sized functions. Inspect every
+  candidate against the assembly. This does not follow mutable pointer globals,
+  infer compiler aliases, or prove complete data matching; skips are reported.
 - `pool_diff.py` — diffs the string pool in `.data` between your object and the
   original, string by string. See below; this is the highest-signal tool.
 - `export_pyghidra.py` — regenerates `ghidra_decomp.txt`, decompiled C for the
