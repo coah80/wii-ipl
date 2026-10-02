@@ -148,7 +148,7 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
                     folded = currentWord[position];
                     ZI_WORK->unk_0x141[previousOffset] = Zi8ConvertWC2UC(folded, language, __zi8_work_data);
                     ZI_WORK->unk_0x184[previousOffset] = 0;
-                    if (ZI_WORK->unk_0x1F != 0) {
+                    if (ZI_WORK->ignoreCase != 0) {
                         if (!Zi8ChangeCharCase(1, &folded, language, __zi8_work_data)) Zi8ChangeCharCase(0, &folded, language, __zi8_work_data);
                         ZI_WORK->unk_0x184[previousOffset] = Zi8ConvertWC2UC(folded, language, __zi8_work_data);
                     }
@@ -192,7 +192,7 @@ next:
                             if (pattern[position] != Zi8ConvertUC2Key(text[position], language, __zi8_work_data)) goto next;
                         } else {
                             folded = Zi8ConvertUC2WC(text[position], language, __zi8_work_data);
-                            if (folded != pattern[position] && (!ZI_WORK->unk_0x1F || !Zi8ChangeCharCase(0, &folded, language, __zi8_work_data) || folded != pattern[position])) goto next;
+                            if (folded != pattern[position] && (!ZI_WORK->ignoreCase || !Zi8ChangeCharCase(0, &folded, language, __zi8_work_data) || folded != pattern[position])) goto next;
                         }
                     }
                     if (ZI_WORK->unk_0x140 != 0) {

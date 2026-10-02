@@ -45,7 +45,7 @@ posEntry:
                 if (pattern[position] == Zi8ConvertWC2Key(word[position], language, __zi8_work_data)) continue;
                 break;
             } else if (word[position] != pattern[position]) {
-                if (!ZI_WORK->unk_0x1F || language == 1) break;
+                if (!ZI_WORK->ignoreCase || language == 1) break;
                 folded = pattern[position];
                 if (!Zi8ChangeCharCase(1, &folded, language, __zi8_work_data) || folded != word[position]) break;
             }

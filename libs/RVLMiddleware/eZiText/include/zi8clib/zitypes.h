@@ -221,7 +221,7 @@ struct __zi8_work_data_s {
     ziU8 unk_0x19;
     ziU16 separator;  // 0x1A
     ziU8 unk_0x1C[3];
-    ziU8 unk_0x1F;
+    ziU8 ignoreCase;
     ziU16 unk_0x20[0x40];
     ziU16 unk_0xA0[0x42];
     ziU16* unk_0x124[1];
