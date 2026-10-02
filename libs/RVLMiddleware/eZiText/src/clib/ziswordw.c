@@ -45,7 +45,7 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
     ziWChar* cursor;
     ziU8* data;
     ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0};
-    ziU32 savedFormats = ZI_WORK->unk_0x1410;
+    ziU32 savedFormats = ZI_WORK->formats;
     ziU8 savedCount = ZI_WORK->unk_0x1418;
     ziSearchState search = {0};
     Zi8LogError(100, __zi8_work_data);
@@ -73,7 +73,7 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
         request.candidates = ordinals;
         request.maxCandidates = 1;
         request.firstCandidate = 0;
-        ZI_WORK->unk_0x1410 = (ziU32)formats;
+        ZI_WORK->formats = (ziU32)formats;
         if (ZI_WORK->unk_0x1C[0] == 2) {
             ZI_WORK->unk_0x1418 = 0;
             if (ZI_WORK->unk_0x09 & 1) formats[ZI_WORK->unk_0x1418++] = 1;
@@ -87,7 +87,7 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
         } else if (ZI_WORK->unk_0x1C[0] != 0) ZI_WORK->unk_0x1418 = 2;
         else ZI_WORK->unk_0x1418 = 1;
         count = Zi8GetCandidatesOrCount(&request, &search, __zi8_work_data);
-        ZI_WORK->unk_0x1410 = savedFormats;
+        ZI_WORK->formats = savedFormats;
         ZI_WORK->unk_0x1418 = savedCount;
         if (count != 0) return 1;
     }
