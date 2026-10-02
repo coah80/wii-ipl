@@ -61,7 +61,7 @@ void Zi8_81483118(ziGetParam* param, ziU8* output) {
     }
 }
 
-ziU32 Zi8_81483264(const ziGetParam* param ZI_NEED_WORK) {
+ziU32 Zi8_81483264(ziGetParam* param ZI_NEED_WORK) {
     ziU8 i;
 
     if (param->scratch == ZI8_NULL) {
@@ -316,10 +316,10 @@ ziU32 Zi8GetKOcandidates(ziGetParam* param, ZiKoreanCandidateOptions* options ZI
         Zi8LogError(100, ZI_WORK);
         if (param->wordCharCount != 0) {
             if (((search.keyIndex = Zi8_8148302C(param->currentWord[0], keyTable, ZI_WORK)) != 0xFFFF) &&
-                ((((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->keyBytes[4] & 8) != 0)) {
-                search.wordOffset = ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->childLow |
-                ((((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->keyBytes[4] & 3) << 16 |
-                    ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->childHigh << 8);
+                ((((ZiKoreanKeyEntry*)(keyTable + search.keyIndex * 9))->keyBytes[4] & 8) != 0)) {
+                search.wordOffset = ((ZiKoreanKeyEntry*)(keyTable + search.keyIndex * 9))->childLow |
+                ((((ZiKoreanKeyEntry*)(keyTable + search.keyIndex * 9))->keyBytes[4] & 3) << 16 |
+                    ((ZiKoreanKeyEntry*)(keyTable + search.keyIndex * 9))->childHigh << 8);
                 search.remainingLetters = param->wordCharCount - 1;
                 search.wordIndex = 1;
                 wordNode = search.wordTable + search.wordOffset;
@@ -343,8 +343,8 @@ match_word:
                 }
                 if (search.remainingLetters == 0) {
                     search.keyIndex = ((ziU16)*wordNode & 0x1F) << 8 | (ziU16)wordNode[1];
-                    search.character = (ziU16)((ziU16)((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->characterHigh << 8 |
-                        ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->characterLow);
+                    search.character = (ziU16)((ziU16)((ZiKoreanKeyEntry*)(keyTable + search.keyIndex * 9))->characterHigh << 8 |
+                        ((ZiKoreanKeyEntry*)(keyTable + search.keyIndex * 9))->characterLow);
                     if (param->wordCharCount == 1) {
                         if (search.keyIndex == search.previousIndex) {
                             for (; (*wordNode & 0x40) == 0; wordNode = wordNode + 2) {
@@ -454,7 +454,7 @@ search_table:
             do {
                 for (search.tableIndex = 0; search.tableIndex < search.tableCount; search.tableIndex = search.tableIndex + 1) {
                     search.matches = ZI8_TRUE;
-                    search.entry = (ZiKoreanKeyEntry*)(((search.tableIndex << 3) + search.tableIndex) + keyTable);
+                    search.entry = (ZiKoreanKeyEntry*)(keyTable + search.tableIndex * 9);
                     search.keyByte = 0;
                     if (1 < param->elementCount) {
                         for (search.keyByte = 0;
@@ -491,8 +491,8 @@ search_table:
                             if (++search.resultCount >= (ziS32)options->maxCount) return options->maxCount;
                         } else {
                             param->candidates[search.candidateCount++] =
-                            (ziU16)((ziU16)((ZiKoreanKeyEntry*)(((search.tableIndex << 3) + search.tableIndex) + keyTable))->characterHigh << 8 |
-                                ((ZiKoreanKeyEntry*)(((search.tableIndex << 3) + search.tableIndex) + keyTable))->characterLow);
+                            (ziU16)((ziU16)((ZiKoreanKeyEntry*)(keyTable + search.tableIndex * 9))->characterHigh << 8 |
+                                ((ZiKoreanKeyEntry*)(keyTable + search.tableIndex * 9))->characterLow);
                             if (++param->letters >= param->maxCandidates) return param->letters;
                         }
                     }
