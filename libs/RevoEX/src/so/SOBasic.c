@@ -140,20 +140,18 @@ int SOGetSockName(int socket, void* address) {
     s32 rm;
     NameRequest* request;
     SOSockAddr* reply;
-    SOSockAddr* addr;
-    addr=address;
     if((result=SOiPrepare(NULL,&rm))==0) {
-        if(!addr || addr->len>8 || addr->len<8) result=-28;
+        if(!address || ((SOSockAddr*)address)->len>8 || ((SOSockAddr*)address)->len<8) result=-28;
         else {
-            size=(addr->len+63)&~31;
+            size=(((SOSockAddr*)address)->len+63)&~31;
             request=SOiAlloc(12,size);
             if(!request) result=-49;
             else {
                 request->socket=socket;
                 reply=&request->address;
-                memcpy(reply,addr,addr->len);
-                result=IOS_Ioctl(rm,7,request,4,reply,addr->len);
-                if(result>=0) memcpy(addr,reply,reply->len);
+                memcpy(reply,address,((SOSockAddr*)address)->len);
+                result=IOS_Ioctl(rm,7,request,4,reply,((SOSockAddr*)address)->len);
+                if(result>=0) memcpy(address,reply,reply->len);
                 SOiFree(12,request,size);
             }
         }
