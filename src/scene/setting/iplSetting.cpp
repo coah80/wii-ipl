@@ -1510,7 +1510,8 @@ namespace ipl {
             }
 
             if (mpWiiSettingFlag->smthMsgData >= 2 && mpWiiSettingFlag->smthMsgData <= 7) {
-                GXRenderModeObj renderMode = *System::getRenderModeObj();
+                GXRenderModeObj renderMode;
+                renderMode = *System::getRenderModeObj();
                 u32 left;
                 u32 top;
                 u32 width;
