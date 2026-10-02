@@ -213,7 +213,7 @@ struct __zi8_work_data_s {
     ziU8 unk_0x0A;
     ziU8 unk_0x0B;
     ziU32 unk_0x0C;
-    ziU32 unk_0x10;
+    ziU32 maxCount;
     ziU16 unk_0x14;
     ziU8 cangjieEnabled;  // 0x16
     ziU8 unk_0x17;

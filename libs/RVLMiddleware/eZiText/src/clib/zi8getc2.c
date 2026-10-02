@@ -492,7 +492,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
   }
   ZI_WORK->subLanguage = parameters->subLanguage;
   ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1,ZI_WORK) & 2;
-  options->maxCount = ZI_WORK->unk_0x10;
+  options->maxCount = ZI_WORK->maxCount;
   options->maxWordLength = ZI_WORK->unk_0x0A;
   ZI_WORK->unk_0x0A = -1;
   if ((ziU8)Zi8LangSupported(parameters->language,ZI_WORK) == 0) {
