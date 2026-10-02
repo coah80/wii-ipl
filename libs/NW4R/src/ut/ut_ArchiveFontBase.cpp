@@ -314,7 +314,7 @@ namespace nw4r {
             ArchiveFontBase::ConstructState ArchiveFontBase::ConstructOpAnalyzeGLGR(ConstructContext* ctx, CachedStreamReader* reader) {
                 u32 glgrInnerLen;
                 HeaderedGlyphGroups* pGlgr;
-                ArchiveFontBinaryLayout* font;
+                const ArchiveFontBinaryLayout* font;
                 u8* glgrEnd;
 
                 u32 expectedMaxSize;
@@ -337,7 +337,7 @@ namespace nw4r {
 
                 // Copy the glgr to work
                 {
-                    pGlgr = &font->glgr;
+                    pGlgr = (HeaderedGlyphGroups*)&font->glgr;
                     glgrEnd = (u8*)pGlgr + (u32)ctx->mNextBlockHdr.size;
 
                     memcpy(pGlgr, &ctx->mNextBlockHdr, sizeof(BinaryBlockHeader));
@@ -382,7 +382,7 @@ namespace nw4r {
                 sheetOffsetsSize = ROUNDUP(countSheet * sizeof(u16), 4);
                 sheetOffsetsScratch = (u16*)ROUNDDOWN((u32)((u8*)font + ctx->remWorkSpace()) - sheetOffsetsSize, 2);
 
-                pGlgr = &font->glgr;
+                pGlgr = (HeaderedGlyphGroups*)&font->glgr;
                 ENSURE_WORK_HAS_SIZE(ctx, glgrEnd - (u8*)font + sheetOffsetsSize);
                 // if (ctx->pWorkEnd - workCurr < fontSizeToEndOfGlgr + sheetOffsetsSize) {
                 //     return CONSTRUCT_STATE_FATAL_ERR;
