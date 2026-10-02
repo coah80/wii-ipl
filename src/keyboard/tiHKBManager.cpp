@@ -531,7 +531,6 @@ HKBManager::KeySet HKBManager::KeySet::GetNext() const {
 }
 
 
-HKBManager::~HKBManager() {}
 
 }
 }
