@@ -551,12 +551,11 @@ pf_s32 PFCACHE_DoWriteSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, const pf
 #pragma dont_inline reset
 
 static inline pf_u32 PFCACHE_RecordPageEndOverlap(PF_CACHE_PAGE* p_page, pf_u32 end_sector, pf_u32* p_num_success, pf_u32* p_num_rest_sector) {
-    pf_u32 last_sector = end_sector - 1;
     pf_u32 num_overlap = end_sector - p_page->sector;
     *p_num_success += num_overlap;
     *p_num_rest_sector -= num_overlap;
     p_page->stat |= 2;
-    return last_sector;
+    return end_sector - 1;
 }
 
 pf_s32 PFCACHE_DoWriteNumSectorAndFreeIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, const pf_u8* p_buf, pf_u32 sector,
