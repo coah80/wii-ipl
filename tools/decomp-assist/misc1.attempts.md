@@ -330,3 +330,21 @@ Mine anchors &Thread.stack+size onto the &Thread web (r3+0x1318). 7
 source forms all fold identically. Orig's fold anchor = section-base
 (Flags0@bss+0); my `pFlags = Flags0` store reproduces the r30 web at +2
 insns (orig has no Init-side pFlags store — its fold trigger is internal).
+
+### BS2StartGame / BS2StartGCGame shared head weave (both ~7 diffs)
+Orig emits `li r0,1; lis r29,lis r30; stw r0,StartingGame@l(r29); addi r29;
+addi r30; addi r3,r29,0x840; lwz state` — the StartingGame store folds onto
+the raw lis-half base web (its own @l offset) BEFORE the CoverBlock addi
+exists. Mine hoists `addi r3,&CoverBlock` above the store and folds the
+store onto r3 as `(SG-CB)@l(r3)`. Volatile StartingGame/vu32 HW reg/stmt
+reorder/anon base all no-op — batch-vs-lazy base materialization is
+scheduler-internal. StartGame also has the diAddr r3↔r4 2-web rotation
+(diBits built `li 2; ori 4` — orig binds base r4/val r3, mine swapped;
+remat'd-base and decl/stmt reorder all keep r3-first binding).
+
+### BS2Tick 98.16 (1940 insns, 1124 diff lines)
+Mass callee-window rotation: orig savegpr_26 (17 callee regs live) vs mine
+_27 — ONE extra web pinned. Clusters of `lis rX,-0x8000` +member-offset
+loads identical but bound to different callees (r26↔r27). DvdProgress
+store weave same family as above. Finding which web orig remat'd instead
+of pinning = the remaining decode; 1940-insn scale, not yet found.
