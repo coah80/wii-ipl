@@ -204,7 +204,7 @@ static long __nupHttpStringFlush(u8* data, unsigned long length, unsigned long r
     total = length + text->length;
     long result = 0;
     if (total > text->capacity) {
-        if (requested >= total) {} else {
+        if (requested < total) {
             requested = text->growth + total;
             text->growth <<= 1;
             if (text->growth < text->maximumGrowth) {} else text->growth = text->maximumGrowth;
