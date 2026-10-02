@@ -7,23 +7,23 @@
 
 <!--- Github Actions Badge -->
 
-[Build Status]: https://github.com/coah80/wii-ipl/actions/workflows/build.yml/badge.svg
-[actions]: https://github.com/coah80/wii-ipl/actions/workflows/build.yml
+[Build Status]: https://github.com/coah80/wii-ipl/actions/workflows/readme-progress.yml/badge.svg?branch=main
+[actions]: https://github.com/coah80/wii-ipl/actions/workflows/readme-progress.yml
 
 <!--- Discord Badge -->
 
 [Discord Badge]: https://img.shields.io/discord/727908905392275526?color=%237289DA&logo=discord&logoColor=%23FFFFFF
 [discord]: https://discord.gg/hKx3FJJgrV
 
-<!-- Progress links -->
+<!-- Progress badges: JSON on the progress-data branch, refreshed by the README progress workflow on every push to main -->
 
-[V43U]: https://decomp.dev/koopthekoopa/wii-ipl/43U
-
-<!--- Version 4.3U progress Badge -->
-
-[DecompBadgeV43U]: https://decomp.dev/koopthekoopa/wii-ipl/43U.svg?&measure=code&label=Decompiled&mode=shield&labelColor=%237c7c7c&color=%2333b8ff&style=plastic
-[LinkBadgeV43U]: https://decomp.dev/koopthekoopa/wii-ipl/43U.svg?&measure=complete_code&label=Linked&mode=shield&labelColor=%237c7c7c&color=%2333b8ff&style=plastic
-[FuncBadgeV43U]: https://decomp.dev/koopthekoopa/wii-ipl/43U.svg?&measure=functions&label=Functions&mode=shield&labelColor=%237c7c7c&color=%2333b8ff&style=plastic
+[progress]: https://github.com/coah80/wii-ipl/actions/workflows/readme-progress.yml
+[DecompiledBadge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcoah80%2Fwii-ipl%2Fprogress-data%2Fdecompiled.json
+[MatchedBadge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcoah80%2Fwii-ipl%2Fprogress-data%2Fmatched.json
+[LinkedBadge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcoah80%2Fwii-ipl%2Fprogress-data%2Flinked.json
+[DataBadge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcoah80%2Fwii-ipl%2Fprogress-data%2Fdata.json
+[FunctionsBadge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcoah80%2Fwii-ipl%2Fprogress-data%2Ffunctions.json
+[UnitsBadge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcoah80%2Fwii-ipl%2Fprogress-data%2Funits.json
 
 <!--- Header -->
 
@@ -43,28 +43,17 @@ Live decomp status
 
 [![Build status]][actions]
 
-Open the latest successful [Build workflow run][actions] and check its summary for the current objdiff metrics. It includes perfect-match/decompiled, fuzzy-match, fully linked, data, function, unit, and category breakdowns. The run also publishes the 43U report artifact and generated decomp-status report.
+Every push to `main` rebuilds 4.3U, checks the DOL hash, and refreshes the progress badges below. Open the latest [README progress run][actions] for the full objdiff summary.
 
 Supported versions:
 - `43U` - Version **4.3U** (USA)
 
 Progress
 ========
-<!-- progress:start -->
-| Decompiled | Matched | Linked | Data |
-|:---:|:---:|:---:|:---:|
-| 99.59% | 91.16% | 74.57% | 99.56% |
-
-units 964/1027 complete, functions 12378/12563 matched.
+[![DecompiledBadge]][progress] [![MatchedBadge]][progress] [![LinkedBadge]][progress] [![DataBadge]][progress]  
+[![FunctionsBadge]][progress] [![UnitsBadge]][progress]
 
 decompiled = code with a C/C++ implementation (objdiff fuzzy), matched = byte-exact code, linked = code actually linked into the DOL, data = byte-exact data
-<!-- progress:end -->
-
-|        Version        |                                  Progress                                    |
-|-----------------------|------------------------------------------------------------------------------|
-| [Wii Menu 4.3U][V43U] | [![FuncBadgeV43U]][V43U] [![DecompBadgeV43U]][V43U] [![LinkBadgeV43U]][V43U] |
-  
-> You can see the full progress and its history by clicking on one of the versions in the table.  
 
 Dependencies
 ============
