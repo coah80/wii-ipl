@@ -242,14 +242,64 @@ BOOL BS2IsDiagDisc() { return (u8)(*(u8 *)OSPhysicalToCached(OS_ADDR_BOOT_INFO) 
 extern vu32 BS2VideoMode;
 extern vu32 __DVDLayoutFormat;
 
-void Run(u32 entryPoint, void *start, u32 blockCount, u32 argument) {
-    u8 *block = start;
-    for (; blockCount != 0; --blockCount) {
-        __dcbz(block, 0);
-        __dcbf(block, 0);
-        block += 32;
-    }
-    ((void (*)(u32))entryPoint)(argument);
+extern void __pformatter(void);
+
+asm void Run(u32 entryPoint, void *start, u32 blockCount, u32 argument) {
+    // clang-format off
+#ifdef __MWERKS__
+    nofralloc
+
+    mtctr   r5
+    mtlr    r3
+
+    li      r0, 0
+    li      r2, 0
+    li      r3, 0
+    li      r5, 0
+    li      r7, 0
+    li      r8, 0
+    li      r9, 0
+    li      r10, 0
+    li      r11, 0
+    li      r12, 0
+    li      r13, 0
+    li      r14, 0
+    li      r15, 0
+    li      r16, 0
+    li      r17, 0
+    li      r18, 0
+    li      r19, 0
+    li      r20, 0
+    li      r21, 0
+    li      r22, 0
+    li      r23, 0
+    li      r24, 0
+    li      r25, 0
+    li      r26, 0
+    li      r27, 0
+    li      r28, 0
+    li      r29, 0
+    li      r30, 0
+    li      r31, 0
+
+    lis     r1, __pformatter+640@h
+    ori     r1, r1, (__pformatter+640)@l
+    li      r6, 0
+
+    b       Run_loop_entry
+Run_loop:
+    dcbz    r4, r0
+    dcbf    r4, r0
+    addi    r4, r4, 0x20
+    bdnz    Run_loop
+    b       Run_done
+Run_done:
+    li      r4, 0
+    blr
+Run_loop_entry:
+    b       Run_loop
+#endif
+    // clang-format on
 }
 
 BOOL BS2GetLockedTitles(ESTitleId *pTitleIds, u32 *count) {
@@ -803,7 +853,7 @@ void BS2StartGCGame() {
     OSTime time;
 
     StartingGame = TRUE;
-    while (DVDGetCommandBlockStatus(&CoverBlock) != DVD_STATE_IDLE) {
+    while (CoverBlock.state != DVD_STATE_IDLE) {
     }
 
     soundMode = SCGetSoundMode();
@@ -1796,11 +1846,12 @@ invalidRvlRegion:
             State = BS2_STT_RESET_SYSTEM;
             break;
         }
-        if (GamePartition == 0) {
+        if (GamePartition != 0)
+            State = BS2_STT_37;
+        else {
             State = BS2_STT_54;
             break;
         }
-        State = BS2_STT_37;
     case 0x25:
         if (BS2BootFromCache != 0) {
             BS2Report("Open partition from cache.dat\n");
