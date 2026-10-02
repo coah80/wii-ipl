@@ -50,8 +50,8 @@ typedef struct NWC24MsgObjPrivate {
     NWC24Data unk_0x38;
     NWC24Data subject;  // 0x40
     NWC24Data text;     // 0x48
-    NWC24Data unk_0x50;
-    NWC24Data unk_0x58;
+    NWC24Data charsetData;  // 0x50
+    NWC24Data encodingData;  // 0x58
     NWC24Charset charset;                                  // 0x60
     NWC24Encoding encoding;                                // 0x64
     NWC24Data attached[NWC24_MSG_ATTACHMENT_MAX];          // 0x68
