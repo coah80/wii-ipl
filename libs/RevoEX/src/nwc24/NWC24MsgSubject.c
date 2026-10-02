@@ -816,9 +816,9 @@ done:
 
 NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 subjectSize, NWC24EncodingRegion region, u16 alternative, u8* work,
                                    u32 workSize, NWC24Charset charset, char* charsetName) {
-    u32 workHalf;
-    u32 secondSize;
     u8* second;
+    u32 secondSize;
+    u32 workHalf;
     u32 subjectLength;
     u32 lineLength;
     u32 sourceOffset;
@@ -837,7 +837,12 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
         workHalf = lineLength + 1;
         subjectLength = subjectSize;
         result = NWC24iConvertFromInternalEncoding(work, &workHalf, subject, &subjectLength, charsetName, 0x40, region, alternative);
-        switch (result) { case NWC24_OK: case NWC24_ERR_OVERFLOW: break; default: goto done; }
+        if (result != NWC24_OK) {
+            switch (result) {
+                case NWC24_ERR_OVERFLOW: break;
+                default: goto done;
+            }
+        }
         result = NWC24EncodeWord(second, secondSize, &outputLength, charsetName, 0x40, 'B', work, workHalf - 1);
         switch (result) { case NWC24_OK: break; default: goto done; }
         {
@@ -860,7 +865,12 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
                     second[total++] = ' ';
                     result = NWC24iConvertFromInternalEncoding(work, &workHalf, subject + sourceOffset, &subjectLength, charsetName, 0x40, region,
                                                                alternative);
-                    switch (result) { case NWC24_OK: case NWC24_ERR_OVERFLOW: break; default: goto done; }
+                    if (result != NWC24_OK) {
+                        switch (result) {
+                            case NWC24_ERR_OVERFLOW: break;
+                            default: goto done;
+                        }
+                    }
                     result = NWC24EncodeWord(second + total, secondSize - total, &outputLength, charsetName, 0x40, 'B', work, workHalf - 1);
                     switch (result) { case NWC24_OK: break; default: goto done; }
                     sourceOffset += subjectLength;

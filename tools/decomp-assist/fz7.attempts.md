@@ -933,3 +933,224 @@ Final unresolved functions and percentages, superseding earlier snapshots:
 - ConvertDaysToDate 93.83495%; >=3 distinct successful source attempts logged this round; diagnosis above.
 
 DecodeWord reduced from 63 to seven register differences, 180/180 instructions, after moving the encoding byte declaration, factoring whitespace scanning, and specializing encoding-marker search. No source-level impossibility claim; higher effort may still resolve these differences. Both newly exact functions remain exact after the full rebuild.
+
+## Round c: fresh origin/main fe6a45c0
+Baseline exact Mime15/16, MsgRead11/16, MsgSubject7/12, DateParser5/8. Pools identical in all four units; data88/88,128/128,232/232,40/40. No symbol rename or extent correction is warranted.
+
+### DecodeWord
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: target/ours180 instructions, frame0x50, identical local stack offsets and branches. Only second marker pointer and scan offset exchange r21/r22; inline FindEncodingMarker/FindMarkerAfterPrefix boundary is the candidate lever.
+- encoding finder assigns plain delimiter local: ((0, 7), 180, 180) -> ((0, 7), 180, 180); restored
+- encoding finder takes marker before input: ((0, 7), 180, 180) -> ((0, 12), 180, 180); restored
+- encoding helper owns named prefix length: ((0, 7), 180, 180) -> ((0, 7), 180, 180); restored
+- encoding helper uses generic unprefixed finder: ((0, 7), 180, 180) -> ((0, 7), 180, 180); restored
+- specialized encoding marker plain declarations current,offset,markerLength,marker: ((0, 7), 180, 180) -> ((0, 12), 180, 180); restored
+- specialized encoding marker plain declarations current,offset,marker,markerLength: ((0, 7), 180, 180) -> ((0, 9), 180, 180); restored
+- specialized encoding marker plain declarations current,markerLength,offset,marker: ((0, 7), 180, 180) -> ((0, 10), 180, 180); restored
+- specialized encoding marker plain declarations current,markerLength,marker,offset: ((0, 7), 180, 180) -> ((0, 7), 180, 180); restored
+- specialized encoding marker plain declarations current,marker,offset,markerLength: ((0, 7), 180, 180) -> ((0, 12), 180, 180); restored
+- specialized encoding marker plain declarations current,marker,markerLength,offset: ((0, 7), 180, 180) -> ((0, 12), 180, 180); restored
+- specialized encoding marker plain declarations offset,current,markerLength,marker: ((0, 7), 180, 180) -> ((0, 8), 180, 180); restored
+- specialized encoding marker plain declarations offset,current,marker,markerLength: ((0, 7), 180, 180) -> ((0, 5), 180, 180); kept
+- specialized encoding marker plain declarations offset,markerLength,current,marker: ((0, 5), 180, 180) -> ((0, 6), 180, 180); restored
+- specialized encoding marker plain declarations offset,markerLength,marker,current: ((0, 5), 180, 180) -> ((0, 0), 180, 180); kept
+
+### NWC24ReadMsgField
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: src 0x194 base 0x198 insns 101/102. Target re-loads message type after protection/type validation; ours retains the earlier value across inlined SelectMBox. Frames and file/stream local offsets agree; additional text/attachment differences are result flow and saved-register scheduling.
+- mailbox selection expanded at call boundary: ((3, 84), 101, 102) -> ((11, 81), 101, 102); restored
+- protection result named before early return: ((3, 84), 101, 102) -> ((9, 88), 104, 102); restored
+- mailbox result switch replaced with early conditional: ((3, 84), 101, 102) -> ((3, 84), 101, 102); restored
+
+### NWC24ReadMsgFromAddr
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: src 0x16c base 0x170 insns 91/92. Target re-loads message type after protection/type validation; ours retains the earlier value across inlined SelectMBox. Frames and file/stream local offsets agree; additional text/attachment differences are result flow and saved-register scheduling.
+- mailbox selection expanded at call boundary: ((4, 66), 91, 92) -> ((12, 63), 91, 92); restored
+- protection result named before early return: ((4, 66), 91, 92) -> ((11, 78), 94, 92); restored
+- mailbox result switch replaced with early conditional: ((4, 66), 91, 92) -> ((4, 66), 91, 92); restored
+
+### NWC24ReadMsgSubject
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: src 0x144 base 0x148 insns 81/82. Target re-loads message type after protection/type validation; ours retains the earlier value across inlined SelectMBox. Frames and file/stream local offsets agree; additional text/attachment differences are result flow and saved-register scheduling.
+- mailbox selection expanded at call boundary: ((3, 65), 81, 82) -> ((11, 62), 81, 82); restored
+- protection result named before early return: ((3, 65), 81, 82) -> ((9, 69), 84, 82); restored
+- mailbox result switch replaced with early conditional: ((3, 65), 81, 82) -> ((3, 65), 81, 82); restored
+
+### ReadMsgTextInternal
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: src 0x2c4 base 0x2c8 insns 177/178. Target re-loads message type after protection/type validation; ours retains the earlier value across inlined SelectMBox. Frames and file/stream local offsets agree; additional text/attachment differences are result flow and saved-register scheduling.
+- mailbox selection expanded at call boundary: ((11, 156), 177, 178) -> ((19, 154), 177, 178); restored
+- protection result named before early return: ((11, 156), 177, 178) -> ((12, 164), 181, 178); restored
+- mailbox result switch replaced with early conditional: ((11, 156), 177, 178) -> ((11, 156), 177, 178); restored
+
+### NWC24ReadMsgAttached
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: src 0x168 base 0x16c insns 90/91. Target re-loads message type after protection/type validation; ours retains the earlier value across inlined SelectMBox. Frames and file/stream local offsets agree; additional text/attachment differences are result flow and saved-register scheduling.
+- mailbox selection expanded at call boundary: ((6, 75), 90, 91) -> ((14, 72), 90, 91); restored
+- protection result named before early return: ((6, 75), 90, 91) -> ((13, 81), 93, 91); restored
+- mailbox result switch replaced with early conditional: ((6, 75), 90, 91) -> ((6, 75), 90, 91); restored
+
+### NWC24ReadMsgSubjectPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: src 0x190 base 0x1a0 insns 100/104. Target has a success branch and an unreachable unconditional exit after overflow handling, consistent with single-case switch enclosing an overflow conditional. Local/frame offsets agree.
+- overflow conditional inside single-case switch variant 1: ((11, 64), 100, 104) -> ((11, 64), 100, 104); restored
+- overflow conditional inside single-case switch variant 2: ((11, 64), 100, 104) -> ((11, 64), 100, 104); restored
+- overflow conditional inside single-case switch variant 3: ((11, 64), 100, 104) -> ((11, 64), 100, 104); restored
+
+### NWC24ReadMsgTextPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: src 0x110 base 0x118 insns 68/70. Target has a success branch and an unreachable unconditional exit after overflow handling, consistent with single-case switch enclosing an overflow conditional. Local/frame offsets agree.
+- overflow conditional inside single-case switch variant 1: ((7, 28), 68, 70) -> ((7, 28), 68, 70); restored
+- overflow conditional inside single-case switch variant 2: ((7, 28), 68, 70) -> ((7, 28), 68, 70); restored
+- overflow conditional inside single-case switch variant 3: ((7, 28), 68, 70) -> ((7, 28), 68, 70); restored
+
+### NWC24iDateToOSCalendarTime
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: frame0x10,85/85 instructions; fields/stores/branches identical. First loaded year and shared zero/leap temporary exchange r0/r5,13 register differences. Test live-range/field expression changes before declaration search.
+- initialize leap flag after assigning year field: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- initialize calendar fractions as chained assignment: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- leap arithmetic reads populated calendar year: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- year typed temporary used across field stores and leap tests: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+
+### ConvertDateToDays
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis:113/113, leaf frame absent. Date validation is identical;16 differences in final signed century/quarter division scheduling and add operands. Split independent arithmetic temporaries and adjust grouping before registers.
+- explicit quarter and century correction temporaries: ((4, 16), 113, 113) -> ((4, 16), 113, 113); restored
+- common leap correction calculated before day accumulation: ((4, 16), 113, 113) -> ((4, 16), 113, 113); restored
+- return common correction plus complete day count: ((4, 16), 113, 113) -> ((4, 16), 113, 113); restored
+
+### ConvertDaysToDate
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis:102/103 instructions; target reloads current year before increment, while C compiler reuses loop year. Leap decision condition branches and month continuation have remaining allocation differences. No volatile or hidden reload mechanism is justified.
+- year subtraction uses explicit integer year length: ((4, 83), 102, 103) -> ((4, 83), 102, 103); restored
+- year increment expressed before next iteration continue: ((4, 83), 102, 103) -> ((0, 43), 103, 103); kept
+- year leap computation uses existing inline helper: ((0, 43), 103, 103) -> ((10, 93), 99, 103); restored
+
+DecodeWord exact: specialized encoding marker scan uses ordinary literal, meaningful pointer/length/cursor locals; offset,markerLength,marker,current declaration order resolves remaining allocation. ctxdiff180/180,diffs0. Mime quick gatePASS,16/16,code6124/6124,data88/88,poolidentical,globalregressions0,forbidden0,readability0,DOLverified.
+
+### NWC24SetMsgSubjectAndTextPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis:190/190,frame0x60,same branches and temporaries. Work context occupies r31 instead of targetr22, shifting saved input arguments. Examine initialization and arithmetic operand order, then declarations.
+- work context initialized in leading declaration: ((0, 65), 190, 190) -> ((7, 99), 190, 190); restored
+- private message cast scoped to message initialization: ((0, 65), 190, 190) -> ((0, 65), 190, 190); restored
+- subject work pointer adds offset before input pointer: ((0, 65), 190, 190) -> ((0, 65), 190, 190); restored
+
+### NWC24iSetMsgSubjectQP
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis:144/144,frame0x70,stack fields and branches identical. Capacity and source offset/charset length saved registers exchange r30/r31. Test initial capacity and pointer ordering and source-loop update boundary.
+- initialize second pointer before second capacity: ((0, 12), 144, 144) -> ((0, 12), 144, 144); restored
+- leading capacity initializer instead of assignment: ((0, 12), 144, 144) -> ((0, 12), 144, 144); restored
+- source offset advanced by for increment expression: ((0, 12), 144, 144) -> ((2, 16), 144, 144); restored
+
+### NWC24iSetMsgSubjectBase64
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis:138/136,frame0x70; switch success/overflow handling contributes two bge instructions absent in target. Second buffer pointer/capacity exchange r26/r27. Replace switch numeric dispatch with single success switch and default condition, then declarations.
+- single-case conversion switch with default overflow conditional: ((11, 107), 138, 136) -> ((12, 104), 134, 136); restored
+- conversion failure condition enclosing single success switch: ((11, 107), 138, 136) -> ((8, 21), 136, 136); kept
+- success condition encloses overflow single-case switch: ((8, 21), 136, 136) -> ((0, 17), 136, 136); kept
+- second capacity assigned before second pointer: ((0, 17), 136, 136) -> ((2, 17), 136, 136); restored
+- work input named leading pointer temporary: ((0, 17), 136, 136) -> ((0, 17), 136, 136); restored
+- year loop plain locals currentYear,previousDays,leapYear: ((0, 43), 103, 103) -> ((0, 43), 103, 103); restored
+- year loop plain locals currentYear,leapYear,previousDays: ((0, 43), 103, 103) -> ((0, 43), 103, 103); restored
+- year loop plain locals previousDays,currentYear,leapYear: ((0, 43), 103, 103) -> ((0, 43), 103, 103); restored
+- year loop plain locals previousDays,leapYear,currentYear: ((0, 43), 103, 103) -> ((0, 43), 103, 103); restored
+- year loop plain locals leapYear,currentYear,previousDays: ((0, 43), 103, 103) -> ((0, 43), 103, 103); restored
+- year loop plain locals leapYear,previousDays,currentYear: ((0, 43), 103, 103) -> ((0, 43), 103, 103); restored
+- inline month leap flag has plain declaration: ((0, 43), 103, 103) -> ((0, 43), 103, 103); restored
+- permission error helper boundary variant 1: ((3, 84), 101, 102) -> ((9, 88), 104, 102); restored
+- permission error helper boundary variant 2: ((3, 84), 101, 102) -> ((6, 88), 104, 102); restored
+- permission error helper boundary variant 3: ((3, 84), 101, 102) -> ((8, 89), 106, 102); restored
+- permission error helper boundary variant 1: ((4, 66), 91, 92) -> ((11, 78), 94, 92); restored
+- permission error helper boundary variant 2: ((4, 66), 91, 92) -> ((8, 78), 94, 92); restored
+- permission error helper boundary variant 3: ((4, 66), 91, 92) -> ((10, 77), 96, 92); restored
+- permission error helper boundary variant 1: ((3, 65), 81, 82) -> ((9, 69), 84, 82); restored
+- permission error helper boundary variant 2: ((3, 65), 81, 82) -> ((6, 69), 84, 82); restored
+- permission error helper boundary variant 3: ((3, 65), 81, 82) -> ((8, 69), 86, 82); restored
+- permission error helper boundary variant 1: ((11, 156), 177, 178) -> ((12, 164), 181, 178); restored
+- permission error helper boundary variant 2: ((11, 156), 177, 178) -> ((9, 164), 181, 178); kept
+- permission error helper boundary variant 3: ((9, 164), 181, 178) -> compile failure; restored
+- permission error helper boundary variant 1: ((6, 75), 90, 91) -> compile failure; restored
+- permission error helper boundary variant 2: ((6, 75), 90, 91) -> compile failure; restored
+- permission error helper boundary variant 3: ((6, 75), 90, 91) -> compile failure; restored
+- year loop signed promoted year local: ((0, 43), 103, 103) -> ((0, 43), 103, 103); restored
+- year leap decision explicitly distinguishes common leap years: ((0, 43), 103, 103) -> ((0, 29), 103, 103); kept
+- month cursor plain locals         u8 currentMonth;,        s32 previousDays;: ((0, 29), 103, 103) -> ((0, 29), 103, 103); restored
+- month cursor plain locals         s32 previousDays;,        u8 currentMonth;: ((0, 29), 103, 103) -> ((0, 26), 103, 103); kept
+- Register-only last: declsearch explicit actual body lines 233-241 max180: ((0, 65), 190, 190) -> ((0, 65), 190, 190); declaration block: /       NWC24MsgObjPrivate* privateMsg = (NWC24MsgObjPrivate*)msg; /       NWC24Work* nwcWork; /       u32 textSourceSize; /       u32 textWorkSize; /       BOOL is7Bit; /       NWC24Charset charset; /       u32 subjectWorkSize; /       u8* subjectWork; /       NWC24Err result; / start (0, 65) / best (0, 65) after 93 builds; source restored; best order was: /     NWC24MsgObjPrivate* privateMsg = (NWC24MsgObjPrivate*)msg; /     NWC24Work* nwcWork; /     u32 textSourceSize; /     u32 textWorkSize; /     BOOL is7Bit; /     NWC24Charset charset; /     u32 subjectWorkSize; /     u8* subjectWork; /     NWC24Err result; /
+ReadMsgTextInternal permission helper lowered structural score while adding four instructions and replacing target simple permission check with status materialization; restored entire read unit to baseline before further authoritative validation. Later helper variants collided with kept definition and failed compilation, and are not counted as distinct successful attempts; all five functions already have three earlier compiled attempts.
+- month leap reads year through inline pointer helper 1: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- month leap reads year through inline pointer helper 2: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- month leap reads year through inline pointer helper 3: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- month leap reads year through inline pointer helper 4: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- month leap flag uses signed promoted helper parameter: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- month inline leap flag condition sets both branches explicitly: ((0, 26), 103, 103) -> ((13, 102), 100, 103); restored
+- month leap helper returns conditional flag expression: ((0, 26), 103, 103) -> ((0, 28), 103, 103); restored
+- Register-only last: declsearch explicit actual body lines 744-755 max180: ((0, 12), 144, 144) -> ((0, 12), 144, 144); declaration block: /       u32 workHalf; /       u32 sourceOffset; /       u32 secondSize; /       u8* second; /       u32 subjectLength; /       u32 lineLength; /       u32 outputLength; /       u32 total; /       u32 combinedLength; /       u32 i; /       u32 charsetLength; /       NWC24Err result; / start (0, 12) / best (0, 12) after 177 builds; source restored; best order was: /     u32 workHalf; /     u32 sourceOffset; /     u32 secondSize; /     u8* second; /     u32 subjectLength; /     u32 lineLength; /     u32 outputLength; /     u32 total; /     u32 combinedLength; /     u32 i; /     u32 charsetLength; /     NWC24Err result; /
+- Register-only last: declsearch explicit actual body lines 121-122 max180: ((0, 13), 85, 85) -> ((0, 13), 85, 85); declaration block: /       BOOL isLeapYear; /       s32 days; / start (0, 13) / best (0, 13) after 2 builds; source restored; best order was: /     BOOL isLeapYear; /     s32 days; /
+- Register-only last: declsearch explicit actual body lines 152-156 max180: ((4, 16), 113, 113) -> ((4, 16), 113, 113); declaration block: /       s32 daysOfYear; /       s32 yearOffset; /       s32 centuryLeapDays; /       s32 commonLeapDays; /       BOOL isLeapYear; / start (4, 16) / best (4, 16) after 23 builds; source restored; best order was: /     s32 daysOfYear; /     s32 yearOffset; /     s32 centuryLeapDays; /     s32 commonLeapDays; /     BOOL isLeapYear; /
+- month length inline return boundary 1: ((0, 26), 103, 103) -> ((6, 42), 102, 103); restored
+- month length inline return boundary 2: ((0, 26), 103, 103) -> ((6, 42), 102, 103); restored
+- month length inline return boundary 3: ((0, 26), 103, 103) -> ((6, 42), 102, 103); restored
+- month helper result assigned into explicit flag local 1: ((0, 26), 103, 103) -> ((0, 29), 103, 103); restored
+- month helper result assigned into explicit flag local 2: ((0, 26), 103, 103) -> ((0, 29), 103, 103); restored
+- month helper result assigned into explicit flag local 3: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- calendar fields copied through inline boundary 1: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- calendar fields copied through inline boundary 2: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- calendar fields copied through inline boundary 3: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- month cursor promoted type u32: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- month cursor promoted type s32: ((0, 26), 103, 103) -> ((1, 26), 103, 103); restored
+- month cursor promoted type int: ((0, 26), 103, 103) -> ((1, 26), 103, 103); restored
+- month cursor promoted type u16: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- month cursor loaded before saving remainder: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- Register-only last: declsearch explicit actual body lines 819-828 max180: ((0, 17), 136, 136) -> ((0, 5), 136, 136); declaration block: /       u32 workHalf; /       u32 secondSize; /       u8* second; /       u32 subjectLength; /       u32 lineLength; /       u32 sourceOffset; /       u32 outputLength; /       u32 total; /       u32 charsetLength; /       NWC24Err result; / start (0, 17) / improved (0, 5) / best (0, 5) after 118 builds; kept in source: /     u8* second; /     u32 secondSize; /     u32 workHalf; /     u32 subjectLength; /     u32 lineLength; /     u32 sourceOffset; /     u32 outputLength; /     u32 total; /     u32 charsetLength; /     NWC24Err result; /
+- second pointer initialized at declaration before input captures: ((0, 5), 136, 136) -> ((0, 5), 136, 136); restored
+- source work named initialized leading alias: ((0, 5), 136, 136) -> ((0, 5), 136, 136); restored
+- half capacity computed once before second pointer: ((0, 5), 136, 136) -> ((0, 5), 136, 136); restored
+- month leap named quarter remainder 1: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- month leap named quarter remainder 2: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- month leap named quarter remainder 3: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- overflow policy inline helper boundary 1: ((11, 64), 100, 104) -> ((21, 93), 116, 104); restored
+- overflow policy inline helper boundary 2: ((11, 64), 100, 104) -> ((21, 93), 116, 104); restored
+- overflow policy inline helper boundary 3: ((11, 64), 100, 104) -> ((17, 88), 112, 104); restored
+- overflow policy inline helper boundary 1: ((7, 28), 68, 70) -> ((12, 36), 76, 70); restored
+- overflow policy inline helper boundary 2: ((7, 28), 68, 70) -> ((12, 36), 76, 70); restored
+- overflow policy inline helper boundary 3: ((7, 28), 68, 70) -> ((10, 32), 74, 70); restored
+- base64 inline codec boundary binds work buffer before subject inputs: ((0, 5), 136, 136) -> ((11, 36), 136, 136); restored
+- ConvertDaysToDate register-only last, declsearch loop lines 208-211: declaration block: /           u16 currentYear = *year; /           s32 previousDays = days; /           BOOL leapYear = TRUE; /           BOOL commonLeapYear = FALSE; / start (0, 26) / best (0, 26) after 13 builds; source restored; best order was: /         u16 currentYear = *year; /         s32 previousDays = days; /         BOOL leapYear = TRUE; /         BOOL commonLeapYear = FALSE; /
+- ConvertDaysToDate register-only last, declsearch loop lines 228-229: declaration block: /           s32 previousDays; /           u8 currentMonth; / start (0, 26) / best (0, 26) after 2 builds; source restored; best order was: /         s32 previousDays; /         u8 currentMonth; /
+
+### Round c completeness ledger
+All14 baseline-open exact-name functions were fetched and checked against unchanged origin/main source before their first attempt. All four pools were checked directly with pool_diff using source/target object paths; all data sections already100%, so no symbol or extent edits.
+
+- DecodeWord: exact180/180,diffs0; plain delimiter assignment7->7; marker-first formal7->12; named prefix7->7; specialized marker scan declaration permutations7->5->0, retained. Mime16/16,all owned code/data100%,quickGATEPASS; committed38bb3851.
+- NWC24ReadMsgField: expanded mailbox boundary(3,84)->(11,81); named permission(3,84)->(9,88); early mailbox error conditional(3,84)->(3,84); all restored.
+- NWC24ReadMsgFromAddr: expanded mailbox boundary(4,66)->(12,63); named permission(4,66)->(11,78); early mailbox error conditional(4,66)->(4,66); all restored.
+- NWC24ReadMsgSubject: expanded mailbox boundary(3,65)->(11,62); named permission(3,65)->(9,69); early mailbox error conditional(3,65)->(3,65); all restored.
+- ReadMsgTextInternal: expanded mailbox boundary(11,156)->(19,154); named permission(11,156)->(12,164); early mailbox error conditional(11,156)->(11,156); all restored. Error-helper trial reduced structural score but added four instructions and was restored.
+- NWC24ReadMsgAttached: expanded mailbox boundary(6,75)->(14,72); named permission(6,75)->(13,81); early mailbox error conditional(6,75)->(6,75); all restored.
+- NWC24ReadMsgSubjectPublic: switch with default conditional/early-break, default-first switch with overflow guard, success-first switch with overflow guard each(11,64)->(11,64),100/104; three inline overflow policy boundaries116/116/112 source instructions all worse and restored.
+- NWC24ReadMsgTextPublic: switch with default conditional/early-break, default-first switch with overflow guard, success-first switch with overflow guard each(7,28)->(7,28),68/70; inline overflow policy boundaries76/76/74 source instructions all worse and restored.
+- NWC24SetMsgSubjectAndTextPublic: leading work-context initializer(0,65)->(7,99); scoped private cast(0,65)->(0,65); arithmetic operand reversal(0,65)->(0,65); all restored. Actual leading block declsearch93 builds unchanged.
+- NWC24iSetMsgSubjectQP: second pointer initialization order(0,12)->(0,12); initialized second capacity declaration(0,12)->(0,12); source advance moved into for increment(0,12)->(2,16); all restored. Actual leading block declsearch177 builds unchanged.
+- NWC24iSetMsgSubjectBase64: single-case default-overflow conversion switch138->134 worse/restored; overflow-first condition plus success switch138->136 retained; success-first condition plus overflow switch136/136 removes remaining structural dispatch differences retained. Actual leading block declsearch118 builds(0,17)->(0,5), retained. Pointer declaration initializer, work alias, shared half capacity each(0,5)->(0,5) restored; full inline codec boundary(0,5)->(11,36) restored.
+- NWC24iDateToOSCalendarTime: leap initialization after year store, chained fraction-field assignment, populated calendar year in leap arithmetic each(0,13)->(0,13),85/85 restored. Typed year local and three field-copy inline boundaries unchanged/restored. Actual leading block declsearch2 builds unchanged.
+- ConvertDateToDays: separate quarter/century arithmetic locals, common correction before accumulation, reversed final sum operands each(4,16)->(4,16),113/113 restored. Actual leading block declsearch23 builds unchanged.
+- ConvertDaysToDate: explicit year-length temporary(4,83)->(4,83) restored; year increment/continue(4,83)->(0,43),103/103 retained; existing leap helper at year boundary(0,43)->(10,93) restored. Explicit common-leap-year condition(0,43)->(0,29), month cursor local declaration order(0,29)->(0,26) retained. Further helper boundaries, flags, promoted cursor types, named quarter remainder all failed to improve and were restored.
+
+Score pairs above are structural differences ignoring register names, then positional instruction differences. Only objdiff/instruction-exact/full gate measurements establish matches; no fuzzy score is counted as exact. Each of the13 remaining functions has at least three distinct successfully compiled source-level trials in this round. No untried owned function remains.
+
+### Round c remaining functions, refreshed from objdiff
+- NWC24ReadMsgField 98.92157%: 101/102 instructions; target reloads message type after permission check, source CSE retains it. At least three compiled distinct attempts are listed in the completeness ledger.
+- NWC24ReadMsgFromAddr 98.804344%: 91/92 instructions; target reloads message type after type capability check, source CSE retains it. At least three compiled distinct attempts are listed in the completeness ledger.
+- NWC24ReadMsgSubject 98.65854%: 81/82 instructions; target reloads message type after permission check, source CSE retains it. At least three compiled distinct attempts are listed in the completeness ledger.
+- ReadMsgTextInternal 94.55056%: 177/178 instructions; type reload, capacity clamp scheduling and saved-register allocation. At least three compiled distinct attempts are listed in the completeness ledger.
+- NWC24ReadMsgAttached 96.37363%: 90/91 instructions; type reload and attachment-index/result temporary allocation. At least three compiled distinct attempts are listed in the completeness ledger.
+- NWC24ReadMsgSubjectPublic 96.15385%: 100/104 instructions; two overflow paths each lack target unreachable branch pair. At least three compiled distinct attempts are listed in the completeness ledger.
+- NWC24ReadMsgTextPublic 97.14286%: 68/70 instructions; overflow path lacks target unreachable branch pair. At least three compiled distinct attempts are listed in the completeness ledger.
+- NWC24SetMsgSubjectAndTextPublic 98.23684%: 190/190 instructions; only saved-register allocation, work context r31 instead of target r22. At least three compiled distinct attempts are listed in the completeness ledger.
+- NWC24iSetMsgSubjectQP 99.548615%: 144/144 instructions; only twelve register differences, capacity and offset/charset temporaries swap r30/r31. At least three compiled distinct attempts are listed in the completeness ledger.
+- NWC24iSetMsgSubjectBase64 99.632355%: 136/136 instructions; only five register move ordering differences in parameter capture, body is exact. At least three compiled distinct attempts are listed in the completeness ledger.
+- NWC24iDateToOSCalendarTime 99.17647%: 85/85 instructions; only thirteen register differences, year/zero-leap flag swap r0/r5. At least three compiled distinct attempts are listed in the completeness ledger.
+- ConvertDateToDays 96.92921%: 113/113 instructions; sixteen instruction differences in final division scheduling and operand allocation. At least three compiled distinct attempts are listed in the completeness ledger.
+- ConvertDaysToDate 97.718445%: 103/103 instructions; only twenty-six register differences in month loop; year loop is exact. At least three compiled distinct attempts are listed in the completeness ledger.
+Remaining count13. Uncertainty: the surviving allocation/scheduling ties have no demonstrated source-level exact solution; no data ownership ambiguity remains.

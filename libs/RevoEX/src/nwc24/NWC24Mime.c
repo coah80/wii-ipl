@@ -525,7 +525,20 @@ static inline char* FindMarkerAfterPrefix(char* input, u32 size, u32 prefix, con
 }
 
 static inline char* FindEncodingMarker(char* encoded, u32 size) {
-    return FindMarkerAfterPrefix(encoded, size, 0, "?");
+    u32 offset;
+    u32 markerLength;
+    const char* marker;
+    char* current;
+    marker = "?";
+    markerLength = Mail_strlen(marker);
+    current = encoded;
+    for (offset = 0; offset <= size; offset++) {
+        if (Mail_strncmp(current, marker, markerLength) == 0) {
+            return encoded + offset;
+        }
+        current++;
+    }
+    return NULL;
 }
 
 static inline NWC24Err ExtractWordEncoding(char* encoding, u32* encodingSize, char* encoded, u32 encodedSize) {
