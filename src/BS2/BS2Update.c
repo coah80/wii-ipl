@@ -60,6 +60,7 @@ static void* UpdateThread(void* argument);
 
 void BS2UpdateInit(void* allocator) {
     BS2Report("initialize BS2Update\n");
+    pFlags = Flags0;
     ConsoleType = OSGetConsoleType();
     VersionES = __OSGetHollywoodRev();
     VersionMEM2 = OSGetPhysicalMem2Size();

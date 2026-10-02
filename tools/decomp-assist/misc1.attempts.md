@@ -221,3 +221,29 @@ reg-rotation, not localized. Reverted.
   births many distinct const-0 webs r15/r17/r18 + scratch base r22 vs
   my shared zeros r20/r21 + base r23) — not a switch-dispatch shape;
   call structure already identical (3× SCGetProductArea, same sites).
+
+## w0929 — BS2UpdateInit fold via early &Flags0 def (w1017)
+
+- **BS2UpdateInit 79.88 → 94.0**: `pFlags = Flags0;` after the first
+  BS2Report materializes &Flags0 as an early-def web → MWCC anchors a
+  dedicated callee reg (r30) to the .bss base, exactly reproducing orig's
+  fold: `addi r3,r30,0x800` (Flags1 memset), `addi r3,r30,0x1000`
+  (Thread.thread ×2), `addi r6,r30,0x1318` (stack). Frame 0x20 +
+  savegpr_29 match orig. Reloc evidence: orig's r30 targets symbol
+  `Flags0` (not `...bss.0`) — MWCC anchors the fold to the first .bss
+  object when an &Flags0 web exists; without one it remats per-object
+  (Flags1/Thread separately) instead of folding.
+- **Residual (9 filtered diffs)**: (a) the pFlags store is +2 insns orig
+  provably lacks (store-run order matters — best fuzzy is pFlags right
+  after first BS2Report; before MemAllocator or after EntriesCount are
+  ~91); (b) orig's stack-top arg is two-step `addi r6,r30,0x1318` +
+  `addi r6,r6,0x1000` — `&Thread.stack` as a distinct web then +sizeof.
+  MWCC folds `stack + sizeof` into one addend (memberoff+size) on the
+  live &Thread web (r3+0x1318) under every form tried: decl-init local,
+  += reassign, (u32)/(u8*) casts, literal 4096, `(u8*)&Thread+sizeof(Thread)`,
+  `&arr[sizeof]` — all fold. The two-step needs &Thread.stack materialized
+  BEFORE arg1's &Thread web — scheduler-internal eval order, no lever.
+- pFlags semantic: Init defaults the flag-pointer to Flags0;
+  UpdateThread rebinds to Flags1 (line 418). Plausible init, honest C —
+  but orig's Init has no pFlags store, so this is the "early-def"
+  substitute for orig's internal fold trigger.
