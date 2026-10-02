@@ -7,21 +7,21 @@ static inline CXHuffmanDecodeTableEntry* GetNextNode(CXHuffmanDecodeTableEntry*,
 void CXInitUncompContextRL(CXUncompContextRL* context, u8* data) {
     context->outData = data;
     context->outDataLen = 0;
-    context->unk_0x0e = 0;
+    context->flags = 0;
     context->length = 0;
-    context->unk_0x0f = 8;
+    context->hdrLen = 8;
     context->size = 0;
 }
 
 void CXInitUncompContextLZ(CXUncompContextLZ* context, u8* data) {
     context->outData = data;
     context->outDataLen = 0;
-    context->unk_0x11 = 0;
-    context->unk_0x12 = 0;
+    context->flags = 0;
+    context->flagsLeft = 0;
     context->length = 0;
-    context->unk_0x10 = 3;
-    context->unk_0x13 = 8;
-    context->unk_0x14 = 0;
+    context->lengthBytesLeft = 3;
+    context->hdrLen = 8;
+    context->lzType = 0;
     context->size = 0;
 }
 
@@ -31,8 +31,8 @@ void CXInitUncompContextHuffman(CXUncompContextHuffman* context, u8* data) {
     context->depth = 0;
     context->decodeTableSize = -1;
     context->decodeTable = context->decodeTableData;
-    context->unk_0x14 = 0;
-    context->unk_0x1b = 0;
+    context->wordBuffer = 0;
+    context->wordBits = 0;
     context->bits = 0;
     context->bitsLeft = 0;
     context->hdrLen = 8;
@@ -42,9 +42,9 @@ void CXInitUncompContextHuffman(CXUncompContextHuffman* context, u8* data) {
 CXStreamingResult CXReadUncompRL(CXUncompContextRL* context, const void* src, u32 size) {
     const u8* pSrc = src;
 
-    if (context->unk_0x0f) {
+    if (context->hdrLen) {
         int a;
-        if (context->unk_0x0f == 8) {
+        if (context->hdrLen == 8) {
             if ((*pSrc & CX_COMPRESSION_TYPE_MASK) != CX_COMPRESSION_TYPE_RUN_LENGTH) {
                 return CX_STREAMING_ERR_BAD_FILE_TYPE;
             }
@@ -54,18 +54,18 @@ CXStreamingResult CXReadUncompRL(CXUncompContextRL* context, const void* src, u3
             }
         }
 
-        a = CXiReadHeader(&context->unk_0x0f, &context->outDataLen, pSrc, size, context->size);
+        a = CXiReadHeader(&context->hdrLen, &context->outDataLen, pSrc, size, context->size);
 
         pSrc += a;
         size -= a;
 
         if (!size) {
-            return !context->unk_0x0f ? context->outDataLen : CX_STREAMING_ERR_BAD_FILE_TYPE;
+            return !context->hdrLen ? context->outDataLen : CX_STREAMING_ERR_BAD_FILE_TYPE;
         }
     }
 
     while (context->outDataLen > 0) {
-        if (!(context->unk_0x0e & 0x80)) {
+        if (!(context->flags & 0x80)) {
             while (context->length) {
                 *context->outData++ = *pSrc++;
 
@@ -93,11 +93,11 @@ CXStreamingResult CXReadUncompRL(CXUncompContextRL* context, const void* src, u3
             }
         }
 
-        context->unk_0x0e = *pSrc++;
+        context->flags = *pSrc++;
         size--;
-        context->length = context->unk_0x0e & 0x7f;
+        context->length = context->flags & 0x7f;
 
-        if (context->unk_0x0e & 0x80) {
+        if (context->flags & 0x80) {
             context->length += 3;
         } else {
             context->length += 1;
@@ -160,39 +160,39 @@ static int CXiReadHeader(u8* pHdrLen, int* pOutLen, const u8* pSrc, int srcSize,
 CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u32 size) {
     const u8* pSrc = src;
 
-    if (context->unk_0x13) {
+    if (context->hdrLen) {
         int a;
-        if (context->unk_0x13 == 8) {
+        if (context->hdrLen == 8) {
             if ((*pSrc & CX_COMPRESSION_TYPE_MASK) != CX_COMPRESSION_TYPE_LZ) {
                 return CX_STREAMING_ERR_BAD_FILE_TYPE;
             }
 
-            context->unk_0x14 = *pSrc & 0x0F;
+            context->lzType = *pSrc & 0x0F;
 
-            if (context->unk_0x14 != 0 && context->unk_0x14 != 1) {
+            if (context->lzType != 0 && context->lzType != 1) {
                 return CX_STREAMING_ERR_BAD_FILE_TYPE;
             }
         }
 
-        a = CXiReadHeader(&context->unk_0x13, &context->outDataLen, pSrc, size, context->size);
+        a = CXiReadHeader(&context->hdrLen, &context->outDataLen, pSrc, size, context->size);
 
         pSrc += a;
         size -= a;
 
         if (!size) {
-            return !context->unk_0x13 ? context->outDataLen : CX_STREAMING_ERR_BAD_FILE_TYPE;
+            return !context->hdrLen ? context->outDataLen : CX_STREAMING_ERR_BAD_FILE_TYPE;
         }
     }
 
     while (context->outDataLen > 0) {
-        while (context->unk_0x12) {
+        while (context->flagsLeft) {
             s32 a;
 
             if (!size) {
                 return context->outDataLen;
             }
 
-            if (!(context->unk_0x11 & 0x80)) {
+            if (!(context->flags & 0x80)) {
                 *context->outData++ = *pSrc++;
                 context->outDataLen--;
 
@@ -201,15 +201,15 @@ CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u3
                 goto there;
             }
 
-            while (context->unk_0x10) {
-                context->unk_0x10--;
+            while (context->lengthBytesLeft) {
+                context->lengthBytesLeft--;
 
-                if (!context->unk_0x14) {
+                if (!context->lzType) {
                     context->length = *pSrc++;
                     context->length += 0x30;
-                    context->unk_0x10 = 0;
+                    context->lengthBytesLeft = 0;
                 } else {
-                    switch (context->unk_0x10) {
+                    switch (context->lengthBytesLeft) {
                         case 2: {
                             context->length = *pSrc++;
 
@@ -219,10 +219,10 @@ CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u3
                             } else if (context->length >> 4 == 0) {
                                 context->length = (context->length & 0x0F) << 8;
                                 context->length += 0x110;
-                                context->unk_0x10 = 1;
+                                context->lengthBytesLeft = 1;
                             } else {
                                 context->length += 0x10;
-                                context->unk_0x10 = 0;
+                                context->lengthBytesLeft = 0;
                             }
 
                             break;
@@ -249,7 +249,7 @@ CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u3
 
             a = (a | *pSrc++) + 1;
             size--;
-            context->unk_0x10 = 3;
+            context->lengthBytesLeft = 3;
 
             if (context->length > context->outDataLen) {
                 if (!context->size) {
@@ -271,16 +271,16 @@ CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u3
                 goto out;
             }
 
-            context->unk_0x11 <<= 1;
-            context->unk_0x12--;
+            context->flags <<= 1;
+            context->flagsLeft--;
         }
 
         if (!size) {
             return context->outDataLen;
         }
 
-        context->unk_0x11 = *pSrc++;
-        context->unk_0x12 = 8;
+        context->flags = *pSrc++;
+        context->flagsLeft = 8;
         size--;
     }
 
@@ -369,16 +369,16 @@ CXStreamingResult CXReadUncompHuffman(CXUncompContextHuffman* context, const voi
                 continue;
             }
 
-            context->unk_0x14 >>= context->depth;
-            context->unk_0x14 |= context->decodeTable->raw << (32 - context->depth);
+            context->wordBuffer >>= context->depth;
+            context->wordBuffer |= context->decodeTable->raw << (32 - context->depth);
             context->decodeTable = context->decodeTableData + 1;
-            context->unk_0x1b += context->depth;
+            context->wordBits += context->depth;
 
-            if (context->unk_0x1b == 32) {
-                *context->outData = CXiConvertEndian32_(context->unk_0x14);
+            if (context->wordBits == 32) {
+                *context->outData = CXiConvertEndian32_(context->wordBuffer);
                 context->outData++;
                 context->outDataLen -= 4;
-                context->unk_0x1b = 0;
+                context->wordBits = 0;
 
                 if (context->outDataLen <= 0) {
                     goto out;
