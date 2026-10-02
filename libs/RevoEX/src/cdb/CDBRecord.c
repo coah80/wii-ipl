@@ -57,7 +57,7 @@ void CDBRecordInstanceInit(CDBRecordFile* recordFile, CDBRecord* record, int typ
     OSLockMutex((OSMutex*)recordFile);
     recordFile->used = 1;
     OSUnlockMutex((OSMutex*)recordFile);
-    recordFile->unk_0x1C = type;
+    recordFile->allocFlag = type;
     recordFile->database = record->unk_0x00;
     CDBAttrInit(&recordFile->attr);
     CDBRecordKeyCopy(&recordFile->key, &record->key);
@@ -310,7 +310,7 @@ CDBErr CDBRecordWrite_(CDBRecord* record, void* buffer, u32 size) {
         CDBReportError("can't write data in the record; the record is closed\n");
         return CDB_ERROR_27;
     }
-    if ((recordFile->unk_0x1C & 2) == 0) {
+    if ((recordFile->allocFlag & 2) == 0) {
         CDBReportError("can't write data in the record; the record is opened as READONLY\n");
         return CDB_ERROR_27;
     }
@@ -687,7 +687,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
     if ((s32)recordFile == 0) {
         return CDB_ERROR_27;
     }
-    if (recordFile->unk_0x1C == 1) {
+    if (recordFile->allocFlag == 1) {
         return CDB_ERROR_26;
     }
     if ((s32)buffer == 0) {
@@ -699,7 +699,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
         tempFile = record->file;
         if ((s32)tempFile == 0) {
             result = CDB_ERROR_27;
-        } else if (tempFile->unk_0x1C == 1) {
+        } else if (tempFile->allocFlag == 1) {
             result = CDB_ERROR_26;
         } else {
             CDBAttrSetWiiId(&tempFile->attr, CDBGetWiiId());
@@ -713,7 +713,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
         CDBErr result;
         if ((s32)record->file == 0) {
             result = CDB_ERROR_27;
-        } else if (((CDBRecordFile*)record->file)->unk_0x1C == 1) {
+        } else if (((CDBRecordFile*)record->file)->allocFlag == 1) {
             result = CDB_ERROR_26;
         } else {
             CDBAttrInitIV(&((CDBRecordFile*)record->file)->attr);
@@ -727,7 +727,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
         CDBErr result;
         if ((s32)record->file == 0) {
             result = CDB_ERROR_27;
-        } else if (((CDBRecordFile*)record->file)->unk_0x1C == 1) {
+        } else if (((CDBRecordFile*)record->file)->allocFlag == 1) {
             result = CDB_ERROR_26;
         } else {
             CDBAttrSetKeyStr(&((CDBRecordFile*)record->file)->attr, key);
