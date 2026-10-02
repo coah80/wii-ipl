@@ -29,3 +29,26 @@ Additional Decrypt correction: restored 0x3E800 size limit, actual seek/read err
 Remaining: CDBCryptBuffer 99.97479%, 119/119 instructions, three pool offsets; CDBRecordEncrypt 97.19014%, register allocation and one instruction; CDBRecordDecrypt 99.96789%, stack placement.
 
 The four forced field accessors end with CDBUnlock and do not produce a CDBErr result. Their void declarations are gated by CDB_RECORD_IMPLEMENTATION, preserving all other translation units and avoiding fall-through non-void definitions.
+
+## w1008/cdb leaf — dead-fn fossil + Encrypt coloring (worker w1008)
+
+SOLVED — link-deadstrip fossil mechanism: orig .data's fossil literals (0x398-0x9be)
+come from ~15 dead functions whose code mwldeppc stripped at link. Added all dead
+fns (CDBRecordGetFileSize through CDBRecordPrivateChangeOwner) as GLOBAL fns in
+fossil-emission order; global (not static) emits standalone code AND auto-inlines
+at use sites. .data content byte-identical (orig has 2B reconstruction tail pad).
+Verified at DOL level: fossil strings land at exact expected vaddrs.
+
+SOLVED — Encrypt +0x40 code gap: `err = CDBRecordGetFileSize(record, &fileSize)`
+calls the dead fn which auto-inlines, reproducing orig's expanded block.
+`(s32)ptr == 0` → `cmpwi r0,0` required (== NULL gives cmplw). 284/284 insns
+identical, 0 stream diffs.
+
+WALL — CDBRecordEncrypt 57 byte diffs, pure callee-reg coloring on identical
+web structure. Orig packs {key+err}→r24, {tempFile+fileOffset}→r31, pool→r25,
+args→r26-29; mine packs {tempFile+err}→r24, {key+fileOffset}→r29, pool→r31,
+args→r25-28. Equal-cost packings (tie-break). ~18 probes all neutral/regressed:
+recordFile/err/tempFile/fileOffset decl order+scope+init forms, per-block vs
+shared `result`, single-web fileOffset (-69), fn-scope tempFile, `register`,
+err dead-init (emits, +4B/831), u32/s32 types, decl+init forms.
+DOL-verified: the entire DOL diff vs orig = exactly these 57 bytes.
