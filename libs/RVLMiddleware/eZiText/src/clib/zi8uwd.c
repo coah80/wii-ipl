@@ -14,11 +14,11 @@ typedef struct ziUserDictionary {
 void Zi8Memset(ziPtr, ziU32, ziU32);
 
 ziBool Zi8_81480224(ziUserWord* word ZI_NEED_WORK) {
+    ziUserWord* candidate;
+    ziUwdNode* added;
     ziU8 length;
     ziUwdNode* previous;
     ziUwdNode* current;
-    ziUwdNode* added;
-    ziUserWord* candidate;
     ziU8 position;
     if (ZI_WORK->uwdCount >= 32) {
         Zi8LogError(0x19D, __zi8_work_data);
