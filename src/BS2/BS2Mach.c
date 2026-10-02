@@ -1846,11 +1846,12 @@ invalidRvlRegion:
             State = BS2_STT_RESET_SYSTEM;
             break;
         }
-        if (GamePartition == 0) {
+        if (GamePartition != 0)
+            State = BS2_STT_37;
+        else {
             State = BS2_STT_54;
             break;
         }
-        State = BS2_STT_37;
     case 0x25:
         if (BS2BootFromCache != 0) {
             BS2Report("Open partition from cache.dat\n");
