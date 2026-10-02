@@ -51,7 +51,7 @@ s32 TMCJPEGDEC_Setsize(TMCCJPEGDecWork* work) {
     }
 
     state->componentCount = work->componentCount;
-    state->result = work->unk_0x1804;
+    state->result = work->mcuTotal;
     state->maxX = work->mcuYCount;
     state->maxY = work->mcuXCount2;
 
