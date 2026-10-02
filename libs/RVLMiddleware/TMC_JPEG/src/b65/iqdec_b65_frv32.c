@@ -15,55 +15,8 @@ static void readHuffmanLimit(const TMCHuffmanEntry* entries, TMCHuffmanEntry* li
     limit->symbol = entries->symbol;
 }
 
-static inline s32 decodeLongHuffman(s32 bitCount, const TMCHuffmanEntry* table, const u8* symbols, TMCCJPEGDecWork* work, TMCHuffmanEntry* limit, TMCHuffmanEntry* decoded) {
-    u32 bitData;
-    u32 code;
-    u32 length;
-    const TMCHuffmanEntry* entry;
-
-    if (bitCount <= 17) {
-        s32 result = TMCJPEGDEC_load_buff(work);
-        if (result < 0) {
-            return result;
-        }
-    }
-    bitCount = work->bitCount;
-    bitData = work->bitBuf;
-    bitCount -= 9;
-    code = (bitData >> bitCount) & 0x1FF;
-    work->bitCount = bitCount;
-    length = 9;
-    entry = table + 9;
-    goto read_entry;
-    while (1) {
-        length++;
-        entry++;
-        if (length > 16) {
-            return TMCC_ERROR_OVERFLOW;
-        }
-        bitCount = work->bitCount;
-        code <<= 1;
-        bitData = work->bitBuf;
-        bitCount--;
-        work->bitCount = bitCount;
-        code |= (bitData >> bitCount) & 1;
-    read_entry:
-        {
-            readHuffmanLimit(entry, limit);
-            *decoded = *limit;
-            if (code > (u32)decoded->bitLength) {
-                continue;
-            }
-            {
-                u32 relativeCode = code - entry->bitLength;
-                u32 symbolIndex = relativeCode + entry->symbol;
-                return symbols[symbolIndex & 0xFF];
-            }
-        }
-    }
-}
-
-static inline s32 decodeACHuffman(s32 bitCount, const TMCHuffmanEntry* entry, const u8* symbols, TMCCJPEGDecWork* work, TMCHuffmanEntry* limit, TMCHuffmanEntry* decoded) {
+static inline s32 decodeLongHuffman(s32 bitCount, u32* huff_tbl, u8* symbols, TMCCJPEGDecWork* work, TMCHuffmanEntry* limit, TMCHuffmanEntry* decoded) {
+    u16* entry;
     u32 bitData;
     u32 code;
     u32 length;
@@ -75,16 +28,16 @@ static inline s32 decodeACHuffman(s32 bitCount, const TMCHuffmanEntry* entry, co
         }
     }
     bitCount = work->bitCount;
+    entry = (u16*)(huff_tbl + 9);
     bitData = work->bitBuf;
+    length = 9;
     bitCount -= 9;
     code = (bitData >> bitCount) & 0x1FF;
     work->bitCount = bitCount;
-    length = 9;
-    entry += 9;
     goto read_entry;
     while (1) {
         length++;
-        entry++;
+        entry += 2;
         if (length > 16) {
             return TMCC_ERROR_OVERFLOW;
         }
@@ -96,19 +49,70 @@ static inline s32 decodeACHuffman(s32 bitCount, const TMCHuffmanEntry* entry, co
         code |= (bitData >> bitCount) & 1;
     read_entry:
         {
-            readHuffmanLimit(entry, limit);
+            limit->bitLength = entry[0];
+            limit->symbol = entry[1];
             *decoded = *limit;
             if (code > (u32)decoded->bitLength) {
                 continue;
             }
             {
-                u32 relativeCode = code - entry->bitLength;
-                u32 symbolIndex = relativeCode + entry->symbol;
+                u32 relativeCode = code - limit->bitLength;
+                u32 symbolIndex = relativeCode + limit->symbol;
                 return symbols[symbolIndex & 0xFF];
             }
         }
     }
 }
+
+static inline s32 decodeACHuffman(s32 bitCount, u32* huff_tbl, u8* symbols, TMCCJPEGDecWork* work, TMCHuffmanEntry* limit, TMCHuffmanEntry* decoded) {
+    u16* entry;
+    u32 bitData;
+    u32 code;
+    u32 length;
+
+    if (bitCount <= 17) {
+        s32 result = TMCJPEGDEC_load_buff(work);
+        if (result < 0) {
+            return result;
+        }
+    }
+    bitCount = work->bitCount;
+    entry = (u16*)(huff_tbl + 9);
+    bitData = work->bitBuf;
+    length = 9;
+    bitCount -= 9;
+    code = (bitData >> bitCount) & 0x1FF;
+    work->bitCount = bitCount;
+    goto read_entry;
+    while (1) {
+        length++;
+        entry += 2;
+        if (length > 16) {
+            return TMCC_ERROR_OVERFLOW;
+        }
+        bitCount = work->bitCount;
+        code <<= 1;
+        bitData = work->bitBuf;
+        bitCount--;
+        work->bitCount = bitCount;
+        code |= (bitData >> bitCount) & 1;
+    read_entry:
+        {
+            limit->bitLength = entry[0];
+            limit->symbol = entry[1];
+            *decoded = *limit;
+            if (code > (u32)decoded->bitLength) {
+                continue;
+            }
+            {
+                u32 relativeCode = code - limit->bitLength;
+                u32 symbolIndex = relativeCode + limit->symbol;
+                return symbols[symbolIndex & 0xFF];
+            }
+        }
+    }
+}
+
 
 s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_ptr, TMCCJPEGDecWork* work) {
     TMCHuffmanEntry dcEntry;
@@ -117,7 +121,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     TMCHuffmanEntry acDecoded;
     TMCHuffmanEntry acLimit;
     u8* huff_sym;
-    const TMCHuffmanEntry* ac_fast;
+    u16* ac_fast;
     s32 idx;
     u32* huff_tbl;
     s32 bit_pos;
@@ -130,11 +134,13 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     s32 t;
     s32 zz;
     s32 q;
-    const TMCHuffmanEntry* dc_fast;
+    u16* dc_fast;
     const u8* zztbl;
+    s32* conv_row;
 
+    conv_row = (s32*)conv_row_ptr;
     bit_pos = work->bitCount;
-    dc_fast = (const TMCHuffmanEntry*)work->pDCFast;
+    dc_fast = work->pDCFast;
 
     if (bit_pos <= 8) {
         r = TMCJPEGDEC_load_buff(work);
@@ -146,7 +152,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     bit_pos = work->bitCount;
     bit_data = work->bitBuf;
     {
-        dcEntry = readHuffmanEntry(dc_fast, (bit_data >> (bit_pos - 8)) & 0xFF);
+        dcEntry = readHuffmanEntry((const TMCHuffmanEntry*)dc_fast, (bit_data >> (bit_pos - 8)) & 0xFF);
         r = dcEntry.bitLength;
         extra = dcEntry.symbol;
     }
@@ -157,30 +163,28 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     } else {
         huff_sym = work->pDCHuffSym;
         huff_tbl = work->pDCHuffTbl;
-        r = decodeLongHuffman(bit_pos, (const TMCHuffmanEntry*)huff_tbl, huff_sym, work, &dcLimit, &dcDecoded);
+        r = decodeLongHuffman(bit_pos, huff_tbl, huff_sym, work, &dcLimit, &dcDecoded);
         if (r < 0) {
             return r;
         }
     }
 
-    blk0 = ((s32*)conv_row_ptr)[0];
+    blk0 = conv_row[0];
     if (r != 0) {
-        bit_pos = work->bitCount;
-        if (bit_pos <= r) {
-            s32 load_ret = TMCJPEGDEC_load_buff(work);
-            if (load_ret < 0) {
+        if (work->bitCount <= r) {
+            s32 load_ret;
+            if (load_ret = TMCJPEGDEC_load_buff(work), load_ret < 0) {
                 return load_ret;
             }
         }
-        bit_pos = work->bitCount;
-        bit_data = work->bitBuf;
-        tmp = 1 << r;
-        extra = tmp - 1;
-        bit_pos -= r;
+        tmp = 1UL << r;
+        bit_pos = work->bitCount - r;
         work->bitCount = bit_pos;
+        bit_data = work->bitBuf;
+        extra = tmp - 1;
         extra = extra & (bit_data >> bit_pos);
         if (((s32)tmp >> 1) > extra) {
-            extra -= tmp - 1;
+            extra -= (tmp - 1);
         }
         dc_predict_row_ptr[0] += extra;
     }
@@ -188,7 +192,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     *block = dc_predict_row_ptr[0] * blk0;
 
     {
-        ac_fast = (const TMCHuffmanEntry*)work->pACFast;
+        ac_fast = work->pACFast;
         huff_tbl = work->pACHuffTbl;
         huff_sym = work->pACHuffSym;
 
@@ -206,7 +210,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
         zztbl = TMCJPEGDEC_Zigzag_data;
         bit_data = work->bitBuf;
         t = bit_pos - 8;
-        acEntry = readHuffmanEntry(ac_fast, (bit_data >> t) & 0xFF);
+        acEntry = readHuffmanEntry((const TMCHuffmanEntry*)ac_fast, (bit_data >> t) & 0xFF);
 
         do {
             s32 ac_thresh = acEntry.bitLength;
@@ -217,7 +221,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
                 r = acEntry.symbol;
             } else {
                 bit_pos = work->bitCount;
-                r = decodeACHuffman(bit_pos, (const TMCHuffmanEntry*)huff_tbl, huff_sym, work, &acLimit, &acDecoded);
+                r = decodeACHuffman(bit_pos, huff_tbl, huff_sym, work, &acLimit, &acDecoded);
                 if (r < 0) {
                     return r;
                 }
@@ -241,19 +245,18 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
                         return r;
                     }
                 }
-                bit_pos = work->bitCount;
-                tmp = 1 << t;
+                tmp = 1UL << t;
+                bit_pos = work->bitCount - t;
+                work->bitCount = bit_pos;
                 bit_data = work->bitBuf;
                 extra = tmp - 1;
-                bit_pos -= t;
-                work->bitCount = bit_pos;
-                t = bit_pos - 8;
                 extra = extra & (bit_data >> bit_pos);
-                q = ((s32*)conv_row_ptr)[(u8)zz];
-                acEntry = readHuffmanEntry(ac_fast, (bit_data >> t) & 0xFF);
+                t = bit_pos - 8;
+                q = conv_row[(u8)zz];
+                acEntry = readHuffmanEntry((const TMCHuffmanEntry*)ac_fast, (bit_data >> t) & 0xFF);
 
                 if (((s32)tmp >> 1) > extra) {
-                    extra -= tmp - 1;
+                    extra -= (tmp - 1);
                 }
 
                 block[(u8)zz] = extra * q;
@@ -274,7 +277,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
                 bit_pos = work->bitCount;
                 t = bit_pos - 8;
                 tmp = ((bit_data >> t) & 0xFF) << 2;
-                acEntry = readHuffmanEntry(ac_fast, tmp >> 2);
+                acEntry = readHuffmanEntry((const TMCHuffmanEntry*)ac_fast, tmp >> 2);
 
                 idx += 16;
             }
