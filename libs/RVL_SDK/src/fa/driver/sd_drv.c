@@ -11,7 +11,7 @@ typedef struct PFD_SDDRV_INFO {
     u32 media_inserted;
     u32 media_ejected;
     s8 drive;
-} PFD_SDDRV_INFO;
+} ATTRIBUTE_ALIGN(8) PFD_SDDRV_INFO;
 
 typedef union PFD_SDDEV_STORAGE {
     SDDev device;
