@@ -210,7 +210,7 @@ struct __zi8_work_data_s {
     ziLanguageEntry* langEntries;  // 0x04
     ziU8 unk_0x08;
     ziU8 unk_0x09;
-    ziU8 unk_0x0A;
+    ziU8 maxWordLength;
     ziU8 unk_0x0B;
     ziU32 unk_0x0C;
     ziU32 unk_0x10;
