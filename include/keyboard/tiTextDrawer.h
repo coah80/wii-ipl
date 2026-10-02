@@ -197,6 +197,7 @@ namespace textinput {
                 bool mbMaintainCursorCache;
 #elif defined(MYTIINPUTFORM_IMPLEMENTATION)
             protected:
+                void setDrawScrollY(const f32& scroll) { mfDrawScrollY = scroll; }
                 u8 mDrawState[0x27];
                 f32 mfDrawScrollY;
                 u8 mDrawCacheState[0x14];

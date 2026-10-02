@@ -523,7 +523,7 @@ void InputForm::calc() {
     if (meEditMode == EM_Edit) {
         height = 2.0f * getLineHeight();
         boundY = (mDefaultBoundTrans.y - (height - mDefaultBoundSize.height) / 2.0f) - mfScroll;
-    } else mfDrawScrollY = 0.0f;
+    } else setDrawScrollY(0.0f);
     mpBoundPane->SetSize(nw4r::lyt::Size(mpBoundPane->GetSize().width, height));
     mpBoundPane->SetTranslate(nw4r::math::VEC2(mDefaultBoundTrans.x, boundY));
     mpBoundPane->CalculateMtx(mDrawInfo);
