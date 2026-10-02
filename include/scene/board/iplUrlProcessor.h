@@ -18,11 +18,11 @@ namespace ipl {
 
             class line_collision {
             public:
-                line_collision() : unk_0x00(0.0f), unk_0x04(0.0f), unk_0x08(0.0f) {}
+                line_collision() : mLeft(0.0f), mRight(0.0f), mY(0.0f) {}
 
-                f32 unk_0x00;
-                f32 unk_0x04;
-                f32 unk_0x08;
+                f32 mLeft;
+                f32 mRight;
+                f32 mY;
                 nw4r::ut::Link mLinkList;  // 0x0C
             };
 
@@ -31,9 +31,9 @@ namespace ipl {
                 url_collision();
                 ~url_collision();
 
-                int unk_0x00;
-                wchar_t* unk_0x04;
-                wchar_t* unk_0x08;
+                int mTagNo;
+                wchar_t* mpStart;
+                wchar_t* mpEnd;
                 nw4r::ut::Link mLinkList;        // 0x0C
                 nw4r::ut::List mLineCollisions;  // 0x14
             };
@@ -53,19 +53,19 @@ namespace ipl {
             void parse(nw4r::ut::PrintContext<wchar_t>* context);
 
             BOOL is_focused() const;
-            void select(int unk);
+            void select(int tagNo);
 
             int get_focused_tagno(int chan) const;
             url_collision* get_selected_col();
 
             void get_url(char* urlOut, u32 urlLen);
 
-            void setUnk_0x40(f32 val) { unk_0x40 = val; }
-            void setUnk_0x44(f32 val) { unk_0x44 = val; }
-            void setUnk_0x53(bool val) { unk_0x53 = val; }
+            void setHitYOffset(f32 val) { mHitYOffset = val; }
+            void setMemoTranslateY(f32 val) { mMemoTranslateY = val; }
+            void setFocusEnabled(bool val) { mbFocusEnabled = val; }
 
-            u8 getUnk_0x50() const { return unk_0x50; }
-            void setUnk_0x50(u8 val) { unk_0x50 = val; }
+            u8 getColorPass() const { return mbColorPass; }
+            void setColorPass(u8 val) { mbColorPass = val; }
 
         private:
             typedef struct {
@@ -75,14 +75,14 @@ namespace ipl {
 
             con_data mConData[WPAD_MAX_CONTROLLERS];  // 0x00
             nw4r::ut::List mUrlCollisions;            // 0x34
-            f32 unk_0x40;
-            f32 unk_0x44;
-            int unk_0x48;
-            int unk_0x4C;
-            u8 unk_0x50;
-            u8 unk_0x51;
-            u8 unk_0x52;
-            u8 unk_0x53;
+            f32 mHitYOffset;
+            f32 mMemoTranslateY;
+            int mCurTagNo;
+            int mSelectedTagNo;
+            u8 mbColorPass;
+            u8 mbInTag;
+            u8 mbHoverOffset;
+            u8 mbFocusEnabled;
         };
     }  // namespace scene
 }  // namespace ipl

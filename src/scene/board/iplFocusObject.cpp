@@ -930,13 +930,13 @@ namespace ipl {
             math::VEC3 translate(mpLayout->FindPaneByName("N_Memo")->GetTranslate());
 
             mURLProc.clear_prev_drawing();
-            mURLProc.setUnk_0x44(translate.y);
+            mURLProc.setMemoTranslateY(translate.y);
 
             bool result = false;
             if (mState == STATE_NORMAL && mScroller.is_busy() == FALSE) {
                 result = true;
             }
-            mURLProc.setUnk_0x53(result);
+            mURLProc.setFocusEnabled(result);
 
             if (translate.y < 500.0f) {
                 mpLayout->draw("N_Header");
@@ -983,8 +983,8 @@ namespace ipl {
                 mpLayout->draw("ReplyMask");
             }
 
-            if (!mURLProc.getUnk_0x50()) {
-                mURLProc.setUnk_0x50(1);
+            if (!mURLProc.getColorPass()) {
+                mURLProc.setColorPass(1);
             }
         }
 
@@ -1512,7 +1512,7 @@ namespace ipl {
             mURLProc.init();
 
             if (mpBoardObj->mLetterType == BoardObject::TYPE_MEMO) {
-                mURLProc.setUnk_0x40(8.0f);
+                mURLProc.setHitYOffset(8.0f);
             }
 
             nw4r::lyt::Pane* pane = mpLayout->FindPaneByName("T_Letter");
