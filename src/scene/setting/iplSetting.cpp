@@ -462,7 +462,6 @@ namespace ipl {
                     directPagePath = "index03.html";
                     break;
                 case 7:
-                default:
                     directPagePath = "index01.html";
                     break;
                 }
