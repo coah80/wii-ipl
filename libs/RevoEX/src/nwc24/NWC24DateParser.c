@@ -223,11 +223,12 @@ void ConvertDaysToDate(u16* year, u8* month, u8* day, s32 days) {
         } else {
             days -= DAYS_OF_MONTH[*month - 1];
         }
-        if (days < 0) {
+        if (days >= 0) {
+            *month += 1;
+        } else {
             days = previousDays;
             break;
         }
-        *month = *month + 1;
     }
 
     *day += days;

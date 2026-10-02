@@ -505,14 +505,16 @@ static inline char* FindMarker(char* input, u32 size, const char* marker) {
     for (offset = 0; offset <= size; offset++) {
         char* current = input + offset;
         if (Mail_strncmp(current, marker, markerLength) == 0)
-            return current;
+            return input + offset;
     }
     return NULL;
 }
 static inline char* FindMarkerAfterPrefix(char* input, u32 size, u32 prefix, const char* marker) {
-    u32 markerLength = Mail_strlen(marker);
+    char* current;
     u32 offset;
-    char* current = input + prefix;
+    u32 markerLength;
+    markerLength = Mail_strlen(marker);
+    current = input + prefix;
     for (offset = 0; offset <= size; offset++) {
         if (Mail_strncmp(current, marker, markerLength) == 0) {
             return input + prefix + offset;
@@ -522,15 +524,33 @@ static inline char* FindMarkerAfterPrefix(char* input, u32 size, u32 prefix, con
     return NULL;
 }
 
+static inline char* FindEncodingMarker(char* encoded, u32 size) {
+    return FindMarkerAfterPrefix(encoded, size, 0, "?");
+}
+
 static inline NWC24Err ExtractWordEncoding(char* encoding, u32* encodingSize, char* encoded, u32 encodedSize) {
-    char* delimiter = FindMarkerAfterPrefix(encoded, encodedSize, 0, "?");
+    char* delimiter = FindEncodingMarker(encoded, encodedSize);
     if (delimiter == NULL) { return NWC24_ERR_INVALID_VALUE; }
     *encoding = delimiter[1];
     *encodingSize = 2;
     return NWC24_OK;
 }
+static inline BOOL IsLinearWhitespaceOnly(char* text, u32 size) {
+    u32 offset;
+    BOOL whitespaceOnly;
+    whitespaceOnly = TRUE;
+    for (offset = 0; offset < size && text[offset] != '\0'; offset++) {
+        char value = text[offset];
+        if (value != ' ' && value != '\t' && value != '\r' && value != '\n') {
+            whitespaceOnly = FALSE;
+        }
+    }
+    return whitespaceOnly;
+}
+
 static NWC24Err DecodeWord(char* charsetData, u32 charsetCapacity, char* decoded, u32 decodedCapacity, u32* decodedSize, char* encoded,
                            u32 encodedSize, u32* encodedSizeOut) {
+    char encoding;
     char* encodedWord;
     u32 consumedSize;
     u32 decodedLength;
@@ -547,7 +567,6 @@ static NWC24Err DecodeWord(char* charsetData, u32 charsetCapacity, char* decoded
     if (encodedSizeOut != NULL) { *encodedSizeOut = 0; }
     encodedWord = FindMarker(encoded, encodedSize, "=?");
     if (encodedWord == encoded) {
-        char encoding;
         result = ExtractCharset(charsetData, charsetCapacity, &consumedSize, encodedWord, encodedSize);
         if (result != NWC24_OK) { return result; }
         encodedLength = consumedSize;
@@ -573,15 +592,7 @@ static NWC24Err DecodeWord(char* charsetData, u32 charsetCapacity, char* decoded
         }
         decodedLength = localSize;
         if (encodedWord != NULL) {
-            BOOL whitespaceOnly = TRUE;
-            u32 offset;
-            for (offset = 0; offset < localSize && decoded[offset] != '\0'; offset++) {
-                char value = decoded[offset];
-                if (value != ' ' && value != '\t' && value != '\r' && value != '\n') {
-                    whitespaceOnly = FALSE;
-                }
-            }
-            if (whitespaceOnly) {
+            if (IsLinearWhitespaceOnly(decoded, localSize)) {
                 *decoded = '\0';
                 decodedLength = 1;
             }

@@ -516,3 +516,420 @@ GATE PASS
 Before -> after instruction exact/code/data: Mime 12->13, 3944->4528, 88->88; MsgRead 11->11, 2480->2480, 128->128; MsgSubject 7->7, 2776->2776, 232->232; DateParser 5->5, 1168->1168, 40->40.
 
 All sixteen remaining functions have at least three distinct compiled source variations or tested local-declaration permutations. One new exact function, QDecode, independently ctxdiff 0 with 146/146 instructions. No other exact function gained. Remaining compiler differences are not proven impossible; further effort may find source levers.
+
+# Second round on landed origin/main
+
+Baseline 2230741d: Mime 13/16, MsgRead 11/16, MsgSubject 7/12, DateParser 5/8. All owned data is 100%.
+Mime: POOL IDENTICAL up to 1 (mine=1 base=1)
+MsgRead: POOL IDENTICAL up to 7 (mine=7 base=7)
+MsgSubject: POOL IDENTICAL up to 10 (mine=10 base=10)
+DateParser: POOL IDENTICAL up to 0 (mine=0 base=0)
+
+### NWC24iSetMsgSubjectQP
+Fetched origin; checked current origin source against local source before experiments.
+- signed second-buffer capacity temporary: ((0, 12), 144, 144) -> ((0, 12), 144, 144); restored
+- signed source cursor for folding: ((0, 12), 144, 144) -> ((0, 12), 144, 144); restored
+- scope source cursor in braced success arm: ((0, 12), 144, 144) -> ((0, 29), 144, 144); restored
+
+### NWC24iDateToOSCalendarTime
+Fetched origin; checked current origin source against local source before experiments.
+- signed cached year for Gregorian remainder arithmetic: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- unsigned cached year for Gregorian remainder arithmetic: ((0, 13), 85, 85) -> ((40, 81), 77, 85); restored
+- scope leap flag to year-day correction: ((0, 13), 85, 85) -> ((5, 76), 86, 85); restored
+
+### NWC24ReadMsgField
+Fetched origin; checked current origin source against local source before experiments.
+- mailbox helper receives public opaque message object: ((3, 84), 101, 102) -> ((3, 84), 101, 102); restored
+- mailbox helper reads public message storage type word: ((3, 84), 101, 102) -> ((3, 84), 101, 102); restored
+- permission switch single protected case: ((3, 84), 101, 102) -> ((4, 6), 102, 102); restored
+- mailbox helper computes result before return: ((3, 84), 101, 102) -> ((9, 80), 101, 102); restored
+- initialize folding cursor at start and advance past first encoded line: ((0, 12), 144, 144) -> ((0, 19), 144, 144); restored
+- initialize second capacity in leading declarations: ((0, 12), 144, 144) -> ((0, 12), 144, 144); restored
+- initialize second pointer in leading declarations: ((0, 12), 144, 144) -> ((0, 12), 144, 144); restored
+- initialize converted subject length and line length at declaration: ((0, 12), 144, 144) -> ((0, 12), 144, 144); restored
+- leap flag represented as u8: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- leap flag represented as u16: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- leap flag represented as u32: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- leap flag represented as s8: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- leap flag assigned by conditional expression: ((0, 13), 85, 85) -> ((30, 87), 92, 85); restored
+- leap flag stores arithmetic zero from calendar microseconds: ((0, 13), 85, 85) -> ((5, 76), 86, 85); restored
+
+### ExtractCharset
+Fetched origin; checked current origin source against local source before experiments.
+- advance charset start past prefix before length calculation: ((0, 23), 84, 84) -> ((0, 23), 84, 84); restored
+- separate prefix address for copying and measured span: ((0, 23), 84, 84) -> ((0, 23), 84, 84); restored
+- measure charset span by subtracting prefix after pointer difference: ((0, 23), 84, 84) -> ((7, 44), 85, 84); restored
+
+### ExtractEncodedText
+Fetched origin; checked current origin source against local source before experiments.
+- advance encoded text cursor past delimiter before measuring span: ((0, 34), 135, 135) -> ((0, 34), 135, 135); restored
+- separate encoded body pointer local: ((0, 34), 135, 135) -> ((10, 73), 134, 135); restored
+- measure encoded span before removing delimiter byte: ((0, 34), 135, 135) -> ((4, 35), 135, 135); restored
+
+### ConvertDateToDays
+Fetched origin; checked current origin source against local source before experiments.
+- Gregorian day total expression form 1: ((4, 16), 113, 113) -> ((16, 18), 113, 113); restored
+- Gregorian day total expression form 2: ((4, 16), 113, 113) -> ((13, 18), 113, 113); restored
+- Gregorian day total expression form 3: ((4, 16), 113, 113) -> ((16, 18), 113, 113); restored
+- Gregorian day total expression form 4: ((4, 16), 113, 113) -> ((16, 18), 113, 113); restored
+- Gregorian day total expression form 5: ((4, 16), 113, 113) -> ((4, 16), 113, 113); restored
+- Gregorian day total expression form 6: ((4, 16), 113, 113) -> ((4, 16), 113, 113); restored
+- Gregorian day total expression form 7: ((4, 16), 113, 113) -> ((13, 19), 113, 113); restored
+- NWC24iSetMsgSubjectQP initialized source cursor plus declaration search: ((0, 12), 144, 144) -> ((0, 19), 144, 144), restored
+```
+declaration block:
+      u32 workHalf;
+      u32 sourceOffset = 0;
+      u32 secondSize;
+      u8* second;
+      u32 subjectLength;
+      u32 lineLength;
+      u32 outputLength;
+      u32 total;
+      u32 combinedLength;
+      u32 i;
+      u32 charsetLength;
+      NWC24Err result;
+start (0, 19)
+best (0, 19) after 177 builds; source restored; best order was:
+    u32 workHalf;
+    u32 sourceOffset = 0;
+    u32 secondSize;
+    u8* second;
+    u32 subjectLength;
+    u32 lineLength;
+    u32 outputLength;
+    u32 total;
+    u32 combinedLength;
+    u32 i;
+    u32 charsetLength;
+    NWC24Err result;
+```
+- NWC24iSetMsgSubjectQP initialized second capacity plus declaration search: ((0, 12), 144, 144) -> ((0, 12), 144, 144), restored
+```
+declaration block:
+      u32 workHalf;
+      u32 sourceOffset;
+      u32 secondSize = workSize - (workSize >> 1);
+      u8* second;
+      u32 subjectLength;
+      u32 lineLength;
+      u32 outputLength;
+      u32 total;
+      u32 combinedLength;
+      u32 i;
+      u32 charsetLength;
+      NWC24Err result;
+start (0, 12)
+best (0, 12) after 177 builds; source restored; best order was:
+    u32 workHalf;
+    u32 sourceOffset;
+    u32 secondSize = workSize - (workSize >> 1);
+    u8* second;
+    u32 subjectLength;
+    u32 lineLength;
+    u32 outputLength;
+    u32 total;
+    u32 combinedLength;
+    u32 i;
+    u32 charsetLength;
+    NWC24Err result;
+```
+
+### ConvertDaysToDate
+Fetched origin; checked current origin source against local source before experiments.
+- shared common-month label for ordinary February: ((7, 83), 101, 103) -> ((7, 83), 101, 103); restored
+- year loop explicit positive remainder arm: ((7, 83), 101, 103) -> ((10, 73), 101, 103); restored
+- month loop explicit positive remainder arm: ((7, 83), 101, 103) -> ((4, 83), 102, 103); kept
+- NWC24iSetMsgSubjectQP initialized body pointer plus declaration search: ((0, 12), 144, 144) -> ((0, 12), 144, 144), restored
+```
+declaration block:
+      u32 workHalf;
+      u32 sourceOffset;
+      u32 secondSize;
+      u8* second = work + (workSize >> 1);
+      u32 subjectLength;
+      u32 lineLength;
+      u32 outputLength;
+      u32 total;
+      u32 combinedLength;
+      u32 i;
+      u32 charsetLength;
+      NWC24Err result;
+start (0, 12)
+best (0, 12) after 177 builds; source restored; best order was:
+    u32 workHalf;
+    u32 sourceOffset;
+    u32 secondSize;
+    u8* second = work + (workSize >> 1);
+    u32 subjectLength;
+    u32 lineLength;
+    u32 outputLength;
+    u32 total;
+    u32 combinedLength;
+    u32 i;
+    u32 charsetLength;
+    NWC24Err result;
+```
+
+### NWC24ReadMsgField
+Fetched origin; checked current origin source against local source before experiments.
+- permission failure shares function result return label: ((4, 6), 102, 102) -> compile failure; restored
+- protected flag explicitly converted to boolean local: ((3, 84), 101, 102) -> ((3, 84), 101, 102); restored
+- permission error return through ternary error variable: ((3, 84), 101, 102) -> ((9, 88), 104, 102); restored
+
+### NWC24ReadMsgFromAddr
+Fetched origin; checked current origin source against local source before experiments.
+- permission failure shares function result return label: ((4, 66), 91, 92) -> compile failure; restored
+- protected flag explicitly converted to boolean local: ((4, 66), 91, 92) -> ((4, 66), 91, 92); restored
+- permission error return through ternary error variable: ((4, 66), 91, 92) -> ((11, 78), 94, 92); restored
+
+### NWC24ReadMsgSubject
+Fetched origin; checked current origin source against local source before experiments.
+- permission failure shares function result return label: ((3, 65), 81, 82) -> compile failure; restored
+- protected flag explicitly converted to boolean local: ((3, 65), 81, 82) -> ((3, 65), 81, 82); restored
+- permission error return through ternary error variable: ((3, 65), 81, 82) -> ((9, 69), 84, 82); restored
+- NWC24iSetMsgSubjectQP initialized subject length plus declaration search: ((0, 12), 144, 144) -> ((0, 12), 144, 144), restored
+```
+declaration block:
+      u32 workHalf;
+      u32 sourceOffset;
+      u32 secondSize;
+      u8* second;
+      u32 subjectLength = subjectSize;
+      u32 lineLength = 0;
+      u32 outputLength;
+      u32 total;
+      u32 combinedLength;
+      u32 i;
+      u32 charsetLength;
+      NWC24Err result;
+start (0, 12)
+best (0, 12) after 177 builds; source restored; best order was:
+    u32 workHalf;
+    u32 sourceOffset;
+    u32 secondSize;
+    u8* second;
+    u32 subjectLength = subjectSize;
+    u32 lineLength = 0;
+    u32 outputLength;
+    u32 total;
+    u32 combinedLength;
+    u32 i;
+    u32 charsetLength;
+    NWC24Err result;
+```
+
+Origin fetch stalled for three minutes while holding shared lock; terminated only this run own fetch and resumed with Git HTTP low-speed timeout. No other worker processes touched.
+
+### NWC24ReadMsgField
+Fetched origin; checked current origin source against local source before experiments.
+- permission failure goes to single final return label: ((3, 84), 101, 102) -> ((3, 85), 101, 102); restored
+
+### NWC24ReadMsgFromAddr
+Fetched origin; checked current origin source against local source before experiments.
+- permission failure goes to single final return label: ((4, 66), 91, 92) -> ((12, 74), 91, 92); restored
+
+### NWC24ReadMsgSubject
+Fetched origin; checked current origin source against local source before experiments.
+- permission failure goes to single final return label: ((3, 65), 81, 82) -> ((3, 66), 81, 82); restored
+
+### ReadMsgTextInternal
+Fetched origin; checked current origin source against local source before experiments.
+- permission failure goes to single final return label: ((16, 160), 176, 178) -> ((16, 161), 176, 178); restored
+- protected flag explicitly converted to boolean local: ((16, 160), 176, 178) -> ((16, 160), 176, 178); restored
+- permission failure via error-result variable: ((16, 160), 176, 178) -> ((18, 164), 180, 178); restored
+
+### NWC24ReadMsgAttached
+Fetched origin; checked current origin source against local source before experiments.
+- permission failure goes to single final return label: ((6, 75), 90, 91) -> ((6, 76), 90, 91); restored
+
+### NWC24ReadMsgSubjectPublic
+Fetched origin; checked current origin source against local source before experiments.
+- protected flag explicitly converted to boolean local: ((6, 75), 90, 91) -> ((6, 75), 90, 91); restored
+- nested single-case success and overflow switches: ((11, 64), 100, 104) -> ((13, 64), 102, 104); restored
+- permission failure via error-result variable: ((6, 75), 90, 91) -> ((13, 81), 93, 91); restored
+- close result preserves read error then overflow accumulator: ((16, 160), 176, 178) -> ((14, 160), 176, 178); kept
+- default case before success in nested switches: ((11, 64), 100, 104) -> ((13, 64), 102, 104); restored
+- missing decoded length uses single-case size switch: ((14, 160), 176, 178) -> ((11, 156), 177, 178); kept
+- switch boolean success followed by overflow condition: ((11, 64), 100, 104) -> ((14, 46), 104, 104); restored
+- decode result checked with conditional before attachment-size comparison: ((6, 75), 90, 91) -> ((9, 75), 89, 91); restored
+
+### NWC24ReadMsgTextPublic
+Fetched origin; checked current origin source against local source before experiments.
+- nested single-case success and overflow switches: ((7, 28), 68, 70) -> ((8, 29), 69, 70); restored
+- default case before success in nested switches: ((7, 28), 68, 70) -> ((8, 29), 69, 70); restored
+- switch boolean success followed by overflow condition: ((7, 28), 68, 70) -> ((7, 7), 70, 70); kept
+
+### DecodeWord
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+- marker helper places pattern before input in formal argument list: ((0, 63), 180, 180) -> ((0, 63), 180, 180); restored
+- marker helper returns input plus matched offset directly: ((0, 63), 180, 180) -> ((0, 40), 180, 180); kept
+- whitespace loop initializes offset before whitespace flag: ((0, 40), 180, 180) -> ((2, 40), 180, 180); restored
+- plain-text capacity initialized where declared: ((0, 40), 180, 180) -> ((2, 46), 180, 180); restored
+
+### NWC24SetMsgSubjectAndTextPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+- public parameter cast scoped to protection and empty-text handling: ((0, 65), 190, 190) -> ((0, 65), 190, 190); restored
+- encoding work area cached separately from context pointer: ((0, 65), 190, 190) -> ((0, 65), 190, 190); restored
+- subject buffer locals scoped after text conversion sizing: ((0, 65), 190, 190) -> ((0, 65), 190, 190); restored
+
+### NWC24iSetMsgSubjectBase64
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+- success-only conversion switch with overflow conditional in default arm: ((14, 130), 139, 136) -> ((15, 77), 135, 136); restored
+- converted half capacity set only after buffer length validation: ((14, 130), 139, 136) -> ((11, 107), 138, 136); kept
+- initialize work pointer and second capacity at declaration: ((11, 107), 138, 136) -> ((11, 107), 138, 136); restored
+- ExtractCharset helper declaration search after returning input+offset: six permutations, before 0/6.
+```
+declaration block:
+      u32 markerLength = Mail_strlen(marker);
+      u32 offset;
+      char* current = input + prefix;
+start (0, 6)
+best (0, 6) after 6 builds; source restored; best order was:
+    u32 markerLength = Mail_strlen(marker);
+    u32 offset;
+    char* current = input + prefix;
+```
+- marker cursor advancement in for-loop update expression: ((0, 6), 84, 84) -> ((0, 6), 84, 84); restored
+- counter advancement precedes cursor advancement in update expression: ((0, 6), 84, 84) -> ((0, 7), 84, 84); restored
+- marker size calculated after initial cursor assignment: ((0, 6), 84, 84) -> ((4, 50), 85, 84); restored
+- marker helper passes remaining length before input formal parameter: ((0, 6), 84, 84) -> ((0, 6), 84, 84); restored
+- Restored NWC24ReadMsgTextPublic boolean-switch variant: raw structural comparator improved but authoritative objdiff worsened from 97.14286 to 94.2.
+- ExtractEncodedText now 100.0 and ctxdiff 0, 135/135; FindMarker return input+offset caused this exact gain while preserving pools and every previously exact function.
+
+### ExtractCharset
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+- prefix helper plain-declaration order markerLength;,offset;,current;: ((0, 6), 84, 84) -> ((0, 6), 84, 84); restored
+- prefix helper plain-declaration order markerLength;,current;,offset;: ((0, 6), 84, 84) -> ((0, 10), 84, 84); restored
+- prefix helper plain-declaration order offset;,markerLength;,current;: ((0, 6), 84, 84) -> ((0, 12), 84, 84); restored
+- prefix helper plain-declaration order offset;,current;,markerLength;: ((0, 6), 84, 84) -> ((0, 10), 84, 84); restored
+- prefix helper plain-declaration order current;,markerLength;,offset;: ((0, 6), 84, 84) -> ((0, 6), 84, 84); restored
+- prefix helper plain-declaration order current;,offset;,markerLength;: ((0, 6), 84, 84) -> ((0, 0), 84, 84); kept
+- prefix helper search offset is s32: ((0, 0), 84, 84) -> ((0, 0), 84, 84); restored
+- prefix helper search offset is u16: ((0, 0), 84, 84) -> ((8, 39), 86, 84); restored
+- ExtractCharset exact gained by declaring prefix helper current, offset, markerLength before assignments. 84/84 ctxdiff 0, objdiff 100.0; same helper keeps ExtractEncodedText at 100.0. Quick full unit gate passes, pools identical, data 88/88, regressions zero.
+
+### DecodeWord
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+- encoded-word discriminator declared before char* encodedWord;: ((0, 40), 180, 180) -> ((0, 23), 180, 180); kept
+- encoded-word discriminator declared before u32 consumedSize;: ((0, 23), 180, 180) -> compile failure; restored
+- encoded-word discriminator declared before u32 decodedLength;: ((0, 23), 180, 180) -> compile failure; restored
+- encoded-word discriminator declared before int encodedLength;: ((0, 23), 180, 180) -> compile failure; restored
+- encoded-word discriminator declared before NWC24Err result;: ((0, 23), 180, 180) -> compile failure; restored
+- inline whitespace predicate isolates size and flag locals: ((0, 23), 180, 180) -> ((0, 18), 180, 180); kept
+- encoding extractor delimiter declaration precedes its assignment: ((0, 18), 180, 180) -> ((0, 18), 180, 180); restored
+- encoding extractor binds scan pointer and size locals: ((0, 18), 180, 180) -> ((6, 22), 180, 180); restored
+- encoding extractor size result precedes byte-output formal parameter: ((0, 18), 180, 180) -> ((0, 18), 180, 180); restored
+- whitespace helper declares counter before flag assignment: ((0, 18), 180, 180) -> ((0, 12), 180, 180); kept
+- encoding delimiter pattern bound before search result: ((0, 12), 180, 180) -> ((0, 12), 180, 180); restored
+- encoding delimiter pattern and result plain declarations before search: ((0, 12), 180, 180) -> ((0, 12), 180, 180); restored
+- encoding delimiter pattern initialized after result declaration: ((0, 12), 180, 180) -> ((0, 12), 180, 180); restored
+- encoding delimiter search embedded with local order current,offset,length,delimiter: ((0, 12), 180, 180) -> ((9, 107), 179, 180); restored
+- encoding delimiter search embedded with local order delimiter,current,offset,length: ((0, 12), 180, 180) -> ((9, 111), 179, 180); restored
+- encoding delimiter search embedded with local order offset,current,length,delimiter: ((0, 12), 180, 180) -> ((9, 110), 179, 180); restored
+- encoding delimiter search embedded with local order current,length,offset,delimiter: ((0, 12), 180, 180) -> ((9, 108), 179, 180); restored
+- encoding delimiter search embedded with local order length,offset,current,delimiter: ((0, 12), 180, 180) -> ((9, 111), 179, 180); restored
+- encoding marker search specialization isolates zero prefix: ((0, 12), 180, 180) -> ((0, 7), 180, 180); kept
+- encoding marker search specialization takes remaining size first: ((0, 7), 180, 180) -> compile failure; restored
+- encoding marker specialization receives pattern separately: ((0, 7), 180, 180) -> compile failure; restored
+- encoding wrapper takes remaining size first: ((0, 7), 180, 180) -> ((0, 7), 180, 180); restored
+- encoding wrapper receives marker as first formal parameter: ((0, 7), 180, 180) -> ((0, 12), 180, 180); restored
+- encoding wrapper binds named delimiter marker before search: ((0, 7), 180, 180) -> ((0, 7), 180, 180); restored
+- encoding wrapper returns named delimiter local: ((0, 7), 180, 180) -> ((0, 7), 180, 180); restored
+
+## Second-round coverage audit
+
+All sixteen functions open at baseline received at least three distinct compiled source attempts this round. The QP searches additionally compiled four initialized-local variants across 177 declaration permutations each. Failed compilations are excluded from coverage.
+- DecodeWord 99.611115%: register allocation after matching instruction count and branch structure; src 0x2d0 base 0x2d0 insns 180/180; >=3 successful source attempts logged.
+- NWC24ReadMsgField 98.92157%: protected type word is commoned in source but reloaded in target; no volatile workaround used; src 0x194 base 0x198 insns 101/102; >=3 successful source attempts logged.
+- NWC24ReadMsgFromAddr 98.804344%: protected type word is commoned in source but reloaded in target; no volatile workaround used; src 0x16c base 0x170 insns 91/92; >=3 successful source attempts logged.
+- NWC24ReadMsgSubject 98.65854%: protected type word is commoned in source but reloaded in target; no volatile workaround used; src 0x144 base 0x148 insns 81/82; >=3 successful source attempts logged.
+- ReadMsgTextInternal 94.55056%: one missing protected-type reload, register allocation and early clamp scheduling; size switch and error accumulator improved; src 0x2c4 base 0x2c8 insns 177/178; >=3 successful source attempts logged.
+- NWC24ReadMsgAttached 96.37363%: protected type word is commoned in source but reloaded in target; no volatile workaround used; src 0x168 base 0x16c insns 90/91; >=3 successful source attempts logged.
+- NWC24ReadMsgSubjectPublic 96.15385%: accepted-overflow paths contain an extra target branch pair that conditional and nested switch variants do not reproduce; src 0x190 base 0x1a0 insns 100/104; >=3 successful source attempts logged.
+- NWC24ReadMsgTextPublic 97.14286%: accepted-overflow paths contain an extra target branch pair that conditional and nested switch variants do not reproduce; src 0x110 base 0x118 insns 68/70; >=3 successful source attempts logged.
+- NWC24SetMsgSubjectAndTextPublic 98.23684%: register allocation after matching instruction count and branch structure; src 0x2f8 base 0x2f8 insns 190/190; >=3 successful source attempts logged.
+- NWC24iSetMsgSubjectQP 99.548615%: register allocation after matching instruction count and branch structure; src 0x240 base 0x240 insns 144/144; >=3 successful source attempts logged.
+- NWC24iSetMsgSubjectBase64 97.72059%: remaining success/overflow branch dispatch and buffer register assignment; redundant work-half store removed; src 0x228 base 0x220 insns 138/136; >=3 successful source attempts logged.
+- NWC24iDateToOSCalendarTime 99.17647%: register allocation after matching instruction count and branch structure; src 0x154 base 0x154 insns 85/85; >=3 successful source attempts logged.
+- ConvertDateToDays 96.92921%: Gregorian quotient scheduling and temporary registers; src 0x1c4 base 0x1c4 insns 113/113; >=3 successful source attempts logged.
+- ConvertDaysToDate 93.83495%: target reloads year and month before increment; source retains earlier loads; leap-register allocation; src 0x198 base 0x19c insns 102/103; >=3 successful source attempts logged.
+
+ExtractCharset 84/84 and ExtractEncodedText 135/135 are now instruction exact and objdiff 100.0. All unit data sections remain 100%; no symbol/extent changes needed. Final percentages below will come from the non-quick gate.
+
+## Second-round final full gate
+
+Unmodified non-quick gate over all four owned units, clean full 43U build.
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/nwc24/NWC24Mime] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24Mime] objdiff: code 5404/6124 data 88/88 functions 15/16 fuzzy 99.9739 linked code 0
+[libs/RevoEX/src/nwc24/NWC24Mime] instruction-exact functions: 15/16
+[libs/RevoEX/src/nwc24/NWC24Mime]   section .data size 72 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Mime]   section .sdata size 16 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Mime]   section .text size 6124 match 99.97388
+[libs/RevoEX/src/nwc24/NWC24Mime]   below 100: DecodeWord 99.77778
+[libs/RevoEX/src/nwc24/NWC24Mime] baseline: code 4528/6124 data 88 functions 13 fuzzy 99.5428
+[libs/RevoEX/src/nwc24/NWC24MsgRead] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24MsgRead] objdiff: code 2480/4660 data 128/128 functions 11/16 fuzzy 98.6009 linked code 0
+[libs/RevoEX/src/nwc24/NWC24MsgRead] instruction-exact functions: 11/16
+[libs/RevoEX/src/nwc24/NWC24MsgRead]   section .data size 128 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgRead]   section .text size 4660 match 98.60086
+[libs/RevoEX/src/nwc24/NWC24MsgRead]   below 100: NWC24ReadMsgField 98.92157
+[libs/RevoEX/src/nwc24/NWC24MsgRead]   below 100: NWC24ReadMsgFromAddr 98.804344
+[libs/RevoEX/src/nwc24/NWC24MsgRead]   below 100: NWC24ReadMsgSubject 98.65854
+[libs/RevoEX/src/nwc24/NWC24MsgRead]   below 100: ReadMsgTextInternal 94.55056
+[libs/RevoEX/src/nwc24/NWC24MsgRead]   below 100: NWC24ReadMsgAttached 96.37363
+[libs/RevoEX/src/nwc24/NWC24MsgRead] baseline: code 2480/4660 data 128 functions 11 fuzzy 98.4764
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] objdiff: code 2776/5352 data 232/232 functions 7/12 fuzzy 99.0209 linked code 0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] instruction-exact functions: 7/12
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .data size 184 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .sdata size 48 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .text size 5352 match 99.02093
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   below 100: NWC24ReadMsgSubjectPublic 96.15385
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   below 100: NWC24ReadMsgTextPublic 97.14286
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   below 100: NWC24SetMsgSubjectAndTextPublic 98.23684
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   below 100: NWC24iSetMsgSubjectQP 99.548615
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   below 100: NWC24iSetMsgSubjectBase64 97.72059
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] baseline: code 2776/5352 data 232 functions 7 fuzzy 98.9013
+[libs/RevoEX/src/nwc24/NWC24DateParser] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24DateParser] objdiff: code 1168/2372 data 40/40 functions 5/8 fuzzy 98.2260 linked code 0
+[libs/RevoEX/src/nwc24/NWC24DateParser] instruction-exact functions: 5/8
+[libs/RevoEX/src/nwc24/NWC24DateParser]   section .rodata size 40 match 100.0
+[libs/RevoEX/src/nwc24/NWC24DateParser]   section .text size 2372 match 98.22597
+[libs/RevoEX/src/nwc24/NWC24DateParser]   below 100: NWC24iDateToOSCalendarTime 99.17647
+[libs/RevoEX/src/nwc24/NWC24DateParser]   below 100: ConvertDateToDays 96.92921
+[libs/RevoEX/src/nwc24/NWC24DateParser]   below 100: ConvertDaysToDate 93.83495
+[libs/RevoEX/src/nwc24/NWC24DateParser] baseline: code 1168/2372 data 40 functions 5 fuzzy 98.0236
+regressions vs baseline: 0
+global matched_code_percent: 88.81829 -> 88.84753
+global fuzzy_match_percent: 99.48251 -> 99.48396
+global complete_code_percent: 65.19670 -> 65.19670
+global matched_data_percent: 98.77142 -> 98.77142
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+Before -> after instruction exact/code/data: Mime 13->15, 4528->5404, 88->88; MsgRead 11->11, 2480->2480, 128->128; MsgSubject 7->7, 2776->2776, 232->232; DateParser 5->5, 1168->1168, 40->40.
+
+Final unresolved functions and percentages, superseding earlier snapshots:
+- DecodeWord 99.77778%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24ReadMsgField 98.92157%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24ReadMsgFromAddr 98.804344%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24ReadMsgSubject 98.65854%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- ReadMsgTextInternal 94.55056%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24ReadMsgAttached 96.37363%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24ReadMsgSubjectPublic 96.15385%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24ReadMsgTextPublic 97.14286%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24SetMsgSubjectAndTextPublic 98.23684%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24iSetMsgSubjectQP 99.548615%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24iSetMsgSubjectBase64 97.72059%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- NWC24iDateToOSCalendarTime 99.17647%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- ConvertDateToDays 96.92921%; >=3 distinct successful source attempts logged this round; diagnosis above.
+- ConvertDaysToDate 93.83495%; >=3 distinct successful source attempts logged this round; diagnosis above.
+
+DecodeWord reduced from 63 to seven register differences, 180/180 instructions, after moving the encoding byte declaration, factoring whitespace scanning, and specializing encoding-marker search. No source-level impossibility claim; higher effort may still resolve these differences. Both newly exact functions remain exact after the full rebuild.

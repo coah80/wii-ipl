@@ -827,12 +827,11 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
     u32 charsetLength;
     NWC24Err result;
 
-    workHalf = workSize >> 1;
-    second = work + workHalf;
-    secondSize = workSize - workHalf;
+    second = work + (workSize >> 1);
+    secondSize = workSize - (workSize >> 1);
     charsetLength = strlen(charsetName);
     lineLength = ((0x36 - charsetLength) * 3) >> 2;
-    if (lineLength > workHalf) {
+    if (lineLength > (workSize >> 1)) {
         result = NWC24_ERR_OVERFLOW;
     } else {
         workHalf = lineLength + 1;
