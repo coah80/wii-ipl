@@ -1194,8 +1194,9 @@ s32 CArGBAOdh::huffmanCoder(u16* coefficientInput, SArCDJ_HuffmanRequest* reques
             }
         }
         code = request->dcTable[bitCount];
-        if (EmitBit(((code & 0xFFFFFF) << bitCount) | (difference & ((1 << bitCount) - 1)), ((s32)code >> 24) + bitCount,
-                    request) == ODH_ERROR_80000004) {
+        magnitude = (difference & ((1 << bitCount) - 1)) | ((code & 0xFFFFFF) << bitCount);
+        code = (s32)code >> 24;
+        if (EmitBit(magnitude, code + bitCount, request) == ODH_ERROR_80000004) {
             return ODH_ERROR_80000004;
         }
 
@@ -1224,8 +1225,9 @@ s32 CArGBAOdh::huffmanCoder(u16* coefficientInput, SArCDJ_HuffmanRequest* reques
                 }
             }
             code = request->acTable[bitCount];
-            if (EmitBit(((code & 0xFFFFFF) << bitCount) | (runLength & ((1 << bitCount) - 1)), ((s32)code >> 24) + bitCount,
-                        request) == ODH_ERROR_80000004) {
+            magnitude = (runLength & ((1 << bitCount) - 1)) | ((code & 0xFFFFFF) << bitCount);
+            code = (s32)code >> 24;
+            if (EmitBit(magnitude, code + bitCount, request) == ODH_ERROR_80000004) {
                 return ODH_ERROR_80000004;
             }
 
@@ -1244,8 +1246,9 @@ s32 CArGBAOdh::huffmanCoder(u16* coefficientInput, SArCDJ_HuffmanRequest* reques
                 }
             }
             code = request->dcTable[bitCount];
-            if (EmitBit(((code & 0xFFFFFF) << bitCount) | (value & ((1 << bitCount) - 1)), ((s32)code >> 24) + bitCount,
-                        request) == ODH_ERROR_80000004) {
+            magnitude = (value & ((1 << bitCount) - 1)) | ((code & 0xFFFFFF) << bitCount);
+            code = (s32)code >> 24;
+            if (EmitBit(magnitude, code + bitCount, request) == ODH_ERROR_80000004) {
                 return ODH_ERROR_80000004;
             }
         }
