@@ -203,9 +203,9 @@ namespace ipl {
             bool enqueueLoadNotice();
             bool enqueuePageNotice();
             bool enqueueResultNotice(u32 result);
-            bool enqueueChannelNotice(u32 controller, u32 page, u32 index, u32 value);
+            bool enqueueChannelNotice(u64 titleId, u32 value);
             bool enqueueMoveNotice(u32 controller, u32 page, u32 index);
-            bool enqueueStateNotice(u32 controller, u32 page, u32 index, u32 state);
+            bool enqueueStateNotice(u64 titleId, u32 state);
             bool enqueueErrorNotice(u32 page, u32 index);
             bool enqueueCommandNotice(u32 page, u32 index, u32 command);
             bool enqueueDeleteNotice(u32 controller, u32 page, u32 index);
