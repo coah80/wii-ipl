@@ -19,7 +19,7 @@ typedef struct _CDBRecordFile {
 #else
     u8 unk_0x00[0x1C - 0x00];
 #endif
-    int unk_0x1C;
+    int allocFlag;  // 0x1C
     CDBAttr attr;              // 0x20
     CDBBridgeFile bridgeFile;  // 0x42C
     u8 unk_0x434[0x438 - 0x434];

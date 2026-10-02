@@ -265,7 +265,7 @@ CDBErr CDBRecordFree(CDBRecord* record) {
     OSLockMutex((OSMutex*)recordFile);
     *(u32*)&recordFile->unk_0x00[0x18] = 0;
     OSUnlockMutex((OSMutex*)recordFile);
-    recordFile->unk_0x1C = 0;
+    recordFile->allocFlag = 0;
     record->file = NULL;
     OSUnlockMutex(&s_mutex);
 }
