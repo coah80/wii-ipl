@@ -50,7 +50,7 @@ namespace ipl {
             static BOOL IsLastTicketExpired(ESTitleId* titleId);
             static void DeleteExpiredFlagFile();
 
-            static void DeleteUnauthorizedData(EGG::Heap* heap);
+            static s32 DeleteUnauthorizedData(EGG::Heap* heap);
 
             static u32 CheckTmdCountryCode(ESTmdView* tmdView);
             static u32 CheckTmdParentalControl(ESTmdView* tmdView);
