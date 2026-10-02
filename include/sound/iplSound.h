@@ -47,7 +47,11 @@ namespace ipl {
             void stopSE(nw4r::snd::SoundHandle* handle, int unk = 0);
             void stopAllSound(int unk = 0);
 
+#ifdef IPL_SOUND_MATCHING
+            void resetAllSound();
+#else
             int resetAllSound();
+#endif
 
 #ifdef IPL_SOUND_MATCHING
             void muteOffBGM(int);
