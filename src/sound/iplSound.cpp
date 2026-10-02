@@ -154,54 +154,19 @@ namespace ipl {
             }
         }
 
-        extern "C" asm void stopSE__Q33ipl3snd6SystemFPQ34nw4r3snd11SoundHandlei() {
-            nofralloc
-            stwu r1, -0x30(r1)
-            mflr r0
-            stw r0, 0x34(r1)
-            addi r11, r1, 0x30
-            bl _savegpr_24
-            cmpwi r4, 0
-            mr r24, r4
-            mr r25, r5
-            beq stopSE_done
-            lwz r0, 0(r4)
-            cmpwi r0, 0
-            beq stopSE_done
-            li r26, 0
-            lis r3, 1
-            lis r28, _seBlk__Q23ipl3snd@ha
-            li r31, 0
-            mr r29, r26
-            subi r30, r3, 1
-            addi r28, r28, _seBlk__Q23ipl3snd@l
-        stopSE_loop:
-            add r27, r28, r31
-            cmplw r24, r27
-            bne stopSE_next
-            lwz r3, 0(r27)
-            cmpwi r3, 0
-            beq stopSE_clear
-            lwz r12, 0(r3)
-            mr r4, r25
-            lwz r12, 0x18(r12)
-            mtctr r12
-            bctrl
-        stopSE_clear:
-            stw r29, 0x4(r27)
-            stw r30, 0x8(r27)
-        stopSE_next:
-            addi r26, r26, 1
-            addi r31, r31, 0xc
-            cmpwi r26, 0x10
-            blt stopSE_loop
-        stopSE_done:
-            addi r11, r1, 0x30
-            bl _restgpr_24
-            lwz r0, 0x34(r1)
-            mtlr r0
-            addi r1, r1, 0x30
-            blr
+        void System::stopSE(nw4r::snd::SoundHandle* handle, int frames) {
+            tagSSeInfo* block;
+            int i;
+            if (handle != NULL && handle->IsAttachedSound()) {
+                for (i = 0; i < 16; i++) {
+                    block = &_seBlk[i];
+                    if (handle == &block->handle) {
+                        block->handle.Stop(frames);
+                        block->name = NULL;
+                        block->id = 0xFFFF;
+                    }
+                }
+            }
         }
 
         extern "C" asm void resetAllSound__Q33ipl3snd6SystemFv() {

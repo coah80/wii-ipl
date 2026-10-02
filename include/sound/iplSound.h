@@ -44,7 +44,7 @@ namespace ipl {
             int stopBGM(int unk = 0);
 #endif
             int stopBGM(nw4r::snd::SoundHandle* handle, int unk = 0);
-            int stopSE(nw4r::snd::SoundHandle* handle, int unk = 0);
+            void stopSE(nw4r::snd::SoundHandle* handle, int unk = 0);
             void stopAllSound(int unk = 0);
 
             int resetAllSound();
