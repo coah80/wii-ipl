@@ -27,7 +27,7 @@ static NWC24Err GetCachedFLHeader(NWC24FLHeader** header);
 static ChkHostNameError CheckHostName(const char* hostName, u32 hostNameLength);
 static inline NWC24Err CheckFriendInfo(const NWC24FriendInfo* friendInfo);
 
-static u32 GetUnkFlag(u32 index) {
+static u32 GetConfirmedBit(u32 index) {
     NWC24Err result;
     NWC24FLHeader* header;
     u32 data;
@@ -41,7 +41,7 @@ static u32 GetUnkFlag(u32 index) {
     return (NWC24Err)data;
 }
 
-static NWC24Err SetUnkFlag(u32 index, int flag) {
+static NWC24Err SetConfirmedBit(u32 index, int flag) {
     NWC24Err result;
     NWC24FLHeader* header;
 
@@ -54,7 +54,7 @@ static NWC24Err SetUnkFlag(u32 index, int flag) {
     return NWC24_OK;
 }
 
-static NWC24Err SetUnkFlag2(int flag) {
+static NWC24Err SetListFlag(int flag) {
     NWC24Err result;
     NWC24FLHeader* header;
 
@@ -101,7 +101,7 @@ NWC24Err NWC24ReadFriendInfo(NWC24FriendInfo* info, u32 index) {
         Mail_memset(&info->addr.mailAddr[sizeof(NWC24UserId)], 0, sizeof(NWC24UserMailAddr) - sizeof(NWC24UserId));
     }
 
-    result = GetUnkFlag(index);
+    result = GetConfirmedBit(index);
     if (result == 1) {
         info->attr.status = NWC24_FRIENDSTATUS_CONFIRMED;
     }
@@ -189,9 +189,9 @@ NWC24Err NWC24WriteFriendInfo(const NWC24FriendInfo* friendInfo, u32 index) {
         tmpFriendAddr = (NWC24FriendAddr*)&friendInfo->addr;
     }
 
-    SetUnkFlag2(1);
+    SetListFlag(1);
 
-    result = SetUnkFlag(index, 0);
+    result = SetConfirmedBit(index, 0);
     if (result != NWC24_OK) {
         return result;
     }
@@ -347,7 +347,7 @@ NWC24Err NWC24DeleteFriendInfo(u32 index) {
     if (resultWrite == NWC24_OK) {
         header->friendIds[index] = 0;
         header->registeredCount--;
-        result = SetUnkFlag(index, 0);
+        result = SetConfirmedBit(index, 0);
         if (result == NWC24_OK) {
             NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
             resultWrite = NWC24FWrite(header, sizeof(NWC24FLHeader), &file);
@@ -374,8 +374,8 @@ NWC24Err NWC24SwapFriendInfos(u32 index1, u32 index2) {
     u32 fileOffset1;
     u32 fileOffset2;
 
-    int friendUnkFlag1;
-    int friendUnkFlag2;
+    int confirmedBit1;
+    int confirmedBit2;
 
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool()) {
         return NWC24_ERR_LIB_NOT_OPENED;
@@ -429,10 +429,10 @@ NWC24Err NWC24SwapFriendInfos(u32 index1, u32 index2) {
                     header->friendIds[index2] = tmp;
 
                     // Swap some flag
-                    friendUnkFlag1 = GetUnkFlag(index1);
-                    friendUnkFlag2 = GetUnkFlag(index2);
-                    SetUnkFlag(index1, friendUnkFlag2);
-                    SetUnkFlag(index2, friendUnkFlag1);
+                    confirmedBit1 = GetConfirmedBit(index1);
+                    confirmedBit2 = GetConfirmedBit(index2);
+                    SetConfirmedBit(index1, confirmedBit2);
+                    SetConfirmedBit(index2, confirmedBit1);
 
                     // Write new header
                     NWC24FSeek(&file, 0, NWC24_SEEK_BEG);
