@@ -1,13 +1,13 @@
 #include <nw4r/db/assert.h>
 
-extern "C" const u8 scLytFatalColorR = 255;
-extern "C" const u8 scLytFatalColorG = 255;
-extern "C" const u8 scLytFatalColorB = 255;
-extern "C" const u8 scLytFatalColorA = 0;
+extern "C" const u8 scLytFatalColorR;
+extern "C" const u8 scLytFatalColorG;
+extern "C" const u8 scLytFatalColorB;
+extern "C" const u8 scLytFatalColorA;
 extern "C" char scLytFatalMsg[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
 
 #undef NW4R_ASSERT
-#define NW4R_ASSERT(x)                                                                                                                               \
+#define NW4R_GLOBAL_ASSERT(x)                                                                                                                               \
     {                                                                                                                                                \
         if (!(x)) {                                                                                                                                  \
             GXColor front = {*((volatile const u8*)&::scLytFatalColorR), *((volatile const u8*)&::scLytFatalColorG),                                        \
@@ -15,6 +15,15 @@ extern "C" char scLytFatalMsg[] = "Error#004\nAn error has occurred.\nThe system
             GXColor back = {0, 0, 0, 0};                                                                                                             \
             OSFatal((GXColor)front, (GXColor)back, ::scLytFatalMsg);                                                                                  \
         }                                                                                                                                            \
+    }
+
+#define NW4R_ASSERT(x) \
+    { \
+        if (!(x)) { \
+            GXColor front = {255, 255, 255, 0}; \
+            GXColor back = {0, 0, 0, 0}; \
+            OSFatal((GXColor)front, (GXColor)back, ::scLytFatalMsg); \
+        } \
     }
 
 #include <nw4r/lyt/window.h>
@@ -488,7 +497,7 @@ namespace nw4r {
         }
 
         Material* Window::GetFrameMaterial(u32 frameIdx) const {
-            NW4R_ASSERT(frameIdx < WINDOWFRAME_MAX);
+            NW4R_GLOBAL_ASSERT(frameIdx < WINDOWFRAME_MAX);
             if (frameIdx >= mFrameNum) {
                 return NULL;
             }
@@ -501,3 +510,8 @@ namespace nw4r {
         }
     }  // namespace lyt
 }  // namespace nw4r
+
+extern "C" const u8 scLytFatalColorR = 255;
+extern "C" const u8 scLytFatalColorG = 255;
+extern "C" const u8 scLytFatalColorB = 255;
+extern "C" const u8 scLytFatalColorA = 0;

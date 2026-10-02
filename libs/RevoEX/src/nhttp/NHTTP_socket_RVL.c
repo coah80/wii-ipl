@@ -95,7 +95,7 @@ s32 NHTTPi_SocRecv_sub(NHTTPConnectionInfo* connection, s32 socket, void* data, 
             } else return result;
         }
         if(connection->recvBufDataLen!=0) {
-            if((u32)length>connection->recvBufDataLen) length=connection->recvBufDataLen;
+            length = (u32)length > connection->recvBufDataLen ? connection->recvBufDataLen : length;
             NHTTPi_memcpy(data,buffer+connection->recvBufOffset,length);
             connection->recvBufDataLen-=length;
             if(connection->recvBufDataLen==0) {
