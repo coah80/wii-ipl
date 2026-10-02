@@ -1845,22 +1845,24 @@ invalidRvlRegion:
             State = BS2_STT_RESET_SYSTEM;
             break;
         }
-        if (GamePartition != 0)
+        if (GamePartition != 0) {
             State = BS2_STT_37;
-        else {
+        } else {
             State = BS2_STT_54;
             break;
         }
-    case 0x25:
+    case 0x25: {
+        u32 partitionOffset = (u32)((DVDPartitionInfo *)GamePartition)->partition;
         if (BS2BootFromCache != 0) {
             BS2Report("Open partition from cache.dat\n");
             NandPending = 1;
             BS2NANDDivideReadAsync(&BS2CacheFileInfo, &PartitionParams.tmd, 0x4a00, BS2NANDCallback, &BS2NandBlock);
         } else
-            DVDOpenPartitionAsync(&Block, &PartitionParams.tmd, (u32)((DVDPartitionInfo *)GamePartition)->partition, BS2DVDCallback);
+            DVDOpenPartitionAsync(&Block, &PartitionParams.tmd, partitionOffset, BS2DVDCallback);
         PartitionOpen = 1;
         State = BS2_STT_38;
         break;
+    }
     case 0x26: {
         status = CheckBS2CommandStatus();
         if (status == 0)
@@ -1887,13 +1889,16 @@ invalidRvlRegion:
         titlePrefix = titleCode >> 0x18;
         titleCharacters[3] = (u8)titleCode;
         titleCharacters[0] = (char)(titleCode >> 0x18);
-        if (titlePrefix < 'R') {
-            if (titlePrefix == 'D')
-                goto check_title_region;
-        } else if (titlePrefix < 'U')
+        switch (titlePrefix) {
+        case 'D':
+        case 'R':
+        case 'S':
+        case 'T':
             goto check_title_region;
-        regionMatches = TRUE;
-        goto title_region_checked;
+        default:
+            regionMatches = TRUE;
+            goto title_region_checked;
+        }
         {
         check_title_region:
             if (titleCharacters[3] == 0x41) {
@@ -2051,8 +2056,8 @@ invalidRvlRegion:
                     if (status == 0)
                         OSPanic("BS2Mach.c", 0x12c8, "BS2 ERROR >>> Cannnot alloc 0x%08x from MEMAllocator", bannerFile.length);
                     BannerLength = bannerFile.length;
-                    BannerBuffer = OSRoundDown32B(BannerAllocation) + 32;
-                    BS2Report("BannerBufferAddr : %08X\n");
+                    BannerBuffer = BannerAllocation + 32 - BannerAllocation % 32;
+                    BS2Report("BannerBufferAddr : %08X\n", BannerBuffer);
                 } else {
                     if ((BannerBuffer != 0) && (BannerLength != 0)) {
                         if (BannerLength < ((bannerFile.length + 0x1fU) & 0xffffffe0))
