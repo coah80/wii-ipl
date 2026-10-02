@@ -1120,6 +1120,7 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
         case 's':
             if (format.argument_options == wchar_argument) {
                 wchar_t* wcs_ptr = va_arg(args, wchar_t*);
+                int wideLength;
 
                 if (wcs_ptr == NULL) {
                     wcs_ptr = L"";
@@ -1127,21 +1128,23 @@ static int __wpformatter(void* (*write_proc)(void*, const wchar_t*, size_t),
 
                 if (format.alternate_form) {
                     wchar_t first = *wcs_ptr++;
-                    num_chars = (unsigned char)first;
+                    wideLength = (unsigned char)first;
 
-                    if (format.precision_specified && num_chars > format.precision) {
-                        num_chars = format.precision;
+                    if (format.precision_specified && wideLength > format.precision) {
+                        wideLength = format.precision;
                     }
                 } else if (format.precision_specified) {
-                    num_chars = format.precision;
+                    wideLength = format.precision;
 
-                    if ((string_end = wmemchr((wchar_t*)wcs_ptr, 0, num_chars)) != 0) {
-                        num_chars = string_end - wcs_ptr;
+                    if ((string_end = wmemchr((wchar_t*)wcs_ptr, 0, wideLength)) != 0) {
+                        wideLength = string_end - wcs_ptr;
                     }
 
                 } else {
-                    num_chars = wcslen(wcs_ptr);
+                    wideLength = wcslen(wcs_ptr);
                 }
+
+                num_chars = wideLength;
 
                 buff_ptr = wcs_ptr;
                 break;

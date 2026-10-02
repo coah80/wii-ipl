@@ -30,8 +30,7 @@ ziU8 Zi8MatchOEMdata(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* word
     index = ZI_WORK->oemIdx;
     if ((ziS32)index >= ZI_WORK->oemLen) goto failed;
     if (ZI_WORK->oemMatch == 0) goto failed;
-    capacity--;
-    if ((ziS32)length >= (ziS32)capacity) {
+    if ((ziS32)length >= (ziS32)--capacity) {
 failed:
         return 0;
     }
