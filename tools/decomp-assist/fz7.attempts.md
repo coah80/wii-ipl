@@ -1345,3 +1345,228 @@ readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 Before -> after instruction-exact/code bytes/data bytes: MsgRead11/2480/128 ->11/2480/128; MsgSubject7/2776/232 ->8/3352/232; DateParser5/1168/40 ->5/1168/40. ReadMsgTextInternal94.55056 ->97.44382, retained as fuzzy improvement; NWC24iSetMsgSubjectQP99.548615 ->100.0000, retained as exact144/144,diffs0.
 Changed source files: libs/RevoEX/src/nwc24/NWC24MsgRead.c and libs/RevoEX/src/nwc24/NWC24MsgSubject.c. Source commits e1602004 and592e7c2b. Attempts log tools/decomp-assist/fz7.attempts.md. Shared header, DateParser, configuration, all other sources remain unchanged.
+
+## Round e: proven source levers
+Fresh origin baseline: Read 11/16, Subject 8/12, Date 5/8. All owned data sections already 100%; no symbol rename or extent correction warranted.
+
+### NWC24ReadMsgField
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: target has one additional type-word reload between permission/capability branch and SelectMBox, same frame; text/attached also retain register scheduling differences. Test switch boundary before register allocation.
+- NWC24ReadMsgField: permission mask single-case switch boundary: ((3, 84), 101, 102) -> ((4, 6), 102, 102); restored
+- NWC24ReadMsgField: mutable local private view for inline alias analysis: ((3, 84), 101, 102) -> ((0, 0), 102, 102); kept
+- NWC24ReadMsgField: permission comparison uses named unsigned flags: ((0, 0), 102, 102) -> compile failure; restored
+
+### NWC24ReadMsgFromAddr
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: target has one additional type-word reload between permission/capability branch and SelectMBox, same frame; text/attached also retain register scheduling differences. Test switch boundary before register allocation.
+- NWC24ReadMsgFromAddr: permission mask single-case switch boundary: ((4, 66), 91, 92) -> ((5, 14), 92, 92); restored
+- NWC24ReadMsgFromAddr: mutable local private view for inline alias analysis: ((4, 66), 91, 92) -> ((0, 0), 92, 92); kept
+- NWC24ReadMsgFromAddr: permission comparison uses named unsigned flags: ((0, 0), 92, 92) -> compile failure; restored
+
+### NWC24ReadMsgSubject
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: target has one additional type-word reload between permission/capability branch and SelectMBox, same frame; text/attached also retain register scheduling differences. Test switch boundary before register allocation.
+- NWC24ReadMsgSubject: permission mask single-case switch boundary: ((3, 65), 81, 82) -> ((4, 6), 82, 82); restored
+- NWC24ReadMsgSubject: mutable local private view for inline alias analysis: ((3, 65), 81, 82) -> ((0, 0), 82, 82); kept
+- NWC24ReadMsgSubject: permission comparison uses named unsigned flags: ((0, 0), 82, 82) -> compile failure; restored
+
+### ReadMsgTextInternal
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: target has one additional type-word reload between permission/capability branch and SelectMBox, same frame; text/attached also retain register scheduling differences. Test switch boundary before register allocation.
+- ReadMsgTextInternal: permission mask single-case switch boundary: ((7, 157), 177, 178) -> ((8, 25), 178, 178); restored
+- ReadMsgTextInternal: mutable local private view for inline alias analysis: ((7, 157), 177, 178) -> ((0, 15), 178, 178); kept
+- ReadMsgTextInternal: permission comparison uses named unsigned flags: ((0, 15), 178, 178) -> compile failure; restored
+
+### NWC24ReadMsgAttached
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: target has one additional type-word reload between permission/capability branch and SelectMBox, same frame; text/attached also retain register scheduling differences. Test switch boundary before register allocation.
+- NWC24ReadMsgAttached: permission mask single-case switch boundary: ((6, 75), 90, 91) -> ((7, 34), 91, 91); restored
+- NWC24ReadMsgAttached: mutable local private view for inline alias analysis: ((6, 75), 90, 91) -> ((2, 18), 91, 91); kept
+- NWC24ReadMsgAttached: permission comparison uses named unsigned flags: ((2, 18), 91, 91) -> compile failure; restored
+
+Round e pool audit: all three pools IDENTICAL before trials; original/source data sections already 128/128, 232/232, 40/40. No data rename or extent adjustment.
+NWC24ReadMsgField extent audit: 0x814A861C+0x198 <= next NWC24ReadMsgFaceData at 0x814A87B4: True.
+NWC24ReadMsgField: immediate stack store/reload audit: none; no volatile declaration justified.
+NWC24ReadMsgFromAddr extent audit: 0x814A8DD4+0x170 <= next NWC24ReadMsgSubject at 0x814A8F44: True.
+NWC24ReadMsgFromAddr: immediate stack store/reload audit: none; no volatile declaration justified.
+NWC24ReadMsgSubject extent audit: 0x814A8F44+0x148 <= next NWC24ReadMsgText at 0x814A908C: True.
+NWC24ReadMsgSubject: immediate stack store/reload audit: none; no volatile declaration justified.
+ReadMsgTextInternal extent audit: 0x814A91A0+0x2C8 <= next NWC24ReadMsgAttached at 0x814A9468: True.
+ReadMsgTextInternal: immediate stack store/reload audit: none; no volatile declaration justified.
+NWC24ReadMsgAttached extent audit: 0x814A9468+0x16C <= next ReadBase64Data at 0x814A95D4: True.
+NWC24ReadMsgAttached: immediate stack store/reload audit: none; no volatile declaration justified.
+NWC24ReadMsgSubjectPublic extent audit: 0x814A9850+0x1A0 <= next NWC24ReadMsgTextPublic at 0x814A99F0: True.
+NWC24ReadMsgSubjectPublic: immediate stack store/reload audit: none; no volatile declaration justified.
+NWC24ReadMsgTextPublic extent audit: 0x814A99F0+0x118 <= next NWC24SetMsgSubjectPublic at 0x814A9B08: True.
+NWC24ReadMsgTextPublic: immediate stack store/reload audit: none; no volatile declaration justified.
+NWC24SetMsgSubjectAndTextPublic extent audit: 0x814A9CD0+0x2F8 <= next NWC24iGetDefaultCharset at 0x814A9FC8: True.
+NWC24SetMsgSubjectAndTextPublic: immediate stack store/reload audit: none; no volatile declaration justified.
+NWC24iSetMsgSubjectBase64 extent audit: 0x814AAB18+0x220 <= next NWC24SuspendScheduler at 0x814AAD38: True.
+NWC24iSetMsgSubjectBase64: immediate stack store/reload audit: none; no volatile declaration justified.
+NWC24iDateToOSCalendarTime extent audit: 0x814AC1C4+0x154 <= next NWC24iIsValidDate at 0x814AC318: True.
+NWC24iDateToOSCalendarTime: immediate stack store/reload audit: none; no volatile declaration justified.
+ConvertDateToDays extent audit: 0x814AC348+0x1C4 <= next ConvertDaysToDate at 0x814AC50C: True.
+ConvertDateToDays: immediate stack store/reload audit: none; no volatile declaration justified.
+ConvertDaysToDate extent audit: 0x814AC50C+0x19C <= next NWC24ReadFriendInfo at 0x814AC6A8: True.
+ConvertDaysToDate: immediate stack store/reload audit: none; no volatile declaration justified.
+- ReadMsgTextInternal: register-only declaration search on actual leading locals after structural trials, ((0, 15), 178, 178) -> ((0, 0), 178, 178); (0, 0) after 6 builds; kept in source:.
+
+### NWC24ReadMsgSubjectPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: same frame; each overflow acceptance block lacks two target branches. No immediate stack store/reload proof; volatile rejected without experiment. Test bool switch and helper boundaries.
+- NWC24ReadMsgSubjectPublic: boolean success switch with overflow arm break: ((11, 64), 100, 104) -> ((14, 46), 104, 104); restored
+- NWC24ReadMsgSubjectPublic: mutable input alias passed into read calls: ((11, 64), 100, 104) -> ((11, 78), 100, 104); restored
+- NWC24ReadMsgSubjectPublic: overflow arm routed through shared continuation label: ((11, 64), 100, 104) -> ((11, 64), 100, 104); restored
+
+### NWC24ReadMsgTextPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: same frame; each overflow acceptance block lacks two target branches. No immediate stack store/reload proof; volatile rejected without experiment. Test bool switch and helper boundaries.
+- NWC24ReadMsgTextPublic: boolean success switch with overflow arm break: ((7, 28), 68, 70) -> ((7, 7), 70, 70); kept
+- NWC24ReadMsgTextPublic: mutable input alias passed into read calls: ((7, 7), 70, 70) -> ((7, 25), 70, 70); restored
+
+### NWC24ReadMsgAttached
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+- NWC24ReadMsgAttached: decode validation conditional replaces one-case switch: ((2, 18), 91, 91) -> ((8, 34), 90, 91); restored
+- NWC24ReadMsgAttached: block-local decode result before error propagation: ((2, 18), 91, 91) -> ((5, 29), 91, 91); restored
+- NWC24ReadMsgAttached: register-only declaration search on actual leading locals after structural trials, ((2, 18), 91, 91) -> ((2, 18), 91, 91); order was:.
+- NWC24ReadMsgTextPublic: explicit accepted read label after overflow branch: ((7, 28), 68, 70) -> ((7, 28), 68, 70); restored
+
+### NWC24SetMsgSubjectAndTextPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: 190/190 same frame and branches, saved parameter/work context register group shifted. Try const read view and separate semantic charset/text encoding lifetimes before declaration search.
+- NWC24SetMsgSubjectAndTextPublic: const work-context view while buffers stay mutable: ((0, 65), 190, 190) -> ((0, 65), 190, 190); restored
+- NWC24SetMsgSubjectAndTextPublic: const private message view for protection fields: ((0, 65), 190, 190) -> ((0, 65), 190, 190); restored
+- NWC24SetMsgSubjectAndTextPublic: separate text encoding from result error lifetime: ((0, 65), 190, 190) -> ((0, 65), 190, 190); restored
+
+### NWC24iDateToOSCalendarTime
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: 85/85 frame0x10, all branches/calls identical; year and zero/leap values exchange r0/r5. Const input alias and distinct first/later year lifetimes tested before declaration order.
+- NWC24iDateToOSCalendarTime: mutable date input view changes alias assumptions: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- NWC24iDateToOSCalendarTime: distinct zero milliseconds local from leap flag: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- NWC24iDateToOSCalendarTime: calendar stored year drives leap test: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+
+### ConvertDateToDays
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: 113/113 leaf; last arithmetic region schedules divisors and accumulated days differently. Separate quotient temporaries then search new interference graph.
+- ConvertDateToDays: previous year signed temporary reused by both divisions: ((4, 16), 113, 113) -> ((6, 17), 113, 113); restored
+- ConvertDateToDays: separate accumulated whole year days before final addition: ((4, 16), 113, 113) -> ((4, 16), 113, 113); restored
+- ConvertDateToDays: register-only declaration search on actual leading locals after structural trials, ((4, 16), 113, 113) -> ((4, 16), 113, 113); order was:.
+- ConvertDateToDays: split quarter/century quotient semantic locals followed by declaration graph search: ((4, 16), 113, 113) -> ((4, 16), 113, 113); restored
+
+### ConvertDaysToDate
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: 103/103 frame0x10; year loop exact, month leap test uses different r0/r8/r11/r12. Const read-only year view and month length temporaries tested.
+- ConvertDaysToDate: const year view for month leap helper: ((0, 26), 103, 103) -> compile failure; restored
+- ConvertDaysToDate: month length temporary unifies subtraction: ((0, 26), 103, 103) -> ((6, 42), 102, 103); restored
+- ConvertDaysToDate: separate promoted year value in month leap test: ((0, 26), 103, 103) -> ((5, 35), 103, 103); restored
+- NWC24ReadMsgAttached: const read view only for post-decode attachment size: ((2, 18), 91, 91) -> ((0, 0), 91, 91); kept
+- NWC24ReadMsgAttached: const read view for both attachment size checks: ((0, 0), 91, 91) -> ((8, 28), 90, 91); restored
+- NWC24ReadMsgAttached: separate attachment index for post-call decoded size: ((0, 0), 91, 91) -> ((0, 0), 91, 91); restored
+
+### NWC24iSetMsgSubjectBase64
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+Structural diagnosis: frame0x60 and136/136 instructions identical; only5 parameter-copy order differences at prologue. Separate work first-half alias and mutable subject read view before searching declarations.
+- NWC24iSetMsgSubjectBase64: first buffer alias initialized before output locals: ((0, 5), 136, 136) -> ((0, 5), 136, 136); restored
+- NWC24iSetMsgSubjectBase64: mutable subject local view at converter inline boundary: ((0, 5), 136, 136) -> ((0, 50), 136, 136); restored
+- NWC24iSetMsgSubjectBase64: register-only declaration search on actual leading locals after structural trials, ((0, 5), 136, 136) -> ((0, 5), 136, 136); order was:.
+- NWC24iSetMsgSubjectBase64: first-half work-buffer alias with separate assignment and declaration graph search: ((0, 5), 136, 136) -> ((0, 5), 136, 136); restored
+- NWC24iDateToOSCalendarTime: leap calculation within existing inline helper boundary: ((0, 13), 85, 85) -> ((5, 76), 86, 85); restored
+- ConvertDaysToDate: const year view declared before month statements: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- ConvertDaysToDate: leap helper promotes year into named signed value: ((0, 26), 103, 103) -> ((0, 28), 103, 103); restored
+- ConvertDaysToDate: leap helper separates declaration from zero assignment: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- ConvertDaysToDate: leap helper boolean conditional expression: ((0, 26), 103, 103) -> ((0, 28), 103, 103); restored
+
+### NWC24ReadMsgSubjectPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+- NWC24ReadMsgSubjectPublic: direct enum overflow switch arm order ok,overflow,default: ((11, 64), 100, 104) -> ((10, 10), 104, 104); kept
+- NWC24iDateToOSCalendarTime: leap zero initialized at arithmetic block instead of field copies: ((0, 13), 85, 85) -> ((5, 76), 86, 85); restored
+- NWC24iDateToOSCalendarTime: fraction zero stores grouped behind inline helper: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- NWC24iDateToOSCalendarTime: unsigned leap flag separates type from signed calendar zero: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+- NWC24iDateToOSCalendarTime: byte leap flag with promoted comparison: ((0, 13), 85, 85) -> ((0, 13), 85, 85); restored
+
+### NWC24ReadMsgSubjectPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+- NWC24ReadMsgSubjectPublic: direct enum overflow switch arm order ok,overflow,default: ((11, 64), 100, 104) -> ((10, 10), 104, 104); kept
+- NWC24ReadMsgSubjectPublic: direct enum overflow switch arm order ok,default,overflow: ((11, 64), 100, 104) -> ((10, 10), 104, 104); kept
+- NWC24ReadMsgSubjectPublic: direct enum overflow switch arm order overflow,ok,default: ((11, 64), 100, 104) -> ((10, 10), 104, 104); kept
+- NWC24ReadMsgSubjectPublic: direct enum overflow switch arm order overflow,default,ok: ((11, 64), 100, 104) -> ((10, 10), 104, 104); kept
+- NWC24ReadMsgSubjectPublic: direct enum overflow switch arm order default,ok,overflow: ((11, 64), 100, 104) -> ((10, 10), 104, 104); kept
+- NWC24ReadMsgSubjectPublic: direct enum overflow switch arm order default,overflow,ok: ((11, 64), 100, 104) -> ((10, 10), 104, 104); kept
+
+### NWC24ReadMsgTextPublic
+Fetched origin and confirmed owned source equals baseline origin unit, where this exact-name function was below 100.
+- NWC24ReadMsgTextPublic: direct enum overflow switch arm order ok,overflow,default: ((7, 28), 68, 70) -> ((5, 5), 70, 70); kept
+- NWC24ReadMsgTextPublic: direct enum overflow switch arm order ok,default,overflow: ((7, 28), 68, 70) -> ((5, 5), 70, 70); kept
+- NWC24ReadMsgTextPublic: direct enum overflow switch arm order overflow,ok,default: ((7, 28), 68, 70) -> ((5, 5), 70, 70); kept
+- NWC24ReadMsgTextPublic: direct enum overflow switch arm order overflow,default,ok: ((7, 28), 68, 70) -> ((5, 5), 70, 70); kept
+- NWC24ReadMsgTextPublic: direct enum overflow switch arm order default,ok,overflow: ((7, 28), 68, 70) -> ((5, 5), 70, 70); kept
+- NWC24ReadMsgTextPublic: direct enum overflow switch arm order default,overflow,ok: ((7, 28), 68, 70) -> ((5, 5), 70, 70); kept
+- ConvertDaysToDate: signed promoted leap-helper parameter: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- ConvertDaysToDate: const qualified scalar leap-helper parameter: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- ConvertDaysToDate: leap helper named year and flag with plain declarations: ((0, 26), 103, 103) -> ((0, 26), 103, 103); restored
+- ConvertDaysToDate: leap helper year assignment precedes flag zero: ((0, 26), 103, 103) -> ((0, 28), 103, 103); restored
+- NWC24SetMsgSubjectAndTextPublic: work context declaration scoped to post-validation operations: ((0, 65), 190, 190) -> ((0, 65), 190, 190); restored
+- NWC24iDateToOSCalendarTime: register-only declaration search on actual leading locals after structural trials, ((0, 13), 85, 85) -> ((0, 13), 85, 85); order was:.
+- ConvertDaysToDate: final register-only month declaration order search, order was:; unchanged26 exact differences.
+- NWC24iSetMsgSubjectBase64: register-only declaration search on actual leading locals after structural trials, ((0, 50), 136, 136) -> ((0, 26), 136, 136); (0, 26) after 170 builds; kept in source:.
+- NWC24iSetMsgSubjectBase64: mutable input view plus declaration interference search: ((0, 5), 136, 136) -> ((0, 26), 136, 136); restored
+
+## Round e completion audit
+MsgRead gained FIVE exact functions: 11/16 -> 16/16, code2480/4660 ->4660/4660, data128/128 unchanged. Subject8/12 and Date5/8 retained baseline exact/code/data counts. All pools remain identical.
+Const lever proof: mutable private read views preserve the distinct initial permission load followed by the inline SelectMBox const load. Attached post-decode size uses a const read view while earlier bounds use the mutable view; this reproduces the target address recalculation. Definition-level volatile not used: none of the twelve targets has the required immediate stack store/reload pair. All twelve extents end at or before their next symbol.
+Trial bookkeeping correction: direct enum switch arm permutations were temporarily kept by the normalized structural scorer but explicitly restored after each independent trial. Their extra bge is less faithful than baseline; no Subject or Date source changes remain. Compile failures and no-op replacements do not count as attempts.
+OPEN NWC24ReadMsgSubjectPublic 96.15385%: overflow branch layout,100/104 instructions. Three distinct compiled Round e source attempts confirmed: boolean switch; mutable input alias; nested default switch.
+OPEN NWC24ReadMsgTextPublic 97.14286%: overflow branch layout,68/70 instructions. Three distinct compiled Round e source attempts confirmed: boolean switch; mutable input alias; shared accepted label.
+OPEN NWC24SetMsgSubjectAndTextPublic 98.23684%: saved parameter/context registers,190/190 instructions. Three distinct compiled Round e source attempts confirmed: const context view; const protection view; separate text encoding lifetime.
+OPEN NWC24iSetMsgSubjectBase64 99.632355%: 5 parameter-copy ordering differences,136/136 instructions. Three distinct compiled Round e source attempts confirmed: initialized first-buffer alias; mutable subject view; plain first-buffer alias plus declaration search.
+OPEN NWC24iDateToOSCalendarTime 99.17647%: 13 year/zero/leap register differences,85/85 instructions. Three distinct compiled Round e source attempts confirmed: mutable date view; named fractional zero; calendar-year leap input.
+OPEN ConvertDateToDays 96.92921%: last quotient/add scheduling,113/113 instructions. Three distinct compiled Round e source attempts confirmed: previous-year temporary; whole-year-days temporary; separate quotient locals plus declaration search.
+OPEN ConvertDaysToDate 97.718445%: 26 month-loop register differences,103/103 instructions. Three distinct compiled Round e source attempts confirmed: month-length local; promoted month year; const year view in declaration block.
+Data audit: 128/128,232/232,40/40; no renames, extent edits, hand-placed data, or shared-header changes. Uncertainty: remaining source structure for overflow branch redundancy and register/scheduling tie-breaks.
+NWC24ReadMsgField: final src 0x198 base 0x198 insns 102/102; diffs 0: [];
+NWC24ReadMsgFromAddr: final src 0x170 base 0x170 insns 92/92; diffs 0: [];
+NWC24ReadMsgSubject: final src 0x148 base 0x148 insns 82/82; diffs 0: [];
+ReadMsgTextInternal: final src 0x2c8 base 0x2c8 insns 178/178; diffs 0: [];
+NWC24ReadMsgAttached: final src 0x16c base 0x16c insns 91/91; diffs 0: [];
+
+Round e final full gate (non --quick), all three owned units:
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/nwc24/NWC24MsgRead] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24MsgRead] objdiff: code 4660/4660 data 128/128 functions 16/16 fuzzy 100.0000 linked code 0
+[libs/RevoEX/src/nwc24/NWC24MsgRead] instruction-exact functions: 16/16
+[libs/RevoEX/src/nwc24/NWC24MsgRead]   section .data size 128 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgRead]   section .text size 4660 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgRead] baseline: code 2480/4660 data 128 functions 11 fuzzy 99.0429
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] objdiff: code 3352/5352 data 232/232 functions 8/12 fuzzy 99.2638 linked code 0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] instruction-exact functions: 8/12
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .data size 184 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .sdata size 48 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .text size 5352 match 99.263824
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   below 100: NWC24ReadMsgSubjectPublic 96.15385
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   below 100: NWC24ReadMsgTextPublic 97.14286
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   below 100: NWC24SetMsgSubjectAndTextPublic 98.23684
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   below 100: NWC24iSetMsgSubjectBase64 99.632355
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] baseline: code 3352/5352 data 232 functions 8 fuzzy 99.2638
+[libs/RevoEX/src/nwc24/NWC24DateParser] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24DateParser] objdiff: code 1168/2372 data 40/40 functions 5/8 fuzzy 98.9005 linked code 0
+[libs/RevoEX/src/nwc24/NWC24DateParser] instruction-exact functions: 5/8
+[libs/RevoEX/src/nwc24/NWC24DateParser]   section .rodata size 40 match 100.0
+[libs/RevoEX/src/nwc24/NWC24DateParser]   section .text size 2372 match 98.900505
+[libs/RevoEX/src/nwc24/NWC24DateParser]   below 100: NWC24iDateToOSCalendarTime 99.17647
+[libs/RevoEX/src/nwc24/NWC24DateParser]   below 100: ConvertDateToDays 96.92921
+[libs/RevoEX/src/nwc24/NWC24DateParser]   below 100: ConvertDaysToDate 97.718445
+[libs/RevoEX/src/nwc24/NWC24DateParser] baseline: code 1168/2372 data 40 functions 5 fuzzy 98.9005
+regressions vs baseline: 0
+global matched_code_percent: 89.20985 -> 89.28263
+global fuzzy_match_percent: 99.52432 -> 99.52582
+global complete_code_percent: 67.00815 -> 67.00815
+global matched_data_percent: 99.36508 -> 99.36508
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+Five new exact functions independently checked with ctxdiff0 before the clean build; full gate rebuilt all three and confirmed Read16/16, Subject8/12, Date5/8; DOL hash exact; regressions0; forbidden0; readability0. Seven open functions have at least three distinct successfully compiled Round e source trials; none left untried.
+Code commits: dc2a77e8 (permission reloads),4b24e55f (text lifetimes),76bf9daa (attachment const read view). Files changed: libs/RevoEX/src/nwc24/NWC24MsgRead.c and this attempts log only.

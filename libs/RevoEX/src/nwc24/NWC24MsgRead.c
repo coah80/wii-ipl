@@ -19,7 +19,7 @@ static inline NWC24Err SelectMBox(const NWC24MsgObjPrivate* msg, NWC24MBoxType* 
 }
 
 NWC24Err NWC24ReadMsgField(const NWC24MsgObj* msg, char* fieldName, u8* output, u32 capacity) {
-    const NWC24MsgObjPrivate* privateMsg = (const NWC24MsgObjPrivate*)msg;
+    NWC24MsgObjPrivate* privateMsg = (NWC24MsgObjPrivate*)msg;
     NWC24File file;
     NWC24FileStream stream;
     char* field;
@@ -268,7 +268,7 @@ NWC24Err NWC24ReadMsgMBOptOutFlag(const NWC24MsgObj* msg, BOOL* optOut, u32* app
 }
 
 NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* address, u32 capacity) {
-    const NWC24MsgObjPrivate* privateMsg = (const NWC24MsgObjPrivate*)msg;
+    NWC24MsgObjPrivate* privateMsg = (NWC24MsgObjPrivate*)msg;
     NWC24MBoxType type;
     NWC24File file;
     NWC24FileStream stream;
@@ -312,7 +312,7 @@ NWC24Err NWC24ReadMsgFromAddr(const NWC24MsgObj* msg, char* address, u32 capacit
 }
 
 NWC24Err NWC24ReadMsgSubject(const NWC24MsgObj* msg, char* subject, u32 capacity) {
-    const NWC24MsgObjPrivate* privateMsg = (const NWC24MsgObjPrivate*)msg;
+    NWC24MsgObjPrivate* privateMsg = (NWC24MsgObjPrivate*)msg;
     NWC24MBoxType type;
     NWC24File file;
     u32 length;
@@ -386,14 +386,14 @@ NWC24Err NWC24ReadMsgTextEx(const NWC24MsgObj* msg, char* text, u32 capacity, ch
 }
 
 static NWC24Err ReadMsgTextInternal(const NWC24MsgObj* msg, char* text, u32 capacity, char* charset, u32 charsetCapacity, NWC24Encoding* encoding) {
-    char* buffer;
+    u32 length;
     NWC24MBoxType type;
     NWC24File file;
     NWC24Err result, closeResult;
     NWC24Err overflow = NWC24_OK;
-    u32 length;
+    char* buffer;
     u32 decodedSize;
-    const NWC24MsgObjPrivate* privateMsg = (const NWC24MsgObjPrivate*)msg;
+    NWC24MsgObjPrivate* privateMsg = (NWC24MsgObjPrivate*)msg;
     if (!NWC24IsMsgLibOpened() && !NWC24IsMsgLibOpenedByTool())
         return NWC24_ERR_LIB_NOT_OPENED;
     if (!(privateMsg->type & 0x200))
@@ -481,7 +481,7 @@ close:
 }
 
 NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 index, u8* output, u32 capacity) {
-    const NWC24MsgObjPrivate* privateMsg = (const NWC24MsgObjPrivate*)msg;
+    NWC24MsgObjPrivate* privateMsg = (NWC24MsgObjPrivate*)msg;
     NWC24File file;
     NWC24MBoxType type;
     u32 decodedSize;
@@ -510,11 +510,8 @@ NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 index, u8* output, u32
     }
     decodedSize = 0;
     result = ReadBase64Data(&file, &privateMsg->attached[index], output, capacity, &decodedSize);
-    switch (result) {
-        case NWC24_OK:
-            if (decodedSize != privateMsg->attachedSize[index]) { result = NWC24_ERR_FORMAT; }
-            break;
-        default: break;
+    if (result == NWC24_OK) {
+        if (decodedSize != ((const NWC24MsgObjPrivate*)msg)->attachedSize[index]) result = NWC24_ERR_FORMAT;
     }
     closeResult = NWC24iMBoxCloseMsg(&file);
     if (result == NWC24_OK)
