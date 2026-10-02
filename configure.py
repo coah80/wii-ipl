@@ -1388,7 +1388,7 @@ config.libs = [
         ]
     ),
     RVLSDKLib("vi", [
-            Object(NonMatching, "vi/vi.c"),
+            Object(Matching, "vi/vi.c"),
             Object(Matching,    "vi/i2c.c"),
             Object(Matching,    "vi/vi3in1.c"),
         ]
