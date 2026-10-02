@@ -537,16 +537,6 @@ int ODHEncodeRGB565(u8* src, u8* dest, int width, int height, u32 sizeLimit, int
     return odh.compressGbaOdh(src, dest, width, height, quality, sizeLimit, work, ODH_FORMAT_RGB565);
 }
 
-int ODHEncodeRGBA8(u8* src, u8* dest, int width, int height, u32 sizeLimit, int quality, u8* work) {
-    CArGBAOdh odh;
-    return odh.compressGbaOdh(src, dest, width, height, quality, sizeLimit, work, ODH_FORMAT_RGBA8);
-}
-
-int ODHEncodeY8U8V8(u8* src, u8* dest, int width, int height, u32 sizeLimit, int quality, u8* work) {
-    CArGBAOdh odh;
-    return odh.compressGbaOdh(src, dest, width, height, quality, sizeLimit, work, ODH_FORMAT_Y8U8V8);
-}
-
 int ODHDecodeRGB565(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk) {
     CArGBAOdh odh;
     int result = odh.decompressGbaOdh(src, srcSize, dest, destSize, work, unk, ODH_FORMAT_RGB565);
@@ -556,12 +546,6 @@ int ODHDecodeRGB565(u8* src, int srcSize, u8* dest, int destSize, u8* work, int 
 int ODHDecodeRGBA8(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk) {
     CArGBAOdh odh;
     int result = odh.decompressGbaOdh(src, srcSize, dest, destSize, work, unk, ODH_FORMAT_RGBA8);
-    return result;
-}
-
-int ODHDecodeY8U8V8(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk) {
-    CArGBAOdh odh;
-    int result = odh.decompressGbaOdh(src, srcSize, dest, destSize, work, unk, ODH_FORMAT_Y8U8V8);
     return result;
 }
 
