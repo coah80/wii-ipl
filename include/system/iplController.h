@@ -118,26 +118,26 @@ namespace ipl {
         public:
             Base(int chan, KPADStatus& status) {
                 mButton = 0;
-                unk_0x08 = 0;
+                mDecideHoldCount = 0;
                 mLastRumbleTime = 0;
                 mRumbleType = -1;
                 mChan = chan;
                 mType = 2;
-                unk_0x1C = 0;
+                mbForceInvalid = 0;
                 KPADEnableDPD(chan);
-                unk_0x1D = 0;
-                unk_0x1E = 0;
-                unk_0x20 = &status;
+                mbPinch = 0;
+                mbPrevPinch = 0;
+                mpStatus = &status;
             }
 
             Base(int chan, int type, KPADStatus& status) {
                 mButton = 0;
-                unk_0x08 = 0;
+                mDecideHoldCount = 0;
                 mLastRumbleTime = 0;
                 mRumbleType = -1;
                 mChan = chan;
                 mType = type;
-                unk_0x1C = 0;
+                mbForceInvalid = 0;
                 KPADEnableDPD(chan);
             }
 
@@ -152,15 +152,15 @@ namespace ipl {
 
         protected:
             u8 mButton;
-            u32 unk_0x08;
+            u32 mDecideHoldCount;
             OSTick mLastRumbleTime;
             s32 mRumbleType;
             u32 mChan;
             u32 mType;
-            u8 unk_0x1C;
-            u8 unk_0x1D;
-            u8 unk_0x1E;
-            KPADStatus* unk_0x20;
+            u8 mbForceInvalid;
+            u8 mbPinch;
+            u8 mbPrevPinch;
+            KPADStatus* mpStatus;
         };
 
         class Revolution : public Base {
@@ -206,8 +206,8 @@ namespace ipl {
             virtual BOOL isValidDpdClassic() const;
 
         private:
-            math::VEC2 unk_0x24;
-            int unk_0x2C;
+            math::VEC2 mClassicCursor;
+            int mClassicCursorTimer;
         };
 
         class Master : public Interface {
@@ -264,18 +264,18 @@ namespace ipl {
         public:
             Base(int chan, KPADStatus& arg1) {
                 mButton = 0;
-                unk_0x08 = 0;
+                mDecideHoldCount = 0;
                 mLastRumbleTime = 0;
                 mRumbleType = -1;
                 mChan = chan;
                 mType = 2;
-                unk_0x1C = 0;
+                mbForceInvalid = 0;
 
                 KPADEnableDPD(chan);
 
-                unk_0x1D = 0;
-                unk_0x1E = 0;
-                unk_0x20 = &arg1;
+                mbPinch = 0;
+                mbPrevPinch = 0;
+                mpStatus = &arg1;
             }
 
             virtual ~Base();                            // 0x08
@@ -326,15 +326,15 @@ namespace ipl {
 
             // protected:
             u8 mButton;              // 0x4
-            u32 unk_0x08;            // 0x8
+            u32 mDecideHoldCount;            // 0x8
             OSTick mLastRumbleTime;  // 0xC
             s32 mRumbleType;         // 0x10
             u32 mChan;               // 0x14
             u32 mType;               // 0x18
-            u8 unk_0x1C;
-            u8 unk_0x1D;           // 0x1D
-            u8 unk_0x1E;           // 0x1E
-            KPADStatus* unk_0x20;  // 0x20
+            u8 mbForceInvalid;
+            u8 mbPinch;           // 0x1D
+            u8 mbPrevPinch;           // 0x1E
+            KPADStatus* mpStatus;  // 0x20
         };
 
         class Interface : public Base {
@@ -446,8 +446,8 @@ namespace ipl {
             virtual BOOL isValidDpdClassic() const;  // 0x8C
 
         private:
-            math::VEC2 unk_0x24;
-            int unk_0x2C;
+            math::VEC2 mClassicCursor;
+            int mClassicCursorTimer;
         };
 
         class Manager {

@@ -152,9 +152,9 @@ namespace ipl {
         }
 
         Revolution::Revolution(int chan, int type, KPADStatus& status) : Base(chan, type, status) {
-            unk_0x1D = 0;
-            unk_0x1E = 0;
-            unk_0x20 = &status;
+            mbPinch = 0;
+            mbPrevPinch = 0;
+            mpStatus = &status;
         }
 
         Interface* Manager::getMasterController() {
