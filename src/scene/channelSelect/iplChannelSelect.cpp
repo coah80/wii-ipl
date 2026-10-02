@@ -1901,64 +1901,59 @@ namespace ipl {
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
             GXRenderModeObj* rMode = System::getRenderModeObj();
-            f32 var_f29;
-            f32 var_f30;
-            f32 var_f31;
-            f32 var_f1;
-            u16 var_r0;
-            u16 var_r3;
+            f32 scissorX;
+            f32 scissorY;
+            f32 scissorWidth;
+            f32 scissorHeight;
+            u16 fbWidth;
+            u16 efbHeight;
             if (mState == STATE_NORMAL_FADE_ZOOM || mState == STATE_NORMAL_DONE_FADE_ZOOM || mState == STATE_NORMAL_RESTART) {
                 nw4r::math::MTX44 mtx;
-                f32 rightScale = projRect.right / unk_0xE4.x;
-                f32 leftScale = projRect.left / unk_0xE4.x;
-                f32 topScale = projRect.top / unk_0xE4.y;
-                f32 bottomScale = projRect.bottom / unk_0xE4.y;
-                f32 bottom = unk_0xD8.y - bottomScale;
-                f32 right = unk_0xD8.x + rightScale;
-                f32 left = unk_0xD8.x + leftScale;
-                f32 top = unk_0xD8.y - topScale;
+                f32 right = unk_0xD8.x + projRect.right / unk_0xE4.x;
+                f32 left = unk_0xD8.x + projRect.left / unk_0xE4.x;
+                f32 bottom = unk_0xD8.y - projRect.bottom / unk_0xE4.y;
+                f32 top = unk_0xD8.y - projRect.top / unk_0xE4.y;
                 MTXOrtho(mtx, top, bottom, left, right, -100.0f, 100.0f);
                 nw4r::math::VEC4 vec4_in(vec.x, vec.y, 0.0f, 1.0f);
                 nw4r::math::VEC4 vec4;
                 nw4r::math::VEC4Transform(&vec4, &mtx, &vec4_in);
-                var_r0 = rMode->fbWidth;
-                var_r3 = rMode->efbHeight;
-                var_f29 = projRect.GetWidth();
-                var_f30 = (var_r3 - ((1.0f + vec4.y) * var_r3 / 2)) - (mChanThumbOff_Y * unk_0xE4.y);
-                f32 temp_f7_2 = var_r0 / var_f29;
-                var_f31 = ((1.0f + vec4.x) * var_r0 / 2) - ((mChanThumbOff_X * unk_0xE4.x) * (temp_f7_2));
-                var_f29 = 2.0f * (mChanThumbOff_X * unk_0xE4.x) * (var_r0 / var_f29);
-                var_f1 = 2.0f * (mChanThumbOff_Y * unk_0xE4.y);
+                fbWidth = rMode->fbWidth;
+                efbHeight = rMode->efbHeight;
+                f32 projectionWidth = projRect.GetWidth();
+                scissorX = ((1.0f + vec4.x) * fbWidth / 2) - ((mChanThumbOff_X * unk_0xE4.x) * (fbWidth / projectionWidth));
+                scissorY = (efbHeight - ((1.0f + vec4.y) * efbHeight / 2)) - (mChanThumbOff_Y * unk_0xE4.y);
+                scissorWidth = 2.0f * (mChanThumbOff_X * unk_0xE4.x) * (fbWidth / projectionWidth);
+                scissorHeight = 2.0f * (mChanThumbOff_Y * unk_0xE4.y);
             } else {
-                var_r0 = rMode->fbWidth;
-                var_r3 = rMode->efbHeight;
-                var_f31 = ((f32)var_r0 / 2) + ((vec.x - mChanThumbOff_X) * (var_r0 / projRect.GetWidth()));
-                var_f30 = (((f32)var_r3 / 2) - vec.y) - mChanThumbOff_Y;
-                var_f29 = 2.0f * mChanThumbOff_X * (var_r0 / projRect.GetWidth());
-                var_f1 = 2.0f * mChanThumbOff_Y;
+                fbWidth = rMode->fbWidth;
+                efbHeight = rMode->efbHeight;
+                scissorX = ((f32)fbWidth / 2) + ((vec.x - mChanThumbOff_X) * (fbWidth / projRect.GetWidth()));
+                scissorY = (((f32)efbHeight / 2) - vec.y) - mChanThumbOff_Y;
+                scissorWidth = 2.0f * mChanThumbOff_X * (fbWidth / projRect.GetWidth());
+                scissorHeight = 2.0f * mChanThumbOff_Y;
             }
-            var_f31 -= 1.0f;
-            var_f30 -= 1.0f;
-            var_f29 += 2.0f;
-            var_f1 += 2.0f;
-            if (var_f31 >= var_r0 || (var_f31 + var_f29) <= 0.0f || var_f30 >= var_r3 || (var_f30 + var_f1) <= 0.0f) {
+            scissorX -= 1.0f;
+            scissorY -= 1.0f;
+            scissorWidth += 2.0f;
+            scissorHeight += 2.0f;
+            if (scissorX >= fbWidth || (scissorX + scissorWidth) <= 0.0f || scissorY >= efbHeight || (scissorY + scissorHeight) <= 0.0f) {
                 GXSetScissor(0, 0, 0, 0);
             } else {
-                if (var_f31 < 0.0f) {
-                    var_f29 += var_f31;
-                    var_f31 = 0.0f;
+                if (scissorX < 0.0f) {
+                    scissorWidth += scissorX;
+                    scissorX = 0.0f;
                 }
-                if (var_f30 < 0.0f) {
-                    var_f1 += var_f30;
-                    var_f30 = 0.0f;
+                if (scissorY < 0.0f) {
+                    scissorHeight += scissorY;
+                    scissorY = 0.0f;
                 }
-                if ((var_f31 + var_f29) > 1705.0f) {
-                    var_f29 -= (var_f31 + var_f29) - 1705.0f;
+                if ((scissorX + scissorWidth) > 1705.0f) {
+                    scissorWidth -= (scissorX + scissorWidth) - 1705.0f;
                 }
-                if ((var_f30 + var_f1) > 1705.0f) {
-                    var_f1 -= (var_f30 + var_f1) - 1705.0f;
+                if ((scissorY + scissorHeight) > 1705.0f) {
+                    scissorHeight -= (scissorY + scissorHeight) - 1705.0f;
                 }
-                GXSetScissor(var_f31, var_f30, var_f29, var_f1);
+                GXSetScissor(scissorX, scissorY, scissorWidth, scissorHeight);
             }
         }
 

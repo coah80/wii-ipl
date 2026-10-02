@@ -23,8 +23,7 @@ static int ReadHeaderChar(const NHTTPResponseInfo* response, NHTTPi_HDRBUFLIST**
 }
 
 static int LowerCase(int character) {
-    if((character>='A') & (character<='Z')) character+=32;
-    return character;
+    return ((character >= 'A') & (character <= 'Z')) ? character + 32 : character;
 }
 
 s32 NHTTPi_findNextLineHdrRecvBuf(const NHTTPResponseInfo* response, s32 position, s32 limit, s32* colon, s32* newlineLength) {
@@ -76,15 +75,17 @@ s32 NHTTPi_skipSpaceHdrRecvBuf(const NHTTPResponseInfo* response, s32 position, 
 s32 NHTTPi_compareTokenN_HdrRecvBuf(const NHTTPResponseInfo* response, s32 position, s32 limit, const char* token, s8 delimiter) {
     NHTTPi_HDRBUFLIST* block;
     s32 offset;
-    s8 character;
-    if(position>=limit) return -1;
-    FindHeaderBlock(response,position,&block,&offset);
-    character=ReadHeaderChar(response,&block,&offset);
-    while(LowerCase(character)==LowerCase(*token)) {
-        if(*token==0 || *token==' ' || *token==delimiter || position==limit-1) return 0;
-        character=ReadHeaderChar(response,&block,&offset);
-        ++position;
-        ++token;
+    int character;
+
+    if (position < limit) {
+        FindHeaderBlock(response, position, &block, &offset);
+        character = ReadHeaderChar(response, &block, &offset);
+        while (LowerCase((s8)character) == LowerCase(*token)) {
+            if (*token == 0 || *token == ' ' || *token == delimiter || position == limit - 1) return 0;
+            character = ReadHeaderChar(response, &block, &offset);
+            ++position;
+            ++token;
+        }
     }
     return -1;
 }
