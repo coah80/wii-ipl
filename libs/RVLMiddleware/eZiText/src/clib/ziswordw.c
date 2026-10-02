@@ -20,13 +20,12 @@ typedef struct ziChineseEntry {
     ziU8 offsetLow[2];
 } ziChineseEntry;
 
-ziU8 Zi8GetCandidatesOrCount(ziGetParam*, ziSearchState* ZI_NEED_WORK);
+ziU32 Zi8GetCandidatesOrCount(ziGetParam*, ziSearchState* ZI_NEED_WORK);
 ziU8 Zi8GetFormatVersion(ziU8 ZI_NEED_WORK);
 ziPtr Zi8GetTableAddress(ziU8, ziU8 ZI_NEED_WORK);
 ziU16 Zi8Uni2Ord(ziWChar ZI_NEED_WORK);
 
 ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
-    int count;
     int offset;
     ziU8 group;
     ziU8 remaining;
@@ -35,9 +34,10 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
     ziSearchState search;
     ziGetParam request;
     ziWChar ordinals[65];
-    int length;
+    int count;
     int unmatched;
     ziChineseEntry* entry;
+    ziChineseEntry* table;
     ziU8* data;
     ziU8 formats[8] = {1, 5, 0, 0, 0, 0, 0, 0};
     ziU32 savedFormats = ZI_WORK->unk_0x1410;
@@ -54,10 +54,10 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
         return 0;
     }
     if (language != 1) {
-        for (length = 0; word[length] != 0; length++) {
-            if (word[length] >= 0xEFF1 || length == 64) return 0;
+        for (count = 0; word[count] != 0; count++) {
+            if (word[count] >= 0xEFF1 || count == 64) return 0;
         }
-        ((ziU8*)&search.length)[0] = length;
+        ((ziU8*)&search.length)[0] = count;
         ((ziU8*)&search.flags)[2] = 1;
         ((ziU16*)&search.capacity)[0] = 64;
         search.word = word;
@@ -67,7 +67,7 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
         request.context = 1;
         request.getOptions = 0x81;
         request.elements = word;
-        request.elementCount = length;
+        request.elementCount = count;
         request.currentWord = 0;
         request.wordCharCount = 0;
         request.candidates = ordinals;
@@ -92,20 +92,22 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
         if (count != 0) return 1;
     }
     if (language == 1) {
-        length = 0;
+        count = 0;
         do {
-            ordinals[length] = Zi8Uni2Ord(word[length], __zi8_work_data);
-            if (ordinals[length] == 0xFFFF) return 0;
-            length++;
-            if (length == 64) return 0;
-        } while (word[length] != 0);
+            ordinals[count] = Zi8Uni2Ord(word[count], __zi8_work_data);
+            if (ordinals[count] == 0xFFFF) return 0;
+            count++;
+            if (count == 64) return 0;
+        } while (word[count] != 0);
         {
-                if (length == 1) return 1;
-                count = --length;
+                if (count == 1) return 1;
+                count--;
                 ordinals[count] |= 0x8000;
                 ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1, __zi8_work_data) & 2;
-                entry = (ziChineseEntry*)Zi8GetTableAddress(1, 0, __zi8_work_data) + ordinals[0];
-                data = (ziU8*)Zi8GetTableAddress(1, 1, __zi8_work_data) + ((entry->offsetHigh & 15) << 16 | ((entry->offsetLow[0] << 8) | entry->offsetLow[1]));
+                table = (ziChineseEntry*)Zi8GetTableAddress(1, 0, __zi8_work_data);
+                entry = table + ordinals[0];
+                data = (ziU8*)Zi8GetTableAddress(1, 1, __zi8_work_data);
+                data += ((entry->offsetHigh & 15) << 16 | ((entry->offsetLow[0] << 8) | entry->offsetLow[1]));
                 if (ZI_WORK->cangjieEnabled != 0) {
                     switch (*data & 7) {
                     case 2:
