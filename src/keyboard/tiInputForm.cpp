@@ -151,8 +151,8 @@ extern "C" const char scT_title_textKOR[];
 extern "C" const char scN_separateBarCHN[];
 extern "C" const char scT_2l_TextBoxCHN[];
 extern "C" const char scT_title_textCHN[];
-extern "C" const char lbl_816973A4[];
-extern "C" const char lbl_816973AC[];
+extern "C" const char scN_KOR[];
+extern "C" const char scN_CHN[];
 #pragma pop
 extern "C" const f32 scInputFormZeroF;
 extern "C" void _savegpr_20();
