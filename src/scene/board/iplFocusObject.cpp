@@ -1,3 +1,4 @@
+#define IPL_FOCUS_OBJECT_CPP
 #include "scene/board/iplFocusObject.h"
 #include "scene/parentalDialog/iplParentalDialog.h"
 
@@ -10,6 +11,8 @@
 
 #include <revolution/cx.h>
 #include <revolution/enc.h>
+
+extern char scPaneName_B_Stop[];
 
 namespace ipl {
     namespace math {
@@ -357,6 +360,13 @@ namespace ipl {
             }
         }
 
+    }
+    namespace math {
+        inline VEC3 VEC3::operator*(f32 val) const {
+            return VEC3(x * val, y * val, z * val);
+        }
+    }
+    namespace scene {
         void focus_object::stt_normal() {
             Button* button = get_button();
 
@@ -2111,7 +2121,7 @@ namespace ipl {
 
             if (event == ::gui::EventHandler::ON_TRIG) {
                 if (con->downTrg(controller::BTN_INTERACT)) {
-                    if (strcmp(paneName, "B_Stop") == 0) {
+                    if (strcmp(paneName, scPaneName_B_Stop) == 0) {
                         if (mpInstance->mState == focus_object::STATE_NORMAL) {
                             focus_object::get_button()->animation(Button::IDANIM_OPTOUT_SELECT);
 
@@ -2132,3 +2142,24 @@ namespace ipl {
         }
     }  // namespace scene
 }  // namespace ipl
+
+char scPaneName_B_Stop[] = "B_Stop";
+
+BOOL ipl::scene::scroller::calc(bool canScroll) {
+    BOOL result = FALSE;
+
+    if (canScroll) {
+        if (mBScroller.calc()) {
+            result = TRUE;
+        }
+    }
+
+    mScroller.calc();
+
+    f32 movable = mScroller.movable_pos(mBScroller.getSpeed());
+
+    mScroller.addScroll(movable);
+    mBScroller.addSoundFreq(movable);
+
+    return result;
+}

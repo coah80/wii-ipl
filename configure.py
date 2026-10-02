@@ -742,7 +742,7 @@ config.libs = [
             Object(Matching,    "scene/board/iplBoardObject.cpp"),
             Object(Matching,    "scene/board/iplBoardSD.cpp"),
             Object(Matching,    "scene/board/iplUrlProcessor.cpp"),
-            Object(Equivalent,  "scene/board/iplFocusObject.cpp"),
+            Object(Matching,    "scene/board/iplFocusObject.cpp"),
         ]
     ),
     IPLSection("button", [

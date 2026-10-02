@@ -53,24 +53,7 @@ namespace ipl {
                 mBScroller.init();
             }
 
-            BOOL calc(bool canScroll) __attribute__((never_inline)) /*for now*/ {
-                BOOL result = FALSE;
-
-                if (canScroll) {
-                    if (mBScroller.calc()) {
-                        result = TRUE;
-                    }
-                }
-
-                mScroller.calc();
-
-                f32 movable = mScroller.movable_pos(mBScroller.getSpeed());
-
-                mScroller.addScroll(movable);
-                mBScroller.addSoundFreq(movable);
-
-                return result;
-            }
+            BOOL calc(bool canScroll);
 
             BOOL is_busy() const {
                 BOOL result = TRUE;
