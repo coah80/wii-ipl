@@ -268,7 +268,10 @@ static char s_manufacturer[] = "MELCO";
 static s32 s_operationState = -1;
 static const u8 s_messageId[8] = { 9, 8, 0, 0, 0, 0, 0, 0 };
 static u8 s_responseTypeByState[8] = { 9, 8, 0, 0, 0, 0, 0, 0 };
-static const u16 s_defaultOptions[4] = { 0xffff, 0xffff, 0, 0 };
+__declspec(section ".sdata2") u16 s_defaultConnection = 0xffff;
+__declspec(section ".sdata2") u16 s_defaultOptions = 0xffff;
+const u16 s_defaultResponseA = 0;
+const u16 s_defaultResponseB = 0;
 
 static void* s_responseBuffer;
 static s32 s_socketStarted;
@@ -438,8 +441,8 @@ int AOSS_Init_old(AOSSInitInput* input)
   u32 networkAddresses[5];
   AOSSPollDescriptor pollArguments[2];
 
-  defaultConnection = s_defaultOptions[0];
-  defaultResponse = s_defaultOptions[1];
+  defaultConnection = s_defaultConnection;
+  defaultResponse = s_defaultOptions;
   waitIntervals.defaults.connection = defaultConnection;
   waitIntervals.defaults.response = defaultResponse;
   waitSettings.value = 0;
@@ -1028,10 +1031,12 @@ request_socket_cleanup_complete:
           if (0 < requestResult) goto process_received_packet;
           receivedPackets = receivedPackets + 1;
           if (receivedPackets > attemptCount) {
-            switch (protocolState) {
-            case 0: s_errorCode = 0xf; break;
-            case 1: s_errorCode = 0x10; break;
-            default: s_errorCode = 0x11; break;
+            if (protocolState == 0) {
+              s_errorCode = 0xf;
+            } else if (protocolState == 1) {
+              s_errorCode = 0x10;
+            } else {
+              s_errorCode = 0x11;
             }
             protocolResult = -1;
             goto close_protocol_socket;
@@ -1299,10 +1304,12 @@ wait_for_packet:
     }
     protocolState = requestResult;
     if (receivedPackets > waitSettings.halfwords.high) {
-      switch (requestResult) {
-      case 0: s_errorCode = 0xf; break;
-      case 1: s_errorCode = 0x10; break;
-      default: s_errorCode = 0x11; break;
+      if (requestResult == 0) {
+        s_errorCode = 0xf;
+      } else if (requestResult == 1) {
+        s_errorCode = 0x10;
+      } else {
+        s_errorCode = 0x11;
       }
       protocolResult = -1;
       goto close_protocol_socket;
