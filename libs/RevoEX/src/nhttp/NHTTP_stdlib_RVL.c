@@ -7,8 +7,7 @@ s32 NHTTPi_strcmp(const char* left, const char* right) { return strcmp(left,righ
 void* NHTTPi_memclr(void* destination, u32 size) { return memset(destination,0,size); }
 
 static int LowerCase(int character) {
-    if((character>='A') & (character<='Z')) character+=32;
-    return character;
+    return ((character >= 'A') & (character <= 'Z')) ? character + 32 : character;
 }
 
 s32 NHTTPi_strnicmp(const char* left, const char* right, s32 length) {
@@ -127,12 +126,13 @@ s32 NHTTPi_intToStr(char* destination, u32 value) {
 }
 
 s32 NHTTPi_compareToken(const char* left, const char* right) {
-    for (;;) {
-        int rightCharacter=LowerCase(*right);
-        int leftCharacter=LowerCase(*left);
-        if(leftCharacter!=rightCharacter) break;
-        if(*left==0 || *left==' ') return 0;
-        ++left; ++right;
+    u8 rawLeft;
+    while (LowerCase((s8)(rawLeft = *(const u8*)left)) == LowerCase(*right)) {
+        if ((s8)rawLeft == 0 || (s8)rawLeft == ' ') {
+            return 0;
+        }
+        ++left;
+        ++right;
     }
     return -1;
 }
@@ -161,13 +161,16 @@ s32 NHTTPi_Base64Encode(char* destination, const char* source) {
     static char alphabet[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     const char* table=alphabet;
     char* output=destination;
-    u32 length=strlen(source);
+    s32 length=strlen(source);
     s32 consumed=0;
-    for(; consumed<(s32)length; consumed+=3) {
-        output[0]=table[source[0]>>2];
-        output[1]=table[((source[0]&3)<<4)+(source[1]>>4)];
-        output[2]=table[((source[1]&15)<<2)+(source[2]>>6)];
-        output[3]=table[source[2]&63];
+    for(; consumed<length; consumed+=3) {
+        s8 first = source[0];
+        s8 second = source[1];
+        s8 third = source[2];
+        output[0]=table[first>>2];
+        output[1]=table[(second>>4)+((first&3)<<4)];
+        output[2]=table[(third>>6)+((second&15)<<2)];
+        output[3]=table[third&63];
         source+=3; output+=4;
     }
     if(consumed==length+1) output[-1]='=';
