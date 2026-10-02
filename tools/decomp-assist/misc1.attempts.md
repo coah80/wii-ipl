@@ -18,11 +18,14 @@
 
 ## odh (src/system/odh.cpp) — fuzzy 99.4, data 100%
 - Removed ODHEncodeRGBA8, ODHEncodeY8U8V8, ODHDecodeY8U8V8 — absent from orig .o.
-- 4 of 6 sub-100 fns are INSTRUCTION-IDENTICAL (setQuantizationTable, colorConv,
-  huffmanCoder, decompressLoop, huffmanDecoder): fuzzy residual = pooled-literal
-  symbol names (orig lbl_816945A0..C0 vs my @NNNN anon) — unfixable from source.
+- All 6 sub-100 fns verified via raw word-diff (df.py normalization had masked them):
+  register-web rotations throughout. setQuantizationTable = 5 words (r10<->r11 web),
+  colorConv = 18, huffmanCoder = 30, decompressLoop = 62, huffmanDecoder = 140+ —
+  allocator-internal tie family, identical insn streams otherwise.
 - LineConv11: 2 sched diffs (lis 0x4330 placement) + lbzux operand-web rotation —
-  same tie family.
+  same family.
+- Tested symbols.txt semantic rename of a pooled literal (lbl_816945A0): no fuzzy
+  effect — objdiff does not resolve .o-local syms through the map. Reverted.
 - `.data` tail 5B artifact (hufftreePtr extraction boundary).
 
 ## BS2Mach / iplSound / www_wiisetting / AxAdpcmPlayer / iplESMisc / wprintf
