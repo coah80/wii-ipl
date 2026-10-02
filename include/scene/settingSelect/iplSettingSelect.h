@@ -185,8 +185,8 @@ namespace ipl {
             gui::PaneManager* mpGui;  // 0x74
 
             BOOL mbHovered[BTN_MAX];  // 0x78
-            u32 unk_0x90;
-            u32 unk_0x94;
+            u32 mPendingSceneId;
+            u32 mExitSeqStep;
 
             static const char* smButtonName[BTN_MAX];
         };
