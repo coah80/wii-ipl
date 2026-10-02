@@ -931,17 +931,15 @@ void CArGBAOdh::cdj_c_makeHeader(SArCDJ_OdhMaster* master, u32 size) {
 }
 
 s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int format) {
-    u32 paddedWidth;
     u16 width;
     u16 height;
     u8* workPlane;
-    int sourceStride;
-    u8* crPlane;
     u8* cbPlane;
+    u8* crPlane;
     u16* dimensions;
     int rowIndex;
+    int sourceStride;
     int i;
-    u16 dimension;
     u16 paddedDimensions[2];
 
     dimensions = &master->width;
@@ -952,11 +950,11 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
     height = dimensions[1];
 
     for (i = 0; i < 2; i++) {
-        dimension = dimensions[i];
-        if ((dimension & 7) != 0) {
-            paddedDimensions[i] = (dimension + 8) - (dimension & 7);
+        u16 remainder = dimensions[i] & 7;
+        if (remainder != 0) {
+            paddedDimensions[i] = (dimensions[i] + 8) - remainder;
         } else {
-            paddedDimensions[i] = dimension;
+            paddedDimensions[i] = dimensions[i];
         }
     }
 
@@ -972,13 +970,12 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
         }
     }
 
-    paddedWidth = paddedDimensions[0];
     for (rowIndex = 0; rowIndex < (s32)height; rowIndex++) {
         LineConv11(sourceData + (rowIndex & 3) * 8 + rowIndex / 4 * sourceStride, workPlane, cbPlane, crPlane,
                    dimensions[0], dimensions[1], (const long*)gArConvPlttTbl, format);
-        workPlane += paddedWidth;
-        cbPlane += paddedWidth;
-        crPlane += paddedWidth;
+        workPlane += paddedDimensions[0];
+        cbPlane += paddedDimensions[0];
+        crPlane += paddedDimensions[0];
     }
 
     return 0;
