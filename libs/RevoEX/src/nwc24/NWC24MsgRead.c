@@ -12,7 +12,7 @@ static inline NWC24Err SelectMBox(const NWC24MsgObj* msg, NWC24MBoxType* type) {
     u32 msgType = msg->data[1];
     if (msgType & 0x10)
         *type = NWC24_MBOX_TYPE_SEND;
-    else if (msgType & 0x20)
+    else if (msg->data[1] & 0x20)
         *type = NWC24_MBOX_TYPE_RECV;
     else
         return NWC24_ERR_INVALID_VALUE;
@@ -33,6 +33,7 @@ NWC24Err NWC24ReadMsgField(const NWC24MsgObj* msg, char* fieldName, u8* output, 
         return NWC24_ERR_LIB_NOT_OPENED;
     if (!(privateMsg->type & 0x200))
         return NWC24_ERR_PROTECTED;
+    type = NWC24_MBOX_TYPE_SEND;
     result = SelectMBox(msg, &type);
     switch (result) {
         case NWC24_OK:
@@ -323,6 +324,7 @@ NWC24Err NWC24ReadMsgSubject(const NWC24MsgObj* msg, char* subject, u32 capacity
         return NWC24_ERR_LIB_NOT_OPENED;
     if (!(privateMsg->type & 0x200))
         return NWC24_ERR_PROTECTED;
+    type = NWC24_MBOX_TYPE_SEND;
     result = SelectMBox(msg, &type);
     switch (result) {
         case NWC24_OK:
@@ -490,6 +492,7 @@ NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 index, u8* output, u32
         return NWC24_ERR_PROTECTED;
     if (index >= privateMsg->numAttached)
         return NWC24_ERR_NOT_FOUND;
+    type = NWC24_MBOX_TYPE_SEND;
     result = SelectMBox(msg, &type);
     switch (result) {
         case NWC24_OK:

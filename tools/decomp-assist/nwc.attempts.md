@@ -154,3 +154,28 @@
   `*encoded='\0'; goto done` — all emit the same `bne` last term or worse (+2
   for else-fold). The else-fall layout base shows requires the join be
   non-adjacent; MWCC's block order here isn't moved by source polarity.
+
+## wave 15 findings
+
+- **MsgRead CSE wall bypass (no volatile)**: `type = NWC24_MBOX_TYPE_SEND;`
+  default-assign immediately before `SelectMBox(msg, &type)` folds to `li r5,0`
+  in the out-reg and makes the fn insn-equal — ReadMsgField 102/102,
+  ReadMsgSubject 82/82, ReadMsgAttached 91/91. FromAddr regressed +4
+  (reverted — its -1 gap is the same double-load wall but the default's `li`
+  doesn't balance there). NOTE: MWCC does NOT model the store as a clobber
+  (folds the local's value through the call) — the win is insn-balance, not
+  genuine CSE suppression; base still emits a real second `lwz`.
+- **CSE wall verified deeper**: base `NWC24ReadMsgField`/`FromAddr` show TWO
+  `lwz 4(r27)` separated only by the bit-test error branch — no call, no store
+  between them. The clobber-reproduction theory is dead for this pair; orig's
+  suppression mechanism is still unknown (volatile decl vetoed).
+- **UpdateDlTask workP re-fetch**: `header` var fetched via GetCachedDlHeader
+  + re-fetched after validate2 is a dead-assign (eliminated, no web effect).
+  `task`-alias drop, flat/nested && chains, early-return variants — all
+  identical. The 5th callee web (phase-2 workP rotator, r27 vs base's r28
+  reuse) is allocator coloring, not source-mergeable.
+- **RemoveDlTask caller-conflict**: NWC24DeleteDlTask's inline wants the
+  single-check `if (result>=0) id=0xffff` form (base: one cmpwi + bge + sth),
+  PurgeOldestDlTask wants separate-ifs (double `mr r5,r3` carrier copies).
+  Separate-ifs wins the aggregate (175/176 + 108/105); single-if, early-return,
+  and assign-then-if all regress both callers.
