@@ -1179,10 +1179,10 @@ namespace ipl {
                 return;
             }
 
-            if (mState != STATE_NORMAL || mMode != 0) {
-                return;
-            }
-
+            switch (mState) {
+            case STATE_NORMAL:
+            switch (mMode) {
+            case 0:
             if (!mpFriendCache->isThere(buttonNo + mPage * BTN_MAX)) {
                 return;
             }
@@ -1240,6 +1240,8 @@ namespace ipl {
             snd::getSystem()->startSEwithPos("WIPL_SE_CH_HOLD", mDrag.mPos.x);
 
             mState = STATE_DRAG;
+            }
+            }
         }
 
         void Address::start_drag_point_event(const char* paneName, controller::Interface* con) {
@@ -1425,10 +1427,7 @@ namespace ipl {
 
                     if (con->downTrg(controller::BTN_INTERACT)) {
                         Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
-                        if (mState != STATE_COVER_NORMAL && mState != STATE_NORMAL) {
-                            break;
-                        }
-
+                        if (mState == STATE_COVER_NORMAL || mState == STATE_NORMAL) {
                         if (Button::cmpButtonName(paneName, Button::BTN_EXIT) == 0) {
                             MailAddressSelect* mailAddrSel = static_cast<MailAddressSelect*>(System::getScene(SCENE_MAIL_ADDRESS_SELECT));
                             button->animation(Button::IDANIM_SELECT_CALENDAR_EXIT);
@@ -1477,7 +1476,7 @@ namespace ipl {
                             snd::getSystem()->startSE("WIPL_SE_FL_PAGE_DEC");
                             onPreviousPage();
                         }
-                        break;
+                        }
                     }
                     // fallthrough
                 }
@@ -1783,13 +1782,15 @@ namespace ipl {
             nw4r::math::VEC3 baseTrans = mpLayout->FindPaneByName("N_base_move")->GetTranslate();
             math::VEC2 pos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
             nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_name_move"));
-            const u16* name = mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX).attr.name;
 
             f32 width = 0.0f;
-            if (textBox != NULL && name != NULL) {
-                textBox->GetFont()->GetWidth();
-                for (; *name != 0; name++) {
-                    width += textBox->GetFont()->GetCharWidth(*name);
+            if (textBox != NULL) {
+                const u16* name = mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX).attr.name;
+                if (name != NULL) {
+                    textBox->GetFont()->GetWidth();
+                    for (; *name != 0; name++) {
+                        width += textBox->GetFont()->GetCharWidth(*name);
+                    }
                 }
             }
             width += 0.01f;
@@ -1946,11 +1947,10 @@ namespace ipl {
         }
 
         void FriendListCache::update(u32 index, const wchar_t* name, u64 fdId) {
-            NWC24FriendInfo* info = &mInfos[index];
-            info->attr.fdId = fdId;
-            memset(info->attr.name, 0, sizeof(info->attr.name));
-            wcsncpy((wchar_t*)info->attr.name, name, 10);
-            System::getNwc24Manager()->updateFriendInfo(info, index);
+            mInfos[index].attr.fdId = fdId;
+            memset(mInfos[index].attr.name, 0, sizeof(mInfos[index].attr.name));
+            wcsncpy((wchar_t*)getInfo(index).attr.name, name, 10);
+            System::getNwc24Manager()->updateFriendInfo(&getInfo(index), index);
         }
 
         void FriendListCache::del(u32 index) {
