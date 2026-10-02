@@ -73,7 +73,7 @@ typedef struct NWC24MsgObjPrivate {
         };
         u32 raw;
     } msgBoardFlags;  // 0xCC
-    NWC24Data unk_0xD0;
+    NWC24Data extraData;  // 0xD0
     NWC24Data faceData;  // 0xD8
     NWC24Data altName;   // 0xE0
     u32 textSize;        // 0xE4

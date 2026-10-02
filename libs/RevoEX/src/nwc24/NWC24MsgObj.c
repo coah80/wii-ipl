@@ -77,7 +77,7 @@ NWC24Err NWC24InitMsgObj(NWC24MsgObj* msg, NWC24MsgType type) {
     NWC24Data_Init(&msgObj->toData);
     NWC24Data_Init(&msgObj->unk_0x50);
     NWC24Data_Init(&msgObj->unk_0x58);
-    NWC24Data_Init(&msgObj->unk_0xD0);
+    NWC24Data_Init(&msgObj->extraData);
     NWC24Data_Init(&msgObj->faceData);
     NWC24Data_Init(&msgObj->altName);
 

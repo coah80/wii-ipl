@@ -243,11 +243,11 @@ static inline NWC24Err WriteMBDelayField(NWC24MsgObjPrivate* msg) {
 
 static inline NWC24Err WriteExtraFields(NWC24MsgObjPrivate* msg) {
     NWC24Err err;
-    if (msg->unk_0xD0.size == 0)
+    if (msg->extraData.size == 0)
         return NWC24_OK;
-    err = NWC24FWrite(msg->unk_0xD0.ptr, msg->unk_0xD0.size, m_pFile);
+    err = NWC24FWrite(msg->extraData.ptr, msg->extraData.size, m_pFile);
     if (err == NWC24_OK)
-        msg->length += msg->unk_0xD0.size;
+        msg->length += msg->extraData.size;
     return err;
 }
 
