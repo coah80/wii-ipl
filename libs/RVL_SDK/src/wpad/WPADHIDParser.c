@@ -111,8 +111,8 @@ static void initExtension(s32 chan) {
 
     WPADiClearQueue(&p_wpd->extCmdQueue);
     WPADiSendSetReportType(&p_wpd->extCmdQueue, p_wpd->dataFormat,
-                           p_wpd->unk_0x98E, abortInitExtension);
-    p_wpd->unk_0x98D = 1;
+                           p_wpd->continuous, abortInitExtension);
+    p_wpd->encStatus = 1;
     WPADiSendWriteDataCmd(&p_wpd->extCmdQueue, 0x55, 0x04a400f0,
                           abortInitExtension);
     WPADiSendWriteDataCmd(&p_wpd->extCmdQueue, 0, 0x04a400fb,
@@ -127,7 +127,7 @@ static void abortInitExtension(s32 chan, s32 result) {
 
     if (result != WPAD_ERR_NONE) {
         WPADiClearQueue(&p_wpd->extCmdQueue);
-        p_wpd->unk_0x98D = 0;
+        p_wpd->encStatus = 0;
         if (result == WPAD_ERR_NO_CONTROLLER) {
             type = WPAD_DEV_NOT_FOUND;
         }
@@ -142,7 +142,7 @@ static void abortInitExtension(s32 chan, s32 result) {
 
         else {
             DEBUGPrint("detaching extension during initialization.\n");
-            WPADiSendSetReportType(&p_wpd->extCmdQueue, p_wpd->dataFormat, p_wpd->unk_0x98E, NULL);
+            WPADiSendSetReportType(&p_wpd->extCmdQueue, p_wpd->dataFormat, p_wpd->continuous, NULL);
             return;
         }
         p_wpd->devType = (u8)type;
@@ -509,7 +509,7 @@ static void getExtType(s32 chan, s32 result) {
             }
         } else {
             if (isExtEncMain(_devType[chan])) {
-                p_wpd->unk_0x98D = 2;
+                p_wpd->encStatus = 2;
                 WPADiSendWriteDataCmd(cmdq, 0xAA, 0x4A400F0, abortInitExtension);
                 WPADiCreateKey(chan);
                 WPADiSendWriteData(cmdq, p_wpd->encryptionKey, 6, 0x4A40040, abortInitExtension);
@@ -517,7 +517,7 @@ static void getExtType(s32 chan, s32 result) {
                 WPADiSendWriteData(cmdq, p_wpd->encryptionKey + 12, 4, 0x4A4004C, abortInitExtension);
                 WPADiSendReadData(cmdq, p_wpd->wmReadDataBuf, 32, 0x4A40020, p_wpd->extensionCB);
             } else {
-                p_wpd->unk_0x98D = 3;
+                p_wpd->encStatus = 3;
                 WPADiSendWriteDataCmd(cmdq, 0xAA, 0x4A400F0, abortInitExtension);
                 WPADiCreateKeyFor3rd(chan);
                 WPADiSendWriteData(cmdq, p_wpd->encryptionKey, 6, 0x4A40040, abortInitExtension);
@@ -651,7 +651,7 @@ void __a1_20_status_report(u8 chan, u8* data) {
         p_wpd->devMode = 0;
 
         WPADiClearQueue(&p_wpd->extCmdQueue);
-        WPADiSendSetReportType(&p_wpd->extCmdQueue, p_wpd->dataFormat, p_wpd->unk_0x98E, NULL);
+        WPADiSendSetReportType(&p_wpd->extCmdQueue, p_wpd->dataFormat, p_wpd->continuous, NULL);
 
         if (attach) {
             if (p_wpd->extensionCB) {
@@ -741,11 +741,11 @@ void __a1_21_user_data(u8 chan, u8* data) {
             DEBUGPrint("length   : %d\n", p_wpd->wmReadLength);
             status = (p_wpd->wmReadHadError < 0) ? WPAD_ERR_TRANSFER : 0;
             DEBUGPrint("i2c = %04x\n", i2c);
-            DEBUGPrint("enc = %d\n", p_wpd->unk_0x98D);
+            DEBUGPrint("enc = %d\n", p_wpd->encStatus);
 
             if (i2c == 0x04a4) {
                 DEBUGPrint("Access to extension register.\n");
-                if (p_wpd->unk_0x98D == 2 || p_wpd->unk_0x98D == 3) {
+                if (p_wpd->encStatus == 2 || p_wpd->encStatus == 3) {
                     DEBUGPrint("Decode!!!!\n");
                     DEBUGPrint("    len = %d, addr = %04x\n", len, base);
 

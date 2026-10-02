@@ -1283,7 +1283,7 @@ static void __ClearControlBlock(s32 chan) {
     p->sleeping = TRUE;
     p->getInfoBusy = FALSE;
     p->getInfoCB = NULL;
-    p->unk_0x98E = 0;
+    p->continuous = 0;
 
     memset(&p->wpInfo, 0, sizeof(p->wpInfo));
     memset(&p->wmReadDataBuf, 0, sizeof(p->wmReadDataBuf));
@@ -1551,7 +1551,7 @@ static void firmwareCheckCallback(s32 chan, s32 status) {
 
     DEBUGPrint(" ==>this error means that the firmware is for NDEV %s\n", p->configIndex != 0 ? "2.0" : "2.1 or later");
 
-    WPADiSendSetReportType(&p->stdCmdQueue, WPAD_FMT_CORE_BTN, p->unk_0x98E, &abortConnCallback);
+    WPADiSendSetReportType(&p->stdCmdQueue, WPAD_FMT_CORE_BTN, p->continuous, &abortConnCallback);
 
     WPADiSendDPDCSB(&p->stdCmdQueue, FALSE, &abortConnCallback);
     WPADiSendSetPort(&p->stdCmdQueue, port, &abortConnCallback);
@@ -1626,7 +1626,7 @@ static void WPADiConnCallback(WUDDevInfo* devInfo, u8 open) {
         p->status = WPAD_ERR_OK;
         p->radioSensitivity = 100;
         p->sleeping = FALSE;
-        p->unk_0x98D = FALSE;
+        p->encStatus = FALSE;
 
         WPADiSendReadData(&p->stdCmdQueue, p->wmReadDataBuf, 1, WM_ADDR_MEM_1770, firmwareCheckCallback);
 
@@ -1886,7 +1886,7 @@ s32 WPADSetDataFormat(s32 chan, u32 format) {
     }
 
     if (currFormat != format) {
-        if (!WPADiSendSetReportType(&p->stdCmdQueue, format, p->unk_0x98E, NULL)) {
+        if (!WPADiSendSetReportType(&p->stdCmdQueue, format, p->continuous, NULL)) {
             status = WPAD_ERR_COMMUNICATION_ERROR;
         } else {
             enabled = OSDisableInterrupts();
@@ -2741,13 +2741,13 @@ BOOL WPADiSendSetPort(WPADCommandQueue* pQueue, u8 port, WPADCallback pCallback)
     return success;
 }
 
-BOOL WPADiSendSetReportType(WPADCommandQueue* pQueue, s32 format, BOOL unk, WPADCallback pCallback) {
+BOOL WPADiSendSetReportType(WPADCommandQueue* pQueue, s32 format, BOOL continuous, WPADCallback pCallback) {
     BOOL success;
     WPADCommand command;
 
     command.reportID = RPTID_SET_DATA_REPORT_MODE;
     command.dataLength = RPT12_SIZE;
-    command.dataBuf[RPT12_CONT_REPORT] = unk ? 0 : 4;  // Always continuous reporting
+    command.dataBuf[RPT12_CONT_REPORT] = continuous ? 0 : 4;  // Always continuous reporting
     command.cmdCB = pCallback;
 
     switch (format) {
