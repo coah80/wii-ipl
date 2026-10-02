@@ -151,3 +151,37 @@ the leaf's other walls.
   + .sbss2 extent artifact.
 - DOL sha1 `26116613f624061ba99c8d1a299aaa6efa85670d` verified. No shims; both stay
   NonMatching.
+
+## mcard2 rotation (leaf extended: iplMemoryCardManager + iplCardSequence)
+
+Reverted linkgap-owned files (iplChannelTitle.cpp, iplInterporation.h) per orchestrator —
+HermiteIntp<f32>::get re-emits weak until the linkgap gate lands on main.
+
+Landings:
+- symbols.txt: `lbl_81696CF8` → `sCardSlotName__Q23ipl10memorycard` (.sdata 3B "AB") —
+  pairs orig's anonymous slot-name object.
+- loadCardFileIcons case-0 arm: `iconFmt[iconCount] = iconFmt[iconCount-1]` (plain array
+  index, semantic match for orig's `[-1]/[0]` copy) — fn 508→507 insns (orig 512),
+  fuzzy 97.199→97.221.
+
+Walls verified (allocator/scheduler tie family throughout):
+- isMoveEnable/isCopyEnable (99.83 both): 2x `add` operand-order at `&dirs[slot][file]`
+  sites — MWCC canonicalizes commutative add operands by web internals, not parse order
+  (`file + dirs[slot]`, `dirs[slot] + file`, cast forms all emit identically).
+- update_file_array (99.72): 4-line global-base reg choice (r3 vs r4 smArg base).
+- getComment (98.94): ~33-pair callee rotation — comment-ptr CSE web claims r26 vs orig
+  r30; `dst` local reshape regressed (232).
+- create_banner/_create_icon (90.4/87.6): callee-window rotation (dirState r25 vs r30,
+  icon-product webs shallow vs deep); `icon` local + `icon->` consistency regressed (213).
+- cardThreadMain (97.94): ~79 rotation + rlwimi in-place vs copy-then-insert shape.
+- runCardMoveOrCopy (97.80): ~575 regname rotation; real diffs = 3x `extsh` s16-marshal
+  (orig re-extends per marshal site — per-use conversion nodes; mine normalized once),
+  1x `li` hoist position. Addressing decomposition: orig sums var parts then folds const
+  into index (`sThread + (idx + 0x10000 - 0x6fb4)`), mine `(sThread + 0x10000) + idx_parts`
+  — MWCC member-chain association; ptr-local/array-index forms don't regroup.
+
+## Status (mcard2)
+
+- iplMemoryCardManager: fuzzy 97.88, code 2572/5396, data 100%. 8 sub-100 fns, all tie-class.
+- iplCardSequence: fuzzy 97.22, code 4168/9852, data 1496/1496 (100%). 3 sub-100 fns.
+- DOL sha1 `26116613f624061ba99c8d1a299aaa6efa85670d` verified. No shims; all stay NonMatching.

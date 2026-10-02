@@ -795,9 +795,8 @@ iconSpeedDone:
                     break;
                 case 0: {
                     paletteSize = 0;
-                    u8* iconPalette =
-                        &sThread->icons[slot][fileNo].iconFmt[iconCount];
-                    *iconPalette = iconPalette[-1];
+                    sThread->icons[slot][fileNo].iconFmt[iconCount] =
+                        sThread->icons[slot][fileNo].iconFmt[iconCount - 1];
                     break;
                 }
                 default:
