@@ -3463,53 +3463,54 @@ namespace ipl {
             case 0: break;
             }
             {
+||||||| parent of 98e67efe (iplSDChannelSelect: decode beq+b dispatch in anon onEventDerived via switch)
+            if (event == 0) {
                 if (mpScene->mState == 1) {
-                    if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
-                        if (con != NULL) {
-                            if (con->downTrg(0x00100800)) {
-                                SDButton* button = static_cast<SDButton*>(
-                                    System::getSceneManager()->getScene(0x24));
-                                if (strcmp(paneName,
-                                           SDButton::smButtonName[SDButton::BTN_HELP]) == 0) {
-                                    mpScene->mOperationResult = 0;
-                                    mpScene->mState = 26;
-                                    button->animation(4);
-                                    snd::getSystem()->startSE("WIPL_SE_DECIDE");
-                                    return;
-                                }
-
-                                if (strcmp(paneName,
-                                           SDButton::smButtonName[SDButton::BTN_WII_MENU]) == 0) {
-                                    button->setEventHandler((::gui::EventHandler*)button, NULL);
-                                    mpScene->mState = 4;
-                                    snd::getSystem()->startSE("WIPL_SE_DECIDE");
-                                    return;
-                                }
-
-                                if (strcmp(paneName,
-                                           SDButton::smButtonName[SDButton::BTN_ARROW_LEFT]) == 0 &&
-                                    mpScene->mCurrentPage > 0) {
-                                    button->animation(7);
-                                    mpScene->setStateAndPlaySelectSound(8);
-                                    return;
-                                }
-
-                                if (strcmp(paneName,
-                                           SDButton::smButtonName[SDButton::BTN_ARROW_RIGHT]) == 0 &&
-                                    mpScene->mCurrentPage < mpScene->mPageCount - 1) {
-                                    button->animation(8);
-                                    mpScene->setStateAndPlaySelectSound(9);
-                                }
-                            } else {
+                if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
+                    if (con != NULL) {
+                        if (con->downTrg(0x00100800)) {
+                            SDButton* button = static_cast<SDButton*>(
+                                System::getSceneManager()->getScene(0x24));
+                            if (strcmp(paneName,
+                                       SDButton::smButtonName[SDButton::BTN_HELP]) == 0) {
+                                mpScene->mOperationResult = 0;
+                                mpScene->mState = 26;
+                                button->animation(4);
+                                snd::getSystem()->startSE("WIPL_SE_DECIDE");
                                 return;
                             }
-                        } else {
-                            return;
+
+                            if (strcmp(paneName,
+                                       SDButton::smButtonName[SDButton::BTN_WII_MENU]) == 0) {
+                                button->setEventHandler((::gui::EventHandler*)button, NULL);
+                                mpScene->mState = 4;
+                                snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                                return;
+                            }
+
+                            if (strcmp(paneName,
+                                       SDButton::smButtonName[SDButton::BTN_ARROW_LEFT]) == 0 &&
+                                mpScene->mCurrentPage > 0) {
+                                button->animation(7);
+                                mpScene->setStateAndPlaySelectSound(8);
+                                return;
+                            }
+
+                            if (strcmp(paneName,
+                                       SDButton::smButtonName[SDButton::BTN_ARROW_RIGHT]) == 0 &&
+                                mpScene->mCurrentPage < mpScene->mPageCount - 1) {
+                                button->animation(8);
+                                mpScene->setStateAndPlaySelectSound(9);
+                            }
                         }
                     }
                 }
+||||||| parent of 98e67efe (iplSDChannelSelect: decode beq+b dispatch in anon onEventDerived via switch)
+            } else {
+                return;
             }
         }
+
 
         void SDChannelSelect::startResetting() {
             snd::getSystem()->resetAllSound();
