@@ -20,7 +20,7 @@
 #include <private/os.h>
 #include <private/wpad.h>
 
-#pragma dont_instantiate ipl::math::HermiteIntp<float>
+
 
 #undef IPL_CHANNEL_TITLE_NOVTABLE
 
