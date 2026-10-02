@@ -23,7 +23,7 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
     *(ziU16*)&ZI_WORK->unk_0x0C = 0xFFFF;
     ZI_WORK->separator = 0x20;
     ZI_WORK->unk_0x1C[2] = 0;
-    ZI_WORK->unk_0x1B30 = 0;
+    ZI_WORK->koAltTables = 0;
     ZI_WORK->unk_0x1B3A = 0;
     ZI_WORK->unk_0x1B36 = 0;
     ZI_WORK->unk_0x1B32 = 0;

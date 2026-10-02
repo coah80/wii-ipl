@@ -328,7 +328,7 @@ struct __zi8_work_data_s {
             ziU32 msb : 1;
         } bits;
     } unk_0x1B2C;
-    ziU8 unk_0x1B30;
+    ziU8 koAltTables;  // 0x1B30
     ziU8 unk_0x1B31;
     ziU16 unk_0x1B32;
     ziU16 unk_0x1B34;
