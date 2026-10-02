@@ -656,10 +656,10 @@ static void TMCJPEGDEC_converterYUV420toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
                     blueOffset = (cbValue * 454) >> 8;
                 }
                 {
-                    s32 value = *luminance++;
-                    s32 green = value + greenOffset;
-                    s32 red = value + redOffset;
-                    s32 blue = value + blueOffset;
+                    s32 red = *luminance++;
+                    s32 green = red + greenOffset;
+                    s32 blue = red + blueOffset;
+                    red = red + redOffset;
                     if ((green | red | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
