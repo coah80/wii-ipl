@@ -147,15 +147,18 @@ void TMCJPEGDEC_IdctBlock4x4_Col(s32* sp, u8* conv_row_ptr, u16 pitch, s32 zigza
         s32 evdiff1 = a1 - c1;
         s32 rot1 = (odddiff1 * 0xB5) >> 8;
 
-        dst[0] = evsum0 + (oddsum0 + rot0);
+        s32 oddrot0 = oddsum0 + rot0;
+        s32 oddrot1 = oddsum1 + rot1;
+
+        dst[0] = evsum0 + oddrot0;
         dst[1] = evdiff0 + rot0;
         dst[2] = evdiff0 - rot0;
-        dst[3] = evsum0 - (oddsum0 + rot0);
+        dst[3] = evsum0 - oddrot0;
 
-        dst[-8] = evsum1 + (oddsum1 + rot1);
+        dst[-8] = evsum1 + oddrot1;
         dst[-7] = evdiff1 + rot1;
         dst[-6] = evdiff1 - rot1;
-        dst[-5] = evsum1 - (oddsum1 + rot1);
+        dst[-5] = evsum1 - oddrot1;
 
         src -= 16;
         dst -= 16;
