@@ -986,9 +986,16 @@ static BOOL NHTTPi_ThreadParseHeaderProc(NHTTPThreadContext* context)
         if (length > 0x100) context->keepAlive = FALSE;
         else if (length > 0)
         {
+            struct TokenMatch {
+                BOOL matched;
+            };
+            struct TokenMatch match = {FALSE};
             if (NHTTPi_compareTokenN_HdrRecvBuf(response, offset, offset + length, "Keep-Alive", 0) == 0)
-                context->keepAlive = TRUE;
-            else context->keepAlive = FALSE;
+            {
+                match.matched = TRUE;
+                context->keepAlive = match.matched;
+            }
+            else context->keepAlive = match.matched;
         }
         else context->keepAlive = FALSE;
     }

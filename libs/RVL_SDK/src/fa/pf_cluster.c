@@ -603,31 +603,35 @@ pf_s32 PFCLUSTER_InsertCluster(PFCLUSTER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent,
 
 pf_s32 PFCLUSTER_DeleteCluster(PFCLUSTER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent,
     pf_u32 cluster_index, pf_u32 num_clusters, pf_u32* p_deleted_clusters) {
+    struct ClusterDeletion {
+        pf_u32 length;
+        pf_u32 cluster_size;
+        pf_u32 position;
+    };
+    struct ClusterDeletion deletion;
     pf_s32 err;
     pf_u32 previous_cluster;
     pf_u32 next_cluster;
     pf_u32 first_deleted_cluster;
     pf_u32 last_deleted_cluster;
     PF_VOLUME* p_vol;
-    pf_u32 cluster_size;
-    pf_u32 byte_position;
 
     p_vol = p_ent->p_vol;
-    cluster_size = p_vol->bpb.bytes_per_sector << p_vol->bpb.log2_sectors_per_cluster;
-    byte_position = cluster_index * cluster_size;
+    deletion.cluster_size = p_vol->bpb.bytes_per_sector << p_vol->bpb.log2_sectors_per_cluster;
+    deletion.position = cluster_index * deletion.cluster_size;
     err = PFFAT_TraceClustersChain(&p_iter->ffd, *p_iter->ffd.p_start_cluster,
-        byte_position, &previous_cluster, &first_deleted_cluster);
+        deletion.position, &previous_cluster, &first_deleted_cluster);
     if (err != 0) return err;
     if (cluster_index == 0) first_deleted_cluster = p_ent->start_cluster;
-    num_clusters = num_clusters * cluster_size;
-    if (num_clusters > p_ent->file_size - byte_position) num_clusters = p_ent->file_size - byte_position;
-    err = PFFAT_TraceClustersChain(&p_iter->ffd, first_deleted_cluster, num_clusters, &last_deleted_cluster, &next_cluster);
+    deletion.length = num_clusters * deletion.cluster_size;
+    if (deletion.length > p_ent->file_size - deletion.position) deletion.length = p_ent->file_size - deletion.position;
+    err = PFFAT_TraceClustersChain(&p_iter->ffd, first_deleted_cluster, deletion.length, &last_deleted_cluster, &next_cluster);
     if (err != 0) return err;
     if (cluster_index == 0) {
         if (next_cluster == PFFAT_GetValueOfEOC2(p_vol)) next_cluster = 0;
         p_ent->start_cluster = next_cluster;
     }
-    p_ent->file_size -= num_clusters;
+    p_ent->file_size -= deletion.length;
     PFENT_getcurrentDateTimeForEnt(&p_ent->modify_date, &p_ent->modify_time);
     p_ent->access_date = p_ent->modify_date;
     err = PFENT_updateEntry(p_ent, 1);
@@ -636,13 +640,13 @@ pf_s32 PFCLUSTER_DeleteCluster(PFCLUSTER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent,
         err = PFCACHE_FlushDataCacheSpecific(p_vol, PF_NULL);
         if (err != 0) return err;
     }
-    err = PFFAT_FreeChain(&p_iter->ffd, first_deleted_cluster, -1U, num_clusters);
+    err = PFFAT_FreeChain(&p_iter->ffd, first_deleted_cluster, -1U, deletion.length);
     if (err != 0) return err;
     if (cluster_index != 0) {
         err = PFFAT_WriteValueToSpecifiedCluster(p_vol, previous_cluster, next_cluster);
         if (err != 0) return err;
     }
-    *p_deleted_clusters = num_clusters / cluster_size;
-    if (num_clusters % cluster_size != 0) ++*p_deleted_clusters;
+    *p_deleted_clusters = deletion.length / deletion.cluster_size;
+    if (deletion.length % deletion.cluster_size != 0) ++*p_deleted_clusters;
     return 0;
 }

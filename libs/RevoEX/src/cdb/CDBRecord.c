@@ -669,9 +669,10 @@ CDBErr CDBCryptBuffer(void* buffer, u32 size, void* iv, u32* processedSize, BOOL
 CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 size, u32* encryptedSize) {
     CDBRecordFile* recordFile;
     CDBErr err;
-    u32 fileSize;
     u32 dataSize;
+    u32 fileSize;
     u32 cryptSize;
+    u32 authenticatedSize;
     int fileOffset;
     u8 iv[0x10];
     u8 wiiIdKey[0x40] ATTRIBUTE_ALIGN(64);
@@ -760,10 +761,11 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
     if ((s32)record->file == 0) {
         err = CDB_ERROR_27;
     } else {
-        fileOffset = CDBRecordFileTellData(record);
-        if (fileOffset < 0) {
+        int position = CDBRecordFileTellData(record);
+        if (position < 0) {
             err = CDB_ERROR_CANNOT_OPEN_FILE;
         } else {
+            fileOffset = position;
             err = CDB_ERROR_OK;
         }
     }
@@ -810,8 +812,9 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
     CDBGetWiiIdKey((char*)wiiIdKey);
     CDBGetDeviceKey((char*)&wiiIdKey[12]);
     CDBAttrClearSignature((CDBAttr*)buffer);
+    authenticatedSize = cryptSize + CDB_RECORD_BUFFER_SIZE;
     NETHMACInit(&hmac, NETGetSHA1Interface(), wiiIdKey, 0x40);
-    NETHMACUpdate(&hmac, buffer, cryptSize + CDB_RECORD_BUFFER_SIZE);
+    NETHMACUpdate(&hmac, buffer, authenticatedSize);
     NETHMACGetDigest(&hmac, digest);
     memcpy(((CDBAttrBuf*)buffer)->signature.sha1Hmac, digest, sizeof(digest));
     if (encryptedSize != 0) {
