@@ -19,8 +19,13 @@ namespace nw4r {
             template <typename T>
             class AutoLock : private NonCopyable {
             public:
+#ifdef EGG_AUDIO_EXPMGR_NO_INLINE_VIRTUALS
+                explicit AutoLock(T& rLockObj);
+                ~AutoLock();
+#else
                 explicit AutoLock(T& rLockObj) : mLockObj(rLockObj) { Lock(rLockObj); }
                 ~AutoLock() { Unlock(mLockObj); }
+#endif
 
             private:
                 T& mLockObj;  // 0x00
