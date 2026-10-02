@@ -1298,8 +1298,8 @@ static void __ClearControlBlock(s32 chan) {
     memset(&p->decryptXorTable, 0, sizeof(p->decryptXorTable));
     memset(&p->gameInfo, 0, sizeof(WPADGameInfo));
 
-    p->unk_0x38[0] = -1;
-    p->unk_0x38[1] = -1;
+    p->gameInfoStatus[0] = -1;
+    p->gameInfoStatus[1] = -1;
 
     p->stdCmdQueue.buffer = p->stdCmdQueueList;
     p->stdCmdQueue.capacity = ARRAY_LENGTH(p->stdCmdQueueList);

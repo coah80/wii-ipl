@@ -547,9 +547,9 @@ static void getGameInfo(s32 chan, s32 result, u8 index) {
 
         if (p_info->checksum == sum) {
             memcpy(&p_wpd->gameInfo, p_buf, sizeof(WPADMEMGameInfo));
-            p_wpd->unk_0x38[index] = WPAD_ERR_NONE;
+            p_wpd->gameInfoStatus[index] = WPAD_ERR_NONE;
         } else {
-            p_wpd->unk_0x38[index] = WPAD_ERR_INVALID;
+            p_wpd->gameInfoStatus[index] = WPAD_ERR_INVALID;
         }
     }
 }
