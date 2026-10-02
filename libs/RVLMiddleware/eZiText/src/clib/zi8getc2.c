@@ -279,13 +279,13 @@ static ziBool Zi8ZhSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED_WO
 
 ziU8 _Zi8GetCandidates(ziGetParam* parameters ZI_NEED_WORK) {
     ZiCandidateOptions options = {0};
-    options.capacity = ZI_WORK->unk_0x141A;
+    options.capacity = ZI_WORK->capacity;
     return Zi8GetCandidatesOrCount(parameters, &options, ZI_WORK);
 }
 
 ziU8 _Zi8CheckCandidates(ziGetParam* parameters ZI_NEED_WORK) {
     ZiCandidateOptions options = {0};
-    options.capacity = ZI_WORK->unk_0x141A;
+    options.capacity = ZI_WORK->capacity;
     options.flags = 1;
     return Zi8GetCandidatesOrCount(parameters, &options, ZI_WORK);
 }
