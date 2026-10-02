@@ -17,14 +17,19 @@ typedef struct SocketOption {
     u8 value[20];
 } SocketOption;
 
-typedef struct InterfaceCommand { int level; int option; } InterfaceCommand;
+typedef union InterfaceCommand {
+    struct { int level; int option; };
+    u8 bytes[32];
+} InterfaceCommand;
+
+typedef union InterfaceLength {
+    int length;
+    u8 bytes[32];
+} InterfaceLength;
 
 typedef struct InterfaceOption {
     IOSIoVector vectors[4];
-    union {
-        InterfaceCommand command;
-        u8 commandBlock[32];
-    };
+    InterfaceCommand command;
     union {
         int length;
         u8 lengthBlock[32];
@@ -34,10 +39,7 @@ typedef struct InterfaceOption {
 
 typedef struct InterfaceSetting {
     IOSIoVector vectors[4];
-    union {
-        InterfaceCommand command;
-        u8 commandBlock[32];
-    };
+    InterfaceCommand command;
     u8 value[1];
 } InterfaceSetting;
 
@@ -96,9 +98,9 @@ static int OptionLength(int* length) {
 int SOGetInterfaceOpt(void* interface, int level, int option, void* value, int* length) {
     s32 rm;
     int temporary;
-    InterfaceOption* request;
-    int result;
     int size;
+    int result;
+    InterfaceOption* request;
     InterfaceCommand* command;
     int* returnedLength;
     u8* reply;
@@ -111,8 +113,8 @@ int SOGetInterfaceOpt(void* interface, int level, int option, void* value, int* 
             else {
                 command=&request->command;
                 command->level=level; command->option=option;
-                returnedLength=&request->length;
-                reply=request->value;
+                returnedLength=&((InterfaceLength*)(command + 1))->length;
+                reply=(u8*)((InterfaceLength*)returnedLength + 1);
                 *returnedLength=OptionLength(length);
                 request->vectors[0].base=(u8*)command;
                 request->vectors[0].length=8;
@@ -138,9 +140,9 @@ int SOGetInterfaceOpt(void* interface, int level, int option, void* value, int* 
 int SOSetInterfaceOpt(void* interface, int level, int option, const void* value, int length) {
     s32 rm;
     int temporary;
-    InterfaceSetting* request;
-    int result;
     int size;
+    int result;
+    InterfaceSetting* request;
     InterfaceCommand* command;
     u8* reply;
     if ((result=SOiPrepareTempRm(NULL,&rm,&temporary))==0) {
@@ -152,7 +154,7 @@ int SOSetInterfaceOpt(void* interface, int level, int option, const void* value,
             else {
                 command=&request->command;
                 command->level=level; command->option=option;
-                reply=request->value;
+                reply=(u8*)(command + 1);
                 if(value) memcpy(reply,value,length);
                 else memset(reply,0,length);
                 request->vectors[0].base=(u8*)command; request->vectors[0].length=8;

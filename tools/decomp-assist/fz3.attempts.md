@@ -599,3 +599,231 @@ src/keyboard/tiSignWindow POOL IDENTICAL up to 30 (mine=30 base=30)
 libs/RVL_SDK/src/fa/msc/puh_msc_blk POOL IDENTICAL up to 0 (mine=0 base=0)
 libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32 POOL IDENTICAL up to 0 (mine=0 base=0)
 Fresh clean FAT ctxdiff155/155 diffs0. Code bytes1544->2164, exactfunctions3->4. Other exact counts unchanged. JPEG fuzzy99.03261->99.10507; declaration/direct-expression improvement remains partial. All owned data100%; no configuration/linking edits. Final full gate PASS, DOL correct, regressions0, forbidden0, readability0. Original JPEG inline-helper/copy layout remains uncertain.
+
+# Round 3
+HEAD c6c0b145f823573a643925eacc094af8547ff502 origin/main 5fe0a61af71d078b7b2da949b49a9cf30e81d66f
+src/keyboard/tiSignWindow POOL IDENTICAL up to 30 (mine=30 base=30)
+libs/RVL_SDK/src/fa/msc/puh_msc_blk POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32 POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RVL_SDK/src/fa/pf_entry_iterator POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RevoEX/src/so/SOOption POOL IDENTICAL up to 0 (mine=0 base=0)
+src/keyboard/tiString POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RVL_SDK/src/fa/pf_volume POOL IDENTICAL up to 1 (mine=1 base=1)
+Round 3 create diagnosis: frame 0x50 and 221 instructions equal; branch forms/helper inlining equal; all 34 differences register allocation, including hoisted vtables and loop state. origin source unchanged.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | r3 animation pointer temporary | BUILD FAIL i libs/RVLMiddleware/eZiText/include -i libs/RVLMiddleware/TMC_JPEG/include -i libs/RVLFaceLib/include -i libs/EGG/include -i libs/OperaWWW/include -ir libs/RVL_SDK/include/private/bte -i build/43U/include -DBUILD_VERSION=0 -DVERSION_43U -i libs/RVL_SDK/include/private/bte -DNDEBUG=1 -DTARGET_RVL -W nomissingreturn -ipa file -gccinc -fp_contract off -O4,s -enc SJIS -lang=c++ -O4,p -MMD -c src/keyboard/tiSignWindow.cpp -o build/43U/src/src/keyboard && "/usr/bin/python3" tools/transform_dep.py build/43U/src/src/keyboard/tiSignWindow.d build/43U/src/src/keyboard/tiSignWindow.d
+### mwcceppc.exe Compiler:
+#    File: src\keyboard\tiSignWindow.cpp
+# --------------------------------------
+#     252:             const Animation* animation = paneInfo.animations[animationIndex]; 
+# Warning:                   ^^^^^^^^^
+#   (10349) implicit 'int' is no longer supported in C++
+### mwcceppc.exe Compiler:
+#     252:             const Animation* animation = paneInfo.animations[animationIndex]; 
+#   Error:                            ^
+#   (10224) 'const' or '&' variable needs initializer
+#   Too many errors printed, aborting program
+
+User break, cancelled...
+ninja: build stopped: subcommand failed.
+
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | r3 move force/count into loop scope | 221/221 instructions; structural/exact differences (0, 61)
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | r3 outer for loop | 221/221 instructions; structural/exact differences (0, 34)
+221/221 instructions; structural/exact differences (0, 34)
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | r3 corrected animation temporary | 219/221 instructions; structural/exact differences (9, 91)
+Round 3 pread diagnosis: 129/129 instructions, frame 0x40 identical; 10 register differences transfer_blocks and byte product. No structural/operand-order differences; origin source unchanged.
+uhf_msc_blk_pread | r3 conditional transfer selection | 129/129 instructions; structural/exact differences (0, 10)
+uhf_msc_blk_pread | r3 byte product scoped to success | 129/129 instructions; structural/exact differences (0, 10)
+uhf_msc_blk_pread | r3 count signed temporary | 129/129 instructions; structural/exact differences (0, 10)
+Round 3 JPEG diagnosis: frame/instruction counts equal (276), 12 structural differences in returned Huffman aggregate stack slots; remaining coloring differences. origin source unchanged.
+TMCJPEGDEC_decode_iquant | r3 shared entry aggregate | 276/276 instructions; structural/exact differences (10, 41)
+TMCJPEGDEC_decode_iquant | r3 AC aggregate declared in AC scope | 276/276 instructions; structural/exact differences (12, 46)
+TMCJPEGDEC_decode_iquant | r3 reverse returned entry declaration fields loads | 276/276 instructions; structural/exact differences (18, 47)
+FindCluster diagnosis: same 0xb0 frame/237 instructions, all 8 differences constant-one vs shifted entries register allocation; no branch or helper boundary differences. origin source unchanged.
+PFENT_ITER_FindCluster | initialize shifted entries before iterator fields | 238/237 instructions; structural/exact differences (13, 208)
+PFENT_ITER_FindCluster | use iterator start cluster as shift operand | 237/237 instructions; structural/exact differences (0, 8)
+PFENT_ITER_FindCluster | sector scalar state | 237/237 instructions; structural/exact differences (0, 11)
+Last-register searches: create 6 permutations no change (0,34); pread40 no change (0,10); JPEG35 no change (12,46); FindCluster35 no change (0,8).
+GetLFNEntryName diagnosis: 73/73, target loop uses i*13 index strengthened to byte offset; source carries an advancing pointer and independent character index. Target terminator uses reloaded num_entry_LFNs*13. Branch/helper forms equal.
+PFENT_ITER_GetLFNEntryName | indexed 13 character fragments and reloaded terminator | 76/73 instructions; structural/exact differences (26, 75)
+PFENT_ITER_GetLFNEntryName | typed LFN fragment array indexed by entry | 76/73 instructions; structural/exact differences (26, 75)
+PFENT_ITER_GetLFNEntryName | fragment array typedef, loop-local base initialization | 76/73 instructions; structural/exact differences (26, 75)
+PFENT_ITER_GetLFNEntryName | explicit byte offset for packed LFN copies; byte-size terminator | 76/73 instructions; structural/exact differences (24, 75)
+PFENT_ITER_GetLFNEntryName | packed fragment inline helper boundary | 76/73 instructions; structural/exact differences (24, 75)
+SOGetInterfaceOpt diagnosis: 119/119, frame equal, target computes command/reply/length from nested payload bases; source uses direct request bases. Also register assignment/scheduling. origin source unchanged.
+SOGetInterfaceOpt | construct all buffer pointers before command assignments | 119/119 instructions; structural/exact differences (5, 16)
+SOGetInterfaceOpt | command fields in opposite statement order | 119/119 instructions; structural/exact differences (10, 14)
+SOGetInterfaceOpt | returned length after reply assignment | 119/119 instructions; structural/exact differences (5, 16)
+SOSetInterfaceOpt diagnosis: 74/74 frame/calls/branches equal; payload pointer derived from command base target, direct request source. Source stores option after reply pointer, target before. origin source unchanged.
+SOSetInterfaceOpt | reply pointer before stores | 74/74 instructions; structural/exact differences (4, 14)
+SOSetInterfaceOpt | reverse command assignments | 74/74 instructions; structural/exact differences (6, 19)
+SOSetInterfaceOpt | request and allocation size scalar state | 74/74 instructions; structural/exact differences (4, 15)
+inputChar diagnosis: target136/source125 frame0x30 same; target translate mode3 uses indexed character append with count++ and trailing NUL, source direct scalar stores. Target dead newline comparison suggests converter helper boundary. origin source unchanged.
+inputChar__Q39textinput8tistring9DecolatedFw | mode3 indexed append | 125/136 instructions; structural/exact differences (18, 73)
+inputChar__Q39textinput8tistring9DecolatedFw | mode3 scan append index | 137/136 instructions; structural/exact differences (17, 74)
+inputChar__Q39textinput8tistring9DecolatedFw | mode3 count as conversion state | 125/136 instructions; structural/exact differences (18, 73)
+p_rmvvol diagnosis: 64/64 frame0x500 equal; constant target lbz SDA21 vs source folded li0xe5. Target indicates aggregate initialization from small constant template, investigate genuine local byte array.
+PFVOL_p_rmvvol | one byte local deleted marker array initializer | 64/64 instructions; structural/exact differences (0, 0)
+PFVOL_p_rmvvol | array initialized from existing constant object | BUILD FAIL  -maxerrors 1 -nosyspath -RTTI off -fp_contract on -str reuse -DSDK_IPL -D_REVOLUTION -DMEM_MANAGER_DIRECT -i include -i include/global -i libs/MetroTRK/include -i libs/Runtime/include -i libs/MSL/include -i libs/RVL_SDK/include -i libs/RevoEX/include -i libs/NW4R/include -i libs/RVLMiddleware/eZiText/include -i libs/RVLMiddleware/TMC_JPEG/include -i libs/RVLFaceLib/include -i libs/EGG/include -i libs/OperaWWW/include -ir libs/RVL_SDK/include/private/bte -i build/43U/include -DBUILD_VERSION=0 -DVERSION_43U -i libs/RVL_SDK/include/private/bte -DNDEBUG=1 -DTARGET_RVL -ipa file -fp_contract off -lang=c -MMD -c libs/RVL_SDK/src/fa/pf_volume.c -o build/43U/src/libs/RVL_SDK/src/fa && "/usr/bin/python3" tools/transform_dep.py build/43U/src/libs/RVL_SDK/src/fa/pf_volume.d build/43U/src/libs/RVL_SDK/src/fa/pf_volume.d
+### mwcceppc.exe Compiler:
+#    File: libs\RVL_SDK\src\fa\pf_volume.c
+# ----------------------------------------
+#     588:     u8 deleted[1] = {deleted_entry_mark[0]}; 
+#   Error:                                            ^
+#   (10124) illegal constant expression
+#   Too many errors printed, aborting program
+
+User break, cancelled...
+ninja: build stopped: subcommand failed.
+
+PFVOL_p_rmvvol | single field aggregate initializer | 64/64 instructions; structural/exact differences (0, 0)
+p_rmvvol local byte-array yields exact instructions but .sdata2 is1byte versus target8byte padded extent; gate currently fails matched-data regression8. No commit until resolved.
+PFVOL_p_rmvvol | read marker helper | 64/64 instructions; structural/exact differences (2, 4)
+PFVOL_p_rmvvol | pointer local | 64/64 instructions; structural/exact differences (2, 4)
+PFVOL_p_rmvvol | char aggregate through constant pointer | 64/64 instructions; structural/exact differences (2, 4)
+attach diagnosis: 174/176 frame0x20 same. clear_mount return value allocation crosses inline boundary; target moves failure result to r0 and materializes success0 before checking. Shared helper must not regress other matched users.
+PFVOL_attach | mount helper return variable declared separately | 174/176 instructions; structural/exact differences (10, 39)
+PFVOL_attach | scope mount result into aggregate | 174/176 instructions; structural/exact differences (10, 39)
+PFVOL_attach | error branch else form | 174/176 instructions; structural/exact differences (10, 39)
+PFVOL_attach | success branch first in mount helper | 174/176 instructions; structural/exact differences (19, 39)
+setcode diagnosis: 23/23 instructions; aggregate assignment loads all six pointers then stores, target alternates field load/store. Six real function pointer fields should copy individually.
+PFVOL_setcode | explicit code conversion callback copies | 23/23 instructions; structural/exact differences (10, 17)
+PFVOL_setcode | mutable callback table pointer with field copies | 23/23 instructions; structural/exact differences (0, 0)
+setcode exact: mutable code_set pointer preserves potential alias between callback field reads and global field stores.
+
+SOOption register search: size-before-request declarations improve GetInterface16->10 differences and SetInterface14->4; source retained. setcode23/23 exact, volume33->34; quick gate PASS with regressions0/data unchanged. p_rmvvol exact local-array candidate abandoned because data regression; existing source/data restored.
+regctx diagnosis: 75/75, frame0x10 same; 15 differences free_context_index vs masked status r5/r8 allocation in unrolled three-context loop. All branch/operand/helper boundaries identical; origin source unchanged except our setcode match.
+PFVOL_regctx | status declared at function scope | 75/75 instructions; structural/exact differences (0, 15)
+PFVOL_regctx | free and status typed state | 75/75 instructions; structural/exact differences (0, 25)
+PFVOL_regctx | status tested through stored full flags | 75/75 instructions; structural/exact differences (0, 14)
+SOOption | genuine nested IPC payload layout | 119/119 instructions; structural/exact differences (5, 10); set 74/74 instructions; structural/exact differences (4, 4)
+PFVOL_regctx | search state free_context_index,context_index | 75/75 instructions; structural/exact differences (0, 25)
+PFVOL_regctx | search state free_context_index,error | 75/75 instructions; structural/exact differences (0, 15)
+PFVOL_regctx | search state free_context_index,stat | 75/75 instructions; structural/exact differences (0, 25)
+PFVOL_regctx | search state context_index,error | 75/75 instructions; structural/exact differences (0, 20)
+PFVOL_regctx | search state context_index,stat | 75/75 instructions; structural/exact differences (0, 16)
+PFVOL_regctx | search state error,stat | 75/75 instructions; structural/exact differences (0, 14)
+PFVOL_regctx | search state free_context_index,context_index,error | 75/75 instructions; structural/exact differences (0, 25)
+PFVOL_regctx | search state free_context_index,context_index,stat | 75/75 instructions; structural/exact differences (0, 25)
+PFVOL_regctx | search state free_context_index,error,stat | 75/75 instructions; structural/exact differences (0, 25)
+PFVOL_regctx | search state context_index,error,stat | 75/75 instructions; structural/exact differences (0, 16)
+PFVOL_regctx | search state free_context_index,context_index,error,stat | 75/75 instructions; structural/exact differences (0, 25)
+SOOption | typed 32-byte IPC blocks with sequential payload addressing | 119/119 instructions; structural/exact differences (0, 5); set 74/74 instructions; structural/exact differences (0, 0)
+IPC block proof: target command at request+32, length at command+32, value at length+32 (set value at command+32); existing storage already reserves these 32-byte IPC blocks. Typed pointer traversal preserves allocation/layout; SetInterface 74/74 diffs0, Get119/119 structural0/exact5.
+PFENT_ITER_GetLFNEntryName | byte fragment state i,index | 76/73 instructions; structural/exact differences (24, 74)
+PFENT_ITER_GetLFNEntryName | byte fragment state index,err | 76/73 instructions; structural/exact differences (24, 75)
+PFENT_ITER_GetLFNEntryName | byte fragment state i,index,err | 76/73 instructions; structural/exact differences (24, 74)
+SOGetInterfaceOpt | option input state level,option | 119/119 instructions; structural/exact differences (0, 5)
+SOGetInterfaceOpt | option input state option,level | 119/119 instructions; structural/exact differences (0, 5)
+SOGetInterfaceOpt | option input state level,option,length | 119/119 instructions; structural/exact differences (0, 5)
+SOGetInterfaceOpt | option input state level,option,value | 119/119 instructions; structural/exact differences (0, 5)
+SOGetInterfaceOpt | random permutations 50 | best remains (0, 5)
+SOGetInterfaceOpt | random permutations 100 | best remains (0, 5)
+SOGetInterfaceOpt | random permutations 150 | best remains (0, 5)
+SOGetInterfaceOpt | random permutations 200 | best remains (0, 5)
+SOGetInterfaceOpt | random permutations 250 | best remains (0, 5)
+SOGetInterfaceOpt | random permutations 300 | best remains (0, 5)
+SOGetInterfaceOpt | random permutations 350 | best remains (0, 5)
+SOGetInterfaceOpt | random permutations 400 | best remains (0, 5)
+PFVOL_attach | ignored mount status return zero | 174/176 instructions; structural/exact differences (10, 39)
+PFVOL_attach | mount helper returns void | 174/176 instructions; structural/exact differences (10, 39)
+PFVOL_attach | mount check distinct status result | 174/176 instructions; structural/exact differences (10, 39)
+Structural frame correction: FindCluster is0xa0, not0xb0; JPEG0x50; GetLFN/GetInterface/SetInterface0x30. Registers and frame statements verified against fresh target disassembly.
+
+SOOption final quick gate PASS, regressions0, forbidden0/readability0, no data. SetInterface exact count2->3/code520->816; GetInterface remains99.78992 with five pure parameter-register differences after400 additional declaration permutations.
+
+Completeness audit: all10 remaining functions have at least3 distinct successful-build source attempts in Round3; no untried open function. All seven owned data sections100%, no symbol/configuration changes. Exact p_rmvvol local-byte-array candidate reverted because7 target alignment bytes caused data regression; initializer/extent uncertain. GetLFN induction shape, inputChar converter helper, attach return helper, JPEG aggregate stack scope remain uncertain.
+
+## Final full clean gate, Round3
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/keyboard/tiSignWindow] pool: IDENTICAL
+[src/keyboard/tiSignWindow] objdiff: code 6300/7184 data 3468/3468 functions 55/56 fuzzy 99.8914 linked code 0
+[src/keyboard/tiSignWindow] instruction-exact functions: 55/56
+[src/keyboard/tiSignWindow]   section .ctors size 4 match 100.0
+[src/keyboard/tiSignWindow]   section .data size 2672 match 100.0
+[src/keyboard/tiSignWindow]   section .rodata size 784 match 100.0
+[src/keyboard/tiSignWindow]   section .sdata size 8 match 100.0
+[src/keyboard/tiSignWindow]   section .text size 7184 match 99.891426
+[src/keyboard/tiSignWindow]   below 100: create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator 99.117645
+[src/keyboard/tiSignWindow] baseline: code 6300/7184 data 3468 functions 55 fuzzy 99.8914
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk] objdiff: code 1556/2072 data 424/424 functions 10/11 fuzzy 99.8938 linked code 0
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk] instruction-exact functions: 10/11
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   section .bss size 384 match 100.0
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   section .data size 32 match 100.0
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   section .sbss size 8 match 100.0
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   section .text size 2072 match 99.89382
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk]   below 100: uhf_msc_blk_pread 99.57365
+[libs/RVL_SDK/src/fa/msc/puh_msc_blk] baseline: code 1556/2072 data 424 functions 10 fuzzy 99.8938
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] objdiff: code None/1104 data None/None functions 0/1 fuzzy 99.1051 linked code 0
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] instruction-exact functions: 0/1
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32]   section .text size 1104 match 99.10507
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32]   below 100: TMCJPEGDEC_decode_iquant 99.10507
+[libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32] baseline: code None/1104 data None functions 0 fuzzy 99.1051
+[libs/RVL_SDK/src/fa/pf_entry_iterator] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_entry_iterator] objdiff: code 6640/7880 data 24/24 functions 14/16 fuzzy 99.6264 linked code 0
+[libs/RVL_SDK/src/fa/pf_entry_iterator] instruction-exact functions: 14/16
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .sdata size 24 match 100.0
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .text size 7880 match 99.626396
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   below 100: PFENT_ITER_FindCluster 99.81013
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   below 100: PFENT_ITER_GetLFNEntryName 90.53425
+[libs/RVL_SDK/src/fa/pf_entry_iterator] baseline: code 6640/7880 data 24 functions 14 fuzzy 99.6264
+[libs/RevoEX/src/so/SOOption] pool: IDENTICAL
+[libs/RevoEX/src/so/SOOption] objdiff: code 816/1292 data None/None functions 3/4 fuzzy 99.9226 linked code 0
+[libs/RevoEX/src/so/SOOption] instruction-exact functions: 3/4
+[libs/RevoEX/src/so/SOOption]   section .text size 1292 match 99.9226
+[libs/RevoEX/src/so/SOOption]   below 100: SOGetInterfaceOpt 99.78992
+[libs/RevoEX/src/so/SOOption] baseline: code 520/1292 data None functions 2 fuzzy 97.5759
+[src/keyboard/tiString] pool: IDENTICAL
+[src/keyboard/tiString] objdiff: code 4632/5176 data 288/288 functions 41/42 fuzzy 98.9629 linked code 0
+[src/keyboard/tiString] instruction-exact functions: 41/42
+[src/keyboard/tiString]   section .data size 288 match 100.0
+[src/keyboard/tiString]   section .text size 5176 match 98.962906
+[src/keyboard/tiString]   below 100: inputChar__Q39textinput8tistring9DecolatedFw 90.132355
+[src/keyboard/tiString] baseline: code 4632/5176 data 288 functions 41 fuzzy 98.9629
+[libs/RVL_SDK/src/fa/pf_volume] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_volume] objdiff: code 16732/17992 data 210976/210976 functions 34/37 fuzzy 99.8755 linked code 0
+[libs/RVL_SDK/src/fa/pf_volume] instruction-exact functions: 34/37
+[libs/RVL_SDK/src/fa/pf_volume]   section .bss size 210944 match 100.0
+[libs/RVL_SDK/src/fa/pf_volume]   section .data size 16 match 100.0
+[libs/RVL_SDK/src/fa/pf_volume]   section .sdata size 8 match 100.0
+[libs/RVL_SDK/src/fa/pf_volume]   section .sdata2 size 8 match 100.0
+[libs/RVL_SDK/src/fa/pf_volume]   section .text size 17992 match 99.8755
+[libs/RVL_SDK/src/fa/pf_volume]   below 100: PFVOL_p_rmvvol 95.9375
+[libs/RVL_SDK/src/fa/pf_volume]   below 100: PFVOL_attach 98.72159
+[libs/RVL_SDK/src/fa/pf_volume]   below 100: PFVOL_regctx 99.0
+[libs/RVL_SDK/src/fa/pf_volume] baseline: code 16640/17992 data 210976 functions 33 fuzzy 99.6396
+regressions vs baseline: 0
+global matched_code_percent: 88.68973 -> 88.70268
+global fuzzy_match_percent: 99.47443 -> 99.47685
+global complete_code_percent: 63.16065 -> 63.16065
+global matched_data_percent: 98.51344 -> 98.51344
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+Instruction exact functions; objdiff matched code bytes; matched data bytes, before -> after:
+src/keyboard/tiSignWindow: functions 55/56 -> 55/56; code 6300 -> 6300 / 7184; data 3468 -> 3468 / 3468
+libs/RVL_SDK/src/fa/msc/puh_msc_blk: functions 10/11 -> 10/11; code 1556 -> 1556 / 2072; data 424 -> 424 / 424
+libs/RVLMiddleware/TMC_JPEG/src/b65/iqdec_b65_frv32: functions 0/1 -> 0/1; code 0 -> 0 / 1104; data 0 -> 0 / 0
+libs/RVL_SDK/src/fa/pf_entry_iterator: functions 14/16 -> 14/16; code 6640 -> 6640 / 7880; data 24 -> 24 / 24
+libs/RevoEX/src/so/SOOption: functions 2/4 -> 3/4; code 520 -> 816 / 1292; data 0 -> 0 / 0
+src/keyboard/tiString: functions 41/42 -> 41/42; code 4632 -> 4632 / 5176; data 288 -> 288 / 288
+libs/RVL_SDK/src/fa/pf_volume: functions 33/37 -> 34/37; code 16640 -> 16732 / 17992; data 210976 -> 210976 / 210976
+
+Remaining unmatched functions, every one has >=3 distinct Round3 source experiments:
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator: 99.117645%; 34 register-only differences; vtable/loop state coloring
+uhf_msc_blk_pread: 99.57365%; 10 register-only count/product differences
+TMCJPEGDEC_decode_iquant: 99.10507%; 12 structural stack-slot differences in Huffman aggregate returns, plus register coloring
+PFENT_ITER_FindCluster: 99.81013%; 8 register-only shifted-entry vs constant-one differences
+PFENT_ITER_GetLFNEntryName: 90.53425%; pointer induction vs target byte-index loop; terminator uses count reload
+SOGetInterfaceOpt: 99.78992%; 5 parameter-register coloring differences; structure now exact
+inputChar__Q39textinput8tistring9DecolatedFw: 90.132355%; 125/136 instructions; mode3 conversion append/helper boundary unresolved
+PFVOL_p_rmvvol: 95.9375%; folded constant vs target byte-template load; exact candidate rejected for data regression
+PFVOL_attach: 98.72159%; 174/176 instructions; inline clear_mount return boundary
+PFVOL_regctx: 99.0%; 15 register-only status/free-index differences
+
+Changed source files: libs/RevoEX/src/so/SOOption.c and libs/RVL_SDK/src/fa/pf_volume.c; attempts log tools/decomp-assist/fz3.attempts.md. Commits43b95ca5/d4a8860d. No config/symbol edits. Full clean gate PASS; pool identical across7 units; regressions0, forbidden0, readability0, target DOL SHA1 preserved.
