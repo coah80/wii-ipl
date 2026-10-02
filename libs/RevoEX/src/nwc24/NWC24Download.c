@@ -1043,6 +1043,7 @@ closeList:
 
 NWC24Err NWC24iCheckDlHeaderConsistency(DlTaskListHeader* header, BOOL repair) {
     NWC24DlTask task;
+    DlTaskData* taskData = (DlTaskData*)&task;
     NWC24DlTask* taskPointer = &task;
     NWC24DlId taskId;
     NWC24Err result;
@@ -1064,14 +1065,14 @@ NWC24Err NWC24iCheckDlHeaderConsistency(DlTaskListHeader* header, BOOL repair) {
         if (result < NWC24_OK) {
             if (ValidateDlTask(taskPointer, FALSE) == NWC24_OK) {
                 result = DeleteDlTask(taskPointer);
-                if (result >= NWC24_OK) { ((DlTaskData*)taskPointer)->id = 0xffff; }
+                if (result >= NWC24_OK) { taskData->id = 0xffff; }
             }
         } else {
             currentHeader = GetCachedDlHeader();
-            if (taskId >= currentHeader->taskCount && (s16)((DlTaskData*)taskPointer)->subTaskCount == 0) {
+            if (taskId >= currentHeader->taskCount && (s16)taskData->subTaskCount == 0) {
                 if (ValidateDlTask(taskPointer, FALSE) == NWC24_OK) {
                     result = DeleteDlTask(taskPointer);
-                    if (result >= NWC24_OK) { ((DlTaskData*)taskPointer)->id = 0xffff; }
+                    if (result >= NWC24_OK) { taskData->id = 0xffff; }
                 }
             }
         }
