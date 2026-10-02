@@ -152,3 +152,41 @@ reg-rotation, not localized. Reverted.
 - UpdateThread residual: orig uses a distinct `li r15,0` web for the 3 scratch-init stores (r15 = its first-born callee web) vs my shared r0 — allocator priority tie.
 - BS2Mach BS2NANDDivideCallback: swapped `NandBuffer += result` before `NandTransferred += result` — resolved the r5↔r6 pairwise web swap (~30→16 diffs). Residual: `li r3,0`/NandCompletion-load scheduling swap + NT/NL/NF marshal order at 3 call sites (arg-eval order, compiler-internal). `u32 remaining` temp regressed (122 vs 128 — orig recomputes per-site).
 - odh near-100s (decompressLoop 99.67, setQuantizationTable 99.57, huffmanCoder 99.08, colorConv 98.64, LineConv11 98.08): all verified pure regname/operand-order diffs — same callee-web rotation family, no decode gap.
+
+## w0929 — BS2UpdateInit fold mechanism + AxAdpcm 1-diff (w1015+)
+
+- **`...data.0` literal pool fold**: `extra_cflags=["-sdata 8"]` (configure.py,
+  committed) makes MWCC emit `lis ...data.0@ha`/`addi ...data.0@l` — a
+  synthesized per-section literal base — reproducing orig's folded string
+  codegen AND its exact section layout (.data 0x530 pooled literals +
+  .sdata 0x11 with @1814/@1826/@1851/@1858 sda21-addressed smalls).
+  `-O4,p` also pools but 4-aligns literals (orig byte-packs 0x16/0x2c/0x42);
+  `-str pool` puts all strings in .data@stringBase0 and strips .sdata (orig
+  has both); `-str pool,readonly` wrong section; `-pooldata on`, `-common on`,
+  `#pragma pool_data/pool_strings` all no-ops or rejected.
+- **Orig Init web map**: 3 callee webs — r29=allocator(param), r30=&Flags0
+  (.bss fold base: +0x800 Flags1 memset, +0x1000 Thread.thread ×2,
+  +0x1318 stack base then +0x1000 size), r31=...data.0 pool — all
+  materialized in prologue, savegpr_29 + frame 0x20.
+- **Merged-struct experiment** (`static BS2UpdateData UpdateData` +
+  member #defines): reproduces orig's .bss fold offsets EXACTLY (struct
+  total 0x2360 = orig .bss size) but destroys data pairing — orig .bss
+  is carved into 5 LOCAL objects (Flags0/Flags1/Thread/UpdateHeader0/1)
+  and objdiff data pairing is raw name equality (10488→104). Reverted to
+  5 separate decls. Residual diffs even under struct: base materializes
+  mid-fn not prologue (allocator won't dedicate a 3rd callee reg — cost
+  model, same 4-use web both sides), one-step +0x2318 vs orig two-step
+  +0x1318/+0x1000 (every source form folds — stackBase local, threadData
+  local, u64[512] stack, &arr[0]/&arr[512], (u8*)cast — MWCC constant-folds
+  all), reg-binding order swap. 15 insns still differ → 79.88%.
+- **AxAdpcm `start` 1-diff (99.962)**: orig emits frame-base addis in
+  ascending order +8,+0x10,+0x18,+0x20,+0x28,+0x38; mine puts +0x38
+  (axVoiceBuf via `pAxvpbBuf` pre-loop assignment) before +0x28
+  (coeffsBufB direct, loop-hoisted). Orig's +0x38 is a loop-IV (body-use
+  order after coeffsBufB) — implies orig had no pre-loop pAxvpbBuf
+  assignment OR used axVoiceBuf[i] directly. Every variant rotates the
+  entire callee allocation: remove alias, direct use w/ dead assign,
+  2-member struct, decl-init `= axVoiceBuf` (moves +0x38 to fn ENTRY —
+  closest alternate ordering), in-loop assignment, decl-first/decl-last —
+  all mass-rotate. The web set is exquisitely balanced at the committed
+  form. Parked at 1-diff.
