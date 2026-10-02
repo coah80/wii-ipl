@@ -158,7 +158,7 @@ static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED
     length = length - parameters->firstCandidate;
     if (countOnly != 0) {
         parameters->letters = length;
-        ZI_WORK->unk_0x0A = 0xff;
+        ZI_WORK->maxWordLength = 0xff;
         return 1;
     }
     if (parameters->maxCandidates < length) length = parameters->maxCandidates;
@@ -175,7 +175,7 @@ static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED
         current = signatures.first;
         length = signatures.length;
     }
-    if (length > ZI_WORK->unk_0x0A) length = ZI_WORK->unk_0x0A;
+    if (length > ZI_WORK->maxWordLength) length = ZI_WORK->maxWordLength;
     if ((parameters->elementCount < ZI_WORK->unk_0x140C[0] ||
          (parameters->getOptions & 0x7e) == 2) && length > parameters->elementCount) {
         length = parameters->elementCount;
@@ -185,7 +185,7 @@ static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED
     if (parameters->letters == 2) {
         current = signatures.second;
         length = secondLength;
-        if (length > ZI_WORK->unk_0x0A) length = ZI_WORK->unk_0x0A;
+        if (length > ZI_WORK->maxWordLength) length = ZI_WORK->maxWordLength;
         if ((parameters->elementCount < ZI_WORK->unk_0x140C[0] ||
              (parameters->getOptions & 0x7e) == 2) && length > parameters->elementCount) {
             length = parameters->elementCount;
@@ -194,7 +194,7 @@ static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED
         *output++ = 0;
     }
     *output++ = 0;
-    ZI_WORK->unk_0x0A = 0xff;
+    ZI_WORK->maxWordLength = 0xff;
     return 1;
 }
 
@@ -226,7 +226,7 @@ static ziBool Zi8ZhSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED_WO
     length = length - parameters->firstCandidate;
     if (countOnly != 0) {
         parameters->letters = length;
-        ZI_WORK->unk_0x0A = 0xff;
+        ZI_WORK->maxWordLength = 0xff;
         return 1;
     }
     if (parameters->maxCandidates < length) length = parameters->maxCandidates;
@@ -493,8 +493,8 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
   ZI_WORK->subLanguage = parameters->subLanguage;
   ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1,ZI_WORK) & 2;
   options->maxCount = ZI_WORK->unk_0x10;
-  options->maxWordLength = ZI_WORK->unk_0x0A;
-  ZI_WORK->unk_0x0A = -1;
+  options->maxWordLength = ZI_WORK->maxWordLength;
+  ZI_WORK->maxWordLength = -1;
   if ((ziU8)Zi8LangSupported(parameters->language,ZI_WORK) == 0) {
     Zi8LogError(0x163,ZI_WORK);
     return 0;
@@ -711,6 +711,6 @@ void Zi8Memcpy(ziU8* destination, ziU8* source, ziS32 count) {
 }
 
 ziBool Zi8SetMaxWordLength(ziU8 length ZI_NEED_WORK) {
-    ZI_WORK->unk_0x0A = length;
+    ZI_WORK->maxWordLength = length;
     return 1;
 }
