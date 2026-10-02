@@ -1,0 +1,7 @@
+
+## Session w1009-c (Zi8_81480224)
+- `priority` compare polarity decode: orig emits `cmplw r3=candidate.prio, r0=word.prio; bgt` — source is `candidate->priority > word->priority` (descending insert), not `<` (fixed, -1 diff).
+- Residual: 8 count-equal r26<->r28 web swaps (word param vs candidate ptr). Levers tried and dead: decl-order swap of candidate/added (neutral), candidate inline into conditions (120v116 regression, savegpr_22), loop-scoped `ziUserWord* w = word` copy (regression, extra web), statement reorder (neutral). Same MWCC web-numbering wall as the rest of the clib pool.
+- KBDSetModState tail: `add/lwz/rlwimi/stw` temp-pair swap (r4 vs r5) — named `KBDChannel* data` local regressed 164v168; reverted. kbdEventHandler 5-diff lis/lbz temp ordering — `data = &kbdData[channel]` single-expr and status-before-data reorder both neutral-ish (6 diffs), reverted.
+- Zi8_814834AC (zkokeyp): base shares ONE `li 0` web across `stw firstWord + stb bytes[4]` inits; every source form either emits two `li`s (separate stmts, comma-expr, reversed order) or adds a `clrlwi` conversion mask (chained `a = b = 0` both directions, u8 temp, u32 temp `j`). Constant-pooling granularity wall — kept chained form (344v343, -1 clrlwi).
+- Zi8AlphaGetCandidates: all calls align; the -1 insn is a frame slot-order swap (a `= 0` int local claims the top slot in mine vs a param park in base — same slot set, same frame size). ~150 reg/sched ties otherwise.
