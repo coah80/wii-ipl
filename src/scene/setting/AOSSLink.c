@@ -34,7 +34,7 @@ struct AOSSAccessPoint {
     u8 bssid[6];
     u16 capabilities;
     u32 rateCount;
-    u8 rates[12];
+    u8 rates[16];
     u32 beaconPeriod;
     u32 mode;
 };
@@ -84,7 +84,7 @@ void* AOSSi_Alloc(u32 size) {
 }
 
 void AOSSi_Free(void* block) {
-    if (releaseMemory != NULL) {
+    if (releaseMemory) {
         releaseMemory(0, block, 0);
     }
 }
@@ -129,15 +129,15 @@ int AOSSi_EndLocal(void) {
 int AOSSi_WLANGetBSSList(struct AOSSAccessPointList** output) {
     int result = -1;
     int startupRetries = 0;
-    int scanRetries = 0;
-    int cleanupRetries = 0;
+    WDScanParam scan ATTRIBUTE_ALIGN(32);
+    WD_Info info ATTRIBUTE_ALIGN(32);
     int unlockRetries = 0;
     int driver;
     u8* buffer;
-    WD_Info info ATTRIBUTE_ALIGN(32);
-    WDScanParam scan;
+    int cleanupRetries = 0;
+    int scanRetries = 0;
     u8 macAddress[6];
-    if (allocateMemory == NULL || releaseMemory == NULL) {
+    if (!allocateMemory || !releaseMemory) {
         return -1;
     }
     driver = NCDLockWirelessDriver();
@@ -157,7 +157,7 @@ startup:
         memcpy(macAddress, info.MAC, 6);
     }
     buffer = AOSSi_Alloc(0x3200);
-    if (buffer != NULL) {
+    if (buffer) {
         memset(buffer, 0, 0x3200);
         scan.channelBit = info.enableChannel;
         scan.maxChannelTime = 40;
@@ -178,37 +178,37 @@ startup:
             count = *(u16*)buffer;
             if (count != 0) {
                 list = AOSSi_Alloc(sizeof(*list) + (count - 1) * sizeof(struct AOSSAccessPoint));
-                if (list == NULL) {
+                if (!list) {
                     result = -1;
                     break;
                 }
                 list->count = count;
                 descriptor = (WDBssDesc*)&buffer[2];
                 for (index = 0; index < count; ++index) {
-                    struct AOSSAccessPoint* accessPoint = &list->accessPoints[index];
                     int rate;
-                    int rateCount = 0;
-                    accessPoint->ssidLength = descriptor->ssidLength;
-                    memcpy(accessPoint->ssid, descriptor->ssid, 32);
-                    accessPoint->channel = descriptor->channel;
-                    memcpy(accessPoint->bssid, descriptor->bssid, 6);
+                    int rateCount;
+                    list->accessPoints[index].ssidLength = descriptor->ssidLength;
+                    memcpy(list->accessPoints[index].ssid, descriptor->ssid, 32);
+                    list->accessPoints[index].channel = descriptor->channel;
+                    memcpy(list->accessPoints[index].bssid, descriptor->bssid, 6);
+                    rateCount = 0;
                     for (rate = 0; rate < 12; ++rate) {
                         if (descriptor->rateSet.support & supportedRates[rate].mask) {
-                            accessPoint->rates[rateCount] = supportedRates[rate].value;
+                            list->accessPoints[index].rates[rateCount] = supportedRates[rate].value;
                             if (descriptor->rateSet.basic & supportedRates[rate].mask) {
-                                accessPoint->rates[rateCount] |= 128;
+                                list->accessPoints[index].rates[rateCount] |= 128;
                             }
                             ++rateCount;
                         }
                     }
-                    accessPoint->rateCount = rateCount;
-                    accessPoint->beaconPeriod = descriptor->beaconPeriod;
+                    list->accessPoints[index].rateCount = rateCount;
+                    list->accessPoints[index].beaconPeriod = descriptor->beaconPeriod;
                     if ((descriptor->capabilities & 3) == 1) {
-                        accessPoint->mode = 1;
+                        list->accessPoints[index].mode = 1;
                     } else if ((descriptor->capabilities & 3) == 2) {
-                        accessPoint->mode = 2;
+                        list->accessPoints[index].mode = 2;
                     } else {
-                        accessPoint->mode = 0;
+                        list->accessPoints[index].mode = 0;
                     }
                     descriptor = (WDBssDesc*)((u16*)descriptor + descriptor->length);
                 }
@@ -222,7 +222,7 @@ startup:
             }
             if (++scanRetries > 10) {
                 list = AOSSi_Alloc(sizeof(*list));
-                if (list == NULL) {
+                if (!list) {
                     result = -1;
                     break;
                 }
@@ -236,31 +236,29 @@ startup:
         AOSSi_Free(buffer);
     }
 cleanup:
-    if (WD_Cleanup() != 0) {
+    while (WD_Cleanup() != 0) {
         if (cleanupRetries > 10) {
             result = -1;
             goto unlock;
         }
         ++cleanupRetries;
         AOSSi_SleepMs(10);
-        goto cleanup;
     }
 unlock:
-    if (NCDUnlockWirelessDriver(driver) != 0) {
+    while (NCDUnlockWirelessDriver(driver) != 0) {
         if (unlockRetries > 10) {
             result = -1;
-            return -1;
+            break;
         }
         ++unlockRetries;
         AOSSi_SleepMs(10);
-        goto unlock;
     }
     return result;
 }
 
 int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionStatus* status) {
     int retries = 0;
-    int result = 0;
+    int result;
     WD_Info info ATTRIBUTE_ALIGN(32);
     NCDIfConfig* interfaceConfig = &AOSSi_NcdIfConfig;
     NCDIpConfig* ipConfig;
@@ -288,6 +286,7 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
     }
     interfaceConfig->netif.wireless.config.manual.ssidLength = (u8)connection->ssidLength;
     memcpy(interfaceConfig->netif.wireless.config.manual.ssid, connection->ssid, connection->ssidLength);
+    result = 0;
     ipConfig = &AOSSi_NcdIpConfig;
     memset(ipConfig, 0, sizeof(*ipConfig));
     ipConfig->adjust.maxTransferUnit = 1300;
@@ -321,13 +320,14 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
         }
     }
     if (result == 0) {
+        u32 ssidLength;
         status->connected = 1;
         if (WD_GetInfo(&info) == 0) {
             status->channel = info.channel;
         }
-        status->ssidLength = interfaceConfig->netif.wireless.config.manual.ssidLength;
-        memcpy(status->ssid, interfaceConfig->netif.wireless.config.manual.ssid,
-               interfaceConfig->netif.wireless.config.manual.ssidLength);
+        ssidLength = interfaceConfig->netif.wireless.config.manual.ssidLength;
+        status->ssidLength = ssidLength;
+        memcpy(status->ssid, interfaceConfig->netif.wireless.config.manual.ssid, ssidLength);
     } else {
         status->connected = 0;
     }

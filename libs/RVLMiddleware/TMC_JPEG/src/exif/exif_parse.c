@@ -16,7 +16,7 @@ static u16 readU16(const u8* p, u16 byteOrder) {
 }
 
 static u16 readExifU16(const u8* data, u16 byteOrder) {
-    u32 value = data[0] | data[1] << 8;
+    u16 value = data[0] | data[1] << 8;
     if (byteOrder == 0x4949) {
         return (u16)value;
     }
@@ -246,9 +246,9 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
     u32 ifdOffset;
     const u8* entries;
     u16 remaining;
-    u16 count;
-    s32 entriesSize;
     u16 index;
+    s32 entriesSize;
+    u16 count;
     pInfo->thumbnailData = (u8*)data;
     pInfo->dataEnd = (u8*)data + size;
     pInfo->nextIfdOffset = 0;
@@ -339,7 +339,7 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
 }
 
 static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry) {
-    u16 tag;
+    s32 tag;
     u16 type;
 
     tag = readU16(entry, byteOrder);

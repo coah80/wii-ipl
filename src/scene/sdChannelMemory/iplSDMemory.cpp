@@ -69,6 +69,13 @@ namespace ipl {
         SDMemory::~SDMemory() {}
 
         void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* channelSelect) {
+            s32 cachedTitleCount;
+            const savedata::Manager* saveData;
+            nw4r::lyt::TextBox* textBox;
+            layout::Animator* scrollAnimator;
+            ControlPaneEventHandler* controlEvent;
+            TitlePaneEventHandler* titleEvent;
+            DialogPaneEventHandler* dialogEvent;
             mpSDChannelSelect = channelSelect;
 
             mpMainLayout = new layout::Object(heap, layoutFile, "arc", "mn_DialogWindow_ChChange_a.brlyt");
@@ -89,7 +96,7 @@ namespace ipl {
             mpMainLayout->getAnim(5)->initAnmFrame();
             mpMainLayout->getAnim(8)->initAnmFrame();
 
-            nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("T_Dialog_00"));
+            textBox = static_cast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("T_Dialog_00"));
             textBox->SetString(System::getMessage(0xB0));
             textBox = static_cast<nw4r::lyt::TextBox*>(mpMainLayout->FindPaneByName("TextBox_05"));
             textBox->SetString(System::getMessage(0xBB));
@@ -143,8 +150,8 @@ namespace ipl {
             textBox = static_cast<nw4r::lyt::TextBox*>(mpTitleLayout->FindPaneByName("TextBox_07"));
             textBox->SetString(System::getMessage(0xBA));
 
-            const savedata::Manager* saveData = System::getSaveData();
-            s32 cachedTitleCount = 0;
+            saveData = System::getSaveData();
+            cachedTitleCount = 0;
             for (s32 i = 0; i < 48; ++i) {
                 if (saveData->getTitleCacheEntry(i) == 0) {
                     break;
@@ -153,10 +160,12 @@ namespace ipl {
             }
             if (cachedTitleCount >= 5) {
                 mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(false);
-                mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(true);
+                nw4r::lyt::Pane* expandedButton = mpTitleLayout->FindPaneByName("N_Btn_4");
+                expandedButton->SetVisible(true);
                 mDisplayMode = 4;
             } else {
-                mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(true);
+                nw4r::lyt::Pane* compactButton = mpTitleLayout->FindPaneByName("N_Btn_3");
+                compactButton->SetVisible(true);
                 mpTitleLayout->FindPaneByName("N_Btn_4")->SetVisible(false);
                 mDisplayMode = 3;
             }
@@ -195,7 +204,7 @@ namespace ipl {
             mpDialogLayout->getAnim(11)->initAnmFrame();
             mpDialogLayout->getAnim(8)->initAnmFrame();
             mpDialogLayout->getAnim(18)->initAnmFrame();
-            layout::Animator* scrollAnimator = mpDialogLayout->getAnim(18);
+            scrollAnimator = mpDialogLayout->getAnim(18);
             scrollAnimator->initFrame();
             scrollAnimator->restart();
 
@@ -210,7 +219,7 @@ namespace ipl {
             mpDialogLayout->finishBinding();
             mpProgressLayout->getAnim(0)->initAnmFrame();
 
-            ControlPaneEventHandler* controlEvent = new ControlPaneEventHandler(this);
+            controlEvent = new ControlPaneEventHandler(this);
             mpPaneManagers[0] = new gui::PaneManager(controlEvent, mpMainLayout->getDrawInfo(), NULL, NULL);
             mpPaneManagers[0]->setupScene(mpMainLayout);
             mpPaneManagers[0]->setAllComponentTriggerTarget(false);
@@ -218,7 +227,7 @@ namespace ipl {
                 mpPaneManagers[0]->setTriggerTarget(mpMainLayout->FindPaneByName(sControlPaneNames[i]), true);
             }
 
-            TitlePaneEventHandler* titleEvent = new TitlePaneEventHandler(this);
+            titleEvent = new TitlePaneEventHandler(this);
             mpPaneManagers[1] = new gui::PaneManager(titleEvent, mpTitleLayout->getDrawInfo(), NULL, NULL);
             mpPaneManagers[1]->setupScene(mpTitleLayout);
             mpPaneManagers[1]->setAllComponentTriggerTarget(false);
@@ -233,7 +242,7 @@ namespace ipl {
                 }
             }
 
-            DialogPaneEventHandler* dialogEvent = new DialogPaneEventHandler(this);
+            dialogEvent = new DialogPaneEventHandler(this);
             mpPaneManagers[2] = new gui::PaneManager(dialogEvent, mpDialogLayout->getDrawInfo(), NULL, NULL);
             mpPaneManagers[2]->setupScene(mpDialogLayout);
             mpPaneManagers[2]->setAllComponentTriggerTarget(false);

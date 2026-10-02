@@ -817,6 +817,7 @@ done:
 
 NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 subjectSize, NWC24EncodingRegion region, u16 alternative, u8* work,
                                    u32 workSize, NWC24Charset charset, char* charsetName) {
+    const u8* encodedInput = work;
     u8* second;
     u32 secondSize;
     u32 workHalf;
@@ -844,7 +845,7 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
                 default: goto done;
             }
         }
-        result = NWC24EncodeWord(second, secondSize, &outputLength, charsetName, 0x40, 'B', work, workHalf - 1);
+        result = NWC24EncodeWord(second, secondSize, &outputLength, charsetName, 0x40, 'B', (u8*)encodedInput, workHalf - 1);
         switch (result) { case NWC24_OK: break; default: goto done; }
         {
             sourceOffset = subjectLength;
@@ -872,7 +873,7 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
                             default: goto done;
                         }
                     }
-                    result = NWC24EncodeWord(second + total, secondSize - total, &outputLength, charsetName, 0x40, 'B', work, workHalf - 1);
+                    result = NWC24EncodeWord(second + total, secondSize - total, &outputLength, charsetName, 0x40, 'B', (u8*)encodedInput, workHalf - 1);
                     switch (result) { case NWC24_OK: break; default: goto done; }
                     sourceOffset += subjectLength;
                     total = total + outputLength - 1;
