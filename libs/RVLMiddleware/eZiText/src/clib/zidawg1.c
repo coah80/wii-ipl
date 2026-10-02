@@ -22,8 +22,7 @@ ziU32 ZiDAWGGetChild(ziU32 node) {
         node += offset;
         if (((ziU32)header & 2) != 0) {
             if ((*(ziU8*)node & 0x80) != 0) {
-                offset = (*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + 0x8000;
-                offset += *((ziU8*)node + 2);
+                offset = (*(ziU8*)node & 0x7f) * 0x10000 + ((ziU32)*((ziU8*)node + 1) & 0xffff) * 0x100 + *((ziU8*)node + 2) + 0x8000;
             } else {
                 offset = ((ziU32)*(ziU8*)node & 0xffff) * 0x100;
                 offset += (ziU32)*((ziU8*)node + 1);
