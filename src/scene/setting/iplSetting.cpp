@@ -1,3 +1,4 @@
+#define IPL_SETTING_NOVTABLE
 #define IPL_SETTING_RECT_OUT_OF_LINE
 #define IPL_SETTING_IMPLEMENTATION
 #include "scene/setting/iplSetting.h"
@@ -1509,7 +1510,8 @@ namespace ipl {
             }
 
             if (mpWiiSettingFlag->smthMsgData >= 2 && mpWiiSettingFlag->smthMsgData <= 7) {
-                GXRenderModeObj renderMode = *System::getRenderModeObj();
+                GXRenderModeObj renderMode;
+                renderMode = *System::getRenderModeObj();
                 u32 left;
                 u32 top;
                 u32 width;
