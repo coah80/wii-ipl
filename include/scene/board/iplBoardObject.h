@@ -139,7 +139,7 @@ namespace ipl {
             math::LinearIntp<math::VEC2> mMoveAnim;  // 0x44
 
             CDBId mCDBId;  // 0x74
-            u8 unk_0x7C[4];
+            u8 unused_0x7C[4];
             CDBRecordKey mCDBRecordKey;  // 0x80
             u32 mCDBGameCode;            // 0xB0
 
@@ -179,7 +179,7 @@ namespace ipl {
             int mState;          // 0x12C
             math::VEC2 mConPos;  // 0x130
             int mConChan;        // 0x138
-            u8 unk_0x13C[4];
+            u8 unused_0x13C[4];
 
             static const char* mAnimNames[TYPE_MAX][1 + ANIM_MAX];
 
