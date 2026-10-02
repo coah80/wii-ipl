@@ -58,7 +58,7 @@ void CDBRecordInstanceInit(CDBRecordFile* recordFile, CDBRecord* record, int typ
     recordFile->used = 1;
     OSUnlockMutex((OSMutex*)recordFile);
     recordFile->allocFlag = type;
-    recordFile->database = record->unk_0x00;
+    recordFile->database = record->database;
     CDBAttrInit(&recordFile->attr);
     CDBRecordKeyCopy(&recordFile->key, &record->key);
 }
@@ -73,7 +73,7 @@ BOOL CDBRecordInstanceIsUsed(CDBRecordFile* recordFile) {
 
 void CDBRecordInitDescriptor(CDBRecord* record, CDBDatabase* database, CDBRecordKey* key) {
     CDBLock();
-    record->unk_0x00 = (u32)database;
+    record->database = (u32)database;
     CDBRecordKeyCopy(&record->key, key);
     record->cryptBuf = NULL;
     record->file = NULL;
@@ -95,7 +95,7 @@ CDBErr CDBRecordCreateAtOnce(CDBRecord* record, CDBDatabase* database, const cha
 
     CDBRecordKeyInit(&key, epoch, gameCode, makerCode, 0, fileType, CDB_FS_LOCATION_NAND);
     CDBLock();
-    record->unk_0x00 = (u32)database;
+    record->database = (u32)database;
     CDBRecordKeyCopy(&record->key, &key);
     record->cryptBuf = NULL;
     record->file = NULL;
@@ -128,7 +128,7 @@ CDBErr CDBRecordOpen_(CDBRecord* record) {
     CDBDatabase* database;
     CDBRecordDatabaseState* instance;
 
-    database = (CDBDatabase*)record->unk_0x00;
+    database = (CDBDatabase*)record->database;
     instance = database->instance;
     record->cryptBuf = NULL;
     if (instance == NULL) {
@@ -292,7 +292,7 @@ CDBErr CDBRecordWrite_(CDBRecord* record, void* buffer, u32 size) {
     CDBErr result;
     CDBRecordDatabaseState* instance;
 
-    database = (CDBDatabase*)record->unk_0x00;
+    database = (CDBDatabase*)record->database;
     instance = database->instance;
     recordFile = record->file;
     if (record->key.location == CDB_FS_LOCATION_SD) {
@@ -508,7 +508,7 @@ CDBErr CDBRecordUpdateModifiedDate(CDBRecord* record) {
     ticks = OSGetTime();
     modifiedDate = ticks / (OS_BUS_CLOCK / 4);
     recordFile = record->file;
-    if ((((CDBRecordDatabaseState*)((CDBDatabase*)record->unk_0x00)->instance)->openFlags & 2) == 0) {
+    if ((((CDBRecordDatabaseState*)((CDBDatabase*)record->database)->instance)->openFlags & 2) == 0) {
         CDBReportError("can't set modified time of the record; the database is opened as READONLY\n");
         return CDB_ERROR_26;
     }
@@ -570,7 +570,7 @@ CDBErr CDBRecordBackupToSD_(CDBRecord* record) {
     CDBRecordKeyCopy(&localRecord.key, &record->key);
     localRecord.file = NULL;
     localRecord.key.location = CDB_FS_LOCATION_SD;
-    localRecord.unk_0x00 = record->unk_0x00;
+    localRecord.database = record->database;
     err = CDBRecordFileCreateBlank(&localRecord);
     if (err != CDB_ERROR_OK) {
         CDBLock();
@@ -614,7 +614,7 @@ CDBErr CDBRecordBackupToSD_(CDBRecord* record) {
     CDBLock();
     recordFile = localRecord.file;
     CDBRecordKeyCopy(&record->key, &localRecord.key);
-    record->unk_0x00 = localRecord.unk_0x00;
+    record->database = localRecord.database;
     record->file = localRecord.file;
     record->cryptBuf = localRecord.cryptBuf;
     CDBRecordKeyCopy(&recordFile->key, &localRecord.key);
