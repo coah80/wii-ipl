@@ -1232,8 +1232,6 @@ s32 PFFAT_GetSector(PFFAT_FFD* file, u32 fileSectorIndex, u32 mode,
     u32 fatType;
     u32 chainIndex;
     u32 cluster;
-    u32 numRemainder;
-    u32 numDivide;
     u32 numClusters;
     u32 numSectors;
     s32 error;
@@ -1249,12 +1247,10 @@ s32 PFFAT_GetSector(PFFAT_FFD* file, u32 fileSectorIndex, u32 mode,
     }
     chainIndex = fileSectorIndex >> volume->bpb.log2_sectors_per_cluster;
     if (mode == 2) {
-        numSectors = (size / volume->bpb.bytes_per_sector) +
-                     ((size % volume->bpb.bytes_per_sector) != 0);
-        numDivide = numSectors / volume->bpb.sectors_per_cluster;
-        numRemainder =
-            (numSectors % volume->bpb.sectors_per_cluster) != 0;
-        numClusters = numRemainder + numDivide;
+        numClusters = size / volume->bpb.bytes_per_sector;
+        numSectors = numClusters + (size % volume->bpb.bytes_per_sector != 0);
+        numClusters = numSectors / volume->bpb.sectors_per_cluster;
+        numClusters = numClusters + (numSectors % volume->bpb.sectors_per_cluster != 0);
         error = PFFAT_GetClusterAllocated(file, chainIndex, numClusters,
                                           &cluster);
         if (error != 0) {
@@ -1876,11 +1872,12 @@ s32 PFFAT_RefreshFSINFO(PF_VOLUME* volume)
                 error = 17;
             }
             if (error == 0) {
-                if (((u32)&((PFFAT_FSINFO*)page->p_buf)
-                          ->num_free_clusters.word &
-                     3) != 0) {
-                    ((PFFAT_FSINFO*)page->p_buf)->num_free_clusters.bytes[0] =
-                        (u8)volume->num_free_clusters;
+                PFFAT_FSINFO* info;
+                u8* freeClusterBytes;
+                info = (PFFAT_FSINFO*)page->p_buf;
+                freeClusterBytes = info->num_free_clusters.bytes;
+                if (((u32)freeClusterBytes & 3) != 0) {
+                    freeClusterBytes[0] = (u8)volume->num_free_clusters;
                     ((PFFAT_FSINFO*)page->p_buf)->num_free_clusters.bytes[1] =
                         (u8)(volume->num_free_clusters >> 8);
                     ((PFFAT_FSINFO*)page->p_buf)->num_free_clusters.bytes[2] =
@@ -1889,11 +1886,9 @@ s32 PFFAT_RefreshFSINFO(PF_VOLUME* volume)
                         (u8)(volume->num_free_clusters >> 24);
                 } else {
                     u32 freeClusters = volume->num_free_clusters;
-
-                    ((PFFAT_FSINFO*)page->p_buf)->num_free_clusters.word =
-                        (freeClusters << 24) |
-                        ((freeClusters & 0xFF00) << 8) |
-                        ((freeClusters >> 8) & 0xFF00) | (freeClusters >> 24);
+                    u32 upperBytes = (freeClusters << 24) | ((freeClusters << 8) & 0x00FF0000);
+                    u32 lowerBytes = (freeClusters >> 24) | ((freeClusters >> 8) & 0xFF00);
+                    info->num_free_clusters.word = upperBytes | lowerBytes;
                 }
                 error = PFSEC_WriteData(
                     volume, page->p_buf, volume->bpb.fs_info_sector, 0,
