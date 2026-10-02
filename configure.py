@@ -850,7 +850,7 @@ config.libs = [
     ),
     IPLSection("sdChannelSelect", [
             Object(NonMatching, "scene/sdChannelSelect/iplSDChannelSelect.cpp"),
-            Object(NonMatching, "scene/sdChannelSelect/iplSDChannelObj.cpp"),
+            Object(Matching,    "scene/sdChannelSelect/iplSDChannelObj.cpp"),
         ]
     ),
     IPLSection("sdChannelTitle", [
