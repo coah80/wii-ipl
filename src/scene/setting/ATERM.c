@@ -1647,7 +1647,10 @@ s32 ATERMRunConfigProtocol(void) {
                         SONtoHs(option->length);
                         optionValue = option->value;
                     }
-                    if (optionValue != NULL && optionType == 0x101) {
+                    if (optionValue == NULL || optionType != 0x101) {
+                        break;
+                    }
+                    {
                         AtermProgress progress;
                         u32 authenticationTime = (u32)(OSGetTime() /
                             (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
@@ -1900,7 +1903,7 @@ int ATERMAesKeyWrap(u16* destination, u16* source, u32 length, void* key, u32 ke
             u64 passBase = (u64)(s64)blockCount * (u64)(s64)pass;
             u8* stateBytes = block.bytes;
 
-            outputBlock = destinationBytes + blockOffset;
+            outputBlock = (u8*)(destination + blockOffset / 2);
             memcpy(stateBytes + 8, outputBlock, 8);
             ATERMAesEncryptBlock(expandedKey, rounds, stateBytes, stateBytes);
             counter.value = (u64)(s64)blockIndex + passBase;

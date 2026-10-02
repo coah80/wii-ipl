@@ -285,9 +285,9 @@ static ziBool ZiIsLetterHyphen(ziWChar character ZI_NEED_WORK) {
     else return ZI8_FALSE;
 }
 
-void Zi8ChangeWordCase(ziWChar* word, ziU8 language, ziPtr work) {
+void Zi8ChangeWordCase(ziWChar* word, ziU8 language, ZiAlphaWork* work) {
     enum { LOWER_CASE, UPPER_CASE } upper = LOWER_CASE;
-    if (((ZiAlphaWork*)work)->caseMode == 3) {
+    if (work->caseMode == 3) {
         Zi8ChangeCharCase(1, word++, language, work);
     } else if (((ZiAlphaWork*)work)->caseMode == 1) {
         upper = UPPER_CASE;

@@ -940,8 +940,7 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
           for (tableIndex = 0; tableIndex < params->count;) {
             while (*output != 0) {
               if (*output != 0x27) {
-                *output |= 0xf300;
-                output++;
+                *output++ |= 0xf300;
               } else {
                 *output++ = 0xf360;
               }
@@ -1004,7 +1003,7 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
                       totalCandidates = totalCandidates + 1;
                       if (options->countOnly == 0) {
                         output += phoneticIndex + 1;
-                        candidateCount = candidateCount + 1;
+                        ++candidateCount;
                       } else if ((int)totalCandidates >= options->maxCount) goto finishSpelling;
                       if (candidateCount >= params->maxCandidates) goto finishSpelling;
                     } else {

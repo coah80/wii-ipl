@@ -224,7 +224,7 @@ static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                     green = value + greenOffset;
                     red = value + redOffset;
                     blue = value + blueOffset;
-                    if ((blue | green | red) >> 8) {
+                    if ((red | green | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -238,7 +238,7 @@ static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                     green = value + greenOffset;
                     red = value + redOffset;
                     blue = value + blueOffset;
-                    if ((blue | green | red) >> 8) {
+                    if ((red | green | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -252,7 +252,7 @@ static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                     green = value + greenOffset;
                     red = value + redOffset;
                     blue = value + blueOffset;
-                    if ((blue | green | red) >> 8) {
+                    if ((red | green | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -266,7 +266,7 @@ static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                     green = value + greenOffset;
                     red = value + redOffset;
                     blue = value + blueOffset;
-                    if ((blue | green | red) >> 8) {
+                    if ((red | green | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -345,7 +345,7 @@ static void TMCJPEGDEC_converterYUV411toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
             red = blue + redOffset;
             green = blue + greenOffset;
             blue = blue + blueOffset;
-            if ((blue | red | green) >> 8) {
+            if ((green | red | blue) >> 8) {
                 blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                 green = green > 255 ? 255 : green < 0 ? 0 : green;
                 red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -415,7 +415,7 @@ static void TMCJPEGDEC_converterYUV422toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
             green = value + greenOffset;
             red = value + redOffset;
             blue = value + blueOffset;
-            if ((blue | green | red) >> 8) {
+            if ((red | green | blue) >> 8) {
                 blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                 green = green > 255 ? 255 : green < 0 ? 0 : green;
                 red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -426,7 +426,7 @@ static void TMCJPEGDEC_converterYUV422toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
             green = value + greenOffset;
             red = value + redOffset;
             blue = value + blueOffset;
-            if ((blue | green | red) >> 8) {
+            if ((red | green | blue) >> 8) {
                 blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                 green = green > 255 ? 255 : green < 0 ? 0 : green;
                 red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -502,7 +502,7 @@ static void TMCJPEGDEC_converterYUV422toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
             red = value + redOffset;
             blue = value + blueOffset;
             green = value + greenOffset;
-            if ((blue | green | red) >> 8) {
+            if ((red | green | blue) >> 8) {
                 blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                 green = green > 255 ? 255 : green < 0 ? 0 : green;
                 red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -578,7 +578,7 @@ static void TMCJPEGDEC_converterYUV420toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
 
 
 
-                    if ((blue | green | red) >> 8) {
+                    if ((red | green | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -593,7 +593,7 @@ static void TMCJPEGDEC_converterYUV420toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                     green = value + greenOffset;
                     red = value + redOffset;
                     blue = value + blueOffset;
-                    if ((blue | green | red) >> 8) {
+                    if ((red | green | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -660,7 +660,7 @@ static void TMCJPEGDEC_converterYUV420toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
                     s32 green = value + greenOffset;
                     s32 red = value + redOffset;
                     s32 blue = value + blueOffset;
-                    if ((blue | red | green) >> 8) {
+                    if ((green | red | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -742,7 +742,7 @@ static void TMCJPEGDEC_converterYUV211toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                     green = value + greenOffset;
                     red = value + redOffset;
                     blue = value + blueOffset;
-                    if ((blue | green | red) >> 8) {
+                    if ((red | green | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -831,7 +831,7 @@ static void TMCJPEGDEC_converterYUV211toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
                     green = value + greenOffset;
                     red = value + redOffset;
                     blue = value + blueOffset;
-                    if ((blue | green | red) >> 8) {
+                    if ((red | green | blue) >> 8) {
                         blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                         green = green > 255 ? 255 : green < 0 ? 0 : green;
                         red = red > 255 ? 255 : red < 0 ? 0 : red;
@@ -863,7 +863,7 @@ static void TMCJPEGDEC_converterYUV444toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
     u8* cb;
     u8* cr;
     TMCCJPEGDecState* state;
-    s8 crValue;
+    s32 crValue;
     s32 height;
     s32 width;
     s32 column;
@@ -896,10 +896,10 @@ static void TMCJPEGDEC_converterYUV444toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
             cbValue = (s8)*cb++;
             crValue = (s8)*cr++;
             value = *luminance++;
-            green = value + (-(crValue * 183 + cbValue * 88) >> 8);
+            green = value + (-(cbValue * 88 + crValue * 183) >> 8);
             red = value + ((crValue * 359) >> 8);
             blue = value + ((cbValue * 454) >> 8);
-            if ((blue | green | red) >> 8) {
+            if ((red | green | blue) >> 8) {
                 blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                 green = green > 255 ? 255 : green < 0 ? 0 : green;
                 red = red > 255 ? 255 : red < 0 ? 0 : red;
