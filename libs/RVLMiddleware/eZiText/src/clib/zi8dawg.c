@@ -184,36 +184,36 @@ unsigned int Zi8MatchROMdata1(ziWChar *elements, ziU8 count, ziU8 language, ziWC
 
   result = 0;
   if (status == 0) {
-    ZI_WORK->unk_0x1764 = (ziU8*)group;
-    if (ZI_WORK->unk_0x1764 == 0) {
+    ZI_WORK->groupPtr = (ziU8*)group;
+    if (ZI_WORK->groupPtr == 0) {
       if (Zi8GetTableSize(language & 0xff,0xb,ZI_WORK) != 0) {
-        ZI_WORK->unk_0x1764 = (ziU8*)(tableAddress = Zi8GetTableAddress(language & 0xff,0xb,ZI_WORK));
+        ZI_WORK->groupPtr = (ziU8*)(tableAddress = Zi8GetTableAddress(language & 0xff,0xb,ZI_WORK));
       }
     }
-    if (ZI_WORK->unk_0x1764 != 0) {
-      for (; (*ZI_WORK->unk_0x1764 != 0xff && ((groupIndex & 0xff) != 0));
+    if (ZI_WORK->groupPtr != 0) {
+      for (; (*ZI_WORK->groupPtr != 0xff && ((groupIndex & 0xff) != 0));
           groupIndex = groupIndex - 1) {
-        while (*ZI_WORK->unk_0x1764 != 0xff) {
-          ZI_WORK->unk_0x1764 += 2;
+        while (*ZI_WORK->groupPtr != 0xff) {
+          ZI_WORK->groupPtr += 2;
         }
-        ZI_WORK->unk_0x1764++;
+        ZI_WORK->groupPtr++;
       }
     }
   }
-  if (ZI_WORK->unk_0x1764 == 0) {
+  if (ZI_WORK->groupPtr == 0) {
     result = Zi8MatchROMdata0(elements,count,language & 0xff,output,capacity & 0xffff,
                              mode & 0xff,status & 0xff,0,1,acceptPrefix,0,&ZI_WORK->dawgCtx,
                              ZI_WORK->unk_0x1760,ZI_WORK);
   }
   else {
-    while (*ZI_WORK->unk_0x1764 != 0xff) {
+    while (*ZI_WORK->groupPtr != 0xff) {
       result = Zi8MatchROMdata0(elements,count,language & 0xff,output,
                                capacity & 0xffff,mode & 0xff,status & 0xff,
-                               *ZI_WORK->unk_0x1764,
-                               ZI_WORK->unk_0x1764[1],acceptPrefix,0,
+                               *ZI_WORK->groupPtr,
+                               ZI_WORK->groupPtr[1],acceptPrefix,0,
                                &ZI_WORK->dawgCtx,ZI_WORK->unk_0x1760,ZI_WORK);
       if ((result & 0xff) != 0) break;
-      ZI_WORK->unk_0x1764 += 2;
+      ZI_WORK->groupPtr += 2;
       status = 0;
     }
   }
