@@ -1,0 +1,63 @@
+main/libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var 89.06892 -> 89.06892
+POOL IDENTICAL up to 0 (mine=0 base=0)
+No allocated non-code sections in either object
+main/libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse 98.94104 -> 98.98035
+POOL IDENTICAL up to 0 (mine=0 base=0)
+TMCCJPEGDecGetOffsetEXIF: src 0x26c base 0x26c insns 155/155; diffs 0: []
+TMCCJPEGDecGetInfoEXIF: src 0x210 base 0x210 insns 132/132; diffs 0: []
+TMCJPEGDEC_IFD0_tag_parse 99.386696 -> 99.49065
+TMCJPEGDEC_ThumbnailCheck: src 0xc8 base 0xc8 insns 50/50; diffs 0: []
+No allocated non-code sections in either object
+main/libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGB565 96.44502 -> 96.44502
+POOL IDENTICAL up to 0 (mine=0 base=0)
+TMCJPEGDEC_converterYUV422toRGB565edge: src 0x1ac base 0x1ac insns 107/107; diffs 0: []
+TMCJPEGDEC_converterYUV211toRGB565: src 0x188 base 0x188 insns 98/98; diffs 0: []
+TMCJPEGDEC_converterYUV211toRGB565edge: src 0x1b4 base 0x1b4 insns 109/109; diffs 0: []
+TMCJPEGDEC_converterYUV444toRGB565edge: src 0x1a0 base 0x1a0 insns 104/104; diffs 0: []
+TMCJPEGDEC_converterYUV400toRGB565: src 0x118 base 0x118 insns 70/70; diffs 0: []
+TMCJPEGDEC_converterYUV400toRGB565edge: src 0x14c base 0x14c insns 83/83; diffs 0: []
+No allocated non-code sections in either object
+main/libs/RVLMiddleware/TMC_JPEG/src/texturecvtr/Texture_MCUtoRGBA8 90.32323 -> 90.32323
+POOL IDENTICAL up to 0 (mine=0 base=0)
+TMCJPEGDEC_converterYUV400toRGBA8: src 0x130 base 0x130 insns 76/76; diffs 0: []
+TMCJPEGDEC_converterYUV400toRGBA8edge: src 0x164 base 0x164 insns 89/89; diffs 0: []
+No allocated non-code sections in either object
+34 owned function scores checked; 11 exact functions preserved; zero regressions
+26116613f624061ba99c8d1a299aaa6efa85670d  build/43U/main.dol
+
+TMCJPEGDEC_IFD0_tag_parse 131072 selector cases PASS
+TMCJPEGDEC_IFD1_tag_parse 131072 selector cases PASS
+TMCJPEGDEC_IFD0_tag_parse 132746 cases PASS; own-body instruction coverage 480 / 480 source; 481 / 481 original
+TMCJPEGDEC_IFD1_tag_parse 132704 cases PASS; own-body instruction coverage 239 / 239 source; 241 / 242 original
+TMCJPEGDEC_exif_parse 1832 cases PASS; own-body instruction coverage 212 / 212 source; 212 / 212 original
+TOTAL 267282 paired EXIF calls PASS
+
+TMCJPEGDEC_converterYUV411toRGBA8: 100 cases PASS; instruction coverage source 242/242, original 242/242
+TMCJPEGDEC_converterYUV411toRGBA8edge: 400 cases PASS; instruction coverage source 112/112, original 112/112
+TMCJPEGDEC_converterYUV422toRGBA8: 100 cases PASS; instruction coverage source 148/148, original 148/148
+TMCJPEGDEC_converterYUV422toRGBA8edge: 400 cases PASS; instruction coverage source 113/113, original 113/113
+TMCJPEGDEC_converterYUV420toRGBA8: 100 cases PASS; instruction coverage source 153/153, original 153/153
+TMCJPEGDEC_converterYUV420toRGBA8edge: 400 cases PASS; instruction coverage source 120/120, original 120/120
+TMCJPEGDEC_converterYUV211toRGBA8: 100 cases PASS; instruction coverage source 104/104, original 104/104
+TMCJPEGDEC_converterYUV211toRGBA8edge: 400 cases PASS; instruction coverage source 115/115, original 115/115
+TMCJPEGDEC_converterYUV444toRGBA8: 100 cases PASS; instruction coverage source 97/97, original 97/97
+TMCJPEGDEC_converterYUV444toRGBA8edge: 400 cases PASS; instruction coverage source 110/110, original 110/110
+TMCJPEGDEC_converterYUV400toRGBA8: 100 cases PASS; instruction coverage source 57/76, original 57/76
+TMCJPEGDEC_converterYUV400toRGBA8edge: 400 cases PASS; instruction coverage source 70/89, original 70/89
+TMCJPEGDEC_set_converterRGBA8: 1024 cases PASS; instruction coverage source 168/169, original 169/170
+TMCJPEGDEC_converterYUV411toRGB565: 100 cases PASS; instruction coverage source 217/217, original 217/217
+TMCJPEGDEC_converterYUV411toRGB565edge: 400 cases PASS; instruction coverage source 106/106, original 106/106
+TMCJPEGDEC_converterYUV422toRGB565: 100 cases PASS; instruction coverage source 136/136, original 136/136
+TMCJPEGDEC_converterYUV422toRGB565edge: 400 cases PASS; instruction coverage source 107/107, original 107/107
+TMCJPEGDEC_converterYUV420toRGB565: 100 cases PASS; instruction coverage source 141/141, original 141/141
+TMCJPEGDEC_converterYUV420toRGB565edge: 400 cases PASS; instruction coverage source 114/114, original 114/114
+TMCJPEGDEC_converterYUV211toRGB565: 100 cases PASS; instruction coverage source 98/98, original 98/98
+TMCJPEGDEC_converterYUV211toRGB565edge: 400 cases PASS; instruction coverage source 109/109, original 109/109
+TMCJPEGDEC_converterYUV444toRGB565: 100 cases PASS; instruction coverage source 91/91, original 91/91
+TMCJPEGDEC_converterYUV444toRGB565edge: 400 cases PASS; instruction coverage source 104/104, original 104/104
+TMCJPEGDEC_converterYUV400toRGB565: 100 cases PASS; instruction coverage source 51/70, original 51/70
+TMCJPEGDEC_converterYUV400toRGB565edge: 400 cases PASS; instruction coverage source 64/83, original 64/83
+TMCJPEGDEC_set_converterRGB565: 1024 cases PASS; instruction coverage source 168/169, original 169/170
+TMCJPEGDEC_IdctBlock_Lumi: 704 cases PASS; instruction coverage source 257/257, original 257/257
+TMCJPEGDEC_IdctBlock_Col: 704 cases PASS; instruction coverage source 454/454, original 454/454
+TOTAL: 9456 differential cases PASS; GPR14-GPR31, stack pointer and LR preserved
