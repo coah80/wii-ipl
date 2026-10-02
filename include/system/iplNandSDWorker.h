@@ -152,7 +152,7 @@ namespace ipl {
         BOOL is_working();
 
 #ifdef IPL_SD_CHANNEL_SELECT_CPP
-        void requestCancel() { unk_0x04 = true; }
+        void requestCancel() { mbCancel = true; }
 #endif
 
         WIISaveBannerFile* get_cached_nand_save_banner(ESTitleId titleId);
@@ -531,7 +531,7 @@ namespace ipl {
         static void wad_backup_progress_callback(u32 completed, u32 total, BOOL done);
 
         Work* myWork;   // 0x00
-        bool unk_0x04;  // 0x04
+        bool mbCancel;  // 0x04
 
         static const char* c_banner_file_name;
         static const char* c_nocopy_folder_name;
