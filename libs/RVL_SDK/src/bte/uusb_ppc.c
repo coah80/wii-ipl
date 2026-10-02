@@ -33,7 +33,7 @@ typedef struct
 	u8	bulkEndpoint1;
 	u8	bulkEndpoint2;
 	u8	intrEndpoint1;
-	char			at_0x13; // intrEndpoint2?
+	u8			intrEndpoint2;
 	int			vid;
 	int			pid;
 	UINT8			cmd_buffer_pool;
@@ -46,9 +46,9 @@ typedef struct
 	char			pad4_[1];
 	UINT8			reading_intr_data;
 	BUFFER_Q		bulk_buffer_q;
-	UINT8			at_0x38;
+	UINT8			bulk_outstanding;
 	BUFFER_Q		intr_buffer_q;
-	UINT8			at_0x48;
+	UINT8			intr_outstanding;
 	char			pad8_[3];
 } tUUSB_CB;
 
@@ -158,7 +158,7 @@ static void uusb_CloseDeviceCB(long result, void *p_data)
 	usb.bulkEndpoint1 = 0;
 	usb.bulkEndpoint2 = 0;
 	usb.intrEndpoint1 = 0;
-	usb.at_0x13 = 0;
+	usb.intrEndpoint2 = 0;
 
 	usb.fd = 0;
 
@@ -363,12 +363,12 @@ static void uusb_WriteCtrlDataCB(long result, void *p_data)
 
 		GKI_disable();
 
-		--usb.at_0x48;
+		--usb.intr_outstanding;
 
 		GKI_enable();
 	}
 
-	if (usb.at_0x48 >= 5)
+	if (usb.intr_outstanding >= 5)
 		return;
 
 	if (usb.intr_buffer_q.count == 0)
@@ -389,7 +389,7 @@ static void uusb_WriteCtrlDataCB(long result, void *p_data)
 	{
 		GKI_disable();
 
-		++usb.at_0x48;
+		++usb.intr_outstanding;
 
 		GKI_enable();
 	}
@@ -411,12 +411,12 @@ static void uusb_WriteBulkDataCB(long result, void *p_data)
 
 		GKI_disable();
 
-		--usb.at_0x38;
+		--usb.bulk_outstanding;
 
 		GKI_enable();
 	}
 
-	if (usb.at_0x38 >= 5)
+	if (usb.bulk_outstanding >= 5)
 		return;
 
 	if (usb.bulk_buffer_q.count == 0)
@@ -436,7 +436,7 @@ static void uusb_WriteBulkDataCB(long result, void *p_data)
 	{
 		GKI_disable();
 
-		++usb.at_0x38;
+		++usb.bulk_outstanding;
 
 		GKI_enable();
 	}
@@ -504,7 +504,7 @@ void UUSB_Register(tUUSB *uusb)
 	usb.bulkEndpoint1 = 0;
 	usb.bulkEndpoint2 = 0;
 	usb.intrEndpoint1 = 0;
-	usb.at_0x13 = 0;
+	usb.intrEndpoint2 = 0;
 
 	if (uusb_get_devId(usb.vid, usb.pid) < 0)
 		return;
@@ -512,13 +512,13 @@ void UUSB_Register(tUUSB *uusb)
 	usb.bulkEndpoint1 = 2;
 	usb.bulkEndpoint2 = 130;
 	usb.intrEndpoint1 = 129;
-	usb.at_0x13 = 0;
+	usb.intrEndpoint2 = 0;
 
 	GKI_init_q(&usb.bulk_buffer_q);
-	usb.at_0x38 = 0;
+	usb.bulk_outstanding = 0;
 
 	GKI_init_q(&usb.intr_buffer_q);
-	usb.at_0x48 = 0;
+	usb.intr_outstanding = 0;
 
 	usb.cmd_buffer_pool = GKI_create_pool(660, 45, 1, NULL);
 	usb.acl_buffer_pool = GKI_create_pool(1800, 30, 1, NULL);
@@ -607,7 +607,7 @@ UINT16 UUSB_Write(UINT8 pipe, void *p_data, UINT16 len, void *unused)
 
 		memcpy(p_buffer, p_data, len);
 
-		if (usb.at_0x48 < 5 && usb.intr_buffer_q.count == 0)
+		if (usb.intr_outstanding < 5 && usb.intr_buffer_q.count == 0)
 		{
 			ret = IUSB_WriteCtrlMsgAsync(usb.fd, 0x20, 0, 0, 0, len, p_buffer,
 			                             uusb_WriteCtrlDataCB, p_buf);
@@ -634,7 +634,7 @@ UINT16 UUSB_Write(UINT8 pipe, void *p_data, UINT16 len, void *unused)
 		{
 			GKI_disable();
 
-			++usb.at_0x48;
+			++usb.intr_outstanding;
 
 			GKI_enable();
 		}
@@ -658,7 +658,7 @@ UINT16 UUSB_Write(UINT8 pipe, void *p_data, UINT16 len, void *unused)
 		if (len > 190)
 			UUSBDBG(" woah ! thats pretty Big ! :%d", len);
 
-		if (usb.at_0x38 < 5 && usb.bulk_buffer_q.count == 0)
+		if (usb.bulk_outstanding < 5 && usb.bulk_buffer_q.count == 0)
 		{
 			ret = IUSB_WriteBlkMsgAsync(usb.fd, usb.bulkEndpoint1, len,
 			                            p_buffer, uusb_WriteBulkDataCB, p_buf);
@@ -685,7 +685,7 @@ UINT16 UUSB_Write(UINT8 pipe, void *p_data, UINT16 len, void *unused)
 		{
 			GKI_disable();
 
-			++usb.at_0x38;
+			++usb.bulk_outstanding;
 
 			GKI_enable();
 		}
