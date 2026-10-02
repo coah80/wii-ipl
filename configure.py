@@ -1869,7 +1869,7 @@ config.libs = [
     ),
     RVLSDKLib("nup", [
             Object(NonMatching, "nup/nup.cpp"),
-            Object(NonMatching, "nup/nup_nhttp.cpp"),
+            Object(Matching, "nup/nup_nhttp.cpp"),
             Object(Matching,    "nup/nup_mem.cpp"),
         ]
     ),
