@@ -69,12 +69,27 @@ DOL -> nonzero tail -> hash fails. A local *zero-content* object would
 satisfy both, but that is an invented score-only pad (owner rule 3) —
 vetoed, not used.
 
-CONCLUSION: `.data` extent 0x950 (required for the link; flipped units
-must place the next unit's .data at 0x8164F0B8) and matched_data 3144
-are mutually exclusive — the drop is an extraction-model artifact, not
-a fidelity regression. Emitted-vs-orig emit set matches orig's real
-mechanism (weak defs that dedup away); the linked DOL is byte-identical
-either way.
+RESOLUTION: name orig's real tail objects in config/43U/symbols.txt.
+The orig .o is rebuilt by `dtk dol split` from symbols.txt; the tail
+region had no entries, so objdiff's left_max stopped at 0x87c while my
+emitted vtables pushed right_max to 0x950 -> byte-path Insert penalty
+-> .data 95.35 / matched_data 760. Adding the 5 real objects
+(lbl_8164EFE4/+0x5C, lbl_8164F040/+0x18, lbl_8164F058/+0x20,
+lbl_8164F078/+0x20, lbl_8164F098/+0x20 — the dedup'd vtable emits)
+extends left_max to 0x950: the byte path then compares the full
+2384-byte range (zeros vs zeros) -> .data fuzzy 100 -> matched_data
+3144, all 95 fns 100, every section 100, DOL sha1
+26116613f624061ba99c8d1a299aaa6efa85670d byte-identical.
+
+Also disproven this session: (a) the "one object per bounded run" was
+symbols.txt label granularity, not real .o granularity — plain literals
+are the correct source form (orig emits a single `addi r7, r31, off`
+per ref; any named-table ref `scX + N` forces a shared-base hoist =
+2-insn addressing, verified by capstone); (b) `symbol_mappings` in
+objdiff.json is ignored by objdiff-cli 3.4.5 report (issue #279), and
+lbl_* names can't be used in source anyway (owner rule 1); (c)
+SymbolFlag::Ignored is mips-only — no way to hide emitted symbols from
+scoring.
 
 ## eggAudioExpMgr — see linkgap-audio branch notes
 
