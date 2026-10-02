@@ -152,10 +152,10 @@ u32 __SCGetConfBufSize();
 
 typedef struct SC_BT_DEV_INFO {
     u8 devName[20];  // 0x00
-    u8 unk_0x14;
-    u8 unk_0x15[0xB];
+    u8 pad_0x14;     // 0x14
+    u8 pad_0x15[0xB];  // 0x15
     LINK_KEY linkKey;  // 0x20
-    u8 unk_0x30[0x10];
+    u8 pad_0x30[0x10];  // 0x30
 } SC_BT_DEV_INFO;
 
 typedef struct SCBtDeviceInfo {
