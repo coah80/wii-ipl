@@ -82,7 +82,7 @@ s32 NHTTPi_ReceivedCallback(void* mutex, NHTTPConnectionInfo* connection);
 void NHTTPi_NotifyCompletion(NHTTPConnectionInfo* connection);
 void NHTTPi_SetVirtualContentLength(NHTTPConnectionInfo* connection, u32 length);
 BOOL NHTTPi_isRecvBufFull(NHTTPResponseInfo* response, s32 offset);
-s32 NHTTPi_SocSend(NHTTPRequestInfo* request, s32 socket, const void* buffer, s32 length, s32 flags);
+s32 NHTTPi_SocSend(const NHTTPRequestInfo* request, s32 socket, const void* buffer, s32 length, s32 flags);
 s32 NHTTPi_SocRecv(void* mutex, NHTTPRequestInfo* request, s32 socket, void* buffer, s32 length, s32 flags);
 s32 NHTTPi_SocClose(void* mutex, NHTTPRequestInfo* request, s32 socket);
 s32 NHTTPi_SocOpen(NHTTPRequestInfo* request);
