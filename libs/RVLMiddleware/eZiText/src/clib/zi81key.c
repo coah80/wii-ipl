@@ -796,11 +796,11 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
         if (remaining != 0) {
           remaining--;
         } else {
-          totalCandidates++;
+          totalCandidates = totalCandidates + 1;
           if (options->countOnly == '\0') {
             *output++ = spellingBuffer[spellingIndex];
             *output++ = 0;
-            candidateCount++;
+            candidateCount = candidateCount + 1;
           }
           else if ((int)totalCandidates >= options->maxCount) goto finishSpelling;
           if (candidateCount >= params->maxCandidates) goto finishSpelling;
@@ -1001,10 +1001,10 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
                   }
                   if (Zi8IsDupWordW(output,(ziU8)phoneticIndex,work) == 0) {
                     if (remaining == 0) {
-                      totalCandidates++;
+                      totalCandidates = totalCandidates + 1;
                       if (options->countOnly == 0) {
                         output += phoneticIndex + 1;
-                        candidateCount++;
+                        candidateCount = candidateCount + 1;
                       } else if ((int)totalCandidates >= options->maxCount) goto finishSpelling;
                       if (candidateCount >= params->maxCandidates) goto finishSpelling;
                     } else {

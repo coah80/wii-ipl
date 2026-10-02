@@ -763,7 +763,7 @@ unlock_driver:
 int ATERMFindChangedApRecord(AtermApRecordSet* currentRecords, AtermApRecordSet* previousRecords,
     u32* changedIndex) {
     u32 previousIndex;
-    u32 currentIndex = 0;
+    u32 currentIndex;
     int found = 0;
     int result = 0;
     u32 ssidLength;
@@ -774,6 +774,7 @@ int ATERMFindChangedApRecord(AtermApRecordSet* currentRecords, AtermApRecordSet*
     AtermApRecord* previousRecord = previousRecords->entries;
 
 
+    currentIndex = 0;
     for (; currentIndex < currentRecords->count; currentIndex++) {
         AtermSsidBuffer ssidName;
         ssidName.clear.word0 = 0;
@@ -816,8 +817,6 @@ int ATERMFindChangedApRecord(AtermApRecordSet* currentRecords, AtermApRecordSet*
         int currentHasAoss;
         int previousHasAoss;
 
-        previousHasAoss = 0;
-        currentHasAoss = 0;
         aossSsidName.clear.word0 = 0;
         aossSsidName.clear.word1 = 0;
         aossSsidName.clear.word2 = 0;
@@ -827,6 +826,8 @@ int ATERMFindChangedApRecord(AtermApRecordSet* currentRecords, AtermApRecordSet*
         aossSsidName.clear.word6 = 0;
         aossSsidName.clear.word7 = 0;
         aossSsidName.clear.finalWord = 0;
+        currentHasAoss = 0;
+        previousHasAoss = 0;
 
         currentRecord = currentRecords->entries;
         previousRecord = previousRecords->entries;
@@ -1870,13 +1871,13 @@ int ATERMAesKeyWrap(u16* destination, u16* source, u32 length, void* key, u32 ke
     union { u64 value; u8 bytes[8]; } counter;
     u32 initialValue[2];
     u8* outputBlock;
-    s32 blockOffset;
+    s32 blockIndex;
     u8* destinationBytes;
     const u8* sourceBytes;
-    u32 rounds;
-    s32 blockCount;
     s32 pass;
-    s32 blockIndex;
+    s32 blockCount;
+    u32 rounds;
+    s32 blockOffset;
     int result = 1;
 
     initialValue[1] = 0xA6A6A6A6;
@@ -1895,7 +1896,7 @@ int ATERMAesKeyWrap(u16* destination, u16* source, u32 length, void* key, u32 ke
     memcpy(destinationBytes + 8, sourceBytes, length);
     memcpy(block.bytes, initialValue, sizeof(initialValue));
     for (pass = 0; pass < 6; pass++) {
-        for (blockOffset = 8, blockIndex = 1; blockIndex <= blockCount; blockIndex++, blockOffset += 8) {
+        for (blockIndex = 1, blockOffset = 8; blockIndex <= blockCount; blockIndex++, blockOffset += 8) {
             u64 passBase = (u64)(s64)blockCount * (u64)(s64)pass;
             u8* stateBytes = block.bytes;
 
