@@ -58,8 +58,8 @@ ziU8 ZADP_Zi8SetPDremoveOpt(ziU8 option ZI_NEED_WORK) {
 }
 ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziWChar* spelling, ziU16 spellingCapacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
     ziWChar folded;
-    ziU32 entrySize, wordSize, copied;
-    ziU8* entry;
+    ziU32 entrySize;
+    int wordSize, copied;
     ziU8* word;
     int index;
     int fallback = 0;
@@ -70,18 +70,18 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
         return 0;
     }
     if (language == 1) {
-        length &= 0x7F;
         length *= 2;
     }
     if (continuation == 0) {
         table = (ziPudHeader*)ZI_WORK->pudTable[ZI_WORK->pudCount - 1];
-        index = 0;
         section = table->sections;
-        while (index < table->languageCount && section->language != language) {
+        index = 0;
+        while (index < table->languageCount) {
+            if (section->language == language) break;
             index++;
             section++;
         }
-        if (table->languageCount <= index) {
+        if (index >= table->languageCount) {
             Zi8LogError(0x4F6, __zi8_work_data);
             return 0;
         }
@@ -90,78 +90,82 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
         ZI_WORK->unk_0x318 = 0;
     }
     for (;;) {
-        entry = (ziU8*)ZI_WORK->unk_0x310;
-        if (entry == 0) {
+        word = (ziU8*)ZI_WORK->unk_0x310;
+        if (word == 0) {
             Zi8LogError(0x4B3, __zi8_work_data);
             return 0;
         }
         while ((ziS32)ZI_WORK->unk_0x318 < (ziS32)ZI_WORK->unk_0x314) {
-            word = entry + 1;
-            wordSize = *entry;
+            wordSize = *word++;
             entrySize = wordSize;
             if (language == 1) {
-                if (*word < ZI_WORK->unk_0x17) goto next;
+                if (ZI_WORK->unk_0x17 > *word) goto next;
                 entrySize = wordSize - 1;
-                word = entry + 2;
+                word++;
                 wordSize = ZiGetZHWordSize((ziWChar*)word, entrySize);
             } else if (ZI_WORK->unk_0x31E != 0 && complete != 0 && wordSize > length && word[length] == 0x20) goto matchText;
-            if ((ziS32)length > (ziS32)wordSize || (complete != 0 && wordSize != length) || (complete == 0 && wordSize == length)) goto next;
-            if (language == 1) {
-                for (index = 0; index < length; index++) {
-                    if (word[index] != ((ziU8*)pattern)[index]) goto next;
-                }
-                goto matched;
-            }
-matchText:
-            for (index = 0; index < length; index++) {
-                if (pattern[index] < 0xEFF1 || pattern[index] > 0xF37F) {
-                    folded = Zi8ConvertUC2WC(word[index], language, __zi8_work_data);
-                    if (folded != pattern[index] && (!ZI_WORK->unk_0x1F || !Zi8ChangeCharCase(0, &folded, language, __zi8_work_data) || folded != pattern[index])) goto next;
-                } else if (pattern[index] != Zi8ConvertUC2Key(word[index], language, __zi8_work_data)) goto next;
-            }
-matched:
-            if (fallback) {
-                ZI_WORK->unk_0x310 = 0;
-                ZI_WORK->unk_0x318 = 0;
-                ZI_WORK->unk_0x314 = 0;
-                if (*pattern < 0xEFF1) *output = Zi8ConvertWC2Key(*pattern, language, __zi8_work_data);
-                else *output = *pattern;
-                return 1;
-            }
-            if (language == 1) {
-                index = 0;
-                for (copied = 0; index < (ziS32)wordSize && copied < capacity; copied++) {
-                    ((ziU8*)output)[index] = word[index];
-                    ((ziU8*)output)[index + 1] = word[index + 1];
-                    index += 2;
-                }
-                Zi8CopyZHSpelling(word, spelling, spellingCapacity, entrySize, wordSize);
+            if ((ziS32)length > (ziS32)wordSize || (complete != 0 && wordSize != length) || (complete == 0 && wordSize == length)) {
+next:
+                ZI_WORK->unk_0x318++;
+                word += entrySize;
             } else {
-                for (copied = 0; copied < wordSize && copied < capacity; copied++) {
-                    output[copied] = Zi8ConvertUC2WC(word[copied], language, __zi8_work_data);
-                    if (ZI_WORK->unk_0x31E != 0 && copied >= length && output[copied] == 0x20) {
-                        if (complete != 0 || copied >= length) break;
-                        goto next;
+                if (language == 1) {
+                    for (index = 0; index < length; index++) {
+                        if (word[index] != ((ziU8*)pattern)[index]) goto next;
+                    }
+                    goto matched;
+                }
+matchText:
+                for (index = 0; index < length; index++) {
+                    if (pattern[index] >= 0xEFF1 && pattern[index] <= 0xF37F) {
+                        if (pattern[index] != Zi8ConvertUC2Key(word[index], language, __zi8_work_data)) goto next;
+                    } else {
+                        folded = Zi8ConvertUC2WC(word[index], language, __zi8_work_data);
+                        if (folded != pattern[index] && (!ZI_WORK->unk_0x1F || !Zi8ChangeCharCase(0, &folded, language, __zi8_work_data) || folded != pattern[index])) goto next;
                     }
                 }
+matched:
+                if (fallback) {
+                    ZI_WORK->unk_0x310 = 0;
+                    ZI_WORK->unk_0x318 = 0;
+                    ZI_WORK->unk_0x314 = 0;
+                    if (*pattern >= 0xEFF1) *output = *pattern;
+                    else *output = Zi8ConvertWC2Key(*pattern, language, __zi8_work_data);
+                    return 1;
+                }
+                if (language == 1) {
+                    index = 0;
+                    for (copied = 0; index < (ziS32)wordSize && copied < capacity; copied++) {
+                        ((ziU8*)output)[index] = word[index];
+                        ((ziU8*)output)[index + 1] = word[index + 1];
+                        index += 2;
+                    }
+                    Zi8CopyZHSpelling(word, spelling, spellingCapacity, entrySize, wordSize);
+                } else {
+                    for (copied = 0; copied < wordSize && copied < capacity; copied++) {
+                        output[copied] = Zi8ConvertUC2WC(word[copied], language, __zi8_work_data);
+                        if (ZI_WORK->unk_0x31E != 0 && copied >= length && output[copied] == 0x20) {
+                            if (complete != 0 || copied >= length) break;
+                            goto next;
+                        }
+                    }
+                }
+                ZI_WORK->unk_0x318++;
+                ZI_WORK->unk_0x310 = (ziU32)(word + entrySize);
+                Zi8LogError(100, __zi8_work_data);
+                return (ziU8)copied;
             }
-            ZI_WORK->unk_0x318++;
-            ZI_WORK->unk_0x310 = (ziU32)(word + entrySize);
-            Zi8LogError(100, __zi8_work_data);
-            return (ziU8)copied;
-next:
-            ZI_WORK->unk_0x318++;
-            entry = word + entrySize;
         }
-        if (length != 1 || complete == 0 || continuation != 0) {
+        if (length == 1 && complete != 0 && continuation == 0) {
+            complete = 0;
+            fallback = 1;
+            ZI_WORK->unk_0x318 = 0;
+        } else {
             ZI_WORK->unk_0x310 = 0;
             ZI_WORK->unk_0x318 = 0;
             ZI_WORK->unk_0x314 = 0;
             return 0;
         }
-        complete = 0;
-        fallback = 1;
-        ZI_WORK->unk_0x318 = 0;
     }
 }
 ziU32 Zi8MatchPUDdata(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
