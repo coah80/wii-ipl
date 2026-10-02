@@ -871,12 +871,12 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     pf_u16 time;
     pf_u8 deleted_marker_init[4] = {0xE5};
     pf_u8 deleted_marker[1];
-    pf_u16 saved_initial_char = 0;
     pf_u32 sector;
     pf_u32* next_sector;
     pf_s32 filename_length;
     pf_s32 parse_error;
     pf_s32 allocation_error = 0;
+    pf_u16 saved_initial_char = 0;
     pf_s32 error;
     pf_u32 index;
     PF_DIR_ENT* update_entry;
@@ -1061,7 +1061,6 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     pf_u16 time;
     pf_u8 deleted_marker_init[4] = {0xE5};
     pf_u8 deleted_marker[1];
-    pf_u16 saved_initial_char = 0;
     pf_u32 sector;
     pf_u32* next_sector;
     pf_s32 filename_length;
@@ -1070,6 +1069,7 @@ pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     pf_s32 error;
     pf_u32 index;
     pf_u32 lfn_index;
+    pf_u16 saved_initial_char = 0;
     PF_DIR_ENT* update_entry;
 
     deleted_marker[0] = deleted_marker_init[0];
