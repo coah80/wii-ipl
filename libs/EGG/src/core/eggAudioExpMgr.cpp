@@ -1,3 +1,5 @@
+#define EGG_AUDIO_EXPMGR_NO_INLINE_VIRTUALS
+
 #include <egg/core.h>
 
 namespace EGG {
