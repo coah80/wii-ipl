@@ -1051,7 +1051,7 @@ pf_s32 PFDIR_p_rename(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
     }
     error = PFENT_updateEntry(update_entry, 1);
 finish_rename:
-    if (error != 0) { allocation_error = error; }
+    if (error != 0) { return error; }
     return allocation_error;
 }
 pf_s32 PFDIR_p_move(PF_VOLUME* volume, PF_STR* old_path, PF_STR* new_path) {
