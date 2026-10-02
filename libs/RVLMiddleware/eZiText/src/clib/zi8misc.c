@@ -65,7 +65,7 @@ ziU16 Zi8Uni2Ptr(ziU16 ch, ziE12* buf ZI_NEED_WORK) {
         }
     }
     e = (ziU8*)table;
-    if (WORKP->unk_0x1B18 != ZI8_NULL && WORKP->unk_0x1B24 == WORKP->unk_0x18) {
+    if (WORKP->unk_0x1B18 != ZI8_NULL && WORKP->unk_0x1B24 == WORKP->subLanguage) {
         if ((ziU16)ch >= WORKP->unk_0x1B1C && (ziU16)ch <= WORKP->unk_0x1B1E) {
             i = (ziU16)(ch - WORKP->unk_0x1B1C);
             goto map;
