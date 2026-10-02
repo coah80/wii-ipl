@@ -393,3 +393,30 @@ one-slot residual.
 the store onto the r3=&CoverBlock web. volatile decl / vu32 HW reg /
 stmt reorder / anon base all no-op. diAddr r3↔r4 swap: diAddr/vu32/anon-
 base/decl-order all keep base-first binding.
+
+## 2026-10-02c — BS2Mach .data name-pairing complete; jumptable residual is code-bound
+
+- All 95 .data literal objects now pair: renamed orig's carved labels in
+  symbols.txt to MWCC's emitted names (@NNNN numbering) offset-for-offset.
+  Names, offsets, sizes, bytes AND relocs are identical — the section is
+  content-complete (mine 0xbcc vs orig 0xbd0 = one 4B alignment pad tail).
+- matched_data stays 155504/158528 because it only counts 100%-fuzzy
+  sections. .data fuzzy 94.03 is bounded by the two BS2Tick jumptables
+  (@4359/@4358): their entries resolve to `BS2Tick+<case-offset>` and my
+  BS2Tick is 0x14 shorter at those labels — every label-target diff is a
+  code artifact, not an extraction artifact. .data can only complete after
+  .text does.
+
+### Getter_ (wiisetting's only code blocker, 28 diffs = 2 regname pairs)
+- Loop1 `i` (FORM_ID_SECURITY_KEY): orig r26, mine r25.
+- Loop2 `i` (FORM_ID_DUMMY_SECURITY_KEY): orig r31, mine r25 — orig pins
+  it at the deepest callee reg (more callee webs live in that region).
+- Tried: for-init decl (scoping error — i used after loop), decl-before-
+  memset (no-op), shared `int i` at switch scope (42 — worse). Baseline
+  stands: per-case `int i` decls.
+- Unit is Equivalent — orig .o links; this is score-only.
+
+### Twins/CheckBS2 1-insn slots — volatile already semantically applied
+`CancelNand`/`CacheCommandComplete` are `static volatile`/`vu32` globals
+already (callback/cache-command flags — genuine async semantics). The
+lis/stw materialization slots are pure scheduler order, no further lever.
