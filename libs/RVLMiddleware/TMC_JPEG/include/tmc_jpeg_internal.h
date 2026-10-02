@@ -63,7 +63,7 @@ typedef struct {
     u8 mcuYRem;         // 0x0F
     u16 mcuYCount;      // 0x10
     u16 mcuXCount2;     // 0x12
-    u32 unk_0x14;
+    u32 mcuTotal;  // 0x14
     u8 remX;  // 0x18
     u8 remY;  // 0x19
     u8 compCount;         // 0x1A
@@ -142,7 +142,7 @@ struct TMCCJPEGDecWork_t {
     u8 mcuYRem;         // 0x17FF
     u16 mcuYCount;      // 0x1800
     u16 mcuXCount2;     // 0x1802
-    u32 unk_0x1804;
+    u32 mcuTotal;  // 0x1804
     u8 remX;  // 0x1808
     u8 remY;  // 0x1809
     u8 compCount;         // 0x180A

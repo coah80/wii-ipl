@@ -567,7 +567,7 @@ s32 TMCJPEGDEC_scan_varinit(TMCCJPEGDecWork* work) {
 
     p->mcuYCount = p->mcuYCount + ((u8)remX != 0 ? 1 : 0);
     p->mcuXCount2 = p->mcuXCount2 + ((u8)remY != 0 ? 1 : 0);
-    p->unk_0x14 = (u32)p->mcuYCount * (u32)p->mcuXCount2;
+    p->mcuTotal = (u32)p->mcuYCount * (u32)p->mcuXCount2;
 
     for (idx = 0; idx < (s32)p->scanCompCount; idx++) {
         u8 compId;
@@ -1929,7 +1929,7 @@ static s32 TMCJPEGDEC_parse_sof(TMCCJPEGDecWork* work) {
             mcuCountY += yr;
             frameInfo->mcuYCount = mcuCountX;
             frameInfo->mcuXCount2 = mcuCountY;
-            work->unk_0x1804 = (u32)mcuCountX * (u32)mcuCountY;
+            work->mcuTotal = (u32)mcuCountX * (u32)mcuCountY;
         }
 
         compCount2 = frameInfo->compCount;
