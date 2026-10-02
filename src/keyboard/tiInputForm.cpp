@@ -1169,7 +1169,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     setVisible("N_2line", true);
     mpPaneManager->setAllComponentTriggerTarget(false);
     mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
-    nw4r::lyt::Pane* pane = getPane(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox);
+    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox, true);
     if (!pane) pane = mpLayout->GetRootPane()->FindPaneByName(getLanguageTextPane() ? static_cast<const LanguagePaneData*>(mpLanguageData)->textBox : "T_2l_TextBox", true);
     mpPaneManager->getPaneComponentByPane(pane)->setTriggerTarget(true);
     for (u32 buttonIndex = 0; buttonIndex < 2; ++buttonIndex) {
@@ -1183,15 +1183,13 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
         }
         }
         nw4r::ut::List_Append(&mAnmPanes, animationPane);
-        u32 count;
         const char* bindingName = button.bindingName;
-        count = button.count;
+        u32 count = button.count;
         for (u16 animationIndex = 0; animationIndex < count; ++animationIndex) {
-            const InputFormAnimationFile* file = button.files[animationIndex];
-            void* resource = mpMultiArcResourceAccessor->GetResource(0, file->fileName, NULL);
+            void* resource = mpMultiArcResourceAccessor->GetResource(0, button.files[animationIndex]->fileName, NULL);
             AnimTransformPane* transform = static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
-            if (!bindingName) animationPane->addAnimation(allocator, file->id, transform, false, true);
-            else animationPane->forceAddAnimation(allocator, file->id, transform, bindingName, false, true);
+            if (!bindingName) animationPane->addAnimation(allocator, button.files[animationIndex]->id, transform, false, true);
+            else animationPane->forceAddAnimation(allocator, button.files[animationIndex]->id, transform, bindingName, false, true);
         }
     }
     init();
