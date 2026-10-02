@@ -548,7 +548,7 @@ NWC24Err NWC24DumpDlTask(NWC24DlTask* dlTask) {
 
 NWC24Err NWC24IterateDlTask(NWC24DlId* dlIterateId, BOOL begin) {
     DlTaskListHeader* entriesHeader;
-    NWC24Work* work;
+    const NWC24Work* work;
     u16 taskId;
     u16 maxTaskCount;
     DlTaskListHeader* header;
