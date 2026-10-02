@@ -258,11 +258,17 @@ char* SOInetNtoA(SOInAddr address) {
 
 int SOInetPtoN(int family, const char* text, void* address) {
     s32 rm;
-    int temporary,result,size,bytes;
+    int temporary;
+    int size;
+    int result;
+    int bytes;
     InetRequest* request;
     if((result=SOiPrepareTempRm(NULL,&rm,&temporary))==0) {
         bytes=0;
-        if(family==2) bytes=4;
+        switch (family) {
+        case 2: bytes=4; break;
+        default: break;
+        }
         if(!bytes) result=-5;
         else if(!text) result=-28;
         else {
