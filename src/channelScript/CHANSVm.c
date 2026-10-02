@@ -7717,30 +7717,27 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     CHANSVmObjHdr* pAcc;
                     CHANSVmExecutionCtx* ctx;
                     CHANSVmModule* dbg;
+                    CHANSVmErr loadResult;
                     opSize = 3;
                     operandBuf = VmGetOperand(vm, 1, 3);
                     if (operandBuf == vmNull) {
                         return CHANS_VM_ERR_CODE_RANGE;
                     }
                     pAcc = &pVm->accumulator;
-                    result = CHANSVmDeleteObject(vm, pAcc);
-                    if (result == CHANS_VM_OK) {
+                    loadResult = CHANSVmDeleteObject(vm, pAcc);
+                    if (loadResult == CHANS_VM_OK) {
                         imm16Val = VM_READ_BE_U16(operandBuf, 0);
                         ctx = pVm->pActiveCtx;
                         dbg = ctx->pDbg;
-                        if (imm16Val < dbg->stringCount) {
-                            if (dbg->pStringTbl[imm16Val].pStringData != vmNull) {
-                                goto load_str_ok;
-                            }
+                        if (imm16Val >= dbg->stringCount || dbg->pStringTbl[imm16Val].pStringData == vmNull) {
+                            loadResult = CHANS_VM_ERR_LOAD_STRING_CONST;
+                        } else {
+                            pAcc->type = CHANS_VM_OBJ_TYPE_STRING;
+                            pAcc->hasData = vmTrue;
+                            pAcc->value.wstring_v = (vmWStringObjVal*)&ctx->pDbg->pStringTbl[imm16Val];
                         }
                     }
-                    result = CHANS_VM_ERR_LOAD_STRING_CONST;
-                    break;
-
-                load_str_ok:
-                    pAcc->type = CHANS_VM_OBJ_TYPE_STRING;
-                    pAcc->hasData = vmTrue;
-                    pAcc->value.wstring_v = (vmWStringObjVal*)&ctx->pDbg->pStringTbl[imm16Val];
+                    result = loadResult;
                     break;
                 }
 
