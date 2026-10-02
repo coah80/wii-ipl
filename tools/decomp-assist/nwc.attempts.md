@@ -140,3 +140,17 @@
   beq-append); `&&` inversion emits identically.
 - **"?" literal via `li r4,reloc`**: base materializes short-string args via
   li+reloc inline (no pin); mine pinned r25 for it. Minor.
+
+## wave 14 findings (orchestrator hints exhausted)
+
+- **UpdateDlTask web-reduction**: tried hoisting `DlTaskListHeader* header` once
+  (regressed 249->248 — added a web), dropping the `task` alias (identical),
+  nested-ifs for the `write && !opened && !owner` chain (identical), flat
+  4-term `&&` (identical). The 5th callee web is the second phase's workP-select
+  rotator — the phases are disjoint so the webs can't merge; base's r28 reuse
+  across phases is allocator color-choice, not a source-level merge. Wall stands.
+- **EncodeWord ||-chain polarity**: term reorder (`q` before `Q`), `!(x!=c)`
+  last-term negation, `!(A||B||C||D)` guard-form inversion, else-folded
+  `*encoded='\0'; goto done` — all emit the same `bne` last term or worse (+2
+  for else-fold). The else-fall layout base shows requires the join be
+  non-adjacent; MWCC's block order here isn't moved by source polarity.
