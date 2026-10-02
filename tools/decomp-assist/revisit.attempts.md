@@ -78,3 +78,53 @@ ndiff.py/disasm_fn.py truncate at the first one; use raw-word diffs.
 
 All units stay NonMatching — no shims, no flips. Every residual is a
 verified allocator/scheduler/emission-policy tie with source-form evidence.
+
+## Round 2 (post-#834 rebase @11c75ddb) — sdChannelTitle emit-parity probe
+
+Investigated per orchestrator hint whether the 152B weak-dtor + dangling-UND
+residual was the same dedup-loss family as channelTitle's symbols.txt fix.
+VERDICT: NOT a naming issue and NOT a flip blocker.
+
+- orig iplSDChannelTitle.o: ZERO weak FUNC syms. Mine emits 2 unreferenced
+  weak deleting-dtor bodies: `__dt__FaderSceneBase` (88B @0x1f4) +
+  `__dt__FrameController` (64B @0xb30), plus 3 zero-reloc UND vtable refs
+  (`__vt__FrameController`, `__vt__SDButtonEventHandlerBase`, `__vt__LangFile`).
+- orig iplFaderSceneBase.o's own view: `~FaderSceneBase` is DECLARED-ONLY
+  (its `__dt__` is UND there, defined in another TU).
+- Tried `__declspec(novtable)` on all 4 classes under
+  IPL_SD_CHANNEL_TITLE_CPP: removed the 3 dangling `__vt__` UNDs (correct
+  mechanism — orig stores only most-derived vt) but weak bodies persisted.
+- Tried implicit-trivial dtor (removing decl): `__dt__FrameController` emit
+  STOPPED (64B gone), but `calc()` vtable slot shifted 0x0c→0x08 →
+  calcFadein/calcFadeout single-word diffs (`lwz r12,0x0c(r12)` vs 0x08)
+  → REVERTED everything.
+- CRITICAL PROOF these bodies are harmless: main's iplChannelTitle.o
+  (unit fuzzy 100.0 post-#834) emits the IDENTICAL `__dt__FaderSceneBase`
+  88B + `__dt__FrameController` 64B weak bodies that orig's .o lacks.
+  They are linker-stripped dead emission; objdiff fn-pairing ignores them.
+  => The 152B was never the blocker. Real residual = flushSaveBeforeExit
+  98.59 only.
+
+## flushSaveBeforeExit — 6-diff → 2-diff minimum
+
+Window is the `sm` (System globals) base web: orig binds &sm to r3 and
+loads +0x94→r4 (store), +0x28→r4 (heap arg), +0x94→r3 (recv); mine binds
+r4 and marshals recv before arg. Variants:
+- saveHeap decl hoisted above getSDPrevPage store: 2 diffs (base→r5,
+  +0x28 load moved early) — closer but not orig's order.
+- `flushAsync(System::getMem2App())` inline: same 2 diffs, base→r4.
+Residual = base-web home + marshal eval order — allocator tie.
+
+## GLGR — ready-set issue-order re-probes
+
+- def-move (sheetGlyphCount/dataBlockCount to tail): 20→99 diffs, REGRESSION.
+- `u32 remWorkSpace = ctx->remWorkSpace()` hoist: 20→25, REGRESSION.
+- stepSheetFlags after flagsSheetsOff (dependency-chain reorder): identical
+  20 diffs — MWCC issue-order insensitive to stmt order here. Wall stands.
+
+## DrawFrame / MCManager re-verified
+
+DrawFrame 376=376: flipInfos base pinned r21(orig)/r31(mine) + stfsx weave
+— callee-numbering tie unchanged. create_banner/_create_icon: `(base+const)
++var` regroup + recompute-vs-CSE (`add r3,r29,r25` remat per call in orig)
+— same documented wall.
