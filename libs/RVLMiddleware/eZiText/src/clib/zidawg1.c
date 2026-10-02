@@ -199,10 +199,10 @@ checkEntry:
         }
 
         result = graph + (ziU32)entry[4] * 0x10000 + (((ziU16)entry[5] << 8) + entry[6]);
-        ((zi8DawgCtx*)context)->unk_0x338 =
+        ((zi8DawgCtx*)context)->endNode =
             graph + (ziU32)entry[7] * 0x10000 + (((ziU16)entry[8] << 8) + entry[9]);
-        if (((zi8DawgCtx*)context)->unk_0x338 == graph) {
-            ((zi8DawgCtx*)context)->unk_0x338 = 0;
+        if (((zi8DawgCtx*)context)->endNode == graph) {
+            ((zi8DawgCtx*)context)->endNode = 0;
         }
 
         if ((((ziU16)entry[0] << 8) + entry[1]) == 0) {
