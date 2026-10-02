@@ -97,7 +97,7 @@ typedef struct NHTTPResponseInfo
     s32 isSuccess;
     s32 isHeaderParse;
     s32 httpStatus;
-    u32 recvBufLen;
+    volatile u32 recvBufLen;
     char* allHeader_p;
     char* foundHeader_p;
     char* recvBuf_p;

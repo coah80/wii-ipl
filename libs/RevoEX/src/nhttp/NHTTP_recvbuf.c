@@ -131,7 +131,7 @@ s32 NHTTPi_RecvBufN(void* mutex, NHTTPRequestInfo* request, s32 socket, u32 offs
     NHTTPResponseInfo* response=request->response;
     void* buf;
     if(response->recvBufLen<=offset) return -1003;
-    available=*(volatile u32*)&response->recvBufLen;
+    available=response->recvBufLen;
     buf=response->recvBuf_p;
     available=available-offset;
     buf=(u8*)buf+offset;
