@@ -197,8 +197,9 @@ void AESiEncryptBlock(AESContext* context, u32* output, const u32* input) {
 
 void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
     u32 rounds=context->rounds;
-    u32* key=context->keys + rounds*4;
+    u32* key=context->keys;
     u32 a,b,c,d;
+    key += rounds*4;
     if (context->needsTransform) {
         u32 round;
         for (round=1; round<context->rounds; ++round) {
