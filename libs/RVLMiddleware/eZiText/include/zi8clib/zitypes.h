@@ -280,7 +280,7 @@ struct __zi8_work_data_s {
     ziU8* groupPtr;       // 0x1764
     ziU8 unk_0x1768;
     ziU8 unk_0x1769[0x81];
-    ziU16 unk_0x17EA;
+    ziU16 matchOffset;  // 0x17EA
     ziU8 unk_0x17EC;
     ziU8 unk_0x17ED[3];
     ziU8* dawgGroup;  // 0x17F0
