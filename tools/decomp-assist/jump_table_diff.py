@@ -5,9 +5,11 @@ Paths follow ctxdiff.py: build/43U/{src,obj}/<unit>.o. Requires pyelftools.
 Exit 0: all selected tables match (or no tables); 1: mismatch; 2: invalid or
 ambiguous input. This checks relative destinations, not behavioral equivalence.
 
-Automatic selection covers local jumptable_* symbols whose R_PPC_ADDR32 entries
-all target the selected function. External callback tables/vtables are not
-covered. Source locations are inferred from corresponding function relocations,
+Automatic selection covers jumptable_* symbols and multi-entry data objects
+whose R_PPC_ADDR32 entries all target the selected function, with at least one
+interior destination for objects lacking the jumptable_ prefix. This includes
+compiler-generated @ names and custom names, but excludes ordinary callback
+tables/vtables. Source locations are inferred from corresponding function relocations,
 never from an assumption that both data sections have the same layout.
 """
 
@@ -113,7 +115,11 @@ def jump_target(obj, relocation, function):
 
 def reference_tables(obj, function, name=None):
     candidates = [obj.symbol(name)] if name else [
-        s for s in obj.symbols if s.name.startswith("jumptable_") and s.size]
+        s for s in obj.symbols if s.size and (
+            s.name.startswith("jumptable_") or (
+                s.kind == "STT_OBJECT" and s.size >= 8
+                and isinstance(s.section, int)
+                and obj.sections[s.section][0] in (".data", ".rodata", ".sdata", ".sdata2")))]
     result = []
     for table in candidates:
         if not isinstance(table.section, int) or table.size % 4:
@@ -123,10 +129,15 @@ def reference_tables(obj, function, name=None):
         section_size = obj.sections[table.section][1]
         if table.value < 0 or table.value + table.size > section_size:
             raise ValueError("reference table is outside its section")
-        targets = [jump_target(obj, obj.relocs(table.section).get(offset), function)
-                   for offset in range(table.value, table.value + table.size, 4)]
-        if targets and all(target is not None for target in targets):
-            result.append((table, targets))
+        targets = []
+        for offset in range(table.value, table.value + table.size, 4):
+            target = jump_target(obj, obj.relocs(table.section).get(offset), function)
+            if target is None:
+                break
+            targets.append(target)
+        if targets and len(targets) == table.size // 4:
+            if name or table.name.startswith("jumptable_") or any(targets):
+                result.append((table, targets))
         elif name:
             raise ValueError("reference table does not target the selected function")
     return result

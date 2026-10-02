@@ -144,6 +144,55 @@ class JumpTableTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "does not target"):
             tool.reference_tables(reference, reference.symbol("dispatch"), "jumptable_test")
 
+    def test_discovers_compiler_and_custom_names(self):
+        for name in ("@123", "scCharacterDispatch"):
+            reference = fixture()
+            reference.symbols[1] = replace(reference.symbols[1], name=name)
+            tables = tool.reference_tables(reference, reference.symbol("dispatch"))
+            self.assertEqual([(t.name, entries) for t, entries in tables],
+                             [(name, [0x10, 0x20, 0x30])])
+
+    def test_custom_table_can_include_function_entry(self):
+        reference = fixture((0, 0x10, 0x20), source=True)
+        tables = tool.reference_tables(reference, reference.symbol("dispatch"))
+        self.assertEqual(tables[0][1], [0, 0x10, 0x20])
+
+    def test_function_entry_callback_array_is_not_auto_selected(self):
+        reference = fixture((0, 0, 0), source=True)
+        fn = reference.symbol("dispatch")
+        self.assertEqual(tool.reference_tables(reference, fn), [])
+        self.assertEqual(tool.reference_tables(reference, fn, "@123")[0][1],
+                         [0, 0, 0])
+
+    def test_single_pointer_requires_explicit_name(self):
+        reference = fixture((0x10,), source=True)
+        fn = reference.symbol("dispatch")
+        self.assertEqual(tool.reference_tables(reference, fn), [])
+        self.assertEqual(tool.reference_tables(reference, fn, "@123")[0][1], [0x10])
+
+    def test_custom_table_requires_data_object(self):
+        reference = fixture(source=True)
+        reference.symbols[1] = replace(reference.symbols[1], kind="STT_NOTYPE")
+        self.assertEqual(tool.reference_tables(reference, reference.symbol("dispatch")), [])
+        reference.symbols[1] = replace(reference.symbols[1], kind="STT_OBJECT")
+        reference.sections[2] = (".text", 0x1000)
+        self.assertEqual(tool.reference_tables(reference, reference.symbol("dispatch")), [])
+
+    def test_custom_table_with_missing_or_external_entry_is_not_selected(self):
+        for entries in ((0x10, 0x20, 0x80), (0x10, 0x20, 0x30)):
+            reference = fixture(entries, source=True)
+            if entries[-1] == 0x30:
+                del reference.relocations[2][0x48]
+            self.assertEqual(tool.reference_tables(reference, reference.symbol("dispatch")), [])
+
+    def test_auto_custom_table_still_detects_swapped_entries(self):
+        reference = fixture(source=True)
+        source = fixture((0x20, 0x10, 0x30), source=True, table_offset=0x90)
+        with patch.object(tool, "read_object", side_effect=[source, reference]):
+            with contextlib.redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(tool.main(["unused", "dispatch"]), 1)
+            self.assertIn("@123: 1/3 entries match", output.getvalue())
+
     def test_cli_exit_codes(self):
         for source, expected_status in [(fixture(source=True), 0),
                                         (fixture((0x20, 0x10, 0x30), source=True), 1)]:
