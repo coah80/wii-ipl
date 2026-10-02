@@ -163,6 +163,9 @@ namespace ipl {
             void init(const f32& start, const f32& end, f32 maxFrame, f32 startTangent, f32 endTangent, int playback = ANIM_TYPE_FORWARD,
                       f32 speed = 1.0f);
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+            f32 get() const;
+#else
             f32 get() const {
                 f32 var_f27 = mFrame;
                 f32 var_f28 = 1.0f / mMaxFrame;
@@ -181,6 +184,7 @@ namespace ipl {
 
                 return r;
             }
+#endif
 
         protected:
             f32 mStart;

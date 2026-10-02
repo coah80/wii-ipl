@@ -20,7 +20,7 @@ namespace gui {
     class Manager;
     class EventHandler;
 
-#if defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE)
+#if defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP)
     class __declspec(novtable) Interface {
 #else
     class Interface {
@@ -34,14 +34,14 @@ namespace gui {
         virtual void draw(Mtx& mtx) {}  // 0x14 (0x05)
         virtual void draw() {}          // 0x18 (0x06)
 
-#if defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE)
+#if defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP)
         virtual ~Interface();     // 0x1C (0x07)
 #else
         virtual ~Interface() {}   // 0x1C (0x07)
 #endif
     };
 
-#if defined(IPL_GC_WINDOW_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE)
+#if defined(IPL_GC_WINDOW_NOVTABLE) || defined(IPL_GC_SAVEDATA_NOVTABLE) || defined(IPL_MEMORY_CARD_NOVTABLE) || defined(IPL_SD_CHANNEL_TITLE_CPP)
     class __declspec(novtable) EventHandler {
 #else
     class EventHandler {
@@ -60,10 +60,16 @@ namespace gui {
 
         virtual void onEvent(u32 compId, u32 event, void* data) {}  // 0x08 (0x02)
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+        virtual void setManager(Manager* manager);
+        virtual void setLatestEventCtrlNo(int ctrlNo);
+        virtual int getLatestEventCtrlNo();
+#else
         virtual void setManager(Manager* manager) { mpManager = manager; }  // 0x0C (0x03)
 
         virtual void setLatestEventCtrlNo(int ctrlNo) { mLatestCtrlNum = ctrlNo; }  // 0x10 (0x04)
         virtual int getLatestEventCtrlNo() { return mLatestCtrlNum; }               // 0x14 (0x05)
+#endif
 
     protected:
         Manager* mpManager;  // 0x04
@@ -110,7 +116,11 @@ namespace gui {
         virtual bool update(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);      // 0x4C (0x13)
 
         virtual bool isTriggerTarger() { return mbTriggerTarget; }                  // 0x50 (0x14) "targer"
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+        virtual void setTriggerTarget(bool bEnable);
+#else
         virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x54 (0x15)
+#endif
 
         virtual void setManager(Manager* manager) { mpManager = manager; }  // 0x58 (0x16)
 
@@ -255,8 +265,13 @@ namespace gui {
 
         virtual bool contain(f32 x, f32 y);  // 0x68 (0x1A)
 
+#ifdef IPL_SD_CHANNEL_TITLE_CPP
+        virtual void setPane(nw4r::lyt::Pane* pane);
+        virtual nw4r::lyt::Pane* getPane();
+#else
         virtual void setPane(nw4r::lyt::Pane* pane) { mpPane = pane; }  // 0x6C (0x1B)
         virtual nw4r::lyt::Pane* getPane() { return mpPane; }           // 0x70 (0x1C)
+#endif
 
     private:
         nw4r::lyt::Pane* mpPane;  // 0x88
