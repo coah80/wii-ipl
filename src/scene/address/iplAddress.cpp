@@ -1557,6 +1557,15 @@ namespace ipl {
             }
         }
 
+        static inline math::VEC2 scaledPageOffset(const math::VEC2& source, f32 factor) {
+            const f32 vertical = source.y * factor;
+            const f32 horizontal = source.x * factor;
+            math::VEC2 scaled;
+            scaled.y = vertical;
+            scaled.x = horizontal;
+            return scaled;
+        }
+
         void Address::onPreviousPage() {
             switch (mState) {
                 case STATE_NORMAL:
@@ -1586,10 +1595,7 @@ namespace ipl {
                     mPage = PAGE_MAX - 1;
                     mNextPageNum = 0;
                     mbCover = false;
-                    math::VEC2 offset;
-                    offset.y = sPageOffset.y * PAGE_MAX;
-                    offset.x = sPageOffset.x * PAGE_MAX;
-                    add_translate(mpLayout->FindPaneByName("N_note_base"), offset);
+                    add_translate(mpLayout->FindPaneByName("N_note_base"), scaledPageOffset(sPageOffset, PAGE_MAX));
                     mpLayout->getAnim(4)->setAnmType(0);
                     mpLayout->getAnim(4)->play();
                     set_page_text("T_nmbr_b", mPage + 1);
