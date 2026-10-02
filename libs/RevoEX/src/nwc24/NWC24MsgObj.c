@@ -46,9 +46,9 @@ NWC24Err NWC24InitMsgObj(NWC24MsgObj* msg, NWC24MsgType type) {
             return NWC24_ERR_INVALID_VALUE;
     }
 
-    msgObj->unk_0x28 = 0;
+    msgObj->date = 0;
     msgObj->type |= 0x200000;
-    msgObj->unk_0x2C = 0;
+    msgObj->receivedDate = 0;
 
     NWC24GetMyUserId(&msgObj->fromId);
     msgObj->numTo = 0;
@@ -477,7 +477,7 @@ NWC24Err NWC24GetMsgFromId(const NWC24MsgObj* msg, NWC24UserId* fromId) {
 NWC24Err NWC24GetMsgDate(const NWC24MsgObj* msg, OSCalendarTime* msgDate) {
     const NWC24MsgObjPrivate* msgObj = (const NWC24MsgObjPrivate*)msg;
 
-    NWC24iMinutesToOSCalendarTime(msgDate, msgObj->unk_0x28);
+    NWC24iMinutesToOSCalendarTime(msgDate, msgObj->date);
     return NWC24_OK;
 }
 
