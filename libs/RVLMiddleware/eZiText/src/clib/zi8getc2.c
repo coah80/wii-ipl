@@ -164,7 +164,7 @@ static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED
     if (parameters->maxCandidates < length) length = parameters->maxCandidates;
     parameters->letters = length;
     if ((parameters->getOptions & 0x80) == 0) {
-        ZI_WORK->unk_0x538 = parameters->language;
+        ZI_WORK->language = parameters->language;
         parameters->candidates[0] = 0xfff0;
         output = (ziWChar*)&ZI_WORK->unk_0x338;
     }
@@ -582,7 +582,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
       }
     }
     else {
-      ZI_WORK->unk_0x538 = parameters->language;
+      ZI_WORK->language = parameters->language;
       if ((parameters->getOptions & 0x80) == 0) {
         saved.restoreCandidates = 1;
         saved.savedOptions = parameters->getOptions;
