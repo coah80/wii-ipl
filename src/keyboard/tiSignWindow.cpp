@@ -220,12 +220,13 @@ void LayoutByNW4R::create(MEMAllocator* allocator) {
     mpPaneManager->setAllComponentTriggerTarget(false);
     mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
 
+    const PaneAnimation* paneTable = csPaneToAnimationInSign;
     const char* forceName;
     u32 animationCount;
     u32 paneIndex = 0;
     do {
         AnmPane* pane = NULL;
-        const PaneAnimation& paneInfo = csPaneToAnimationInSign[paneIndex & 0xFFFF];
+        const PaneAnimation& paneInfo = paneTable[paneIndex & 0xFFFF];
         switch (paneInfo.type) {
         case 2: {
             void* paneBuffer = MEMAllocFromAllocator(allocator, sizeof(CellPhoneSignButtonPane));
