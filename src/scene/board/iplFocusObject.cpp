@@ -144,7 +144,7 @@ namespace ipl {
         focus_object::focus_object(nand::LayoutFile* layoutFile, nand::LayoutFile* balloonFile, BoardObject* boardObject)
             : mState(STATE_INIT_NORMAL), mNextState(STATE_NONE), mPrevState(STATE_NONE), mFinalResult(RESULT_NONE), mCurrentResult(RESULT_NONE),
               mpBoardObj(boardObject), mpLayout(NULL), mpGui(NULL), mpNigaoeBalloon(NULL), mpParsedText(NULL), mEvent(this), mButtonEvent(this),
-              mOptOutEvent(this), mScroller(), mPicture(), unk_0xF8(0), unk_0xFC(0), mGUIAlloc(System::getMem2App(), 4), mpCmpArcData(NULL),
+              mOptOutEvent(this), mScroller(), mPicture(), unused_0xF8(0), unused_0xFC(0), mGUIAlloc(System::getMem2App(), 4), mpCmpArcData(NULL),
               mpArcData(NULL), mArcLength(0), mbChanJump(false), mpChJpData(NULL), mpSoundData(NULL), mSoundSize(0), mbSoundPlaying(false),
               mURLProc(), mFadeAnim(), mNwc24ErrCountdown(0), mChanJumpCountdown(0), mbShowUArw(false), mbShowDArw(false), mbScaleUArw(false),
               mbScaleDArw(false), mbParentalSuccess(false) {
@@ -156,12 +156,12 @@ namespace ipl {
                 mbHoveredURL[i] = false;
             }
 
-            unk_0x114[0] = L' ';
-            unk_0x114[1] = L'　';
-            unk_0x114[2] = L'\n';
-            unk_0x114[3] = L'\t';
-            unk_0x114[4] = 0;
-            unk_0x114[5] = 0;
+            mUrlEndCodes[0] = L' ';
+            mUrlEndCodes[1] = L'　';
+            mUrlEndCodes[2] = L'\n';
+            mUrlEndCodes[3] = L'\t';
+            mUrlEndCodes[4] = 0;
+            mUrlEndCodes[5] = 0;
 
             make_layout(layoutFile);
             make_gui_mgr();
@@ -1196,7 +1196,7 @@ namespace ipl {
                     const wchar_t* pURLStr = &inText[i];
                     // Parse the URL
 
-                    unk_0x114[5] = 0;
+                    mUrlEndCodes[5] = 0;
 
                     if (pURLStr != pStr) {
                         check_paren(pURLStr[-1]);
@@ -1225,8 +1225,8 @@ namespace ipl {
 
         BOOL focus_object::is_url_end_code(wchar_t ch) const {
             bool result = FALSE;
-            for (int i = 0; i < ARRAY_LENGTH(unk_0x114); i++) {
-                result |= ((unk_0x114[i] - ch) == 0);
+            for (int i = 0; i < ARRAY_LENGTH(mUrlEndCodes); i++) {
+                result |= ((mUrlEndCodes[i] - ch) == 0);
             }
             return result;
         }
@@ -1278,7 +1278,7 @@ namespace ipl {
 
             for (int i = 0; i < ARRAY_LENGTH(patterns); i++) {
                 if (ch == patterns[i][0]) {
-                    unk_0x114[5] = patterns[i][1];
+                    mUrlEndCodes[5] = patterns[i][1];
                     break;
                 }
             }
