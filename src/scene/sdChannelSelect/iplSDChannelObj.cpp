@@ -66,7 +66,7 @@ namespace ipl {
         extern "C" void iplSDChannelObj_playPageHide(SDChannelObj* channel) NO_INLINE;
         extern "C" void iplSDChannelObj_resetPageAnim(SDChannelObj* channel, int request) NO_INLINE;
         extern "C" void iplSDChannelObj_resetDialogAnim(SDChannelObj* channel, bool request) NO_INLINE;
-        extern "C" void iplSDChannelObj_applyLanguageGroups(const layout::Object* layout) NO_INLINE;
+        extern "C" void iplSDChannelObj_applyLanguageGroups(layout::Object* layout) NO_INLINE;
         extern "C" void iplSDChannelObj_createBaseLayout(SDChannelObj* channel) NO_INLINE;
         extern "C" f32 iplSDChannelObj_createIconLayout(SDChannelObj* channel) NO_INLINE;
         extern "C" f32 iplSDChannelObj_createMenuLayout(SDChannelObj* channel) NO_INLINE;
@@ -255,15 +255,15 @@ namespace ipl {
             }
         }
 
-        extern "C" void iplSDChannelObj_applyLanguageGroups(const layout::Object* layout) {
+        extern "C" void iplSDChannelObj_applyLanguageGroups(layout::Object* layout) {
             int lang = System::getLanguage();
             const char* langGroup = scLangGroups[lang];
             char availableLanguages[10][4] = {};
 
             bool languageFound = false;
 
-            for (nw4r::lyt::GroupList::Iterator it = layout->GetGroupList().GetBeginIter();
-                 it != layout->GetGroupList().GetEndIter(); it++) {
+            for (nw4r::lyt::GroupList::Iterator it = layout->getNW4RLyt()->GetGroupContainer()->GetGroupList().GetBeginIter();
+                 it != layout->getNW4RLyt()->GetGroupContainer()->GetGroupList().GetEndIter(); it++) {
                 if (strcmp(it->GetName(), langGroup) == 0) {
                     languageFound = true;
                 } else {
@@ -295,7 +295,7 @@ namespace ipl {
             }
 
             if (languageFound) {
-                nw4r::lyt::Group* group = layout->FindGroupByName(langGroup);
+                nw4r::lyt::Group* group = layout->getNW4RLyt()->GetGroupContainer()->FindGroupByName(langGroup);
                 for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter();
                      it != group->GetPaneList().GetEndIter(); it++) {
                     it->mTarget->SetVisible(true);
@@ -305,7 +305,7 @@ namespace ipl {
                 for (int i = 0; i < channel::MAX_ANIMS; i++) {
                     if (scRegionGroups[region][i] != NULL) {
                         if (strcmp(scRegionGroups[region][i], availableLanguages[scLangLookup[region][i]]) == 0) {
-                            nw4r::lyt::Group* group = layout->FindGroupByName(scRegionGroups[region][i]);
+                            nw4r::lyt::Group* group = layout->getNW4RLyt()->GetGroupContainer()->FindGroupByName(scRegionGroups[region][i]);
                             for (nw4r::lyt::PaneLinkList::Iterator it = group->GetPaneList().GetBeginIter();
                                  it != group->GetPaneList().GetEndIter(); it++) {
                                 it->mTarget->SetVisible(true);

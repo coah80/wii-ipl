@@ -3,7 +3,7 @@
 #include "utility/iplCharacterCode.h"
 
 extern "C" {
-BOOL USBAPStartRegistration(void*, void*, u32, u32, void*, void (*)(int), u16*, u8*);
+BOOL USBAPStartRegistration(u64, u32, u32, void*, void (*)(int), u16*, u8*);
 BOOL USBAPCancelRegistration();
 BOOL USBAPIsThreadTerminated();
 }
@@ -40,7 +40,7 @@ void USBAPRegisterCallback(int result) {
 
 void USBAPThread::Init(unsigned short* buffer, unsigned char* accessPoints) {
     int priority = OSGetThreadPriority(OSGetCurrentThread()) + 1;
-    if (USBAPStartRegistration(NULL, NULL, priority,
+    if (USBAPStartRegistration(0, priority,
                               0, this, USBAPRegisterCallback, buffer, accessPoints) == 1) {
         OSReport("Registration started\n");
     }
