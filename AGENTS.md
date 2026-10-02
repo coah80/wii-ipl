@@ -164,9 +164,8 @@ This repository targets only Wii Menu 4.3U. Do not configure or build 43E,
 43J, or 43K while doing matching work.
 
 Most workers should pursue exact matching or safe linking; assign the remainder
-to decompilation. Keep up to 75 live workers when the runtime allows it, while
-reserving capacity for fixer and validation workers. Fill completed slots with
-disjoint tasks. Never duplicate a source file or function
+to decompilation. Keep every worker slot busy (currently four Codex slots; see
+"Orchestrator loop" below). Fill completed slots with disjoint tasks. Never duplicate a source file or function
 range. Workers return changed paths, exact objdiff measurements, and validation
 results. Fuzzy-only results are not accepted.
 
@@ -246,6 +245,12 @@ and merge the PR, fast-forward `origin/main`, and publish progress. If a
 candidate fails validation, return it to its worker; do not fix the candidate
 inline in the orchestrator.
 
+Two exceptions, both set by the human: once a leaf has failed at `max` effort
+(see the effort scale below) the orchestrator itself takes a crack at it, and
+the orchestrator may finish PRs whose authors are gone (rebase, drop a
+forbidden pattern, close with evidence). Record every such attempt in the
+policy log, including the ones that fail.
+
 A new thread must begin by reading this file, checking the live 43U report and
 remote branch, and dispatching the worker pool. The parent must not claim a
 match without fresh independent verification.
@@ -319,6 +324,112 @@ Linked: <percent> | Fuzzy: <percent> | Data: <percent>
 
 Do not report stale values, unmerged PR results, or add other text to that
 update. Continue all required verification and coordination silently.
+
+## Orchestrator loop (Claude orchestrator, Codex workers)
+
+This is the loop currently in use. One Claude session is the orchestrator.
+It does not spawn Claude subagents. All decompilation work goes to Codex CLI
+workers running `gpt-6.1-sol`. The orchestrator assigns leaves, verifies,
+lands, reviews outside PRs, and only decompiles by hand in the cases listed
+under the ownership boundary above.
+
+Only one orchestrator session may run at a time. If a second session resumes
+the same thread (for example, the same session opened in two windows), close
+one of them. Two orchestrators double-merge PRs and fight over the shared
+build tree.
+
+### Worker slots and the effort scale
+
+Run four worker slots, each in its own worktree on a fresh branch from
+`origin/main`. Every slot gets a disjoint set of three or four leaves (units),
+closest-to-matching first. A slot starts at `medium` (or `low`) reasoning
+effort and escalates only when a round produces no new exact function:
+
+```
+low/medium -> high -> xhigh -> max -> orchestrator attempt -> parked
+```
+
+A round that gains at least one exact function is landed, and the remaining
+functions go out again at the same effort or one step up. A set that fails at
+`max` goes to the orchestrator. If the orchestrator also fails, the function
+is parked as a compiler tie-break with its evidence. Fill freed slots from the
+live checklist right away; never leave a slot idle.
+
+Before starting a function, a worker fetches `origin/main` and checks it is
+not already matched. Outside contributors land work in parallel, and
+duplicated matches waste a round.
+
+### Silent mode for workers
+
+Workers run unattended and must not talk. Every turn is tool calls only: no
+plans, no progress notes, no summaries. Progress goes into an attempts log
+file in `tools/decomp-assist/`. The only text message in a run is the final
+report, at most 8-15 short lines:
+
+- exact functions per unit, before and after;
+- the final `GATE` line;
+- commit hashes;
+- a link to the attempts log.
+
+Runs are audited for text messages, and any chatter is a contract
+violation. Workers also must not push, open PRs, merge, rebase, touch other
+worktrees, or spawn subagents.
+
+Each worker prompt has this layout:
+
+1. the `<task>` block (leaves, current exact counts, method, report format);
+2. the shared `common.md` block with `<silent_mode>`, `<forbidden>`,
+   `<method>` and `<definition_of_done>`.
+
+Resume a stalled worker on the same session with the failure evidence. Don't
+replace it with a fresh one.
+
+### Gate, landing and review
+
+- `gate.py <unit...>` is the acceptance check for workers and for outside
+  PRs. It covers:
+  - a full 4.3U build and the DOL SHA1;
+  - per-unit objdiff and instruction-exact counts;
+  - regressions against a baseline report of `origin/main`;
+  - a net forbidden-pattern scan and a readability scan (auto-named
+    identifiers, raw `*(T*)(p + N)` offset casts).
+- A function that disappears because it was renamed is not a regression,
+  unless the unit's exact count, code or data also drops.
+- Landing a worker result builds a branch from `origin/main` with the
+  worker's diff, gates it, pushes it, then opens and squash-merges a PR on
+  the fork. After that it regenerates the checklist.
+- Never run two full builds in the same build tree at once.
+- Never land while the review queue is building. Both use the same
+  verification worktree.
+
+Outside PRs are reviewed by a daemon. It re-runs the gate on any open PR
+whose head commit changed since its last review. A PR is merged
+automatically only when all of these hold:
+
+- the PR rebases cleanly;
+- the full build passes;
+- the DOL hash matches;
+- the gate passes, or its only failures are renamed-away functions;
+- the diff adds no forbidden pattern and no `.s` file.
+
+Everything else is reviewed by hand:
+
+- **Conflicts:** comment asking for a rebase.
+- **Forbidden patterns:** request changes with a concrete honest
+  alternative.
+- **"Linking" by swapping in retail assembly or pinned labels:** close and
+  explain.
+- **Proven split/ownership corrections** (relocation evidence, total data
+  unchanged): merge even if one unit's numbers move to its neighbour.
+
+Policy additions learned in this loop:
+
+- Linking a unit by building the retail `.s` instead of its C/C++ is
+  forbidden. "Linked" means the C/C++ itself compiles to the exact bytes.
+- Definition-level `volatile` (on the field or object declaration) is allowed
+  when the target proves it, e.g. back-to-back reloads with no store in
+  between. Check that it changes no other function in the units that use it.
+  Use-site volatile casts and the `register` keyword stay forbidden.
 
 ## Goal completion contract
 
