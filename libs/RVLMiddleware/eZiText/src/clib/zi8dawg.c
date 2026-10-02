@@ -241,12 +241,12 @@ search_segment:
     ZI_WORK->maxCnt = 1;
     result = Zi8MatchROMdata1(elements + ZI_WORK->unk_0x17EA,
                              count - ZI_WORK->unk_0x17EA, language,
-                             &ZI_WORK->unk_0x17F4[ZI_WORK->unk_0x17EA], capacity,
+                             &ZI_WORK->matchBuf[ZI_WORK->unk_0x17EA], capacity,
                              mode, status, ZI_WORK->unk_0x1768, (char*)group,
                              acceptPrefix, ZI_WORK);
     if ((ziU8)result != 0) {
         for (index = (ziU8)(ZI_WORK->unk_0x17EA + result); index != 0; index--) {
-            output[index - 1] = ZI_WORK->unk_0x17F4[index - 1];
+            output[index - 1] = ZI_WORK->matchBuf[index - 1];
         }
         result = (ziU8)(result + ZI_WORK->unk_0x17EA);
     } else {
@@ -254,7 +254,7 @@ search_segment:
         if (mode == 1 && ZI_WORK->unk_0x1768 == 0 &&
             (ziU8)Zi8MatchROMdata1(elements + ZI_WORK->unk_0x17EA,
                                   count - ZI_WORK->unk_0x17EA, language,
-                                  &ZI_WORK->unk_0x17F4[ZI_WORK->unk_0x17EA], capacity,
+                                  &ZI_WORK->matchBuf[ZI_WORK->unk_0x17EA], capacity,
                                   0, status, ZI_WORK->unk_0x1768, (char*)group,
                                   acceptPrefix, ZI_WORK) != 0) goto finish_segments;
         if ((Zi8GetTableCount(language, 0x1f, ZI_WORK) & 4) == 0) {
@@ -265,7 +265,7 @@ search_segment:
         if (ZI_WORK->maxCnt > capacity) goto finish_segments;
         for (index = ZI_WORK->maxCnt; index != 0; index--) {
             result = Zi8MatchROMdata1(elements + ZI_WORK->unk_0x17EA, index, language,
-                                     &ZI_WORK->unk_0x17F4[ZI_WORK->unk_0x17EA], capacity,
+                                     &ZI_WORK->matchBuf[ZI_WORK->unk_0x17EA], capacity,
                                      1, 0, ZI_WORK->unk_0x1768, (char*)group,
                                      acceptPrefix, ZI_WORK);
             if ((ziU8)result != 0) {
@@ -276,7 +276,7 @@ search_segment:
                 ZI_WORK->unk_0x141E = 0;
                 if (ZI_WORK->dawgCtx.key == 0 && language == 10) {
                     for (index = 0; index < ZI_WORK->unk_0x17EA; index++) {
-                        switch (ZI_WORK->unk_0x17F4[index]) {
+                        switch (ZI_WORK->matchBuf[index]) {
                         case 0x61:
                         case 0x6f:
                         case 0x75:
