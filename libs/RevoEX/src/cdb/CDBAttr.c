@@ -55,9 +55,9 @@ CDBErr CDBAttrCheckAttrBuf(CDBAttr* attr) {
 
 void CDBAttrInit(CDBAttr* attr) {
     memset(&attr->buf, 0, sizeof(CDBAttrBuf));
-    attr->unk_0x408 = FALSE;
-    attr->unk_0x400 = FALSE;
-    attr->unk_0x404 = FALSE;
+    attr->wiiIdValid = FALSE;
+    attr->dirty = FALSE;
+    attr->wiiIdDirty = FALSE;
 }
 
 CDBErr CDBAttrCreateOnNAND(CDBAttr* attr, const char* desc, u32 lastModifiedDate) {
@@ -89,7 +89,7 @@ CDBErr CDBAttrCreateOnNAND(CDBAttr* attr, const char* desc, u32 lastModifiedDate
 
         err = CDB_ERROR_OK;
 
-        attr->unk_0x400 = TRUE;
+        attr->dirty = TRUE;
     }
 
     if (err != CDB_ERROR_OK) {
@@ -98,11 +98,11 @@ CDBErr CDBAttrCreateOnNAND(CDBAttr* attr, const char* desc, u32 lastModifiedDate
 
     attrLastModifiedDate = lastModifiedDate;
     memcpy(&attr->buf.lastModifiedDate, &attrLastModifiedDate, sizeof(u32));
-    attr->unk_0x400 = TRUE;
+    attr->dirty = TRUE;
 
     attrModifiedCount = 0;
     memcpy(&attr->buf.cdbID.modifiedCount, &attrModifiedCount, sizeof(u32));
-    attr->unk_0x400 = TRUE;
+    attr->dirty = TRUE;
 
     GenCDBIdNumber(&cdbNum);
     attrCdbIDNum = cdbNum;
@@ -110,12 +110,12 @@ CDBErr CDBAttrCreateOnNAND(CDBAttr* attr, const char* desc, u32 lastModifiedDate
 
     attrWiiID = CDBGetWiiId();
     memcpy(&attr->buf.wiiId, &attrWiiID, sizeof(u64));
-    attr->unk_0x408 = TRUE;
+    attr->wiiIdValid = TRUE;
 
     err = CDB_ERROR_OK;
 
-    attr->unk_0x400 = TRUE;
-    attr->unk_0x404 = TRUE;
+    attr->dirty = TRUE;
+    attr->wiiIdDirty = TRUE;
 
     return err;
 }
@@ -123,7 +123,7 @@ CDBErr CDBAttrCreateOnNAND(CDBAttr* attr, const char* desc, u32 lastModifiedDate
 CDBErr CDBAttrSetModifiedDate(CDBAttr* attr, u32 modifiedDate) {
     u32 value = modifiedDate;
     memcpy(&attr->buf.lastModifiedDate, &value, sizeof(u32));
-    attr->unk_0x400 = TRUE;
+    attr->dirty = TRUE;
 
     return CDB_ERROR_OK;
 }
@@ -131,7 +131,7 @@ CDBErr CDBAttrSetModifiedDate(CDBAttr* attr, u32 modifiedDate) {
 CDBErr CDBAttrSetModifiedCount(CDBAttr* attr, u32 modifiedCount) {
     u32 value = modifiedCount;
     memcpy(&attr->buf.cdbID.modifiedCount, &value, sizeof(u32));
-    attr->unk_0x400 = TRUE;
+    attr->dirty = TRUE;
 
     return CDB_ERROR_OK;
 }
@@ -151,7 +151,7 @@ CDBErr CDBAttrGetIDNumber(CDBAttr* attr, CDBId* cdbID) {
 CDBErr CDBAttrSetWiiId(CDBAttr* attr, u64 wiiId) {
     u64 value = wiiId;
     memcpy(&attr->buf.wiiId, &value, sizeof(u64));
-    attr->unk_0x404 = TRUE;
+    attr->wiiIdDirty = TRUE;
 
     return CDB_ERROR_OK;
 }

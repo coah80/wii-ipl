@@ -54,9 +54,9 @@ typedef struct _CDBAttrBuf {
 
 typedef struct _CDBAttr {
     CDBAttrBuf buf;  // 0x00
-    BOOL unk_0x400;  // 0x400
-    BOOL unk_0x404;  // 0x404
-    BOOL unk_0x408;  // 0x408
+    BOOL dirty;  // 0x400
+    BOOL wiiIdDirty;  // 0x404
+    BOOL wiiIdValid;  // 0x408
 } CDBAttr;
 
 #pragma pack(pop)

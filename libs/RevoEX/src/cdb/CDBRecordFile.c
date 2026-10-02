@@ -21,7 +21,7 @@ CDBErr CDBRecordFileReadAttrBuf(CDBRecord* record) {
         return err;
     }
 
-    recordFile->attr.unk_0x408 = TRUE;
+    recordFile->attr.wiiIdValid = TRUE;
 
     return CDB_ERROR_OK;
 }
@@ -34,12 +34,12 @@ CDBErr CDBRecordFileWriteAttrBuf(CDBRecord* record) {
         return CDB_ERROR_27;
     }
 
-    if (recordFile->attr.unk_0x400 && !recordFile->attr.unk_0x404) {
+    if (recordFile->attr.dirty && !recordFile->attr.wiiIdDirty) {
         err = CDBFWriteAttrOnlyLeadChunk(&recordFile->bridgeFile, &recordFile->attr, record->key.location);
         if (err != CDB_ERROR_OK) {
             return err;
         }
-    } else if (recordFile->attr.unk_0x400 || recordFile->attr.unk_0x404) {
+    } else if (recordFile->attr.dirty || recordFile->attr.wiiIdDirty) {
         err = CDBFWriteAttr(&recordFile->bridgeFile, &recordFile->attr, record->key.location);
         if (err != CDB_ERROR_OK) {
             return err;
