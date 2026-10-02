@@ -2298,7 +2298,7 @@ void ipl::scene::AddressEdit::start_trig_event(
             pane->initFrame();
             pane->restart();
             mSelectedButton = buttonNo;
-            ipl::snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
+            ipl::snd::getSystem()->startSE("WIPL_SE_DECIDE");
             mState = 1;
             break;
         }
@@ -2317,7 +2317,7 @@ void ipl::scene::AddressEdit::start_trig_event(
             pane->initFrame();
             pane->restart();
             mSelectedButton = buttonNo;
-            ipl::snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
+            ipl::snd::getSystem()->startSE("WIPL_SE_DECIDE");
             mState = 1;
             break;
         }
@@ -2343,7 +2343,7 @@ void ipl::scene::AddressEdit::start_trig_event(
             pane->initFrame();
             pane->restart();
             mSelectedButton = buttonNo;
-            ipl::snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
+            ipl::snd::getSystem()->startSE("WIPL_SE_DECIDE");
             mState = 0x24;
             break;
         }
