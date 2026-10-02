@@ -88,8 +88,8 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
             Zi8LogError(0x4F6, __zi8_work_data);
             return 0;
         }
-        ZI_WORK->unk_0x314 = section->count[0] * 0x100 + section->count[1];
-        ZI_WORK->unk_0x310 = (ziU32)table + section->offset[0] * 0x100 + section->offset[1];
+        ZI_WORK->unk_0x314 = (ziU16)section->count[0] * 0x100 + (ziU16)section->count[1];
+        ZI_WORK->unk_0x310 = (ziU32)table + ((ziU16)section->offset[0] << 8) + (ziU16)section->offset[1];
         ZI_WORK->unk_0x318 = 0;
     }
     for (;;) {

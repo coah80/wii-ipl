@@ -7,6 +7,7 @@
 
 #include <new>
 
+
 namespace textinput {
 namespace extend {
 namespace memo {
@@ -112,19 +113,19 @@ namespace textinput {
 namespace extend {
 namespace memo {
 
-static DispMemoState sDispMemoState;
-static EditMemoState sEditMemoState;
-static AppearMemoState sAppearMemoState;
-static DisappearMemoState sDisappearMemoState;
+DispMemoState sDispMemoState;
+EditMemoState sEditMemoState;
+AppearMemoState sAppearMemoState;
+DisappearMemoState sDisappearMemoState;
 
 struct MemoPosition {
     f32 x;
     f32 y;
 };
 
-static MemoPosition sHiddenMemoPosition = {-200.0f, 0.0f};
-static MemoPosition sAppearingMemoPosition = {0.0f, 255.0f};
-static MemoPosition sLetterMemoPosition = {0.0f, 145.0f};
+MemoPosition sHiddenMemoPosition = {-200.0f, 0.0f};
+MemoPosition sAppearingMemoPosition = {0.0f, 255.0f};
+MemoPosition sLetterMemoPosition = {0.0f, 145.0f};
 
 Manager::~Manager() {
     if (mpDefaultPCKeyboard != NULL) {
@@ -1227,7 +1228,7 @@ Manager::StateType EditMemoState::getStateType() {
     return Manager::ST_Visible;
 }
 
-inline State::~State() {}
+State::~State() {}
 
 Manager::StateType AppearMemoState::getStateType() {
     return Manager::ST_Appearing;

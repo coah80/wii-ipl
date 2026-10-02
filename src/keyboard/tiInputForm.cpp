@@ -1351,12 +1351,12 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
         util::replaceChar(animationName, 17, name, 0, 'P');
         if (event == 4 && (input->trigger & 0x800) && !mpInputForm->isInScroll()) {
             if (mpInputForm->isAbleToUp() && util::strcmp("P_txtScrll_UP", animationName)) {
-                textdrawer::Base::CursorPos movement = {0, inputform::scInputFormZeroF, inputform::scInputFormZeroF};
+                textdrawer::Base::CursorPos movement = {0, 0, 0};
                 movement.fCursorY = mpInputForm->getLineHeight();
                 mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
                 mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
             } else if (mpInputForm->isAbleToDown() && util::strcmp("P_txtScrll_DOWN", animationName)) {
-                textdrawer::Base::CursorPos movement = {0, inputform::scInputFormZeroF, inputform::scInputFormZeroF};
+                textdrawer::Base::CursorPos movement = {0, 0, 0};
                 movement.fCursorY = -mpInputForm->getLineHeight();
                 mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
                 mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
@@ -1367,7 +1367,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
                 if (component->isDragging(input->controller)) {
                     u32 duration = mpInputForm->getFlightDuration(input->controller, name);
                     if (duration >= 60 && duration % 20 == 0) {
-                        textdrawer::Base::CursorPos movement = {0, inputform::scInputFormZeroF, inputform::scInputFormZeroF};
+                        textdrawer::Base::CursorPos movement = {0, 0, 0};
                         movement.fCursorY = mpInputForm->getLineHeight();
                         mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
                         mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
@@ -1377,7 +1377,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
                 if (component->isDragging(input->controller)) {
                     u32 duration = mpInputForm->getFlightDuration(input->controller, name);
                     if (duration >= 60 && duration % 20 == 0) {
-                        textdrawer::Base::CursorPos movement = {0, inputform::scInputFormZeroF, inputform::scInputFormZeroF};
+                        textdrawer::Base::CursorPos movement = {0, 0, 0};
                         movement.fCursorY = -mpInputForm->getLineHeight();
                         mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(24), &movement);
                         mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
@@ -1520,7 +1520,7 @@ bool Base::findURL(u32* start, u32* end, const wchar_t* string, u32 from, u32 to
 void Base::autoScroll() {
     if (mScrollAnm.isActive()) return;
     if (u32(meScrollFlag - SF_ScrollOn) > 1) return;
-    f32 cursorY = mfCursorY + getLineHeight() / inputform::scInputFormTwoF;
+    f32 cursorY = mfCursorY + getLineHeight() / 2.0f;
     if (cursorY < inputform::scInputFormZeroF) {
         s32 lines = s32(cursorY / getLineHeight() - inputform::scInputFormOneF);
         mScrollAnm.startAnm(mfScrollY, mfScrollY - lines * getLineHeight(), inputform::scInputForm15F, NULL, NULL);
@@ -2417,7 +2417,7 @@ void Base::onPressRight() {
 }
 
 inline f32 nextColorPhase(f32 phase) { phase += scInputFormTwoF; return phase; }
-inline f32 colorSine(f32 phase) { return nw4r::math::SinFIdx(phase * inputform::scInputFormDegToFIdxF); }
+inline f32 colorSine(f32 phase) { return nw4r::math::SinFIdx(inputform::scInputFormDegToFIdxF * phase); }
 void Base::calc() {
     if (mScrollAnm.isActive()) {
         f32 scroll = mScrollAnm.getValue();
@@ -2442,7 +2442,7 @@ void Base::calc() {
         mSelectedColor.g = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, inputform::scInputFormZeroF, inputform::scInputForm140F, inputform::scInputFormZeroF, inputform::scInputForm50F, inputform::scInputForm90F, inputform::scInputFormZeroF));
         u8 blue = static_cast<u8>(util::hermiteInterporation(mfSustainTimer, inputform::scInputFormZeroF, inputform::scInputForm253F, inputform::scInputFormZeroF, inputform::scInputForm50F, inputform::scInputForm253F, inputform::scInputFormZeroF));
         f32 phase = sfColorPhase;
-        f32 angle = phase * inputform::scInputFormDegToFIdxF;
+        f32 angle = inputform::scInputFormDegToFIdxF * phase;
         mSelectedColor.b = blue;
         wave = nw4r::math::SinFIdx(angle);
         f32 alpha = util::hermiteInterporation(mfSustainTimer, inputform::scInputFormZeroF, inputform::scInputForm50F, inputform::scInputFormZeroF, inputform::scInputForm50F, inputform::scInputForm150F, inputform::scInputFormZeroF);

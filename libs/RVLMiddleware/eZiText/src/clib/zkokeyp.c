@@ -69,8 +69,8 @@ ziU32 Zi8_81483264(const ziGetParam* param ZI_NEED_WORK) {
         return 1;
     }
 
-    for (i = 0; i < ((volatile ziGetParam*)param)->maxCandidates; i++) {
-        ((ziU16*)((volatile ziGetParam*)param)->scratch)[i] = 0;
+    for (i = 0; i < param->maxCandidates; i++) {
+        ((ziU16*)param->scratch)[i] = 0;
     }
 
     Zi8LogError(0x64, ZI_WORK);
@@ -140,7 +140,8 @@ ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
     j = 0;
     filter.candidateIndex = 0;
     matched = 0;
-    filter.keys.bytes[4] = filter.keys.firstWord = 0;
+    filter.keys.firstWord = 0;
+    filter.keys.bytes[4] = 0;
     Zi8LogError(0x64, ZI_WORK);
     if (param->elementCount == 0) {
         if (*remaining >= *count) {
