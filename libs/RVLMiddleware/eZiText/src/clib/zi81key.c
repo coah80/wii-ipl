@@ -311,21 +311,21 @@ Zi8UInt Zi8SpellingPY(ziU16 *output,Zi8UInt key,ziU8 includeTone)
   return length;
 }
 
-ziU8 Zi8IsMatch1Key(ziU16 *input,Zi8UInt inputLength,Zi8UInt key,ziU8 requireFull,ziU8 usePinyin,ziU8 tone)
+ziU8 Zi8IsMatch1Key(ziU16 *input,Zi8UInt inputLength,ziU16 key,ziU8 requireFull,ziU8 usePinyin,ziU8 tone)
 {
   ziU16 spelling[16];
   Zi8UInt spellingLength;
 
-  if ((key & 0xffff) == 0) {
+  if (key == 0) {
     return 0;
   }
   if ((inputLength & 0xff) == 0) {
     return 1;
   }
   if (usePinyin != 0) {
-    spellingLength = Zi8SpellingPY(spelling,key & 0xffff,tone & 0xff);
+    spellingLength = Zi8SpellingPY(spelling,key,tone & 0xff);
   } else {
-    spellingLength = Zi8SpellingZY(spelling,key & 0xffff,tone & 0xff);
+    spellingLength = Zi8SpellingZY(spelling,key,tone & 0xff);
   }
   if ((requireFull != 0) && ((inputLength & 0xff) != (spellingLength & 0xff))) {
     return 0;
@@ -1327,7 +1327,7 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
       }
       if (elementIndex == 0) continue;
       if (!emitWords) {
-        if (trackDuplicates && Zi8SetFindCand(params->scratch,candidateOrdinal,work) != 0) continue;
+        if (trackDuplicates && (ziU8)Zi8SetFindCand(params->scratch,candidateOrdinal,work) != 0) continue;
         for (index = 0; index < candidateCount; index++) {
           if (candidateCharacter == output[index]) break;
         }
@@ -1396,7 +1396,7 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
       }
       if (elementIndex == 0) continue;
       if (!emitWords) {
-        if (trackDuplicates && Zi8SetFindCand(params->scratch,candidateOrdinal,work) != 0) continue;
+        if (trackDuplicates && (ziU8)Zi8SetFindCand(params->scratch,candidateOrdinal,work) != 0) continue;
         for (index = 0; index < candidateCount; index++) {
           if (candidateCharacter == output[index]) break;
         }
@@ -1519,7 +1519,7 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
             }
             if (elementIndex == 0) goto nextPhrase;
             if (!emitWords) {
-              if (trackDuplicates && Zi8SetFindCand(params->scratch,phraseCharacter,work) != 0) goto nextPhrase;
+              if (trackDuplicates && (ziU8)Zi8SetFindCand(params->scratch,phraseCharacter,work) != 0) goto nextPhrase;
               for (index = 0; index < candidateCount; index++) {
                 if (firstOrdinal == output[index]) goto nextPhrase;
               }
@@ -1601,7 +1601,7 @@ finishPhrases:
         }
         if (elementIndex == 0) goto nextSortedOrdinal;
         if (!emitWords) {
-          if (trackDuplicates && Zi8SetFindCand(params->scratch,ordinal,work) != 0) goto nextSortedOrdinal;
+          if (trackDuplicates && (ziU8)Zi8SetFindCand(params->scratch,ordinal,work) != 0) goto nextSortedOrdinal;
           ordinal = Zi8Ord2Uni(ordinal,work);
           for (index = 0; index < candidateCount; index++) {
             if (ordinal == output[index]) break;
@@ -1629,11 +1629,11 @@ nextSortedOrdinal:
     ;
     }
   }
-  if ((options->countOnly == '\0') && Zi8GetZHuwdPtr(&userEntries,&userCount,work) != 0)
+  if ((options->countOnly == '\0') && (ziU8)Zi8GetZHuwdPtr(&userEntries,&userCount,work) != 0)
   {
     for (phraseOrdinal = 0; phraseOrdinal < userCount;) {
       if ((params->elementCount == '\0') || ((userEntries[1] & 0x80) != 0)) {
-        userOrdinal = (userEntries[1] & 0x7f) << 8 | (ziU16)userEntries[2];
+        userOrdinal = (ziU16)(userEntries[1] & 0x7f) << 8 | (ziU16)userEntries[2];
         phraseTable = syllableTable + (Zi8UInt)userOrdinal * 0xc;
         if (((*phraseTable & languageMask) != 0) &&
            ((characterSetTable == 0 || ((characterSet & characterSetTable[(Zi8UInt)userOrdinal]) != 0)))) {
@@ -1654,7 +1654,7 @@ nextSortedOrdinal:
           }
           if (elementIndex == 0) goto nextUserOrdinal;
           if (!emitWords) {
-            if (trackDuplicates && Zi8SetFindCand(params->scratch,userOrdinal,work) != 0) goto nextUserOrdinal;
+            if (trackDuplicates && (ziU8)Zi8SetFindCand(params->scratch,userOrdinal,work) != 0) goto nextUserOrdinal;
             userCharacter = Zi8Ord2Uni(userOrdinal,work);
             for (duplicateIndex = 0; duplicateIndex < candidateCount; duplicateIndex++) {
               if (userCharacter == output[duplicateIndex]) break;
@@ -1710,7 +1710,7 @@ nextUserOrdinal:
       if (unicodeCharacter == previousCharacter) goto nextOrdinal;
       previousCharacter = unicodeCharacter;
       if (!emitWords) {
-        if (trackDuplicates && Zi8SetFindCand(params->scratch,ordinal,work) != 0) goto nextOrdinal;
+        if (trackDuplicates && (ziU8)Zi8SetFindCand(params->scratch,ordinal,work) != 0) goto nextOrdinal;
         for (index = 0; index < candidateCount; index++) {
           if (unicodeCharacter == output[index]) break;
         }
@@ -1738,8 +1738,7 @@ nextOrdinal:
   }
 finishCandidates:
   if ((emitWords) && (outputIndex != 0)) {
-    output[outputIndex] = 0;
-    outputIndex++;
+    output[outputIndex++] = 0;
   }
   params->count = candidateCount;
   Zi8LogError(100,work);
