@@ -480,3 +480,27 @@ Residual (all documented ties): ~500 regname diffs — r15↔r18/r19↔r14/r22�
 web rotations; 4-insn deficit = orig's per-site `li r3,0`/`lwzx` reloads
 (marshal-order + aliasing ties); no structural gaps remain — store/load order
 and branch shape now align.
+
+## pass-2026-09-30c — Getter_ web-binding tie (verified, 14 word diffs)
+
+Getter_ is instruction-identical (609 insns both, ndiff 0, relocs identical
+modulo symtab index). Entire residual = 14 word diffs, two sub-cases:
+- DUMMY_SECURITY_KEY loop IV `i`: orig r26, mine r25 (pString-load webs swap
+  r25<->r26 to compensate).
+- EUR-region LUT loop IV `i`: orig r31, mine r25. `li r31,0` at orig 0xb68 is
+  born with r25-r30 all occupied (orig holds extra callee webs live there).
+
+Orchestrator's post-loop-use theory for r31 REFUTED: orig's EUR `i` dies inside
+its loop (blt 0xb70 is the loop-back edge; nothing reads r31 after). The deep
+pin comes from liveness at birth, not post-loop use.
+
+Scope experiments (all built + measured, reverted):
+- Shared fn-top `int i` across SC_KEY+DUMMY+EUR: DUMMY i->r28, EUR i->r26
+  (moved but overshot both targets r26/r31).
+- Shared SC_KEY+DUMMY only: DUMMY r28, EUR r25.
+- Shared DUMMY+EUR only: DUMMY r25, EUR r26.
+- `int i = 0` before memset (web spans call): 18 diffs, regression.
+- `int i` decl moved before memset (uninitialized): no change (14).
+- `for (int i = 0;` init-decl: doesn't compile (i used post-loop).
+Conclusion: orig's deeper pins require extra callee-pinned webs that no decl-
+scope form reproduces; allocator-internal ordering. Documented wall.
