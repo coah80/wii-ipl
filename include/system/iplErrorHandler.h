@@ -60,9 +60,9 @@ namespace ipl {
 
         int mMessageID;  // 0x08
 
-        int unk_0x0C;
-        int unk_0x10;
-        char unk_0x14[4];
+        int mArg2;
+        int mArg3;
+        char mArg1[4];
 
         u8* mpArcData;  // 0x18
         u32 mArcSize;   // 0x1C
