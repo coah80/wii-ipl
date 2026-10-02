@@ -557,15 +557,11 @@ static void kbdSendKey(KBDKeyEventData* event) {
     }
 }
 
-static inline u32 kbdChannelFlags(u32 channel) {
-    return kbdData[channel].flags;
-}
-
 static void kbd_led_handler(BOOL success, void* callbackArg) {
     const KBDLEDCallbackData* callback;
-    u32 index;
+    s32 index;
     u32 err;
-    index = (u32)callbackArg;
+    index = (s32)callbackArg;
     callback = &kbdLCBuf[index];
     kbdCmdBuf[index].device = 0;
     if (callback->callbackAddress == (USBKBDCmdLEDCallback)(u32)kbdCmdBuf[index].device) {
@@ -579,12 +575,11 @@ static void kbd_led_handler(BOOL success, void* callbackArg) {
         err = 0;
         break;
     }
-    kbdLCBuf[index].callbackAddress(err, kbdLCBuf[index].callbackArg);
+    kbdLCBuf[(u32)callbackArg].callbackAddress(err, kbdLCBuf[(u32)callbackArg].callbackArg);
 }
 
 USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, void* callbackArg) {
-    s32 index;
-    u32 ofs;
+    u32 index;
     u8 ledBits;
     BOOL interrupts;
     USBKBDErr result;
@@ -594,14 +589,18 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
     if (channel >= 4) {
         return 4;
     }
-    if ((s32)kbdChannelFlags(channel) == 1 || (s32)kbdChannelFlags(channel) == 4) {
-        return 5;
+    {
+        KBDChannel* data = &kbdData[(s32)channel];
+        if ((s32)data->flags == 1 || (s32)data->flags == 4) {
+            return 5;
+        }
     }
     ledBits = leds;
     interrupts = OSDisableInterrupts();
-    for (index = 0, ofs = 0; index < 12; index++, ofs += sizeof(KBDLEDCommand)) {
-        if (*(u32*)&((u8*)kbdCmdBuf)[ofs] == 0) {
-            *(u32*)&((u8*)kbdCmdBuf)[ofs] = (u32)kbdData[channel].device;
+    for (index = 0; index < 12; index++) {
+        if (kbdCmdBuf[(s32)index].device == 0) {
+            KBDChannel* data = &kbdData[channel];
+            kbdCmdBuf[(s32)index].device = (u32)data->device;
             break;
         }
     }
@@ -609,11 +608,14 @@ USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, 
     if (index == 12) {
         return 7;
     }
-    kbdLCBuf[index].callbackAddress = callback;
-    kbdLCBuf[index].callbackArg = callbackArg;
-    result = USBKBDSetLEDAsync((u32)kbdData[channel].device, ledBits,
-                               (USBKBDCmdLEDAsync*)&kbdCmdBuf[index],
-                               kbd_led_handler, (void*)index);
+    {
+        KBDChannel* data = &kbdData[channel];
+        kbdLCBuf[index].callbackAddress = callback;
+        kbdLCBuf[index].callbackArg = callbackArg;
+        result = USBKBDSetLEDAsync((u32)data->device, ledBits,
+                                   (USBKBDCmdLEDAsync*)&kbdCmdBuf[index],
+                                   kbd_led_handler, (void*)index);
+    }
     switch (result) {
     default:
         return 7;
