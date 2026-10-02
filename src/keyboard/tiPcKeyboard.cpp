@@ -1500,7 +1500,8 @@ namespace textinput {
             }
 
             inline u32 FindControlKey(const Base::KeyState& state, char* paneName) {
-                for (u16 i = 0; i < 23; i++) {
+                u16 i;
+                for (i = 0; i < 23; i++) {
                     if (util::strcmp(state.data->controls[i].paneName, paneName))
                         return state.data->controls[i].key;
                 }
@@ -1610,7 +1611,7 @@ namespace textinput {
             }
 
             void Base::setTranslateMode(TranslateMode mode) {
-                u32 keyMode = mode;
+                u32 keyMode;
                 switch (mode) {
                     case TM_Direct:
                         keyMode = 0;
