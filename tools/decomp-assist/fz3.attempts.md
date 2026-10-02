@@ -1693,3 +1693,286 @@ src/keyboard/tiSignWindow | exact 55/56 -> 55/56 | code bytes 6300 -> 6300/7184 
 R8 remaining | create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | 99.72851% | 221/221, frame0x50,10operand differences: All-vtable/table address-load relocation order4 andanimation-count22vs31/slot31vs22 registerswap6. First51LISAll30vstable24; allotherconstructors, pointerread/call/order exact. | 20 distinct compiled source attempts this round.
 libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var | exact 5/6 -> 6/6 | code bytes 1260 -> 1804/1804 | data bytes 0 -> 0/0
 R8 final files: src/keyboard/tiSignWindow.cpp; libs/RVLMiddleware/TMC_JPEG/src/reschange/idct_resolution_change_var.c; tools/decomp-assist/fz3.attempts.md. Source commits8fbf59f0,1988244e. One new exact function and544matchedcodebytes, IDCTunit6/6code1804/1804data0. Signcreate99.162895->99.72851genuinefuzzyimprovement, exactcountunchanged. 45distinctcompiledsource trials and107declaration evaluations followingstructuraldiagnostics. Allfivepoolsidentical,data100, correctDOL,0globalregressions/forbidden/readability. No sourcechangesafterfullclean gate; finalcommit logonly. Uncertain: original Hangul helper/newline-processing structure andremaining SO/iterator/register constant-hoist choices; allacceptedbytes/state provedbygate. No untried openfunctions, no symbol/data/header/config changes, no Matching status switches orlinking claims.
+
+# R9 XHIGH continued, fresh origin/main branch
+Initial HEAD 76d72f06ce72601ba50236376319984c3e70f2af; origin adcd8ca586dc4ad15c62df304e560a7c974f1c12. Four owned units only; IDCT/pf_volume/eZiText excluded.
+libs/RevoEX/src/so/SOOption | initial pool | POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RevoEX/src/so/SOOption | initial pool | POOL IDENTICAL up to 0 (mine=0 base=0)
+libs/RVL_SDK/src/fa/pf_entry_iterator | initial pool | POOL IDENTICAL up to 0 (mine=0 base=0)
+src/keyboard/tiString | initial pool | POOL IDENTICAL up to 0 (mine=0 base=0)
+src/keyboard/tiSignWindow | initial pool | POOL IDENTICAL up to 30 (mine=30 base=30)
+SOGetInterfaceOpt | R9 fetch origin/main adcd8ca5 source equal. First5 level25 vs26, then option28 vs25;119/119 frame0x30, stackslots0xc/8, branch shape and pointer arithmetic/inline OptionLength boundary all exact. No stack-store/reload volatility proof or extent overlap; all owned data empty. New scalar-reference/response-helper and local lifetime experiments before register-only search.
+SOGetInterfaceOpt | R9 unsigned allocation size and response length as byte extents | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 level and option scalar parameters immutable at definition | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 scoped selector copies taken after preparation and before validation | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 readonly scalar input references in selector helper | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 readonly option selector reference alone in command helper | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 readonly protocol level reference alone in command helper | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 typed reply buffer inline accessor boundary | objdiff 98.94958; 119/119 instructions; structural/exact (0, 24); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 typed returned length inline accessor boundary | objdiff 99.07563; 119/119 instructions; structural/exact (0, 22); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 returned length and reply locals scoped to successful allocation | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and reply descriptors scoped to successful allocation | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command helper gets input selectors through aggregate const view | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 vector base and byte lengths assigned through typed descriptor helper | objdiff 96.193275; 119/119 instructions; structural/exact (6, 25); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 successful request payload pointers accessed by actual struct fields | objdiff 97.5042; 119/119 instructions; structural/exact (5, 10); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+PFENT_ITER_FindCluster | R9 fresh fetch 68c4c9ae, sourceequal. First39 li r7,1 vstargetr8;237/237/frame0xa0, eight constant1/entries-per-sector operands. All branches/local offsets/load/store/inline LoadEntry identical. Immediate iter.index reload alreadypresent, prior volatile adds3 loads; no new volatile. Extent endsatRetreat, data24/24. Test natural left-shift entry index and typed count initialization before declsearch.
+PFENT_ITER_FindCluster | R9 file entry index computed with shift rather than sector multiplication | objdiff 98.945145; 237/237 instructions; structural/exact (2, 9); first (39, ('li', 'r7, 1'), ('li', 'r8, 1'))
+PFENT_ITER_FindCluster | R9 entry mask helper derives count and mask from readonly geometry | objdiff 98.48101; 237/237 instructions; structural/exact (2, 26); first (2, ('stw', 'r0, 0xa4(r1)'), ('li', 'r6, 0'))
+PFENT_ITER_FindCluster | R9 entry count helper keeps shift operand unsigned | objdiff 99.81013; 237/237 instructions; structural/exact (0, 8); first (39, ('li', 'r7, 1'), ('li', 'r8, 1'))
+PFENT_ITER_FindCluster | R9 local count and first-cluster sentinel grouped as geometry values | BUILD FAIL -maxerrors 1 -nosyspath -RTTI off -fp_contract on -str reuse -DSDK_IPL -D_REVOLUTION -DMEM_MANAGER_DIRECT -i include -i include/global -i libs/MetroTRK/include -i libs/Runtime/include -i libs/MSL/include -i libs/RVL_SDK/include -i libs/RevoEX/include -i libs/NW4R/include -i libs/RVLMiddleware/eZiText/include -i libs/RVLMiddleware/TMC_JPEG/include -i libs/RVLFaceLib/include -i libs/EGG/include -i libs/OperaWWW/include -ir libs/RVL_SDK/include/private/bte -i build/43U/include -DBUILD_VERSION=0 -DVERSION_43U -i libs/RVL_SDK/include/private/bte -DNDEBUG=1 -DTARGET_RVL -ipa file -fp_contract off -lang=c -MMD -c libs/RVL_SDK/src/fa/pf_entry_iterator.c -o build/43U/src/libs/RVL_SDK/src/fa && "/usr/bin/python3" tools/transform_dep.py build/43U/src/libs/RVL_SDK/src/fa/pf_entry_iterator.d build/43U/src/libs/RVL_SDK/src/fa/pf_entry_iterator.d ### mwcceppc.exe Compiler: # File: libs\RVL_SDK\src\fa\pf_entry_iterator.c # ------------------------------------------------ # 513: iter.log2_geometry.entries_per_sector = p_ent->p_vol->bpb.log2_bytes_per_sector - 5; # Error: ^ # (10393) 'log2_geometry' is not a member of class 'struct PFITER_ENT_ITER' # Too many errors printed, aborting program User break, cancelled... ninja: build stopped: subcommand failed.
+PFENT_ITER_FindCluster | R9 shift count temporary uses natural byte geometry before iterator storage | objdiff 98.48101; 237/237 instructions; structural/exact (2, 26); first (2, ('stw', 'r0, 0xa4(r1)'), ('li', 'r6, 0'))
+PFENT_ITER_FindCluster | R9 offset mask initialized before persistent entries-per-sector value | objdiff 100.0; 237/237 instructions; structural/exact (0, 0); first None
+create | R9 fresh origin c7896c38 sourceequal.221/221/frame0x50. First51 LIS Allvtable30vstable24; four relocation-address load-order diffs, six animation count22vs31 and slot31vs22 register operands. All calls/constructors/pane switch/loop forms otherwiseexact; readonly animation-slotreference gain preserved. No adjacentstackreload/extentoverlap, owneddata3468/3468. Test early type input, const table fields and helper/scopes before declsearch.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 pane type read before metadata row address | objdiff 99.38914; 221/221 instructions; structural/exact (0, 21); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 switch type input directly indexes table | objdiff 99.38914; 221/221 instructions; structural/exact (0, 21); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 metadata row constructed before empty pane result | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 constructor switch source order 2,0,1 | objdiff 99.63801; 221/221 instructions; structural/exact (2, 14); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+PFENT_ITER_FindCluster | R9 breakthrough: initialize offset_mask directly from shifted geometry before declaring the persistent entries_per_sector value. Compiler CSE retains identical 237-instruction scheduling but chooses shared1=r8 and shiftedentrycount=r7, resolving all eight operands. Natural dependency/statement order lever, no header/type/volatile or data change. New source saved for gate.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 constructor switch source order 1,2,0 | objdiff 99.24435; 222/221 instructions; structural/exact (8, 158); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+SOGetInterfaceOpt | R9 thirteen compiled new source constructs; leading declsearch: declaration block: |       s32 rm; |       int temporary; |       int size; |       int result; |       InterfaceOption* request; |       InterfaceCommand* command; |       int* returnedLength; |       u8* reply; | start (0, 5) | best (0, 5) after 70 builds; source restored; best order was: |     s32 rm; |     int temporary; |     int size; |     int result; |     InterfaceOption* request; |     InterfaceCommand* command; |     int* returnedLength; |     u8* reply; | . No improvement; baseline source restored.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 constructor switch source order 1,0,2 | objdiff 99.17647; 222/221 instructions; structural/exact (8, 158); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 constructor switch source order 0,2,1 | objdiff 99.049774; 222/221 instructions; structural/exact (6, 159); first (50, ('lis', 'r28, 0'), ('lis', 'r29, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 constructor switch source order 0,1,2 | objdiff 99.06335; 222/221 instructions; structural/exact (8, 160); first (50, ('lis', 'r28, 0'), ('lis', 'r29, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 immutable type field on pane table metadata | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+inputChar | R9 fresh fetch c7896c38, sourceequal125/136/frame0x30. First branch10offset differs only due shorter Hangulblock; first real instruction65 initializer/count/newline compare/indexed append absent. Target carries countzero r6 through shift,indexed store,increment, mask u16return; initialNUL before cmplwi ch10 retaineddead compare. Kana/cursor methods exactshape; no volatile proof, extent0x220 endsatconfirmKana. Data288/288. Test const input/buffer/helper stream ownership and natural newline conversion variants; keep semantic operations, no empty helpers/stubs/dummy state.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 immutable animation count field in pane table | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 immutable force animation target pointer in pane table | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 immutable animation pointer slots at metadata definition | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 metadata selector and count immutable fields together | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation count initialized before force target from same metadata | objdiff 99.69683; 221/221 instructions; structural/exact (4, 11); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 loop count unsigned temporary derived through const field reference | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation index wide with explicit UTF16 lookup and comparison | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation count shares binding state with force target | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 count declared at outer pane iteration but assigned after pane construction | objdiff 99.61539; 221/221 instructions; structural/exact (0, 14); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 force target declared at outer pane iteration with retained count lifetime | objdiff 99.54751; 221/221 instructions; structural/exact (0, 17); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 allocation buffer declared once for all constructor cases | objdiff 98.86878; 221/221 instructions; structural/exact (0, 46); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 pane row type query in readonly inline boundary | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+
+R9 exact entry iterator candidate quick full-build authority gate:
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/so/SOOption] pool: IDENTICAL
+[libs/RevoEX/src/so/SOOption] objdiff: code 816/1292 data None/None functions 3/4 fuzzy 99.9226 linked code 0
+[libs/RevoEX/src/so/SOOption] instruction-exact functions: 3/4
+[libs/RevoEX/src/so/SOOption]   section .text size 1292 match 99.9226
+[libs/RevoEX/src/so/SOOption]   below 100: SOGetInterfaceOpt 99.78992
+[libs/RevoEX/src/so/SOOption] baseline: code 816/1292 data None functions 3 fuzzy 99.9226
+[libs/RVL_SDK/src/fa/pf_entry_iterator] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_entry_iterator] objdiff: code 7880/7880 data 24/24 functions 16/16 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/fa/pf_entry_iterator] instruction-exact functions: 16/16
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .sdata size 24 match 100.0
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .text size 7880 match 100.0
+[libs/RVL_SDK/src/fa/pf_entry_iterator] baseline: code 6932/7880 data 24 functions 15 fuzzy 99.9772
+[src/keyboard/tiString] pool: IDENTICAL
+[src/keyboard/tiString] objdiff: code 4632/5176 data 288/288 functions 41/42 fuzzy 98.9629 linked code 0
+[src/keyboard/tiString] instruction-exact functions: 41/42
+[src/keyboard/tiString]   section .data size 288 match 100.0
+[src/keyboard/tiString]   section .text size 5176 match 98.962906
+[src/keyboard/tiString]   below 100: inputChar__Q39textinput8tistring9DecolatedFw 90.132355
+[src/keyboard/tiString] baseline: code 4632/5176 data 288 functions 41 fuzzy 98.9629
+[src/keyboard/tiSignWindow] pool: IDENTICAL
+[src/keyboard/tiSignWindow] objdiff: code 6300/7184 data 3468/3468 functions 55/56 fuzzy 99.9666 linked code 0
+[src/keyboard/tiSignWindow] instruction-exact functions: 55/56
+[src/keyboard/tiSignWindow]   section .ctors size 4 match 100.0
+[src/keyboard/tiSignWindow]   section .data size 2672 match 100.0
+[src/keyboard/tiSignWindow]   section .rodata size 784 match 100.0
+[src/keyboard/tiSignWindow]   section .sdata size 8 match 100.0
+[src/keyboard/tiSignWindow]   section .text size 7184 match 99.96659
+[src/keyboard/tiSignWindow]   below 100: create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator 99.72851
+[src/keyboard/tiSignWindow] baseline: code 6300/7184 data 3468 functions 55 fuzzy 99.9666
+regressions vs baseline: 0
+global matched_code_percent: 90.02490 -> 90.05654
+global fuzzy_match_percent: 99.54210 -> 99.54217
+global complete_code_percent: 69.30851 -> 69.30851
+global matched_data_percent: 99.36508 -> 99.36508
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+R9 accepted PFENT_ITER_FindCluster 100.0%, ctxdiff0/237instructions, wholeunit16/16/code7880/7880/data24/24; all four pools identical,0globalregressions/forbidden/readability, correctDOL. Only two source initialization lines changed; no configure/header/config/data changes.
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime level,length,option,reply | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime level,length,reply,option | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime option,level,length,reply | objdiff 99.85714; 119/119 instructions; structural/exact (2, 3); first (5, ('mr', 'r28, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime option,length,level,reply | objdiff 99.85714; 119/119 instructions; structural/exact (2, 3); first (5, ('mr', 'r28, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime option,length,reply,level | objdiff 99.85714; 119/119 instructions; structural/exact (2, 3); first (5, ('mr', 'r28, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime length,level,option,reply | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime length,level,reply,option | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime length,option,level,reply | objdiff 99.85714; 119/119 instructions; structural/exact (2, 3); first (5, ('mr', 'r28, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime length,option,reply,level | objdiff 99.85714; 119/119 instructions; structural/exact (2, 3); first (5, ('mr', 'r28, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime length,reply,level,option | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 command and response statements by actual lifetime length,reply,option,level | objdiff 99.85714; 119/119 instructions; structural/exact (2, 3); first (5, ('mr', 'r28, r4'), ('mr', 'r26, r4'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 UTF16 character passed as const reference into indexed append helper | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 UTF16 output bounded array reference and immutable pointer helper | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 literal conversion buffer uses output array member and meaningful current length | objdiff 87.80147; 128/136 instructions; structural/exact (30, 76); first (0, ('stwu', 'r1, -0x50(r1)'), ('stwu', 'r1, -0x30(r1)'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 stream appender carries pointer and UTF16 count through readonly character input | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline resets UTF16 count before common append in readonly character helper | objdiff 93.60294; 135/136 instructions; structural/exact (15, 61); first (10, ('beq', '468'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline empties buffered literal stream through Clear helper before append | objdiff 92.52941; 135/136 instructions; structural/exact (16, 61); first (10, ('beq', '468'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline byteview reset helper returns zero cursor before common append | objdiff 91.72794; 136/136 instructions; structural/exact (17, 61); first (63, ('b', '88'), ('b', '80'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 generic literal newline flush resets output length using unsigned short state | objdiff 95.036766; 136/136 instructions; structural/exact (8, 23); first (39, ('clrlwi', 'r28, r3, 0x18'), ('clrlwi', 'r29, r3, 0x18'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 stream constructor initializes count through const buffer input reference | objdiff 93.05147; 136/136 instructions; structural/exact (17, 60); first (63, ('b', '88'), ('b', '80'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 generic single character stream uses common append method for newline | objdiff 91.01471; 137/136 instructions; structural/exact (17, 74); first (10, ('beq', '476'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 Hangul conversion derives one character length from bounded output pointer | objdiff 89.92647; 130/136 instructions; structural/exact (18, 87); first (10, ('beq', '448'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 single character buffer append loops over existing buffer terminator | objdiff 89.117645; 139/136 instructions; structural/exact (18, 74); first (10, ('beq', '484'), ('beq', '472'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 mutable pane row reference with readonly animation slot view | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 immutable pane row pointer with readonly animation slot view | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 mutable pane row pointer with readonly animation slot view | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 table input bound through immutable array reference | objdiff 99.502266; 221/221 instructions; structural/exact (0, 18); first (49, ('lis', 'r22, 0'), ('lis', 'r27, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 table row lookup uses scoped const pointer after owner setup | objdiff 99.502266; 221/221 instructions; structural/exact (0, 18); first (49, ('lis', 'r22, 0'), ('lis', 'r27, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation count local signed extent with unsigned compare | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation slot view pointer accessed by typed inline reference getter | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation pointer value read inside readonly slot wrapper struct | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 pane name virtual lookup extracted before allocation in each branch | objdiff 78.746605; 224/221 instructions; structural/exact (74, 158); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation count copied after explicit zero index initialization | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation count and index declaration order shared across pane loop | objdiff 98.64253; 221/221 instructions; structural/exact (0, 54); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation index outside count lifetime and declared before force target | objdiff 98.57466; 221/221 instructions; structural/exact (0, 56); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 generic literal newline flush resets output length using unsigned short state detailed candidate disassembly | objdiff 95.036766; 136/136 instructions; structural/exact (8, 23); first (39, ('clrlwi', 'r28, r3, 0x18'), ('clrlwi', 'r29, r3, 0x18'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline reset skips alreadyempty stream u32 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline clear removes existing buffered characters u32 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline reset guards stream clear using immutable length view u32 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar | R9 candidate u16 streamcount reference reaches95.036766/136instructions,firstrealHangulblock66stillhaslive newline branch and redundant countzero, maskedscaledindexinsteadtargetu32slwi. Registercount28vs29 propagates intoKana. Not retained; next trials implement functional Clear that skips alreadyempty stream or removes existing chars, to test deadbranch elimination at actual helper boundary.
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline reset assigns only when positive old count u32 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline reset skips alreadyempty stream u16 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline clear removes existing buffered characters u16 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline reset guards stream clear using immutable length view u16 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline reset assigns only when positive old count u16 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline stream clears existing buffered chars u32 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+inputChar__Q39textinput8tistring9DecolatedFw | R9 newline stream clears existing buffered chars u16 | objdiff 90.757355; 126/136 instructions; structural/exact (17, 73); first (10, ('beq', '432'), ('beq', '472'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer pane traversal written as natural unsigned for loop | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer pane index initialized by traversal header rather than declaration | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer pane loop while form with increment at tail | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer pane loop do with preincrement in comparison | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer pane loop signed counter with unsigned bounds and UTF16 element lookup | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation traversal uses explicit for loop with existing local counter | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation index initialization inside for header after force metadata | objdiff 99.72851; 221/221 instructions; structural/exact (0, 10); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation loop exit inverted inside unconditional loop | objdiff 59.95475; 221/221 instructions; structural/exact (6, 52); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation count direct copy into index-and-count state | objdiff 98.57466; 221/221 instructions; structural/exact (0, 56); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 pane loop index initialized before force and animation metadata declarations | objdiff 99.54751; 221/221 instructions; structural/exact (0, 17); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 animation bound held by early unsigned immutable scalar copy per pane iteration | objdiff 98.75565; 221/221 instructions; structural/exact (0, 50); first (51, ('lis', 'r30, 0'), ('lis', 'r24, 0'))
+signcreate | R9 leadingdeclsearch6builds unchanged10; new structural outer pane do->for loop immediatelyfixesAll/table addresshoistorder,221/221 and6registeronly bound/slot operands remain,99.86425%. Proven natural controlflow lever; candidate pending gate after remaining loop trials.
+SOGetInterfaceOpt | R9 preparation failure returns early before request scope | objdiff 98.52941; 120/119 instructions; structural/exact (2, 108); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 preparation failure branches to shared return label | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 preparation status separate with early return and operation result scope | objdiff 98.86555; 120/119 instructions; structural/exact (2, 108); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 valid option block first with invalid branch in trailing else | objdiff 93.31092; 120/119 instructions; structural/exact (9, 108); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 allocated request success block before allocation error branch | objdiff 96.344536; 119/119 instructions; structural/exact (5, 73); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 selector pair store expressions followed by response construction inline block | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 input parameter names reflect protocol level and option request | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+SOGetInterfaceOpt | R9 input values named for response buffer and byte length | objdiff 99.78992; 119/119 instructions; structural/exact (0, 5); first (5, ('mr', 'r25, r4'), ('mr', 'r26, r4'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer pane traversal written as natural unsigned for loop retained best outer loop | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+
+R9 accepted natural pane for loop quick gate:
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/so/SOOption] pool: IDENTICAL
+[libs/RevoEX/src/so/SOOption] objdiff: code 816/1292 data None/None functions 3/4 fuzzy 99.9226 linked code 0
+[libs/RevoEX/src/so/SOOption] instruction-exact functions: 3/4
+[libs/RevoEX/src/so/SOOption]   section .text size 1292 match 99.9226
+[libs/RevoEX/src/so/SOOption]   below 100: SOGetInterfaceOpt 99.78992
+[libs/RevoEX/src/so/SOOption] baseline: code 816/1292 data None functions 3 fuzzy 99.9226
+[libs/RVL_SDK/src/fa/pf_entry_iterator] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_entry_iterator] objdiff: code 7880/7880 data 24/24 functions 16/16 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/fa/pf_entry_iterator] instruction-exact functions: 16/16
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .sdata size 24 match 100.0
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .text size 7880 match 100.0
+[libs/RVL_SDK/src/fa/pf_entry_iterator] baseline: code 6932/7880 data 24 functions 15 fuzzy 99.9772
+[src/keyboard/tiString] pool: IDENTICAL
+[src/keyboard/tiString] objdiff: code 4632/5176 data 288/288 functions 41/42 fuzzy 98.9629 linked code 0
+[src/keyboard/tiString] instruction-exact functions: 41/42
+[src/keyboard/tiString]   section .data size 288 match 100.0
+[src/keyboard/tiString]   section .text size 5176 match 98.962906
+[src/keyboard/tiString]   below 100: inputChar__Q39textinput8tistring9DecolatedFw 90.132355
+[src/keyboard/tiString] baseline: code 4632/5176 data 288 functions 41 fuzzy 98.9629
+[src/keyboard/tiSignWindow] pool: IDENTICAL
+[src/keyboard/tiSignWindow] objdiff: code 6300/7184 data 3468/3468 functions 55/56 fuzzy 99.9833 linked code 0
+[src/keyboard/tiSignWindow] instruction-exact functions: 55/56
+[src/keyboard/tiSignWindow]   section .ctors size 4 match 100.0
+[src/keyboard/tiSignWindow]   section .data size 2672 match 100.0
+[src/keyboard/tiSignWindow]   section .rodata size 784 match 100.0
+[src/keyboard/tiSignWindow]   section .sdata size 8 match 100.0
+[src/keyboard/tiSignWindow]   section .text size 7184 match 99.9833
+[src/keyboard/tiSignWindow]   below 100: create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator 99.86425
+[src/keyboard/tiSignWindow] baseline: code 6300/7184 data 3468 functions 55 fuzzy 99.9666
+regressions vs baseline: 0
+global matched_code_percent: 90.02490 -> 90.05654
+global fuzzy_match_percent: 99.54210 -> 99.54221
+global complete_code_percent: 69.30851 -> 69.30851
+global matched_data_percent: 99.36508 -> 99.36508
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+R9 signcreate improvement99.72851->99.86425; hoisted global/table address-load order nowexact,6register operands count22/slot31 swapped versuscount31/slot22.221/221frame0x50; all pools/dataexact,0globalregression/forbidden/readability/correctDOL. Leadingdeclsearch onforcandidate6buildsleaves6diffs. Minimal loop-form change retained andcommitted; no type/header/data changes.
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop initializes animation extent before traversal | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop initializes force target before traversal | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop animation bound initialized after index declaration | objdiff 99.75113; 221/221 instructions; structural/exact (0, 10); first (58, ('li', 'r22, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop animation counter declared before scoped bound | objdiff 98.77828; 221/221 instructions; structural/exact (0, 50); first (58, ('li', 'r22, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop animation bound shares readonly metadata input scope | objdiff 98.8914; 221/221 instructions; structural/exact (0, 46); first (58, ('li', 'r22, 0'), ('li', 'r21, 0'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop uses actual readonly pointer-to-slot input view | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop declares resource and transform before slot pointer view | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop readonly pane binding helper carries count before pointer reference | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop mutable animation pointer slot reference | objdiff 99.86425; 221/221 instructions; structural/exact (0, 6); first (159, ('lwz', 'r22, 0x18(r20)'), ('lwz', 'r31, 0x18(r20)'))
+create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | R9 outer for loop caches animation file readonly reference as object | objdiff 97.004524; 219/221 instructions; structural/exact (9, 91); first (48, ('lis', 'r26, 0'), ('lis', 'r25, 0'))
+R9 data ownership audit: owned target data already100 by exact names: entry_iterator.sdata24, tiString.data288, tiSignWindow.data/rodata/sdata/ctors3468; SOOption noowneddata. Weak extras ignored. No relocation/type proof requiresrename/extentcorrection; no symbol/config/header/section changes.
+R9 extent audit SOGetInterfaceOpt = .text:0x814B476C; // type:function size:0x1DC | next SOSetInterfaceOpt = .text:0x814B4948; // type:function size:0x128 | no overlap.
+R9 extent audit PFENT_ITER_FindCluster = .text:0x815D3414; // type:function size:0x3B4 | next PFENT_ITER_Retreat = .text:0x815D37C8; // type:function size:0x25C | no overlap.
+R9 extent audit inputChar__Q39textinput8tistring9DecolatedFw = .text:0x81432CE4; // type:function size:0x220 | next confirmKana__Q39textinput8tistring9DecolatedFv = .text:0x81432F04; // type:function size:0x14 | no overlap.
+R9 extent audit create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator = .text:0x81430E50; // type:function size:0x374 | next __dt__Q49textinput8keyboard10signwindow7AnmPaneFv = .text:0x814311C4; // type:function size:0x58 | no overlap.
+SOGetInterfaceOpt | R9 all source variants rejected:5pureoperand differences unchanged by selector const/reference/scopes/types. Eleven dependency-valid command/response operation orders either preserve5diffs orreverse actual header stores, giving99.85714/3diffs but2structural forms; latter rejected because introduces non-target scheduling. Earlyreturn/branchinversion adds1instruction orotherbranchforms, aliases unchanged. Leadingdeclsearch70builds noimprovement. Baseline source intact,3/4.
+inputChar | R9 22 distinct compiled new converter trials. Best95.036766/136 stillhaslive newline reset branch absenttarget andwrongindexwidth/countregs; guarded actualclear removesbranch butfoldsindex/count,126/136. No candidate retained because original converter boundary unresolved; baseline125/136,90.132355 restored. Functional helper trials only, no empty stubs, unsupportedvolatile ordata changes.
+R9 pre-final remaining audit | SOGetInterfaceOpt | 32 distinct compiled scored source attempts this round; >=3 proved.
+R9 pre-final remaining audit | inputChar__Q39textinput8tistring9DecolatedFw | 22 distinct compiled source trials plus one repeated detailed disassembly run; >=3 proved.
+R9 pre-final remaining audit | create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | 54 distinct compiled source trials plus one repeated retained-candidate rebuild; >=3 proved.
+R9 retained source: entry iterator two initialization-line change exactly237/237 and16/16; sign outerdo->for loop exactly221/221shape and6pure operands,99.86425. SO andtiString source restored. All other units/exactfunctions/data preserved, no header/config changes. Final clean gate follows.
+R9 trial totals: 113 distinct compiled source variations across four functions, plus82 declaration-order evaluations,195 builds; failed geometry-struct trial excluded. Three remaining open functions all exceed3 distinct attempts. One new exact function,948newmatchedcodebytes, signloadorderfour operands resolved; no original helper source inferred beyond evidence.
+
+# R9 final clean full gate over all four owned units (non --quick)
+```
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/so/SOOption] pool: IDENTICAL
+[libs/RevoEX/src/so/SOOption] objdiff: code 816/1292 data None/None functions 3/4 fuzzy 99.9226 linked code 0
+[libs/RevoEX/src/so/SOOption] instruction-exact functions: 3/4
+[libs/RevoEX/src/so/SOOption]   section .text size 1292 match 99.9226
+[libs/RevoEX/src/so/SOOption]   below 100: SOGetInterfaceOpt 99.78992
+[libs/RevoEX/src/so/SOOption] baseline: code 816/1292 data None functions 3 fuzzy 99.9226
+[libs/RVL_SDK/src/fa/pf_entry_iterator] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pf_entry_iterator] objdiff: code 7880/7880 data 24/24 functions 16/16 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/fa/pf_entry_iterator] instruction-exact functions: 16/16
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .sdata size 24 match 100.0
+[libs/RVL_SDK/src/fa/pf_entry_iterator]   section .text size 7880 match 100.0
+[libs/RVL_SDK/src/fa/pf_entry_iterator] baseline: code 6932/7880 data 24 functions 15 fuzzy 99.9772
+[src/keyboard/tiString] pool: IDENTICAL
+[src/keyboard/tiString] objdiff: code 4632/5176 data 288/288 functions 41/42 fuzzy 98.9629 linked code 0
+[src/keyboard/tiString] instruction-exact functions: 41/42
+[src/keyboard/tiString]   section .data size 288 match 100.0
+[src/keyboard/tiString]   section .text size 5176 match 98.962906
+[src/keyboard/tiString]   below 100: inputChar__Q39textinput8tistring9DecolatedFw 90.132355
+[src/keyboard/tiString] baseline: code 4632/5176 data 288 functions 41 fuzzy 98.9629
+[src/keyboard/tiSignWindow] pool: IDENTICAL
+[src/keyboard/tiSignWindow] objdiff: code 6300/7184 data 3468/3468 functions 55/56 fuzzy 99.9833 linked code 0
+[src/keyboard/tiSignWindow] instruction-exact functions: 55/56
+[src/keyboard/tiSignWindow]   section .ctors size 4 match 100.0
+[src/keyboard/tiSignWindow]   section .data size 2672 match 100.0
+[src/keyboard/tiSignWindow]   section .rodata size 784 match 100.0
+[src/keyboard/tiSignWindow]   section .sdata size 8 match 100.0
+[src/keyboard/tiSignWindow]   section .text size 7184 match 99.9833
+[src/keyboard/tiSignWindow]   below 100: create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator 99.86425
+[src/keyboard/tiSignWindow] baseline: code 6300/7184 data 3468 functions 55 fuzzy 99.9666
+regressions vs baseline: 0
+global matched_code_percent: 90.02490 -> 90.05654
+global fuzzy_match_percent: 99.54210 -> 99.54221
+global complete_code_percent: 69.30851 -> 69.30851
+global matched_data_percent: 99.36508 -> 99.36508
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+libs/RevoEX/src/so/SOOption | exact 3/4 -> 3/4 | code bytes 816 -> 816/1292 | data bytes 0 -> 0/0
+R9 remaining | SOGetInterfaceOpt | 99.78992% | 119/119 frame0x30; five argument selector/level register operands, first5mr25vs26; rm/temp stack offsets, branch/helper/load/store/pointer order all exact. 32 distinct compiled source trials,70declsearchevaluations.
+libs/RVL_SDK/src/fa/pf_entry_iterator | exact 15/16 -> 16/16 | code bytes 6932 -> 7880/7880 | data bytes 24 -> 24/24
+src/keyboard/tiString | exact 41/42 -> 41/42 | code bytes 4632 -> 4632/5176 | data bytes 288 -> 288/288
+R9 remaining | inputChar__Q39textinput8tistring9DecolatedFw | 90.132355% | 125/136 frame0x30; Hangul converter original inline boundary, indexed append counter and dead newline compare unresolved.22distinct converter trials plus repeated135/136 detailed disassembly; best95.036766rejected because addslive newline branch.
+src/keyboard/tiSignWindow | exact 55/56 -> 55/56 | code bytes 6300 -> 6300/7184 | data bytes 3468 -> 3468/3468
+R9 remaining | create__Q49textinput8keyboard10signwindow12LayoutByNW4RFP12MEMAllocator | 99.86425% | 221/221 frame0x50; all relocation-address/load orders nowexact, only6count22/slot31 operand differences vstargetcount31/slot22; first159lwz22vs31.54distinct source trials,12declaration evals.
+R9 final files: libs/RVL_SDK/src/fa/pf_entry_iterator.c; src/keyboard/tiSignWindow.cpp; tools/decomp-assist/fz3.attempts.md. Source commits83182c27,2ee7e995. Exactcount+1,948matchedcodebytes. Allpoolsidentical/data100/correctDOL/0globalregression/forbidden/readability. No sourcechangesafterfullcleangate. Remaining original Hangul helper structure and SO/count/slot register choices uncertain, logged without fake completion. No symbolrenames/extentchanges/sharedheaders/configure switches, no out-of-scope sourcefiles. Finalcommit logonly.

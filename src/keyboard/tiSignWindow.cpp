@@ -223,7 +223,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator) {
     const char* forceName;
     u32 animationCount;
     u32 paneIndex = 0;
-    do {
+    for (; paneIndex < 25; ++paneIndex) {
         AnmPane* pane = NULL;
         const PaneAnimation& paneInfo = csPaneToAnimationInSign[paneIndex & 0xFFFF];
         switch (paneInfo.type) {
@@ -260,8 +260,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator) {
             }
             ++animationIndex;
         }
-        ++paneIndex;
-    } while (paneIndex < 25);
+    }
     init();
 }
 
