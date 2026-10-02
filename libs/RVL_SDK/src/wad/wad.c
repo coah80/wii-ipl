@@ -255,7 +255,7 @@ s32 WADGetTitleVersionEx(char* path, ESTitleId* titleId, u16* titleVersion, WADL
     s32 headerInfo;
     WADTitleMetadata* metadataBuffer = &metadata;
     WADHeader* headerBuffer = (WADHeader*)headerBytes;
-    s32 result;
+    s32 result = 0;
     u32 titleDataOffset;
     s32 type;
 
@@ -397,6 +397,8 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
     s32 result;
     u32 fileOffset;
     WADFileEntry* allocatedFiles;
+    void* fileNames;
+    void* titleList;
     BOOL streamOpened;
     u32 transferId;
     u32 contentCount;
@@ -406,9 +408,11 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
     u32 skipTitleMeta = flags & 4;
     WADFileHeader* fileHeader;
 
-    streamOpened = FALSE;
     fileOffset = 0;
+    fileNames = 0;
+    titleList = 0;
     allocatedFiles = 0;
+    streamOpened = FALSE;
     memset(&workspace.unpackInfo, 0, sizeof(WADUnpackInfo));
     if (fileListOut != 0) {
         *fileListOut = 0;
@@ -521,6 +525,12 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
 
 cleanup:
     _WADFreeMemory(&workspace.unpackInfo, allocator);
+    if (fileNames != 0) {
+        _WADMemFree(allocator, fileNames);
+    }
+    if (titleList != 0) {
+        _WADMemFree(allocator, titleList);
+    }
     if ((fileListOut != 0) && (result != 0)) {
         if (allocatedFiles != 0) {
             _WADMemFree(allocator, allocatedFiles);
@@ -535,7 +545,7 @@ cleanup:
 
 static s32 WAD_815BFFA8(WADImportLoopArgs* args) {
     s32 fd = args->fd;
-    s32 result = 0;
+    s32 result;
     u32 remaining = args->size;
     WADImportTransfer* transfer = args->transfer;
     u32 bufferIndex = 0;
@@ -561,7 +571,7 @@ static s32 WAD_815BFFA8(WADImportLoopArgs* args) {
 
 s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 offset, u32 flags,
                 WADProcessCallback processCallback) {
-    s32 result = 0;
+    s32 result;
     ESHash* sharedContentHashes = 0;
     ESContentId* installedContentIds = 0;
     ESContentMeta* matchingContents = 0;
@@ -1257,6 +1267,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
     s32 contentExportStarted;
     s32 threadCreated = FALSE;
     s32 fileFd;
+    WADBackupHeader* headerBlockHeader;
 
     titleMetaSize = 0;
     contentDataSize = 0;
@@ -1377,7 +1388,6 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
     result = 0;
     if (path == 0) {
         *sizeOut = totalSize + 0x340;
-        result = 0;
         goto cleanup;
     }
     outputBuffer = _WADMemAlloc(allocator, 0x10000);
@@ -1398,6 +1408,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
     if (result != 0) {
         goto cleanup;
     }
+    headerBlockHeader = &headerBlock.header;
     paddedSize = sizeof(headerBlock);
     memset(&headerBlock, 0, paddedSize);
     if ((u32)WADWriteStream(&stream, &headerBlock, paddedSize) != paddedSize) {
@@ -1414,12 +1425,12 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
     headerBlock.header.fileSize = fileDataSize;
     headerBlock.header.numFiles = fileCount;
     headerBlock.header.backupAreaLen = totalSize + 0x340;
-    result = ES_GetDeviceId(&headerBlock.header.deviceId);
+    result = ES_GetDeviceId(&headerBlockHeader->deviceId);
     if (result != 0) {
         goto cleanup;
     }
     if ((flags & 1) != 0) {
-        memcpy(&headerBlock.header.cidx, &existingContentMask, sizeof(existingContentMask));
+        memcpy(&headerBlockHeader->cidx, &existingContentMask, sizeof(existingContentMask));
     }
     if ((flags & 2) != 0) {
         u32 currentTitleLow;
@@ -1442,7 +1453,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
             headerBlock.header.titleId = ((u64)currentTitleHigh << 32) | currentTitleLow;
         }
         if (_WADGetTransferId(transferMac) != 0) {
-            memcpy(headerBlock.header.deviceMac, transferMac, sizeof(headerBlock.header.deviceMac));
+            memcpy(headerBlockHeader->deviceMac, transferMac, sizeof(headerBlockHeader->deviceMac));
         }
     }
     SHA1Reset(hashContext);
@@ -1683,9 +1694,13 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
                 }
             }
 file_done:
+            if (fileHeaderBuffer->flags[2] == 1) {
+                fileFd = -1;
+            }
             if (fileOpened) {
                 NANDClose(&savedFile);
             }
+            fileFd = -1;
             if (result != 0) {
                 readSize = (fileHeaderBuffer->fileSize + 0x3F) & ~0x3F;
                 totalSize -= readSize;
@@ -3523,6 +3538,9 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         parts.titleMetaSize = header.tmdSize;
         parts.titleMeta = readBuffer + sectionOffset;
         sectionOffset += (header.tmdSize + 0x3F) & ~0x3F;
+    }
+    if (header.contentSize != 0) {
+        contentBuffer = readBuffer + sectionOffset;
     }
     contentBuffer = readBuffer + sectionOffset;
     remainingBufferSize = bufferSize - sectionOffset;
