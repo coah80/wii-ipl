@@ -26,9 +26,9 @@ extern struct NWC24Work {
 
     u8 configData[1024];  // 0x1300
 
-    u8 unk_0x1700[128];   // 0x1700
-    u8 unk_0x1780[128];   // 0x1780
-    u8 unk_0x1800[256];   // 0x1800
+    u8 sendMbcHeader[128];  // 0x1700
+    u8 recvMbcHeader[128];  // 0x1780
+    u8 mbcEntry[256];       // 0x1800
     u8 base64Work[256];   // 0x1900
     u8 unk_0x1A00[4096];  // 0x1A00
 
