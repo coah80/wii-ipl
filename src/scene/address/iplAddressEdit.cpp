@@ -2125,6 +2125,8 @@ state0:
             goto state0Common;
         case 3:
             goto state0Button3;
+        case 4:
+            goto done;
         default:
             goto done;
     }
@@ -2156,11 +2158,14 @@ state0Button3: {
         nw4r::lyt::Pane* pane = layout->getNW4RLyt()->GetRootPane()->FindPaneByName(paneName, true);
         ipl::math::VEC3 position(0.0f, 0.0f, 0.0f);
         PSMTXMultVec(pane->GetGlobalMtx(), reinterpret_cast<Vec*>(&position), reinterpret_cast<Vec*>(&position));
-        f32 xOffset = 15.0f;
-        f32 height = 50.0f;
-        f32 scale = 0.5f;
+        f32 xOffset;
+        f32 scale;
+        f32 height;
+        xOffset = 15.0f;
+        height = 50.0f;
+        scale = 0.5f;
         position.x = position.x + xOffset;
-        position.y = position.y + scale * height;
+        position.y = position.y + height * scale;
         (mpBalloon)
             ->setPos(position, false, 1);
         (mpBalloon)->fadein();
@@ -2197,11 +2202,14 @@ state22Button3:
             nw4r::lyt::Pane* pane = layout->getNW4RLyt()->GetRootPane()->FindPaneByName(paneName, true);
             ipl::math::VEC3 position(0.0f, 0.0f, 0.0f);
             PSMTXMultVec(pane->GetGlobalMtx(), reinterpret_cast<Vec*>(&position), reinterpret_cast<Vec*>(&position));
-            f32 xOffset = 15.0f;
-            f32 height = 50.0f;
-            f32 scale = 0.5f;
+            f32 xOffset;
+            f32 scale;
+            f32 height;
+            xOffset = 15.0f;
+            height = 50.0f;
+            scale = 0.5f;
             position.x = position.x + xOffset;
-            position.y = position.y + scale * height;
+            position.y = position.y + height * scale;
             (mpBalloon)
                 ->setPos(position, false, 1);
             (mpBalloon)->fadein();
@@ -2250,6 +2258,8 @@ void ipl::scene::AddressEdit::start_left_event(const char* paneName) {
             }
             break;
         }
+        case 4:
+            break;
         default:
             break;
         }
