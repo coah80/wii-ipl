@@ -350,7 +350,7 @@ void WithZi::update() {
         EZTXGetCandidates(&mSearch, mpDictionaryWork);
     }
     else {
-        memcpy(&ElementBuffer[0x300], &ElementBuffer[0x100], 0x200);
+        memcpy(candidateOutput, &ElementBuffer[0x100], 0x200);
         ChangeDictionaryLanguage(getPredictLanguage());
         u32 count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
         if (getPredictLanguage() == 1 && count == 0x61) {
@@ -512,10 +512,10 @@ scanDone:
 u32 WithZi::setElementBuffer() {
     u16 inputCharacter;
     u32 count = 0;
-    memset(ElementBuffer, 0, 0x1fe);
-    memset(&ElementBuffer[0x200], 0, 0x1fe);
     u16* elements = ElementBuffer;
-    u16* candidates = elements + 0x100;
+    u16* candidates = &ElementBuffer[0x100];
+    memset(ElementBuffer, 0, 0x1fe);
+    memset(&candidates[0x100], 0, 0x1fe);
     while ((inputCharacter = candidates[static_cast<u16>(count)]) != 0 && static_cast<u16>(count) < 0xff) {
         u16 index = count;
         elements[index] = inputCharacter;
