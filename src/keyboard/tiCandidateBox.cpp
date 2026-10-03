@@ -403,9 +403,9 @@ namespace textinput {
         }
 
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
-            u16 i;
-            u16 j;
             CandidateTextAnmPane* pane;
+            u16 j;
+            u16 i;
             for (i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
                 pane = NULL;
                 const PaneToAnimation& p = scCandidatePaneData.panes[i];
