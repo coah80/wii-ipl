@@ -198,10 +198,10 @@ void AESiEncryptBlock(AESContext* context, u32* output, const u32* input) {
 void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
     u32 rounds=context->rounds;
     u32* key=context->keys;
-    u32 d;
     u32 b;
-    u32 c;
     u32 a;
+    u32 c;
+    u32 d;
     key += rounds*4;
     if (context->needsTransform) {
         u32 round;
