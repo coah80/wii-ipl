@@ -92,8 +92,8 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
                 dst[0] = val;
             } else {
                 s32 oddLowSum;
-                s32 oddLowDifference;
                 s32 oddHighSum;
+                s32 oddLowDifference;
                 s32 oddHighDifference;
                 s32 dcValue;
                 
