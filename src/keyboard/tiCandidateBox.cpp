@@ -403,8 +403,10 @@ namespace textinput {
         }
 
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
+            u16 i;
+            u16 j;
             CandidateTextAnmPane* pane;
-            for (u16 i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
+            for (i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
                 pane = NULL;
                 const PaneToAnimation& p = scCandidatePaneData.panes[i];
                 switch (p.type) {
@@ -435,7 +437,7 @@ namespace textinput {
 
                 const char* forceAddName = p.forceAddName;
                 u32 animationCount = p.count;
-                for (u16 j = 0; j < animationCount; j++) {
+                for (j = 0; j < animationCount; j++) {
                     const AnimationFile* const& animation = p.pAnims[j];
                     void* pResource = mpMultiArcResourceAccessor->GetResource(0, animation->fileName);
                     AnimTransformPane* transform =
