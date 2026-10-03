@@ -126,7 +126,7 @@ int AOSSi_EndLocal(void) {
     return 0;
 }
 
-int AOSSi_WLANGetBSSList(struct AOSSAccessPointList** output) {
+int AOSSi_WLANGetBSSList(void** output) {
     int result = -1;
     int startupRetries = 0;
     WDScanParam scan ATTRIBUTE_ALIGN(32);
