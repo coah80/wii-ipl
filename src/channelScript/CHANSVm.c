@@ -6936,7 +6936,7 @@ static u8* VmGetOperand(CHANSVm* vm, u32 num, u32 offset) {
 }
 
 static CHANSVmErr VmLoadImmInteger(CHANSVm* vm, CHANSVmObjHdr* obj, u8* buf, s32 count) {
-    s64 acc = 0;
+    u64 acc = 0;
     u8* p = buf;
 
     while (count != 0) {
@@ -6946,7 +6946,7 @@ static CHANSVmErr VmLoadImmInteger(CHANSVm* vm, CHANSVmObjHdr* obj, u8* buf, s32
         count--;
     }
 
-    return CHANSVmSetInteger(vm, obj, acc);
+    return CHANSVmSetInteger(vm, obj, (vmInteger)acc);
 }
 
 CHANSVmErr VmStore(CHANSVm* vm, CHANSVmObjHdr* dest, CHANSVmObjHdr* src) {
