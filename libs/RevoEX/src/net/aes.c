@@ -173,7 +173,7 @@ static const u32 AESiDecryptTable[] = {
 #define DECRYPT(a,b,c,d) (((ROTATE(AESiDecryptTable[((b)>>16)&255],16) ^ AESiDecryptTable[(d)&255]) ^ ROTATE(AESiDecryptTable[(a)>>24],24)) ^ ROTATE(AESiDecryptTable[((c)>>8)&255],8))
 #define SUBSTITUTE(table,a,b,c,d) ((((u32)table[(a)>>24]<<24) | table[(d)&255]) | (((u32)table[((b)>>16)&255]<<16) | ((u32)table[((c)>>8)&255]<<8)))
 
-#define SUBSTITUTE_XOR(table,a,b,c,d) (((((u32)table[(a)>>24]<<24) ^ table[(d)&255]) ^ ((u32)table[((c)>>8)&255]<<8)) ^ ((u32)table[((b)>>16)&255]<<16))
+#define DECRYPT_FINAL(table,a,b,c,d,key) ((table[(d)&255] ^ ((u32)table[((c)>>8)&255]<<8)) ^ (((u32)table[((b)>>16)&255]<<16) ^ ((key) ^ ((u32)table[(a)>>24]<<24))))
 
 void AESiEncryptBlock(AESContext* context, u32* output, const u32* input) {
     u32 rounds = context->rounds;
@@ -204,16 +204,15 @@ void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
         u32 round;
         for (round=1; round<context->rounds; ++round) {
             u32 word;
-            u32* keys=context->keys + round*4;
             for (word=0; word<4; ++word) {
-                u32 value=keys[word];
+                u32 value=context->keys[round*4 + word];
                 u32 twice=DOUBLE_BYTES(value);
                 u32 four=DOUBLE_BYTES(twice);
                 u32 eight=DOUBLE_BYTES(four)^value;
                 u32 mixed=(ROTATE(eight,8) ^ (eight ^ four));
                 mixed=(ROTATE(mixed,8) ^ (mixed ^ twice));
                 mixed=(ROTATE(mixed,8) ^ (mixed ^ value));
-                keys[word]=mixed;
+                context->keys[round*4 + word]=mixed;
             }
         }
         context->needsTransform=0;
@@ -228,10 +227,10 @@ void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
         a=nextA^key[0]; b=nextB^key[1]; c=nextC^key[2]; d=nextD^key[3];
         key-=4;
     }
-    output[0]=SUBSTITUTE_XOR(AESiInvSubShiftTable,a,d,c,b)^key[0];
-    output[1]=SUBSTITUTE_XOR(AESiInvSubShiftTable,b,a,d,c)^key[1];
-    output[2]=SUBSTITUTE_XOR(AESiInvSubShiftTable,c,b,a,d)^key[2];
-    output[3]=SUBSTITUTE_XOR(AESiInvSubShiftTable,d,c,b,a)^key[3];
+    output[0]=DECRYPT_FINAL(AESiInvSubShiftTable,a,d,c,b,key[0]);
+    output[1]=DECRYPT_FINAL(AESiInvSubShiftTable,b,a,d,c,key[1]);
+    output[2]=DECRYPT_FINAL(AESiInvSubShiftTable,c,b,a,d,key[2]);
+    output[3]=DECRYPT_FINAL(AESiInvSubShiftTable,d,c,b,a,key[3]);
 }
 
 BOOL NETAESCreateEx(AESContext* context, const void* key, u32 keyLength, const void* iv, const AESBlockMode* mode) {
