@@ -14,9 +14,17 @@ namespace textinput {
             Base(Manager* manager) : mQwerty(true), meLanguage(USA), mpAllocator(NULL), mpManager(manager) {}
 #endif
 
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual void create(MEMAllocator* allocator);
+#else
             virtual void create(MEMAllocator* allocator) { mpAllocator = allocator; }
+#endif
             virtual void init() {}
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual bool isQwerty() const;
+#else
             virtual bool isQwerty() const { return mQwerty; }
+#endif
             virtual void setQwerty(bool qwerty);
             virtual void setLanguage(Language language) { meLanguage = language; }
             virtual Language getLanguage() const { return meLanguage; }

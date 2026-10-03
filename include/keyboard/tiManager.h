@@ -64,7 +64,11 @@ namespace textinput {
             virtual void                                setWCString(const wchar_t* string);
 
             virtual void                                setLanguage(Language language);
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual Language                            getLanguage() const;
+#else
             virtual Language                            getLanguage() const { return meLanguage; }
+#endif
 #ifdef MYTIMANAGER_IMPLEMENTATION
             Language                                    getLanguageForMemo() const { return meLanguage; }
 #endif
@@ -129,10 +133,18 @@ namespace textinput {
             virtual const InputForm*                    getInputForm() const                    { return mpInputForm; }
             
             virtual keyboard::hwkey::HWKeyboard*        getHWKeyboard()                         { return mpHWKeyboard; }
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const;
+#else
             virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const                   { return mpHWKeyboard; }
+#endif
             
             virtual keyboard::pctype::LayoutByNW4R*       getPCKeyboard()                         { return mpPCKeyboard; }
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const;
+#else
             virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const                   { return mpPCKeyboard; }
+#endif
             
             virtual keyboard::cellphonetype::LayoutByNW4R*       getCellPhoneKeyboard()                  { return mpCellPhoneKeyboard; }
             virtual const keyboard::cellphonetype::LayoutByNW4R* getCellPhoneKeyboard() const            { return mpCellPhoneKeyboard; }
@@ -149,7 +161,11 @@ namespace textinput {
             virtual const candidatebox::LayoutByNW4R*   getCandidateBox() const                 { return mpCandidateBox; }
             
             virtual toolbar::LayoutByNW4R*              getToolBar()                            { return mpToolBar; }
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual const toolbar::LayoutByNW4R*        getToolBar() const;
+#else
             virtual const toolbar::LayoutByNW4R*        getToolBar() const                      { return mpToolBar; }
+#endif
             
 #ifdef TIMANAGER_IMPLEMENTATION
             virtual void*                               getPredictLanguageSelectDialog();

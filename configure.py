@@ -908,7 +908,7 @@ config.libs = [
     ),
     # it decides to do fast optimization for this one
     IPLSection("keyboard", [
-            Object(NonMatching, "keyboard/tiPcKeyboard.cpp", extra_cflags=["-O4,p"]),
+            Object(Matching, "keyboard/tiPcKeyboard.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiCellPhone.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiInputForm.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiCandidateBox.cpp", extra_cflags=["-O4,p"]),

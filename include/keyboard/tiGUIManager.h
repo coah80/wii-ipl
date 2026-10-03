@@ -74,8 +74,16 @@ namespace textinput {
 
             virtual void onEvent(GUIComponent& comp, u32 event, void* data) {}  // 0x0C
 
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual void setLatestEventCtrlNo(int ctrlNo);
+#else
             virtual void setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }  // 0x10
+#endif
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual int getLatestEventCtrlNo();
+#else
             virtual int getLatestEventCtrlNo() { return muLatestEventCtrlNo; }               // 0x14
+#endif
 
         protected:
             int muLatestEventCtrlNo;  // 0x04
@@ -109,7 +117,11 @@ namespace textinput {
                 : GUIInterface(), mbInitialize(false), mDraggingButton(0xFFFF), mID(id), mbTriggerTarget(false), mpManager(NULL), mpListener(NULL) {
                 init();
             }
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual ~GUIComponent();
+#else
             virtual ~GUIComponent() {}  // 0x08
+#endif
 
             virtual u32 getID() { return mID; }  // 0x20
 
@@ -146,7 +158,11 @@ namespace textinput {
             }
 
             virtual bool isTriggerTarget() { return mbTriggerTarget; }                  // 0x48
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual void setTriggerTarget(bool bEnable);
+#else
             virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x4C
+#endif
 
             void setParentManager(GUIManager* manager) { mpManager = manager; }
             GUIManager* getParentManager() { return mpManager; }

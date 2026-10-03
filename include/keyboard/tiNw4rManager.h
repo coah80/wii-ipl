@@ -36,7 +36,11 @@ namespace textinput {
 
                 virtual void    onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) = 0;  // 0x18
         
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual void    setEventObserver(EventObserver *event);
+#else
                 virtual void    setEventObserver(EventObserver *event)  { mpEventObserver = event; }        // 0x1C
+#endif
 
             protected:
                 EventObserver*  mpEventObserver;    // 0x08
@@ -97,25 +101,19 @@ namespace textinput {
                 virtual void        calc();                             // 0x0C
 
                 #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
-                virtual void onAnmEvent(AnmPaneEvent) {}
+                virtual void onAnmEvent(AnmPaneEvent);
 #else
                 virtual void onAnmEvent(AnmPaneEvent paneEvent);
 #endif // 0x10
 
                 virtual void        changeAnimation(u32 id);            // 0x14
                 #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
-                virtual bool isInAnimation() { return mpCurrentAnim != NULL; }
+                virtual bool isInAnimation();
 #else
                 virtual bool isInAnimation();
 #endif                    // 0x18
                 #ifdef TI_PC_KEYBOARD_IMPLEMENTATION
-                virtual Anim* searchAnimation(u32 id) {
-                    for (Anim* animation = static_cast<Anim*>(nw4r::ut::List_GetNext(&mAnms, NULL)); animation != NULL;
-                         animation = static_cast<Anim*>(nw4r::ut::List_GetNext(&mAnms, animation))) {
-                        if (animation->muID == id) return animation;
-                    }
-                    return NULL;
-                }
+                virtual Anim* searchAnimation(u32 id);
 #else
                 virtual Anim* searchAnimation(u32 id);
 #endif            // 0x1C
@@ -247,14 +245,22 @@ namespace textinput {
                 virtual bool                    updateInput(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);                  // 0x20
                 virtual bool                    updateInput(input::HKBManager& hkbManager);                                                         // 0x24
 
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual TiLayout*               getLayout();
+#else
                 virtual TiLayout*               getLayout()             { return mpLayout; }                                                        // 0x28
+#endif
 
                 virtual nw4r::lyt::Pane*        getPane(const char* paneName);                                                                      // 0x2C
                 virtual const nw4r::lyt::Pane*  getPane(const char* paneName) const;                                                                // 0x30
 
                 virtual u32                     getFlightDuration(int point, const char* paneName);                                                 // 0x34
 
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual void                    setAnimOn(bool flag);
+#else
                 virtual void                    setAnimOn(bool flag)    { mbAnimOn = flag; }                                                        // 0x38
+#endif
 
                 virtual void                    drawPane(const char* paneName);                                                                     // 0x3C
 
@@ -282,8 +288,16 @@ namespace textinput {
                 virtual AnmPane*                searchAnmPane(const char* paneName);                                                                // 0x60
                 virtual AnmPane*                searchAnmPane(wchar_t ch);                                                                          // 0x64
                 
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual nw4r::ut::List&         getAnmPaneList();
+#else
                 virtual nw4r::ut::List&         getAnmPaneList()        { return mAnmPanes; }                                                       // 0x68
+#endif
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual gui::PaneManager*       getPaneManager();
+#else
                 virtual gui::PaneManager*       getPaneManager()        { return mpPaneManager; }                                                   // 0x6C
+#endif
 
                 virtual void                    AdjustPaneMtx(Mtx& mtx, const nw4r::lyt::DrawInfo& drawInfo, const nw4r::math::MTX34& mGlobalMtx);  // 0x70
 
