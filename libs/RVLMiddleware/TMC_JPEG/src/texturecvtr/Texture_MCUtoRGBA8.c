@@ -366,11 +366,11 @@ static void TMCJPEGDEC_converterYUV411toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
 
 static void TMCJPEGDEC_converterYUV422toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 y) {
     s32 chromaSkip;
-    s32 lumaSkip;
+    u16* output;
     s32 cbValue;
     s32 tileRow;
     TMCCJPEGDecState* state;
-    u16* output;
+    s32 lumaSkip;
     u8* texture;
     s32 width;
     s32 height;
