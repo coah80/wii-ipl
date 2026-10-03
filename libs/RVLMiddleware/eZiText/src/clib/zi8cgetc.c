@@ -133,7 +133,7 @@ typedef struct {
     ziU8 phonetics[11];
 } ZiChineseRecord;
 
-extern ziPtr Zi8GetTableAddress(ziU8 language, ziU8 table, ziPtr work);
+extern ziU32 Zi8GetTableAddress(ziU8 language, ziU8 table, ziPtr work);
 extern ziU16 Zi8GetTableCount(ziU8 language, ziU8 table, ziPtr work);
 extern ziU8 Zi8IsDupWChar(ziWChar character, ziPtr work);
 extern ziU8 Zi8IsDupWordW(ziWChar* word, ziU8 length, ziPtr work);
@@ -1336,7 +1336,7 @@ dictionary_search:
         Zi8GetFormatVersion(1, work) >= 8) {
         lastCharHigh = (request->currentWord[request->wordCharCount - 1] >> 8) & 0xFF;
         lastCharLow = request->currentWord[request->wordCharCount - 1];
-        phoneticGroups = Zi8GetTableAddress(1, 28, work);
+        phoneticGroups = (ziU8*)Zi8GetTableAddress(1, 28, work);
         rangeCount = Zi8GetTableCount(1, 28, work);
         rangeIndex = 0;
         while (rangeIndex < rangeCount) {
@@ -1384,7 +1384,7 @@ numeric_setup:
             default: ordinalCount = 0; break;
             }
         }
-        if (ordinalCount) ordinalTable = Zi8GetTableAddress(1, 29, work);
+        if (ordinalCount) ordinalTable = (ziU8*)Zi8GetTableAddress(1, 29, work);
     }
     if (!request->elementCount && (getMode == 7 || getMode == 8 || getMode == 9)) {
         resultFallback = 0;
@@ -1451,7 +1451,7 @@ character_range_start:
         firstOrdinal = 0;
         rangeIndex = Zi8GetTableCount(1, 16, work);
         if (Zi8GetFormatVersion(1, work) >= 4 && rangeIndex && elements[0] != 0xEF00) {
-            phoneticGroups = Zi8GetTableAddress(1, 16, work);
+            phoneticGroups = (ziU8*)Zi8GetTableAddress(1, 16, work);
             rangeIndex = 0;
             rangeCount = 0;
             switch (phase) {
@@ -1912,7 +1912,7 @@ cangjie_components:
         Zi8GetTableCount(1, 16, work) && elements[0] != 0xEF00 && getMode != 5) {
         rangeIndex = 0;
         rangeCount = 0;
-        phoneticGroups = Zi8GetTableAddress(1, 16, work);
+        phoneticGroups = (ziU8*)Zi8GetTableAddress(1, 16, work);
         switch (phase) {
         case 0: rangeIndex = 0; rangeCount = 2; phase = 1; break;
         case 1:
@@ -2199,7 +2199,7 @@ phonetic_main:
     if (Zi8GetFormatVersion(1, work) >= 4) rangeCount = Zi8GetTableCount(1, 23, work);
     else rangeCount = 0;
     if (rangeCount && match.nCand == 2 && emitWords) {
-        frequencyCursor = Zi8GetTableAddress(1, 24, work);
+        frequencyCursor = (ziU8*)Zi8GetTableAddress(1, 24, work);
         frequencyEntry = frequencyCursor;
         duplicateIndex = Zi8GetTableCount(1, 24, work);
         if (!duplicateIndex) isFirstCandidate = 1;
@@ -2446,7 +2446,7 @@ engine_finish:
     return totalResults;
 filtered_search:
     userIndex = Zi8GetTableCount(1, 31, work);
-    frequencyTable = Zi8GetTableAddress(1, 31, work);
+    frequencyTable = (ziU8*)Zi8GetTableAddress(1, 31, work);
     for (; userIndex; --userIndex) {
         index = frequencyTable[0] & 15;
         if (!(*frequencyTable++ & charset)) goto filtered_next;
@@ -2645,20 +2645,20 @@ static int Zi8NewMatchPhonetic(ziGetParam* request, ZiChineseRecord* records,
     if ((mask & 7) == 7) {
         stopAfterTone = match & 7;
     }
-    phoneticOffsets = Zi8GetTableAddress(1, 13, work);
-    ordinalTable = Zi8GetTableAddress(1, 14, work);
+    phoneticOffsets = (ziU16*)Zi8GetTableAddress(1, 13, work);
+    ordinalTable = (ziU16*)Zi8GetTableAddress(1, 14, work);
     if (pinyin) {
-        phonetics = Zi8GetTableAddress(1, 3, work);
+        phonetics = (ziU8*)Zi8GetTableAddress(1, 3, work);
         phoneticCount = Zi8GetTableCount(1, 3, work);
-        phoneticGroups = Zi8GetTableAddress(1, 17, work);
+        phoneticGroups = (ziU8*)Zi8GetTableAddress(1, 17, work);
         groupCount = Zi8GetTableCount(1, 17, work);
-        candidateGroups = Zi8GetTableAddress(1, 18, work);
+        candidateGroups = (ziU8*)Zi8GetTableAddress(1, 18, work);
     } else {
-        phonetics = Zi8GetTableAddress(1, 4, work);
+        phonetics = (ziU8*)Zi8GetTableAddress(1, 4, work);
         phoneticCount = Zi8GetTableCount(1, 4, work);
-        phoneticGroups = Zi8GetTableAddress(1, 19, work);
+        phoneticGroups = (ziU8*)Zi8GetTableAddress(1, 19, work);
         groupCount = Zi8GetTableCount(1, 19, work);
-        candidateGroups = Zi8GetTableAddress(1, 20, work);
+        candidateGroups = (ziU8*)Zi8GetTableAddress(1, 20, work);
     }
 
     if (groupCount) {
