@@ -1044,6 +1044,7 @@ closeList:
 NWC24Err NWC24iCheckDlHeaderConsistency(DlTaskListHeader* header, BOOL repair) {
     NWC24DlTask task;
     NWC24DlTask* taskPointer = &task;
+    NWC24DlTask* readTask = &task;
     NWC24DlId taskId;
     NWC24Err result;
     DlTaskListHeader* currentHeader;
@@ -1060,7 +1061,7 @@ NWC24Err NWC24iCheckDlHeaderConsistency(DlTaskListHeader* header, BOOL repair) {
             if (currentHeader->entries[taskId].appId == 0) { result = NWC24_ERR_NOT_FOUND; }
         }
         if (result != NWC24_OK || !shouldRepair) { continue; }
-        result = ReadDlTaskInline(taskPointer, taskId);
+        result = ReadDlTaskInline(readTask, taskId);
         if (result < NWC24_OK) {
             if (ValidateDlTask(taskPointer, FALSE) == NWC24_OK) {
                 result = DeleteDlTask(taskPointer);

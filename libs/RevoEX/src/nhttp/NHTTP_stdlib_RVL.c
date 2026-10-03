@@ -158,23 +158,24 @@ s32 NHTTPi_strtonum(const char* string, u32 length) {
 }
 
 s32 NHTTPi_Base64Encode(char* destination, const char* source) {
-    static char alphabet[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    const char* table=alphabet;
-    char* output=destination;
-    s32 length=strlen(source);
-    s32 consumed=0;
-    for(; consumed<length; consumed+=3) {
-        s8 first = source[0];
-        s8 second = source[1];
-        s8 third = source[2];
-        output[0]=table[first>>2];
-        output[1]=table[(second>>4)+((first&3)<<4)];
-        output[2]=table[(third>>6)+((second&15)<<2)];
-        output[3]=table[third&63];
-        source+=3; output+=4;
+    const char* table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    char* output = destination;
+    s32 length = strlen(source);
+    s32 consumed = 0;
+
+    for (; consumed < length; consumed += 3) {
+        output[0] = table[source[0] >> 2];
+        output[1] = table[((source[0] & 3) << 4) + (source[1] >> 4)];
+        output[2] = table[((source[1] & 15) << 2) + (source[2] >> 6)];
+        output[3] = table[source[2] & 63];
+        source += 3;
+        output += 4;
     }
-    if(consumed==length+1) output[-1]='=';
-    else if(consumed==length+2) { output[-2]='='; output[-1]='='; }
-    *output=0;
+    if (consumed == length + 1) output[-1] = '=';
+    else if (consumed == length + 2) {
+        output[-2] = '=';
+        output[-1] = '=';
+    }
+    *output = 0;
     return strlen(destination);
 }
