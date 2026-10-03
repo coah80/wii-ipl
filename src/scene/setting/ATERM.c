@@ -542,7 +542,7 @@ s32 gAtermState;
 
 void ATERMAlarmWakeQueue(OSAlarm* alarm, OSContext* context);
 s32 ATERMRunConfigProtocol(void);
-void ATERMMd5Update(AtermMd5Context* context, void* input, u32 length);
+void ATERMMd5Update(AtermMd5Context* context, u8* input, u32 length);
 extern u8 gAtermDigestFill[64];
 extern u8* gAtermRequestOptions;
 int ATERMAesKeyWrap(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
@@ -1662,7 +1662,7 @@ s32 ATERMRunConfigProtocol(void) {
                         digestContext.state[1] = 0xEFCDAB89;
                         digestContext.state[2] = 0x98BADCFE;
                         digestContext.state[3] = 0x10325476;
-                        ATERMMd5Update(&digestContext, &authenticationTime, sizeof(authenticationTime));
+                        ATERMMd5Update(&digestContext, (u8*)&authenticationTime, sizeof(authenticationTime));
                         digestLength[0] = digestContext.bitCountLow;
                         digestLength[1] = digestContext.bitCountLow >> 8;
                         digestLength[2] = digestContext.bitCountLow >> 16;
@@ -2312,12 +2312,17 @@ void ATERMAesDecryptBlock(const u32* expandedKey, u32 rounds, const u8* input, u
 
 void ATERMMd5Transform(u32 state[4], const u8 block[64]);
 
-void ATERMMd5Update(AtermMd5Context* context, void* input, u32 length) {
-    u8* data = (u8*)input;
+static inline void atermMd5Copy(void* output, const void* input, u32 length) {
+    u32 index;
+    for (index = 0; index < length; index++) {
+        ((u8*)output)[index] = ((const u8*)input)[index];
+    }
+}
+
+void ATERMMd5Update(AtermMd5Context* context, u8* input, u32 length) {
     u32 bufferIndex = (context->bitCountLow >> 3) & 0x3F;
     u32 bytesToFill;
     u32 copiedBytes;
-    u32 index;
 
     context->bitCountLow += length << 3;
     if (context->bitCountLow < (length << 3)) {
@@ -2326,20 +2331,16 @@ void ATERMMd5Update(AtermMd5Context* context, void* input, u32 length) {
     context->bitCountHigh += length >> 29;
     bytesToFill = 64 - bufferIndex;
     if (length >= bytesToFill) {
-        for (copiedBytes = 0; copiedBytes < bytesToFill; copiedBytes++) {
-            context->buffer8[bufferIndex + copiedBytes] = data[copiedBytes];
-        }
+        atermMd5Copy(&context->buffer8[bufferIndex], input, bytesToFill);
         ATERMMd5Transform(context->state, context->buffer8);
         for (copiedBytes = bytesToFill; copiedBytes + 63 < length; copiedBytes += 64) {
-            ATERMMd5Transform(context->state, data + copiedBytes);
+            ATERMMd5Transform(context->state, input + copiedBytes);
         }
         bufferIndex = 0;
     } else {
         copiedBytes = 0;
     }
-    for (index = 0; index < length - copiedBytes; index++) {
-        context->buffer8[bufferIndex + index] = data[copiedBytes + index];
-    }
+    atermMd5Copy(&context->buffer8[bufferIndex], &input[copiedBytes], length - copiedBytes);
 }
 
 #define ATERM_MD5_STEP(A, B, C, D, WORD, CONSTANT, SHIFT, F) \
