@@ -54,7 +54,6 @@ const u64 VmMinusInf = 0xFFF0000000000000ULL;
 #define VM_READ_BE_U16(b, o) ((u16)((b)[(o)] << 8 | (b)[(o) + 1]))
 #define VM_READ_BE_U24(b, o) ((u32)((b)[(o)] << 16 | (b)[(o) + 1] << 8 | (b)[(o) + 2]))
 #define VM_MAKE_U64(hi, lo) ((u64)(u32)(hi) << 32 | (u64)(lo))
-#define VM_S64_FROM_U64(v) ((s64)(u32)((v) >> 32) << 32 | (u64)(u32)(v))
 
 void CHANSVmDebugPrintf(const vmString format, ...) {
     va_list args;
@@ -7789,8 +7788,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                                     cmpHigh = 0;
                                     cmpLow = -2;
                                     cmpVal = VM_MAKE_U64(cmpHigh, cmpLow);
-                                    fullVal = VM_S64_FROM_U64(tmp64);
-                                    if ((u64)fullVal <= cmpVal) {
+                                    if (tmp64 <= cmpVal) {
                                         arrayIdx = (u32)tmp64;
                                         goto set_index_ok;
                                     }
