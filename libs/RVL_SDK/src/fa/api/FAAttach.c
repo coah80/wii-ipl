@@ -6,11 +6,6 @@ typedef struct FA_NAND_ATTACH {
     u32 size;
 } FA_NAND_ATTACH;
 
-typedef struct FA_ATTACH_REQUEST {
-    FADrvTbl* table;
-    u32 count;
-} FA_ATTACH_REQUEST;
-
 FADisk* gOpenDisk[26];
 FAPartition* gOpenPartition[26];
 typedef struct FA_DISK_INIT {
@@ -34,13 +29,13 @@ static struct {
 } drvInitFunc = {diskInitTbl, 3};
 extern s32 pdm_open_disk(FA_DISK_INIT* table, FADisk** disk);
 extern s32 pdm_open_partition(FADisk* disk, u32 index, FAPartition** partition);
-extern s32 pfstub_attach(FA_ATTACH_REQUEST* request, FA_NAND_ATTACH* nand);
+extern s32 pfstub_attach(FADrvTbl** drives, FA_NAND_ATTACH* nand);
 extern s32 pfd_sddrv_is_media_insert(void);
-extern s32 pfd_mscdrv_is_media_insert(void);
+extern s32 pfd_mscdrv_is_media_insert(FADisk* disk);
 
 FAError FAAttach(u32 device, char* nand_path, u32 nand_size, FADrvTbl* table) {
     FADisk* disk;
-    FA_ATTACH_REQUEST request;
+    FADrvTbl* drives[2];
     FA_NAND_ATTACH nand;
     s32 error;
     s32 index;
@@ -65,16 +60,16 @@ FAError FAAttach(u32 device, char* nand_path, u32 nand_size, FADrvTbl* table) {
             return -1;
         }
     }
-    request.table = table;
-    request.count = 0;
+    drives[0] = table;
+    drives[1] = NULL;
     if (device == 2) {
         memcpy(nand.path, nand_path, 78);
         nand.size = nand_size;
     }
     if (device == 2) {
-        error = pfstub_attach(&request, &nand);
+        error = pfstub_attach(drives, &nand);
     } else {
-        error = pfstub_attach(&request, NULL);
+        error = pfstub_attach(drives, NULL);
     }
     if (error != 0) {
         return -1;
@@ -85,11 +80,11 @@ FAError FAAttach(u32 device, char* nand_path, u32 nand_size, FADrvTbl* table) {
         gOpenPartition[index] = table->pPart;
         if (device == 0) {
             if (pfd_sddrv_is_media_insert()) {
-                request.table->stat |= 0x10;
+                drives[0]->stat |= 0x10;
             }
         } else if (device == 1) {
-            if (pfd_mscdrv_is_media_insert()) {
-                request.table->stat |= 0x10;
+            if (pfd_mscdrv_is_media_insert(disk)) {
+                drives[0]->stat |= 0x10;
             }
         }
     } else {
