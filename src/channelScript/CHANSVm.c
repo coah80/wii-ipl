@@ -6281,6 +6281,27 @@ vmU32 CHANSVmGetFreeExeSize(CHANSVm* vm) {
 
 void CHANSConvertModuleOfsToPtr(CHANSVmModule* ptr);
 
+static inline int VmFixMethodTable(CHANSVmModule* header, CHANSVm* vm) {
+    u32 i;
+    DispatchEntry* methodTable = header->pMethodRefTbl;
+
+    for (i = 1; i < header->methodCount; i++) {
+        if (methodTable[i].nameLength) {
+            if ((u8*)(methodTable[i].offset + (methodTable[i].nameLength + (vmU32)methodTable)) <=
+                (u8*)((vmU32)header + header->regionSize)) {
+                CHANSVmObjHdr* method = (CHANSVmObjHdr*)CHANSVmAddNativeMethodName(vm, (const char*)(methodTable[i].offset + (vmU32)methodTable),
+                                                                                   methodTable[i].nameLength);
+                if (method) {
+                    header->pMethodTbl[i] = (vmU32)method;
+                    continue;
+                }
+            }
+        }
+        return 0;
+    }
+    return 1;
+}
+
 CHANSVmErr CHANSVmAddExe(CHANSVm* vm, vmS32 unk0, CHANSVm* execCtx) {
     CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
     ModuleHeader* mod;
@@ -6385,41 +6406,15 @@ CHANSVmErr CHANSVmAddExe(CHANSVm* vm, vmS32 unk0, CHANSVm* execCtx) {
 
     {
         u32 i;
-        u32 tblOffs;
-
-        for (i = 0, tblOffs = 0; i < header->moduleCount;) {
-            memset((u8*)header->pModuleTbl + tblOffs, 0, sizeof(ModuleEntry));
-            i++;
-            tblOffs += sizeof(ModuleEntry);
+        for (i = 0; i < header->moduleCount; i++) {
+            memset(&header->pModuleTbl[i], 0, sizeof(ModuleEntry));
         }
     }
 
     CHANSConvertModuleOfsToPtr(header);
 
-    {
-        DispatchEntry* methodTable = header->pMethodRefTbl;
-        u32 i;
-        int ok;
-
-        for (i = 1; i < header->methodCount; i++) {
-            if (methodTable[i].nameLength) {
-                if ((u8*)(methodTable[i].nameLength + (vmU32)methodTable + methodTable[i].offset) <= (u8*)((vmU32)header + header->regionSize)) {
-                    CHANSVmObjHdr* method = (CHANSVmObjHdr*)CHANSVmAddNativeMethodName(vm, (const char*)(methodTable[i].offset + (vmU32)methodTable),
-                                                                                       methodTable[i].nameLength);
-                    if (method) {
-                        header->pMethodTbl[i] = (vmU32)method;
-                        continue;
-                    }
-                }
-            }
-            ok = 0;
-            goto check_method;
-        }
-        ok = 1;
-    check_method:
-        if (ok == 0) {
-            goto fail_format;
-        }
+    if (!VmFixMethodTable(header, vm)) {
+        goto fail_format;
     }
     {
         u8* strPtr = header->pStringDataTbl;
