@@ -563,23 +563,23 @@ static void TMCJPEGDEC_converterYUV420toRGB565(TMCCJPEGDecWork* work, s32 x, s32
 }
 
 static void TMCJPEGDEC_converterYUV420toRGB565edge(TMCCJPEGDecWork* work, s32 x, s32 y) {
+    s32 chromaSkip;
     u16* output;
-    s8 crValue;
+    s32 yEnd;
     s32 tileRow;
     u8* texture;
     u8* luminance;
-    s8* cb;
     s32 width;
+    s8* cb;
+    s8 crValue;
     s8* cr;
+    s8 cbValue;
     s32 column;
     s32 xEnd;
-    s8 cbValue;
-    s32 yEnd;
-    u32 tileWidth;
     s32 height;
     TMCCJPEGDecState* state;
     s32 lumaSkip;
-    s32 chromaSkip;
+    u32 tileWidth;
     s32 redOffset;
     s32 greenOffset;
     s32 blueOffset;
