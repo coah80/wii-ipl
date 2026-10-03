@@ -1228,13 +1228,30 @@ int ATERMBuildAssociationRequest(AtermAssociationRequest* request) {
     return 1;
 }
 
+static inline s32 atermEncodeHexByte(char* key, u8 sourceByte) {
+    char* encoded = key;
+    s32 lowNibble = sourceByte & 0xF;
+    s32 highNibble = (sourceByte & 0xF0) >> 4;
+    if (highNibble <= 9) {
+        *encoded++ = highNibble + '0';
+    } else {
+        *encoded++ = highNibble + '7';
+    }
+    if (lowNibble <= 9) {
+        *encoded++ = lowNibble + '0';
+    } else {
+        *encoded++ = lowNibble + '7';
+    }
+    *encoded = 0;
+    return encoded - key;
+}
+
 int ATERMParseAssociationResponse(u16* response) {
     u16* optionCursor = response + 4;
     u8* optionValue;
     u16* responseEnd;
     u32 optionType;
     s32 optionLength;
-    char* key;
     u32 value;
     s32 result = 0;
 
@@ -1272,6 +1289,7 @@ int ATERMParseAssociationResponse(u16* response) {
         case 0x208:
         case 0x209:
             {
+                char* key;
                 u32 keyIndex = optionType - 0x206;
                 key = gScanSettings.wirelessKeys[keyIndex].key;
                 memset(key, 0, sizeof(gScanSettings.wirelessKeys[keyIndex].key));
@@ -1279,21 +1297,7 @@ int ATERMParseAssociationResponse(u16* response) {
                     s32 byteIndex;
                     for (byteIndex = 0; byteIndex < optionLength; byteIndex++) {
                         u8 sourceByte = *optionValue++;
-                        char* encoded = key;
-                        s32 highNibble = (sourceByte & 0xF0) >> 4;
-                        s32 lowNibble = sourceByte & 0xF;
-                        if (highNibble <= 9) {
-                            *encoded++ = highNibble + '0';
-                        } else {
-                            *encoded++ = highNibble + '7';
-                        }
-                        if (lowNibble <= 9) {
-                            *encoded++ = lowNibble + '0';
-                        } else {
-                            *encoded++ = lowNibble + '7';
-                        }
-                        *encoded = 0;
-                        key += encoded - key;
+                        key += atermEncodeHexByte(key, sourceByte);
                     }
                 } else {
                     memcpy(key, optionValue, optionLength);
