@@ -318,58 +318,58 @@ s32 pfd_sddrv_init(FADisk* disk) {
     }
     if ((pfd_sddrv_flags(&g_pfd_sddrv_info) & 1) != 0) {
         OSReport("INFO SD Card driver is already initialize. pfd_sddrv_init()\n");
-        if (disk == g_pfd_sddrv_info.disk) {
-            return 0;
-        }
-        return -44;
-    }
-    if ((g_pfd_sddrv_info.flags & 4) == 0) {
-        g_pfd_sddrv_info.bytes_per_sector = 0x200;
-        pf_memset(&g_pfd_sddev, 0, 0x28);
-        sd_result = ISD_InitCard();
-        if (sd_result != 0) {
-            OSReport("ERR:Failed to init SD Card Driver in pfd_sddrv_init()\n");
-            return -40;
-        }
-        g_pfd_sddrv_info.flags |= 4;
-    }
-    pf_memset(&g_pfd_sddev, 0, 0x28);
-    device = &g_pfd_sddev.device;
-    sd_result = ISD_MountCard(0, &device);
-    if (sd_result != 0) {
-        OSReport("ERR SD card can not mount [ret = 0x%x]. pfd_sddrv_init()\n", sd_result);
-        return -41;
-    }
-    sd_result = ISD_GetDeviceStatus(device, &status);
-    if (sd_result != 0) {
-        OSReport("ERR Failed to get sd card status. [ret = 0x%x]\n", sd_result);
-        return 21;
-    }
-    if ((status & 1) != 0) {
-        g_pfd_sddrv_info.media_inserted = 1;
-    }
-    g_pfd_sddrv_info.device = device;
-    if (g_pfd_sddrv_info.media_inserted != 0) {
-        g_event = 2;
-        sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
-        if (sd_result != 0) {
-            OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", sd_result);
-            ISD_UnmountCard(device);
-            g_pfd_sddrv_info.device = 0;
-            return -42;
+        if (disk != g_pfd_sddrv_info.disk) {
+            return -44;
         }
     } else {
-        g_event = 1;
-        sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_inter_callback, &g_event);
-        if (sd_result != 0) {
-            OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", sd_result);
-            ISD_UnmountCard(device);
-            g_pfd_sddrv_info.device = 0;
-            return -42;
+        if ((g_pfd_sddrv_info.flags & 4) == 0) {
+            g_pfd_sddrv_info.bytes_per_sector = 0x200;
+            pf_memset(&g_pfd_sddev, 0, 0x28);
+            sd_result = ISD_InitCard();
+            if (sd_result != 0) {
+                OSReport("ERR:Failed to init SD Card Driver in pfd_sddrv_init()\n");
+                return -40;
+            }
+            g_pfd_sddrv_info.flags |= 4;
         }
+        pf_memset(&g_pfd_sddev, 0, 0x28);
+        device = &g_pfd_sddev.device;
+        sd_result = ISD_MountCard(0, &device);
+        if (sd_result != 0) {
+            OSReport("ERR SD card can not mount [ret = 0x%x]. pfd_sddrv_init()\n", sd_result);
+            return -41;
+        }
+        sd_result = ISD_GetDeviceStatus(device, &status);
+        if (sd_result != 0) {
+            OSReport("ERR Failed to get sd card status. [ret = 0x%x]\n", sd_result);
+            return 21;
+        }
+        if ((status & 1) != 0) {
+            g_pfd_sddrv_info.media_inserted = 1;
+        }
+        g_pfd_sddrv_info.device = device;
+        if (g_pfd_sddrv_info.media_inserted != 0) {
+            g_event = 2;
+            sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
+            if (sd_result != 0) {
+                OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", sd_result);
+                ISD_UnmountCard(device);
+                g_pfd_sddrv_info.device = 0;
+                return -42;
+            }
+        } else {
+            g_event = 1;
+            sd_result = ISD_RegisterDeviceIntrHandler(device, (SDDevIntrCallback)pfd_st_inter_callback, &g_event);
+            if (sd_result != 0) {
+                OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", sd_result);
+                ISD_UnmountCard(device);
+                g_pfd_sddrv_info.device = 0;
+                return -42;
+            }
+        }
+        g_pfd_sddrv_info.disk = disk;
+        g_pfd_sddrv_info.flags |= 1;
     }
-    g_pfd_sddrv_info.disk = disk;
-    g_pfd_sddrv_info.flags |= 1;
     return 0;
 }
 
