@@ -211,13 +211,13 @@ namespace ipl {
                     systemDict = System::getZiDicData(i);
                 }
                 if (oemDict == NULL && System::getZiDicData(i) != NULL) {
-                    oemDict = System::getZiDicData(oemIndex);
+                    oemDict = System::getZiOemDicData(oemIndex - EZTX_LANG_MAX);
                 }
             }
 
             for (int i = 0, oemIndex = EZTX_LANG_MAX; i < EZTX_LANG_MAX; i++, oemIndex++) {
                 u8* usedSystemDict = System::getZiDicData(i);
-                u8* usedOemDict = System::getZiDicData(oemIndex);
+                u8* usedOemDict = System::getZiOemDicData(oemIndex - EZTX_LANG_MAX);
 
                 usedSystemDict = usedSystemDict != NULL ? usedSystemDict : systemDict;
                 if (usedOemDict == NULL) {
