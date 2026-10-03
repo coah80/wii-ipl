@@ -142,9 +142,6 @@ namespace textinput {
 
                 // TODO enum?
                 int getInputType() const;
-#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
-                void resetHoldingButton();
-#endif
 
 #if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
 #if defined(MYTIMANAGER_IMPLEMENTATION) && defined(TI_CELLPHONE_IMPLEMENTATION)
