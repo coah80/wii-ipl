@@ -1169,7 +1169,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     setVisible("N_2line", true);
     mpPaneManager->setAllComponentTriggerTarget(false);
     mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
-    nw4r::lyt::Pane* pane = getPane(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox);
+    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox, true);
     if (!pane) pane = mpLayout->GetRootPane()->FindPaneByName(getLanguageTextPane() ? static_cast<const LanguagePaneData*>(mpLanguageData)->textBox : "T_2l_TextBox", true);
     mpPaneManager->getPaneComponentByPane(pane)->setTriggerTarget(true);
     for (u32 buttonIndex = 0; buttonIndex < 2; ++buttonIndex) {
@@ -1187,7 +1187,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
         const char* bindingName = button.bindingName;
         count = button.count;
         for (u16 animationIndex = 0; animationIndex < count; ++animationIndex) {
-            const InputFormAnimationFile* file = button.files[animationIndex];
+            const InputFormAnimationFile* const& file = button.files[animationIndex];
             void* resource = mpMultiArcResourceAccessor->GetResource(0, file->fileName, NULL);
             AnimTransformPane* transform = static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
             if (!bindingName) animationPane->addAnimation(allocator, file->id, transform, false, true);
@@ -3177,7 +3177,7 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
         info.character = *string;
         calcRect(info);
         lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
-        f32 right = cursorX + scale.x * (info.rect.right - info.rect.left);
+        f32 right = cursorX + scale.x * info.rect.GetWidth();
         if (doWordWrap(mpString->getWCString(), pos, cursorX)) {
             if (localY >= lineTop && localY <= lineBottom) {
                 if (pos != 0) return pos - 1;
@@ -3186,14 +3186,14 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
             lineTop += scale.y * getLineHeight();
             cursorX = getScale().x;
             lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
-            right = cursorX + scale.x * (info.rect.right - info.rect.left);
+            right = cursorX + scale.x * info.rect.GetWidth();
         }
-        if (right >= scale.x * (mRect.right - mRect.left)) {
+        if (right >= scale.x * mRect.GetWidth()) {
             if (localY >= lineTop && localY <= lineBottom) return pos;
             lineTop += scale.y * getLineHeight();
             cursorX = getScale().x;
             lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
-            right = cursorX + scale.x * (info.rect.right - info.rect.left);
+            right = cursorX + scale.x * info.rect.GetWidth();
         }
         if (x <= info.rect.left && localY >= lineTop && localY <= lineBottom) return pos;
         if (*string == L'\n') {
@@ -3207,7 +3207,7 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
                 if (cursorX + 0.5f * (right - cursorX) > x) return pos;
                 return pos + 1;
             }
-            cursorX += scale.x * (info.rect.right - info.rect.left);
+            cursorX += scale.x * info.rect.GetWidth();
         }
         ++string;
         ++pos;
