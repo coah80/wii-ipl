@@ -1083,7 +1083,7 @@ config.libs = [
             Object(Matching,    "nwc24/NWC24MsgRead.c"),
             Object(Matching, "nwc24/NWC24MsgSubject.c"),
             Object(Matching,    "nwc24/NWC24Schedule.c"),
-            Object(NonMatching, "nwc24/NWC24DateParser.c"),
+            Object(Matching,    "nwc24/NWC24DateParser.c"),
             Object(Matching,    "nwc24/NWC24FriendList.c"),
             Object(Matching,    "nwc24/NWC24SecretFList.c"),
             Object(Matching,    "nwc24/NWC24UserId.c"),
