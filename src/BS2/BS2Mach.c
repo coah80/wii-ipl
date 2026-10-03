@@ -1344,6 +1344,7 @@ BS2State BS2Tick() {
     char *ticketByte;
     u32 entryCount;
     u32 readInterruptsEnabled;
+    u32 readAddress;
     switch (State) {
     case 0:
         BS2Report("No Disk          : %d\n", BS2NoDisk);
@@ -2022,8 +2023,9 @@ invalidRvlRegion:
             BS2Report("Addr [0x%x] length [0x%x] offset [0x%x]\n", loaderRead.address, loaderRead.length, loaderRead.offset);
             readInterruptsEnabled = OSDisableInterrupts();
             BS2ReadDiskID((void *)loaderRead.address, loaderRead.length, loaderRead.offset >> __DVDLayoutFormat);
+            readAddress = loaderRead.address;
             LoaderLength = loaderRead.length;
-            LoaderAddress = loaderRead.address;
+            LoaderAddress = readAddress;
             LoaderOffset = loaderRead.offset;
             if ((*(s32 *)DvdProgress != 0) && (BS2BootFromCache == 0)) {
                 DvdReadPending = 1;
