@@ -328,7 +328,7 @@ static void TMCJPEGDEC_converterYUV422toRGB565(TMCCJPEGDecWork* work, s32 x, s32
     s32 red;
     s32 tileRow;
     s32 lumaSkip;
-    u32 tileWidth;
+    s32 redOffset;
     u8* texture;
     TMCCJPEGDecState* state;
     s32 crValue;
@@ -340,7 +340,7 @@ static void TMCJPEGDEC_converterYUV422toRGB565(TMCCJPEGDecWork* work, s32 x, s32
     s32 cbValue;
     s32 xEnd;
     s32 yEnd;
-    s32 redOffset;
+    u32 tileWidth;
     s32 greenOffset;
     s32 blueOffset;
     s32 green;
