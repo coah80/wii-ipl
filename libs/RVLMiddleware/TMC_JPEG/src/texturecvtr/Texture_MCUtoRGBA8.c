@@ -302,9 +302,9 @@ static void TMCJPEGDEC_converterYUV411toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
     s32 redOffset;
     s32 cbValue;
     s8 crValue;
-    s32 chromaSkip;
-    s32 blueOffset;
     s32 greenOffset;
+    s32 blueOffset;
+    s32 chromaSkip;
     s32 blue;
     s32 red;
     s32 green;
