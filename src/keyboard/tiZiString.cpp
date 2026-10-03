@@ -298,7 +298,6 @@ void WithZi::update() {
         return;
     }
 
-    wchar_t* candidateOutput = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
     mSelectedCandidate = 0;
     s32 elementCount = static_cast<u16>(setElementBuffer());
     mSearch.language = getPredictLanguage();
@@ -307,7 +306,7 @@ void WithZi::update() {
     mSearch.context = 1;
     mSearch.getOptions = 0x81;
     mSearch.elements = reinterpret_cast<wchar_t*>(ElementBuffer);
-    mSearch.candidates = candidateOutput;
+    mSearch.candidates = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
     mSearch.maxCandidates = 0x28;
     mSearch.elementCount = static_cast<u8>(elementCount);
     mSearch.firstCandidate = 0;
@@ -355,25 +354,24 @@ void WithZi::update() {
         ChangeDictionaryLanguage(getPredictLanguage());
         u32 count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
         if (getPredictLanguage() == 1 && count == 0x61) {
+            wchar_t* candidateOutput = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
             mSearch.firstCandidate = 0x61;
-            mSearch.candidates = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x2c2]);
+            mSearch.candidates = candidateOutput + 0xC2;
             mSearch.maxCandidates = 199;
-            count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
+            count += EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
             mSearch.firstCandidate = 0;
-            count += 0x61;
             mSearch.candidates = candidateOutput;
         }
         if (static_cast<s32>(count) > 0x28) {
             count = 0x28;
         }
         if (getPredictLanguage() == 1 && mbContextChanged != 0 &&
-            (mbContextChanged = 0, mSearch.wordCharCount == 0)) {
+            (mbContextChanged = 0, mSearch.count == 0)) {
             u32 length = mCurrentWordLength;
             u32 wordLength = wcslen((wchar_t*)LatestWord) & 0xff;
             u32 copied;
-            u16* source = LatestWord + wordLength - length;
             for (copied = 0; copied < length; ++copied) {
-                LatestWord[copied] = source[copied];
+                LatestWord[copied] = LatestWord[(wordLength - length) + copied];
             }
             LatestWord[copied] = 0;
             mSearch.wordCharCount = wcslen((wchar_t*)LatestWord);
@@ -409,8 +407,10 @@ void WithZi::update() {
                     destination[1] = 0;
                 } else if (getPredictLanguage() == 0x12) {
                     u16* output = destination;
-                    while (*source >= 0x100) {
-                        *output++ = *source++;
+                    u16 character;
+                    while ((character = *source) >= 0x100) {
+                        *output++ = character;
+                        ++source;
                     }
                 } else if (EZTXCopy(reinterpret_cast<wchar_t*>(destination), &mSearch, index & 0xff, mpDictionaryWork) == 0) {
                     goto nextCandidate;
@@ -429,6 +429,8 @@ void WithZi::update() {
                         case LM_0:
                             if (position == 0) *candidate = util::toWUpper(*candidate);
                             else *candidate = util::toWLower(*candidate);
+                            break;
+                        case LM_3:
                             break;
                         default:
                             break;
