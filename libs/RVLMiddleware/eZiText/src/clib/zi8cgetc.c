@@ -160,7 +160,7 @@ extern const ziU8 zi8CangjieCodes[25];
 extern const ziWChar ziPuncts[4];
 extern const ziWChar ziTones[4];
 const ziWChar zi8tones[4];
-extern ziU8 Zi8GetZHuwdPtr(ziU8** entries, ziU16* count, ziPtr work);
+extern ziU32 Zi8GetZHuwdPtr(ziU32* entries, ziU16* count, ziPtr work);
 extern ziBool Zi8IsComponent(ziWChar character, ziPtr work);
 extern ziBool Zi8IsCharacter(ziWChar character, ziPtr work);
 extern ziU8 Zi8MatchOEMdata(ziWChar* currentWord, ziU8 length, ziU8 language,
@@ -199,7 +199,7 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
     ziU8 matchMode;
     int index;
     ziWChar* currentWord;
-    ziU8* userEntries;
+    ziU32 userEntriesAddress;
     ziU16 ordinalIndex;
     ziU16 tableIndex;
     ziU16 phraseOrdinal;
@@ -1754,10 +1754,10 @@ tone_candidates:
 user_character_search:
     if (((struct __zi8_work_data_s*)work)->uwdPtrCount && (getMode != 0 || !firstPhoneticPass) &&
         !options->countOnly && (match.nCand <= 1 || (getMode != 1 && getMode != 2)) &&
-        Zi8GetZHuwdPtr(&userEntries, &userCount, work) && (getMode != 0 || match.nSeg <= 1)) {
+        (ziU8)Zi8GetZHuwdPtr(&userEntriesAddress, &userCount, work) && (getMode != 0 || match.nSeg <= 1)) {
         userIndex = 0;
         while (userIndex < userCount) {
-            candidateOrdinal = (ziU16)(userEntries[1] & 0x7F) << 8 | userEntries[2];
+            candidateOrdinal = (ziU16)(((ziU8*)userEntriesAddress)[1] & 0x7F) << 8 | ((ziU8*)userEntriesAddress)[2];
             record = records + candidateOrdinal * 12;
             if (!(record[0] & charset)) goto user_character_next;
             character = ((ziU16)record[6] << 8) + record[7];
@@ -1792,7 +1792,7 @@ user_character_search:
                     (ziU8)Zi8SecMatchChar(record, componentTable, &match, 0, work)) candidateStatus = 1;
                 break;
             case 1: case 2:
-                if (request->elementCount && !(userEntries[1] & 0x80)) candidateStatus = 0;
+                if (request->elementCount && !(((ziU8*)userEntriesAddress)[1] & 0x80)) candidateStatus = 0;
                 else {
                     candidateStatus = (match.first & (ziU16)Zi8GetPCode(phoneticTable, record)) == match.first2;
                     if (!candidateStatus && (record[0] & 0x80) && !requireFull &&
@@ -1827,7 +1827,7 @@ user_character_search:
             }
 user_character_next:
             ++userIndex;
-            userEntries += 3;
+            userEntriesAddress += 3;
         }
     }
     if (!prefixLookup) goto phonetic_alt_continue;
