@@ -1545,10 +1545,10 @@ s32 ATERMRunConfigProtocol(void) {
             break;
         case 5:
             {
-                u8 optionIds[7] = {6, 0, 1, 2, 3, 4, 5};
                 AtermRequestOption8* shortOption = (AtermRequestOption8*)gAtermRequestOptions;
                 AtermRequestOption16* longOption;
                 u16 enabled = SOHtoNs(1);
+                u8 optionIds[7] = {6, 0, 1, 2, 3, 4, 5};
                 AtermSocketAddress sendAddress;
                 u8* optionEnd;
                 memset(shortOption, 0, 4);
