@@ -246,7 +246,7 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
     s32 o;
     s32 x;
     s32 q;
-    s32 y;
+    s32 e;
     s32 u;
     s32 w;
     s32 p;
@@ -256,7 +256,7 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
     s32 z_factor;
     s32 m_part;
     s32 p_part;
-    s32 e;
+    s32 y;
 
     if (zigzag == 0x11) {
         s32 val;
