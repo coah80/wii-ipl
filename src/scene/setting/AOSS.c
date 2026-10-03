@@ -1857,7 +1857,7 @@ int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
     AOSSEncryptedPayload* encrypted = &message->payload.encrypted;
     u8* decryptedData;
     u32 secondValue;
-    u32 dataLength;
+    u8* state;
     u32 i;
     s32 crcIndex;
     u32 firstIndex;
@@ -1867,7 +1867,7 @@ int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
     u32 stateIndex;
     u32 crc;
     const u8* inputCursor;
-    u8* state;
+    u32 dataLength;
     u8* outputCursor;
     int result;
 
