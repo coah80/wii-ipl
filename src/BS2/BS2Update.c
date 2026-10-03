@@ -77,7 +77,8 @@ void BS2UpdateInit(void* allocator) {
     OSResumeThread(&Thread);
 }
 
-static void* UpdateThread(void* argument) {
+static inline u32 BS2SelectUpdateEntries(void) {
+
     BOOL missingFile;
     u32 selectedCount;
     u32 requiredBytes;
@@ -89,7 +90,6 @@ static void* UpdateThread(void* argument) {
     u32 selectedSeatCount;
     BOOL regionValid;
     u32 titleRegion;
-    s32 importResult;
     struct {
         u32 freeChannels;
         u32 freeBlocks;
@@ -102,9 +102,6 @@ static void* UpdateThread(void* argument) {
         DVDFileInfo file;
     } scratch;
 
-    BS2Report("Start update thread\n");
-    StartUpdate = 0;
-    CancelUpdate = 0;
     missingFile = FALSE;
     selectedCount = 0;
     requiredBytes = 0;
@@ -162,12 +159,12 @@ product_region_checked:
     if (!regionValid) {
         BS2Report("Error: failed to check product region.");
         selectedCount = 0;
-        goto selection_done;
+        goto selection_complete;
     }
     if (!SCGetProductAreaString(scratch.productArea, sizeof(scratch.productArea))) {
         BS2Report("Error: failed to get product information.");
         selectedCount = 0;
-        goto selection_done;
+        goto selection_complete;
     }
     strcpy(scratch.updatePath, "__update.inf");
     strcat(scratch.updatePath, ".");
@@ -183,46 +180,46 @@ product_region_checked:
             if (DVDConvertPathToEntrynum(scratch.updatePath) < 0) {
                 BS2Report("Error: update information file is not found.");
                 selectedCount = 0;
-                goto selection_done;
+                goto selection_complete;
             }
             break;
         default:
             BS2Report("Error: update information file is not found.");
             selectedCount = 0;
-            goto selection_done;
+            goto selection_complete;
         }
     }
     BS2Report("%s is found.\n", scratch.updatePath);
     if (!DVDOpen(scratch.updatePath, &scratch.file)) {
         BS2Report("Error: failed to open update information file.");
         selectedCount = 0;
-        goto selection_done;
+        goto selection_complete;
     }
     if (DVDReadPrio(&scratch.file, &UpdateHeader0, sizeof(UpdateHeader0), 0, 2) < 0) {
         BS2Report("Error: failed to read update information header.");
         selectedCount = 0;
-        goto selection_done;
+        goto selection_complete;
     }
     if (UpdateHeader0.wadCount == 0) {
         BS2Report("Error: no entry.");
         selectedCount = 0;
-        goto selection_done;
+        goto selection_complete;
     }
     if (UpdateHeader0.wadCount > 32) {
         BS2Report("Error: found too many entries.");
         selectedCount = 0;
-        goto selection_done;
+        goto selection_complete;
     }
     UpdateHeader0.wadCount += UpdateHeader0.extraCount;
     if (UpdateHeader0.wadCount > BS2_UPDATE_ENTRY_COUNT) {
         BS2Report("Error: found too many extra entries.");
         selectedCount = 0;
-        goto selection_done;
+        goto selection_complete;
     }
     if (DVDReadPrio(&scratch.file, UPDATE_DISC_ENTRIES, UpdateHeader0.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
         BS2Report("Error: failed to read update information.");
         selectedCount = 0;
-        goto selection_done;
+        goto selection_complete;
     }
     {
         BS2UpdateEntry *discEntries = UPDATE_DISC_ENTRIES;
@@ -245,7 +242,7 @@ product_region_checked:
                 BS2Report("Cannot get physical MEM2 size\n");
                 State = 5;
                 selectedCount = 0;
-                goto selection_done;
+                goto selection_complete;
             }
             if (DVDOpen(discEntries[index].path, &scratch.file) < 0) {
                 BS2Report("%s is not found\n", discEntries[index].path);
@@ -305,8 +302,10 @@ product_region_checked:
         BS2Report("Error: found too many extra entries.");
         goto seats_done;
     }
-    seatEntries = &UPDATE_DISC_ENTRIES[UpdateHeader0.wadCount];
-    selectedSeats = &EntriesToImport[selectedCount];
+    seatEntries = UPDATE_DISC_ENTRIES;
+    seatEntries += UpdateHeader0.wadCount;
+    selectedSeats = EntriesToImport;
+    selectedSeats += selectedCount;
     if (DVDReadPrio(&scratch.file, seatEntries, UpdateHeader1.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
         BS2Report("Error: failed to read update information.");
         goto seats_done;
@@ -408,7 +407,7 @@ seats_done:
     if (missingFile) {
         State = 5;
         selectedCount = 0;
-        goto selection_done;
+        goto selection_complete;
     }
     pEntries = EntriesToImport;
     pFlags = Flags1;
@@ -424,8 +423,17 @@ seats_done:
             }
         }
     }
-selection_done:
-    EntriesCount = selectedCount;
+selection_complete:
+    return selectedCount;
+}
+
+static void* UpdateThread(void* argument) {
+    u32 index;
+    s32 importResult;
+    BS2Report("Start update thread\n");
+    StartUpdate = 0;
+    CancelUpdate = 0;
+    EntriesCount = BS2SelectUpdateEntries();
     if (EntriesCount == 0) {
         State = 5;
         StartUpdate = 0;
@@ -449,7 +457,7 @@ selection_done:
                             UpdateProgress++;
                             continue;
                         }
-                        if (discEntries[UpdateProgress].type == 1) {
+                        if (((const BS2UpdateEntry *)discEntries)[UpdateProgress].type == 1) {
                             BS2Report("BS2WADImportDVD : ");
                             index = UpdateProgress;
                             if (strcmp(getSuffix(discEntries[index].path), "wad") == 0) {
@@ -502,8 +510,8 @@ selection_done:
                     } else {
                         State = 3;
                     }
-                    UpdateProgress++;
                     CurrentEntry = NULL;
+                    UpdateProgress++;
                     break;
                 }
             } else if (CancelUpdate != 0) {
