@@ -8,13 +8,11 @@ void CDBCryptBufSysInit(CDBCryptBuf* cryptBuf) {
     cryptBuf->allocated = FALSE;
 }
 
-// Some weird crap is going on with these functions.
-
-CDBErr CDBCryptBufAllocate(CDBCryptBuf* cryptBuf) {
+CDBErr CDBCryptBufAllocate(CDBCryptBuf** cryptBuf) {
     CDBErr err = CDB_ERROR_OK;
 
     if (s_cryptBuf->allocated == FALSE) {
-        cryptBuf->buffer32[0] = (u32)&s_cryptBuf[err];
+        *cryptBuf = &s_cryptBuf[err];
         s_cryptBuf[err].allocated = TRUE;
         return CDB_ERROR_OK;
     } else {
@@ -23,12 +21,12 @@ CDBErr CDBCryptBufAllocate(CDBCryptBuf* cryptBuf) {
     }
 }
 
-CDBErr CDBCryptBufFree(CDBCryptBuf* cryptBuf) {
+CDBErr CDBCryptBufFree(CDBCryptBuf** cryptBuf) {
     CDBErr err = CDB_ERROR_OK;
 
-    if ((CDBCryptBuf*)*cryptBuf->buffer32 == s_cryptBuf) {
+    if (*cryptBuf == s_cryptBuf) {
         s_cryptBuf[err].allocated = FALSE;
-        *cryptBuf->buffer32 = 0;
+        *cryptBuf = NULL;
         return CDB_ERROR_OK;
     } else {
         CDBReportError("failed to free crypt buffer\n");
