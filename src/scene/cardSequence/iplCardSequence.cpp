@@ -45,7 +45,7 @@ struct CardThreadState {
 
 MEMAllocator sAllocator_;
 static CardThreadState* sThread;
-extern "C" void* cardThreadMain();
+extern "C" void* cardThreadMain(void*);
 static char sCardSlotName[3] = "AB";
 
 FileInfo* getCardDirState() {
@@ -302,7 +302,7 @@ void initCardThread() {
 
     OSInitMessageQueue(&sThread->responses, sThread->responseMessages, 0x10);
     OSInitMessageQueue(&sThread->requests, sThread->requestMessages, 0x10);
-    OSCreateThread(&sThread->thread, (void* (*)(void*))cardThreadMain, 0,
+    OSCreateThread(&sThread->thread, cardThreadMain, 0,
                    sThread->stack + sizeof(sThread->stack), 0x8000, 0x11, 0);
     OSResumeThread(&sThread->thread);
     OSSendMessage(&sThread->requests, (OSMessage)10, 0);
@@ -408,7 +408,7 @@ static inline void sendValidityResponse(u32 command, u32 valid) {
     OSSendMessage(&sThread->responses, (OSMessage)reply.value, 1);
 }
 
-extern "C" void* cardThreadMain() {
+extern "C" void* cardThreadMain(void*) {
     struct CardThreadLocals {
         u8 compareName[6];
         u32 message;
