@@ -1856,14 +1856,14 @@ int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
     AOSSKeySchedule schedule;
     AOSSEncryptedPayload* encrypted = &message->payload.encrypted;
     u8* decryptedData;
-    u32 controlFlags;
+    u32 secondValue;
     u32 dataLength;
     u32 i;
     s32 crcIndex;
     u32 firstIndex;
     u32 secondIndex;
     u32 firstValue;
-    u32 secondValue;
+    u32 controlFlags;
     u32 stateIndex;
     u32 crc;
     const u8* inputCursor;
