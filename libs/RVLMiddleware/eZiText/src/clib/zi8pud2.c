@@ -57,7 +57,10 @@ ziU8 ZADP_Zi8SetPDremoveOpt(ziU8 option, struct __zi8_work_data_s* __zi8_work_da
     return previous;
 }
 ziU8 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziWChar* spelling, ziU16 spellingCapacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
-    int fallback = 0;
+    struct {
+        int fallback;
+        ziPtr workspace;
+    } match;
     ziU8* bytePattern;
     ziWChar folded;
     ziPudSection* section;
@@ -68,6 +71,8 @@ ziU8 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* 
     ziU32 entrySize;
     ziPudHeader* table;
     ziU8* byteOutput;
+    match.workspace = __zi8_work_data;
+    match.fallback = 0;
     if (!(ZI_WORK->pudCount <= 16 && ZI_WORK->pudCount != 0 && ZI_WORK->pudTable[ZI_WORK->pudCount - 1] != 0)) {
         Zi8LogError(0x4B0, __zi8_work_data);
         return 0;
@@ -130,7 +135,7 @@ matchText:
                     }
                 }
 matched:
-                if (fallback) {
+                if (match.fallback) {
                     ZI_WORK->unk_0x310 = 0;
                     ZI_WORK->unk_0x318 = 0;
                     ZI_WORK->unk_0x314 = 0;
@@ -164,7 +169,7 @@ matched:
         }
         if (length == 1 && complete != 0 && continuation == 0) {
             complete = 0;
-            fallback = 1;
+            match.fallback = 1;
             ZI_WORK->unk_0x318 = 0;
         } else {
             ZI_WORK->unk_0x310 = 0;
