@@ -15,28 +15,6 @@ typedef struct {
 
 typedef struct { ziU8 keyLow; ziU8 keyHigh; ziU8 code; ziU8 flags; } Zi8AltSoundRecord;
 
-
-
-typedef struct {
-    ziU8 language;
-    ziU8 getMode;
-    ziU8 subLanguage;
-    ziU8 context;
-    ziU8 getOptions;
-    ziWChar* elements;
-    ziU8 elementCount;
-    ziWChar* currentWord;
-    ziU8 wordCharCount;
-    ziWChar* candidates;
-    ziU8 maxCandidates;
-    ziU16 firstCandidate;
-    ziU8 wordCandidates;
-    ziU8 count;
-    ziU8 letters;
-    ziU8* scratch;
-    ziPtr workspace;
-} Zi8OneKeyParam;
-
 typedef struct {
     ziU8 countOnly;
     ziU8 maxSpellingLength;
@@ -203,15 +181,15 @@ const ziWChar zi8PYfinalSpelling[64][4] = {
 
 const unsigned long long Zi8SOpinyinArray = 0x0303010705000000ULL;
 
-extern Zi8UInt Zi8Ord2Ord(ziU16, ziPtr);
+extern ziU16 Zi8Ord2Ord(ziU16, ziPtr);
 extern ziU8 Zi8LangSupported(ziU8, ziPtr);
 extern ziU16 Zi8GetTableCount(ziU8,ziU8,ziPtr);
-extern Zi8UInt Zi8GetTableAddress(ziU8,ziU8,ziPtr);
-extern void Zi8Memset();
-extern int _Zi8GetCandidates();
-extern void Zi8InitDupWordBuf();
-extern ziU16 Zi8GetPInfo(ziU16,ziWChar *,ziU8,ziPtr);
-extern ziU16 Zi8GetZInfo(ziU16,ziWChar *,ziU8,ziPtr);
+extern ziU32 Zi8GetTableAddress(ziU8,ziU8,ziPtr);
+extern void Zi8Memset(ziU8*,ziU32,ziS32);
+extern ziU8 _Zi8GetCandidates(ziGetParam*,ziPtr);
+extern void Zi8InitDupWordBuf(ziPtr);
+extern ziU32 Zi8GetPInfo(ziU32,ziWChar *,ziU8,ziPtr);
+extern ziU32 Zi8GetZInfo(ziU32,ziWChar *,ziU8,ziPtr);
 extern ziBool Zi8IsDupWordW(ziWChar *,ziU8,ziPtr);
 extern ziU8 Zi8GetFormatVersion(ziU8,ziPtr);
 extern ziU16 Zi8Uni2Ord(ziWChar,ziPtr);
@@ -219,10 +197,10 @@ extern ziU16 Zi8GetPCode(ziU8 *,ziU8 *);
 extern ziU8 Zi8MatchOEMdata(ziWChar *,ziU8,ziU8,ziWChar *,ziU16,ziU8,ziU8,ziPtr);
 extern ziU8 Zi8MatchPUDdata(ziWChar *,ziU8,ziU8,ziWChar *,ziU16,ziU8,ziU8,ziPtr);
 extern ziWChar Zi8Ord2Uni(ziU16,ziPtr);
-extern Zi8UInt Zi8GetZHuwdPtr(ziU8 **,ziU16 *,ziPtr);
-extern int Zi8GetPyPhonetic();
-extern ziU8 Zi8GetBpmfPhonetic();
-extern int _Zi8CheckCandidates();
+extern ziU32 Zi8GetZHuwdPtr(ziU32*,ziU16*,ziPtr);
+extern ziU8 Zi8GetPyPhonetic(ziWChar*,ziU8,ziU16*,ziU16*,ziU8*,ziU16*,ziU16*,ziPtr);
+extern ziU8 Zi8GetBpmfPhonetic(ziWChar*,ziU8,ziU16*,ziU16*,ziU16*,ziU16*,ziPtr);
+extern ziU8 _Zi8CheckCandidates(ziGetParam*,ziPtr);
 
 Zi8UInt Zi8SpellingZY(ziU16 *output,Zi8UInt key,ziU8 includeTone)
 {
@@ -462,15 +440,15 @@ BACKWARD_SEARCH:
     goto BINARY_SEARCH;
   }
 }
-static Zi8UInt Zi8SetFindCand(ziU8 *foundCandidates,Zi8UInt ordinal,ziPtr work)
+static Zi8UInt Zi8SetFindCand(ziU8 *foundCandidates,ziU16 ordinal,ziPtr work)
 {
   Zi8UInt result;
 
   ordinal = Zi8Ord2Ord(ordinal,work);
-  result = (ziU8)((1 << ((int)(ordinal & 0xffff) % 8)) &
-                  foundCandidates[(int)(ordinal & 0xffff) / 8]);
-  foundCandidates[(int)(ordinal & 0xffff) / 8] |=
-      1 << ((int)(ordinal & 0xffff) % 8);
+  result = (ziU8)((1 << ((int)ordinal % 8)) &
+                  foundCandidates[(int)ordinal / 8]);
+  foundCandidates[(int)ordinal / 8] |=
+      1 << ((int)ordinal % 8);
   return result;
 }
 
@@ -506,7 +484,7 @@ LAB_return_false:
     return 0;
 }
 
-Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Zi8OneKeyWork *work)
+ziU32 Zi8Get1KeyPressSpelling(ziGetParam *params,Zi8OneKeyOptions *options,Zi8OneKeyWork *work)
 {
   ziU8 candidateCount;
   ziBool exactLength;
@@ -531,18 +509,18 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
   ziU16 *output;
   ziU8 *savedSearchOrder;
   ziU16 spellingBuffer[8];
-  Zi8OneKeyParam searchParams;
+  ziGetParam searchParams;
 
   candidateCount = 0;
   totalCandidates = 0;
   optionsMask = params->getOptions;
-  params->count = 0;
   params->letters = 0;
+  params->completion = 0;
   optionsMask = optionsMask & ~0x10;
   optionsMask = optionsMask & ~0x20;
   optionsMask = optionsMask & ~0x40;
   if (options->maxSpellingLength == '\0') {
-    params->count = 0;
+    params->letters = 0;
     Zi8LogError(100,work);
     return 0;
   }
@@ -820,7 +798,7 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
         savedSearchCount = work->searchOrderCount;
         convertedInput = false;
         savedSearchFlags = work->searchFlags;
-        Zi8Memset(&searchParams,0,0x2c);
+        Zi8Memset((ziU8*)&searchParams,0,0x2c);
         searchParams.getMode = 0;
         searchParams.subLanguage = 0x80;
         searchParams.context = 1;
@@ -918,7 +896,7 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
         work->searchFlags = savedSearchFlags;
         work->searchOrder = savedSearchOrder;
         work->searchOrderCount = savedSearchCount;
-        params->count = searchParams.count;
+        params->letters = searchParams.letters;
         work->spellingOnly = 0;
         if (convertedInput) {
           if (params->getMode == '\x03') {
@@ -937,7 +915,7 @@ Zi8UInt Zi8Get1KeyPressSpelling(Zi8OneKeyParam *params,Zi8OneKeyOptions *options
           }
         }
         if ((options->countOnly == '\0') && (params->getMode == '\x03')) {
-          for (tableIndex = 0; tableIndex < params->count;) {
+          for (tableIndex = 0; tableIndex < params->letters;) {
             while (*output != 0) {
               if (*output != 0x27) {
                 *output++ |= 0xf300;
@@ -1022,12 +1000,12 @@ nextSpelling:
       }
     }
 finishSpelling:
-  params->count = candidateCount;
+  params->letters = candidateCount;
   Zi8LogError(100,work);
   return totalCandidates;
 }
 
-int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Zi8OneKeyWork *work)
+ziU32 Zi8Get1KeyPressCandidates(ziGetParam *params,Zi8OneKeyOptions *options,Zi8OneKeyWork *work)
 {
   ziU16 wordBuffer [64];
   ziU16 spelling [8];
@@ -1046,7 +1024,7 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
   ziU8 *phraseEntries;
   ziU16 *currentWord;
   ziU8 *entryCursor;
-  ziU8 *userEntries;
+  ziU32 userEntriesAddress;
   int duplicateIndex;
   ziU16 alternateCount;
   ziU16 ordinalCount;
@@ -1148,8 +1126,8 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
   }
   languageMask = languageMask << 4;
   remaining = params->firstCandidate;
-  params->count = 0;
   params->letters = 0;
+  params->completion = 0;
   inputLength = params->elementCount;
   if (inputLength != 0) {
     while (inputLength != 0) {
@@ -1271,7 +1249,7 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
     tableCursor = Zi8GetTableCount(1,9,work);
   }
   if (8 < inputLimit) {
-    params->wordCandidates = 0;
+    params->count = 0;
     goto finishCandidates;
   }
   for (index = 0; index < (int)(Zi8UInt)inputLimit; index++) {
@@ -1357,7 +1335,7 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
           output[outputIndex++] = candidateCharacter;
         }
         if (candidateCount >= params->maxCandidates || outputIndex > outputLimit) {
-          params->wordCandidates = candidateCount;
+          params->count = candidateCount;
           goto finishCandidates;
         }
       } else {
@@ -1426,7 +1404,7 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
           output[outputIndex++] = candidateCharacter;
         }
         if (candidateCount >= params->maxCandidates || outputIndex > outputLimit) {
-          params->wordCandidates = candidateCount;
+          params->count = candidateCount;
           goto finishCandidates;
         }
       } else {
@@ -1547,7 +1525,7 @@ int Zi8Get1KeyPressCandidates(Zi8OneKeyParam *params,Zi8OneKeyOptions *options,Z
                 output[outputIndex++] = firstOrdinal;
               }
               if (candidateCount >= params->maxCandidates || outputIndex > outputLimit) {
-                params->wordCandidates = candidateCount;
+                params->count = candidateCount;
                 goto finishCandidates;
               }
             } else {
@@ -1568,7 +1546,7 @@ nextPhrase:
   else {
 finishPhrases:
     if (params->wordCharCount != '\0') {
-      params->wordCandidates = candidateCount;
+      params->count = candidateCount;
     }
   }
   if ((options->countOnly == '\0') && (tableCursor != 0)) {
@@ -1629,11 +1607,11 @@ nextSortedOrdinal:
     ;
     }
   }
-  if ((options->countOnly == '\0') && (ziU8)Zi8GetZHuwdPtr(&userEntries,&userCount,work) != 0)
+  if ((options->countOnly == '\0') && (ziU8)Zi8GetZHuwdPtr(&userEntriesAddress,&userCount,work) != 0)
   {
     for (phraseOrdinal = 0; phraseOrdinal < userCount;) {
-      if ((params->elementCount == '\0') || ((userEntries[1] & 0x80) != 0)) {
-        userOrdinal = (ziU16)(userEntries[1] & 0x7f) << 8 | (ziU16)userEntries[2];
+      if ((params->elementCount == '\0') || ((((ziU8*)userEntriesAddress)[1] & 0x80) != 0)) {
+        userOrdinal = (ziU16)(((ziU8*)userEntriesAddress)[1] & 0x7f) << 8 | (ziU16)((ziU8*)userEntriesAddress)[2];
         phraseTable = syllableTable + (Zi8UInt)userOrdinal * 0xc;
         if (((*phraseTable & languageMask) != 0) &&
            ((characterSetTable == 0 || ((characterSet & characterSetTable[(Zi8UInt)userOrdinal]) != 0)))) {
@@ -1677,7 +1655,7 @@ nextSortedOrdinal:
       }
 nextUserOrdinal:
       phraseOrdinal++;
-      userEntries = userEntries + 3;
+      userEntriesAddress = userEntriesAddress + 3;
     }
   }
   phraseTable = syllableTable;
@@ -1740,12 +1718,12 @@ finishCandidates:
   if ((emitWords) && (outputIndex != 0)) {
     output[outputIndex++] = 0;
   }
-  params->count = candidateCount;
+  params->letters = candidateCount;
   Zi8LogError(100,work);
   return totalCandidates;
 }
 
-Zi8UInt Zi8ZHCheckSpelling(ziU16 *input,ziU16 *spelling,Zi8UInt inputLength,char *work)
+ziBool Zi8ZHCheckSpelling(ziWChar *input,ziWChar *spelling,ziU8 inputLength,ziPtr work)
 {
   int index;
   ziU8 result;
@@ -1760,11 +1738,11 @@ Zi8UInt Zi8ZHCheckSpelling(ziU16 *input,ziU16 *spelling,Zi8UInt inputLength,char
   int syllableStart;
   int syllableLength;
   Zi8UInt tableOffset;
-  ziU8 candidateBuffer [32];
-  ziU8 phoneticCodes [32];
-  ziU8 phoneticMasks [32];
+  ziWChar candidateBuffer [16];
+  ziU16 phoneticCodes [16];
+  ziU16 phoneticMasks [16];
   ziU16 convertedSpelling [64];
-  Zi8OneKeyParam getParam;
+  ziGetParam getParam;
   ziU8 maskLow;
   ziU8 codeLow;
   ziU8 maskHigh;
@@ -1805,7 +1783,7 @@ Zi8UInt Zi8ZHCheckSpelling(ziU16 *input,ziU16 *spelling,Zi8UInt inputLength,char
     }
     index = 0;
     syllableStart = index;
-    for (; index < (int)(inputLength & 0xff); index = index + 1) {
+    for (; index < (int)inputLength; index = index + 1) {
       switch (spelling[index]) {
       case 0xf331:
         toneMask = 1;
@@ -1876,7 +1854,7 @@ nextInputCharacter:
       }
       else {
         if ((input[index] == 0x27) || (input[index] == 0xf360)) {
-          if (index < (int)(inputLength & 0xff)) {
+          if (index < (int)inputLength) {
             convertedSpelling[index] = input[index] = spelling[index];
           }
           else {
@@ -1918,7 +1896,7 @@ nextInputCharacter:
     getParam.elementCount = (ziU8)index;
     getParam.currentWord = 0;
     getParam.wordCharCount = 0;
-    getParam.candidates = (ziWChar *)candidateBuffer;
+    getParam.candidates = candidateBuffer;
     getParam.maxCandidates = 1;
     getParam.firstCandidate = 0;
     if ((ziU8)_Zi8CheckCandidates(&getParam,work) != 0) {
