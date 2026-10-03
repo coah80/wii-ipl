@@ -1851,24 +1851,22 @@ int AOSSHandleFinalReply(int state, AOSSReceiveBuffer* packet, int* count, AOSSR
 }
 
 int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
-    u32 checksum;
+    struct { u32 expected; u32 actual; } integrity;
     u8 manufacturerAddress[8];
     AOSSKeySchedule schedule;
     AOSSEncryptedPayload* encrypted = &message->payload.encrypted;
-    u8* decryptedData;
+    u32 firstValue;
     u32 secondValue;
     u8* state;
     u32 i;
     s32 crcIndex;
     u32 firstIndex;
     u32 secondIndex;
-    u32 firstValue;
+    u8* decryptedData;
     u32 controlFlags;
     u32 stateIndex;
-    u32 crc;
     const u8* inputCursor;
     u32 dataLength;
-    u8* outputCursor;
     int result;
 
     memcpy(manufacturerAddress, message->manufacturerAddress, sizeof(manufacturerAddress));
@@ -1900,7 +1898,7 @@ int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
         return 100;
     }
 
-    checksum = message->checksum;
+    integrity.expected = message->checksum;
     schedule.bytes = AOSSi_Alloc(dataLength);
     if (schedule.bytes == 0) {
         s_errorCode = 2;
@@ -1910,7 +1908,6 @@ int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
         memcpy(s_packetState.key.address, s_accessPointName, sizeof(s_accessPointName));
         AOSSInitKeySchedule(&schedule, (const u8*)&s_packetState.key, sizeof(s_packetState.key), dataLength);
 
-        outputCursor = decryptedData;
         inputCursor = encrypted->data;
         for (i = 0; i < dataLength; i++) {
             state = schedule.bytes;
@@ -1923,15 +1920,18 @@ int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
             schedule.j = secondIndex;
             state[secondIndex] = (u8)firstValue;
             state[firstIndex] = (u8)secondValue;
-            *outputCursor++ = *inputCursor++ ^ state[stateIndex % schedule.length];
+            {
+                u8 streamByte = state[stateIndex % schedule.length];
+                decryptedData[i] = streamByte ^ *inputCursor++;
+            }
         }
 
-        crc = 0xffffffff;
+        integrity.actual = 0xffffffff;
         AOSSInitCrc32Table(0, s_crcTable);
         for (crcIndex = 0; crcIndex < (s32)dataLength; crcIndex++) {
-            crc = (crc >> 8) ^ s_crcTable[(crc ^ decryptedData[crcIndex]) & 0xff];
+            integrity.actual = (integrity.actual >> 8) ^ s_crcTable[(integrity.actual ^ decryptedData[crcIndex]) & 0xff];
         }
-        if (((crc ^ 0xffffffff) & 0xff) != checksum) {
+        if (((integrity.actual ^ 0xffffffff) & 0xff) != integrity.expected) {
             s_errorCode = 0x12;
             AOSSi_Free(schedule.bytes);
             result = -1;
