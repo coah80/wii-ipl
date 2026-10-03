@@ -8,6 +8,7 @@
 #include <private/dvd.h>
 #include <private/nand.h>
 #include <private/os.h>
+#include <revolution/os/OSBootInfo.h>
 #include <private/vi.h>
 #include <private/hollywood/flipper.h>
 
@@ -1345,6 +1346,8 @@ BS2State BS2Tick() {
     u32 entryCount;
     u32 readInterruptsEnabled;
     u32 readAddress;
+    const char *discTitle;
+    const DVDDiskID *bootDisc;
     switch (State) {
     case 0:
         BS2Report("No Disk          : %d\n", BS2NoDisk);
@@ -1440,11 +1443,13 @@ BS2State BS2Tick() {
     case 5:
         status = CheckBS2CommandStatus();
         if (status != 0) {
-            if (((*(u32 *)0x8000002c) & 0xf0000000) == 0)
-                (*(u16 *)0x800030e6) = 0x8002;
-            else
-                (*(u16 *)0x800030e6) = DriveInfo.deviceCode | 0x8000;
-            State = BS2_STT_8;
+            if ((((const OSBootInfo *)0x80000000)->consoleType & 0xf0000000) == 0) {
+                __OSDeviceCode = 0x8002;
+                State = BS2_STT_8;
+            } else {
+                __OSDeviceCode = DriveInfo.deviceCode | 0x8000;
+                State = BS2_STT_8;
+            }
         }
         break;
     case 6:
@@ -1468,17 +1473,17 @@ BS2State BS2Tick() {
         break;
     case 9:
     case 10: {
-        DVDDiskID *bootDisc;
         status = CheckBS2CommandStatus();
         if (status == 0)
             break;
         memcpy((void *)0x80000000, &DiskID, sizeof(DVDDiskID));
-        bootDisc = (DVDDiskID *)0x80000000;
+        bootDisc = (const DVDDiskID *)0x80000000;
         if (bootDisc->rvlMagic == 0x5d1c9ea3) {
-            status = strncmp((char *)bootDisc, "RAAE", 4);
-            if (status == 0 || strncmp((char *)bootDisc, "408", 3) == 0 ||
-                strncmp((char *)bootDisc, "410", 3) == 0 ||
-                strncmp((char *)bootDisc, "410", 3) == 0)
+            discTitle = (const char *)0x80000000;
+            status = strncmp(discTitle, "RAAE", 4);
+            if (status == 0 || strncmp(discTitle, "408", 3) == 0 ||
+                strncmp(discTitle, "410", 3) == 0 ||
+                strncmp(discTitle, "410", 3) == 0)
                 regionMatches = FALSE;
             else
                 regionMatches = TRUE;
@@ -1500,8 +1505,8 @@ BS2State BS2Tick() {
         State = BS2_STT_11;
     }
     case 0xb: {
-        DVDDiskID *bootDisc = (DVDDiskID *)0x80000000;
         u32 audioBufferSize;
+        bootDisc = (const DVDDiskID *)0x80000000;
         if (AudioBufferUnconfigured == 0) {
             State = BS2_STT_GC_GAME;
             break;
