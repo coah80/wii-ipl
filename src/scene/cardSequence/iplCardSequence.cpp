@@ -1198,8 +1198,8 @@ copyIoDone:
                 renamedStatus = moveStatus;
                 memset(renamedStatus.company, 0, 2);
                 memset(renamedStatus.gameName, 0, 4);
-                memset(renamedStatus.fileName, 0, 0x20);
                 do {
+                    memset(renamedStatus.fileName, 0, 0x20);
                     sprintf((char*)renamedStatus.fileName, "Broken File%03d", attempt);
                     result = __CARDSetStatusEx(slot, fileNo, &renamedStatus);
                     if (result < 0 && result != -7) {
