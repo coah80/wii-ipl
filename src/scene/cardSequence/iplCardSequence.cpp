@@ -873,29 +873,28 @@ iconSpeedDone:
     if (result < 0) {
         goto clearComment;
     }
-    if ((s32)iconAddressBase < 0) {
-        result = 0;
-    } else {
-        u32 fileSize = (u32)dir->length * local.commentSectorSize;
-        if (iconAddressBase > fileSize) {
+    {
+        u32 fileSize;
+        if ((s32)iconAddressBase < 0 ||
+            iconAddressBase > (fileSize = (u32)dir->length * local.commentSectorSize)) {
             result = 0;
-            goto clearComment;
-        }
-        u32 endOffset = iconAddressBase + imageSize;
-        if ((s32)endOffset < 0 || endOffset > fileSize) {
+        } else {
+            u32 endOffset = iconAddressBase + imageSize;
+            if ((s32)endOffset < 0 || endOffset > fileSize) {
+                result = 0;
+                goto clearComment;
+            }
+            result = CARDRead(&local.fileInfo, sThread->commentBuffer, imageSize,
+                              iconAddressBase);
+            if (result < 0) {
+                goto clearComment;
+            }
+            memset(sThread->comments[slot][fileNo], 0, 0x40);
+            memcpy(sThread->comments[slot][fileNo],
+                   sThread->commentBuffer + commentDataOffset, 0x40);
             result = 0;
-            goto clearComment;
+            goto commentDone;
         }
-        result = CARDRead(&local.fileInfo, sThread->commentBuffer, imageSize,
-                          iconAddressBase);
-        if (result < 0) {
-            goto clearComment;
-        }
-        memset(sThread->comments[slot][fileNo], 0, 0x40);
-        memcpy(sThread->comments[slot][fileNo],
-               sThread->commentBuffer + commentDataOffset, 0x40);
-        result = 0;
-        goto commentDone;
     }
 
 clearComment:
