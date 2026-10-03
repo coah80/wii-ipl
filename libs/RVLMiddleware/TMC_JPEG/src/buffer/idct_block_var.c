@@ -38,7 +38,7 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
     s32 b5;
     s32 b6;
     s32 b7;
-    s32 o;
+    s32 n;
     s32 m;
     s32 a;
     s32 done;
@@ -49,7 +49,7 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
     s32 m_part;
     s32 u;
     s32 r;
-    s32 n;
+    s32 o;
     s32 x;
     s32 x_factor;
     s32 z_factor;
