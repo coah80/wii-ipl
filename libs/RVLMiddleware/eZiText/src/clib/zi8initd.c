@@ -62,7 +62,7 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
     return 1;
 }
 
-ziU8 Zi8IsZicorpSignature(ziU16* p, ziU16 len) {
+ziU8 Zi8IsZicorpSignature(ziU16* p, ziU16 len ZI_NEED_WORK) {
     if ((ziU16)len > 6 && p[0] == 0x7A && p[1] == 0x69 && p[2] == 0x63 &&
         p[3] == 0x6F && p[4] == 0x72 && p[5] == 0x70) {
         return 1;
