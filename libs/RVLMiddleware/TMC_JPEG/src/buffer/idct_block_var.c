@@ -227,7 +227,7 @@ void TMCJPEGDEC_IdctBlock_Lumi(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigz
 void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag) {
     s32 tmp[64];
     s32* dst;
-    s32 done;
+    s32 a;
     s32 iter;
     s32 d;
     s32 b1;
@@ -239,7 +239,7 @@ void TMCJPEGDEC_IdctBlock_Col(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigza
     s32 b7;
     s32 v;
     s32 r;
-    s32 a;
+    s32 done;
     s32 i;
     s32 m;
     s32 n;
