@@ -1826,7 +1826,7 @@ config.libs = [
             Object(Matching,    "fa/pfs_unmount.c"),
             Object(Matching,    "fa/pf_stub_unicode.c"),
 
-            Object(NonMatching, "fa/api/FAAttach.c"),
+            Object(Matching,    "fa/api/FAAttach.c"),
             Object(Matching,    "fa/api/FABuffering.c"),
             Object(Matching,    "fa/api/FACreate.c"),
             Object(Matching,    "fa/api/FACreatedir.c"),
