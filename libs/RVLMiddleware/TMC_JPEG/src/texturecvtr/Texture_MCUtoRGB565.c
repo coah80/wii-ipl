@@ -575,12 +575,9 @@ static void TMCJPEGDEC_converterYUV420toRGB565edge(TMCCJPEGDecWork* work, s32 x,
     s32 xEnd;
     s8 cbValue;
     s32 yEnd;
-    s32 red;
-    s32 blue;
     u32 tileWidth;
     s32 height;
     TMCCJPEGDecState* state;
-    s32 green;
     s32 lumaSkip;
     s32 chromaSkip;
     s32 redOffset;
@@ -619,16 +616,18 @@ static void TMCJPEGDEC_converterYUV420toRGB565edge(TMCCJPEGDecWork* work, s32 x,
                 greenOffset = -(cbValue * 88 + crValue * 183) >> 8;
                 blueOffset = (cbValue * 454) >> 8;
             }
-            blue = *luminance++;
-            red = blue + redOffset;
-            green = blue + greenOffset;
-            blue = blue + blueOffset;
-            if ((blue | red | green) >> 8) {
-                blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-                green = green > 255 ? 255 : green < 0 ? 0 : green;
-                red = red > 255 ? 255 : red < 0 ? 0 : red;
+            {
+                s32 value = *luminance++;
+                s32 red = value + redOffset;
+                s32 blue = value + blueOffset;
+                s32 green = value + greenOffset;
+                if ((blue | red | green) >> 8) {
+                    blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
+                    green = green > 255 ? 255 : green < 0 ? 0 : green;
+                    red = red > 255 ? 255 : red < 0 ? 0 : red;
+                }
+                output[(column & 3) + (((column >> 2) + tileRow) << 4)] = ((blue & 0xF8) >> 3) + ((red & 0xF8) << 8) + ((green & 0xFC) << 3);
             }
-            output[(column & 3) + (((column >> 2) + tileRow) << 4)] = ((blue & 0xF8) >> 3) + ((red & 0xF8) << 8) + ((green & 0xFC) << 3);
         }
         luminance += lumaSkip;
         if (y & 1) {
