@@ -3070,20 +3070,22 @@ VmMethodDefine(String, Search) {
     return VmStringObjectIndex(VmInst, VmParentObj, VmReturnObj, 1, 1);
 }
 
-VmMethodDefine(String, Replace) {
+static inline vmBoolInt VmReplaceStringContents(CHANSVm *VmInst, const CHANSVmObjHdr *VmParentObj, CHANSVmObjHdr *VmReturnObj) {
     CHANSVmObjHdr* arg0;
-    CHANSVmObjHdr* arg1;
-    vmString parentStr;
-    vmString searchStr;
     vmString replaceStr;
-    u32 parentLen;
-    u32 srcOffs;
-    u32 dstOffs;
-    u32 searchLen;
-    u32 replaceLen;
-    u32 dstBufLen;
+    vmString searchStr;
+    vmString parentStr;
     vmString newStr;
+    u32 dstBufLen;
+    u32 replaceLen;
+    u32 dstOffs;
+    CHANSVmObjHdr* arg1;
+    u32 searchLen;
+    u32 srcOffs;
+    u32 parentLen;
     u32 segLen;
+    const vmStringObjVal *parentValue;
+    const vmStringObjVal *searchValue;
 
     if (((CHANSVmPrivate*)VmInst)->pActiveCtx->argc < 2) {
         goto return_input;
@@ -3098,10 +3100,12 @@ VmMethodDefine(String, Replace) {
         goto return_input;
     }
 
-    parentLen = VmParentObj->value.string_v->len;
-    searchLen = arg0->value.string_v->len;
-    parentStr = VmParentObj->value.string_v->spData;
-    searchStr = arg0->value.string_v->spData;
+    parentValue = VmParentObj->value.string_v;
+    searchValue = arg0->value.string_v;
+    parentLen = parentValue->len;
+    searchLen = searchValue->len;
+    parentStr = parentValue->spData;
+    searchStr = searchValue->spData;
     replaceStr = arg1->value.string_v->spData;
     replaceLen = arg1->value.string_v->len;
 
@@ -3169,10 +3173,14 @@ VmMethodDefine(String, Replace) {
     return VmReturnObj->value.string_v->len == dstOffs ? vmTrue : vmFalse;
 
 return_input:
-    return VmStringObjectDup(VmInst, VmReturnObj, VmParentObj) ? vmTrue : vmFalse;
+    return VmStringObjectDup(VmInst, VmReturnObj, (CHANSVmObjHdr *)VmParentObj) ? vmTrue : vmFalse;
 
 error:
     return 0;
+}
+
+VmMethodDefine(String, Replace) {
+    return VmReplaceStringContents(VmInst, VmParentObj, VmReturnObj);
 }
 
 VmMethodDefine(String, Splice) {
