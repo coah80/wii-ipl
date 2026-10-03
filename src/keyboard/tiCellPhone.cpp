@@ -206,6 +206,33 @@ namespace textinput {
                 return 0x1B;
             }
 
+            static inline const PaneNameToCharCode* inputKeys(const LanguageDependencyData* table, u32 mode) {
+                return table->keySets[mode]->pPaneNameToCharCode;
+            }
+
+            struct NumericKeyView {
+                const PaneNameToCharCode& key;
+                NumericKeyView(const KeySet& set, u16 index) : key(set.pPaneNameToCharCode[index]) {}
+                bool matches(const char* paneName) const { return util::strcmp(key.szPaneName, paneName); }
+                wchar_t character() const { return key.wc[0]; }
+            };
+
+            static inline const PaneNameToCharCode* findLowerCaseKey(const LanguageDependencyData* table, const char* paneName) {
+                u16 index = 0;
+                const PaneNameToCharCode* keys = table->keySets[Base::IM_01]->pPaneNameToCharCode;
+                for (; index < 12; ++index) {
+                    if (util::strcmp(keys[index].szPaneName, paneName)) { return &keys[index]; }
+                }
+                return NULL;
+            }
+
+            static inline const PaneNameToCharCode* findKeyInSet(const KeySet& set, const char* paneName) {
+                const PaneNameToCharCode* keys = set.pPaneNameToCharCode;
+                for (u16 index = 0; index < 12; ++index) {
+                    if (util::strcmp(keys[index].szPaneName, paneName)) { return &keys[index]; }
+                }
+                return NULL;
+            }
 
             void Base::onKey(u32 event, void* data) {
                 struct KeyEvent { const char* paneName; u8 state; };
@@ -234,8 +261,7 @@ namespace textinput {
                             } else if (static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[inputMode]->uType == KEY_TYPE_ABC_UPPER && !mbUpperCaseMode) {
                                 inputMode = IM_01;
                             }
-                            const PaneNameToCharCode* keys = static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[inputMode]->pPaneNameToCharCode;
-                            mHoldingButton = findKeyForPane(keys, paneName);
+                            mHoldingButton = findKeyInSet(*static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[inputMode], paneName);
                             if (state) {
                                 mPreviousInputMode = 15;
                                 while (mHoldingButton->wc[mPreviousInputMode] == 0) { mPreviousInputMode--; }
@@ -271,11 +297,10 @@ namespace textinput {
                             }
                         }
                     } else {
-                        const PaneNameToCharCode* keys = csKeySetNumber.pPaneNameToCharCode;
                         for (u16 index = 0; index < 12; index++) {
-                            const PaneNameToCharCode* pane = &keys[index];
-                            if (util::strcmp(pane->szPaneName, paneName)) {
-                                wchar_t character = pane->wc[0];
+                            const NumericKeyView key(csKeySetNumber, index);
+                            if (key.matches(paneName)) {
+                                wchar_t character = key.character();
                                 ConfirmInput commandData = {0};
                                 commandData.character = character;
                                 commandData.letterMode = mCurrentInputMode;
@@ -291,12 +316,11 @@ namespace textinput {
                                     mPreviousInputMode = 0;
                                     mHoldingButton = NULL;
                                 } else {
-                                    const PaneNameToCharCode* currentKeys = static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[mCurrentInputMode]->pPaneNameToCharCode;
+                                    const PaneNameToCharCode* currentKeys = inputKeys(static_cast<const LanguageDependencyData*>(mpInputModeTable), mCurrentInputMode);
                                     commandData.holdingKey = findKeyForPane(currentKeys, paneName);
                                     if (static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[mCurrentInputMode]->uType == KEY_TYPE_ABC_UPPER && !mbAbcMode) {
                                         commandData.letterMode = IM_01;
-                                        currentKeys = static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[IM_01]->pPaneNameToCharCode;
-                                        commandData.holdingKey = findKeyForPane(currentKeys, paneName);
+                                        commandData.holdingKey = findLowerCaseKey(static_cast<const LanguageDependencyData*>(mpInputModeTable), paneName);
                                     }
                                     commandData.character = convertToZiCellphoneInput_(commandData.character);
                                     sendCommand(5, &commandData);
