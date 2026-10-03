@@ -338,7 +338,7 @@ void AOSSi_Sleep(u32 milliseconds) {
     AOSSi_SleepMs(milliseconds);
 }
 
-int AOSSi_Status(void) {
+int AOSSi_Status(int status) {
     if (statusCallback != NULL) {
         statusCallback();
     }
