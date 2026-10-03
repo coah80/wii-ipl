@@ -1361,19 +1361,20 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
 
 static s32 pfd_sddrv_store_fat32_reserved_buf(u8* sector_buffer) {
     PFD_SDDRV_RESERVED_BOOT_SECTOR* reserved_boot_sector;
+    s32 result = -30;
 
-    if (sector_buffer == 0) {
-        return -30;
+    if (sector_buffer != 0) {
+        pf_memset(sector_buffer, 0, 0x200);
+        reserved_boot_sector = (PFD_SDDRV_RESERVED_BOOT_SECTOR*)sector_buffer;
+        if (((u32)reserved_boot_sector->signature.bytes & 1) != 0) {
+            reserved_boot_sector->signature.bytes[0] = 0x55;
+            reserved_boot_sector->signature.bytes[1] = 0xaa;
+        } else {
+            reserved_boot_sector->signature.value = 0x55aa;
+        }
+        result = 0;
     }
-    pf_memset(sector_buffer, 0, 0x200);
-    reserved_boot_sector = (PFD_SDDRV_RESERVED_BOOT_SECTOR*)sector_buffer;
-    if (((u32)reserved_boot_sector->signature.bytes & 1) != 0) {
-        reserved_boot_sector->signature.bytes[0] = 0x55;
-        reserved_boot_sector->signature.bytes[1] = 0xaa;
-    } else {
-        reserved_boot_sector->signature.value = 0x55aa;
-    }
-    return 0;
+    return result;
 }
 
 s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
