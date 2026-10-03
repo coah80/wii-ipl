@@ -75,6 +75,15 @@ static inline u32 rotateSum(u32 state, const u32* word, u32 constant, int shift)
     return ((state + (constant + left)) << shift) | ((constant + (state + right)) >> (32 - shift));
 }
 
+static inline u32 rotateNextSum(u32 state, u32** cursor, u32 constant, int shift) {
+    const u32* word = *cursor;
+    u32 right = __lwbrx((void*)word, 0);
+    u32 left = __lwbrx((void*)word, 0);
+    ++*cursor;
+    return ((state + (constant + left)) << shift) | ((constant + (state + right)) >> (32 - shift));
+}
+
+#define STEP_NEXT(a, b, c, d, f, word, n) ((a) = (b) + rotateNextSum((a) + (f), &(word), *constant, n))
 #define STEP(a, b, c, d, f, word, n) ((a) = (b) + rotateSum((a) + (f), word, *constant, n))
 
 static void ProcessBlock(NETMD5Context* context) {
@@ -90,10 +99,10 @@ static void ProcessBlock(NETMD5Context* context) {
     word = block;
     constant = constants;
     for (round = 0; round < 4; ++round) {
-        STEP(a,b,c,d,(b & c) | (~b & d),word++,7); ++constant;
-        STEP(d,a,b,c,(a & b) | (~a & c),word++,12); ++constant;
-        STEP(c,d,a,b,(d & a) | (~d & b),word++,17); ++constant;
-        STEP(b,c,d,a,(c & d) | (~c & a),word++,22); ++constant;
+        STEP_NEXT(a,b,c,d,(b & c) | (~b & d),word,7); ++constant;
+        STEP_NEXT(d,a,b,c,(a & b) | (~a & c),word,12); ++constant;
+        STEP_NEXT(c,d,a,b,(d & a) | (~d & b),word,17); ++constant;
+        STEP_NEXT(b,c,d,a,(c & d) | (~c & a),word,22); ++constant;
     }
     index = indices;
     for (round = 0; round < 4; ++round) {
