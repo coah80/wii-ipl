@@ -167,7 +167,7 @@ s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {
 
 static void TMCJPEGDEC_converterYUV411toRGB565(TMCCJPEGDecWork* work, s32 x, s32 y) {
     u16* output;
-    s32 lumaSkip;
+    s32 tileRow;
     s32 cbValue;
     s32 blue;
     TMCCJPEGDecState* state;
@@ -184,7 +184,7 @@ static void TMCJPEGDEC_converterYUV411toRGB565(TMCCJPEGDecWork* work, s32 x, s32
     s32 xEnd;
     s32 yEnd;
     s32 redOffset;
-    s32 tileRow;
+    s32 lumaSkip;
     s32 greenOffset;
     u8 value;
     s32 red;
