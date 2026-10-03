@@ -167,6 +167,11 @@ typedef struct AOSSKeySchedule {
     u32 length;
 } AOSSKeySchedule;
 
+typedef struct AOSSKeyMaterial {
+    u8 nonce[2];
+    u8 address[8];
+} AOSSKeyMaterial;
+
 typedef struct AOSSReceiveBuffer {
     s32 socket;
     u32 length;
@@ -257,8 +262,7 @@ static AOSSRuntimeState s_runtime;
 static AOSSConfigData s_configData;
 static u8 s_networkBuffer[0x280];
 static struct {
-    u8 keyNonce[2];
-    u8 keyAddress[8];
+    AOSSKeyMaterial key;
     u8 payload[0x5e];
 } s_packetState;
 static u32 s_crcTable[0x100];
@@ -284,7 +288,9 @@ extern int AOSSi_WLANGetBSSList(void** list);
 extern int AOSSi_Status(int status);
 extern int AOSSi_SetNCDIPAddr(u32 ipAddress, u32 netmask, u32 gateway, u32 dns1, u32 dns2);
 extern int AOSSi_Sleep(u32 duration);
-extern int AOSSi_WLANConnect(void);
+struct AOSSConnection;
+struct AOSSConnectionStatus;
+extern int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionStatus* status);
 extern int SOPoll(AOSSPollDescriptor* descriptors, int count, s32 timeoutHigh, s32 timeoutLow);
 extern int SORecvFrom(int socket, void* buffer, int length, int flags, void* address);
 extern int SOSendTo(int socket, const void* buffer, int length, int flags, const void* address);
@@ -1900,10 +1906,9 @@ int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
         s_errorCode = 2;
         result = -1;
     } else {
-        memcpy(s_packetState.keyNonce, &encrypted->keyNonce, sizeof(encrypted->keyNonce));
-        memcpy(s_packetState.keyAddress, s_accessPointName, sizeof(s_accessPointName));
-        AOSSInitKeySchedule(&schedule, s_packetState.keyNonce,
-            sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), dataLength);
+        memcpy(s_packetState.key.nonce, &encrypted->keyNonce, sizeof(encrypted->keyNonce));
+        memcpy(s_packetState.key.address, s_accessPointName, sizeof(s_accessPointName));
+        AOSSInitKeySchedule(&schedule, (const u8*)&s_packetState.key, sizeof(s_packetState.key), dataLength);
 
         outputCursor = decryptedData;
         inputCursor = encrypted->data;
@@ -2375,10 +2380,9 @@ int AOSSSendHelloRequest(void* packet, void* request, int socket) {
         if (construction.schedule.bytes != 0) {
             nonce = (u16)rand();
             memcpy(&payload->encrypted.key.nonce, &nonce, 2);
-            memcpy(s_packetState.keyNonce, payload->encrypted.key.nonceBytes, 2);
-            memcpy(s_packetState.keyAddress, s_accessPointName, 8);
-            AOSSInitKeySchedule(&construction.schedule, s_packetState.keyNonce,
-                sizeof(s_packetState.keyNonce) + sizeof(s_packetState.keyAddress), 8);
+            memcpy(s_packetState.key.nonce, payload->encrypted.key.nonceBytes, 2);
+            memcpy(s_packetState.key.address, s_accessPointName, 8);
+            AOSSInitKeySchedule(&construction.schedule, (const u8*)&s_packetState.key, sizeof(s_packetState.key), 8);
             for (index = 0; index < 8; index++) {
                 state = construction.schedule.bytes;
                 firstIndex = (construction.schedule.i + 1) % construction.schedule.length & 0xff;
@@ -2562,7 +2566,7 @@ int AOSSConnectAndAwaitHost(void* settings, void* config) {
     s32 connectionAttempts = 0;
     u32 ticksPerMillisecond;
 
-    if (AOSSi_WLANConnect() != 0) {
+    if (AOSSi_WLANConnect(settings, config) != 0) {
         return -1;
     }
 
