@@ -141,6 +141,28 @@ wchar_t StringBase::getLastWChar() {
     return 0;
 }
 
+namespace {
+class CharacterOutput {
+public:
+    CharacterOutput(wchar_t* output) : mpOutput(output), mCount(0) {
+        mpOutput[0] = 0;
+    }
+
+    void append(wchar_t ch) {
+        mpOutput[mCount++] = ch;
+    }
+
+    u16 finish() {
+        mpOutput[mCount] = 0;
+        return mCount;
+    }
+
+private:
+    wchar_t* mpOutput;
+    u32 mCount;
+};
+}
+
 void Decolated::inputChar(wchar_t ch) {
     if (ch != 0xfffe) {
         wchar_t input[8];
@@ -173,9 +195,9 @@ void Decolated::inputChar(wchar_t ch) {
         }
 nonKana:
         if (mTranslateMode == 3) {
-            input[0] = ch;
-            input[1] = 0;
-            count = 1;
+            CharacterOutput output(input);
+            output.append(ch);
+            count = output.finish();
             mKanaStream.mOutput[0] = 0;
         } else {
             count = 1;
