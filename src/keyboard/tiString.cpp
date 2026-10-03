@@ -5,7 +5,7 @@
 
 extern "C" {
 u8 KPRLookAhead(KPRQueue*, wchar_t*, u32);
-u32 KPRPutChar(KPRQueue*, wchar_t);
+u8 KPRPutChar(KPRQueue*, wchar_t);
 wchar_t KPRGetChar(KPRQueue*);
 void KPRClearQueue(KPRQueue*);
 void KPRInitQueue(KPRQueue*);
