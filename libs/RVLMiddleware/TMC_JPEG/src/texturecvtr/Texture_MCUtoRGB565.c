@@ -183,10 +183,10 @@ static void TMCJPEGDEC_converterYUV411toRGB565(TMCCJPEGDecWork* work, s32 x, s32
     s32 column;
     s32 xEnd;
     s32 yEnd;
-    s32 redOffset;
+    u8 value;
     s32 lumaSkip;
     s32 greenOffset;
-    u8 value;
+    s32 redOffset;
     s32 red;
     s32 blueOffset;
     s32 green;
