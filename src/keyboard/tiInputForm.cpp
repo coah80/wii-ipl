@@ -1254,6 +1254,13 @@ void LayoutByNW4R::calc() {
         }
     }
 }
+static inline const char* selectInputTextName(const nw4rmanager::Layout& layout, const void* const& languageData) {
+    if (layout.getPane(static_cast<const LanguagePaneData*>(languageData)->textBox)) {
+        return static_cast<const LanguagePaneData*>(languageData)->textBox;
+    }
+    return "T_2l_TextBox";
+}
+
 void LayoutByNW4R::setLanguage(Language language) {
     Base::setLanguage(language);
     if (language == CN) mpLanguageData = &csLanguageDependencyDataCHN__Q29textinput9inputform;
@@ -1264,12 +1271,12 @@ void LayoutByNW4R::setLanguage(Language language) {
     else textName = static_cast<const LanguagePaneData*>(mpLanguageData)->textBox;
     mpLayoutData = textName;
     if (::strcmp(static_cast<const char*>(mpLayoutData), "T_2l_TextBox") != 0) setVisible("T_2l_TextBox", false);
-    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(getLanguageTextPane() ? static_cast<const LanguagePaneData*>(mpLanguageData)->textBox : "T_2l_TextBox", true);
+    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(selectInputTextName(*this, mpLanguageData), true);
     static_cast<nw4r::lyt::TextBox*>(pane)->SetString(L"", 0);
     const VisiblePanes* visibility = static_cast<const LanguagePaneData*>(mpLanguageData)->visibility;
     for (u16 index = 0; index < visibility->visibleCount; ++index) setVisible(visibility->visibleNames[index], true);
     for (u16 index = 0; index < visibility->hiddenCount; ++index) setVisible(visibility->hiddenNames[index], false);
-    pane = mpLayout->GetRootPane()->FindPaneByName(getLanguageTextPane() ? static_cast<const LanguagePaneData*>(mpLanguageData)->textBox : "T_2l_TextBox", true);
+    pane = mpLayout->GetRootPane()->FindPaneByName(selectInputTextName(*this, mpLanguageData), true);
     mpPaneManager->getPaneComponentByPane(pane)->setTriggerTarget(true);
     if (getPane("T_title_text")) {
         nw4r::lyt::TextBox* title = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(getPane("T_title_text"));

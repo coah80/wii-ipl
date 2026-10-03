@@ -281,7 +281,11 @@ void MemoryCardManager::update_file_array(u8 slot) {
     memorycard::CardState* states = memorycard::getCardSlotState();
     states[slot].changed = 0;
     sort_file_array(slot);
-    long command = mLastCmd;
+    enum CardCommand {
+        NoCommand, Format, Copy, Move, Delete,
+        CopyComplete, MoveComplete, DeleteComplete, FormatComplete
+    };
+    CardCommand command = static_cast<CardCommand>(mLastCmd);
     if ((u32)(command - 1) <= 3) {
         if (mLastResult == -0x15) {
             mLastResult = memorycard::getCardLastCMDFCmdResult();
