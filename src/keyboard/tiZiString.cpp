@@ -15,7 +15,9 @@ struct OEMDictionary {
 };
 
 u16 WithZi::ElementBuffer[0x100];
-u16 WithZi::CandidatesBuffer[0x300];
+u16 WithZi::CandidatesBuffer[0x100];
+u16 WithZi::ElementWorkBuffer[0x100];
+u16 WithZi::PredictionBuffer[0x100];
 u16 WithZi::CandidatedWord[0xa00];
 u16 WithZi::LatestWord[0x40];
 
@@ -116,8 +118,8 @@ void WithZi::clearCandidates() {
         mCandidateCount = 0;
         memset(ElementBuffer, 0, 0x1fe);
         memset(candidates, 0, 0x200);
-        memset(candidates + 0x100, 0, 0x1fe);
-        memset(candidates + 0x200, 0, 0x200);
+        memset(ElementWorkBuffer, 0, 0x1fe);
+        memset(PredictionBuffer, 0, 0x200);
         memset(CandidatedWord, 0, 0x1400);
         memset(&mSearch, 0, sizeof(mSearch) + sizeof(mSearchState));
         mSearch.language = getPredictLanguage();
@@ -126,7 +128,7 @@ void WithZi::clearCandidates() {
         mSearch.context = 1;
         mSearch.getOptions = 0x81;
         mSearch.elements = reinterpret_cast<wchar_t*>(ElementBuffer);
-        mSearch.candidates = reinterpret_cast<wchar_t*>(&candidates[0x200]);
+        mSearch.candidates = reinterpret_cast<wchar_t*>(PredictionBuffer);
         mSearch.maxCandidates = 0x28;
         mSearch.elementCount = 0;
         mSearch.firstCandidate = 0;
@@ -306,7 +308,7 @@ void WithZi::update() {
     mSearch.context = 1;
     mSearch.getOptions = 0x81;
     mSearch.elements = reinterpret_cast<wchar_t*>(ElementBuffer);
-    mSearch.candidates = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
+    mSearch.candidates = reinterpret_cast<wchar_t*>(PredictionBuffer);
     mSearch.maxCandidates = 0x28;
     mSearch.elementCount = static_cast<u8>(elementCount);
     mSearch.firstCandidate = 0;
@@ -350,11 +352,11 @@ void WithZi::update() {
         EZTXGetCandidates(&mSearch, mpDictionaryWork);
     }
     else {
-        memcpy(&CandidatesBuffer[0x200], CandidatesBuffer, 0x200);
+        memcpy(PredictionBuffer, CandidatesBuffer, 0x200);
         ChangeDictionaryLanguage(getPredictLanguage());
         u32 count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
         if (getPredictLanguage() == 1 && count == 0x61) {
-            wchar_t* candidateOutput = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
+            wchar_t* candidateOutput = reinterpret_cast<wchar_t*>(PredictionBuffer);
             mSearch.firstCandidate = 0x61;
             mSearch.candidates = candidateOutput + 0xC2;
             mSearch.maxCandidates = 199;
@@ -515,22 +517,28 @@ scanDone:
     return 0;
 }
 
-u32 WithZi::setElementBuffer() {
+struct ElementInputView {
     u16* elements;
-    u16* candidates;
+    const u16* candidates;
+
+    ElementInputView() : elements(WithZi::ElementBuffer), candidates(WithZi::CandidatesBuffer) {}
+    u16 read(u16 index) const { return candidates[index]; }
+    u16& element(u16 index) const { return elements[index]; }
+};
+
+u32 WithZi::setElementBuffer() {
     u16 inputCharacter;
     u32 count = 0;
     memset(ElementBuffer, 0, 0x1fe);
-    memset(&CandidatesBuffer[0x100], 0, 0x1fe);
-    elements = ElementBuffer;
-    candidates = CandidatesBuffer;
-    while ((inputCharacter = candidates[static_cast<u16>(count)]) != 0 && static_cast<u16>(count) < 0xff) {
+    memset(ElementWorkBuffer, 0, 0x1fe);
+    ElementInputView buffers;
+    while ((inputCharacter = buffers.read(static_cast<u16>(count))) != 0 && static_cast<u16>(count) < 0xff) {
         u16 index = count;
-        elements[index] = inputCharacter;
+        buffers.element(index) = inputCharacter;
         if (getPredictLanguage() == 1) {
-            s32 character = elements[index];
-            if (0x30 <= character && character <= 0x39) elements[index] = character + 0xf300;
-            else if ((0x61 <= character && character <= 0x7a) || (0x41 <= character && character <= 0x5a)) elements[index] += 0xf300;
+            s32 character = buffers.element(index);
+            if (0x30 <= character && character <= 0x39) buffers.element(index) = character + 0xf300;
+            else if ((0x61 <= character && character <= 0x7a) || (0x41 <= character && character <= 0x5a)) buffers.element(index) += 0xf300;
         }
         ++count;
     }

@@ -39,7 +39,9 @@ public:
     };
 
     static u16 ElementBuffer[0x100];
-    static u16 CandidatesBuffer[0x300];
+    static u16 CandidatesBuffer[0x100];
+    static u16 ElementWorkBuffer[0x100];
+    static u16 PredictionBuffer[0x100];
     static u16 CandidatedWord[0xa00];
     static u16 LatestWord[0x40];
 
