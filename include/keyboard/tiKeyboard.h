@@ -47,7 +47,11 @@ namespace textinput {
 #else
             virtual Language getLanguage() const { return meLanguage; }
 #endif
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual void update();
+#else
             virtual void update() {}
+#endif
 #else
             virtual Language getLanguage() const;
             virtual void update();

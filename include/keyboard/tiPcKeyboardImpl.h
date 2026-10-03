@@ -191,7 +191,11 @@ namespace textinput {
 #endif
                 virtual ~Base();
                 virtual void create(MEMAllocator* allocator);
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual void init();
+#else
                 virtual inline void init();
+#endif
                 virtual void updateFromReceiver(u32 command, void* data);
                 virtual void onKey(u32 event, void* data);
                 virtual int getType();
@@ -223,6 +227,9 @@ namespace textinput {
                 virtual void updateFixMode();
 
             protected:
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                inline void initializeKeyState();
+#endif
                 State mState;
                 const LanguageData* mpInitialLanguageData;
                 KeyState mKeyState;
@@ -301,6 +308,8 @@ namespace textinput {
                 LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
                     : Base(manager), nw4rmanager::Layout(accessor, layoutName, observer), mpKeyboardEventHandler(NULL),
                       mShiftButton(1, this, this), mCapsButton(0, this, this), mModePanel(2, this, this) {}
+#elif defined(TI_PC_KEYBOARD_IMPLEMENTATION)
+                LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName);
 #endif
                 virtual ~LayoutByNW4R();
                 virtual void create(MEMAllocator* allocator);
@@ -351,6 +360,15 @@ namespace textinput {
                 UIModifierButton mCapsButton;
                 UIModePanel mModePanel;
             };
+
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            class Sample : public LayoutByNW4R {
+            public:
+                Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
+                    : LayoutByNW4R(manager, accessor, observer, layoutName) {}
+                virtual ~Sample() {}
+            };
+#endif
 
             class AnmPane : public nw4rmanager::AnmPane {
             public:

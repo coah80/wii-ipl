@@ -11,6 +11,18 @@
 #include "keyboard/tiLanguageIndependentData.h"
 
 namespace textinput {
+    const keyboard::hwkey::HWKeyboard* Manager::getHWKeyboard() const {
+        return mpHWKeyboard;
+    }
+
+    bool toolbar::Base::isQwerty() const {
+        return mQwerty;
+    }
+
+    const toolbar::LayoutByNW4R* Manager::getToolBar() const {
+        return mpToolBar;
+    }
+
     namespace keyboard {
         namespace pctype {
             struct SelectorPosition {
@@ -1317,6 +1329,20 @@ namespace textinput {
                 }
             }
 
+        }
+    }
+
+    const keyboard::pctype::LayoutByNW4R* Manager::getPCKeyboard() const {
+        return mpPCKeyboard;
+    }
+
+    Language Manager::getLanguage() const {
+        return meLanguage;
+    }
+
+    namespace keyboard {
+        namespace pctype {
+
             bool Base::isCapsOn() const {
                 return (mKeyState.abcFlags >> 6) & 1;
             }
@@ -1325,7 +1351,7 @@ namespace textinput {
                 mpAllocator = allocator;
             }
 
-            void Base::init() {
+            inline void Base::initializeKeyState() {
                 mState.rejected = false;
                 Language language = getLanguage();
                 mKeyState.inputType = 0;
@@ -1341,6 +1367,10 @@ namespace textinput {
                 mKeyState.refresh_();
                 TranslateMode mode = Base::getTranslateMode();
                 sendCommand(18, &mode);
+            }
+
+            void Base::init() {
+                initializeKeyState();
             }
 
             void Base::inputCharCode(wchar_t code) {
@@ -1942,8 +1972,18 @@ namespace textinput {
             AnmPane::~AnmPane() {
             }
 
+        }
+    }
+
+    TiLayout* nw4rmanager::Layout::getLayout() {
+        return mpLayout;
+    }
+
+    namespace keyboard {
+        namespace pctype {
+
             void LayoutByNW4R::init() {
-                Base::init();
+                initializeKeyState();
                 setLineFeedButton(true);
                 setPredictLanguageButton(true);
                 setSignWindowButton(true);
@@ -2290,6 +2330,15 @@ namespace textinput {
                         pane->onAnmEvent(AnmPane::PE_2);
                 }
             }
+
+        }
+    }
+
+    void nw4rmanager::AnmPane::onAnmEvent(AnmPaneEvent) {
+    }
+
+    namespace keyboard {
+        namespace pctype {
 
             void LayoutByNW4R::cancelStateFocusIn() {
                 for (AnmPane* pane = static_cast<AnmPane*>(nw4r::ut::List_GetFirst(&mAnmPanes)); pane != NULL;
@@ -3075,6 +3124,20 @@ namespace textinput {
                 : UIObj(id, layout, listener), mpPaneComponent(NULL), mpBoundingComponent(NULL), mpAnimation(NULL), mbOn(false) {
             }
 
+        }
+    }
+
+    gui::PaneManager* nw4rmanager::Layout::getPaneManager() {
+        return mpPaneManager;
+    }
+
+    void gui::GUIComponent::setTriggerTarget(bool triggerTarget) {
+        mbTriggerTarget = triggerTarget;
+    }
+
+    namespace keyboard {
+        namespace pctype {
+
             void UIModifierButton::onGUIEvent(gui::PaneComponent&, u32 event, nw4rmanager::TiEventHandler::Input* input) {
                 const char* name = "P_key_CAPS";
                 if (mId == 1)
@@ -3129,6 +3192,43 @@ namespace textinput {
 
             void UIModePanel::onGUIEvent(gui::PaneComponent&, u32, nw4rmanager::TiEventHandler::Input*) {
             }
+
+        }
+    }
+
+    void keyboard::KeyboardBase::update() {
+    }
+
+    nw4r::ut::List& nw4rmanager::Layout::getAnmPaneList() {
+        return mAnmPanes;
+    }
+
+    void nw4rmanager::Layout::setAnimOn(bool flag) {
+        mbAnimOn = flag;
+    }
+
+    nw4rmanager::Anim* nw4rmanager::AnmPane::searchAnimation(u32 id) {
+        for (Anim* animation = static_cast<Anim*>(nw4r::ut::List_GetNext(&mAnms, NULL)); animation != NULL;
+             animation = static_cast<Anim*>(nw4r::ut::List_GetNext(&mAnms, animation))) {
+            if (animation->muID == id) return animation;
+        }
+        return NULL;
+    }
+
+    bool nw4rmanager::AnmPane::isInAnimation() {
+        return mpCurrentAnim != NULL;
+    }
+
+    int gui::EventHandler::getLatestEventCtrlNo() {
+        return muLatestEventCtrlNo;
+    }
+
+    void gui::EventHandler::setLatestEventCtrlNo(int ctrlNo) {
+        muLatestEventCtrlNo = ctrlNo;
+    }
+
+    namespace keyboard {
+        namespace pctype {
 
             Base::InputMode Base::getAIUInputMode() const {
                 switch (static_cast<int>(mKeyState.aiuFlags & 15)) {
@@ -3187,6 +3287,16 @@ namespace textinput {
 
             void UIObj::onGUIEvent(gui::PaneComponent&, u32, nw4rmanager::TiEventHandler::Input*) {
             }
+
+        }
+    }
+
+    void nw4rmanager::TiEventHandler::setEventObserver(EventObserver* event) {
+        mpEventObserver = event;
+    }
+
+    namespace keyboard {
+        namespace pctype {
 
             void Base::setInputModeCK(u32) {
             }
