@@ -21,6 +21,12 @@ namespace EGG {
 
         virtual void initialize(IAudioMgr::Arg* arg);
     };
+
+    class ExpAudioMgr : public SimpleAudioMgr, public AudioFxMgr {
+    public:
+        ExpAudioMgr();
+        virtual ~ExpAudioMgr();
+    };
 }  // namespace EGG
 
 #endif  // EGG_AUDIO_EXP_MGR_H
