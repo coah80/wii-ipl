@@ -743,9 +743,9 @@ check_row:
     return 0;
 }
 
-ziS32 Zi8GetBpmfPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final, ziU16* bestInitial, ziU16* bestFinal ZI_NEED_WORK) {
+ziU8 Zi8GetBpmfPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final, ziU16* bestInitial, ziU16* bestFinal ZI_NEED_WORK) {
     ziU16 value;
-    ziU32 resultCount = 0;
+    ziU8 resultCount = 0;
 
     Zi8LogError(0x64, ZI_WORK);
     if (count == 0) {
