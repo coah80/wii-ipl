@@ -550,15 +550,6 @@ pf_s32 PFCACHE_DoWriteSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, const pf
 
 #pragma dont_inline reset
 
-static inline pf_u32 PFCACHE_RecordPageEndOverlap(PF_CACHE_PAGE* p_page, pf_u32 end_sector, pf_u32* p_num_success, pf_u32* p_num_rest_sector) {
-    pf_u32 last_sector = end_sector - 1;
-    pf_u32 num_overlap = end_sector - p_page->sector;
-    *p_num_success += num_overlap;
-    *p_num_rest_sector -= num_overlap;
-    p_page->stat |= 2;
-    return last_sector;
-}
-
 pf_s32 PFCACHE_DoWriteNumSectorAndFreeIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, const pf_u8* p_buf, pf_u32 sector,
     pf_u32 num_sector, pf_u32* p_num_success) {
     PF_CACHE_PAGE* p_page = PF_NULL;
@@ -566,8 +557,6 @@ pf_s32 PFCACHE_DoWriteNumSectorAndFreeIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE**
     pf_u32 num_rest_sector = num_sector;
     pf_u8* p_sbuf;
     pf_u8* p_ebuf;
-    pf_u32 num_overlap;
-    pf_u32 last_sector;
     *p_num_success = 0;
     do {
         if (p_page == PF_NULL) {
@@ -617,10 +606,10 @@ pf_s32 PFCACHE_DoWriteNumSectorAndFreeIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE**
                 (p_page->sector + p_page->size) >= (sector + num_sector)) {
                 pf_memcpy(p_page->buffer, (pf_u8*)&p_buf[(p_page->sector - sector) << p_vol->bpb.log2_bytes_per_sector],
                     (sector + num_sector - p_page->sector) << p_vol->bpb.log2_bytes_per_sector);
-                num_overlap = num_sector;
-                num_overlap += sector;
-                last_sector = PFCACHE_RecordPageEndOverlap(p_page, num_overlap, p_num_success, &num_rest_sector);
-                p_ebuf = &p_page->buffer[(last_sector - p_page->sector) << p_vol->bpb.log2_bytes_per_sector];
+                num_rest_sector -= p_page->size - ((p_page->sector + p_page->size) - (sector + num_sector));
+                *p_num_success += p_page->size - ((p_page->sector + p_page->size) - (sector + num_sector));
+                p_page->stat |= 2;
+                p_ebuf = &p_page->buffer[(p_page->size - ((p_page->sector + p_page->size) - (sector + num_sector)) - 1) << p_vol->bpb.log2_bytes_per_sector];
                 p_page->p_mod_sbuf = p_page->buffer;
                 if (p_page->p_mod_ebuf == NULL || p_page->p_mod_ebuf < p_ebuf) {
                     p_page->p_mod_ebuf = p_ebuf;
