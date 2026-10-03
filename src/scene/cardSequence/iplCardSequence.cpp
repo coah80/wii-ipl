@@ -1004,27 +1004,29 @@ sectorSizeError:
 sectorSizeDone:
     ;
 
-    result = 0;
-    statusResult = __CARDGetStatusEx(slot, fileNo, &checkedStatus);
-    if (statusResult >= 0) {
-        switch (command) {
-        case 2:
-            if (checkedStatus.permission & 8) {
-                result = -10;
+    {
+        s32 permissionResult = 0;
+        statusResult = __CARDGetStatusEx(slot, fileNo, &checkedStatus);
+        if (statusResult >= 0) {
+            switch (command) {
+            case 2:
+                if (checkedStatus.permission & 8) {
+                    permissionResult = -10;
+                }
+                break;
+            case 3:
+                if (checkedStatus.permission & 0x10) {
+                    permissionResult = -10;
+                }
+                break;
             }
-            break;
-        case 3:
-            if (checkedStatus.permission & 0x10) {
-                result = -10;
-            }
-            break;
+        } else {
+            permissionResult = CARDGetResultCode(slot);
         }
-    } else {
-        result = CARDGetResultCode(slot);
-    }
-    if (result < 0) {
-        reportCardThreadError(slot, command, result);
-        goto finish;
+        if (permissionResult < 0) {
+            reportCardThreadError(slot, command, permissionResult);
+            goto finish;
+        }
     }
 
     result = __CARDGetStatusEx(slot, fileNo, &createStatus);
