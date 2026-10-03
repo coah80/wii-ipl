@@ -433,16 +433,18 @@ namespace textinput {
 
                 nw4r::ut::List_Append(&mAnmPanes, pane);
 
-                for (u16 j = 0; j < p.count; j++) {
-                    const AnimationFile* animation = p.pAnims[j];
-                    void* pResource = mpMultiArcResourceAccessor->GetResource(0, p.pAnims[j]->fileName);
+                const char* forceAddName = p.forceAddName;
+                u32 animationCount = p.count;
+                for (u16 j = 0; j < animationCount; j++) {
+                    const AnimationFile* const& animation = p.pAnims[j];
+                    void* pResource = mpMultiArcResourceAccessor->GetResource(0, animation->fileName);
                     AnimTransformPane* transform =
                         static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(pResource, mpMultiArcResourceAccessor));
 
-                    if (p.forceAddName == NULL) {
+                    if (forceAddName == NULL) {
                         pane->addAnimation(allocator, animation->id, transform, false, true);
                     } else {
-                        pane->forceAddAnimation(allocator, animation->id, transform, p.forceAddName, false, true);
+                        pane->forceAddAnimation(allocator, animation->id, transform, forceAddName, false, true);
                     }
                 }
             }
@@ -1082,7 +1084,7 @@ namespace textinput {
                 nw4r::lyt::TextBox* textPane = mpTextBoxPane[i]->getTextPane();
                 nw4r::lyt::Bounding* boundPane = mpBoundingPane[i]->getBoundPane();
                 nw4r::lyt::Size sz1 = textPane->GetSize();
-                textPane->SetString(L"");
+                textPane->SetString(scEmptyWChars);
                 textPane->SetVisible(false);
                 boundPane->SetSize(nw4r::lyt::Size(0.0f, sz1.height));
             }
@@ -1683,9 +1685,9 @@ namespace textinput {
 
         void UIOnOffButton::Create(nw4rmanager::Layout* layout) {
             gui::PaneManager* mgr = layout->getPaneManager();
-            mpOnPictPane = mgr->searchPaneComponent("P_OnBtn");
-            mpOnBoundPane = mgr->searchPaneComponent("B_OnBtn");
-            mpOnAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane("P_OnBtn"));
+            mpOnPictPane = mgr->searchPaneComponent(scP_OnBtn);
+            mpOnBoundPane = mgr->searchPaneComponent(scB_OnBtn);
+            mpOnAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane(scP_OnBtn));
             mpOffPictPane = mgr->searchPaneComponent(scCandidatePaneData.tail);
             mpOffBoundPane = mgr->searchPaneComponent(scPaneNameTable);
             mpOffAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane(scCandidatePaneData.tail));
