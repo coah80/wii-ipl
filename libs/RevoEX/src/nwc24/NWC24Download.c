@@ -728,6 +728,34 @@ static inline NWC24Err UpdateDlTaskAccessTime(NWC24DlTask* dlTask) {
     return result;
 }
 
+static inline NWC24Err ValidateWritableDlTask(const NWC24DlTask* dlTask) {
+    const DlTaskData* task = (const DlTaskData*)dlTask;
+    DlTaskListHeader* header = GetCachedDlHeader();
+    if (task == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (header == NULL) {
+        return NWC24_ERR_LIB_NOT_OPENED;
+    }
+    if (!NWC24IsMsgLibOpenedByTool() && !IsDlTaskOwner(task->appId)) {
+        BOOL allowed = FALSE;
+        u32 flags = task->flags;
+        u16 groupId = task->groupId;
+        if (flags & 0x40) {
+            if (groupId == NWC24GetGroupId()) {
+                allowed = TRUE;
+            }
+        }
+        if (!allowed) {
+            return NWC24_ERR_PROTECTED;
+        }
+    }
+    if (task->id != 0xffff && task->id >= header->maxTaskCount) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    return NWC24_OK;
+}
+
 NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
     DlTaskData* task = (DlTaskData*)dlTask;
     DlTaskListHeader* header;
@@ -735,13 +763,13 @@ NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
     OSTime universalTime;
     NWC24Err result;
 
-    result = ValidateDlTask(dlTask, TRUE);
+    result = ValidateWritableDlTask(dlTask);
     if (result != NWC24_OK) { return result; }
     taskId = task->id;
     if (taskId == 0xffff || taskId >= GetCachedDlHeader()->maxTaskCount) { return NWC24_ERR_INVALID_VALUE; }
     result = UpdateDlTaskAccessTime(dlTask);
     if (result < NWC24_OK) { return result; }
-    result = ValidateDlTask(dlTask, TRUE);
+    result = ValidateWritableDlTask(dlTask);
     if (result == NWC24_OK) {
         task->unknown_0x20 = 0;
         task->unknown_0x1a = 0;
