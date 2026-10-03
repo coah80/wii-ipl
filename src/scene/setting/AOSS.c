@@ -287,7 +287,7 @@ extern int AOSSi_cancel_flag;
 extern int AOSSi_WLANGetBSSList(void** list);
 extern int AOSSi_Status(int status);
 extern int AOSSi_SetNCDIPAddr(u32 ipAddress, u32 netmask, u32 gateway, u32 dns1, u32 dns2);
-extern int AOSSi_Sleep(u32 duration);
+extern void AOSSi_Sleep(u32 duration);
 struct AOSSConnection;
 struct AOSSConnectionStatus;
 extern int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionStatus* status);
