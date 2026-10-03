@@ -1072,11 +1072,19 @@ namespace textinput {
             return calcStringWidth(pTextBox->GetString(), pTextBox);
         }
 
+        static inline void setCandidatePaneSize(nw4r::lyt::Pane* pane, const nw4r::lyt::Size& original, f32 width) {
+            nw4r::lyt::Size size;
+            size.width = width;
+            size.height = original.height;
+            pane->SetSize(size);
+        }
+
+        static inline void setCandidatePanePosition(nw4r::lyt::Pane* pane, f32 x, f32 y) {
+            nw4r::math::VEC2 position(x, y);
+            pane->SetTranslate(position);
+        }
+
         void UITextArea::CalcPaneLocate_() {
-            // NONMATCHING - only regswaps, hopefully
-            // The calcStringWidth inline may be partially responsible,
-            // so looking into the smaller functions utilizing that inline
-            // might be simpler (GetNextPageIdx / GetPrevPageIdx)
             f32 widthScale = GetWidthScale_();
             f32 margin = GetMargin_();
             f32 xOffset = mfXOffset;
@@ -1091,7 +1099,7 @@ namespace textinput {
                 nw4r::lyt::Size sz1 = textPane->GetSize();
                 textPane->SetString(scEmptyWChars);
                 textPane->SetVisible(false);
-                boundPane->SetSize(nw4r::lyt::Size(0.0f, sz1.height));
+                setCandidatePaneSize(boundPane, sz1, 0.0f);
             }
 
             int i = NUM_PANES;
@@ -1119,16 +1127,16 @@ namespace textinput {
                 textPane->SetVisible(true);
                 nw4r::lyt::Size sz2 = textPane->GetSize();
                 f32 stringWidth = calcStringWidth(textPane);
-                textPane->SetSize(nw4r::lyt::Size(stringWidth, sz2.height));
-                boundPane->SetSize(nw4r::lyt::Size(stringWidth * widthScale, sz2.height));
+                setCandidatePaneSize(textPane, sz2, stringWidth);
+                setCandidatePaneSize(boundPane, sz2, stringWidth * widthScale);
 
                 xOffset -= margin;
                 xOffset -= stringWidth * widthScale;
 
                 stringWidth *= widthScale;
                 f32 x = stringWidth / 2.0f + (areaPaneXOffset + xOffset);
-                textPane->SetTranslate(nw4r::math::VEC2(x, 0.0f));
-                boundPane->SetTranslate(nw4r::math::VEC2(x, 0.0f));
+                setCandidatePanePosition(textPane, x, 0.0f);
+                setCandidatePanePosition(boundPane, x, 0.0f);
 
                 if (offsetIdx == selectedIdx) {
                     mpTextAnmPane[i]->onAnmEvent(nw4rmanager::AnmPane::PE_1);
@@ -1157,13 +1165,13 @@ namespace textinput {
                 textPane->SetVisible(true);
                 nw4r::lyt::Size sz2 = textPane->GetSize();
                 f32 stringWidth = calcStringWidth(textPane);
-                textPane->SetSize(nw4r::lyt::Size(stringWidth, sz2.height));
-                boundPane->SetSize(nw4r::lyt::Size(stringWidth * widthScale, sz2.height));
+                setCandidatePaneSize(textPane, sz2, stringWidth);
+                setCandidatePaneSize(boundPane, sz2, stringWidth * widthScale);
 
                 stringWidth *= widthScale;
                 f32 x = stringWidth / 2.0f + (areaPaneXOffset + xOffset);
-                textPane->SetTranslate(nw4r::math::VEC2(x, 0.0f));
-                boundPane->SetTranslate(nw4r::math::VEC2(x, 0.0f));
+                setCandidatePanePosition(textPane, x, 0.0f);
+                setCandidatePanePosition(boundPane, x, 0.0f);
 
                 if (offsetIdx == selectedIdx) {
                     mpTextAnmPane[i]->onAnmEvent(nw4rmanager::AnmPane::PE_1);
