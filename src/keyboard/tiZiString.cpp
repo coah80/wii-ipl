@@ -111,14 +111,13 @@ void WithZi::init() {
 
 void WithZi::clearCandidates() {
     if (mbDictionaryOpen != 0) {
-        u16* const candidates = CandidatesBuffer;
         mInputLength = 0;
         mCandidateCount = 0;
         memset(ElementBuffer, 0, 0x1fe);
-        memset(candidates, 0, 0x200);
-        memset(candidates + 0x100, 0, 0x1fe);
-        memset(candidates + 0x200, 0, 0x200);
-        memset(CandidatedWord, 0, 0x1400);
+        memset(&ElementBuffer[0x100], 0, 0x200);
+        memset(&ElementBuffer[0x200], 0, 0x1fe);
+        memset(&ElementBuffer[0x300], 0, 0x200);
+        memset(&ElementBuffer[0x400], 0, 0x1400);
         memset(&mSearch, 0, sizeof(mSearch) + sizeof(mSearchState));
         mSearch.language = getPredictLanguage();
         mSearch.subLanguage = 7;
@@ -126,7 +125,7 @@ void WithZi::clearCandidates() {
         mSearch.context = 1;
         mSearch.getOptions = 0x81;
         mSearch.elements = reinterpret_cast<wchar_t*>(ElementBuffer);
-        mSearch.candidates = reinterpret_cast<wchar_t*>(&candidates[0x200]);
+        mSearch.candidates = reinterpret_cast<wchar_t*>(ElementBuffer + 0x300);
         mSearch.maxCandidates = 0x28;
         mSearch.elementCount = 0;
         mSearch.firstCandidate = 0;
@@ -298,7 +297,7 @@ void WithZi::update() {
         return;
     }
 
-    wchar_t* candidateOutput = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x200]);
+    wchar_t* candidateOutput = reinterpret_cast<wchar_t*>(&ElementBuffer[0x300]);
     mSelectedCandidate = 0;
     s32 elementCount = static_cast<u16>(setElementBuffer());
     mSearch.language = getPredictLanguage();
@@ -351,12 +350,12 @@ void WithZi::update() {
         EZTXGetCandidates(&mSearch, mpDictionaryWork);
     }
     else {
-        memcpy(&CandidatesBuffer[0x200], CandidatesBuffer, 0x200);
+        memcpy(&ElementBuffer[0x300], &ElementBuffer[0x100], 0x200);
         ChangeDictionaryLanguage(getPredictLanguage());
         u32 count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
         if (getPredictLanguage() == 1 && count == 0x61) {
             mSearch.firstCandidate = 0x61;
-            mSearch.candidates = reinterpret_cast<wchar_t*>(&CandidatesBuffer[0x2c2]);
+            mSearch.candidates = reinterpret_cast<wchar_t*>(&ElementBuffer[0x3c2]);
             mSearch.maxCandidates = 199;
             count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
             mSearch.firstCandidate = 0;
@@ -511,14 +510,12 @@ scanDone:
 }
 
 u32 WithZi::setElementBuffer() {
-    u16* elements;
-    u16* candidates;
     u16 inputCharacter;
     u32 count = 0;
     memset(ElementBuffer, 0, 0x1fe);
-    memset(&CandidatesBuffer[0x100], 0, 0x1fe);
-    elements = ElementBuffer;
-    candidates = CandidatesBuffer;
+    memset(&ElementBuffer[0x200], 0, 0x1fe);
+    u16* elements = ElementBuffer;
+    u16* candidates = elements + 0x100;
     while ((inputCharacter = candidates[static_cast<u16>(count)]) != 0 && static_cast<u16>(count) < 0xff) {
         u16 index = count;
         elements[index] = inputCharacter;
