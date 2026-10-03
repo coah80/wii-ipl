@@ -14,11 +14,11 @@ static inline pf_u32 read_partition_u32(const pf_u8* buf, pf_u32 offset) {
 }
 
 pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mbr) {
+    pf_u32* p_start;
+    pf_u32* p_count;
     pf_s16 index;
     pf_u32 start[4];
     pf_u32 count[4];
-    pf_u32* p_start;
-    pf_u32* p_count;
     *p_is_mbr = 0;
     if (buf[510] != 0x55 || buf[511] != 0xAA) { return 2; }
     p_start = start;
