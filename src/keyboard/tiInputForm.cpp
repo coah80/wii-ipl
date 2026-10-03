@@ -3071,7 +3071,9 @@ bool Base::onCursor(CursorPos* cursor) {
         f32 left = glyph.rect.left + GetCursorX();
         f32 top = glyph.rect.top + GetCursorY();
         f32 right = glyph.rect.right + GetCursorX();
-        f32 bottomEdge = GetCursorY() + GetFontHeight();
+        f32 cursorY = GetCursorY();
+        f32 fontHeight = GetFontHeight();
+        f32 bottomEdge = fontHeight + cursorY;
         candidateBackground.a = muGlobalAlpha;
         debug::drawBox_(left, top, right, bottomEdge, 0.0f, 1.0f, candidateBackground);
         SetupGX();
@@ -3131,7 +3133,9 @@ bool Base::onCursor(CursorPos* cursor) {
             f32 left = glyph.rect.left + GetCursorX();
             f32 top = glyph.rect.top + GetCursorY();
             f32 right = glyph.rect.right + GetCursorX();
-            f32 bottomEdge = GetCursorY() + GetFontHeight();
+            f32 cursorY = GetCursorY();
+            f32 fontHeight = GetFontHeight();
+            f32 bottomEdge = fontHeight + cursorY;
             kanaBackground.a = muGlobalAlpha;
             debug::drawBox_(left, top, right, bottomEdge, 0.0f, 1.0f, kanaBackground);
             SetupGX();
