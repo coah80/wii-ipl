@@ -1357,9 +1357,10 @@ BS2State BS2Tick() {
         (*(u32 *)0x800030d4) = 0;
         DvdTransferred = 0;
         DvdTransferLength = 0;
+        status = BS2NoDisk;
         AudioBufferUnconfigured = 1;
         CoverBlock.state = 0;
-        if (BS2NoDisk != 0)
+        if (status != 0)
             State = BS2_STT_NO_DISK;
         else if (BS2DriveReset != 0)
             State = BS2_STT_2;
