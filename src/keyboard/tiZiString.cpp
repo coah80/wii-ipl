@@ -394,8 +394,10 @@ void WithZi::update() {
             u16* destination = CandidatedWord;
             for (s32 index = 0; index < static_cast<s32>(count); index++) {
                 if (getPredictLanguage() == 1) {
-                    s32 length = 0;
-                    u16* output = destination;
+                    u16* output;
+                    s32 length;
+                    length = 0;
+                    output = destination;
                     for (; *source != 0x20 && *source != 0; source++) {
                         *output++ = *source;
                         ++length;
