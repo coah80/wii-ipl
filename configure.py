@@ -982,7 +982,7 @@ config.libs = [
     ),
     ZI8Lib("zi8clib", [
             Object(Matching,    "clib/zaddress.c"),
-            Object(NonMatching, "clib/zconvert.c"),
+            Object(Matching,    "clib/zconvert.c"),
             Object(NonMatching, "clib/zi81key.c"),
             Object(NonMatching, "clib/zi8alpha.c"),
             Object(Matching,    "clib/zi8alts.c"),
@@ -1691,7 +1691,7 @@ config.libs = [
             Object(Matching,    "fa/pdm_bpb.c"),
             Object(Matching,    "fa/pdm_disk.c"),
             Object(NonMatching, "fa/pdm_partition.c"),
-            Object(NonMatching, "fa/pf_cache.c"),
+            Object(Matching,    "fa/pf_cache.c"),
             Object(Matching,    "fa/pf_cluster.c"),
             Object(Matching,    "fa/pf_dir.c"),
             Object(Matching,    "fa/pf_entry.c"),
