@@ -63,7 +63,7 @@ public:
 }}
 #include "keyboard/tiManager.h"
 namespace textinput {
-static EventObserver defaultEventObserver;
+EventObserver defaultEventObserver;
 
 Manager::Manager(MEMAllocator* allocator, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer)
     : mpAllocator(allocator), mpMultiArcResourceAccessor(accessor), mpEditBuffer(NULL), mpHWKeyboard(NULL), mpPCKeyboard(NULL),

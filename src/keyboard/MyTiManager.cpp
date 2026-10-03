@@ -113,10 +113,10 @@ namespace textinput {
 namespace extend {
 namespace memo {
 
-static DispMemoState sDispMemoState;
-static EditMemoState sEditMemoState;
-static AppearMemoState sAppearMemoState;
-static DisappearMemoState sDisappearMemoState;
+DispMemoState sDispMemoState;
+EditMemoState sEditMemoState;
+AppearMemoState sAppearMemoState;
+DisappearMemoState sDisappearMemoState;
 
 struct MemoPosition {
     f32 x;
