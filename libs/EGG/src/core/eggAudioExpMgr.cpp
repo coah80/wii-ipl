@@ -29,4 +29,10 @@ namespace EGG {
 
         mHeap.SaveState();
     }
+
+    ExpAudioMgr::ExpAudioMgr() {
+    }
+
+    ExpAudioMgr::~ExpAudioMgr() {
+    }
 }  // namespace EGG
