@@ -126,8 +126,8 @@ s32 NHTTPi_intToStr(char* destination, u32 value) {
 }
 
 s32 NHTTPi_compareToken(const char* left, const char* right) {
-    u8 rawLeft;
-    while (LowerCase((s8)(rawLeft = *(const u8*)left)) == LowerCase(*right)) {
+    u32 rawLeft;
+    while (LowerCase((s8)(rawLeft = *(const u8*)left)) == LowerCase((s8)*(const u8*)right)) {
         if ((s8)rawLeft == 0 || (s8)rawLeft == ' ') {
             return 0;
         }
