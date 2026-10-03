@@ -219,3 +219,94 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## perm8c restart continuation 2026-10-03
+
+Initial status: `agent/w1002/sol-perm8c-max`, HEAD `7654dc33e1f98d0fcf7c8361acc522ec02068b57`; no tracked diff and no commits ahead of origin/main. Unrelated pk4/pk6 untracked logs are untouched. ConvertDaysToDate was already merged in #1033 and remains exact; it is skipped. Source in all assigned units is identical to the freshly fetched origin/main. Existing /tmp search outputs and readable seeds were retained; no old supervisor or permuter process was alive. Previous failed variants were read before selecting new combined experiments.
+
+Fresh object builds needed no work. pool_diff.py reports identical pools for all three units. Baseline exact counts: NWC24MsgSubject 12/12, NWC24DateParser 7/8, pdm_partition 18/20. The three open functions remain non-exact. Raw new trials will be recorded in `/tmp/perm8c-raw-attempts.jsonl`; compile flags come directly from this worktree ninja commands, with only temporary dependency generation omitted.
+- ConvertDateToDays checked origin/main a791e598 before experiments; instruction score 16.
+- ConvertDateToDays new continuation classes: in-place annual accumulation with direct common-leap returns, signed quotient expression types, and a real signed calendar-year copy combined with the refined tail. 147 new compiled forms; best instruction penalty 6.
+- pdm_part_is_master_boot_sector checked origin/main a791e598 before experiments; instruction score 2082.
+- Temporary master batch stopped after source generation dropped a required offset declaration from an old saved hint. Those compile failures are excluded from valid attempts. Rebuilt the seed from the retained direct-expression permuter input and added replacement assertions. No repository source was affected. Initial date search setup also stopped before launch because the system Python lacks toml; use the existing permuter virtualenv.
+- pdm_part_is_master_boot_sector checked origin/main 333eea81 before experiments; instruction score 2082.
+- ConvertDateToDays new search reseeded from the minimal three-scalar annual-return form. Randomization now joins day-of-year accumulation with the Gregorian tail, instead of replaying the earlier tail-only plateau. Inline-wrapper mutations are disabled. Score is measured with stack and branch-target differences.
+- ConvertDateToDays perm8c best score 252 after 5 seconds.
+- Additional calendar continuation tried range-valid u16 year offsets with signed prior-year arithmetic, real signed counter lifetimes, and an elapsed-calendar-days helper with a live day-of-year argument. 39 forms; best instruction penalty 6.
+- Checkpoint: {"ConvertDateToDays": 176, "pdm_part_is_master_boot_sector": 3986} valid temporary object comparisons. Calendar best remains 113/113 with six scheduling/register differences. The combined master extent batch has not improved the prior 84/84, 23-difference seed. Source remains unchanged in the worktree; active searches compile only under /tmp.
+- Stopped the combined master declaration/decoder batch after 4134 valid comparisons with no improvement over 23 differences. Additional array ordering permutations recycle the same code generation; move to the distinct typed-field and signed-extent staging experiments. Failed scaffold compiles are excluded from this count.
+- Master-sector new continuation classes additionally tried signed low-byte extent staging with real decoded start/count scalars, and typed byte fields for the on-disk MBR entries, including addition/multiplication decoders. 112 forms; best instruction penalty 23.
+- pdm_part_get_start_sector checked origin/main 74dcb16a before experiments; instruction score 147.
+- Start-sector multiplication decoder improved the readable seed from eleven to nine positional differences, keeping 276/276 instructions. Pause the broader five-operand tree batch to test shift/multiply hybrids around this concrete hint. The nine-difference source remains only in /tmp.
+- Start-sector hybrid relative-byte decoder branch 1 complete; best instruction penalty 4, branch exact True.
+- Readable exact candidate for pdm_part_get_start_sector: /tmp/perm8c-trials/pdm_part_get_start_sector-hybrid-relative-byte-decoder-2-shift-int-shift-int-shift-int-linear-5ab787fc.c.
+- Readable exact candidate for pdm_part_get_start_sector: /tmp/perm8c-trials/pdm_part_get_start_sector-exact-reconstruction-formatted-direct-word-reading-ccae1132.c.
+- Readable exact candidate for pdm_part_get_start_sector: /tmp/perm8c-trials/pdm_part_get_start_sector-exact-reconstruction-relative-start-return-long-3c43d9aa.c.
+- Readable exact candidate for pdm_part_get_start_sector: /tmp/perm8c-trials/pdm_part_get_start_sector-exact-reconstruction-macro-return-int-663cd65f.c.
+- Calendar shared-predicate continuation replaced one or both duplicated leap tests with the existing private helper, including signed scalar types and an early-return predicate. 9 forms; best instruction penalty 6. No unrelated helper changes retained.
+- pdm_part_get_start_sector checked origin/main fdd68ddd before experiments; instruction score 147.
+- Exact start-sector reconstruction: use unsigned int byte arithmetic for the relative LBA offset, with the real base sector included in read_relative_start_sector. This differs from SDK pf_u32, which is unsigned long, only in compiler expression typing. All shifts operate on initialized real buffer bytes and unsigned 32-bit values. The relative-start helper is a meaningful operation, not an identity wrapper. The bulk MBR-word macro remains unsigned long and is formatted over three lines. Reordered the existing real loop declarations as suggested by the earlier eleven-difference seed. Temporary object comparison is 276/276 with zero differences; copied the readable form to the owned source for object/objdiff/full-gate verification.
+- Start-sector exact-name objdiff is 100.0%; the worktree object has 276/276 instructions and ctxdiff reports diffs 0. Full non-quick three-unit gate is GATE PASS: pdm_partition 18/20 -> 19/20, matched code 2276/3716 -> 3380/3716; pools identical, all regression/style/forbidden counts zero, DOL SHA1 26116613f624061ba99c8d1a299aaa6efa85670d. DateParser stays 7/8 and MsgSubject stays 12/12. Evidence: `/tmp/perm8c-getstart-full-gate.log`.
+- The broad base-inclusive start-sector tree batch was superseded by the concrete nine-difference multiplication hint and the shift/type hybrid reconstruction. No dead assignment, pointer alias, identity helper, mask noise or unused value appears in the retained source.
+- pdm_part_is_master_boot_sector checked origin/main be7ded2f before experiments; instruction score 2082.
+- Master-sector continuation after the relative-sector win: native unsigned-int byte operands, meaningful accumulation into the zero-initialized start value, direct byte grouping shapes and cursor/summand order. 481 forms; best instruction penalty 23.
+- Calendar numerator promotions after the native-int sector result: real signed-int annual/century/common-leap numerators in mixed long/int sums, with direct return or named common-leap counts. 112 new forms; best instruction penalty 6.
+- Master-sector also reused the proven relative-start decoder for absolute MBR starts with base zero or the already zero-initialized destination, keeping the count decoder separate. 24 forms; best instruction penalty 23.
+
+### perm8c source-attempt audit
+
+- ConvertDateToDays: distinct new classes covered annual accumulation/direct common-leap returns; signed quotient and numerator typing; valid-width calendar-year lifetimes; real Gregorian-day helper arguments; and reuse of the existing leap-year predicate. 297 valid temporary object comparisons, best 113/113 with six differences. Every new source experiment stayed in /tmp. Original source is retained.
+- pdm_part_is_master_boot_sector: distinct new classes covered combined real cursor/array declarations and endian grouping; signed low-byte decoded extent staging; typed on-disk byte fields; native unsigned-int decoding and initialization/accumulation; and reuse of the relative reader for an absolute start. 4752 valid comparisons, best 84/84 with 23 differences. The retained function remains unchanged. No further master permuter restart was warranted after these forms failed to improve the readable seed.
+- pdm_part_get_start_sector: signed low-byte staging, multiplication-based decoding, base-inclusive expression trees and shift/type hybrids were tried. 705 valid comparisons. Native unsigned-int offset arithmetic removed the final eleven differences. The minimal readable relative-start helper also stays 276/276 with zero differences; a decoder that returns only the unsigned-int word did not remain exact and was discarded.
+- Commit `8bf45d51a2bfc4d153d3b50e43a7aad25a9d583b` preserves the independently rebuilt, objdiff-100% start-sector result and its clean full gate. The unused pk4/pk6 attempt records are untouched. Remaining compiler choices are unresolved; no non-exact experimental source is retained.
+- Completed perm8c search: {"function": "ConvertDateToDays", "best": 252, "elapsed": 2708, "iterations": 6698, "returncode": 0, "reason": "45 minutes without score improvement", "log": "/tmp/perm8c-search-ConvertDateToDays.log", "running": false}.
+
+### perm8c permutation phase complete
+
+- ConvertDateToDays new joined day-of-year/tail permutation phase ended normally after 2708 seconds and 6698 iterations. Best search penalty 252, no score improvement for about 45 minutes. No readable exact result. Stack and branch-target differences were included; one permutation job ran. The earlier master/start-sector plateaus were not replayed because the new manual forms and the already exact start-sector reconstruction supplied the useful results.
+- All owned searches have exited. Inputs, candidates, raw valid-trial counts and search logs remain under /tmp. The only source change retained is the objdiff-100% start-sector reconstruction. Final validation below is another non-quick three-unit build after every search stopped.
+
+### perm8c final full gate
+
+| Unit | Instruction-exact before -> after | Matched code bytes before -> after | Matched data bytes before -> after |
+| --- | --- | --- | --- |
+| NWC24MsgSubject | 12/12 -> 12/12 | 5352/5352 -> 5352/5352 | 232/232 -> 232/232 |
+| NWC24DateParser | 7/8 -> 7/8 | 1920/2372 -> 1920/2372 | 40/40 -> 40/40 |
+| pdm_partition | 18/20 -> 19/20 | 2276/3716 -> 3380/3716 | No data sections |
+
+Exact-name pdm_part_get_start_sector is 100.0%, 276/276 instructions, diffs 0 after the final clean build. ConvertDateToDays stays open at 96.92921%, 113/113 with 16 retained-source differences; best readable temporary seed has six. pdm_part_is_master_boot_sector stays open at 86.5%, 86/84; best temporary seed has 84/84 with 23 differences. Both open functions have more than three distinct valid source-attempt classes above. No untracked pk4/pk6 file, shared header, symbol, configure flag, retail assembly or other translation unit changed.
+
+Final full gate evidence: `/tmp/perm8c-final-full-gate.log`. Final instruction diffs are `/tmp/perm8c-final-<function>.ctxdiff`. Raw temporary comparisons are `/tmp/perm8c-raw-attempts.jsonl`. All owned searches stopped before this non-quick gate.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] objdiff: code 5352/5352 data 232/232 functions 12/12 fuzzy 100.0000 linked code 5352
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] instruction-exact functions: 12/12
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .data size 184 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .sdata size 48 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .text size 5352 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] baseline: code 5352/5352 data 232 functions 12 fuzzy 100.0000
+[libs/RevoEX/src/nwc24/NWC24DateParser] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24DateParser] objdiff: code 1920/2372 data 40/40 functions 7/8 fuzzy 99.4148 linked code 0
+[libs/RevoEX/src/nwc24/NWC24DateParser] instruction-exact functions: 7/8
+[libs/RevoEX/src/nwc24/NWC24DateParser]   section .rodata size 40 match 100.0
+[libs/RevoEX/src/nwc24/NWC24DateParser]   section .text size 2372 match 99.41484
+[libs/RevoEX/src/nwc24/NWC24DateParser]   below 100: ConvertDateToDays 96.92921
+[libs/RevoEX/src/nwc24/NWC24DateParser] baseline: code 1920/2372 data 40 functions 7 fuzzy 99.4148
+[libs/RVL_SDK/src/fa/pdm_partition] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pdm_partition] objdiff: code 3380/3716 data None/None functions 19/20 fuzzy 98.7793 linked code 0
+[libs/RVL_SDK/src/fa/pdm_partition] instruction-exact functions: 19/20
+[libs/RVL_SDK/src/fa/pdm_partition]   section .text size 3716 match 98.779335
+[libs/RVL_SDK/src/fa/pdm_partition]   below 100: pdm_part_is_master_boot_sector 86.5
+[libs/RVL_SDK/src/fa/pdm_partition] baseline: code 2276/3716 data None functions 18 fuzzy 94.1798
+regressions vs baseline: 0
+global matched_code_percent: 91.56577 -> 91.60263
+global fuzzy_match_percent: 99.69885 -> 99.70456
+global complete_code_percent: 74.74593 -> 74.74593
+global matched_data_percent: 99.55890 -> 99.55890
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
