@@ -2719,14 +2719,10 @@ namespace ipl {
 
             if (mState == 7 || mState == 12 || mState == 14) {
                 nw4r::math::MTX44 matrix;
-                f32 rightScale = projection.right / mScale.x;
-                f32 leftScale = projection.left / mScale.x;
-                f32 bottomScale = projection.bottom / mScale.y;
-                f32 topScale = projection.top / mScale.y;
-                f32 bottom = mPosition.y - bottomScale;
-                f32 right = mPosition.x + rightScale;
-                f32 left = mPosition.x + leftScale;
-                f32 top = mPosition.y - topScale;
+                f32 right = mPosition.x + projection.right / mScale.x;
+                f32 left = mPosition.x + projection.left / mScale.x;
+                f32 bottom = mPosition.y - projection.bottom / mScale.y;
+                f32 top = mPosition.y - projection.top / mScale.y;
                 MTXOrtho(matrix, top, bottom, left, right, -100.0f, 100.0f);
 
                 nw4r::math::VEC4 input(position.x, position.y, 0.0f, 1.0f);
@@ -2734,14 +2730,13 @@ namespace ipl {
                 nw4r::math::VEC4Transform(&transformed, &matrix, &input);
                 framebufferWidth = renderMode->fbWidth;
                 framebufferHeight = renderMode->efbHeight;
-                scissorWidth = projection.GetWidth();
+                const f32 projectionWidth = projection.GetWidth();
+                scissorX = ((1.0f + transformed.x) * framebufferWidth / 2) -
+                           ((mThumbOffsetX * mScale.x) * (framebufferWidth / projectionWidth));
                 scissorY = (framebufferHeight - ((1.0f + transformed.y) * framebufferHeight / 2)) -
                            (mThumbOffsetY * mScale.y);
-                f32 widthScale = framebufferWidth / scissorWidth;
-                scissorX = ((1.0f + transformed.x) * framebufferWidth / 2) -
-                           ((mThumbOffsetX * mScale.x) * widthScale);
                 scissorWidth = 2.0f * (mThumbOffsetX * mScale.x) *
-                               (framebufferWidth / scissorWidth);
+                               (framebufferWidth / projectionWidth);
                 scissorHeight = 2.0f * (mThumbOffsetY * mScale.y);
             } else {
                 framebufferWidth = renderMode->fbWidth;
