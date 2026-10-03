@@ -7,8 +7,9 @@ s32 ConvertDateToDays(u16 year, u8 month, u8 day);
 void ConvertDaysToDate(u16* year, u8* month, u8* day, s32 days);
 
 static inline BOOL IsLeapYear(u16 year) {
+    s32 calendarYear = year;
     BOOL leap = FALSE;
-    if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+    if ((calendarYear % 4 == 0 && calendarYear % 100 != 0) || calendarYear % 400 == 0)
         leap = TRUE;
     return leap;
 }
@@ -231,7 +232,7 @@ void ConvertDaysToDate(u16* year, u8* month, u8* day, s32 days) {
         const u8* parsedMonth = month;
         previousDays = days;
         currentMonth = *parsedMonth;
-        if (currentMonth == 2 && IsLeapYear(*year)) {
+        if (*parsedMonth == 2 && IsLeapYear(*year)) {
             days -= 29;
         } else {
             days -= DAYS_OF_MONTH[currentMonth - 1];
