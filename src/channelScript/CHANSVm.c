@@ -19,10 +19,10 @@
 typedef struct {
     u64 work[0xD0 / sizeof(u64)];
 } NETHMACContext;
-static const void* NETGetSHA1Interface(void);
-static void NETHMACInit(NETHMACContext* ctx, const void* interface, const void* key, u32 keyLen);
-static void NETHMACUpdate(NETHMACContext* ctx, const void* data, u32 len);
-static void NETHMACGetDigest(NETHMACContext* ctx, void* digest);
+extern const void* NETGetSHA1Interface(void);
+extern void NETHMACInit(NETHMACContext* ctx, const void* interface, const void* key, u32 keyLen);
+extern void NETHMACUpdate(NETHMACContext* ctx, const void* data, u32 len);
+extern void NETHMACGetDigest(NETHMACContext* ctx, void* digest);
 extern char VmReportFormat[];
 
 #define CHANSVmDebugLength 1024
