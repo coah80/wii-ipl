@@ -1413,7 +1413,7 @@ CHANSVmErr VmCmpGeq(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* ret, CHANSV
     return VmCmpLeq(vm, type, ret, right, left);
 }
 
-CHANSVmErr CHANSVmGetBoolean(CHANSVmObjHdr* ret, CHANSVmObjHdr* val) {
+CHANSVmErr CHANSVmGetBoolean(vmBoolInt* ret, CHANSVmObjHdr* val) {
     vmBoolInt result;
     switch (val->type) {
         case CHANS_VM_OBJ_TYPE_BLANK: {
@@ -1447,7 +1447,7 @@ CHANSVmErr CHANSVmGetBoolean(CHANSVmObjHdr* ret, CHANSVmObjHdr* val) {
         }
     }
     if (ret != vmNull) {
-        ret->value.bool_v = result;
+        *ret = result;
     }
     return CHANS_VM_OK;
 }
@@ -7241,7 +7241,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
         CHANSVmErr result;
         u32 newPos;
         u32 isTypeMatch;
-        u32 shouldBranch;
+        vmBoolInt shouldBranch;
 
         if (pVm->bSignalUpdated != vmFalse && pVm->bSignalBlocked == vmFalse) {
             pVm->bSignalUpdated = vmFalse;
@@ -7630,8 +7630,8 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
 
                 case CHANS_VM_OP_LOG_NOT: {
                     CHANSVmObjHdr* pAcc = &pVm->accumulator;
-                    u32 bResult;
-                    CHANSVmErr booleanResult = CHANSVmGetBoolean((CHANSVmObjHdr*)&bResult, pAcc);
+                    vmBoolInt bResult;
+                    CHANSVmErr booleanResult = CHANSVmGetBoolean(&bResult, pAcc);
                     if (booleanResult == CHANS_VM_OK) {
                         s32 boolVal = bResult ? 0 : 1;
                         booleanResult = CHANSVmSetInteger(vm, pAcc, boolVal);
@@ -8071,14 +8071,14 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     break;
                 }
                 case CHANS_VM_OP_BRANCH_FALSE: {
-                    result = CHANSVmGetBoolean((CHANSVmObjHdr*)&shouldBranch, &pVm->accumulator);
+                    result = CHANSVmGetBoolean(&shouldBranch, &pVm->accumulator);
                     if (result == CHANS_VM_OK) {
                         shouldBranch = !shouldBranch;
                     }
                     break;
                 }
                 case CHANS_VM_OP_BRANCH_TRUE: {
-                    result = CHANSVmGetBoolean((CHANSVmObjHdr*)&shouldBranch, &pVm->accumulator);
+                    result = CHANSVmGetBoolean(&shouldBranch, &pVm->accumulator);
                     break;
                 }
                 case CHANS_VM_OP_BRANCH_ALWAYS: {
