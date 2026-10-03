@@ -397,7 +397,9 @@ namespace textinput {
             const char* leftScrollBoundName = paneNames + 48;
             const char* leftScrollPaneName = paneNames + 68;
             mLeftScroll.Create(this, leftScrollPaneName, leftScrollBoundName);
-            mRightScroll.Create(this, paneNames + 108, paneNames + 88);
+            const char* rightScrollBoundName = paneNames + 88;
+            const char* rightScrollPaneName = paneNames + 108;
+            mRightScroll.Create(this, rightScrollPaneName, rightScrollBoundName);
             mLeftScroll.Init();
             mRightScroll.Init();
             const char* windowName = scW_predictWindow;
