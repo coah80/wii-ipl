@@ -1610,9 +1610,9 @@ s32 ATERMRunConfigProtocol(void) {
                 sizeof(gAtermConfigurationResult.packetBuffer), 4, &peerAddress);
             if (receivedLength > 0) {
                 AtermPacket* packet = (AtermPacket*)gAtermConfigurationResult.packetBuffer;
+                u32 checksum = 0;
                 s32 sequence = SONtoHs(packet->sequence);
                 s32 payloadLength = SONtoHs(packet->length);
-                u32 checksum = 0;
                 u8* cursor = gAtermConfigurationResult.packetBuffer;
                 u8* packetEnd = packet->payload + payloadLength;
                 u8* payload;
