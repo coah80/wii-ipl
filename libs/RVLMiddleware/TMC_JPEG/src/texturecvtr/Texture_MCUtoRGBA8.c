@@ -520,14 +520,14 @@ static void TMCJPEGDEC_converterYUV420toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
     s32 chromaSkip;
     s8 crValue;
     s32 tileRow;
-    u8* luminance;
+    s32 lumaSkip;
     TMCCJPEGDecState* state;
     u8* texture;
     s32 width;
     s32 height;
     s32 green;
     s32 blue;
-    s32 lumaSkip;
+    u8* luminance;
     u8* cb;
     u8* cr;
     s32 value;
