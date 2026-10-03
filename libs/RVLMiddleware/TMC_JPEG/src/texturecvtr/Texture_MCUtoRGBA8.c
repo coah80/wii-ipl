@@ -517,9 +517,9 @@ static void TMCJPEGDEC_converterYUV422toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
 }
 
 static void TMCJPEGDEC_converterYUV420toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    s32 tileRow;
-    s8 crValue;
     s32 chromaSkip;
+    s8 crValue;
+    s32 tileRow;
     u8* luminance;
     TMCCJPEGDecState* state;
     u8* texture;
@@ -528,15 +528,15 @@ static void TMCJPEGDEC_converterYUV420toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
     s32 green;
     s32 blue;
     s32 lumaSkip;
-    s32 yEnd;
-    s32 xEnd;
+    u8* cb;
+    u8* cr;
     s32 value;
     s32 column;
-    u8* cr;
-    s32 greenOffset;
+    s32 xEnd;
+    s32 yEnd;
     s32 tileWidth;
     s32 redOffset;
-    u8* cb;
+    s32 greenOffset;
     u16* output;
     s32 blueOffset;
     s32 red;
