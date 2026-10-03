@@ -617,6 +617,20 @@ int AOSS_Init_old(AOSSInitInput* input)
           }
           resultCode = 0xffffffff;
         } else {
+          /* The original initialization path repeats this status check. */
+          if (state != 0) {
+            input->status = 0xf;
+            if (s_accessPointConfig) {
+              AOSSi_Free(s_accessPointConfig);
+              s_accessPointConfig = 0;
+            }
+            if (s_accessPointList) {
+              AOSSi_Free(s_accessPointList);
+              s_accessPointList = 0;
+            }
+            resultCode = 0xffffffff;
+            goto finish_initialization;
+          }
           s_accessPointConfig = (int *)AOSSi_Alloc(0x58);
           if (s_accessPointConfig == 0) {
             input->status = 0xf;
@@ -724,19 +738,15 @@ handle_initial_link:
       AOSSi_Free(s_accessPointList);
       s_accessPointList = 0;
     }
-    requestResult = 0;
-    state = 0;
-    do {
-      AOSSRequestRecord* currentRecord = &requestRecords.records[requestResult];
-      u16 transactionId;
-      memcpy(requestRecords.bytes + state,input->optionData,6);
-      transactionId = rand();
-      currentRecord->transactionId = transactionId;
-      receivedLength = SOHtoNs(transactionId);
-      currentRecord->transactionId = receivedLength;
-      requestResult++;
-      state += sizeof(AOSSRequestRecord);
-    } while (requestResult < 3);
+    {
+      int recordIndex;
+      for (recordIndex = 0; recordIndex < 3; recordIndex++) {
+        memcpy(requestRecords.records[recordIndex].address, input->optionData, 6);
+        requestRecords.records[recordIndex].transactionId = rand();
+        requestRecords.records[recordIndex].transactionId =
+            SOHtoNs(requestRecords.records[recordIndex].transactionId);
+      }
+    }
     s_socket = SOSocket(2,2,0);
     if (s_socket < 0) {
       input->status = 0xf;
@@ -801,7 +811,7 @@ perform_request:
             if (s_socketStarted == 1) {
               s_socketStarted = 0;
               requestResult = SOCleanup();
-              if (-1 < requestResult) goto request_socket_cleanup_complete;
+              if (requestResult >= 0) goto request_socket_cleanup_complete;
               requestResult = -1;
             }
             else {
@@ -890,7 +900,6 @@ request_socket_cleanup_complete:
                   resultCode = 0xffffffff;
                   goto finish_initialization;
                 }
-                initialSleep = remainingWait <= 100 ? remainingWait : 100;
                 AOSSi_Sleep(remainingWait > 100 ? 100 : remainingWait);
                 if (remainingWait > 100) initialSleep = 100;
                 else initialSleep = remainingWait;
@@ -943,73 +952,76 @@ request_socket_cleanup_complete:
               goto finish_initialization;
             }
           }
-          requestResult = s_socket;
-          switch (protocolState) {
-          case 0:
-            if (s_operationState != 2) {
-              s_operationState = 2;
-              AOSSi_Status(2);
-            }
-            requestResult = AOSSSendDiscoveryRequest(networkAddresses,&requestRecords,requestResult);
-            break;
-          case 1:
-            if (s_operationState != 3) {
-              s_operationState = 3;
-              AOSSi_Status(3);
-            }
-            requestResult = AOSSSendHelloRequest(networkAddresses,&requestRecords,requestResult);
+          {
+            int sendResult;
+            int requestSocket = s_socket;
+            switch (protocolState) {
+            case 0:
+              if (s_operationState != 2) {
+                s_operationState = 2;
+                AOSSi_Status(2);
+              }
+              sendResult = AOSSSendDiscoveryRequest(networkAddresses,&requestRecords,requestSocket);
+              break;
+            case 1:
+              if (s_operationState != 3) {
+                s_operationState = 3;
+                AOSSi_Status(3);
+              }
+              sendResult = AOSSSendHelloRequest(networkAddresses,&requestRecords,requestSocket);
 
-            break;
-          case 2:
-            if (s_operationState != 5) {
-              s_operationState = 5;
-              AOSSi_Status(5);
-            }
-            packetWords = s_responseBuffer;
-            memset(s_responseBuffer,0,0x5dc);
-            memcpy(messageIdentity,&requestRecords.records[2],8);
-            manufacturerLength = strlen(s_manufacturer);
-            AOSSXorBufferWithKey(messageIdentity,8,s_manufacturer,manufacturerLength);
-            receivedLength = SOHtoNs(1);
-            packetWords->initialLength = receivedLength;
-            packetWords->initialType = 0;
-            packetWords->initialSequence = 0;
-            packetWords->responseLength = SOHtoNs(0x3000);
-            packetWords->responseType = 0;
-            packetWords->finalLength = SOHtoNs(0);
-            packetWords->finalSequence = SOHtoNs(0);
-            packetWords->reserved = 0;
-            packetWords->messageType = 0x11;
-            memcpy(packetWords->messageIdentity,messageIdentity,8);
-            memset(&replyAddress,0,8);
-            replyAddress.family = 2;
-            replyAddress.port = SOHtoNs(0x5790);
-            replyAddress.address = SOHtoNl(s_runtime.ipAddress);
-            if ((s8)s_runtime.active == 0) {
-              replyAddress.address = 0xffffffff;
-            }
-            replyAddress.length = 8;
-            SOSendTo(requestResult,packetWords,0x18,0,&replyAddress);
-            requestResult = 0;
+              break;
+            case 2:
+              if (s_operationState != 5) {
+                s_operationState = 5;
+                AOSSi_Status(5);
+              }
+              packetWords = s_responseBuffer;
+              memset(s_responseBuffer,0,0x5dc);
+              memcpy(messageIdentity,&requestRecords.records[2],8);
+              manufacturerLength = strlen(s_manufacturer);
+              AOSSXorBufferWithKey(messageIdentity,8,s_manufacturer,manufacturerLength);
+              receivedLength = SOHtoNs(1);
+              packetWords->initialLength = receivedLength;
+              packetWords->initialType = 0;
+              packetWords->initialSequence = 0;
+              packetWords->responseLength = SOHtoNs(0x3000);
+              packetWords->responseType = 0;
+              packetWords->finalLength = SOHtoNs(0);
+              packetWords->finalSequence = SOHtoNs(0);
+              packetWords->reserved = 0;
+              packetWords->messageType = 0x11;
+              memcpy(packetWords->messageIdentity,messageIdentity,8);
+              memset(&replyAddress,0,8);
+              replyAddress.family = 2;
+              replyAddress.port = SOHtoNs(0x5790);
+              replyAddress.address = SOHtoNl(s_runtime.ipAddress);
+              if ((s8)s_runtime.active == 0) {
+                replyAddress.address = 0xffffffff;
+              }
+              replyAddress.length = 8;
+              SOSendTo(requestSocket,packetWords,0x18,0,&replyAddress);
+              sendResult = 0;
 
-            break;
-          default:
-            requestResult = -1;
-            break;
-          }
-          if (requestResult == -1) {
-            s_errorCode = protocolState + 0x1000;
-            input->status = 0xf;
-            if (s_accessPointConfig) {
-              AOSSi_Free(s_accessPointConfig);
-              s_accessPointConfig = (int *)0x0;
+              break;
+            default:
+              sendResult = -1;
+              break;
             }
-            if (s_accessPointList) {
-              AOSSi_Free(s_accessPointList);
-              s_accessPointList = 0;
+            if (sendResult == -1) {
+              s_errorCode = protocolState + 0x1000;
+              input->status = 0xf;
+              if (s_accessPointConfig) {
+                AOSSi_Free(s_accessPointConfig);
+                s_accessPointConfig = (int *)0x0;
+              }
+              if (s_accessPointList) {
+                AOSSi_Free(s_accessPointList);
+                s_accessPointList = 0;
+              }
+              resultCode = 0xffffffff;
+              goto finish_initialization;
             }
-            resultCode = 0xffffffff;
-            goto finish_initialization;
           }
           memset(packetBuffer,0,0x5f8);
           pollTime.seconds = timeoutMilliseconds / 1000;
@@ -1028,10 +1040,12 @@ request_socket_cleanup_complete:
           if (0 < requestResult) goto process_received_packet;
           receivedPackets = receivedPackets + 1;
           if (receivedPackets > attemptCount) {
-            switch (protocolState) {
-            case 0: s_errorCode = 0xf; break;
-            case 1: s_errorCode = 0x10; break;
-            default: s_errorCode = 0x11; break;
+            if (protocolState == 0) {
+              s_errorCode = 0xf;
+            } else if (protocolState == 1) {
+              s_errorCode = 0x10;
+            } else {
+              s_errorCode = 0x11;
             }
             protocolResult = -1;
             goto close_protocol_socket;
@@ -1098,8 +1112,7 @@ process_received_packet:
   }
   else {
     if (protocolState != requestResult) {
-      protocolState = requestResult;
-      if (requestResult != 2) goto perform_request;
+      if (requestResult != 2) goto advance_protocol_state;
       if (s_socket != -1) {
         SOClose(s_socket);
       }
@@ -1237,7 +1250,8 @@ wait_for_packet:
             goto finish_initialization;
           }
           AOSSi_Sleep(remainingWait > 100 ? 100 : remainingWait);
-          initialSleep = remainingWait <= 100 ? remainingWait : 100;
+          if (remainingWait > 100) initialSleep = 100;
+          else initialSleep = remainingWait;
         }
         if (AOSSi_cancel_flag == 1) {
           input->status = 0xf;
@@ -1294,15 +1308,18 @@ wait_for_packet:
         resultCode = 0xffffffff;
         goto finish_initialization;
       }
+advance_protocol_state:
       protocolState = requestResult;
       goto perform_request;
     }
     protocolState = requestResult;
     if (receivedPackets > waitSettings.halfwords.high) {
-      switch (requestResult) {
-      case 0: s_errorCode = 0xf; break;
-      case 1: s_errorCode = 0x10; break;
-      default: s_errorCode = 0x11; break;
+      if (requestResult == 0) {
+        s_errorCode = 0xf;
+      } else if (requestResult == 1) {
+        s_errorCode = 0x10;
+      } else {
+        s_errorCode = 0x11;
       }
       protocolResult = -1;
       goto close_protocol_socket;
@@ -1322,8 +1339,7 @@ wait_for_packet:
         resultCode = 0xffffffff;
         goto finish_initialization;
       }
-      if (retryDelay > 100) AOSSi_Sleep(100);
-      else AOSSi_Sleep(retryDelay);
+      AOSSi_Sleep(retryDelay > 100 ? 100 : retryDelay);
       if (retryDelay > 100) delayStep = 100;
       else delayStep = retryDelay;
     }
@@ -1350,7 +1366,7 @@ close_protocol_socket:
   if (s_socketStarted == 1) {
     s_socketStarted = 0;
     state = SOCleanup();
-    if (-1 < state) goto protocol_socket_cleanup_complete;
+    if (state >= 0) goto protocol_socket_cleanup_complete;
     state = -1;
   }
   else {
