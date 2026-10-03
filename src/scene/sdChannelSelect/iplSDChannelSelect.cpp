@@ -3411,7 +3411,7 @@ namespace ipl {
             case ::gui::EventHandler::ON_TRIG:
                 if (mpScene->mState == 1 && controller != NULL) {
                     BOOL writeProtected = mpScene->mpSDWorker->is_sd_write_protected();
-                    if (controller->pinchTrg() && SDChannelSelect::isChannelReady(channel) &&
+                    if (controller->pinchTrg() && iplSDChannelObj_hasAppMeta(channel) &&
                         !mpScene->mbSDCardBroken) {
                         if (!writeProtected) {
                             mpScene->startDrag(controller, mpScene->mCurrentPage, index);
@@ -3425,20 +3425,20 @@ namespace ipl {
                 break;
             case ::gui::EventHandler::ON_DRAG:
                 if (mpScene->mState == 1 && controller != NULL && controller->decide() &&
-                    SDChannelSelect::isChannelReady(channel)) {
+                    iplSDChannelObj_hasAppMeta(channel)) {
                     mpScene->selectChannel(channel->getPage(), channel->getIndex());
                     TVRCManager::getHandle()->setEnable(FALSE);
                 }
                 break;
             case ::gui::EventHandler::ON_POINT:
-                if (mpScene->mState == 1 && SDChannelSelect::isChannelReady(channel)) {
+                if (mpScene->mState == 1 && iplSDChannelObj_hasAppMeta(channel)) {
                     iplSDChannelObj_startAppear(channel, 0);
                     snd::getSystem()->startSE("WIPL_SE_CH_TARGETTING");
                     controller->rumble(1);
                 }
                 break;
             case ::gui::EventHandler::ON_LEFT:
-                if (mpScene->mState == 1 && SDChannelSelect::isChannelReady(channel)) {
+                if (mpScene->mState == 1 && iplSDChannelObj_hasAppMeta(channel)) {
                     iplSDChannelObj_startDisappear(channel, 0);
                 }
                 break;
