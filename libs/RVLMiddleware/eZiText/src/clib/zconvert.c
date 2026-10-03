@@ -1,3 +1,8 @@
+#include <zi8clib/zitypes.h>
+#undef ZI_NEED_WORK
+#define ZI_NEED_WORK , struct __zi8_work_data_s* __zi8_work_data
+#undef ZI_WORK
+#define ZI_WORK __zi8_work_data
 #include <zi8clib/zconvert.h>
 #include <zi8clib/zierror.h>
 
