@@ -153,7 +153,7 @@ NWC24Err NWC24iIsValidDate(u16 year, u8 month, u8 day) {
 s32 ConvertDateToDays(u16 year, u8 month, u8 day) {
     s32 daysOfYear;
     s32 yearOffset;
-    s32 centuryLeapDays;
+    s32 totalDays;
     s32 commonLeapDays;
     BOOL isLeapYear;
 
@@ -191,11 +191,10 @@ validDate:
     }
 
     yearOffset = year - 1900;
-    centuryLeapDays = (yearOffset + 299) / 400;
     daysOfYear += yearOffset * 365;
-    daysOfYear += centuryLeapDays;
+    totalDays = daysOfYear + (yearOffset + 299) / 400;
     commonLeapDays = (yearOffset - 1) / 4 - (yearOffset - 1) / 100;
-    return daysOfYear + commonLeapDays;
+    return totalDays + commonLeapDays;
 }
 
 void ConvertDaysToDate(u16* year, u8* month, u8* day, s32 days) {
