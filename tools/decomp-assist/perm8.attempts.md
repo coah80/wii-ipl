@@ -137,3 +137,85 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+
+## Continuation 2026-10-03
+
+Started at `b9bda11d` on `agent/w1002/sol-perm8b-max`. The subject/text setter was already merged and 12/12 exact, so it was skipped after a fresh origin check. Each open function was checked against freshly fetched `origin/main` before its search. All three units had identical pools before experiments.
+
+Compile scripts and targets were refreshed in the existing `/tmp/perm-<function>` directories. Flags match this worktree's `ninja -t commands`; only temporary dependency-file generation is omitted. Contexts contain the requested C function and its real dependencies, with the partition buffer's 32-byte alignment preserved. Stack and branch-target differences are scored. This lane used at most two permutation jobs. Dummy, padding, mask-noise, self-assignment, and external-type mutation passes are disabled; every generated hint still receives semantic and readability review.
+
+### Exact calendar conversion
+
+The monthly-loop score-16 hint initially matched with a pointer alias of `days`; that generated form was rejected. The readable reconstruction needs a signed `calendarYear` temporary in the real leap-year helper and a direct `*parsedMonth` February test. The cached month remains the month-table index. No pointer alias, unused variable, artificial helper, assembly, volatile cast, or register keyword is retained.
+
+`ConvertDaysToDate` is 100.0% by exact-name objdiff and 103/103 instructions with zero ctxdiff differences. The six previously exact DateParser functions remain exact. The focused source change and its first clean full gate were committed as `1cc1ddd4`; evidence is `/tmp/perm8r-month-full-gate.log`.
+
+### Readable attempts for remaining functions
+
+- `ConvertDateToDays`: tried partial Gregorian quotient expressions and equivalent year inputs; separate annual/century/ordinary-leap accumulations with meaningful scalar temporaries; live-variable declaration orders; natural 32-bit scalar types and dependency-correct const scopes. Best readable seed: 113/113 instructions, six scheduling/register differences. The whole-function phase was narrowed to the arithmetic tail, then stopped after 45 minutes without improvement. No non-exact source is retained.
+- `pdm_part_is_master_boot_sector`: tried little-endian inline helpers and expression trees; independent cursor/index declarations, initialization and increment order; byte-promotion types and real even/odd accumulators; meaningful offset staging. Best readable seed: 84/84 instructions, 23 differences, improving the prior 33-difference seed. Score 795 overwrites the real sector bound and is rejected. Score 660 introduces unrelated staged constants; its natural reconstructions remain non-exact. The resumed seed stalled for 45 minutes and was stopped. Original source is retained.
+- `pdm_part_get_start_sector`: tried typed MBR record fields; separately accumulated even/odd relative-sector bytes with block/function scopes; real entry-byte views and cached bytes; inline byte loops and sequential/pair decoders. Best readable seed: 276/276 instructions, eleven differences. Scores 213 and 114 contain dead scalar/pointer assignments. Natural byte-cache and pointer-view reconstructions remain non-exact. The search was stopped after about 45 minutes with no readable improvement. Original source is retained.
+
+One temporary const-scope experiment moved a declaration before its dependency was initialized. It was rejected, excluded from valid readable attempts, and rerun with dependency-correct declarations. No such source was applied or committed.
+
+Each remaining function has at least three distinct readable source attempts documented above. Full raw records are preserved at `/tmp/perm8r-final-raw-attempts.md`; trial sources, compiler output and instruction diffs remain under `/tmp/perm8-resume-trials`. Permutation inputs and outputs remain outside the repository.
+
+### Resumed search measurements
+
+Permuter scores are search penalties, not objdiff percentages. Current continuation phases are listed separately from the earlier round above.
+
+| Function | Iterations | Best score | Seconds | Result |
+| --- | ---: | ---: | ---: | --- |
+| pdm_part_is_master_boot_sector | 2224 | 795 | 921 | Reseeded from a better readable form; unsafe hint rejected |
+| ConvertDaysToDate | 4078 | 16 | 1571 | Readable exact reconstruction committed |
+| ConvertDateToDays | 1107 | 252 | 573 | Reseeded to focus on arithmetic tail |
+| pdm_part_is_master_boot_sector | 6239 | 660 | 2756 | Stopped after 45 minutes without improvement |
+| ConvertDateToDays | 6425 | 252 | 2715 | Stopped after 45 minutes without improvement |
+| pdm_part_get_start_sector | 5594 | 114 | 2714 | Dead-variable hints rejected; no readable improvement |
+
+The first two phases were reattached to their existing processes after restarting the supervisor; their exit codes are unavailable, while their elapsed time, iteration count and scores were preserved. Remaining owned phases exited normally. All searches stopped; the directories are ready to resume.
+
+### Final full gate
+
+| Unit | Instruction-exact before -> after | Exact code bytes before -> after | Exact data bytes before -> after |
+| --- | --- | --- | --- |
+| NWC24MsgSubject | 12/12 -> 12/12 | 5352/5352 -> 5352/5352 | 232/232 -> 232/232 |
+| NWC24DateParser | 6/8 -> 7/8 | 1508/2372 -> 1920/2372 | 40/40 -> 40/40 |
+| pdm_partition | 18/20 -> 18/20 | 2276/3716 -> 2276/3716 | No data sections |
+
+The final gate is a clean, non-quick rebuild of all three assigned units. Pools are identical, the DOL SHA1 is correct, and regression, forbidden-pattern and readability counts are zero. Source stayed unchanged afterward. No configure.py linking flags, shared headers, symbols, retail assembly or other units changed. The unrelated untracked pk4/pk6 records remain untouched.
+
+Remaining open functions: `ConvertDateToDays` 96.92921% (113/113, arithmetic scheduling/register allocation); `pdm_part_is_master_boot_sector` 86.5% (86/84 in retained source, byte assembly and registers); `pdm_part_get_start_sector` 84.51811% (276/276, byte-assembly scheduling/registers). All non-exact experimental source was discarded.
+
+Gate evidence: `/tmp/perm8r-final-full-gate.log`.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] objdiff: code 5352/5352 data 232/232 functions 12/12 fuzzy 100.0000 linked code 0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] instruction-exact functions: 12/12
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .data size 184 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .sdata size 48 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject]   section .text size 5352 match 100.0
+[libs/RevoEX/src/nwc24/NWC24MsgSubject] baseline: code 5352/5352 data 232 functions 12 fuzzy 100.0000
+[libs/RevoEX/src/nwc24/NWC24DateParser] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24DateParser] objdiff: code 1920/2372 data 40/40 functions 7/8 fuzzy 99.4148 linked code 0
+[libs/RevoEX/src/nwc24/NWC24DateParser] instruction-exact functions: 7/8
+[libs/RevoEX/src/nwc24/NWC24DateParser]   section .rodata size 40 match 100.0
+[libs/RevoEX/src/nwc24/NWC24DateParser]   section .text size 2372 match 99.41484
+[libs/RevoEX/src/nwc24/NWC24DateParser]   below 100: ConvertDateToDays 96.92921
+[libs/RevoEX/src/nwc24/NWC24DateParser] baseline: code 1508/2372 data 40 functions 6 fuzzy 99.3642
+[libs/RVL_SDK/src/fa/pdm_partition] pool: IDENTICAL
+[libs/RVL_SDK/src/fa/pdm_partition] objdiff: code 2276/3716 data None/None functions 18/20 fuzzy 94.1798 linked code 0
+[libs/RVL_SDK/src/fa/pdm_partition] instruction-exact functions: 18/20
+[libs/RVL_SDK/src/fa/pdm_partition]   section .text size 3716 match 94.17976
+[libs/RVL_SDK/src/fa/pdm_partition]   below 100: pdm_part_is_master_boot_sector 86.5
+[libs/RVL_SDK/src/fa/pdm_partition]   below 100: pdm_part_get_start_sector 84.51811
+[libs/RVL_SDK/src/fa/pdm_partition] baseline: code 2276/3716 data None functions 18 fuzzy 94.1798
+regressions vs baseline: 0
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
