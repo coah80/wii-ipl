@@ -419,8 +419,10 @@ void WithZi::update() {
                 }
                 ++mCandidateCount;
                 {
-                    s32 position = 0;
-                    for (u16* candidate = destination; *candidate != 0; ++candidate) {
+                    u16* candidate;
+                    s32 position;
+                    position = 0;
+                    for (candidate = destination; *candidate != 0; ++candidate) {
                         switch (mLetterMode) {
                         case LM_1:
                             *candidate = util::toWLower(*candidate);
