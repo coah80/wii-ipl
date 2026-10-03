@@ -1406,10 +1406,10 @@ namespace ipl {
             getCurrentTitleUsage(&bytes, &blocks);
             *titleCount = 0;
 
+            ESTitleId titleId;
             for (int page = MAX_CHANNEL_PAGE - 1; page >= 0; --page) {
                 for (int order = 0; order < MAX_CHANNEL_INDEX; ++order) {
                     int channelIndex = channelOrder[order];
-                    ESTitleId titleId;
                     const channel::SEntry& channelInfo =
                         System::getChannelManager()->mChannels[page][channelIndex];
                     if (channelInfo.loadedBnr) {
