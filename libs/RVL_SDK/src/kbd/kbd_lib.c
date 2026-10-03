@@ -564,7 +564,7 @@ static void kbd_led_handler(BOOL success, void* callbackArg) {
     index = (s32)callbackArg;
     callback = &kbdLCBuf[index];
     kbdCmdBuf[index].device = 0;
-    if (callback->callbackAddress == (USBKBDCmdLEDCallback)(u32)kbdCmdBuf[index].device) {
+    if (callback->callbackAddress == (USBKBDCmdLEDCallback)(u32)kbdCmdBuf[(u32)callbackArg].device) {
         return;
     }
     switch (success) {
@@ -579,8 +579,8 @@ static void kbd_led_handler(BOOL success, void* callbackArg) {
 }
 
 USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, void* callbackArg) {
-    u32 index;
     u8 ledBits;
+    u32 index;
     BOOL interrupts;
     USBKBDErr result;
     if (!kbdInitialized) {
