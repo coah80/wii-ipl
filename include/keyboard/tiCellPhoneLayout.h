@@ -69,6 +69,9 @@
                 virtual bool updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) override;
                 virtual bool updateInput(input::HKBManager& hkbManager) override;
 #endif
+#if defined(TI_CELLPHONE_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
+                void resetHoldingButton();
+#endif
 #ifdef TI_CELLPHONE_IMPLEMENTATION
                 virtual ~LayoutByNW4R();
                 virtual void create(MEMAllocator* allocator) override;
@@ -95,7 +98,6 @@
                 virtual void changeSpaceKeyTop(const PaneNameToCharCode* keys);
                 void setUpperCaseJP(bool enabled);
                 void setLangKeyActive(bool enabled);
-                void resetHoldingButton();
 
             private:
                 bool mbLineFeedButton;
