@@ -358,11 +358,6 @@ extern int SORecvFrom(int socket, void* buffer, int length, int flags, void* add
 extern int SOSendTo(int socket, const void* buffer, int length, int flags, void* address);
 
 typedef struct {
-    NCDIpConfig ipConfig;
-    NCDIfConfig ifConfig;
-} AtermNetworkSettings;
-
-typedef struct {
     u32 ssidLength;
     u8 ssid[32];
     u8 reserved[4];
@@ -504,7 +499,8 @@ typedef void (*AtermProgressCallback)(void*);
 typedef void* (*AtermAllocateCallback)(u32);
 typedef void (*AtermFreeCallback)(void*);
 
-AtermNetworkSettings gNetworkSettings;
+NCDIpConfig gAtermIpConfig;
+NCDIfConfig gAtermIfConfig;
 char gAccessPointName[0x24];
 AtermScanSettings gScanSettings;
 AtermConfigurationResult gAtermConfigurationResult;
@@ -569,7 +565,7 @@ int ATERMStartNetworkStack(void) {
     OSMessage hostQueueBuffer;
     OSAlarm hostAlarm;
 
-    ipConfig = &gNetworkSettings.ipConfig;
+    ipConfig = &gAtermIpConfig;
     memset(ipConfig, 0, sizeof(*ipConfig));
     ipConfig->adjust.maxTransferUnit = 0x514;
     ipConfig->adjust.tcpRetransTimeout = 100;
@@ -583,8 +579,8 @@ int ATERMStartNetworkStack(void) {
     memcpy(ipConfig->ip.dns2, &gDefaultSecondaryDns, 4);
     NCDSetIpConfig(ipConfig);
 
-    memset(&gNetworkSettings.ifConfig, 0, sizeof(gNetworkSettings.ifConfig));
-    ifConfig = &gNetworkSettings.ifConfig;
+    memset(&gAtermIfConfig, 0, sizeof(gAtermIfConfig));
+    ifConfig = &gAtermIfConfig;
     ifConfig->selectedMedia = 1;
     ifConfig->netif.wireless.rateset = 0;
     ifConfig->netif.wireless.configMethod = 0;
