@@ -506,7 +506,7 @@ pinyin_initial:
         convertedCount = Zi8PinyinInitials[value];
         if (convertedCount != 0) {
             if (outputIndex == 0) {
-                *resultCount = *resultCount + 1;
+                *resultCount += 1;
             }
             result++;
             initial[outputIndex] = 0x7E00;
@@ -526,7 +526,7 @@ pinyin_initial:
                 value = *current;
                 if (value != 0x68 && value != 0xF368) goto scan_final;
                 if (outputIndex == 0) {
-                    *resultCount = *resultCount + 1;
+                    *resultCount += 1;
                 }
                 final[outputIndex] += 0x200;
                 *bestInitial = initial[0];
@@ -567,7 +567,7 @@ scan_final:
                 value -= 0xF361;
                 if (value > 0x19) {
                     if (outputIndex == 0) {
-                        *resultCount = *resultCount + 1;
+                        *resultCount += 1;
                     }
                     goto finish_final;
                 }
@@ -577,7 +577,7 @@ scan_final:
             pinyin[index] = (ziU8)value + 1;
             if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) == 0) goto try_final_extension;
             if (outputIndex == 0) {
-                *resultCount = *resultCount + 1;
+                *resultCount += 1;
             }
             current++;
             index++;
@@ -592,7 +592,7 @@ try_final_extension:
                 pinyin[index + 1] = 0xFF;
                 if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
                     if (outputIndex == 0) {
-                        *resultCount = *resultCount + 1;
+                        *resultCount += 1;
                     }
                     pinyin[index + 1] = 0;
                     current++;
@@ -615,7 +615,7 @@ try_final_extension:
 finish_final:
         if ((index > 3) && (count != 0) && (((value = *current) == 0x27) || (value == 0xF360) || (value == 0x20))) {
             if (outputIndex == 0) {
-                *resultCount = *resultCount + 1;
+                *resultCount += 1;
             }
             current++;
             count--;
@@ -705,11 +705,10 @@ finish_final:
                 }
             }
         }
-        outputIndex++;
-        if (outputIndex > 0xf) break;
+        if (++outputIndex > 0xf) break;
     }
     if ((result > 1) && (text[*resultCount - 1] >= 0xF341) && (text[*resultCount - 1] <= 0xF35A)) {
-        *resultCount = *resultCount - 1;
+        *resultCount -= 1;
     }
     return result;
 
