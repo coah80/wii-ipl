@@ -29,7 +29,7 @@ static struct {
 } drvInitFunc = {diskInitTbl, 3};
 extern s32 pdm_open_disk(FA_DISK_INIT* table, FADisk** disk);
 extern s32 pdm_open_partition(FADisk* disk, u32 index, FAPartition** partition);
-extern s32 pfstub_attach(FADrvTbl** drives, FA_NAND_ATTACH* nand);
+extern s32 pfstub_attach(FADrvTbl** drives, const void* nand_data);
 extern s32 pfd_sddrv_is_media_insert(void);
 extern s32 pfd_mscdrv_is_media_insert(FADisk* disk);
 
