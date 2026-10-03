@@ -687,10 +687,10 @@ NWC24Err NWC24IterateDlTaskEx(NWC24DlIterateWork* dlIterateWork, NWC24DlId* dlIt
     return NWC24_ERR_DONE;
 }
 
-static inline NWC24Err SetDlTaskAccessTime(NWC24DlTask* dlTask, OSTime time) {
+static inline NWC24Err SetDlTaskAccessTime(const NWC24DlTask* dlTask, OSTime time) {
     NWC24Work* work = NWC24WorkP;
     DlTaskListHeader* header = work != NULL ? (DlTaskListHeader*)work->dlHead : NULL;
-    DlTaskData* task = (DlTaskData*)dlTask;
+    const DlTaskData* task = (const DlTaskData*)dlTask;
     NWC24Err result;
     u16 taskId;
     if (task == NULL) { result = NWC24_ERR_INVALID_VALUE; }
@@ -706,19 +706,39 @@ static inline NWC24Err SetDlTaskAccessTime(NWC24DlTask* dlTask, OSTime time) {
     return NWC24_OK;
 }
 
-static inline NWC24Err CheckDlTaskRetry(NWC24DlTask* dlTask, u8 retryCount) {
-    DlTaskData* task = (DlTaskData*)dlTask;
-    NWC24Err result = ValidateDlTask(dlTask, FALSE);
-    u32 retryMask;
-    if (result != NWC24_OK) { return result; }
-    if (task->retryEnabled == 0) { return NWC24_ERR_INVALID_OPERATION; }
-    retryMask = task->retryMask;
-    if (retryMask == 0) { return NWC24_ERR_FATAL; }
-    if (retryCount > 31) { return NWC24_ERR_INVALID_VALUE; }
-    if ((retryMask & (1U << retryCount)) == 0) { return NWC24_ERR_DISABLED; }
+static inline NWC24Err CheckDlTaskForRetry(const DlTaskData* task) {
+    DlTaskListHeader* header = NWC24WorkP == NULL ? NULL : (DlTaskListHeader*)NWC24WorkP->dlHead;
+    if (task == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (header == NULL) {
+        return NWC24_ERR_LIB_NOT_OPENED;
+    }
+    if (task->id != 0xffff && task->id >= header->maxTaskCount) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
     return NWC24_OK;
 }
-static inline NWC24Err UpdateDlTaskAccessTime(NWC24DlTask* dlTask) {
+
+static inline NWC24Err CheckDlTaskRetry(const NWC24DlTask* dlTask, u8 retryCount) {
+    const DlTaskData* task = (const DlTaskData*)dlTask;
+    NWC24Err result;
+    result = CheckDlTaskForRetry(task);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    if (task->retryEnabled == 0) {
+        return NWC24_ERR_INVALID_OPERATION;
+    }
+    if (task->retryMask == 0) {
+        return NWC24_ERR_FATAL;
+    }
+    if (retryCount > 31) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    return ((1U << retryCount) & task->retryMask) == 0 ? NWC24_ERR_DISABLED : NWC24_OK;
+}
+static inline NWC24Err UpdateDlTaskAccessTime(const NWC24DlTask* dlTask) {
     OSTime universalTime;
     NWC24Err result = NWC24iGetUniversalTime(&universalTime);
     if (result >= NWC24_OK) {
@@ -726,6 +746,16 @@ static inline NWC24Err UpdateDlTaskAccessTime(NWC24DlTask* dlTask) {
         if (result < NWC24_OK) { return result; }
     }
     return result;
+}
+
+static inline BOOL IsDlTaskWritableGroup(u32 groupId, u32 flags) {
+    BOOL allowed = FALSE;
+    if (flags & 0x40) {
+        if (groupId == NWC24GetGroupId()) {
+            allowed = TRUE;
+        }
+    }
+    return allowed;
 }
 
 static inline NWC24Err ValidateWritableDlTask(const NWC24DlTask* dlTask) {
@@ -738,14 +768,7 @@ static inline NWC24Err ValidateWritableDlTask(const NWC24DlTask* dlTask) {
         return NWC24_ERR_LIB_NOT_OPENED;
     }
     if (!NWC24IsMsgLibOpenedByTool() && !IsDlTaskOwner(task->appId)) {
-        BOOL allowed = FALSE;
-        u32 flags = task->flags;
-        u16 groupId = task->groupId;
-        if (flags & 0x40) {
-            if (groupId == NWC24GetGroupId()) {
-                allowed = TRUE;
-            }
-        }
+        BOOL allowed = IsDlTaskWritableGroup(task->groupId, task->flags);
         if (!allowed) {
             return NWC24_ERR_PROTECTED;
         }
@@ -756,11 +779,21 @@ static inline NWC24Err ValidateWritableDlTask(const NWC24DlTask* dlTask) {
     return NWC24_OK;
 }
 
+static inline NWC24Err ClearDlTaskError(NWC24DlTask* dlTask) {
+    DlTaskData* task = (DlTaskData*)dlTask;
+    NWC24Err result;
+    result = ValidateWritableDlTask(dlTask);
+    if (result != NWC24_OK) {
+        return result;
+    }
+    task->unknown_0x20 = 0;
+    task->unknown_0x1a = 0;
+    return NWC24_OK;
+}
+
 NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
     DlTaskData* task = (DlTaskData*)dlTask;
-    DlTaskListHeader* header;
     u16 taskId;
-    OSTime universalTime;
     NWC24Err result;
 
     result = ValidateWritableDlTask(dlTask);
@@ -769,11 +802,7 @@ NWC24Err NWC24UpdateDlTask(NWC24DlTask* dlTask) {
     if (taskId == 0xffff || taskId >= GetCachedDlHeader()->maxTaskCount) { return NWC24_ERR_INVALID_VALUE; }
     result = UpdateDlTaskAccessTime(dlTask);
     if (result < NWC24_OK) { return result; }
-    result = ValidateWritableDlTask(dlTask);
-    if (result == NWC24_OK) {
-        task->unknown_0x20 = 0;
-        task->unknown_0x1a = 0;
-    }
+    ClearDlTaskError(dlTask);
     if (task->retryEnabled == 1) {
         while ((result = CheckDlTaskRetry(dlTask, task->retryCount)) == NWC24_ERR_DISABLED) {
             task->retryCount = (task->retryCount + 1) & 0x1f;
