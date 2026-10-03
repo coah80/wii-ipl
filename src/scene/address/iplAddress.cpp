@@ -1958,7 +1958,7 @@ namespace ipl {
             mInfos[index].attr.fdId = fdId;
             memset(mInfos[index].attr.name, 0, sizeof(mInfos[index].attr.name));
             wcsncpy((wchar_t*)getInfo(index).attr.name, name, 10);
-            System::getNwc24Manager()->updateFriendInfo(&getInfo(index), index);
+            System::getNwc24Manager()->updateFriendInfo(&mInfos[static_cast<s32>(index)], index);
         }
 
         void FriendListCache::del(u32 index) {
