@@ -1510,7 +1510,6 @@ void KPADInit(void) {
     f32 zero;
     f32 degreesToRadians;
     f32 one;
-    f32* matrix;
     u32 i;
     s32 chan;
     BOOL enabled;
@@ -1521,7 +1520,6 @@ void KPADInit(void) {
     one = 1.0f;
     zero = 0.0f;
     degreesToRadians = 0.017453292f;
-    matrix = initial_rotation_matrix;
     kpad = inside_kpads;
     do {
         kpad->dpdEnable = 1;
@@ -1549,9 +1547,9 @@ void KPADInit(void) {
         }
         referenceWidth = referenceWidth < referenceHeight ? referenceWidth : referenceHeight;
         initial_rotation_matrix[0] = one;
-        matrix[1] = zero;
-        matrix[2] = zero;
-        matrix[3] = zero;
+        initial_rotation_matrix[1] = zero;
+        initial_rotation_matrix[2] = zero;
+        initial_rotation_matrix[3] = zero;
         kpad->sensorBarScale = sensorDistance / referenceWidth;
         kpad->value9C = zero;
         kpad->value94 = zero;
@@ -1570,18 +1568,18 @@ void KPADInit(void) {
         kpad->sensorHeightPending = 1;
         kpad->sensorBarPosition = 1;
         kpad->freeStyleAccelRotation = 0;
-        matrix[4] = zero;
+        initial_rotation_matrix[4] = zero;
         rotationElement = (f32)cos(degreesToRadians * sensor_bar_angle_degrees);
-        matrix[5] = rotationElement;
+        initial_rotation_matrix[5] = rotationElement;
         rotationElement = (f32)-sin(degreesToRadians * sensor_bar_angle_degrees);
-        matrix[7] = zero;
-        matrix[8] = zero;
-        matrix[6] = rotationElement;
+        initial_rotation_matrix[7] = zero;
+        initial_rotation_matrix[8] = zero;
+        initial_rotation_matrix[6] = rotationElement;
         rotationElement = (f32)sin(degreesToRadians * sensor_bar_angle_degrees);
-        matrix[9] = rotationElement;
+        initial_rotation_matrix[9] = rotationElement;
         rotationElement = (f32)cos(degreesToRadians * sensor_bar_angle_degrees);
-        matrix[10] = rotationElement;
-        matrix[11] = zero;
+        initial_rotation_matrix[10] = rotationElement;
+        initial_rotation_matrix[11] = zero;
         {
             i = 0;
             do {
