@@ -5140,7 +5140,7 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                     goto error;
                 }
                 argCount++;
-                totalSize += (count + 1) / 2;
+                totalSize += (s32)((u32)count + 1U) / 2;
                 break;
             }
         }
@@ -5430,7 +5430,7 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                     goto error;
                 }
 
-                bufSize = (count + 1) / 2;
+                bufSize = (s32)((u32)count + 1U) / 2;
                 if (!CHANSVmBlobHasSpace(parentBlob, bufSize)) {
                     goto error;
                 }
