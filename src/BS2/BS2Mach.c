@@ -488,7 +488,7 @@ BOOL BS2StartLoadingTitle(ESTitleId titleId, ESTicketView *pTicketView) {
     return FALSE;
 }
 
-void callback(s32 result) { LowReadResult = result; }
+static void callback(u32 result) { LowReadResult = result; }
 
 ESError BS2ESGetTicketViews(IOSFd *descriptor, ESTitleId titleId, ESTicketView *views, u32 *count) {
     struct {
@@ -725,7 +725,7 @@ void BS2StartGame() {
     BS2Report("DVDLowInit done\n");
 
     LowReadResult = 0;
-    DVDLowReadDiskID(&DiskID, (DVDLowCallback)callback);
+    DVDLowReadDiskID(&DiskID, callback);
     while (LowReadResult == 0) {
     }
 
@@ -739,7 +739,7 @@ void BS2StartGame() {
     } else {
         OSReport("\nDisk error(%d) has occurred", LowReadResult);
         LowReadResult = 0;
-        DVDLowRequestError((DVDLowCallback)callback);
+        DVDLowRequestError(callback);
         while (LowReadResult == 0) {
         }
         driveError = DVDLowGetImmBufferReg() & 0xFF000000;
@@ -769,10 +769,10 @@ disk_done:
     if (PartitionParams.numTmdBytes != 0) {
         DVDLowOpenPartitionWithTmdAndTicketView((u32)((DVDPartitionInfo *)GamePartition)->partition, &PartitionParams.ticketView,
                                                 PartitionParams.numTmdBytes, &PartitionParams.tmd, PartitionParams.numCertBytes,
-                                                PartitionParams.certificates, (DVDLowCallback)callback);
+                                                PartitionParams.certificates, callback);
     } else {
         DVDLowOpenPartition((u32)((DVDPartitionInfo *)GamePartition)->partition, NULL, 0, NULL, &PartitionParams.tmd,
-                            (DVDLowCallback)callback);
+                            callback);
     }
     while (LowReadResult == 0) {
     }
@@ -790,7 +790,7 @@ disk_done:
     } else {
         OSReport("\nDisk error(%d) has occurred", LowReadResult);
         LowReadResult = 0;
-        DVDLowRequestError((DVDLowCallback)callback);
+        DVDLowRequestError(callback);
         while (LowReadResult == 0) {
         }
         driveError = DVDLowGetImmBufferReg() & 0xFF000000;
