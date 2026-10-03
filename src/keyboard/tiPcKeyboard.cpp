@@ -1610,7 +1610,7 @@ namespace textinput {
             }
 
             void Base::setTranslateMode(TranslateMode mode) {
-                u32 keyMode = mode;
+                u32 keyMode;
                 switch (mode) {
                     case TM_Direct:
                         keyMode = 0;
@@ -1620,8 +1620,6 @@ namespace textinput {
                         break;
                     case TM_Kana:
                         keyMode = 2;
-                        break;
-                    default:
                         break;
                 }
                 if (keyMode != (mKeyState.abcFlags & 15)) {
