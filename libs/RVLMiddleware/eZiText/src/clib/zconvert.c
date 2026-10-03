@@ -23,7 +23,7 @@ typedef struct ziConversionTable {
 } ziConversionTable;
 const ziConversionTables Zi8CvrtTables = {0};
 ziU16 Zi8GetTableCount(ziU8, ziU8 ZI_NEED_WORK);
-ziPtr Zi8GetTableAddress(ziU8, ziU8 ZI_NEED_WORK);
+ziU32 Zi8GetTableAddress(ziU8, ziU8 ZI_NEED_WORK);
 ziWChar Zi8ConvertUC2UserKey(ziChar, ziU8 ZI_NEED_WORK);
 
 ziWChar Zi8ConvertUC2WC(ziChar character, ziU8 language ZI_NEED_WORK) {
@@ -37,7 +37,7 @@ ziWChar Zi8ConvertUC2WC(ziChar character, ziU8 language ZI_NEED_WORK) {
         return 0;
     }
     if (Zi8GetTableCount(language, 6, __zi8_work_data) != 0) {
-        table = Zi8GetTableAddress(language, 6, __zi8_work_data);
+        table = (ziU8*)Zi8GetTableAddress(language, 6, __zi8_work_data);
         if (table == 0) {
             Zi8LogError(0x6A4, __zi8_work_data);
             return 0;
@@ -77,7 +77,7 @@ ziChar Zi8ConvertWC2UC(ziWChar character, ziU8 language ZI_NEED_WORK) {
         return 0;
     }
     if (Zi8GetTableCount(language, 7, __zi8_work_data) != 0) {
-        table = Zi8GetTableAddress(language, 7, __zi8_work_data);
+        table = (ziConversionTable*)Zi8GetTableAddress(language, 7, __zi8_work_data);
         if (table == 0) {
             Zi8LogError(0x6AE, __zi8_work_data);
             return 0;
@@ -137,7 +137,7 @@ ziWChar Zi8ConvertUC2Key(ziChar character, ziU8 language ZI_NEED_WORK) {
     if (ZI_WORK->userKeys[language] != 0)
         return Zi8ConvertUC2UserKey(character, language, __zi8_work_data);
     if (Zi8GetTableCount(language, 8, __zi8_work_data) != 0) {
-        table = Zi8GetTableAddress(language, 8, __zi8_work_data);
+        table = (ziConversionTable*)Zi8GetTableAddress(language, 8, __zi8_work_data);
         if (table == 0) {
             Zi8LogError(0x6B8, __zi8_work_data);
             return 0;
