@@ -715,7 +715,7 @@ static inline NWC24Err CheckDlTaskRetry(NWC24DlTask* dlTask, u8 retryCount) {
     retryMask = task->retryMask;
     if (retryMask == 0) { return NWC24_ERR_FATAL; }
     if (retryCount > 31) { return NWC24_ERR_INVALID_VALUE; }
-    if ((retryMask & (1 << retryCount)) == 0) { return NWC24_ERR_DISABLED; }
+    if ((retryMask & (1U << retryCount)) == 0) { return NWC24_ERR_DISABLED; }
     return NWC24_OK;
 }
 static inline NWC24Err UpdateDlTaskAccessTime(NWC24DlTask* dlTask) {
