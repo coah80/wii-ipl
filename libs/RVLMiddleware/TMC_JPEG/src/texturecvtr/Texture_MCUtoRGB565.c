@@ -821,9 +821,6 @@ static void TMCJPEGDEC_converterYUV444toRGB565(TMCCJPEGDecWork* work, s32 x, s32
     s32 cbValue;
     s32 yEnd;
     u32 tileWidth;
-    s32 green;
-    s32 blue;
-    s32 red;
     s32 height;
 
     luminance = work->convBuf + 4;
@@ -843,17 +840,19 @@ static void TMCJPEGDEC_converterYUV444toRGB565(TMCCJPEGDecWork* work, s32 x, s32
         for (column = x; column < xEnd; column++) {
             cbValue = (s8)*cb++;
             crValue = (s8)*cr++;
-            red = *luminance++;
-            green = red + (-(cbValue * 88 + crValue * 183) >> 8);
-            blue = red + ((cbValue * 454) >> 8);
-            red = red + ((crValue * 359) >> 8);
-            if ((blue | green | red) >> 8) {
-                blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-                green = green > 255 ? 255 : green < 0 ? 0 : green;
-                red = red > 255 ? 255 : red < 0 ? 0 : red;
+            {
+                s32 value = *luminance++;
+                s32 green = value + (-(cbValue * 88 + crValue * 183) >> 8);
+                s32 red = value + ((crValue * 359) >> 8);
+                s32 blue = value + ((cbValue * 454) >> 8);
+                if ((red | green | blue) >> 8) {
+                    blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
+                    green = green > 255 ? 255 : green < 0 ? 0 : green;
+                    red = red > 255 ? 255 : red < 0 ? 0 : red;
+                }
+                output[(column & 3) + (((column >> 2) + tileRow) << 4)] =
+                    ((blue & 0xF8) >> 3) + (((red & 0xF8) << 8) + ((green & 0xFC) << 3));
             }
-            output[(column & 3) + (((column >> 2) + tileRow) << 4)] =
-                ((blue & 0xF8) >> 3) + (((red & 0xF8) << 8) + ((green & 0xFC) << 3));
         }
         luminance += rowSkip;
         cb += rowSkip;
