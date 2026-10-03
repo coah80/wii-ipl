@@ -175,20 +175,20 @@ static void TMCJPEGDEC_converterYUV411toRGB565(TMCCJPEGDecWork* work, s32 x, s32
     s32 crValue;
     s32 width;
     s32 height;
-    u8* cb;
+    s32 chromaSkip;
     u8* texture;
     u8* luminance;
-    s32 chromaSkip;
+    u8* cb;
     u8* cr;
     s32 column;
     s32 xEnd;
     s32 yEnd;
     s32 redOffset;
     s32 tileRow;
-    s32 blueOffset;
+    s32 greenOffset;
     u8 value;
     s32 red;
-    s32 greenOffset;
+    s32 blueOffset;
     s32 green;
 
     luminance = work->convBuf + 4;
