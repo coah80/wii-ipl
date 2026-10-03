@@ -394,7 +394,9 @@ namespace textinput {
             mOnOffButton.Create(this);
             mOnOffButton.Init();
             const char* paneNames = scPaneNameTable;
-            mLeftScroll.Create(this, paneNames + 68, paneNames + 48);
+            const char* leftScrollBoundName = paneNames + 48;
+            const char* leftScrollPaneName = paneNames + 68;
+            mLeftScroll.Create(this, leftScrollPaneName, leftScrollBoundName);
             mRightScroll.Create(this, paneNames + 108, paneNames + 88);
             mLeftScroll.Init();
             mRightScroll.Init();
