@@ -1442,8 +1442,6 @@ s32 ATERMRunConfigProtocol(void) {
     AtermSocketAddress peerAddress;
     AtermThreadBuffer* response = (AtermThreadBuffer*)&gAtermConfigurationResult.responseLength;
     void* sessionKey = gAtermResponseBuffer.session.keyMaterial;
-    AtermMd5Context digestContext;
-    u8 digestLength[8];
     s32 socket = 0;
     s32 result = -5;
     s32 failed = 0;
@@ -1617,13 +1615,11 @@ s32 ATERMRunConfigProtocol(void) {
                 u32 checksum = 0;
                 u8* cursor = gAtermConfigurationResult.packetBuffer;
                 u8* packetEnd = packet->payload + payloadLength;
-                u8* payload = packet->payload;
+                u8* payload;
                 for (; cursor < packetEnd; cursor++) {
                     checksum += *cursor;
                 }
-                if ((u16)checksum != SONtoHs(*(u16*)packetEnd)) {
-                    payload = NULL;
-                }
+                payload = (u16)checksum == SONtoHs(*(u16*)packetEnd) ? packet->payload : NULL;
                 if (payload == NULL) {
                     payloadLength = 0;
                 } else if (sequence != 3) {
@@ -1652,6 +1648,8 @@ s32 ATERMRunConfigProtocol(void) {
                     }
                     {
                         AtermProgress progress;
+                        AtermMd5Context digestContext;
+                        u8 digestLength[8];
                         u32 authenticationTime = (u32)(OSGetTime() /
                             (__mulhwu(reciprocal, OS_BUS_CLOCK >> 2) >> 6));
                         u32 index;
@@ -1677,22 +1675,13 @@ s32 ATERMRunConfigProtocol(void) {
                         ATERMMd5Update(&digestContext, gAtermDigestFill,
                             digestBytes < 56 ? 56 - digestBytes : 120 - digestBytes);
                         ATERMMd5Update(&digestContext, digestLength, sizeof(digestLength));
-                        response->authentication.digest[0] = digestContext.state[0];
-                        response->authentication.digest[1] = digestContext.state[0] >> 8;
-                        response->authentication.digest[2] = digestContext.state[0] >> 16;
-                        response->authentication.digest[3] = digestContext.state[0] >> 24;
-                        response->authentication.digest[4] = digestContext.state[1];
-                        response->authentication.digest[5] = digestContext.state[1] >> 8;
-                        response->authentication.digest[6] = digestContext.state[1] >> 16;
-                        response->authentication.digest[7] = digestContext.state[1] >> 24;
-                        response->authentication.digest[8] = digestContext.state[2];
-                        response->authentication.digest[9] = digestContext.state[2] >> 8;
-                        response->authentication.digest[10] = digestContext.state[2] >> 16;
-                        response->authentication.digest[11] = digestContext.state[2] >> 24;
-                        response->authentication.digest[12] = digestContext.state[3];
-                        response->authentication.digest[13] = digestContext.state[3] >> 8;
-                        response->authentication.digest[14] = digestContext.state[3] >> 16;
-                        response->authentication.digest[15] = digestContext.state[3] >> 24;
+                        for (index = 0; index < 4; index++) {
+                            u32 word = digestContext.state[index];
+                            response->authentication.digest[index * 4] = word;
+                            response->authentication.digest[index * 4 + 1] = word >> 8;
+                            response->authentication.digest[index * 4 + 2] = word >> 16;
+                            response->authentication.digest[index * 4 + 3] = word >> 24;
+                        }
                         {
                             u8* contextByte = (u8*)&digestContext;
                             for (index = 0; index < sizeof(digestContext); index++) {
@@ -1750,13 +1739,11 @@ s32 ATERMRunConfigProtocol(void) {
                 u32 checksum = 0;
                 u8* cursor = gAtermConfigurationResult.packetBuffer;
                 u8* packetEnd = packet->payload + payloadLength;
-                u8* payload = packet->payload;
+                u8* payload;
                 for (; cursor < packetEnd; cursor++) {
                     checksum += *cursor;
                 }
-                if ((u16)checksum != SONtoHs(*(u16*)packetEnd)) {
-                    payload = NULL;
-                }
+                payload = (u16)checksum == SONtoHs(*(u16*)packetEnd) ? packet->payload : NULL;
                 if (payload == NULL) {
                     payloadLength = 0;
                 } else if (sequence != 5) {
