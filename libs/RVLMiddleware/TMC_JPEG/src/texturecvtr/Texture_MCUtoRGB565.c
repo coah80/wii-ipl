@@ -284,7 +284,9 @@ static void TMCJPEGDEC_converterYUV411toRGB565edge(TMCCJPEGDecWork* work, s32 x,
         s32 yEnd = y + height;
         s32 lumaSkip = 32 - width;
         s32 chromaSkip = lumaSkip >> 2;
-        s32 redOffset, greenOffset, blueOffset;
+        s32 redOffset;
+        s32 blueOffset;
+        s32 greenOffset;
         ASSERTLINE((x & 3) == 0, __LINE__);
         for (; y < yEnd; y++) {
             s32 tileRow = (y >> 2) * tileWidth;

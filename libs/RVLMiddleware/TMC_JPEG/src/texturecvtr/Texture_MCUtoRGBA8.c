@@ -641,7 +641,9 @@ static void TMCJPEGDEC_converterYUV420toRGBA8edge(TMCCJPEGDecWork* work, s32 x, 
         s32 xEnd = x + width;
         s32 lumaSkip = 16 - width;
         s32 chromaSkip = lumaSkip >> 1;
-        s32 redOffset, greenOffset, blueOffset;
+        s32 redOffset;
+        s32 blueOffset;
+        s32 greenOffset;
         ASSERTLINE((x & 1) == 0, __LINE__);
     for (; y < yEnd; y++) {
             u16* output = (u16*)(texture + ((y & 3) << 3));
