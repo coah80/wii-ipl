@@ -41,8 +41,21 @@ namespace textinput {
 #else
             virtual void setLanguage(Language language);
 #endif
+#if (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISIGNWINDOW_IMPLEMENTATION)
+#if defined(TISIGNWINDOW_IMPLEMENTATION) || defined(TI_PC_KEYBOARD_IMPLEMENTATION)
+            virtual Language getLanguage() const;
+#else
+            virtual Language getLanguage() const { return meLanguage; }
+#endif
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual void update();
+#else
+            virtual void update() {}
+#endif
+#else
             virtual Language getLanguage() const;
             virtual void update();
+#endif
             virtual void onActive();
 
         protected:

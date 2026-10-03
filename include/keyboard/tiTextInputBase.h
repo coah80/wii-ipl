@@ -89,7 +89,17 @@ namespace textinput {
             CommandSender() : mpCommandReceiver(NULL) {}
 
             virtual void    setCommandReceiver(CommandReceiver* cmdRecv);
+            #if (defined(TI_PC_KEYBOARD_IMPLEMENTATION) || defined(TIHWKEYBOARD_IMPLEMENTATION)) || defined(TIMANAGER_IMPLEMENTATION)
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual void    sendCommand(u32, void*);
+#else
+            virtual void sendCommand(u32 command, void* data) {
+                if (mpCommandReceiver != NULL) mpCommandReceiver->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(command), data);
+            }
+#endif
+#else
+            virtual void    sendCommand(u32, void*);
+#endif
             virtual void    updateFromReceiver(u32, void*) {}
 
             nw4r::ut::Link      mLink;              // 0x00

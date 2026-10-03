@@ -36,7 +36,11 @@ namespace textinput {
 
                 virtual void    onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) = 0;  // 0x18
         
-                virtual void    setEventObserver(EventObserver *event);                                     // 0x1C
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual void    setEventObserver(EventObserver *event);
+#else
+                virtual void    setEventObserver(EventObserver *event)  { mpEventObserver = event; }        // 0x1C
+#endif
 
             protected:
                 EventObserver*  mpEventObserver;    // 0x08
@@ -96,7 +100,7 @@ namespace textinput {
                 virtual void        init() {}                           // 0x08
                 virtual void        calc();                             // 0x0C
 
-                virtual void onAnmEvent(AnmPaneEvent paneEvent);          // 0x10
+                virtual void onAnmEvent(AnmPaneEvent paneEvent);    // 0x10
 
                 virtual void        changeAnimation(u32 id);            // 0x14
                 virtual bool isInAnimation();                           // 0x18
@@ -168,12 +172,50 @@ namespace textinput {
                     init();
                 }
 
-                virtual void init();                                                    // 0x08
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual void init();
+                virtual void push(nw4r::lyt::Pane* pane);
+#else
+                virtual void init() {                                           // 0x08
+                    for (int i = 0; i < MAX_COUNT; i++) {
+                        mpaFifo[i] = NULL;
+                    }
+                }
 
-                virtual void push(nw4r::lyt::Pane* pane);                               // 0x0C
+                virtual void push(nw4r::lyt::Pane* pane)  {                     // 0x0C
+                    if (mpaFifo[MAX_COUNT-1] == NULL) {
+                        for (int i = 0; i < MAX_COUNT; i++) {
+                            if (mpaFifo[i] == NULL) {
+                                mpaFifo[i] = pane;
+                                return;
+                            }
+                        }
+                    }
+                    else {
+                        for (int i = 1; i < MAX_COUNT; i++) {
+                            mpaFifo[i-1] = mpaFifo[i];
+                            if (pane == mpaFifo[i-1]) {
+                                mpaFifo[i-1] = NULL;
+                            }
+                        }
+                        mpaFifo[MAX_COUNT-1] = pane;
+                    }
+                }
+#endif
 
-                virtual nw4r::lyt::Pane*    get(int i)  { return mpaFifo[i]; }          // 0x10
-                virtual nw4r::lyt::Pane* getLast();                                     // 0x14
+                virtual nw4r::lyt::Pane*    get(int i)  { return mpaFifo[i]; }  // 0x10
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual nw4r::lyt::Pane* getLast();
+#else
+                virtual nw4r::lyt::Pane* getLast() {                            // 0x14
+                    for (int i = MAX_COUNT-1; i > -1; i++) {
+                        if (mpaFifo[i] != NULL) {
+                            return mpaFifo[i];
+                        }
+                    }
+                    return NULL;
+                }
+#endif
 
                 virtual int                 getSize()   { return MAX_COUNT; }   // 0x18
 
@@ -196,14 +238,22 @@ namespace textinput {
                 virtual bool                    updateInput(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data);                  // 0x20
                 virtual bool                    updateInput(input::HKBManager& hkbManager);                                                         // 0x24
 
-                virtual TiLayout*               getLayout();                                                                                            // 0x28
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual TiLayout*               getLayout();
+#else
+                virtual TiLayout*               getLayout()             { return mpLayout; }                                                        // 0x28
+#endif
 
                 virtual nw4r::lyt::Pane*        getPane(const char* paneName);                                                                      // 0x2C
                 virtual const nw4r::lyt::Pane*  getPane(const char* paneName) const;                                                                // 0x30
 
                 virtual u32                     getFlightDuration(int point, const char* paneName);                                                 // 0x34
 
-                virtual void                    setAnimOn(bool flag);                                                                                   // 0x38
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual void                    setAnimOn(bool flag);
+#else
+                virtual void                    setAnimOn(bool flag)    { mbAnimOn = flag; }                                                        // 0x38
+#endif
 
                 virtual void                    drawPane(const char* paneName);                                                                     // 0x3C
 
@@ -212,9 +262,8 @@ namespace textinput {
                 
                 virtual void                    setProjectionMtx();                                                                                 // 0x48
 
-                virtual void setPaneLastDrawReceived(nw4r::lyt::Pane* paneLastDraw);                                     // 0x4C
-
-                virtual void initPaneLastDrawReceived();                                                                                               // 0x50
+                virtual void setPaneLastDrawReceived(nw4r::lyt::Pane* paneLastDraw);  // 0x4C
+                virtual void initPaneLastDrawReceived();                            // 0x50
 
                 virtual void                    setVisible(const char* paneName, bool flag);                                                        // 0x54
                 virtual bool                    isVisible(const char* paneName, bool* result) const;                                                // 0x58
@@ -224,8 +273,13 @@ namespace textinput {
                 virtual AnmPane*                searchAnmPane(const char* paneName);                                                                // 0x60
                 virtual AnmPane*                searchAnmPane(wchar_t ch);                                                                          // 0x64
                 
-                virtual nw4r::ut::List&         getAnmPaneList();                                                                                     // 0x68
-                virtual gui::PaneManager*       getPaneManager();                                                                                     // 0x6C
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+                virtual nw4r::ut::List&         getAnmPaneList();
+                virtual gui::PaneManager*       getPaneManager();
+#else
+                virtual nw4r::ut::List&         getAnmPaneList()        { return mAnmPanes; }                                                       // 0x68
+                virtual gui::PaneManager*       getPaneManager()        { return mpPaneManager; }                                                   // 0x6C
+#endif
 
                 virtual void                    AdjustPaneMtx(Mtx& mtx, const nw4r::lyt::DrawInfo& drawInfo, const nw4r::math::MTX34& mGlobalMtx);  // 0x70
 

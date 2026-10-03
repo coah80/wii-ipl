@@ -48,7 +48,11 @@ namespace textinput {
         public:
             virtual ~GUIInterface() {}  // 0x08
 
-            virtual void create();  // 0x0C
+#ifdef TI_CANDIDATEBOX_IMPLEMENTATION
+            virtual void create();
+#else
+            virtual void create() {}  // 0x0C
+#endif
 
             virtual void init() {}  // 0x10
             virtual void calc() {}  // 0x14
@@ -70,12 +74,21 @@ namespace textinput {
 
             EventHandler() : muLatestEventCtrlNo(0) {}
 
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual ~EventHandler();  // 0x08
 
             virtual void onEvent(GUIComponent& comp, u32 event, void* data);  // 0x0C
 
             virtual void setLatestEventCtrlNo(int ctrlNo);  // 0x10
             virtual int getLatestEventCtrlNo();             // 0x14
+#else
+            virtual ~EventHandler() {}  // 0x08
+
+            virtual void onEvent(GUIComponent& comp, u32 event, void* data) {}  // 0x0C
+
+            virtual void setLatestEventCtrlNo(int ctrlNo) { muLatestEventCtrlNo = ctrlNo; }  // 0x10
+            virtual int getLatestEventCtrlNo() { return muLatestEventCtrlNo; }               // 0x14
+#endif
 
         protected:
             int muLatestEventCtrlNo;  // 0x04
@@ -92,20 +105,35 @@ namespace textinput {
                 EVENT_RELEASE
             };
 
-            virtual void init();  // 0x10
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            virtual void init();
+#else
+            virtual void init() {  // 0x10
+                for (int i = 0; i < GUI_POINTS_MAX; i++) {
+                    mbPointed[i] = false;
+                    mDraggingPos[i].z = mDraggingPos[i].y = mDraggingPos[i].x = 0;
+                    mbDragging[i] = false;
+                    mFlightDuration[i] = 0;
+                }
+            }
+#endif
 
             GUIComponent(u32 id)
                 : GUIInterface(), mbInitialize(false), mDraggingButton(0xFFFF), mID(id), mbTriggerTarget(false), mpManager(NULL), mpListener(NULL) {
                 init();
             }
-            virtual ~GUIComponent();  // 0x08
+            virtual ~GUIComponent() {}  // 0x08
 
-            virtual u32 getID();  // 0x20
+            virtual u32 getID() { return mID; }  // 0x20
 
-            virtual bool isPointed(int point);    // 0x24
-            virtual bool isDragging(int point);  // 0x28
+            virtual bool isPointed(int point) { return mbPointed[point]; }    // 0x24
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual bool isDragging(int point);
+#else
+            virtual bool isDragging(int point) { return mbDragging[point]; }  // 0x28
+#endif
 
-            virtual void setPointed(int point, bool bEnable);  // 0x2C
+            virtual void setPointed(int point, bool bEnable) { mbPointed[point] = bEnable; }  // 0x2C
 
             void onEvent(u32 event, void* data) {
                 if (mpListener) {
@@ -113,28 +141,49 @@ namespace textinput {
                 }
             }
 
-            virtual void onPointIn(int point);   // 0x30
-            virtual void onPointOut(int point);  // 0x34
+            virtual void onPointIn(int point) { mFlightDuration[point] = 0; }   // 0x30
+            virtual void onPointOut(int point) { mFlightDuration[point] = 0; }  // 0x34
 
-            virtual void onDrag(f32 x, f32 y);
-            virtual void onMove(int point, f32 x, f32 y);  // 0x38
-            virtual void onTrig(int point, u32 trig, Vec& dragPos);
+            virtual void onDrag(f32 x, f32 y) {}
+            virtual void onMove(int point, f32 x, f32 y) { mFlightDuration[point]++; }  // 0x38
+            virtual void onTrig(int point, u32 trig, Vec& dragPos) {
+                if (trig & mDraggingButton) {
+                    mDraggingPos[point] = dragPos;
+                    mbDragging[point] = true;
+                    mFlightDuration[point] = 0;
+                }
+            }
 
-            virtual void setDraggingButton(u32 dragBtn);  // 0x3C
+            virtual void setDraggingButton(u32 dragBtn) { mDraggingButton = dragBtn; }  // 0x3C
 
-            virtual u32 updatePointer(const GUIPointer& pointer);  // 0x40
-            virtual u32 updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release);  // 0x44
+            virtual u32 updatePointer(const GUIPointer& pointer) { return updatePointerImpl(pointer); }  // 0x40
+            virtual u32 updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release) {        // 0x44
+                GUIPointer pointer(point, x, y, hold, trig, release);
+                return updatePointerImpl(pointer);
+            }
 
-            virtual bool isTriggerTarget();                  // 0x48
-            virtual void setTriggerTarget(bool bEnable);  // 0x4C
+            virtual bool isTriggerTarget() { return mbTriggerTarget; }                  // 0x48
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
+            virtual void setTriggerTarget(bool bEnable);
+#else
+            virtual void setTriggerTarget(bool bEnable) { mbTriggerTarget = bEnable; }  // 0x4C
+#endif
 
             void setParentManager(GUIManager* manager) { mpManager = manager; }
             GUIManager* getParentManager() { return mpManager; }
 
-            virtual bool isVisible();  // 0x50
+            virtual bool isVisible() { return true; }  // 0x50
 
-            virtual u16 getFlightDuration(int point);                       // 0x54
-            virtual void setFlightDuration(int point, u16 flightDir);  // 0x58
+#ifdef TI_CANDIDATEBOX_IMPLEMENTATION
+            virtual u16 getFlightDuration(int point);
+#else
+            virtual u16 getFlightDuration(int point) { return mFlightDuration[point]; }                       // 0x54
+#endif
+#ifdef TI_CELLPHONE_IMPLEMENTATION
+            virtual void setFlightDuration(int point, u16 flightDir);
+#else
+            virtual void setFlightDuration(int point, u16 flightDir) { mFlightDuration[point] = flightDir; }  // 0x58
+#endif
 
             virtual bool contain(f32 x, f32 y) = 0;  // 0x5C
 

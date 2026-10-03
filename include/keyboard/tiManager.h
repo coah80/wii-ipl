@@ -23,14 +23,20 @@
 namespace textinput {
     class EventObserver {
         public:
-            virtual void    onInput(CommandReceiver::INPUT_COMMAND command, void* data);      // 0x08
-            virtual void    onCommand(CommandReceiver::INPUT_COMMAND command, void* data);    // 0x0C
-            virtual void    onEvent(nw4r::lyt::Pane* pane, u32 event);                        // 0x10
+            virtual void    onInput(CommandReceiver::INPUT_COMMAND command, void* data) {}      // 0x08
+            virtual void    onCommand(CommandReceiver::INPUT_COMMAND command, void* data) {}    // 0x0C
+            virtual void    onEvent(nw4r::lyt::Pane* pane, u32 event) {}                        // 0x10
 
-            virtual void    onSE(sound::SE seId);
+            virtual void    onSE(sound::SE seId)    {}
+#ifdef TIMANAGER_IMPLEMENTATION
             virtual void onOK();
             virtual void onCancel();
             virtual void onOutOfLength();
+#else
+            virtual void    onOK()                  { printf("OK!\n"); }
+            virtual void    onCancel()              { printf("Cancel!\n"); }
+            virtual void    onOutOfLength()         { printf("OutOfLength\n"); }
+#endif
     };
     
 #ifdef TIMANAGER_IMPLEMENTATION
@@ -58,7 +64,11 @@ namespace textinput {
             virtual void                                setWCString(const wchar_t* string);
 
             virtual void                                setLanguage(Language language);
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual Language                            getLanguage() const;
+#else
+            virtual Language                            getLanguage() const { return meLanguage; }
+#endif
 #ifdef MYTIMANAGER_IMPLEMENTATION
             Language                                    getLanguageForMemo() const { return meLanguage; }
 #endif
@@ -119,29 +129,72 @@ namespace textinput {
 #ifdef TIHWKEYBOARD_IMPLEMENTATION
             EventObserver* getEventObserverForHardware() const { return mpEventObserver; }
 #endif
-            virtual InputForm*                          getInputForm();
-            virtual const InputForm*                    getInputForm() const;
+            virtual InputForm*                          getInputForm()                          { return mpInputForm; }
+            virtual const InputForm*                    getInputForm() const                    { return mpInputForm; }
             
+#ifdef TIINPUTFORM_IMPLEMENTATION
             virtual keyboard::hwkey::HWKeyboard*        getHWKeyboard();
+#else
+            virtual keyboard::hwkey::HWKeyboard*        getHWKeyboard()                         { return mpHWKeyboard; }
+#endif
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const;
+#else
+            virtual const keyboard::hwkey::HWKeyboard*  getHWKeyboard() const                   { return mpHWKeyboard; }
+#endif
             
+#ifdef TI_CELLPHONE_IMPLEMENTATION
             virtual keyboard::pctype::LayoutByNW4R*       getPCKeyboard();
+#else
+            virtual keyboard::pctype::LayoutByNW4R*       getPCKeyboard()                         { return mpPCKeyboard; }
+#endif
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const;
+#else
+            virtual const keyboard::pctype::LayoutByNW4R* getPCKeyboard() const                   { return mpPCKeyboard; }
+#endif
             
+#ifdef TIINPUTFORM_IMPLEMENTATION
             virtual keyboard::cellphonetype::LayoutByNW4R*       getCellPhoneKeyboard();
-            virtual const keyboard::cellphonetype::LayoutByNW4R* getCellPhoneKeyboard() const;
+#else
+            virtual keyboard::cellphonetype::LayoutByNW4R*       getCellPhoneKeyboard()                  { return mpCellPhoneKeyboard; }
+#endif
+            virtual const keyboard::cellphonetype::LayoutByNW4R* getCellPhoneKeyboard() const            { return mpCellPhoneKeyboard; }
             
+#ifdef TIMANAGER_IMPLEMENTATION
             virtual void*                               getSignKeyboard();
             virtual const void*                         getSignKeyboard() const;
+#else
+            virtual void*                               getSignKeyboard()                       { return mpSignWindow; }
+            virtual const void*                         getSignKeyboard() const                 { return mpSignWindow; }
+#endif
             
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual candidatebox::LayoutByNW4R*         getCandidateBox();
+#else
+            virtual candidatebox::LayoutByNW4R*         getCandidateBox()                       { return mpCandidateBox; }
+#endif
+#ifdef TIINPUTFORM_IMPLEMENTATION
             virtual const candidatebox::LayoutByNW4R*   getCandidateBox() const;
+#else
+            virtual const candidatebox::LayoutByNW4R*   getCandidateBox() const                 { return mpCandidateBox; }
+#endif
             
+#ifdef TI_PC_KEYBOARD_IMPLEMENTATION
             virtual toolbar::LayoutByNW4R*              getToolBar();
             virtual const toolbar::LayoutByNW4R*        getToolBar() const;
+#else
+            virtual toolbar::LayoutByNW4R*              getToolBar()                            { return mpToolBar; }
+            virtual const toolbar::LayoutByNW4R*        getToolBar() const                      { return mpToolBar; }
+#endif
             
+#ifdef TIMANAGER_IMPLEMENTATION
             virtual void*                               getPredictLanguageSelectDialog();
             virtual const void*                         getPredictLanguageSelectDialog() const;
+#else
+            virtual void*                               getPredictLanguageSelectDialog()        { return mpPredictLanguageDialog; }
+            virtual const void*                         getPredictLanguageSelectDialog() const  { return mpPredictLanguageDialog; }
+#endif
 
             virtual inputform::EditBuffer*              createEditBuffer();
             virtual keyboard::hwkey::HWKeyboard*        createHWKeyboard();

@@ -88,33 +88,6 @@ namespace textinput {
             return event;
         }
 
-        bool GUIComponent::isVisible() {
-            return true;
-        }
-
-        bool GUIComponent::isPointed(int point) {
-            return mbPointed[point];
-        }
-
-        void GUIComponent::onMove(int point, f32 x, f32 y) {
-            mFlightDuration[point]++;
-        }
-
-        void GUIComponent::setPointed(int point, bool bEnable) {
-            mbPointed[point] = bEnable;
-        }
-
-        void GUIComponent::onPointIn(int point) {
-            mFlightDuration[point] = 0;
-        }
-
-        void GUIComponent::onPointOut(int point) {
-            mFlightDuration[point] = 0;
-        }
-
-        void GUIComponent::onDrag(f32 x, f32 y) {
-        }
-
         GUIManager::~GUIManager() {
             IDToComponent* p = static_cast<IDToComponent*>(nw4r::ut::List_GetFirst(&mComponents));
             while (p != NULL) {
@@ -150,10 +123,6 @@ namespace textinput {
                 IDToComponent* p = new IDToComponent(id, component);
                 nw4r::ut::List_Append(&mComponents, p);
             }
-        }
-
-        u32 GUIComponent::getID() {
-            return mID;
         }
 
         GUIComponent* GUIManager::getComponent(u32 id) {
@@ -223,23 +192,6 @@ namespace textinput {
             return touched;
         }
 
-        u32 GUIComponent::updatePointer(int point, f32 x, f32 y, u32 trig, u32 hold, u32 release) {
-            GUIPointer pointer(point, x, y, hold, trig, release);
-            return updatePointerImpl(pointer);
-        }
-
-        bool GUIComponent::isTriggerTarget() {
-            return mbTriggerTarget;
-        }
-
-        void GUIComponent::onTrig(int point, u32 trig, Vec& dragPos) {
-            if (trig & mDraggingButton) {
-                mDraggingPos[point] = dragPos;
-                mbDragging[point] = true;
-                mFlightDuration[point] = 0;
-            }
-        }
-
         void GUIManager::calc() {
             for (IDToComponent* p = static_cast<IDToComponent*>(nw4r::ut::List_GetFirst(&mComponents)); p != NULL;
                  p = static_cast<IDToComponent*>(nw4r::ut::List_GetNext(&mComponents, p))) {
@@ -268,10 +220,6 @@ namespace textinput {
             }
         }
 
-        void GUIComponent::setDraggingButton(u32 dragBtn) {
-            mDraggingButton = dragBtn;
-        }
-
         PaneManager::~PaneManager() {
             PaneToComponent* p = static_cast<PaneToComponent*>(nw4r::ut::List_GetFirst(&mPaneComponents));
             while (p) {
@@ -294,8 +242,6 @@ namespace textinput {
         }
 
         PaneComponent::~PaneComponent() {}
-
-        GUIComponent::~GUIComponent() {}
 
         void PaneManager::createLayoutScene(const nw4r::lyt::Layout& layout) {
             mIDCounter = 0;
@@ -542,10 +488,6 @@ namespace textinput {
                 pane = pane->GetParent();
             }
             return true;
-        }
-
-        u32 GUIComponent::updatePointer(const GUIPointer& pointer) {
-            return updatePointerImpl(pointer);
         }
     }  // namespace gui
 }  // namespace textinput

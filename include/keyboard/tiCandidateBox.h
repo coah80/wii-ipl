@@ -337,7 +337,7 @@ namespace textinput {
             virtual u16 getScroll() { return mTextArea.GetDispOffset(); }                    // 0x100
             virtual bool isInScroll();                                                       // 0x104
             virtual void setActive(bool active);                                             // 0x108
-            virtual bool isActive() const;                                               // 0x10C
+            virtual bool isActive() const;                                                 // 0x10C
             virtual void setSelectedTextPane(int pane) { mTextArea.SetSelectedText(pane); }  // 0x110
             virtual void setFocusedTextPane(int pane) { mTextArea.SetFocusedText(pane); }    // 0x114
             virtual int getFocusedTextPane() { return mTextArea.GetFocusedText(); }          // 0x118
