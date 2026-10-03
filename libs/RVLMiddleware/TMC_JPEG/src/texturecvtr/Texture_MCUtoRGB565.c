@@ -489,10 +489,10 @@ static void TMCJPEGDEC_converterYUV420toRGB565(TMCCJPEGDecWork* work, s32 x, s32
     u8* cr;
     s32 column;
     s32 xEnd;
-    s32 greenOffset;
+    s32 lumaSkip;
     u32 tileWidth;
     s32 cbValue;
-    s32 lumaSkip;
+    s32 greenOffset;
     s32 blueOffset;
     s32 red;
     TMCCJPEGDecState* state;
