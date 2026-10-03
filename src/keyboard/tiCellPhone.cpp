@@ -651,6 +651,24 @@ namespace textinput {
                 setLanguage(getLanguage());
             }
 
+            static inline void initializeTogglePane(nw4rmanager::Layout& layout, void* const& inputModeTable,
+                                                   int inputMode, const char* paneName) {
+                char textPaneName[17];
+                memset(textPaneName, 0, sizeof(textPaneName));
+                strncpy(textPaneName, paneName, strlen(paneName));
+                textPaneName[0] = 'T';
+
+                nw4r::lyt::TextBox* textPane = static_cast<nw4r::lyt::TextBox*>(layout.getPane(textPaneName));
+                nw4r::lyt::Pane* buttonPane = layout.getPane(paneName);
+                const KeySet* keySet = static_cast<const LanguageDependencyData*>(inputModeTable)->keySets[inputMode];
+                if (keySet == NULL) {
+                    buttonPane->SetVisible(false);
+                } else {
+                    buttonPane->SetVisible(true);
+                    textPane->SetString(static_cast<const LanguageDependencyData*>(inputModeTable)->keySets[inputMode]->szKeySetName, 0);
+                }
+            }
+
             void LayoutByNW4R::init() {
                 Base::init();
 
@@ -670,21 +688,7 @@ namespace textinput {
                 setVisible("W_ChngTag_03", true);
 
                 for (int i = 0; i < 4; ++i) {
-                    const char* paneName = csPaneNameToggleAnimationKey[i].name;
-                    char textPaneName[17];
-                    memset(textPaneName, 0, sizeof(textPaneName));
-                    strncpy(textPaneName, paneName, strlen(paneName));
-                    textPaneName[0] = 'T';
-
-                    nw4r::lyt::TextBox* textPane = static_cast<nw4r::lyt::TextBox*>(getPane(textPaneName));
-                    nw4r::lyt::Pane* buttonPane = getPane(paneName);
-                    const KeySet* keySet = static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[i];
-                    if (keySet == NULL) {
-                        buttonPane->SetVisible(false);
-                    } else {
-                        buttonPane->SetVisible(true);
-                        textPane->SetString(static_cast<const LanguageDependencyData*>(mpInputModeTable)->keySets[i]->szKeySetName, 0);
-                    }
+                    initializeTogglePane(*this, mpInputModeTable, i, csPaneNameToggleAnimationKey[i].name);
                 }
 
                 if (getLanguage() == JP) {
