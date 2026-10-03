@@ -138,11 +138,11 @@ extern ziU16 Zi8GetTableCount(ziU8 language, ziU8 table, ziPtr work);
 extern ziU8 Zi8IsDupWChar(ziWChar character, ziPtr work);
 extern ziU8 Zi8IsDupWordW(ziWChar* word, ziU8 length, ziPtr work);
 extern ziWChar Zi8Ord2Uni(ziU16 ordinal, ziPtr work);
-extern ziU8 Zi8MatchPhonetic(ziU8* phonetics, ZiChineseRecord* records,
-                            ziPtr indexTable, ziU16 indexCount, ziPtr dictionary,
-                            ZiChineseRecord* record, ziU16* mask, ziU16* match,
-                            ziU16* length, ZiChineseRecord** matchedRecord,
-                            int* matchedIndex, ziU8 wordMode, ziU8 partial,
+extern ziU8 Zi8MatchPhonetic(ziPtr phonetics, ziU8* records,
+                            ziPtr indexTable, ziU16 indexCount, ziU32 dictionary,
+                            ziU8* record, ziU16* mask, ziU16* match,
+                            ziU16* length, ziU8** matchedRecord,
+                            ziU8** matchedString, ziU8 wordMode, ziU8 partial,
                             ziU8 oneCharacter, ziU16 excludedMask,
                             ziU16 excludedMatch, ziU8 charset, ziU8 options,
                             ziU16 ordinal, ziU16* tone, ziU8 spellingOnly,
@@ -614,10 +614,10 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
                 case 56: case 59:
                     if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->fANDh) ordinalIndex = 0xF9FF;
                     break;
-                case 52: case 55:
+                case 60: case 63:
                     if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->bANDp) ordinalIndex = 0xF9FF;
                     break;
-                case 60: case 63:
+                case 52: case 55:
                     if (((ziFuzzyZYPairs*)&((struct __zi8_work_data_s*)work)->unk_0x1B2C.word)->gANDk) ordinalIndex = 0xF9FF;
                     break;
                 case 38:
@@ -1612,9 +1612,9 @@ phonetic_ordinal_search:
             record = records + phraseOrdinal * 12;
             candidateCount = 0;
             phoneticGroups = 0;
-            if (!Zi8MatchPhonetic(phoneticTable, (ZiChineseRecord*)records, alternateTable, alternateCount,
-                                 phraseTable, (ZiChineseRecord*)record, match.phon, match.phon2,
-                                 &candidateCount, (ZiChineseRecord**)&record, (int*)&phoneticGroups,
+            if (!Zi8MatchPhonetic(phoneticTable, records, alternateTable, alternateCount,
+                                 (ziU32)phraseTable, record, match.phon, match.phon2,
+                                 &candidateCount, &record, &phoneticGroups,
                                  0, 1, match.nCand, phoneticMask, phoneticMatch, charset, requireFull,
                                  phraseOrdinal, &candidateOrdinal, 0, work)) continue;
             if (charsetTable) {
@@ -2323,9 +2323,9 @@ phonetic_ordinals:
     candidateCount = recordCount;
     phoneticGroups = 0;
     while (emittedCount < request->maxCandidates && candidateCount) {
-        if (!Zi8MatchPhonetic(phoneticTable, (ZiChineseRecord*)records, alternateTable, alternateCount,
-                            phraseTable, (ZiChineseRecord*)record, match.phon, match.phon2,
-                            &candidateCount, (ZiChineseRecord**)&record, (int*)&phoneticGroups,
+        if (!Zi8MatchPhonetic(phoneticTable, records, alternateTable, alternateCount,
+                            (ziU32)phraseTable, record, match.phon, match.phon2,
+                            &candidateCount, &record, &phoneticGroups,
                             emitWords, singleCharacterPass, match.nCand, phoneticMask, phoneticMatch, charset,
                             requireFull, recordCount, &candidateOrdinal, filteringMode, work)) break;
         ordinalIndex = recordCount - candidateCount - 1;
@@ -2608,10 +2608,10 @@ static int Zi8NewMatchPhonetic(ziGetParam* request, ZiChineseRecord* records,
     ziU8* phonetics;
     int totalResults;
     int emittedCharacters;
-    ZiChineseRecord* matchedRecord;
+    ziU8* matchedRecord;
     ziU8* phoneticGroups;
     ziU8* candidateGroups;
-    int matchedIndex;
+    ziU8* matchedString;
     int capacity;
     ziU8* groupCandidates;
     ziU16 phoneticCount;
@@ -2782,12 +2782,12 @@ next_group_candidate:
                 }
             }
             if (stopAfterTone) {
-                matchedRecord = records + character;
+                matchedRecord = (ziU8*)(records + character);
                 matchedLength = 0;
-                matchedIndex = 0;
-                if (!Zi8MatchPhonetic(phonetics, records, indexTable, indexCount,
-                                      dictionary, matchedRecord, &mask, &match,
-                                      &matchedLength, &matchedRecord, &matchedIndex,
+                matchedString = 0;
+                if (!Zi8MatchPhonetic(phonetics, (ziU8*)records, indexTable, indexCount,
+                                      (ziU32)dictionary, matchedRecord, &mask, &match,
+                                      &matchedLength, &matchedRecord, &matchedString,
                                       wordMode, 1, 1, excludedMask, excludedMatch,
                                       charset, request->getOptions & 0x40, character,
                                       &matchedTone, 0, work)) {

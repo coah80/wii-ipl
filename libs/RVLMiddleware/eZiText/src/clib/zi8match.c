@@ -254,7 +254,7 @@ ziBool Zi8PriMatchNextComp(ziU8* node, ziU8 mask0, ziU8 value0, ziU8 mask1, ziU8
     return 0;
 }
 
-ziBool Zi8SecMatchComp(ziPtr nodeAddress, ziMatchParam* matchAddress, ziPtr dictionaryAddress) {
+ziBool Zi8SecMatchComp(ziPtr nodeAddress, ziMatchParam* matchAddress, ziPtr dictionaryAddress ZI_NEED_WORK) {
     int chainIndex;
     ziU16 matchCode;
     ziU16 targetCode;
