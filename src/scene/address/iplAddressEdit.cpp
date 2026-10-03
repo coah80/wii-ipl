@@ -140,7 +140,6 @@ void ipl::scene::AddressEdit::reset_gui() {
 }
 
 
-extern "C" void* __nw__FUl(u32);
 extern "C" BOOL RFLSearchOfficialData(const RFLCreateID*, u16*);
 
 namespace ipl {
@@ -584,15 +583,10 @@ create_mode_done:
 
     ipl::System::getKeyboard()->init();
 
-    ipl::scene::TextBalloon* balloon = reinterpret_cast<ipl::scene::TextBalloon*>(__nw__FUl(0x3c));
-    if (balloon != NULL) {
-        f32 balloonWidth = 30.0f;
-        f32 balloonHeight = 120.0f;
-        EGG::Heap* heap = getHeap();
-        ipl::math::VEC3 position(0.0f, 0.0f, 0.0f);
-        balloon = new (balloon) ipl::scene::TextBalloon(heap, mpBalloonFile, "arc", "my_IplTopBalloon_a.brlyt", position, balloonHeight, balloonWidth);
-    }
-    mpBalloon = balloon;
+    f32 margin4x3 = 30.0f;
+    f32 margin16x9 = 120.0f;
+    mpBalloon = new ipl::scene::TextBalloon(getHeap(), mpBalloonFile, "arc",
+        "my_IplTopBalloon_a.brlyt", ipl::math::VEC3(0.0f, 0.0f, 0.0f), margin16x9, margin4x3);
 }
 
 void ipl::scene::AddressEdit::stt_wait_decide_anm() {
