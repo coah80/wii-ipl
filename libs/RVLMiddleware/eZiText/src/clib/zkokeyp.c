@@ -11,15 +11,15 @@ typedef struct {
     ziU8 characterLow;
 } ZiKoreanKeyEntry;
 
-ziU32 Zi8_8148302C(ziU16 key, ziU8* table ZI_NEED_WORK) {
+ziU16 Zi8_8148302C(ziU16 key, ziU8* table ZI_NEED_WORK) {
     ziU32 value;
     ziU16 count;
-    ziU32 i;
+    ziU16 i;
 
     count = Zi8GetTableCount(ZI8_LANG_KO, 9, ZI_WORK);
-    for (i = 0; (ziU16)i < count; i++) {
-        value = (ziU16)(((ziU16)table[((i & 0xFFFF) << 3) + (i & 0xFFFF) + 7] << 8) |
-                       table[((i & 0xFFFF) << 3) + (i & 0xFFFF) + 8]);
+    for (i = 0; i < count; i++) {
+        value = (ziU16)(((ziU16)table[(i << 3) + i + 7] << 8) |
+                       table[(i << 3) + i + 8]);
         if (value == key) {
             Zi8LogError(0x64, ZI_WORK);
             return i;
@@ -313,7 +313,8 @@ ziU32 Zi8GetKOcandidates(ziGetParam* param, ZiKoreanCandidateOptions* options ZI
             param->candidates[0] = 0;
         }
         Zi8LogError(100, ZI_WORK);
-        if (param->wordCharCount != 0) {
+        if (param->wordCharCount == 0) goto scan_key_table;
+        {
             if (((search.keyIndex = Zi8_8148302C(param->currentWord[0], keyTable, ZI_WORK)) != 0xFFFF) &&
                 ((((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->keyBytes[4] & 8) != 0)) {
                 search.wordOffset = ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->childLow |
@@ -438,6 +439,7 @@ search_table:
             param->count = search.candidateCount;
             param->letters = search.candidateCount;
         }
+scan_key_table:
         if (param->elementCount > 9) {
             param->letters = 0;
             return 0;
