@@ -1266,10 +1266,9 @@ namespace ipl {
             memoPosition.x = translation.x;
             memoPosition.y = translation.y;
             memoPosition.z = translation.z;
+            f32 bodyY = memoPosition.y;
             mpDialogLayout->FindPaneByName("header_header");
             nw4r::lyt::Pane* bodyPane = mpDialogLayout->FindPaneByName("header_body");
-
-            f32 bodyY = memoPosition.y;
             if (bodyY < 500.0f) {
                 mpDialogLayout->draw("header_header");
             }
@@ -1282,11 +1281,11 @@ namespace ipl {
                 ++child;
             }
 
-            s32 lineCount = 0;
             f32 messageOffset = 0.0f;
             f32 bodyHeight = bodyPane->GetSize().height;
             if (mNandTitleCount != 0) {
                 const wchar_t* messageForCount = System::getMessage(0xCB);
+                s32 lineCount = 0;
                 const wchar_t* newline = wcsstr(messageForCount, L"\n");
                 while (newline != NULL) {
                     ++lineCount;
