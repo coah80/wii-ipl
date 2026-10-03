@@ -2337,8 +2337,8 @@ int AOSSSendHelloRequest(void* packet, void* request, int socket) {
     u16 nonce;
     u32 stateLength;
     u32 index;
-    u32 firstByte;
     u32 firstIndex;
+    u32 firstByte;
     u32 secondIndex;
     u8* state;
     u8 value;
