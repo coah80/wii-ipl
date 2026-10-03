@@ -1262,10 +1262,10 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
     contentDataSize = 0;
     titleMetaBuffer = 0;
     titleMeta = 0;
+    outputBuffer = 0;
     files = 0;
     fileCount = 0;
     importedSize = 0;
-    outputBuffer = 0;
     encryptionBuffer = 0;
     fileDataSize = 0;
     installedContentCount = 0;
