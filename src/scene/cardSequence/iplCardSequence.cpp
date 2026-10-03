@@ -697,9 +697,9 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
         s32 sectorSize;
         CARDFileInfo fileInfo;
     } local;
-    s32 result;
-    u32 iconAddressBase;
     s32 iconAddressOffset;
+    u32 iconAddressBase;
+    s32 result;
     result = CARDFastOpen(slot, fileNo, &local.fileInfo);
     if (result < 0) {
         return result;
