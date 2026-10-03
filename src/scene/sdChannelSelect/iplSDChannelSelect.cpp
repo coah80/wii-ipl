@@ -2710,9 +2710,9 @@ namespace ipl {
             nw4r::ut::Rect projection;
             System::getProjectionRect(&projection);
             GXRenderModeObj* renderMode = System::getRenderModeObj();
-            f32 scissorWidth;
-            f32 scissorY;
             f32 scissorX;
+            f32 scissorY;
+            f32 scissorWidth;
             f32 scissorHeight;
             u16 framebufferWidth;
             u16 framebufferHeight;
