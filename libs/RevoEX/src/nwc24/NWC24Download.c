@@ -253,6 +253,37 @@ static inline NWC24Err GetMaxDlTaskCount(u16* count) {
     return NWC24_OK;
 }
 
+static inline BOOL IsDlTaskWritableGroup(u32 groupId, u32 flags) {
+    BOOL allowed = FALSE;
+    if (flags & 0x40) {
+        if (groupId == NWC24GetGroupId()) {
+            allowed = TRUE;
+        }
+    }
+    return allowed;
+}
+
+static inline NWC24Err ValidateWritableDlTask(const NWC24DlTask* dlTask) {
+    const DlTaskData* task = (const DlTaskData*)dlTask;
+    DlTaskListHeader* header = GetCachedDlHeader();
+    if (task == NULL) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    if (header == NULL) {
+        return NWC24_ERR_LIB_NOT_OPENED;
+    }
+    if (!NWC24IsMsgLibOpenedByTool() && !IsDlTaskOwner(task->appId)) {
+        BOOL allowed = IsDlTaskWritableGroup(task->groupId, task->flags);
+        if (!allowed) {
+            return NWC24_ERR_PROTECTED;
+        }
+    }
+    if (task->id != 0xffff && task->id >= header->maxTaskCount) {
+        return NWC24_ERR_INVALID_VALUE;
+    }
+    return NWC24_OK;
+}
+
 NWC24Err NWC24InitDlTask(NWC24DlTask* dlTask, NWC24DLType dlType) {
     char homePath[64] = {0};
     u32 nwc24IdHigh;
@@ -304,7 +335,7 @@ NWC24Err NWC24InitDlTask(NWC24DlTask* dlTask, NWC24DLType dlType) {
         strcpy(task->fileName, "content.bin");
     }
 
-    result = ValidateDlTask(dlTask, TRUE);
+    result = ValidateWritableDlTask(dlTask);
     return result >> 31;
 }
 
@@ -746,37 +777,6 @@ static inline NWC24Err UpdateDlTaskAccessTime(const NWC24DlTask* dlTask) {
         if (result < NWC24_OK) { return result; }
     }
     return result;
-}
-
-static inline BOOL IsDlTaskWritableGroup(u32 groupId, u32 flags) {
-    BOOL allowed = FALSE;
-    if (flags & 0x40) {
-        if (groupId == NWC24GetGroupId()) {
-            allowed = TRUE;
-        }
-    }
-    return allowed;
-}
-
-static inline NWC24Err ValidateWritableDlTask(const NWC24DlTask* dlTask) {
-    const DlTaskData* task = (const DlTaskData*)dlTask;
-    DlTaskListHeader* header = GetCachedDlHeader();
-    if (task == NULL) {
-        return NWC24_ERR_INVALID_VALUE;
-    }
-    if (header == NULL) {
-        return NWC24_ERR_LIB_NOT_OPENED;
-    }
-    if (!NWC24IsMsgLibOpenedByTool() && !IsDlTaskOwner(task->appId)) {
-        BOOL allowed = IsDlTaskWritableGroup(task->groupId, task->flags);
-        if (!allowed) {
-            return NWC24_ERR_PROTECTED;
-        }
-    }
-    if (task->id != 0xffff && task->id >= header->maxTaskCount) {
-        return NWC24_ERR_INVALID_VALUE;
-    }
-    return NWC24_OK;
 }
 
 static inline NWC24Err ClearDlTaskError(NWC24DlTask* dlTask) {
