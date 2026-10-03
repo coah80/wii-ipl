@@ -2481,25 +2481,28 @@ namespace ipl {
 
         void Setting::convertRevIP(u8* destination, const char* address) {
             char ascii[20];
-            int count = 0;
             int index;
+            int componentStart;
+            int count = 0;
+            u32 value;
+            u8 character;
             memset(ascii, 0, sizeof(ascii));
             utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(ascii), address);
-            int componentStart = 0;
-            u8* output = destination;
-            for (index = 0; index < 0x10; ++index) {
-                u8 character = static_cast<u8>(ascii[index]);
+            index = 0;
+            componentStart = 0;
+            for (; index < 0x10; ++index) {
+                character = static_cast<u8>(ascii[index]);
                 if (character == '.' || character == 0) {
                     if (character == 0) {
                         index = 0x10;
                     }
                     ascii[index] = 0;
-                    u32 value = atoi(ascii + componentStart);
+                    value = atoi(ascii + componentStart);
                     if (value > 0xff) {
                         value = 0xff;
                     }
                     if (count == 0) {
-                        *output = value;
+                        destination[count] = value;
                     } else {
                         destination[1] = destination[2];
                         destination[2] = destination[3];
@@ -2507,7 +2510,6 @@ namespace ipl {
                     }
                     componentStart = index + 1;
                     ++count;
-                    ++output;
                     if (count == 3 && index != 0x10) {
                         value = atoi(ascii + componentStart);
                         if (value > 0xff) {
@@ -2704,6 +2706,7 @@ namespace ipl {
         }
 
         void Setting::scanAP() {
+            BOOL playing = FALSE;
             switch (unk_0x78) {
                 case 1:
                     memset(&mAPScanList.count, 0, 0x800);
@@ -2752,7 +2755,8 @@ namespace ipl {
                 case 6: {
                     int animationIndex = unk_0x918;
                     unk_0xB9C = 1;
-                    if (!mpMainLayout->getAnim(animationIndex)->isPlaying()) {
+                    playing |= mpMainLayout->getAnim(animationIndex)->isPlaying();
+                    if (!playing) {
                         unk_0x78 = 5;
                         setAPDraw();
                         if (unk_0x91C[0] != 0) {
@@ -2775,19 +2779,23 @@ namespace ipl {
                     }
                     break;
                 }
-                case 7:
+                case 7: {
+                    int animationIndex = unk_0x918;
                     unk_0xB9C = 1;
-                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
+                    playing |= mpMainLayout->getAnim(animationIndex)->isPlaying();
+                    if (!playing) {
                         updateScroll();
                         unk_0x78 = 6;
                     }
                     break;
+                }
                 case 8:
                     resetAP();
                     unk_0x91C[2] = 0;
                     break;
                 case 9:
-                    if (!mpMainLayout->getAnim(unk_0x918)->isPlaying()) {
+                    playing |= mpMainLayout->getAnim(unk_0x918)->isPlaying();
+                    if (!playing) {
                         resetFuncMsgQ();
                         unk_0x78 = 1;
                         unk_0x918 = -1;
