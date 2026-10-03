@@ -280,10 +280,8 @@ savePhonetic:
           }
           if (buffers.phoneticInput[phoneticLength - 1] == 0xF360) {
             match->nCand--;
-            bestInitial = previousInitial;
-            bestFinal = previousFinal;
-            final = bestFinal;
-            initial = bestInitial;
+            bestInitial = initial = previousInitial;
+            bestFinal = final = previousFinal;
             goto savePhonetic;
           }
           if (match->nCand == 1) {
