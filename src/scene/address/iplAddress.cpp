@@ -1778,30 +1778,38 @@ namespace ipl {
             }
         }
 
+        static inline f32 GetDragNameWidth(nw4r::lyt::TextBox* textBox, const NWC24FriendInfo& info) {
+            f32 width = 0.0f;
+            if (textBox == NULL) {
+                return width;
+            }
+            const u16* name = info.attr.name;
+            if (name == NULL) {
+                return width;
+            }
+            textBox->GetFont()->GetWidth();
+            for (; *name != 0; ++name) {
+                width += textBox->GetFont()->GetCharWidth(*name);
+            }
+            return 0.01f + width;
+        }
+
         void Address::movePane_onDrag() {
             nw4r::math::VEC3 baseTrans = mpLayout->FindPaneByName("N_base_move")->GetTranslate();
             math::VEC2 pos = System::getControllerManager()->getController(mDrag.mChan)->getDpdProjectionPos();
-            nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName("T_name_move"));
+            nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->GetRootPane()->FindPaneByName("T_name_move", true));
 
-            f32 width = 0.0f;
-            if (textBox != NULL) {
-                const u16* name = mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX).attr.name;
-                if (name != NULL) {
-                    textBox->GetFont()->GetWidth();
-                    for (; *name != 0; name++) {
-                        width += textBox->GetFont()->GetCharWidth(*name);
-                    }
-                }
-            }
-            width += 0.01f;
+            f32 width = GetDragNameWidth(textBox, mpFriendCache->getInfo(mDrag.mButton + mDrag.mPage * BTN_MAX));
 
             nw4r::ut::Rect rect;
             nw4r::ut::Rect rect4x3;
             System::getProjectionRect(&rect);
             System::getProjectionRect4x3(&rect4x3);
 
-            if (baseTrans.x + width < pos.x) {
-                mDragOffsetX = -((baseTrans.x + width) * (rect4x3.GetWidth() / rect.GetWidth()));
+            f32 rightEdge = baseTrans.x + width;
+            if (rightEdge < pos.x) {
+                rightEdge *= rect4x3.GetWidth() / rect.GetWidth();
+                mDragOffsetX = -rightEdge;
             } else {
                 pos.x *= rect4x3.GetWidth() / rect.GetWidth();
                 mDragOffsetX = -pos.x;
