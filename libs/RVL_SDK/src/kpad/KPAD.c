@@ -939,15 +939,20 @@ static void calc_dpd_variable(KPADInside* kpad, s8 valid) {
             f32 dx;
             f32 next;
             dx = value - kpad->status.dist;
-            magnitude = dx < 0.0f ? -dx : dx;
+            if (dx < 0.0f) {
+                magnitude = -dx;
+            } else {
+                magnitude = dx;
+            }
             if (magnitude >= kpad->value94) {
                 magnitude = 1.0f;
             } else {
-                magnitude = magnitude / kpad->value94;
+                magnitude /= kpad->value94;
                 magnitude *= magnitude;
                 magnitude *= magnitude;
             }
-            next = magnitude * kpad->value98 * dx;
+            magnitude *= kpad->value98;
+            next = magnitude * dx;
             kpad->status.dist_vec = next;
             if (next < 0.0f) {
                 kpad->status.dist_speed = -next;
@@ -958,12 +963,15 @@ static void calc_dpd_variable(KPADInside* kpad, s8 valid) {
         }
     }
     {
-        f32 rotatedX = kpad->horizonTangent.x * kpad->dpdObjectDirection.x + kpad->horizonTangent.y * kpad->dpdObjectDirection.y;
+        f32 midpointFactor = 0.5f;
+        f32 scaleX = midpointFactor * (kpad->dpdState.candidates[0].x + kpad->dpdState.candidates[1].x);
+        f32 scaleY = midpointFactor * (kpad->dpdState.candidates[0].y + kpad->dpdState.candidates[1].y);
+        f32 rotatedX = kpad->dpdObjectDirection.x * kpad->horizonTangent.x + kpad->dpdObjectDirection.y * kpad->horizonTangent.y;
         f32 rotatedY = -kpad->dpdObjectDirection.y * kpad->horizonTangent.x + kpad->dpdObjectDirection.x * kpad->horizonTangent.y;
-        f32 scaleX = 0.5f * (kpad->dpdState.candidates[0].x + kpad->dpdState.candidates[1].x);
-        f32 scaleY = 0.5f * (kpad->dpdState.candidates[0].y + kpad->dpdState.candidates[1].y);
-        delta.x = kpad->sensorBarScale * (kpad->sensorBarCenter.x - (rotatedX * scaleX - rotatedY * scaleY));
-        delta.y = kpad->sensorBarScale * (kpad->sensorBarCenter.y - (rotatedY * scaleX + rotatedX * scaleY));
+        f32 transformedX = rotatedX * scaleX - rotatedY * scaleY;
+        f32 transformedY = rotatedY * scaleX + rotatedX * scaleY;
+        delta.x = kpad->sensorBarScale * (kpad->sensorBarCenter.x - transformedX);
+        delta.y = kpad->sensorBarScale * (kpad->sensorBarCenter.y - transformedY);
         point.x = -kpad->accelNormal.y * delta.x + kpad->accelNormal.x * delta.y;
         point.y = -kpad->accelNormal.x * delta.x - kpad->accelNormal.y * delta.y;
         if (kpad->status.dpd_valid_fg == 0) {
