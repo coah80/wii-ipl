@@ -17,7 +17,7 @@ typedef struct ziPudHeader {
     ziU8 options[4];
     ziPudSection sections[1];
 } ziPudHeader;
-ziU32 Zi8_8147FD7C(ziWChar*, ziU8, ziU8, ziWChar*, ziU16, ziU8, ziU8 ZI_NEED_WORK);
+ziU8 Zi8_8147FD7C(ziWChar*, ziU8, ziU8, ziWChar*, ziU16, ziU8, ziU8 ZI_NEED_WORK);
 
 ziU32 ZiIsPhoneticChar(ziWChar character) {
     if ((character < 0xF305 || character > 0xF329) && (character < 0xF361 || character > 0xF37A)) return 0;
@@ -56,7 +56,7 @@ ziU8 ZADP_Zi8SetPDremoveOpt(ziU8 option, struct __zi8_work_data_s* __zi8_work_da
     Zi8LogError(100, __zi8_work_data);
     return previous;
 }
-ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziWChar* spelling, ziU16 spellingCapacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
+ziU8 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziWChar* spelling, ziU16 spellingCapacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
     int fallback = 0;
     ziU8* bytePattern;
     ziWChar folded;
@@ -88,8 +88,8 @@ ziU32 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar*
             Zi8LogError(0x4F6, __zi8_work_data);
             return 0;
         }
-        ZI_WORK->unk_0x314 = section->count[0] * 0x100 + section->count[1];
-        ZI_WORK->unk_0x310 = (ziU32)table + section->offset[0] * 0x100 + section->offset[1];
+        ZI_WORK->unk_0x314 = ((ziU16)section->count[0] << 8) + (ziU16)section->count[1];
+        ZI_WORK->unk_0x310 = (ziU32)table + (((ziU16)section->offset[0] << 8) + (ziU16)section->offset[1]);
         ZI_WORK->unk_0x318 = 0;
     }
     for (;;) {
@@ -174,12 +174,12 @@ matched:
         }
     }
 }
-ziU32 Zi8MatchPUDdata(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziU8 complete, ziU8 continuation, struct __zi8_work_data_s* __zi8_work_data) {
-    ziU32 result;
+ziU8 Zi8MatchPUDdata(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziU8 complete, ziU8 continuation, struct __zi8_work_data_s* __zi8_work_data) {
+    ziU8 result;
     if (continuation == 0) __zi8_work_data->pudCount = 1;
     for (;;) {
         result = Zi8_8147FD7C(pattern, length, language, output, capacity, complete, continuation, __zi8_work_data);
-        if ((ziU8)result != 0) break;
+        if (result != 0) break;
         if (++__zi8_work_data->pudCount <= 16) {
             continuation = 0;
         } else {
@@ -189,6 +189,6 @@ ziU32 Zi8MatchPUDdata(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* out
     }
     return result;
 }
-ziU32 Zi8_8147FD7C(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
+ziU8 Zi8_8147FD7C(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
     return Zi8MatchPUDdata_ZHS(pattern, length, language, output, capacity, 0, 0, complete, continuation, __zi8_work_data);
 }
