@@ -571,8 +571,14 @@ static inline f32 clamp_acc_value(f32 value, f32 limit) {
 }
 
 static inline void smooth_acc_value(KPADInside* kpad, f32 value, f32* result) {
-    f32 delta = value - *result;
-    f32 amount = delta < 0.0f ? -delta : delta;
+    f32 amount;
+    f32 delta;
+    delta = value - *result;
+    if (delta < 0.0f) {
+        amount = -delta;
+    } else {
+        amount = delta;
+    }
     if (amount >= kpad->value9C) {
         amount = 1.0f;
     } else {
@@ -612,11 +618,19 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     kpad->status.acc_speed = (f32)sqrt(previous.z * previous.z + (previous.x * previous.x + previous.y * previous.y));
     calc_acc_horizon(kpad);
     calc_acc_vertical(kpad);
-    if (status->error != 0 || status->device != 1) {
+    if (status->error != 0) {
         return;
     }
-    if (status->dataFormat != 4 && status->dataFormat != 5) {
+    if (status->device != 1) {
         return;
+    }
+    if (status->dataFormat != 4) {
+        switch (status->dataFormat) {
+        case 5:
+            break;
+        default:
+            return;
+        }
     }
     {
         Vec extensionPrevious;
@@ -1355,6 +1369,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     if (available > count) {
         available = count;
     }
+    remaining = available;
     kpad->ringCount = 0;
     start = kpad->ringIndex - available;
     if (start < 0) {
@@ -1363,7 +1378,6 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     {
         KPADStatus* copyOutput;
         sampleIndex = start;
-        remaining = available;
         copyOutput = statuses + (available - 1);
         while (--remaining != 0) {
             copyOutput--;
@@ -1380,7 +1394,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
         WPADAccGravityUnit gravity = {1, 1, 1};
         WPADAccGravityUnit extensionGravity = {1, 1, 1};
         WPADGetAccGravityUnit(chan, WPAD_ACC_GRAVITY_UNIT_CORE, &gravity);
-        if (gravity.z * gravity.x * gravity.y != 0) {
+        if (gravity.z * gravity.y * gravity.x != 0) {
             kpad->value4DC = 1.0f / gravity.x;
             kpad->value4E0 = 1.0f / gravity.y;
             kpad->value4E4 = 1.0f / gravity.z;
@@ -1390,7 +1404,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
             kpad->value4E4 = 0.01f;
         }
         WPADGetAccGravityUnit(chan, WPAD_ACC_GRAVITY_UNIT_FS, &extensionGravity);
-        if (extensionGravity.z * extensionGravity.x * extensionGravity.y != 0) {
+        if (extensionGravity.z * extensionGravity.y * extensionGravity.x != 0) {
             kpad->value4E8 = 1.0f / extensionGravity.x;
             kpad->value4EC = 1.0f / extensionGravity.y;
             kpad->value4F0 = 1.0f / extensionGravity.z;
@@ -1443,14 +1457,15 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
             }
             buttons = (buttons & 0x9FFF) | (coreButtons & 0x6000);
             previousButtons = kpad->status.hold;
-            changed = previousButtons ^ buttons;
+            changed = buttons ^ previousButtons;
             kpad->status.hold = buttons;
             kpad->status.trig = changed & buttons;
             kpad->status.release = changed & previousButtons;
             if (device == 2) {
                 previousButtons = kpad->status.ex_status.cl.hold;
-                kpad->status.ex_status.cl.hold = (u16)extensionButtons;
-                changed = previousButtons ^ (u16)extensionButtons;
+                extensionButtons = (u16)extensionButtons;
+                kpad->status.ex_status.cl.hold = extensionButtons;
+                changed = extensionButtons ^ previousButtons;
                 kpad->status.ex_status.cl.trig = changed & extensionButtons;
                 kpad->status.ex_status.cl.release = changed & previousButtons;
             }
