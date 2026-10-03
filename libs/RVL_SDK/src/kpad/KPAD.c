@@ -618,20 +618,16 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     kpad->status.acc_speed = (f32)sqrt(previous.z * previous.z + (previous.x * previous.x + previous.y * previous.y));
     calc_acc_horizon(kpad);
     calc_acc_vertical(kpad);
-    if (status->error != 0) {
-        return;
-    }
-    if (status->device != 1) {
-        return;
-    }
-    if (status->dataFormat != 4) {
-        switch (status->dataFormat) {
-        case 5:
-            break;
-        default:
-            return;
+    if (status->error == 0 && status->device == 1) {
+        if (status->dataFormat == 4) {
+            goto read_extension_acceleration;
+        }
+        if (status->dataFormat == 5) {
+            goto read_extension_acceleration;
         }
     }
+    return;
+read_extension_acceleration:
     {
         Vec extensionPrevious;
         raw.x = clamp_acc_value((f32)-(s32)status->extension.fs.accX * kpad->value4E8, kp_fs_acc_max);
@@ -1318,6 +1314,9 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
 }
 
 s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
+    u32 changed;
+    u16 heldButtons;
+    KPADStatus* output;
     KPADInside* kpad = &inside_kpads[chan];
     s32 probe;
     BOOL interruptState;
@@ -1325,17 +1324,15 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     u32 ringCount;
     s32 start;
     s32 sampleIndex;
-    u32 remaining;
+    s32 remaining;
     u32 remainingSamples;
     u32 buttons;
     u16 previousButtons;
-    u32 changed;
-    u32 extensionButtons;
     u32 coreButtons;
+    u32 extensionButtons;
     u8 device;
     KPADSample latestSample;
     KPADSample* sample;
-    KPADStatus* output;
     if (WPADGetStatus() != 3) {
         return 0;
     }
@@ -1371,17 +1368,17 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     }
     remaining = available;
     kpad->ringCount = 0;
+    output = statuses + remaining;
     start = kpad->ringIndex - available;
     if (start < 0) {
         start += 16;
     }
+    --output;
     {
-        KPADStatus* copyOutput;
         sampleIndex = start;
-        copyOutput = statuses + (available - 1);
         while (--remaining != 0) {
-            copyOutput--;
-            *(KPADSample*)copyOutput = kpad->ringData[sampleIndex];
+            output--;
+            *(KPADSample*)output = kpad->ringData[sampleIndex];
             sampleIndex++;
             if (sampleIndex >= 16) {
                 sampleIndex = 0;
@@ -1394,7 +1391,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
         WPADAccGravityUnit gravity = {1, 1, 1};
         WPADAccGravityUnit extensionGravity = {1, 1, 1};
         WPADGetAccGravityUnit(chan, WPAD_ACC_GRAVITY_UNIT_CORE, &gravity);
-        if (gravity.z * gravity.y * gravity.x != 0) {
+        if (gravity.x * gravity.y * gravity.z != 0) {
             kpad->value4DC = 1.0f / gravity.x;
             kpad->value4E0 = 1.0f / gravity.y;
             kpad->value4E4 = 1.0f / gravity.z;
@@ -1404,7 +1401,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
             kpad->value4E4 = 0.01f;
         }
         WPADGetAccGravityUnit(chan, WPAD_ACC_GRAVITY_UNIT_FS, &extensionGravity);
-        if (extensionGravity.z * extensionGravity.y * extensionGravity.x != 0) {
+        if (extensionGravity.x * extensionGravity.y * extensionGravity.z != 0) {
             kpad->value4E8 = 1.0f / extensionGravity.x;
             kpad->value4EC = 1.0f / extensionGravity.y;
             kpad->value4F0 = 1.0f / extensionGravity.z;
@@ -1417,8 +1414,8 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
         output = statuses + available;
         --output;
         device = 0xFD;
-        coreButtons = 0xFFFF;
         extensionButtons = 0xFFFF;
+        coreButtons = 0xFFFF;
         buttons = 0xFFFF;
         do {
             output--;
@@ -1455,19 +1452,20 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
             if (extensionButtons == 0xFFFF) {
                 extensionButtons = kpad->status.ex_status.cl.hold;
             }
-            buttons = (buttons & 0x9FFF) | (coreButtons & 0x6000);
             previousButtons = kpad->status.hold;
-            changed = buttons ^ previousButtons;
-            kpad->status.hold = buttons;
-            kpad->status.trig = changed & buttons;
+            heldButtons = (buttons & 0x9FFF) | (coreButtons & 0x6000);
+            changed = heldButtons ^ previousButtons;
+            kpad->status.hold = heldButtons;
+            kpad->status.trig = changed & heldButtons;
             kpad->status.release = changed & previousButtons;
             if (device == 2) {
-                previousButtons = kpad->status.ex_status.cl.hold;
+                u16 previousExtensionButtons;
+                previousExtensionButtons = kpad->status.ex_status.cl.hold;
                 extensionButtons = (u16)extensionButtons;
                 kpad->status.ex_status.cl.hold = extensionButtons;
-                changed = extensionButtons ^ previousButtons;
+                changed = extensionButtons ^ previousExtensionButtons;
                 kpad->status.ex_status.cl.trig = changed & extensionButtons;
-                kpad->status.ex_status.cl.release = changed & previousButtons;
+                kpad->status.ex_status.cl.release = changed & previousExtensionButtons;
             }
             calc_button_repeat(kpad, device, ringCount);
             remainingSamples = available;
