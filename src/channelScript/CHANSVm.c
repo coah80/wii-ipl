@@ -6781,10 +6781,79 @@ static CHANSVmErr VmReturnWithValue(CHANSVm* vm, u32 val) {
     return ret;
 }
 
+static inline CHANSVmErr VmResolveGlobalModules(CHANSVmModule* module, GlobalObjListNode* head) {
+    DispatchEntry* dispatchTable;
+    GlobalObjListNode* gIter;
+    u32 i;
+    dispatchTable = module->pDispatchTbl;
+
+    for (gIter = head; gIter != vmNull; gIter = gIter->next) {
+        for (i = 0; i < module->moduleCount; i++) {
+            DispatchEntry entry = dispatchTable[i];
+            u8* addr;
+
+            if (!gIter->nameLength) {
+                continue;
+            }
+
+            addr = (u8*)dispatchTable + entry.offset;
+            if (addr + gIter->nameLength > (u8*)module + module->regionSize || gIter->nameLength != entry.nameLength) {
+                continue;
+            }
+
+            if (memcmp(gIter->name, addr, gIter->nameLength) != 0) {
+                continue;
+            }
+
+            if (module->pModuleTbl[i].type) {
+                return CHANS_VM_ERR_RESOLVE_GLOBAL_OBJECT_REFERENCE;
+            }
+            module->pModuleTbl[i].type = CHANS_VM_TYPE_GLOBAL_REF;
+            module->pModuleTbl[i].pGlobalObj = gIter;
+            module->pModuleTbl[i].flags = CHANSVM_OBJ_FLAG_READONLY;
+        }
+    }
+    return 0;
+}
+
+static inline CHANSVmErr VmResolveNativeModules(CHANSVmModule* module, CHANSVmNativeClass* head) {
+    DispatchEntry* dispatchTable;
+    CHANSVmNativeClass* nIter;
+    u32 i;
+    dispatchTable = module->pDispatchTbl;
+    for (nIter = head; nIter != vmNull; nIter = nIter->pNext) {
+        for (i = 0; i < module->moduleCount; i++) {
+            DispatchEntry entry = dispatchTable[i];
+            u8* addr;
+
+            if (!nIter->nameLength) {
+                continue;
+            }
+
+            addr = (u8*)dispatchTable + entry.offset;
+            if (addr + nIter->nameLength > (u8*)module + module->regionSize || nIter->nameLength != entry.nameLength) {
+                continue;
+            }
+
+            if (memcmp(nIter->sName, addr, nIter->nameLength) != 0) {
+                continue;
+            }
+
+            if (module->pModuleTbl[i].type) {
+                return CHANS_VM_ERR_RESOLVE_NATIVE_METHOD_CALL;
+            }
+            module->pModuleTbl[i].type = CHANS_VM_TYPE_CLASS_REF;
+            module->pModuleTbl[i].pNativeClass = nIter;
+            module->pModuleTbl[i].flags = CHANSVM_OBJ_FLAG_READONLY;
+        }
+    }
+    return 0;
+}
+
 CHANSVmErr CHANSVmLinkModules(CHANSVm* vm, vmS32 unk0) {
     CHANSVmPrivate* pVm = (CHANSVmPrivate*)vm;
-    CHANSVmModule* module;
     u32 modIdx;
+    CHANSVmModule* module;
     u32 i;
 
     (void)unk0;
@@ -6796,76 +6865,14 @@ CHANSVmErr CHANSVmLinkModules(CHANSVm* vm, vmS32 unk0) {
 
         while (modIdx < (u32)pVm->depth) {
             CHANSVmErr result;
-            DispatchEntry* dispatchTable;
-            GlobalObjListNode* gIter;
-            CHANSVmNativeClass* nIter;
 
             pVm->pActiveCtx->pDbg = module;
-            dispatchTable = module->pDispatchTbl;
-
-            for (gIter = pVm->pGlobalObjList; gIter != vmNull; gIter = gIter->next) {
-                for (i = 0; i < module->moduleCount; i++) {
-                    DispatchEntry entry = dispatchTable[i];
-                    u8* addr;
-
-                    if (!gIter->nameLength) {
-                        continue;
-                    }
-
-                    addr = (u8*)dispatchTable + entry.offset;
-                    if (addr + gIter->nameLength > (u8*)module + module->regionSize || gIter->nameLength != entry.nameLength) {
-                        continue;
-                    }
-
-                    if (memcmp(gIter->name, addr, gIter->nameLength) != 0) {
-                        continue;
-                    }
-
-                    if (module->pModuleTbl[i].type) {
-                        result = CHANS_VM_ERR_RESOLVE_GLOBAL_OBJECT_REFERENCE;
-                        goto post_pass1;
-                    }
-                    module->pModuleTbl[i].type = CHANS_VM_TYPE_GLOBAL_REF;
-                    module->pModuleTbl[i].pGlobalObj = gIter;
-                    module->pModuleTbl[i].flags = CHANSVM_OBJ_FLAG_READONLY;
-                }
-            }
-            result = 0;
-        post_pass1:
+            result = VmResolveGlobalModules(module, pVm->pGlobalObjList);
             if (result) {
                 return result;
             }
 
-            dispatchTable = module->pDispatchTbl;
-            for (nIter = pVm->pNativeClasses; nIter != vmNull; nIter = nIter->pNext) {
-                for (i = 0; i < module->moduleCount; i++) {
-                    DispatchEntry entry = dispatchTable[i];
-                    u8* addr;
-
-                    if (!nIter->nameLength) {
-                        continue;
-                    }
-
-                    addr = (u8*)dispatchTable + entry.offset;
-                    if (addr + nIter->nameLength > (u8*)module + module->regionSize || nIter->nameLength != entry.nameLength) {
-                        continue;
-                    }
-
-                    if (memcmp(nIter->sName, addr, nIter->nameLength) != 0) {
-                        continue;
-                    }
-
-                    if (module->pModuleTbl[i].type) {
-                        result = CHANS_VM_ERR_RESOLVE_NATIVE_METHOD_CALL;
-                        goto post_pass2;
-                    }
-                    module->pModuleTbl[i].type = CHANS_VM_TYPE_CLASS_REF;
-                    module->pModuleTbl[i].pNativeClass = nIter;
-                    module->pModuleTbl[i].flags = CHANSVM_OBJ_FLAG_READONLY;
-                }
-            }
-            result = 0;
-        post_pass2:
+            result = VmResolveNativeModules(module, pVm->pNativeClasses);
             if (result) {
                 return result;
             }
