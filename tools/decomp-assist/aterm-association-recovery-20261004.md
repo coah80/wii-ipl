@@ -106,7 +106,7 @@ Four concrete compiler-local object names change at fixed symbol indices:
 
 - 22:@2600→@2652, .data+0, extent40
 - 23:@2652→@2704, .data+40, extent132
-- 24:@1043→@1036, .sdata+0, extent7
+- 24:@1043→@1036, .sdata2+0, extent7
 - 25:@2792→@2844, .data+172, extent44
 
 Each entry and its entire allocated raw extent is independently byte-verified.
