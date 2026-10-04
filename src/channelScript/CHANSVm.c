@@ -4975,6 +4975,24 @@ exit:
     return curPos;
 }
 
+static inline void VmBlobCopyPadded(BlobHeader* parentBlob, const BlobHeader* srcBlob, s32 copySize) {
+    u32 srcOff;
+    u32 dataSize;
+    u8* dest;
+
+    srcOff = srcBlob->offset;
+    dataSize = srcBlob->size - srcOff;
+    dest = parentBlob->pData + parentBlob->offset;
+    if (dataSize > copySize) {
+        dataSize = copySize;
+    }
+    memmove(dest, srcBlob->pData + srcOff, dataSize);
+    if (dataSize < copySize) {
+        memset(dest + dataSize, 0, copySize - dataSize);
+    }
+    parentBlob->offset += copySize;
+}
+
 static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, CHANSVmObjHdr* VmReturnObj, vmU32 flag) {
     u32 packBuf[2];
     BlobHeader* parentBlob;
@@ -4990,8 +5008,6 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
     CHANSVmObjHdr* obj;
     BlobHeader* srcBlob;
     s32 copySize;
-    u32 dataSize;
-    u32 srcOff;
     CHANSVmObjHdr* strObj;
     u8* srcData;
     u32 charCount;
@@ -5213,17 +5229,7 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                     goto error;
                 }
 
-                srcOff = srcBlob->offset;
-                dataSize = srcBlob->size - srcOff;
-                dest = parentBlob->pData + parentBlob->offset;
-                if (dataSize > copySize) {
-                    dataSize = copySize;
-                }
-                memmove(dest, srcBlob->pData + srcOff, dataSize);
-                if (dataSize < copySize) {
-                    memset(dest + dataSize, 0, copySize - dataSize);
-                }
-                parentBlob->offset += copySize;
+                VmBlobCopyPadded(parentBlob, srcBlob, copySize);
                 break;
             }
             case 5: {
