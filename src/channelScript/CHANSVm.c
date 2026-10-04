@@ -5447,22 +5447,20 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                 memset(dest, 0, bufSize);
 
                 for (i = 0; (s32)i < count; i++) {
-                    u32 nibble;
-
                     ch = ((const u16*)srcData)[i];
                     if (ch >= 0x30 && ch <= 0x39) {
-                        nibble = ch - 0x30;
+                        ch -= 0x30;
                     } else if (ch >= 0x61 && ch <= 0x66) {
-                        nibble = ch - 0x57;
+                        ch -= 0x57;
                     } else if (ch >= 0x41 && ch <= 0x46) {
-                        nibble = ch - 0x37;
+                        ch -= 0x37;
                     } else {
-                        nibble = 0;
+                        ch = 0;
                     }
                     if ((i & 1) == 0) {
-                        nibble *= 16;
+                        ch *= 16;
                     }
-                    *dest |= nibble & 0xFF;
+                    *dest |= ch & 0xFF;
                     if (i & 1) {
                         dest++;
                     }
