@@ -866,6 +866,38 @@ int ATERMFindChangedApRecord(AtermApRecordSet* currentRecords, AtermApRecordSet*
     return result;
 }
 
+static inline s32 atermFormatHexByte(char* output, u8 byte) {
+    s32 nibbles[2];
+    s32 index;
+    char* encoded = output;
+    nibbles[0] = (byte & 0xF0) >> 4;
+    nibbles[1] = byte & 0xF;
+    for (index = 0; index < 2; index++) {
+        s32 nibble = nibbles[index];
+        if (nibble <= 9) {
+            *encoded++ = nibble + '0';
+        } else {
+            *encoded++ = nibble + '7';
+        }
+    }
+    *encoded = 0;
+    return encoded - output;
+}
+
+static inline void atermFormatMacAddress(char* text, const u8* address) {
+    const u8* input = address;
+    char* output = text;
+    s32 index;
+    for (index = 0; index < 6; index++) {
+        u8 byte = *input++;
+        output += atermFormatHexByte(output, byte);
+        if (index < 5) {
+            *output++ = ':';
+        }
+    }
+    *output = 0;
+}
+
 int ATERMDiscoverAccessPoints(void) {
     s32 result = -1;
     u32 scanBufferBytes;
@@ -959,35 +991,7 @@ int ATERMDiscoverAccessPoints(void) {
             memcpy(gAtermSelectedBssid,
                 selectedRecord->bssid,
                 sizeof(selectedRecord->bssid));
-            {
-                u8* addressCursor = gAtermSelectedBssid;
-                s32 addressIndex = 0;
-                char* output = selectedMacText;
-
-                for (addressIndex = 0; ; addressIndex++) {
-                    u8 addressByte = *addressCursor++;
-                    char* encoded = output;
-                    s32 highNibble = (addressByte & 0xF0) >> 4;
-                    s32 lowNibble = addressByte & 0xF;
-                    if (highNibble <= 9) {
-                        *encoded++ = highNibble + '0';
-                    } else {
-                        *encoded++ = highNibble + '7';
-                    }
-                    if (lowNibble <= 9) {
-                        *encoded++ = lowNibble + '0';
-                    } else {
-                        *encoded++ = lowNibble + '7';
-                    }
-                    *encoded = 0;
-                    output += encoded - output;
-                    if (addressIndex == 5) {
-                        break;
-                    }
-                    *output++ = ':';
-                }
-                *output = '\0';
-            }
+            atermFormatMacAddress(selectedMacText, gAtermSelectedBssid);
             break;
         }
 
@@ -1006,18 +1010,18 @@ int ATERMDiscoverAccessPoints(void) {
         iteration++;
     }
 
-    if (iteration < 300) {
-        now = (u32)OSTicksToMilliseconds(OSGetTime());
-        if (now > gAtermDeadline) {
-            result = -3;
-        } else {
-            result = 1;
-            if (gAtermCancelRequested != 0) {
-                result = -8;
-            }
-        }
-    } else {
+    if (iteration >= 300) {
+        goto timed_out;
+    }
+    now = (u32)OSTicksToMilliseconds(OSGetTime());
+    if (now > gAtermDeadline) {
+    timed_out:
         result = -3;
+    } else {
+        result = 1;
+        if (gAtermCancelRequested != 0) {
+            result = -8;
+        }
     }
 
 cleanup:
@@ -1137,38 +1141,6 @@ int ATERMParsePacket(AtermPacket* packet, u32* setupType) {
         }
     }
     return 0;
-}
-
-static inline s32 atermFormatHexByte(char* output, u8 byte) {
-    s32 nibbles[2];
-    s32 index;
-    char* encoded = output;
-    nibbles[0] = (byte & 0xF0) >> 4;
-    nibbles[1] = byte & 0xF;
-    for (index = 0; index < 2; index++) {
-        s32 nibble = nibbles[index];
-        if (nibble <= 9) {
-            *encoded++ = nibble + '0';
-        } else {
-            *encoded++ = nibble + '7';
-        }
-    }
-    *encoded = 0;
-    return encoded - output;
-}
-
-static inline void atermFormatMacAddress(char* text, const u8* address) {
-    const u8* input = address;
-    char* output = text;
-    s32 index;
-    for (index = 0; index < 6; index++) {
-        u8 byte = *input++;
-        output += atermFormatHexByte(output, byte);
-        if (index < 5) {
-            *output++ = ':';
-        }
-    }
-    *output = 0;
 }
 
 int ATERMBuildAssociationRequest(AtermAssociationRequest* request) {
