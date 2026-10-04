@@ -351,6 +351,7 @@ int Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr optionData, ziPtr workDa
   int candidateCount;
   ziU8 *keyLayout;
   ziU8 *keyLayoutCursor;
+  ziPtr workspace;
   ziU16 prefixTableFlags;
   ziU16 prefixVowelFlags;
   ziU8 prefixMode;
@@ -406,6 +407,7 @@ int Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr optionData, ziPtr workDa
   contextEnabled = 0;
   keyLayoutCount = 0;
   keyLayout = 0;
+  workspace = workData;
   phoneticInput = 0;
   phoneticSeparator = 0;
   if ((((((language == 0x7c) || (language == 0x7d)) || (language == 0x7b)) ||
@@ -920,8 +922,8 @@ selectDictionary:
               if ((((wordLength == 0) && (*punctuationCursor != 0)) && (dictionaryExact != 0)) &&
                  ((((ZiAlphaWork*)workData)->singleCharacter != 0 && (parameters->elementCount == 2)))) {
                 *wordCursor = ((ZiAlphaWork*)workData)->singleCharacter;
-                wordCursor[1] = *punctuationCursor++;
                 wordCursor[2] = 0;
+                wordCursor[1] = *punctuationCursor++;
                 wordLength = 2;
               }
               if (((apostropheIndex != 0) && (wordLength != 0)) && (elementCount == parameters->elementCount)) {
@@ -1004,7 +1006,7 @@ filterVowelCandidate:
             case 3:
             case 7:
               while( ZI8_TRUE ) {
-                wordLength = Zi8MatchUWDdata(elements,elementCount & 0xff,
+                wordLength = Zi8MatchUWDdata(elements,elementCount,
                                              parameters->currentWord,parameters->wordCharCount,
                                              language,wordCursor,wordCapacity & 0xffff,dictionaryExact,
                                              dictionaryStatus[dictionaryKind] & 0xff,workData);
@@ -1015,8 +1017,8 @@ filterVowelCandidate:
             case 4:
             case 8:
               if (elementCount != 0) {
-                wordLength = Zi8MatchOEMdata(elements,elementCount & 0xff,language,wordCursor,
-                                             wordCapacity & 0xffff,dictionaryExact,
+                wordLength = Zi8MatchOEMdata(elements,elementCount,language,wordCursor,
+                                             wordCapacity,dictionaryExact,
                                              dictionaryStatus[dictionaryKind] & 0xff,workData);
               }
               break;
@@ -1193,7 +1195,9 @@ checkKeyLayout:
                       break;
                     }
 emitCandidate:
-                    if (firstCandidate == 0) {
+                    if (firstCandidate != 0) {
+                      --firstCandidate;
+                    } else {
                       if (((ZiAlphaOptions*)optionData)->countOnly != '\0') {
                         if (((ZiAlphaOptions*)optionData)->suffixOnly != '\0') {
                           if ((int)((ZiAlphaOptions*)optionData)->shortestWord > (int)(wordLength + prefixCount)) {
@@ -1203,8 +1207,7 @@ emitCandidate:
                             ((ZiAlphaOptions*)optionData)->longestWord = wordLength + prefixCount;
                           }
                         }
-                        candidateCount = candidateCount + 1;
-                        if (((ZiAlphaOptions*)optionData)->maxResults <= candidateCount) goto finishCandidates;
+                        if (++candidateCount >= ((ZiAlphaOptions*)optionData)->maxResults) goto finishCandidates;
                       } else {
                         if (((ZiAlphaOptions*)optionData)->lookupMode != '\0') {
                           for (index = 0; index <= wordLength; index++) {
@@ -1323,8 +1326,7 @@ emitCandidate:
                             wordCursor = wordCursor + wordLength;
                             wordCapacity = wordCapacity - wordLength;
                           }
-                          candidateCount = candidateCount + 1;
-                          if ((int)(unsigned int)parameters->maxCandidates <= candidateCount) {
+                          if (++candidateCount >= (int)(unsigned int)parameters->maxCandidates) {
                             prefixCount = 0;
                             goto finishCandidates;
                           }
@@ -1355,9 +1357,6 @@ emitCandidate:
                           }
                         }
                       }
-                    }
-                    else {
-                      firstCandidate = firstCandidate - 1;
                     }
                   }
                 }
