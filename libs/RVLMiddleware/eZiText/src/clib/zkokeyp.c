@@ -119,28 +119,19 @@ ziU32 Zi8_814833F0(const ziGetParam* param, ziU16 key ZI_NEED_WORK) {
 
 ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
                    ziU8* inserted ZI_NEED_WORK) {
-    struct {
-        ziBool matches;
-        ziU8 candidateIndex;
-        ziU16 tableCount;
-        ziS32 compactIndex;
-        ZiKoreanKeyEntry* entry;
-        ziU8* tableB;
-        ziU8* tableA;
-        union {
-            ziU32 firstWord;
-            ziU8 bytes[5];
-        } keys;
-    } filter;
-    ziU32 j;
+    ziU8* tableA;
+    ziU8* tableB;
+    ZiKoreanKeyEntry* entry;
+    ziS32 compactIndex;
+    ziU16 tableCount;
+    ziU32 j = 0;
+    ziU8 candidateIndex = 0;
+    ziU8 matched = 0;
+    ziBool matches;
+    ziU8 keys[5] = {0};
     ziS32 i;
     ziS32 candidate;
-    ziU8 matched;
 
-    j = 0;
-    filter.candidateIndex = 0;
-    matched = 0;
-    filter.keys.bytes[4] = filter.keys.firstWord = 0;
     Zi8LogError(0x64, ZI_WORK);
     if (param->elementCount == 0) {
         if (*remaining >= *count) {
@@ -166,40 +157,40 @@ ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
         return 0;
     }
 
-        filter.tableA = (ziU8*)Zi8GetTableAddress(param->language, 9, ZI_WORK);
-        filter.tableB = (ziU8*)Zi8GetTableAddress(param->language, 10, ZI_WORK);
-        if (filter.tableA == 0) {
+        tableA = (ziU8*)Zi8GetTableAddress(param->language, 9, ZI_WORK);
+        tableB = (ziU8*)Zi8GetTableAddress(param->language, 10, ZI_WORK);
+        if (tableA == 0) {
             Zi8ReplaceLastError(0x76C, ZI_WORK);
             return 0;
-        } else if (filter.tableB == 0) {
+        } else if (tableB == 0) {
             Zi8ReplaceLastError(0x776, ZI_WORK);
             return 0;
         } else {
-            filter.tableCount = Zi8GetTableCount(ZI8_LANG_KO, 9, ZI_WORK);
-            Zi8_81483118(param, filter.keys.bytes);
+            tableCount = Zi8GetTableCount(ZI8_LANG_KO, 9, ZI_WORK);
+            Zi8_81483118(param, keys);
             i = 0;
-            while (i < filter.tableCount && matched < *count) {
-                filter.matches = ZI8_TRUE;
-                filter.entry = (ZiKoreanKeyEntry*)&filter.tableA[(i << 3) + i];
+            while (i < tableCount && matched < *count) {
+                matches = ZI8_TRUE;
+                entry = (ZiKoreanKeyEntry*)&tableA[(i << 3) + i];
                 j = 0;
                 if (param->elementCount > 1) {
                     for (j = 0; (int)(j & 0xFF) < (int)param->elementCount / 2; j++) {
-                        if (filter.keys.bytes[j & 0xFF] != filter.entry->keyBytes[j & 0xFF]) {
-                            filter.matches = ZI8_FALSE;
+                        if (keys[j & 0xFF] != entry->keyBytes[j & 0xFF]) {
+                            matches = ZI8_FALSE;
                             break;
                         }
                     }
                 }
-                if (filter.matches && (param->elementCount % 2) != 0 &&
-                    ((filter.keys.bytes[j & 0xFF] & 0xF0) != (filter.entry->keyBytes[j & 0xFF] & 0xF0))) {
-                    filter.matches = ZI8_FALSE;
+                if (matches && (param->elementCount % 2) != 0 &&
+                    ((keys[j & 0xFF] & 0xF0) != (entry->keyBytes[j & 0xFF] & 0xF0))) {
+                    matches = ZI8_FALSE;
                 }
-                if (filter.matches) {
-                    for (filter.candidateIndex = 0; filter.candidateIndex < *count; filter.candidateIndex++) {
-                        if (param->candidates[filter.candidateIndex] ==
-                            (((ziU16)((ZiKoreanKeyEntry*)filter.tableA)[i].characterHigh << 8) | (ziU16)((ZiKoreanKeyEntry*)filter.tableA)[i].characterLow)) {
+                if (matches) {
+                    for (candidateIndex = 0; candidateIndex < *count; candidateIndex++) {
+                        if (param->candidates[candidateIndex] ==
+                            (((ziU16)((ZiKoreanKeyEntry*)tableA)[i].characterHigh << 8) | (ziU16)((ZiKoreanKeyEntry*)tableA)[i].characterLow)) {
                             matched++;
-                            param->candidates[filter.candidateIndex] &= 0x7FFF;
+                            param->candidates[candidateIndex] &= 0x7FFF;
                             break;
                         }
                     }
@@ -225,10 +216,10 @@ ziU32 Zi8_814834AC(ziGetParam* param, ziU16* remaining, ziU8* count,
                 }
                 *remaining = 0;
             } else {
-                for (filter.compactIndex = 0; filter.compactIndex < *count; filter.compactIndex++) {
-                    if ((param->candidates[filter.compactIndex] & 0x8000) == 0) {
-                        param->candidates[filter.compactIndex] |= 0x8000;
-                        Zi8_81483308(param, param->candidates[filter.compactIndex], inserted, ZI_WORK);
+                for (compactIndex = 0; compactIndex < *count; compactIndex++) {
+                    if ((param->candidates[compactIndex] & 0x8000) == 0) {
+                        param->candidates[compactIndex] |= 0x8000;
+                        Zi8_81483308(param, param->candidates[compactIndex], inserted, ZI_WORK);
                     }
                 }
                 *remaining = *remaining - matched;
@@ -287,8 +278,7 @@ ziU32 Zi8GetKOcandidates(ziGetParam* param, ZiKoreanCandidateOptions* options ZI
     search.resultCount = 0;
     search.packedKeys.firstWord = 0;
     search.packedKeys.bytes[4] = 0;
-    search.remainingLetters = 0;
-    search.wordIndex = 0;
+    search.wordIndex = search.remainingLetters = 0;
     search.candidateCount = 0;
     search.keyByte = 0;
     search.remainingCandidates = param->firstCandidate;
