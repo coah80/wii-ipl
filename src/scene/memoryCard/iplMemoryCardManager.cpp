@@ -147,14 +147,13 @@ bool MemoryCardManager::isMoveEnable(u8 slot, u32 index, long* code) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     memorycard::CardState* states = memorycard::getCardSlotState();
     u32 file = mFile[slot][index].fileNo;
-    memorycard::FileInfo* dir = NULL;
     long result;
     bool enabled = false;
     if (isDistSlot(slot, NULL) &&
-        ((dir = &dirs[slot][file])->canMove != 0) &&
+        dirs[slot][file].canMove != 0 &&
         states[slot].key == states[slot ^ 1].key &&
-        states[slot ^ 1].freeBlocks >= dir->size && states[slot ^ 1].unk_0x0E != 0 &&
-        dir->unk_0x06 == 0) {
+        states[slot ^ 1].freeBlocks >= dirs[slot][file].size && states[slot ^ 1].unk_0x0E != 0 &&
+        dirs[slot][file].unk_0x06 == 0) {
         result = -0x15;
         enabled = true;
     } else {
@@ -167,13 +166,13 @@ bool MemoryCardManager::isMoveEnable(u8 slot, u32 index, long* code) {
             } else {
                 result = -0x1c;
             }
-        } else if ((dir = &dirs[slot][file])->canMove == 0) {
+        } else if (dirs[slot][file].canMove == 0) {
             result = -0x1a;
         } else if (states[slot].key != states[slot ^ 1].key) {
             result = -0x1b;
-        } else if (states[slot ^ 1].freeBlocks < dir->size || states[slot ^ 1].unk_0x0E == 0) {
+        } else if (states[slot ^ 1].freeBlocks < dirs[slot][file].size || states[slot ^ 1].unk_0x0E == 0) {
             result = -0x19;
-        } else if (dir->unk_0x06 != 0) {
+        } else if (dirs[slot][file].unk_0x06 != 0) {
             result = -0x18;
         }
     }
@@ -187,14 +186,13 @@ bool MemoryCardManager::isCopyEnable(u8 slot, u32 index, long* code) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     memorycard::CardState* states = memorycard::getCardSlotState();
     u32 file = mFile[slot][index].fileNo;
-    memorycard::FileInfo* dir = NULL;
     long result;
     bool enabled = false;
     if (isDistSlot(slot, NULL) &&
-        ((dir = &dirs[slot][file])->canCopy != 0) &&
+        dirs[slot][file].canCopy != 0 &&
         states[slot].key == states[slot ^ 1].key &&
-        states[slot ^ 1].freeBlocks >= dir->size && states[slot ^ 1].unk_0x0E != 0 &&
-        dir->unk_0x06 == 0) {
+        states[slot ^ 1].freeBlocks >= dirs[slot][file].size && states[slot ^ 1].unk_0x0E != 0 &&
+        dirs[slot][file].unk_0x06 == 0) {
         result = -0x15;
         enabled = true;
     } else {
@@ -207,13 +205,13 @@ bool MemoryCardManager::isCopyEnable(u8 slot, u32 index, long* code) {
             } else {
                 result = -0x1c;
             }
-        } else if ((dir = &dirs[slot][file])->canCopy == 0) {
+        } else if (dirs[slot][file].canCopy == 0) {
             result = -0x1a;
         } else if (states[slot].key != states[slot ^ 1].key) {
             result = -0x1b;
-        } else if (states[slot ^ 1].freeBlocks < dir->size || states[slot ^ 1].unk_0x0E == 0) {
+        } else if (states[slot ^ 1].freeBlocks < dirs[slot][file].size || states[slot ^ 1].unk_0x0E == 0) {
             result = -0x19;
-        } else if (dir->unk_0x06 != 0) {
+        } else if (dirs[slot][file].unk_0x06 != 0) {
             result = -0x18;
         }
     }
