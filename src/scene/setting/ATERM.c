@@ -1139,6 +1139,38 @@ int ATERMParsePacket(AtermPacket* packet, u32* setupType) {
     return 0;
 }
 
+static inline s32 atermFormatHexByte(char* output, u8 byte) {
+    s32 nibbles[2];
+    s32 index;
+    char* encoded = output;
+    nibbles[0] = (byte & 0xF0) >> 4;
+    nibbles[1] = byte & 0xF;
+    for (index = 0; index < 2; index++) {
+        s32 nibble = nibbles[index];
+        if (nibble <= 9) {
+            *encoded++ = nibble + '0';
+        } else {
+            *encoded++ = nibble + '7';
+        }
+    }
+    *encoded = 0;
+    return encoded - output;
+}
+
+static inline void atermFormatMacAddress(char* text, const u8* address) {
+    const u8* input = address;
+    char* output = text;
+    s32 index;
+    for (index = 0; index < 6; index++) {
+        u8 byte = *input++;
+        output += atermFormatHexByte(output, byte);
+        if (index < 5) {
+            *output++ = ':';
+        }
+    }
+    *output = 0;
+}
+
 int ATERMBuildAssociationRequest(AtermAssociationRequest* request) {
     u8 scanAddress[8];
     u8 interfaceMacAddress[8];
@@ -1160,66 +1192,8 @@ int ATERMBuildAssociationRequest(AtermAssociationRequest* request) {
         memcpy(request->secondAddress, interfaceMacAddress, 6);
     }
     if (gAtermUseSharedAddress != 0) {
-        {
-            const u8* addressCursor = interfaceMacAddress;
-            const u8* addressEnd = interfaceMacAddress + 6;
-            int addressIndex;
-            char* textCursor = interfaceMacText;
-            addressIndex = 0;
-            do {
-                u8 addressByte = *addressCursor++;
-                char* encoded = textCursor;
-                s32 highNibble = (addressByte & 0xF0) >> 4;
-                s32 lowNibble = addressByte & 0xF;
-                if (highNibble <= 9) {
-                    *encoded++ = highNibble + '0';
-                } else {
-                    *encoded++ = highNibble + '7';
-                }
-                if (lowNibble <= 9) {
-                    *encoded++ = lowNibble + '0';
-                } else {
-                    *encoded++ = lowNibble + '7';
-                }
-                *encoded = 0;
-                textCursor += encoded - textCursor;
-                if (addressIndex < 5) {
-                    *textCursor++ = ':';
-                }
-                addressIndex++;
-            } while (addressCursor < addressEnd);
-            *textCursor = '\0';
-        }
-        {
-            const u8* addressCursor = scanAddress;
-            const u8* addressEnd = scanAddress + 6;
-            int addressIndex;
-            char* textCursor = scanAddressText;
-            addressIndex = 0;
-            do {
-                u8 addressByte = *addressCursor++;
-                char* encoded = textCursor;
-                s32 highNibble = (addressByte & 0xF0) >> 4;
-                s32 lowNibble = addressByte & 0xF;
-                if (highNibble <= 9) {
-                    *encoded++ = highNibble + '0';
-                } else {
-                    *encoded++ = highNibble + '7';
-                }
-                if (lowNibble <= 9) {
-                    *encoded++ = lowNibble + '0';
-                } else {
-                    *encoded++ = lowNibble + '7';
-                }
-                *encoded = 0;
-                textCursor += encoded - textCursor;
-                if (addressIndex < 5) {
-                    *textCursor++ = ':';
-                }
-                addressIndex++;
-            } while (addressCursor < addressEnd);
-            *textCursor = '\0';
-        }
+        atermFormatMacAddress(interfaceMacText, interfaceMacAddress);
+        atermFormatMacAddress(scanAddressText, scanAddress);
     }
     return 1;
 }
