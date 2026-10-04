@@ -976,8 +976,8 @@ int ATERMDiscoverAccessPoints(void) {
                     sizeof(currentRecords->entries[recordIndex].bssid));
                 descriptorWords += descriptor->length;
                 ssidCursor += sizeof(AtermApRecord);
-                bssidCursor += sizeof(AtermApRecord);
                 recordIndex++;
+                bssidCursor += sizeof(AtermApRecord);
             }
         }
 
