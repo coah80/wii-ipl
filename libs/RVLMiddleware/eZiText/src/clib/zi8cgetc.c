@@ -166,7 +166,7 @@ extern ziBool Zi8IsCharacter(ziWChar character, ziPtr work);
 extern ziU8 Zi8MatchOEMdata(ziWChar* currentWord, ziU8 length, ziU8 language,
                            ziWChar* output, ziU16 capacity, ziU8 mode, ziU8 next, ziPtr work);
 extern ziU16 Zi8Uni2Ord(ziWChar character, ziPtr work);
-extern int Zi8GetPCode(ziU8* table, ziU8* record);
+extern ziU16 Zi8GetPCode(ziU8* table, ziU8* record);
 extern ziU16 Zi8MatchAltSound(ziPtr table, ziU16 count, ziPtr phonetics,
                              ziU16 ordinal, ziU16 mask, ziU16 value, ziU8 flags, ziPtr work);
 extern ziU32 Zi8SecMatchChar(ziPtr record, ziU8* dictionary, ziMatchParam* match, ziU16* code, ziPtr work);
@@ -755,8 +755,8 @@ static int zi8InternalGetZH(ziGetParam* request, ZiChineseOptions* options, ziPt
             componentOrdinals = (ziU8*)Zi8GetTableAddress(1, 7, work);
             componentTable = componentCursor = (ziU8*)Zi8GetTableAddress(1, 2, work);
             componentCursor += 8;
+            componentIndex = componentCount - 1;
             --componentCount;
-            componentIndex = componentCount;
             alternateCharacter = 0;
             phoneticRetry = 1;
         }
@@ -1299,8 +1299,8 @@ context_word_lookup:
                     if (emitWords) {
                         ++emittedCount;
                         outputIndex += emittedWords;
-                        output[outputIndex++] = ' ';
-                        if (outputIndex > outputLimit) {
+                        output[outputIndex] = ' ';
+                        if (++outputIndex > outputLimit) {
                             request->letters = emittedCount;
                             request->count = emittedCount;
                             goto engine_finish;
@@ -1434,8 +1434,8 @@ candidate_dictionary_search:
                 if (emitWords) {
                     ++emittedCount;
                     output[outputIndex++] = character;
-                    output[outputIndex++] = ' ';
-                    if (outputIndex > outputLimit) goto engine_finish;
+                    output[outputIndex] = ' ';
+                    if (++outputIndex > outputLimit) goto engine_finish;
                 } else output[emittedCount++] = character;
                 if (emittedCount >= request->maxCandidates) goto engine_finish;
             }
@@ -1676,8 +1676,8 @@ tone_candidates:
                     if (emitWords) {
                         ++emittedCount;
                         output[outputIndex++] = character;
-                        output[outputIndex++] = ' ';
-                        if (outputIndex > outputLimit) goto engine_finish;
+                        output[outputIndex] = ' ';
+                        if (++outputIndex > outputLimit) goto engine_finish;
                     } else output[emittedCount++] = character;
                     if (emittedCount >= request->maxCandidates) goto engine_finish;
                 } else if (totalResults >= options->maxResults) goto engine_finish;
@@ -2052,7 +2052,7 @@ component_record_next:
         if (getMode != 5) {
             while (exactPhrase) {
                 while (match.count) {
-                    if (!candidateCount--) goto frequency_range_retry;
+                    if ((candidateCount -= 1) == 0xFFFF) goto frequency_range_retry;
                     if (match.arrD[0] == (record[0] & match.arr1[0]) &&
                         (ziU8)Zi8SecMatchChar(record, componentTable, &match, &candidateOrdinal, work)) goto frequency_accept;
                     record += 12;
@@ -2298,7 +2298,7 @@ phonetic_pair_next:
                 alternateCursor += 4;
             }
 phonetic_group_next:
-            ++ordinalIndex;
+            ordinalIndex += 1;
             frequencyCursor += 5;
         }
     }
