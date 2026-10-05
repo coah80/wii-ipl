@@ -12,6 +12,9 @@
 
 namespace ipl {
     namespace scene {
+#ifdef IPL_BUTTON_IMPLEMENTATION
+        extern "C" BOOL push_button_queue(void*, const void*);
+#endif
         class ButtonEventHandlerBase;
         class OptOutButtonEventHandlerBase;
         class SDMenuEventHandlerBase;
@@ -314,6 +317,9 @@ namespace ipl {
             }
 
         protected:
+#ifdef IPL_BUTTON_IMPLEMENTATION
+            friend BOOL push_button_queue(void*, const void*);
+#endif
             typedef struct Command {
                 enum {
                     TYPE_ANIM = 0,

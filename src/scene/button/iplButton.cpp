@@ -1,3 +1,4 @@
+#define IPL_BUTTON_IMPLEMENTATION
 #include "scene/button/iplButton.h"
 
 #include "iplSceneUI.h"
@@ -968,38 +969,19 @@ namespace ipl {
         void OptOutButtonEventHandlerBase::onEventDerived(u32 compId, u32 event, const controller::Interface* con) {
         }
 
-        extern "C" asm void push_button_queue() {
-            nofralloc
-            lwz r5, 0x60(r3)
-            lwz r0, 0x64(r3)
-            cmpw r5, r0
-            bne push_not_full
-            li r3, 0
-            blr
-        push_not_full:
-            lwz r0, 0x6C(r3)
-            lwz r6, 0(r4)
-            mulli r7, r0, 0xC
-            lwz r5, 4(r4)
-            lwz r0, 8(r4)
-            stwx r6, r3, r7
-            add r4, r3, r7
-            stw r5, 4(r4)
-            stw r0, 8(r4)
-            lwz r4, 0x6C(r3)
-            lwz r0, 0x60(r3)
-            addi r4, r4, 1
-            cmpw r4, r0
-            stw r4, 0x6C(r3)
-            blt push_pushed
-            li r0, 0
-            stw r0, 0x6C(r3)
-        push_pushed:
-            lwz r4, 0x64(r3)
-            addi r0, r4, 1
-            stw r0, 0x64(r3)
-            li r3, 1
-            blr
+        extern "C" BOOL push_button_queue(void* storage, const void* item) {
+            typedef utility::Queue<Button::Command, 8> CommandQueue;
+            CommandQueue* queue = static_cast<CommandQueue*>(storage);
+            const Button::Command* command = static_cast<const Button::Command*>(item);
+            if (queue->count == queue->current) {
+                return FALSE;
+            }
+            queue->items[queue->pushed] = *command;
+            if (++queue->pushed >= queue->count) {
+                queue->pushed = 0;
+            }
+            queue->current++;
+            return TRUE;
         }
 
     }  // namespace scene
