@@ -1,7 +1,7 @@
 # Assembly inventory
 
 4.3U, 2026-10-05. 173 functions contain 175 assembly
-bodies/blocks: 162 ORIGINAL functions and 11 PLACEHOLDER functions.
+bodies/blocks: 162 ORIGINAL functions and 10 PLACEHOLDER functions.
 
 Run `python3 tools/check_asm_inventory.py`. Completion requires exit 0, complete
 coverage and zero placeholders. The checker also rejects stale/duplicate rows,
@@ -189,7 +189,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `src/BS2/BS2Start.c` | `__start` | ORIGINAL | Runs before the C stack and ABI registers exist; constructs the initial stack. |
 | `src/BS2/BS2Start.c` | `__init_registers` | ORIGINAL | Initializes GPRs, r1, r2, and r13 for the C runtime. |
 | `src/scene/nakamuraTest/gamespy/common/gsPlatformUtil.c` | `GetTicks` | ORIGINAL | Inactive PS2 branch reads the CP0 Count register with mfc0 $9. |
-| `src/system/TVRC.cpp` | `TVRCSendStartAsync` | PLACEHOLDER | IR command setup; best recorded C 99.77273%, 198/198 instructions, seven differences, [rx2](../tools/decomp-assist/rx2.attempts.md); newer [rx17][rx17] 99.747475%. |
 | `src/system/iplChannelManager.cpp` | `getTitleName__Q33ipl7channel7ManagerCFiii` | PLACEHOLDER | Channel-name copying; best C 99.57746%, 71/71 instructions, four address-order differences, [rx17][rx17]. |
 | `src/system/iplSaveDataManager.cpp` | `Manager::hasChannel` | PLACEHOLDER | Title-slot search; best C 98.87324%, 71/71 instructions, 14 mask/base register differences, [rx30][rx30]. |
 | `src/system/iplSaveDataManager.cpp` | `Manager::makePriorTitleIDList` | PLACEHOLDER | Title filtering; best recorded C 80.22556%, 124/133 instructions, address CSE, [da1](../tools/decomp-assist/da1.attempts.md); newer [rx17][rx17] 79.827065%. |
