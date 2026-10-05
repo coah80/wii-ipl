@@ -49,17 +49,17 @@ typedef struct {
     u8 flashVer[4];            // 0x640
     s8 flashPixVer[4];         // 0x644
     u16 colorSpace;            // 0x648
-    u8 unk_0x64A[0x02];
+    u8 colorSpacePadding[0x02];
     u32 pixelXDim;        // 0x64C
     u32 pixelYDim;        // 0x650
     u16 compressionIfd1;  // 0x654
-    u8 unk_0x656[0x02];
+    u8 compressionPadding[0x02];
     u32 xResNumIfd1;       // 0x658
     u32 xResDenIfd1;       // 0x65C
     u32 planarConfigIfd1;  // 0x660
     u32 yResDenIfd1;       // 0x664
     u16 resUnitIfd1;       // 0x668
-    u8 unk_0x66A[0x02];
+    u8 resolutionPadding[0x02];
     u32 thumbnailOffset;  // 0x66C
     u32 thumbnailLength;  // 0x670
     u8* thumbnailData;    // 0x674
@@ -67,19 +67,40 @@ typedef struct {
 } TMCCJPEGDecExifData;
 
 typedef struct {
-    u8 unk_0x00[0x04];
+    u16 posX;
+    u16 posY;
     s32 position;  // 0x04
     u8 unk_0x08[0x04];
     u32 state;  // 0x0C
-    u8 unk_0x10[0x10];
+    u16 maxX;
+    u16 maxY;
+    u8 stepX;
+    u8 stepY;
+    u8 stepXExt;
+    u8 stepYExt;
+    u32 dataSizeX;
+    u32 dataSizeY;
     u8 exifFlags;  // 0x20
     u8 thumbFlag;  // 0x21
-    u8 unk_0x22[0x2A];
+    u8 componentCount;
+    u8 dimensionPadding;
+    u16 jpegWidth;
+    u16 jpegHeight;
+    u16 outputWidth;
+    u16 outputHeight;
+    u32 convWidth;
+    u32 convHeight;
+    u32 chromaWidth;
+    u32 chromaHeight;
+    u8* pLumaBuffer;
+    u8* pCbBuffer;
+    u8* pCrBuffer;
+    void* pTexBuffer;
     TMCCJPEGDecExifData exifData;  // 0x4C
     TMCCJPEGDecWork* pWorkBuf;     // 0x6C8
-    u8 unk_0x6CC[0x04];
+    s32 decodeResult;
     u8 converterType;  // 0x6D0
-    u8 unk_0x6D1[0x03];
+    u8 alignmentPadding[0x03];
 } TMCCJPEGDecExifInfo;
 
 typedef struct {

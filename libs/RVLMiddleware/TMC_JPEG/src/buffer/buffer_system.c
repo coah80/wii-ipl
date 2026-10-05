@@ -12,9 +12,9 @@ s32 TMCJPEGDEC_init_ptr_buff(TMCCJPEGDecWork* work, void* param) {
     u32 newRemaining;
     const TMCCJPEGDecInitParam* input = (const TMCCJPEGDecInitParam*)((u8*)param - offsetof(TMCCJPEGDecInitParam, pBuf2));
 
-    if ((u32)input->pBuf2 & 0x1F)
+    if ((u32)input->pBuf2 & (DEFAULT_ALIGN - 1))
         return -1;
-    if (input->buf2Size & 0x1F)
+    if (input->buf2Size & (DEFAULT_ALIGN - 1))
         return -1;
     if (input->dataSize == 0)
         return -1;

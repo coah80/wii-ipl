@@ -10,7 +10,7 @@ static u8 clampU8(s32 v) {
 }
 
 static s8 clampS8(s32 v) {
-    return (v < 128 && v > -129) ? (s8)v : (v > 0) ? 127 : -128;
+    return (v < 128 && v > -129) ? v : (v > 0) ? 127 : -128;
 }
 
 void TMCJPEGDEC_IdctBlock4x4(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag) {

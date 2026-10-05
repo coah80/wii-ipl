@@ -27,7 +27,7 @@ s32 TMCJPEGDEC_init_buff_thumbnail(TMCCJPEGDecWork* work, u8* dst, u8* src) {
     endAddress = (u32)buffer->pBufCur + endAddress;
     buffer->remaining = 0;
     buffer->pBufEnd = (u8*)endAddress;
-    buffer->pBufMark = (u8*)((u32)endAddress - 0x22);
+    buffer->pBufMark = (u8*)endAddress - 0x22;
     return 0;
 }
 
