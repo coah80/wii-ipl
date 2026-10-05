@@ -168,7 +168,7 @@ typedef struct _ziGetParam {
     ziU8 letters;     // 0x21
     ziU8 completion;  // 0x22  (EZTXGetParam.completion)
     ziU8* scratch;    // 0x24
-    ziU32 unk_0x28;   // 0x28
+    ziU32 reserved;   // 0x28
 } ziGetParam;
 
 typedef struct _ziLanguageEntry {
@@ -180,7 +180,7 @@ typedef struct _zi8DawgRec {
     ziU8* node;
     ziU32 attr;
     ziU16 key;
-    ziU8 unk_0x0A[2];
+    ziU8 reserved[2];
     ziU8* back;
 } zi8DawgRec;
 
@@ -189,11 +189,11 @@ typedef struct _zi8DawgCtx {
     ziU8 key;        // 0x01
     ziU16 cnt;       // 0x02
     ziU16 cap;       // 0x04
-    ziU8 unk_0x06[2];
-    ziU8* p08;       // 0x08
-    ziU8* p0C;       // 0x0C
+    ziU8 reserved[2];
+    ziU8* characters;       // 0x08
+    ziU8* characterFlags;       // 0x0C
     ziU8* table;     // 0x10
-    ziU8* p14;       // 0x14
+    ziU8* keyCodes;       // 0x14
     zi8DawgRec recs[0x32];  // 0x18
     ziU32 endNode; // 0x338
 } zi8DawgCtx;
@@ -206,116 +206,116 @@ typedef struct _ziUwdNode {
 struct __zi8_work_data_s {
     ziU8 getcPhase;  // 0x00
     ziU8 countOnly;  // 0x01
-    ziU8 unk_0x02[2];
+    ziU8 reservedAlignment[2];
     ziLanguageEntry* langEntries;  // 0x04
-    ziU8 unk_0x08;
-    ziU8 unk_0x09;
+    ziU8 initializationState;
+    ziU8 dictionaryFlags;
     ziU8 maxWordLength;
-    ziU8 unk_0x0B;
+    ziU8 reservedSettings;
     ziU32 targetCount;  // 0x0C
-    ziU32 unk_0x10;
-    ziU16 unk_0x14;
+    ziU32 maxCandidateCount;
+    ziU16 errorCode;
     ziU8 cangjieEnabled;  // 0x16
     ziU8 zhPudMinPrefix;
     ziU8 subLanguage;  // 0x18
-    ziU8 unk_0x19;
+    ziU8 reservedSubLanguage;
     ziU16 separator;  // 0x1A
-    ziU8 unk_0x1C[3];
+    ziU8 searchModes[3];
     ziU8 ignoreCase;
-    ziU16 unk_0x20[0x40];
-    ziU16 unk_0xA0[0x42];
-    ziU16* unk_0x124[1];
-    ziU8* unk_0x128;
+    ziU16 duplicateCharacters[0x40];
+    ziU16 duplicateOrdinalCache[0x42];
+    ziU16* zhUwdPointers[1];
+    ziU8* reservedUwdPointer;
     ziU8 uwdPtrCount;  // 0x12C
-    ziU8 unk_0x12D;
+    ziU8 zhPudCount;
     ziU8 uwdPrioritySort;  // 0x12E
-    ziU8 unk_0x12F;
+    ziU8 reservedUwdState;
     ziPtr uwdDicts[2];  // 0x130
     ziU8 uwdDictCount;  // 0x138
-    ziU8 unk_0x139[3];
-    ziU32 unk_0x13C;
-    ziU8 unk_0x140;
-    ziU8 unk_0x141[0x43];
-    ziU8 unk_0x184[0x43];
+    ziU8 reservedUwdAlignment[3];
+    ziU32 uwdSkipCount;
+    ziU8 uwdContextEnabled;
+    ziU8 uwdContextRecord[0x43];
+    ziU8 uwdContextAlternateCase[0x43];
     ziU8 uwdCount;         // 0x1C7
     ziUwdNode uwdNodes[0x20];  // 0x1C8
     ziUwdNode* uwdList;    // 0x2C8
     ziU32 pudTable[0x10];  // 0x2CC
     ziU8 pudCount;         // 0x30C
-    ziU8 unk_0x30D[3];
-    ziU32 unk_0x310;
-    ziU32 unk_0x314;
-    ziU32 unk_0x318;
+    ziU8 reservedPudAlignment[3];
+    ziU32 pudWordAddress;
+    ziU32 pudWordCount;
+    ziU32 pudWordIndex;
     ziU8 pdRemoveOpt;      // 0x31C
-    ziU8 unk_0x31D;
-    ziU8 unk_0x31E;
-    ziU8 unk_0x31F;
+    ziU8 reservedPudState;
+    ziU8 pudStopAtSpace;
+    ziU8 reservedOemAlignment;
     ziU8 (*oemMatch)(ziU16 idx, ziWChar* buf, ziU8 len, ziPtr data); //0x320
     ziU16 oemLen;  //0x324
-    ziU8 unk_0x326[2];
+    ziU8 reservedOemLengthAlignment[2];
     ziU32 oemIdx;  //0x328
     ziPtr oemData; //0x32C
-    ziU8 unk_0x330[8];
-    ziU32 unk_0x338;
-    ziU8 unk_0x33C[0x1FC];
+    ziU8 reservedOemState[8];
+    ziU32 candidateBufferHead;
+    ziU8 candidateBufferTail[0x1FC];
     ziU8 language;  // 0x538
-    ziU8 unk_0x539;
-    ziU8 unk_0x53A[0x40];
-    ziWChar unk_0x57A[0x641];
-    ziPtr unk_0x11FC;
+    ziU8 duplicateCount;
+    ziU8 duplicateWordOrder[0x40];
+    ziWChar duplicateBuffer[0x641];
+    ziPtr customKeyMap;
     ziPtr userKeys[0x83];  // 0x1200
-    ziU8 unk_0x140C[4];
+    ziU8 wordLengthSettings[4];
     ziU32 formats;  // 0x1410
-    ziU8 unk_0x1414[4];
+    ziU8 dictionaryCountStorage[4];
     ziU8 formatCount;
-    ziU8 unk_0x1419;
+    ziU8 reservedFormatAlignment;
     ziU16 capacity;  // 0x141A
     ziU8 forceAltGraph;  // 0x141C  (lang FI + group 0xC -> graphTableId 0x10)
     ziU8 advanceGroup;  // 0x141D  (nonzero: skip first dawg group)
     ziU8 graphTableId;  // 0x141E
     ziU8 maxCnt;  // 0x141F
-    ziU8 unk_0x1420[4];
+    ziU8 reservedDawgAlignment[4];
     zi8DawgCtx dawgCtx;    // 0x1424
-    ziU8 unk_0x1760[4];    // 0x1760
+    ziU8 dawgSearchState[4];    // 0x1760
     ziU8* groupPtr;       // 0x1764
-    ziU8 unk_0x1768;
-    ziU8 unk_0x1769[0x81];
+    ziU8 dawgGroupIndex;
+    ziU8 reservedDawgStorage[0x81];
     ziU16 matchOffset;  // 0x17EA
-    ziU8 unk_0x17EC;
-    ziU8 unk_0x17ED[3];
+    ziU8 dawgFallbackUsed;
+    ziU8 reservedDawgGroupAlignment[3];
     ziU8* dawgGroup;  // 0x17F0
-    ziWChar unk_0x17F4[0x40];  // 0x17F4..0x1874
-    ziU16 unk_0x1874;
-    ziU8 unk_0x1876;
-    ziU8 unk_0x1877;
-    ziU8 unk_0x1878;
-    ziU8 unk_0x1879;
-    ziWChar unk_0x187A[0x41];
-    ziU8 unk_0x18FC;
-    ziU8 unk_0x18FD;
-    ziWChar unk_0x18FE[0x41];
-    ziU8 unk_0x1980;
-    ziU8 unk_0x1981;
-    ziU8 unk_0x1982;
-    ziU8 unk_0x1983;
-    ziU8 unk_0x1984;
-    ziU8 unk_0x1985;
-    ziU8 unk_0x1986;
-    ziU8 unk_0x1987;
-    ziWChar unk_0x1988[0x41];
-    ziU8 unk_0x1A0A;
-    ziU8 unk_0x1A0B[0x85];
-    ziWChar unk_0x1A90;
-    ziWChar unk_0x1A92[0x41];
-    ziU8 unk_0x1B14;
-    ziU8 unk_0x1B15[3];
+    ziWChar dawgWord[0x40];  // 0x17F4..0x1874
+    ziU16 letterHyphen;
+    ziU8 prefixLength;
+    ziU8 prefixEnabled;
+    ziU8 requiredLength;
+    ziU8 highlightedLanguage;
+    ziWChar highlightedWord[0x41];
+    ziU8 suffixMode;
+    ziU8 suffixState;
+    ziWChar prefix[0x41];
+    ziU8 prefixCount;
+    ziU8 previousPrefixCount;
+    ziU8 prefixElementCount;
+    ziU8 wordLanguage;
+    ziU8 suffixLocked;
+    ziU8 previousSuffixCount;
+    ziU8 suffixElementCount;
+    ziU8 suffixStatus;
+    ziWChar suffix[0x41];
+    ziU8 suffixCount;
+    ziU8 alternatePrefixState[0x85];
+    ziWChar singleCharacter;
+    ziWChar rememberedWord[0x41];
+    ziU8 rememberedCount;
+    ziU8 wordSearchState[3];
     ziU16* unicodeMap;     // 0x1B18
     ziU16 unicodeRange1Min; // 0x1B1C
     ziU16 unicodeRange1Max; // 0x1B1E
     ziU16 unicodeRange2Min; // 0x1B20
     ziU16 unicodeRange2Max; // 0x1B22
     ziU8 unicodeMapSubLang; // 0x1B24
-    ziU8 unk_0x1B25[3];
+    ziU8 reservedUnicodeAlignment[3];
     union {
         ziU32 word;
         struct {
@@ -327,31 +327,31 @@ struct __zi8_work_data_s {
         struct {
             ziU32 msb : 1;
         } bits;
-    } unk_0x1B2C;
+    } zyFuzzy;
     ziU8 koAltTables;  // 0x1B30
-    ziU8 unk_0x1B31;
-    ziU16 unk_0x1B32;
-    ziU16 unk_0x1B34;
-    ziU16 unk_0x1B36;
-    ziU16 unk_0x1B38;
-    ziU8 unk_0x1B3A;
-    ziU8 unk_0x1B3B;
-    ziU8 unk_0x1B3C;
-    ziU8 unk_0x1B3D;
-    ziU8 unk_0x1B3E;
-    ziU8 unk_0x1B3F;
-    ziU16 unk_0x1B40;
-    ziU8 unk_0x1B42[2];
+    ziU8 reservedKoreanAlignment;
+    ziU16 candidateStateWordA;
+    ziU16 candidateStateWordB;
+    ziU16 candidateStateWordC;
+    ziU16 initializationWordA;
+    ziU8 candidateStateByteA;
+    ziU8 candidateStateByteB;
+    ziU8 candidateStateByteC;
+    ziU8 candidateStateByteD;
+    ziU8 reservedCandidateStateA;
+    ziU8 reservedCandidateStateB;
+    ziU16 initializationWordB;
+    ziU8 reservedTail[2];
 };
 
 typedef struct ziMatchParam {
     ziU8 count;          // 0x00
-    ziU8 arr1[0xC];      // 0x01
-    ziU8 arrD[0xC];      // 0x0D
-    ziU8 arr19[4];       // 0x19
-    ziU8 arr1D[4];       // 0x1D
+    ziU8 recordMasks[0xC];      // 0x01
+    ziU8 recordValues[0xC];      // 0x0D
+    ziU8 prefixMasks[4];       // 0x19
+    ziU8 prefixValues[4];       // 0x1D
     ziU8 pad_0x21;       // 0x21
-    ziU16 field22;       // 0x22
+    ziU16 componentIndex;       // 0x22
     ziU8 length;         // 0x24
     ziU8 nCand;          // 0x25
     ziWChar phon[0x10];  // 0x26
@@ -360,8 +360,8 @@ typedef struct ziMatchParam {
     ziWChar first2;      // 0x68
     ziWChar comp;        // 0x6A
     ziU8 nSeg;           // 0x6C
-    ziU8 segs1[16][12];  // 0x6D
-    ziU8 segsD[16][12];  // 0x12D
+    ziU8 segmentMasks[16][12];  // 0x6D
+    ziU8 segmentValues[16][12];  // 0x12D
     ziU8 pad_0x1ED;      // 0x1ED
 } ziMatchParam;
 

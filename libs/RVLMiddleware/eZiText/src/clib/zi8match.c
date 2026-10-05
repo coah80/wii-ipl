@@ -75,10 +75,10 @@ const ziU8 nodeHeaderTable[0x20] = {
     0x00, 0x17, 0x00, 0x1D, 0x00, 0x1F, 0x00, 0x35
 };
 
-ziBool Zi8PriMatchNextChar(ziU8* node, ziU8 mask0, ziU8 value0, ziU8 mask1, ziU8 value1, ziU8 mask2, ziU8 value2, ziU8 mask3, ziU8 value3, ziU16* count, ziU8** result, ziU16* code ZI_NEED_WORK) {
+ziBool Zi8PriMatchNextChar(ziU8* node, ziU8 firstByteMask, ziU8 firstByteValue, ziU8 secondByteMask, ziU8 secondByteValue, ziU8 thirdByteMask, ziU8 thirdByteValue, ziU8 fourthByteMask, ziU8 fourthByteValue, ziU16* count, ziU8** result, ziU16* code ZI_NEED_WORK) {
     ziU16 remaining = *count;
     while (remaining-- != 0) {
-        if ((value0 == (node[0] & mask0)) && (value3 == (node[3] & mask3)) && (value2 == (node[2] & mask2)) && (value1 == (node[1] & mask1))) {
+        if ((firstByteValue == (node[0] & firstByteMask)) && (fourthByteValue == (node[3] & fourthByteMask)) && (thirdByteValue == (node[2] & thirdByteMask)) && (secondByteValue == (node[1] & secondByteMask))) {
             *result = node;
             *code = ((ziU16)node[6] << 8) + (ziU16)node[7];
             *count = remaining;
@@ -91,11 +91,11 @@ ziBool Zi8PriMatchNextChar(ziU8* node, ziU8 mask0, ziU8 value0, ziU8 mask1, ziU8
     return 0;
 }
 
-ziBool Zi8ExactMatchNextChar(ziU8* node, ziU8 mask0, ziU8 value0, ziU8 mask1, ziU8 value1, ziU8 mask2, ziU8 value2, ziU8 mask3, ziU8 value3, ziU16* count, ziU8** result, ziU16* code ZI_NEED_WORK) {
+ziBool Zi8ExactMatchNextChar(ziU8* node, ziU8 firstByteMask, ziU8 firstByteValue, ziU8 secondByteMask, ziU8 secondByteValue, ziU8 thirdByteMask, ziU8 thirdByteValue, ziU8 fourthByteMask, ziU8 fourthByteValue, ziU16* count, ziU8** result, ziU16* code ZI_NEED_WORK) {
     ziU16 remaining = *count;
     ziU8* current = node;
     while (remaining-- != 0) {
-        if ((value0 == (current[0] & mask0)) && (value3 == (current[3] & mask3)) && (value2 == (current[2] & mask2)) && (value1 == (current[1] & mask1))) {
+        if ((firstByteValue == (current[0] & firstByteMask)) && (fourthByteValue == (current[3] & fourthByteMask)) && (thirdByteValue == (current[2] & thirdByteMask)) && (secondByteValue == (current[1] & secondByteMask))) {
             *result = current;
             *code = ((ziU16)current[6] << 8) + (ziU16)current[7];
             *count = remaining;
@@ -119,8 +119,8 @@ ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* 
         ziU16 targetCode;
     } state;
 
-    if (match->field22 != 0) {
-        state.targetCode = match->field22;
+    if (match->componentIndex != 0) {
+        state.targetCode = match->componentIndex;
         matchCode = ((ziU16)(((ziU8*)nodeAddress)[4] & 3) << 8) | ((ziU8*)nodeAddress)[5];
         value = 0;
         while (value++ < 6) {
@@ -222,7 +222,7 @@ ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* 
     }
     if (match->count == 0) {
         while (state.remaining != 0) {
-            if ((data[0] & match->arr1[state.dataIndex]) != match->arrD[state.dataIndex]) {
+            if ((data[0] & match->recordMasks[state.dataIndex]) != match->recordValues[state.dataIndex]) {
                 return 0;
             }
             state.dataIndex++;
@@ -239,10 +239,10 @@ ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* 
     return 1;
 }
 
-ziBool Zi8PriMatchNextComp(ziU8* node, ziU8 mask0, ziU8 value0, ziU8 mask1, ziU8 value1, ziU8 mask2, ziU8 value2, ziU8 mask3, ziU8 value3, ziU16* count, ziU8** result ZI_NEED_WORK) {
+ziBool Zi8PriMatchNextComp(ziU8* node, ziU8 firstByteMask, ziU8 firstByteValue, ziU8 secondByteMask, ziU8 secondByteValue, ziU8 thirdByteMask, ziU8 thirdByteValue, ziU8 fourthByteMask, ziU8 fourthByteValue, ziU16* count, ziU8** result ZI_NEED_WORK) {
     ziU16 remaining = *count;
     while (remaining-- != 0) {
-        if ((value0 == (node[0] & mask0)) && (value1 == (node[1] & mask1)) && (value2 == (node[2] & mask2)) && (value3 == (node[3] & mask3))) {
+        if ((firstByteValue == (node[0] & firstByteMask)) && (secondByteValue == (node[1] & secondByteMask)) && (thirdByteValue == (node[2] & thirdByteMask)) && (fourthByteValue == (node[3] & fourthByteMask))) {
             *result = node;
             *count = remaining;
             Zi8LogError(0x64, ZI_WORK);
@@ -259,8 +259,8 @@ ziBool Zi8SecMatchComp(ziPtr nodeAddress, ziMatchParam* matchAddress, ziPtr dict
     ziU16 matchCode;
     ziU16 targetCode;
 
-    if (matchAddress->field22 != 0) {
-        targetCode = matchAddress->field22;
+    if (matchAddress->componentIndex != 0) {
+        targetCode = matchAddress->componentIndex;
         matchCode = ((ziU16)(((ziU8*)nodeAddress)[6] & 3) << 8) | ((ziU8*)nodeAddress)[7];
         chainIndex = 0;
         while (chainIndex++ < 6) {

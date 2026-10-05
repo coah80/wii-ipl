@@ -41,9 +41,9 @@ ziBool Zi8ZHsetPYfuzzyPairs(ziFuzzyPYPairs pairs ZI_NEED_WORK) {
 
 ziBool Zi8ZHsetZYfuzzyPairs(ziFuzzyZYPairs pairs ZI_NEED_WORK) {
     if (pairs.ziDefault) {
-        ZI_WORK->unk_0x1B2C.word = *(const ziU32*)&Zi8ZYdefaultFuzzyPairs;
+        ZI_WORK->zyFuzzy.word = *(const ziU32*)&Zi8ZYdefaultFuzzyPairs;
     } else {
-        ZI_WORK->unk_0x1B2C.word = *(ziU32*)&pairs;
+        ZI_WORK->zyFuzzy.word = *(ziU32*)&pairs;
     }
     return 1;
 }
@@ -166,7 +166,7 @@ static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED
     if ((parameters->getOptions & 0x80) == 0) {
         ZI_WORK->language = parameters->language;
         parameters->candidates[0] = 0xfff0;
-        output = (ziWChar*)&ZI_WORK->unk_0x338;
+        output = (ziWChar*)&ZI_WORK->candidateBufferHead;
     }
     if (parameters->firstCandidate != 0) {
         current = signatures.second;
@@ -176,7 +176,7 @@ static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED
         length = signatures.length;
     }
     if (length > ZI_WORK->maxWordLength) length = ZI_WORK->maxWordLength;
-    if ((parameters->elementCount < ZI_WORK->unk_0x140C[0] ||
+    if ((parameters->elementCount < ZI_WORK->wordLengthSettings[0] ||
          (parameters->getOptions & 0x7e) == 2) && length > parameters->elementCount) {
         length = parameters->elementCount;
     }
@@ -186,7 +186,7 @@ static ziBool Zi8AlphaSignature(ziGetParam* parameters, ziBool countOnly ZI_NEED
         current = signatures.second;
         length = secondLength;
         if (length > ZI_WORK->maxWordLength) length = ZI_WORK->maxWordLength;
-        if ((parameters->elementCount < ZI_WORK->unk_0x140C[0] ||
+        if ((parameters->elementCount < ZI_WORK->wordLengthSettings[0] ||
              (parameters->getOptions & 0x7e) == 2) && length > parameters->elementCount) {
             length = parameters->elementCount;
         }
@@ -492,7 +492,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
   }
   ZI_WORK->subLanguage = parameters->subLanguage;
   ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1,ZI_WORK) & 2;
-  options->maxCount = ZI_WORK->unk_0x10;
+  options->maxCount = ZI_WORK->maxCandidateCount;
   options->maxWordLength = ZI_WORK->maxWordLength;
   ZI_WORK->maxWordLength = -1;
   if ((ziU8)Zi8LangSupported(parameters->language,ZI_WORK) == 0) {
@@ -588,7 +588,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         saved.savedOptions = parameters->getOptions;
         saved.savedCandidates = parameters->candidates;
         parameters->getOptions |= 0x81;
-        parameters->candidates = (ziWChar*)&ZI_WORK->unk_0x338;
+        parameters->candidates = (ziWChar*)&ZI_WORK->candidateBufferHead;
         options->capacity = 0x100;
       }
       if (parameters->getMode == 2) {
@@ -618,7 +618,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
 }
 
 void Zi8InitDupWordBuf(ziPtr __zi8_work_data) {
-    ZI_WORK->unk_0x539 = 0;
+    ZI_WORK->duplicateCount = 0;
 }
 
 ziBool Zi8IsDupWChar(ziWChar character ZI_NEED_WORK) {
@@ -626,26 +626,26 @@ ziBool Zi8IsDupWChar(ziWChar character ZI_NEED_WORK) {
     ziU16* buffer;
     unsigned int index;
     duplicate = 0;
-    buffer = ZI_WORK->unk_0x57A;
-    if (ZI_WORK->unk_0x539 == 0) {
+    buffer = ZI_WORK->duplicateBuffer;
+    if (ZI_WORK->duplicateCount == 0) {
         buffer[0] = 2;
         buffer[1] = character;
-        ZI_WORK->unk_0x539 = 1;
+        ZI_WORK->duplicateCount = 1;
         Zi8LogError(0x8fd, ZI_WORK);
         return 0;
     }
-    for (index = ZI_WORK->unk_0x539; index != 0; index--) {
+    for (index = ZI_WORK->duplicateCount; index != 0; index--) {
         if (character == buffer[index]) {
             duplicate = 1;
             break;
         }
     }
-    ZI_WORK->unk_0x539++;
+    ZI_WORK->duplicateCount++;
     buffer[(*buffer)++] = character;
     if (*buffer > 100) {
         *buffer = 2;
         buffer[1] = character;
-        ZI_WORK->unk_0x539 = 1;
+        ZI_WORK->duplicateCount = 1;
     }
     Zi8LogError(100, ZI_WORK);
     return duplicate;
@@ -664,38 +664,38 @@ ziBool Zi8IsDupWordW(ziWChar* word, ziU8 length ZI_NEED_WORK) {
         word += length - 20;
         length = 20;
     }
-    for (index = 0; index < ZI_WORK->unk_0x539; index++) {
-        slot = ZI_WORK->unk_0x53A[index];
+    for (index = 0; index < ZI_WORK->duplicateCount; index++) {
+        slot = ZI_WORK->duplicateWordOrder[index];
         for (character = 0; character < length; character++) {
-            if (word[character] != ((ziWChar (*)[21])ZI_WORK->unk_0x57A)[slot][character]) break;
+            if (word[character] != ((ziWChar (*)[21])ZI_WORK->duplicateBuffer)[slot][character]) break;
         }
-        if (character >= length && ((ziWChar (*)[21])ZI_WORK->unk_0x57A)[slot][character] == 0) {
+        if (character >= length && ((ziWChar (*)[21])ZI_WORK->duplicateBuffer)[slot][character] == 0) {
             duplicate = 1;
             break;
         }
     }
     if (!duplicate) {
-        if (ZI_WORK->unk_0x539 < 64) {
-            slot = ZI_WORK->unk_0x53A[ZI_WORK->unk_0x539] = ZI_WORK->unk_0x539;
-            ZI_WORK->unk_0x539++;
+        if (ZI_WORK->duplicateCount < 64) {
+            slot = ZI_WORK->duplicateWordOrder[ZI_WORK->duplicateCount] = ZI_WORK->duplicateCount;
+            ZI_WORK->duplicateCount++;
         } else {
-            slot = ZI_WORK->unk_0x53A[0];
-            for (index = 1; index < ZI_WORK->unk_0x539; index++) {
-                ZI_WORK->unk_0x53A[index - 1] = ZI_WORK->unk_0x53A[index];
+            slot = ZI_WORK->duplicateWordOrder[0];
+            for (index = 1; index < ZI_WORK->duplicateCount; index++) {
+                ZI_WORK->duplicateWordOrder[index - 1] = ZI_WORK->duplicateWordOrder[index];
             }
-            ZI_WORK->unk_0x53A[index - 1] = slot;
+            ZI_WORK->duplicateWordOrder[index - 1] = slot;
         }
     } else {
-        slot = ZI_WORK->unk_0x53A[index];
-        for (; index < ZI_WORK->unk_0x539 - 1; index++) {
-            ZI_WORK->unk_0x53A[index] = ZI_WORK->unk_0x53A[index + 1];
+        slot = ZI_WORK->duplicateWordOrder[index];
+        for (; index < ZI_WORK->duplicateCount - 1; index++) {
+            ZI_WORK->duplicateWordOrder[index] = ZI_WORK->duplicateWordOrder[index + 1];
         }
-        ZI_WORK->unk_0x53A[index] = slot;
+        ZI_WORK->duplicateWordOrder[index] = slot;
     }
     for (character = 0; character < length; character++) {
-        ((ziWChar (*)[21])ZI_WORK->unk_0x57A)[slot][character] = word[character];
+        ((ziWChar (*)[21])ZI_WORK->duplicateBuffer)[slot][character] = word[character];
     }
-    ((ziWChar (*)[21])ZI_WORK->unk_0x57A)[slot][character] = 0;
+    ((ziWChar (*)[21])ZI_WORK->duplicateBuffer)[slot][character] = 0;
     Zi8LogError(100, ZI_WORK);
     return duplicate;
 }

@@ -132,8 +132,8 @@ ziBool Zi8ChangeCharCase(ziBool upper, ziWChar* character, ziU8 language ZI_NEED
     Zi8LogError(0x64, ZI_WORK);
     if (ZI_WORK->userKeys[language] != 0) {
         customTables = (ziUserKeyMap*)ZI_WORK->userKeys[language];
-    } else if (ZI_WORK->unk_0x11FC != 0) {
-        customTables = (ziUserKeyMap*)ZI_WORK->unk_0x11FC;
+    } else if (ZI_WORK->customKeyMap != 0) {
+        customTables = (ziUserKeyMap*)ZI_WORK->customKeyMap;
     } else {
         tableCount = Zi8GetTableCount(language, 0x1e, ZI_WORK);
         if (tableCount != 0) {

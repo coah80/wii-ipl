@@ -149,9 +149,9 @@ ziU32 ZiDAWGgetCHARattribute(zi8DawgCtx* context, ziU32 node, ziPtr __zi8_work_d
     }
 
     attribute = key << 24;
-    attribute |= ((ziU8*)context->p0C)[key] << 16;
-    attribute |= (((ziU32)((ziU8*)context->p08)[key * 2] & 0xFFFF) << 8) +
-                 ((ziU8*)context->p08 + key * 2)[1];
+    attribute |= ((ziU8*)context->characterFlags)[key] << 16;
+    attribute |= (((ziU32)((ziU8*)context->characters)[key * 2] & 0xFFFF) << 8) +
+                 ((ziU8*)context->characters + key * 2)[1];
     Zi8LogError(0x64, __zi8_work_data);
     return attribute;
 }

@@ -52,8 +52,8 @@ ziU32 Zi8MatchROMdata0(ziWChar* elements, ziU8 count, ziU8 language,
         }
         context->table = graphData;
         context->cap = (((ziU16)context->table[2] << 8) + context->table[3]) / 3;
-        context->p08 = context->table + 4;
-        context->p0C = context->table + context->cap * 2 + 4;
+        context->characters = context->table + 4;
+        context->characterFlags = context->table + context->cap * 2 + 4;
         context->lang = language;
         context->key = graphTable;
         index = 0;
@@ -77,13 +77,13 @@ check_keys:
                 if (index < keyCount) goto next_key;
                 keys[index] = 0;
                 keyData = (ziU8*)Zi8GetTableAddress(language, keyTable, ZI_WORK);
-                context->p14 = keyData + 2;
+                context->keyCodes = keyData + 2;
                 keyData += context->cap * 2 + 2;
                 records[0].node = ZiDAWGGetGraphInfo(context, keyData, (ziS16*)keys);
             } else {
                 records[0].node = ZiDAWGGetGraph(context);
                 context->endNode = 0;
-                context->p14 = 0;
+                context->keyCodes = 0;
             }
             records[0].key = 0;
             if (records[0].node == (ziU8*)0) goto finish_graph;
@@ -102,11 +102,11 @@ check_keys:
         if (capacity < context->cnt) goto finish_graph;
         current->attr = ZiDAWGgetCHARattribute(context, current->node, ZI_WORK);
         if (context->cnt <= count) {
-            if (context->p14 == 0) {
+            if (context->keyCodes == 0) {
                 convertedKey = Zi8ConvertWC2Key((ziU16)current->attr, language, ZI_WORK);
             } else {
-                convertedKey = ((ziU16)context->p14[(current->attr >> 24) * 2] << 8) +
-                               (context->p14 + (current->attr >> 24) * 2)[1];
+                convertedKey = ((ziU16)context->keyCodes[(current->attr >> 24) * 2] << 8) +
+                               (context->keyCodes + (current->attr >> 24) * 2)[1];
             }
             key = convertedKey;
             if (key != elements[context->cnt - 1] &&
@@ -203,7 +203,7 @@ unsigned int Zi8MatchROMdata1(ziWChar *elements, ziU8 count, ziU8 language, ziWC
   if (ZI_WORK->groupPtr == 0) {
     result = Zi8MatchROMdata0(elements,count,language & 0xff,output,capacity & 0xffff,
                              mode & 0xff,status & 0xff,0,1,acceptPrefix,0,&ZI_WORK->dawgCtx,
-                             ZI_WORK->unk_0x1760,ZI_WORK);
+                             ZI_WORK->dawgSearchState,ZI_WORK);
   }
   else {
     while (*ZI_WORK->groupPtr != 0xff) {
@@ -211,7 +211,7 @@ unsigned int Zi8MatchROMdata1(ziWChar *elements, ziU8 count, ziU8 language, ziWC
                                capacity & 0xffff,mode & 0xff,status & 0xff,
                                *ZI_WORK->groupPtr,
                                ZI_WORK->groupPtr[1],acceptPrefix,0,
-                               &ZI_WORK->dawgCtx,ZI_WORK->unk_0x1760,ZI_WORK);
+                               &ZI_WORK->dawgCtx,ZI_WORK->dawgSearchState,ZI_WORK);
       if ((result & 0xff) != 0) break;
       ZI_WORK->groupPtr += 2;
       status = 0;
@@ -229,7 +229,7 @@ unsigned int Zi8MatchROMdata2(ziWChar* elements, ziU8 count, ziU8 language,
 
     if (reservedMode != 0) return 0;
     if (status == 0) {
-        ZI_WORK->unk_0x1768 = 0;
+        ZI_WORK->dawgGroupIndex = 0;
         ZI_WORK->matchOffset = 0;
         if (group != 0 && *group == 0xc && language == 10 && ZI_WORK->forceAltGraph != 0) {
             ZI_WORK->graphTableId = 0x10;
@@ -241,21 +241,21 @@ search_segment:
     ZI_WORK->maxCnt = 1;
     result = Zi8MatchROMdata1(elements + ZI_WORK->matchOffset,
                              count - ZI_WORK->matchOffset, language,
-                             &ZI_WORK->unk_0x17F4[ZI_WORK->matchOffset], capacity,
-                             mode, status, ZI_WORK->unk_0x1768, (char*)group,
+                             &ZI_WORK->dawgWord[ZI_WORK->matchOffset], capacity,
+                             mode, status, ZI_WORK->dawgGroupIndex, (char*)group,
                              acceptPrefix, ZI_WORK);
     if ((ziU8)result != 0) {
         for (index = (ziU8)(ZI_WORK->matchOffset + result); index != 0; index--) {
-            output[index - 1] = ZI_WORK->unk_0x17F4[index - 1];
+            output[index - 1] = ZI_WORK->dawgWord[index - 1];
         }
         result = (ziU8)(result + ZI_WORK->matchOffset);
     } else {
         if (status != 0 || count == 1) goto finish_segments;
-        if (mode == 1 && ZI_WORK->unk_0x1768 == 0 &&
+        if (mode == 1 && ZI_WORK->dawgGroupIndex == 0 &&
             (ziU8)Zi8MatchROMdata1(elements + ZI_WORK->matchOffset,
                                   count - ZI_WORK->matchOffset, language,
-                                  &ZI_WORK->unk_0x17F4[ZI_WORK->matchOffset], capacity,
-                                  0, status, ZI_WORK->unk_0x1768, (char*)group,
+                                  &ZI_WORK->dawgWord[ZI_WORK->matchOffset], capacity,
+                                  0, status, ZI_WORK->dawgGroupIndex, (char*)group,
                                   acceptPrefix, ZI_WORK) != 0) goto finish_segments;
         if ((Zi8GetTableCount(language, 0x1f, ZI_WORK) & 4) == 0) {
             for (index = 0; index < count; index++) {
@@ -265,18 +265,18 @@ search_segment:
         if (ZI_WORK->maxCnt > capacity) goto finish_segments;
         for (index = ZI_WORK->maxCnt; index != 0; index--) {
             result = Zi8MatchROMdata1(elements + ZI_WORK->matchOffset, index, language,
-                                     &ZI_WORK->unk_0x17F4[ZI_WORK->matchOffset], capacity,
-                                     1, 0, ZI_WORK->unk_0x1768, (char*)group,
+                                     &ZI_WORK->dawgWord[ZI_WORK->matchOffset], capacity,
+                                     1, 0, ZI_WORK->dawgGroupIndex, (char*)group,
                                      acceptPrefix, ZI_WORK);
             if ((ziU8)result != 0) {
                 ZI_WORK->matchOffset += (ziU8)result;
                 if (ZI_WORK->matchOffset == count) return 0;
-                ZI_WORK->unk_0x1768++;
+                ZI_WORK->dawgGroupIndex++;
                 status = 0;
                 ZI_WORK->graphTableId = 0;
                 if (ZI_WORK->dawgCtx.key == 0 && language == 10) {
                     for (index = 0; index < ZI_WORK->matchOffset; index++) {
-                        switch (ZI_WORK->unk_0x17F4[index]) {
+                        switch (ZI_WORK->dawgWord[index]) {
                         case 0x61:
                         case 0x6f:
                         case 0x75:
@@ -305,9 +305,9 @@ ziU32 Zi8MatchROMdata(ziWChar* elements, ziU8 count, ziU8 language,
         Zi8LogError(100, ZI_WORK);
     } else {
         if (status == 0) {
-            ZI_WORK->unk_0x17EC = 0;
+            ZI_WORK->dawgFallbackUsed = 0;
             ZI_WORK->dawgGroup = NextDawgGroup(0, language, ZI_WORK);
-        } else if (ZI_WORK->unk_0x17EC != 0) {
+        } else if (ZI_WORK->dawgFallbackUsed != 0) {
             Zi8LogError(100, ZI_WORK);
             goto finish_match;
         }
@@ -328,7 +328,7 @@ ziU32 Zi8MatchROMdata(ziWChar* elements, ziU8 count, ziU8 language,
         }
         if ((ziU8)result == 0 && status == 0 && mode == 1 && count == 1 && capacity >= 1) {
             mode = 0;
-            ZI_WORK->unk_0x17EC = 1;
+            ZI_WORK->dawgFallbackUsed = 1;
             if (tableSize != 0) {
                 ZI_WORK->dawgGroup = NextDawgGroup(0, language, ZI_WORK);
                 while (ZI_WORK->dawgGroup != 0) {
@@ -380,6 +380,6 @@ void Zi8SyllablesROMdata(ziWChar *elements, ziU8 count, ziU8 language, ziWChar *
     }
   }
   Zi8MatchROMdata0(elements,count,language & 0xff,output,capacity,1,status,graphTable,keyTable,0,(ziU8 *)prefixLength,
-                   &ZI_WORK->dawgCtx,ZI_WORK->unk_0x1760,ZI_WORK);
+                   &ZI_WORK->dawgCtx,ZI_WORK->dawgSearchState,ZI_WORK);
   return;
 }
