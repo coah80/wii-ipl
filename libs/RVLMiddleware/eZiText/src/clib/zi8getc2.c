@@ -66,8 +66,8 @@ ziU16 Zi8GetGlobalDataSize(void) {
 static ziU16 Zi8GetDataSignature(ziU8* destination, ziU16 capacity, ziU8 language, ziPtr work) {
     ziU8* signature;
     ziU16 length;
-    if (language == 1) {
-        if (Zi8GetFormatVersion(1, work) < 8) {
+    if (language == ZI8_LANG_ZH) {
+        if (Zi8GetFormatVersion(ZI8_LANG_ZH, work) < 8) {
             Zi8LogError(0x26f, work);
             return 0;
         }
@@ -324,11 +324,11 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
   saved.savedCandidates = 0;
   saved.restoreCandidates = 0;
   if (options->lookupMode == '\0') {
-    if (((ZI_WORK->getcPhase == '\t') && (parameters->elementCount != 0)) &&
-       (((parameters->elements[parameters->elementCount - 1] == 0xEFF8 &&
-         ((ziU8)Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK) != 0)) ||
-        ((parameters->elements[parameters->elementCount - 1] == 0xEF04 &&
-         ((ziU8)Zi8ZhSignature(parameters,options->countOnly,ZI_WORK) != 0)))))) {
+    if (ZI_WORK->getcPhase == '\t' && parameters->elementCount != 0 &&
+        ((parameters->elements[parameters->elementCount - 1] == 0xEFF8 &&
+          Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK)) ||
+         (parameters->elements[parameters->elementCount - 1] == 0xEF04 &&
+          Zi8ZhSignature(parameters,options->countOnly,ZI_WORK)))) {
       candidateCount = (unsigned int)parameters->letters;
       if (options->countOnly != '\0') {
         parameters->letters = 0;
@@ -338,7 +338,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
     }
     if ((parameters->elementCount == 1) && (parameters->firstCandidate == 0)) {
       switch (parameters->language) {
-      case 1:
+      case ZI8_LANG_ZH:
           if ((ZI_WORK->getcPhase == '\0') || (ZI_WORK->countOnly == options->countOnly)) {
             switch(ZI_WORK->getcPhase) {
             case '\0':
@@ -371,7 +371,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
             case '\b':
             case '\t':
               if ((parameters->elements[0] == 0xEF04) &&
-                 ((ziU8)Zi8ZhSignature(parameters,options->countOnly,ZI_WORK) != 0)) {
+                  Zi8ZhSignature(parameters,options->countOnly,ZI_WORK)) {
                 ZI_WORK->getcPhase = '\t';
                 candidateCount = (unsigned int)parameters->letters;
                 if (options->countOnly != '\0') {
@@ -388,15 +388,15 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
             }
           }
         break;
-      case 0x10:
-      case 0x12:
-      case 0x77:
-      case 0x78:
-      case 0x79:
-      case 0x7A:
-      case 0x7B:
-      case 0x7C:
-      case 0x7D:
+      case ZI8_LANG_JP:
+      case ZI8_LANG_KO:
+      case ZI8_LANG_PYP:
+      case ZI8_LANG_PYS:
+      case ZI8_LANG_ZYP:
+      case ZI8_LANG_ZYS:
+      case ZI8_LANG_SP2:
+      case ZI8_LANG_PY2:
+      case ZI8_LANG_ZY2:
         break;
       case 0x11:
       default:
@@ -467,7 +467,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
             case '\b':
             case '\t':
               if ((parameters->elements[0] == 0xEFF8) &&
-                 ((ziU8)Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK) != 0)) {
+                  Zi8AlphaSignature(parameters,options->countOnly,ZI_WORK)) {
                 ZI_WORK->getcPhase = '\t';
                 candidateCount = (unsigned int)parameters->letters;
                 if (options->countOnly != '\0') {
@@ -491,20 +491,20 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
     }
   }
   ZI_WORK->subLanguage = parameters->subLanguage;
-  ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1,ZI_WORK) & 2;
+  ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(ZI8_LANG_ZH,ZI_WORK) & 2;
   options->maxCount = ZI_WORK->maxCandidateCount;
   options->maxWordLength = ZI_WORK->maxWordLength;
   ZI_WORK->maxWordLength = -1;
-  if ((ziU8)Zi8LangSupported(parameters->language,ZI_WORK) == 0) {
+  if (Zi8LangSupported(parameters->language,ZI_WORK) == 0) {
     Zi8LogError(0x163,ZI_WORK);
     return 0;
   }
   else {
-    if (parameters->language == 0x10) {
+    if (parameters->language == ZI8_LANG_JP) {
       error = 0x2c1;
       candidateCount = 0;
     }
-    else if (parameters->language == 0x12) {
+    else if (parameters->language == ZI8_LANG_KO) {
       if ((parameters->elementCount == 0) || (parameters->elements[0] >= 0xeff1)) {
         candidateCount = Zi8GetKOcandidates(parameters,options,ZI_WORK);
       }
@@ -512,13 +512,13 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         candidateCount = Zi8GetKoreanCandidates(parameters,options,ZI_WORK);
       }
     }
-    else if ((parameters->language == 1) && ((parameters->context & 8) != 0)) {
+    else if ((parameters->language == ZI8_LANG_ZH) && ((parameters->context & 8) != 0)) {
       candidateCount = Zi8Punctuation(parameters,options,ZI_WORK);
       error = 100;
     }
-    else if ((parameters->language == 1) &&
-            ((((parameters->getOptions & 0xbf) == 4 && (parameters->elementCount != 0)) &&
-             ((ziU8)Zi8IsCharacter(parameters->elements[0],ZI_WORK) != 0)))) {
+    else if ((parameters->language == ZI8_LANG_ZH) &&
+             ((parameters->getOptions & 0xbf) == 4 && parameters->elementCount != 0 &&
+              Zi8IsCharacter(parameters->elements[0],ZI_WORK))) {
       saved.convertedElementCount = Zi8GetCharInfo(parameters->elements[0],characterInfo,0x10,1,ZI_WORK);
       if (saved.convertedElementCount == 0) {
         parameters->letters = parameters->completion = parameters->count = 0;
@@ -543,11 +543,11 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         parameters->completion = 1;
       }
     }
-    else if ((parameters->language == 1) && (parameters->getMode == 0xf)) {
+    else if ((parameters->language == ZI8_LANG_ZH) && (parameters->getMode == 0xf)) {
       error = 0x2d0;
       candidateCount = 0;
     }
-    else if ((parameters->language == 1) && ((parameters->getMode == 3 || (parameters->getMode == 4)))) {
+    else if ((parameters->language == ZI8_LANG_ZH) && ((parameters->getMode == 3 || (parameters->getMode == 4)))) {
       if ((parameters->getOptions & 0x80) != 0) {
         candidateCount = Zi8Get1KeyPressSpelling(parameters,options,ZI_WORK);
       } else if (parameters->elementCount == 0) {
@@ -556,7 +556,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         candidateCount = Zi8Get1KeyPressCandidates(parameters,options,ZI_WORK);
       }
     }
-    else if ((parameters->language == 1) &&
+    else if ((parameters->language == ZI8_LANG_ZH) &&
             ((((parameters->getMode == 7 || (parameters->getMode == 8)) || (parameters->getMode == 10)) || (parameters->getMode == 9)))) {
       if (ZI_WORK->cangjieEnabled != '\0') {
         candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
@@ -565,11 +565,11 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         candidateCount = 0;
       }
     }
-    else if ((parameters->language == 1) && ((parameters->getMode == 0xb || (parameters->getMode == 0xe)))) {
+    else if ((parameters->language == ZI8_LANG_ZH) && ((parameters->getMode == 0xb || (parameters->getMode == 0xe)))) {
       error = 0x2ee;
       candidateCount = 0;
     }
-    else if (parameters->language == 1) {
+    else if (parameters->language == ZI8_LANG_ZH) {
       candidateCount = Zi8GetChineseCandidates(parameters,options,ZI_WORK);
       if ((((candidateCount == 0) && ((parameters->getOptions & 0x20) == 0)) && ((parameters->getMode == 1 && (parameters->elementCount != 0))))
          && (((parameters->elements[parameters->elementCount - 1] == 0xF37A ||

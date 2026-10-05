@@ -37,18 +37,18 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
         Zi8LogError(0x578, ZI_WORK);
         return 0;
     }
-    if (ZI_WORK->langEntries->language == 0) {
+    if (ZI_WORK->langEntries->language == ZI8_LANG_NONE) {
         Zi8LogError(0x582, ZI_WORK);
         return 0;
     }
     ZI_WORK->letterHyphen = 0x2D;
-    ZI_WORK->language = 0;
+    ZI_WORK->language = ZI8_LANG_NONE;
     ZI_WORK->searchModes[3] = 0;
     ZI_WORK->capacity = 0x100;
     Zi8SetLatinSearchOrder(0, 0, ZI_WORK);
     ZADP_Zi8SetPDremoveOpt(1, ZI_WORK);
     ZI_WORK->zhPudMinPrefix = 5;
-    ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1, ZI_WORK) & 2;
+    ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(ZI8_LANG_ZH, ZI_WORK) & 2;
     ZI_WORK->pyFuzzy.bits.msb = 1;
     ZI_WORK->zyFuzzy.bits.msb = 1;
     zyFuzzy = ZI_WORK->zyFuzzy.word;
@@ -63,11 +63,11 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
 }
 
 ziU8 Zi8IsZicorpSignature(ziU16* p, ziU16 len ZI_NEED_WORK) {
-    if ((ziU16)len > 6 && p[0] == 0x7A && p[1] == 0x69 && p[2] == 0x63 &&
+    if (len > 6 && p[0] == 0x7A && p[1] == 0x69 && p[2] == 0x63 &&
         p[3] == 0x6F && p[4] == 0x72 && p[5] == 0x70) {
         return 1;
     }
-    if ((ziU16)len > 6 && p[0] == 0x39 && p[1] == 0x34 && p[2] == 0x32 &&
+    if (len > 6 && p[0] == 0x39 && p[1] == 0x34 && p[2] == 0x32 &&
         p[3] == 0x36 && p[4] == 0x37 && p[5] == 0x37) {
         return 1;
     }

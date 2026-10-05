@@ -23,8 +23,8 @@ const ziWChar Zi8PunctTable[40] = {
     0xFFE1, 0x20AC, 0x203B, 0xFF20, 0x0000,
 };
 
-ziU32 Zi8Punctuation(ziGetParam* param, ziPtr options ZI_NEED_WORK) {
-    ziS32 limit = ((ZiCandidateOptions*)options)->capacity - 1;
+ziU32 Zi8Punctuation(ziGetParam* param, ZiCandidateOptions* options ZI_NEED_WORK) {
+    ziS32 limit = options->capacity - 1;
     ziS32 count = 0;
     ziU8 i = 0;
     ziU16 fc = param->firstCandidate;
@@ -36,11 +36,11 @@ ziU32 Zi8Punctuation(ziGetParam* param, ziPtr options ZI_NEED_WORK) {
         }
         if (fc == 0) {
             count++;
-            if (((ZiCandidateOptions*)options)->countOnly == 0) {
+            if (options->countOnly == 0) {
                 param->candidates[i++] = Zi8PunctTable[j];
                 if ((param->context & 0x10) != 0) {
                     param->candidates[i++] = 0x20;
-                    if ((ziU8)i >= limit) {
+                    if (i >= limit) {
                         break;
                     }
                 }
@@ -48,7 +48,7 @@ ziU32 Zi8Punctuation(ziGetParam* param, ziPtr options ZI_NEED_WORK) {
                     break;
                 }
             } else {
-                if (count >= (ziS32)((ZiCandidateOptions*)options)->maxCount) {
+                if (count >= (ziS32)options->maxCount) {
                     return count;
                 }
             }
@@ -57,7 +57,7 @@ ziU32 Zi8Punctuation(ziGetParam* param, ziPtr options ZI_NEED_WORK) {
         }
         j++;
     }
-    if (((ZiCandidateOptions*)options)->countOnly == 0) {
+    if (options->countOnly == 0) {
         param->letters = count;
     }
     return count;

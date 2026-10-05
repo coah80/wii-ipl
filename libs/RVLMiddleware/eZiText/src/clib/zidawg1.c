@@ -129,8 +129,8 @@ ziU8* ZiDAWGGetSibling(ziU8* cursor) {
 
 }
 
-ziU8 ZiDAWGgetEOWattribute(ziU32 node) {
-    return (nodeHeaderTable[*(ziU8*)node >> 4] & 0x10) > 0;
+ziU8 ZiDAWGgetEOWattribute(ziU8* node) {
+    return (nodeHeaderTable[*node >> 4] & 0x10) > 0;
 }
 
 ziU32 ZiDAWGgetCHARattribute(zi8DawgCtx* context, ziU32 node, ziPtr __zi8_work_data) {
@@ -149,17 +149,17 @@ ziU32 ZiDAWGgetCHARattribute(zi8DawgCtx* context, ziU32 node, ziPtr __zi8_work_d
     }
 
     attribute = key << 24;
-    attribute |= ((ziU8*)context->characterFlags)[key] << 16;
-    attribute |= (((ziU32)((ziU8*)context->characters)[key * 2] & 0xFFFF) << 8) +
-                 ((ziU8*)context->characters + key * 2)[1];
+    attribute |= context->characterFlags[key] << 16;
+    attribute |= (((ziU32)context->characters[key * 2] & 0xFFFF) << 8) +
+                 (context->characters + key * 2)[1];
     Zi8LogError(0x64, __zi8_work_data);
     return attribute;
 }
 
-ziU32 ZiDAWGGetGraph(ziPtr context) {
-    return (((ziU32)((zi8DawgCtx*)context)->table[2] & 0xFFFF) << 8) +
-           ((zi8DawgCtx*)context)->table[3] +
-           ((ziU32)((zi8DawgCtx*)context)->table + 4);
+ziU32 ZiDAWGGetGraph(zi8DawgCtx* context) {
+    return (((ziU32)context->table[2] & 0xFFFF) << 8) +
+           context->table[3] +
+           ((ziU32)context->table + 4);
 }
 
 ziU32 ZiDAWGGetGraphInfo(zi8DawgCtx* context, ziU8* entry, ziU16* keys) {

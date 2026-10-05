@@ -62,10 +62,10 @@ ziBool Zi8getKeyLayout(ziU8 language, ziWChar key, ziWChar* chars, ziU8 mode, zi
             return 0;
         }
         keyChars = customTable->lower[key];
-        for (keyIndex = 0; keyChars[(ziU16)keyIndex] != 0; keyIndex++) {
-            chars[(ziU16)keyIndex] = keyChars[(ziU16)keyIndex];
+        for (keyIndex = 0; keyChars[keyIndex] != 0; keyIndex++) {
+            chars[keyIndex] = keyChars[keyIndex];
         }
-        chars[(ziU16)keyIndex] = 0;
+        chars[keyIndex] = 0;
         return 1;
     } else {
         if (mode == 1) {
@@ -93,19 +93,19 @@ tables_ready:
         }
 
         keyIndex = tableCount = 0;
-        for (; (ziU16)keyIndex < key; keyIndex++) {
-            tableCount += dataAddress[(ziU16)keyIndex];
+        for (; keyIndex < key; keyIndex++) {
+            tableCount += dataAddress[keyIndex];
         }
         if ((charCount = (ziU8)dataAddress[key]) == 0) {
             return 0;
         }
         dataAddress = dataAddress + numKeys + (tableCount * 2);
         keyIndex = 0;
-        for (; (ziU16)keyIndex < charCount; keyIndex++) {
-            chars[(ziU16)keyIndex] = (ziU16)dataAddress[(ziU16)keyIndex * 2] |
-                ((ziU16)dataAddress[((ziU16)keyIndex * 2) + 1] << 8);
+        for (; keyIndex < charCount; keyIndex++) {
+            chars[keyIndex] = (ziU16)dataAddress[keyIndex * 2] |
+                ((ziU16)dataAddress[(keyIndex * 2) + 1] << 8);
         }
-        chars[(ziU16)keyIndex] = 0;
+        chars[keyIndex] = 0;
         return 1;
     }
 }
@@ -121,7 +121,7 @@ ziBool Zi8ChangeCharCase(ziBool upper, ziWChar* character, ziU8 language ZI_NEED
     ziU16 result;
     ziS32 keyIndex;
     ziPtr from;
-    ziPtr to;
+    ziWChar* to;
     ziS32 characterIndex;
 
     customTables = 0;
@@ -130,9 +130,9 @@ ziBool Zi8ChangeCharCase(ziBool upper, ziWChar* character, ziU8 language ZI_NEED
     numKeys = 0x20;
     Zi8LogError(0x64, ZI_WORK);
     if (ZI_WORK->userKeys[language] != 0) {
-        customTables = (ziUserKeyMap*)ZI_WORK->userKeys[language];
+        customTables = ZI_WORK->userKeys[language];
     } else if (ZI_WORK->customKeyMap != 0) {
-        customTables = (ziUserKeyMap*)ZI_WORK->customKeyMap;
+        customTables = ZI_WORK->customKeyMap;
     } else {
         tableCount = Zi8GetTableCount(language, 0x1e, ZI_WORK);
         if (tableCount != 0) {
@@ -144,18 +144,18 @@ ziBool Zi8ChangeCharCase(ziBool upper, ziWChar* character, ziU8 language ZI_NEED
         }
     }
     if (customTables != 0) {
-        for (keyIndex = 0; (changed == 0) && (keyIndex < (ziS32)(ziU32)numKeys); keyIndex++) {
+        for (keyIndex = 0; (changed == 0) && (keyIndex < (ziS32)numKeys); keyIndex++) {
             if (upper != 0) {
-                from = (ziPtr)customTables->lower[keyIndex];
-                to = (ziPtr)customTables->upper[keyIndex];
+                from = customTables->lower[keyIndex];
+                to = customTables->upper[keyIndex];
             } else {
-                from = (ziPtr)customTables->upper[keyIndex];
-                to = (ziPtr)customTables->lower[keyIndex];
+                from = customTables->upper[keyIndex];
+                to = customTables->lower[keyIndex];
             }
             if ((from != 0) && (to != 0)) {
                 for (characterIndex = 0; ((ziU16)((ziS16*)from)[characterIndex]) != 0; characterIndex++) {
                     if ((ziU16)((ziS16*)from)[characterIndex] == *character) {
-                        *character = (ziU16)((ziWChar*)to)[characterIndex];
+                        *character = (ziU16)to[characterIndex];
                         changed = 1;
                         break;
                     }
@@ -165,7 +165,7 @@ ziBool Zi8ChangeCharCase(ziBool upper, ziWChar* character, ziU8 language ZI_NEED
     }
     else if (dataAddress != 0) {
         total = 0;
-        for (keyIndex = 0; keyIndex < (ziS32)(ziU32)numKeys; keyIndex++) {
+        for (keyIndex = 0; keyIndex < (ziS32)numKeys; keyIndex++) {
             total += dataAddress[keyIndex];
         }
         dataAddress = dataAddress + numKeys;
@@ -174,7 +174,7 @@ ziBool Zi8ChangeCharCase(ziBool upper, ziWChar* character, ziU8 language ZI_NEED
             dataAddress = dataAddress + ((ziU32)total * 2);
             direction = -1;
         }
-        for (keyIndex = 0; keyIndex < (ziS32)(ziU32)total; keyIndex++) {
+        for (keyIndex = 0; keyIndex < (ziS32)total; keyIndex++) {
             tableCount = (ziU16)(dataAddress[(keyIndex * 2)] |
                 ((ziU16)dataAddress[(keyIndex * 2) + 1] << 8));
             if (tableCount == *character) {

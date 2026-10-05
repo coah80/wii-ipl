@@ -6,8 +6,6 @@ extern ziU32 Zi8GetTableAddress(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK);
 
 typedef struct { ziU8 b[0xC]; } ziE12;
 
-#define WORKP ((struct __zi8_work_data_s*)__zi8_work_data)
-
 ziU16 Zi8Uni2Ptr(ziU16 ch, ziE12* buf ZI_NEED_WORK) {
     ziU8 hi;
     ziU8 lo;
@@ -18,15 +16,15 @@ ziU16 Zi8Uni2Ptr(ziU16 ch, ziE12* buf ZI_NEED_WORK) {
     ziU8* e;
     ziU8* p;
 
-    hi = (ziU8)(((ziU16)ch >> 8) & 0xFF);
+    hi = (ziU8)((ch >> 8) & 0xFF);
     lo = (ziU8)ch;
-    count = Zi8GetTableCount(1, 0, __zi8_work_data);
-    table = Zi8GetTableAddress(1, 0, __zi8_work_data);
-    table2 = Zi8GetTableAddress(1, 1, __zi8_work_data);
+    count = Zi8GetTableCount(ZI8_LANG_ZH, 0, __zi8_work_data);
+    table = Zi8GetTableAddress(ZI8_LANG_ZH, 0, __zi8_work_data);
+    table2 = Zi8GetTableAddress(ZI8_LANG_ZH, 1, __zi8_work_data);
     if (buf == ZI8_NULL) {
         for (i = 0; i < 0x40; i++) {
-            if (ch == WORKP->duplicateCharacters[i]) {
-                i = WORKP->duplicateOrdinalCache[i];
+            if (ch == ZI_WORK->duplicateCharacters[i]) {
+                i = ZI_WORK->duplicateOrdinalCache[i];
                 e = (ziU8*)table + i * 0xC;
                 if (i >= count) {
                     break;
@@ -37,7 +35,7 @@ ziU16 Zi8Uni2Ptr(ziU16 ch, ziE12* buf ZI_NEED_WORK) {
                 p = (ziU8*)(table2 +
                             (((e[9] & 0xF) << 16) |
                              (e[0xB] | (e[0xA] << 8))));
-                if (WORKP->cangjieEnabled != 0) {
+                if (ZI_WORK->cangjieEnabled != 0) {
                     switch (p[0] & 7) {
                     case 2:
                         p += 2;
@@ -65,19 +63,19 @@ ziU16 Zi8Uni2Ptr(ziU16 ch, ziE12* buf ZI_NEED_WORK) {
         }
     }
     e = (ziU8*)table;
-    if (WORKP->unicodeMap != ZI8_NULL && WORKP->unicodeMapSubLang == WORKP->subLanguage) {
-        if ((ziU16)ch >= WORKP->unicodeRange1Min && (ziU16)ch <= WORKP->unicodeRange1Max) {
-            i = (ziU16)(ch - WORKP->unicodeRange1Min);
+    if (ZI_WORK->unicodeMap != ZI8_NULL && ZI_WORK->unicodeMapSubLang == ZI_WORK->subLanguage) {
+        if (ch >= ZI_WORK->unicodeRange1Min && ch <= ZI_WORK->unicodeRange1Max) {
+            i = (ziU16)(ch - ZI_WORK->unicodeRange1Min);
             goto map;
         }
-        if ((ziU16)ch >= WORKP->unicodeRange2Min && (ziU16)ch <= WORKP->unicodeRange2Max) {
-            i = (ziU16)(WORKP->unicodeRange1Max + (ch - WORKP->unicodeRange2Min) -
-                        WORKP->unicodeRange1Min + 1);
+        if (ch >= ZI_WORK->unicodeRange2Min && ch <= ZI_WORK->unicodeRange2Max) {
+            i = (ziU16)(ZI_WORK->unicodeRange1Max + (ch - ZI_WORK->unicodeRange2Min) -
+                        ZI_WORK->unicodeRange1Min + 1);
             goto map;
         }
         return 0xFFFF;
     map:
-        i = WORKP->unicodeMap[i];
+        i = ZI_WORK->unicodeMap[i];
         if (i != 0xFFFF) {
             e = (ziU8*)table + i * 0xC;
             if (hi == e[6] && lo == e[7]) {
@@ -110,11 +108,11 @@ ziU16 Zi8Uni2Ord(ziU16 ch ZI_NEED_WORK) {
 ziU16 Zi8Ord2Uni(ziU16 ord ZI_NEED_WORK) {
     ziU8* p;
 
-    if ((ziU16)ord >= Zi8GetTableCount(1, 0, __zi8_work_data)) {
+    if (ord >= Zi8GetTableCount(ZI8_LANG_ZH, 0, __zi8_work_data)) {
         Zi8LogError(0x132, __zi8_work_data);
         return 0;
     }
-    p = (ziU8*)Zi8GetTableAddress(1, 0, __zi8_work_data);
+    p = (ziU8*)Zi8GetTableAddress(ZI8_LANG_ZH, 0, __zi8_work_data);
     p += ord * 0xC;
     Zi8LogError(0x64, __zi8_work_data);
     return (ziU16)(((ziU16)p[6] << 8) + p[7]);
@@ -125,9 +123,9 @@ ziU16 Zi8Ord2Ord(ziU16 ord ZI_NEED_WORK) {
     ziU16 count;
     ziU8* p;
 
-    count = Zi8GetTableCount(1, 0, __zi8_work_data);
-    table = Zi8GetTableAddress(1, 0, __zi8_work_data);
-    if (ord == 0 || (ziU16)ord >= count) {
+    count = Zi8GetTableCount(ZI8_LANG_ZH, 0, __zi8_work_data);
+    table = Zi8GetTableAddress(ZI8_LANG_ZH, 0, __zi8_work_data);
+    if (ord == 0 || ord >= count) {
         Zi8LogError(0x132, __zi8_work_data);
         return ord;
     }

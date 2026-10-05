@@ -62,7 +62,7 @@ ziU32 Zi8GetSyllablesCandidates(ziGetParam* param, ziSwParam* sw ZI_NEED_WORK) {
         out = buf;
         rem = 0x40;
     } else {
-        out = (ziWChar*)param->candidates;
+        out = param->candidates;
         rem = sw->capacity - 1;
     }
     if ((param->getOptions & 0xFD) == 0x80) {

@@ -77,7 +77,7 @@ ziU8 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* 
         Zi8LogError(0x4B0, __zi8_work_data);
         return 0;
     }
-    if (language == 1) {
+    if (language == ZI8_LANG_ZH) {
         length *= 2;
     }
     if (continuation == 0) {
@@ -106,7 +106,7 @@ ziU8 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* 
         while ((ziS32)ZI_WORK->pudWordIndex < (ziS32)ZI_WORK->pudWordCount) {
             wordSize = *word++;
             entrySize = wordSize;
-            if (language == 1) {
+            if (language == ZI8_LANG_ZH) {
                 if (ZI_WORK->zhPudMinPrefix > *word) goto next;
                 wordSize--;
                 entrySize--;
@@ -118,7 +118,7 @@ next:
                 ZI_WORK->pudWordIndex++;
                 word += entrySize;
             } else {
-                if (language == 1) {
+                if (language == ZI8_LANG_ZH) {
                     bytePattern = (ziU8*)pattern;
                     for (index = 0; index < length; index++) {
                         if (word[index] != bytePattern[index]) goto next;
@@ -143,7 +143,7 @@ matched:
                     else *output = Zi8ConvertWC2Key(*pattern, language, __zi8_work_data);
                     return 1;
                 }
-                if (language == 1) {
+                if (language == ZI8_LANG_ZH) {
                     byteOutput = (ziU8*)output;
                     for (index = copied = 0; index < (ziS32)wordSize && copied < capacity; copied++) {
                         byteOutput[index] = word[index];

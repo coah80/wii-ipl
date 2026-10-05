@@ -117,7 +117,7 @@ check_keys:
                 records[context->cnt].key = 0;
             }
             if (prefixLength != 0 && *prefixLength < context->cnt &&
-                ZiDAWGgetEOWattribute(current->node) != 0) {
+                ZiDAWGgetEOWattribute(current->node)) {
                 *prefixLength = context->cnt;
                 for (index = 0; index < context->cnt; index++) output[index] = (ziU16)records[index].attr;
             }
@@ -125,7 +125,7 @@ check_keys:
         }
         if (context->cnt < search[1]) goto descend;
         if (search[0] != 0 && context->cnt > search[1]) goto next_sibling;
-        if (acceptPrefix != 0 || ZiDAWGgetEOWattribute(current->node) != 0) {
+        if (acceptPrefix != 0 || ZiDAWGgetEOWattribute(current->node)) {
             for (index = 0; index < context->cnt; index++) output[index] = (ziU16)records[index].attr;
             result = context->cnt;
             searching = 0;
@@ -232,7 +232,7 @@ unsigned int Zi8MatchROMdata2(ziWChar* elements, ziU8 count, ziU8 language,
     if (status == 0) {
         ZI_WORK->dawgGroupIndex = 0;
         ZI_WORK->matchOffset = 0;
-        if (group != 0 && *group == 0xc && language == 10 && ZI_WORK->forceAltGraph != 0) {
+        if (group != 0 && *group == 0xc && language == ZI8_LANG_FI && ZI_WORK->forceAltGraph != 0) {
             ZI_WORK->graphTableId = 0x10;
         } else {
             ZI_WORK->graphTableId = 0;
@@ -275,7 +275,7 @@ search_segment:
                 ZI_WORK->dawgGroupIndex++;
                 status = 0;
                 ZI_WORK->graphTableId = 0;
-                if (ZI_WORK->dawgCtx.key == 0 && language == 10) {
+                if (ZI_WORK->dawgCtx.key == 0 && language == ZI8_LANG_FI) {
                     for (index = 0; index < ZI_WORK->matchOffset; index++) {
                         switch (ZI_WORK->dawgWord[index]) {
                         case 0x61:
@@ -323,7 +323,7 @@ ziU32 Zi8MatchROMdata(ziWChar* elements, ziU8 count, ziU8 language,
                                          acceptPrefix, ZI_WORK);
                 if ((ziU8)result != 0) break;
                 status = 0;
-                if (count <= 1 && language == 0x36) break;
+                if (count <= 1 && language == ZI8_LANG_SW) break;
                 ZI_WORK->dawgGroup = NextDawgGroup(ZI_WORK->dawgGroup, language, ZI_WORK);
             }
         }
@@ -380,7 +380,7 @@ void Zi8SyllablesROMdata(ziWChar *elements, ziU8 count, ziU8 language, ziWChar *
       keyTable = 0x1b;
     }
   }
-  Zi8MatchROMdata0(elements,count,language & 0xff,output,capacity,1,status,graphTable,keyTable,0,(ziU8 *)prefixLength,
+  Zi8MatchROMdata0(elements,count,language & 0xff,output,capacity,1,status,graphTable,keyTable,0,prefixLength,
                    &ZI_WORK->dawgCtx,ZI_WORK->dawgSearchState,ZI_WORK);
   return;
 }

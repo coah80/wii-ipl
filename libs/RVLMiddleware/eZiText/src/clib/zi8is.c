@@ -7,7 +7,7 @@ extern ziU32 Zi8GetTableAddress(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK);
 extern ziU8 _Zi8GetCandidates(ziGetParam* getParam ZI_NEED_WORK);
 extern void Zi8Memset(ziPtr p, ziU32 v, ziU32 len);
 
-ziU8 Zi8GetZHCharSet(ziPtr workData) {
+ziU8 Zi8GetZHCharSet(ziPtr __zi8_work_data) {
     ziU8 charSet = 0;
     ziU8 bak;
     ziU16 v0;
@@ -18,23 +18,23 @@ ziU8 Zi8GetZHCharSet(ziPtr workData) {
     ziWChar candBuf[0x10];
     ziGetParam getParam;
 
-    Zi8LogError(0x64, workData);
-    if (Zi8LangSupported(1, workData) == 0) {
-        Zi8ReplaceLastError(0x26C, workData);
+    Zi8LogError(0x64, __zi8_work_data);
+    if (Zi8LangSupported(ZI8_LANG_ZH, __zi8_work_data) == 0) {
+        Zi8ReplaceLastError(0x26C, __zi8_work_data);
         return 0;
     }
-    if (Zi8GetTableCount(1, 10, workData) != 0) {
-        bak = ((struct __zi8_work_data_s*)workData)->subLanguage;
-        ((struct __zi8_work_data_s*)workData)->subLanguage = 1;
-        addr = Zi8GetTableAddress(1, 10, workData);
+    if (Zi8GetTableCount(ZI8_LANG_ZH, 10, __zi8_work_data) != 0) {
+        bak = ZI_WORK->subLanguage;
+        ZI_WORK->subLanguage = 1;
+        addr = Zi8GetTableAddress(ZI8_LANG_ZH, 10, __zi8_work_data);
         p = (ziU8*)addr;
         v0 = (ziU16)((ziU16)p[0] | ((ziU16)p[1] << 8));
-        ((struct __zi8_work_data_s*)workData)->subLanguage = 0;
-        addr = Zi8GetTableAddress(1, 10, workData);
+        ZI_WORK->subLanguage = 0;
+        addr = Zi8GetTableAddress(ZI8_LANG_ZH, 10, __zi8_work_data);
         p = (ziU8*)addr;
         v1 = (ziU16)((ziU16)p[2] | ((ziU16)p[3] << 8));
         v2 = (ziU16)((ziU16)p[4] | ((ziU16)p[5] << 8));
-        ((struct __zi8_work_data_s*)workData)->subLanguage = bak;
+        ZI_WORK->subLanguage = bak;
         if (v0 != 0) {
             if (v0 > 0x4E20) {
                 charSet |= 8;
@@ -56,7 +56,7 @@ ziU8 Zi8GetZHCharSet(ziPtr workData) {
     }
 
     Zi8Memset(&getParam, 0, 0x2C);
-    getParam.language = 1;
+    getParam.language = ZI8_LANG_ZH;
     getParam.context = 1;
     getParam.getOptions = 0;
     getParam.candidates = candBuf;
@@ -64,17 +64,17 @@ ziU8 Zi8GetZHCharSet(ziPtr workData) {
     getParam.subLanguage = 1;
 retry:
     getParam.getMode = 0;
-    if (_Zi8GetCandidates(&getParam, workData) != 0) {
+    if (_Zi8GetCandidates(&getParam, __zi8_work_data) != 0) {
         charSet |= getParam.subLanguage;
         goto next;
     }
     getParam.getMode = 1;
-    if (_Zi8GetCandidates(&getParam, workData) != 0) {
+    if (_Zi8GetCandidates(&getParam, __zi8_work_data) != 0) {
         charSet |= getParam.subLanguage;
         goto next;
     }
     getParam.getMode = 2;
-    if (_Zi8GetCandidates(&getParam, workData) != 0) {
+    if (_Zi8GetCandidates(&getParam, __zi8_work_data) != 0) {
         charSet |= getParam.subLanguage;
     }
 next:
@@ -123,10 +123,10 @@ ziBool Zi8IsCharacter(ziWChar ch ZI_NEED_WORK) {
     case 0xFF1F:
         return 1;
     }
-    hi = (ziU8)(((ziU16)ch >> 8) & 0xFF);
+    hi = (ziU8)((ch >> 8) & 0xFF);
     lo = (ziU8)ch;
-    count = Zi8GetTableCount(1, 0, ZI_WORK);
-    addr = Zi8GetTableAddress(1, 0, ZI_WORK);
+    count = Zi8GetTableCount(ZI8_LANG_ZH, 0, ZI_WORK);
+    addr = Zi8GetTableAddress(ZI8_LANG_ZH, 0, ZI_WORK);
     table = (ziU8*)addr;
     for (i = 0; i < count; i++) {
         if (table[6] == hi && table[7] == lo) {

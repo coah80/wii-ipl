@@ -87,7 +87,7 @@ ziU8 Zi8ZHaddSpace(ziWChar* src, ziU8 count, ziWChar* dst,
     return 1;
 
 fail:
-    if ((ziU8)count >= (ziU16)maxLen) {
+    if (count >= maxLen) {
         count = (ziU8)(maxLen - 1);
     }
     for (i = 0; i < count; i++) {
