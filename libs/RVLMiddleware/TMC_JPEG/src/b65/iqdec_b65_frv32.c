@@ -52,7 +52,7 @@ static inline s32 decodeLongHuffman(s32 bitCount, u32* huff_tbl, u8* symbols, TM
             limit->bitLength = entry[0];
             limit->symbol = entry[1];
             *decoded = *limit;
-            if (code > (u32)decoded->bitLength) {
+            if (code > decoded->bitLength) {
                 continue;
             }
             {
@@ -101,7 +101,7 @@ static inline s32 decodeACHuffman(s32 bitCount, u32* huff_tbl, u8* symbols, TMCC
             limit->bitLength = entry[0];
             limit->symbol = entry[1];
             *decoded = *limit;
-            if (code > (u32)decoded->bitLength) {
+            if (code > decoded->bitLength) {
                 continue;
             }
             {
@@ -173,7 +173,8 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     if (r != 0) {
         if (work->bitCount <= r) {
             s32 load_ret;
-            if (load_ret = TMCJPEGDEC_load_buff(work), load_ret < 0) {
+            load_ret = TMCJPEGDEC_load_buff(work);
+            if (load_ret < 0) {
                 return load_ret;
             }
         }

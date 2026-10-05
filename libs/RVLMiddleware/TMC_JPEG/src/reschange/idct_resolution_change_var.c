@@ -76,7 +76,7 @@ void TMCJPEGDEC_IdctBlock4x4(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag
             bp[0] = clampU8((evsum + oddrot) >> 11);
             bp[pitch] = clampU8((cd + rot) >> 11);
             bp[pitch * 2] = clampU8((cd - rot) >> 11);
-            bp[pitch * 4 - pitch] = clampU8((evsum - oddrot) >> 11);
+            bp[pitch * 3] = clampU8((evsum - oddrot) >> 11);
 
             idx -= 1;
         }
@@ -99,10 +99,10 @@ void TMCJPEGDEC_IdctBlock2x2(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag
     even_diff = a0b - a1;
     odd_sum = b0 + b1;
     rot = b0 - b1;
-    bp[0] = (u8)clampU8((even_sum + odd_sum) >> 11);
-    bp[pitch] = (u8)clampU8((even_sum - odd_sum) >> 11);
-    bp[1] = (u8)clampU8((even_diff + rot) >> 11);
-    (bp + pitch)[1] = (u8)clampU8((even_diff - rot) >> 11);
+    bp[0] = clampU8((even_sum + odd_sum) >> 11);
+    bp[pitch] = clampU8((even_sum - odd_sum) >> 11);
+    bp[1] = clampU8((even_diff + rot) >> 11);
+    (bp + pitch)[1] = clampU8((even_diff - rot) >> 11);
 }
 
 void TMCJPEGDEC_IdctBlock1x1(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag) {

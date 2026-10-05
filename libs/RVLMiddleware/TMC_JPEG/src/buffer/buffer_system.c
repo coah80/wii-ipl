@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <tmc_jpeg_internal.h>
 
 static s32 refillJpegBufferAfterFF(TMCCJPEGDecWork* work);
@@ -9,23 +10,24 @@ s32 TMCJPEGDEC_init_ptr_buff(TMCCJPEGDecWork* work, void* param) {
     u8* newEnd;
     u8* bufOrg;
     u32 newRemaining;
+    const TMCCJPEGDecInitParam* input = (const TMCCJPEGDecInitParam*)((u8*)param - offsetof(TMCCJPEGDecInitParam, pBuf2));
 
-    if (((u32*)param)[0] & 0x1F)
+    if ((u32)input->pBuf2 & 0x1F)
         return -1;
-    if (((u32*)param)[1] & 0x1F)
+    if (input->buf2Size & 0x1F)
         return -1;
-    if (((u32*)param)[2] == 0)
+    if (input->dataSize == 0)
         return -1;
-    if (((u32*)param)[1] < 0x10040)
+    if (input->buf2Size < 0x10040)
         return -1;
 
-    work->pBufOrg = (u8*)((u32*)param)[0];
+    work->pBufOrg = input->pBuf2;
     dest = work->pBufOrg + 0x20;
-    work->bufLen = ((u32*)param)[1] - 0x20;
-    readSize = ((u32*)param)[2];
+    work->bufLen = input->buf2Size - 0x20;
+    readSize = input->dataSize;
     work->remaining = readSize;
-    work->pCallback = (void*)((u32*)param)[3];
-    work->pCbCtx = (void*)((u32*)param)[4];
+    work->pCallback = input->pCallback;
+    work->pCbCtx = input->pContext;
     if (work->bufLen - 0x20 < readSize) {
         readSize = work->bufLen - 0x20;
     }

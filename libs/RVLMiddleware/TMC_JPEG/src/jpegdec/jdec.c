@@ -2,7 +2,13 @@
 
 s32 TMCJPEGDEC_Decompscan(TMCCJPEGDecWork* work) {
     s32 r = TMCJPEGDEC_scanstart(work);
-    return r < 0 ? r : (work->scanCount == 1) ? 0 : r;
+    if (r < 0) {
+        return r;
+    }
+    if (work->scanCount == 1) {
+        return 0;
+    }
+    return r;
 }
 
 s32 TMCJPEGDEC_Setsize(TMCCJPEGDecWork* work) {

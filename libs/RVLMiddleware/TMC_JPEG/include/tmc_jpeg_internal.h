@@ -5,6 +5,32 @@
 
 #include <tmc_jpeg.h>
 
+enum TMCCJPEGOutputFormat {
+    TMCC_JPEG_OUTPUT_RGB565 = 0,
+    TMCC_JPEG_OUTPUT_RGBA8 = 1,
+    TMCC_JPEG_OUTPUT_Y8U8V8 = 2
+};
+
+enum TMCJpegMarker {
+    TMC_JPEG_MARKER_SOF0 = 0xFFC0,
+    TMC_JPEG_MARKER_SOF2 = 0xFFC2,
+    TMC_JPEG_MARKER_DHT = 0xFFC4,
+    TMC_JPEG_MARKER_RST0 = 0xFFD0,
+    TMC_JPEG_MARKER_RST7 = 0xFFD7,
+    TMC_JPEG_MARKER_SOI = 0xFFD8,
+    TMC_JPEG_MARKER_EOI = 0xFFD9,
+    TMC_JPEG_MARKER_SOS = 0xFFDA,
+    TMC_JPEG_MARKER_DQT = 0xFFDB,
+    TMC_JPEG_MARKER_DNL = 0xFFDC,
+    TMC_JPEG_MARKER_DRI = 0xFFDD,
+    TMC_JPEG_MARKER_APP0 = 0xFFE0,
+    TMC_JPEG_MARKER_APP1 = 0xFFE1,
+    TMC_JPEG_MARKER_APP15 = 0xFFEF,
+    TMC_JPEG_MARKER_COM = 0xFFFE,
+    TMC_JPEG_MARKER_PREFIX = 0xFF00,
+    TMC_JPEG_MARKER_FILL = 0xFFFF,
+};
+
 typedef s32(TMCDecodeFunc)(s32* block, u8* conv_row_ptr, u32* dcPredictRowPtr, TMCCJPEGDecWork* work);
 typedef void(TMCIdctFunc)(s32* block, u8* conv_row_ptr, u16 pitch, s32 zigzag);
 typedef void(TMCConverterFunc)(TMCCJPEGDecWork*, s32 x, s32 y);
@@ -50,7 +76,7 @@ typedef struct {
     u8 quantTblFlag[4];  // 0x1790
     u8 dcTblFlag[2];     // 0x1794
     u8 acTblFlag[2];     // 0x1796
-} TMCUnknownInfo;
+} TMCJpegTableInfo;
 
 typedef struct {
     u16 frameWidth;     // 0x00
@@ -193,7 +219,7 @@ typedef struct {
 } TMCHuffParam;
 
 s32 TMCJPEGDEC_make_huffdec(const u8* dht_spec, u8* tbl, TMCHuffParam* hp);
-void TMCJPEGDEC_set_HuffmanTable(TMCHuffParam* tbl, s32 tblType, s32 tblID, TMCUnknownInfo* work);
+void TMCJPEGDEC_set_HuffmanTable(TMCHuffParam* tbl, s32 tblType, s32 tblID, TMCJpegTableInfo* work);
 
 s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* buf);
 s32 TMCJPEGDEC_imagestart(TMCCJPEGDecWork* work);

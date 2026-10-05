@@ -40,7 +40,8 @@ s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_ro
     conv_row = (s32*)conv_row_ptr;
     dcf = work->pDCFast;
     if (work->bitCount <= 8) {
-        if (r = TMCJPEGDEC_load_buff(work), r < 0) {
+        r = TMCJPEGDEC_load_buff(work);
+        if (r < 0) {
             return r;
         }
     }
@@ -61,7 +62,8 @@ s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_ro
 
     if (val != 0) {
         if (work->bitCount <= val) {
-            if (r = TMCJPEGDEC_load_buff(work), r < 0) {
+            r = TMCJPEGDEC_load_buff(work);
+            if (r < 0) {
                 return r;
             }
         }
@@ -82,7 +84,8 @@ s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_ro
     idx = 1;
     do {
         if (work->bitCount <= 8) {
-            if (r = TMCJPEGDEC_load_buff(work), r < 0) {
+            r = TMCJPEGDEC_load_buff(work);
+            if (r < 0) {
                 return r;
             }
         }
@@ -92,10 +95,11 @@ s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_ro
             val = *ac_entry;
             if (val != 0) {
                 tmp = val;
-                val = *(ac_entry + 1);
+                val = ac_entry[1];
                 work->bitCount -= tmp;
             } else {
-                if (val = TMCJPEGDEC_vl_decode_rc(ac_vl, ac_sym, work), val < 0) {
+                val = TMCJPEGDEC_vl_decode_rc(ac_vl, ac_sym, work);
+                if (val < 0) {
                     return val;
                 }
             }
@@ -107,7 +111,8 @@ s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_ro
             idx += val;
 
             if (work->bitCount <= t) {
-                if (r = TMCJPEGDEC_load_buff(work), r < 0) {
+                r = TMCJPEGDEC_load_buff(work);
+                if (r < 0) {
                     return r;
                 }
             }
@@ -156,7 +161,7 @@ static s32 TMCJPEGDEC_vl_decode_rc(u32* huff_tbl, u8* huff_sym, TMCCJPEGDecWork*
     }
 
     bit_pos = work->bitCount;
-    entry = (u16*)((u8*)huff_tbl + 0x24);
+    entry = (u16*)(huff_tbl + 9);
     bit_data = work->bitBuf;
     i = 9;
     bit_pos -= 9;
@@ -186,11 +191,10 @@ static s32 TMCJPEGDEC_vl_decode_rc(u32* huff_tbl, u8* huff_sym, TMCCJPEGDecWork*
         } HuffEnt;
         HuffEnt local = *(HuffEnt*)entry;
         u32 combined = *(u32*)&local;
-        u32 combined2 = combined;
-        u16 th = *(u16*)&combined2;
+        u16 th = *(u16*)&combined;
         s32 tmp;
 
-        if (code > (u32)th) {
+        if (code > th) {
             continue;
         }
 

@@ -2,6 +2,37 @@
 #include <tmc_jpeg.h>
 #include <tmc_jpeg_internal.h>
 
+enum TMCExifFormat {
+    TMC_EXIF_LITTLE_ENDIAN = 0x4949,
+    TMC_EXIF_BIG_ENDIAN = 0x4D4D,
+    TMC_EXIF_TIFF_MAGIC = 42,
+    TMC_EXIF_TYPE_SHORT = 3,
+    TMC_EXIF_TYPE_LONG = 4,
+    TMC_EXIF_COMPRESSION_JPEG = 6
+};
+
+enum TMCExifTag {
+    TMC_EXIF_TAG_COMPRESSION = 0x0103,
+    TMC_EXIF_TAG_STRIP_OFFSETS = 0x0111,
+    TMC_EXIF_TAG_ORIENTATION = 0x0112,
+    TMC_EXIF_TAG_X_RESOLUTION = 0x011A,
+    TMC_EXIF_TAG_Y_RESOLUTION = 0x011B,
+    TMC_EXIF_TAG_PLANAR_CONFIGURATION = 0x011C,
+    TMC_EXIF_TAG_RESOLUTION_UNIT = 0x0128,
+    TMC_EXIF_TAG_TRANSFER_FUNCTION = 0x012D,
+    TMC_EXIF_TAG_DATE_TIME = 0x0132,
+    TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT = 0x0201,
+    TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT_LENGTH = 0x0202,
+    TMC_EXIF_TAG_YCBCR_POSITIONING = 0x0213,
+    TMC_EXIF_TAG_EXIF_IFD = 0x8769,
+    TMC_EXIF_TAG_EXIF_VERSION = 0x9000,
+    TMC_EXIF_TAG_COMPONENTS_CONFIGURATION = 0x9101,
+    TMC_EXIF_TAG_FLASHPIX_VERSION = 0xA000,
+    TMC_EXIF_TAG_COLOR_SPACE = 0xA001,
+    TMC_EXIF_TAG_PIXEL_X_DIMENSION = 0xA002,
+    TMC_EXIF_TAG_PIXEL_Y_DIMENSION = 0xA003,
+};
+
 static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* pInfo);
 static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, u8* entry);
 static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder, const u8* entry);
@@ -9,23 +40,23 @@ static s32 TMCJPEGDEC_ThumbnailCheck(TMCCJPEGDecInitParam* param, TMCCJPEGDecExi
 
 static u16 readU16(const u8* p, u16 byteOrder) {
     u32 raw = p[1] << 8 | p[0];
-    if (byteOrder == 0x4949) {
-        return (u16)raw;
+    if (byteOrder == TMC_EXIF_LITTLE_ENDIAN) {
+        return raw;
     }
-    return (u16)(raw >> 8 & 0xFF | (raw & 0xFF) << 8);
+    return raw >> 8 & 0xFF | (raw & 0xFF) << 8;
 }
 
 static u16 readExifU16(const u8* data, u16 byteOrder) {
     u16 value = data[0] | data[1] << 8;
-    if (byteOrder == 0x4949) {
+    if (byteOrder == TMC_EXIF_LITTLE_ENDIAN) {
         return (u16)value;
     }
-    return (u16)(value >> 8 & 255 | (value & 255) << 8);
+    return value >> 8 & 255 | (value & 255) << 8;
 }
 
 static u32 readU32(const u8* p, u16 byteOrder) {
     u32 raw = p[1] << 8 | p[0] | p[2] << 16 | p[3] << 24;
-    if (byteOrder == 0x4949) {
+    if (byteOrder == TMC_EXIF_LITTLE_ENDIAN) {
         return raw;
     }
     return (raw >> 24) | ((raw >> 8) & 0xFF00) | ((raw & 0xFF00) << 8) | ((raw & 0xFF) << 24);
@@ -46,7 +77,7 @@ s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pPa
         return -1;
     }
 
-    memset(work, 0, 0x19E8);
+    memset(work, 0, sizeof(TMCCJPEGDecWork));
 
     result = TMCJPEGDEC_init_ptr_buff(work, &pParam->pBuf2);
     if (result < 0) {
@@ -61,7 +92,7 @@ s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pPa
             return result;
         }
 
-        if (soi != 0xFFD8) {
+        if (soi != TMC_JPEG_MARKER_SOI) {
             return -0x20;
         }
     }
@@ -72,7 +103,7 @@ s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pPa
             return result;
         }
 
-        if (marker == 0xFFE1) {
+        if (marker == TMC_JPEG_MARKER_APP1) {
             result = TMCJPEGDEC_get_wbyte(&segSize, work);
             if (result < 0) {
                 return result;
@@ -87,7 +118,7 @@ s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pPa
                 return result;
             }
 
-            if (sig[0] == 0x45 && sig[1] == 0x78 && sig[2] == 0x69 && sig[3] == 0x66) {
+            if (sig[0] == 'E' && sig[1] == 'x' && sig[2] == 'i' && sig[3] == 'f') {
                 *pOffset = dataSize - work->remaining - TMCJPEGDEC_chk_possible_size(work) - 8;
                 *pSize = segSize + 2;
                 return 0;
@@ -107,7 +138,7 @@ s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pPa
 
         segSize -= 2;
 
-        if (marker >= 0xFFE0 && marker <= 0xFFEF) {
+        if (marker >= TMC_JPEG_MARKER_APP0 && marker <= TMC_JPEG_MARKER_APP15) {
             result = TMCJPEGDEC_move_ptr(segSize, work);
             if (result < 0) {
                 return result;
@@ -116,21 +147,21 @@ s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pPa
         }
 
         switch (marker) {
-            case 0xFFC0:
-            case 0xFFC2:
-            case 0xFFC4:
-            case 0xFFDB:
-            case 0xFFDC:
-            case 0xFFDD:
-            case 0xFFFE:
+            case TMC_JPEG_MARKER_SOF0:
+            case TMC_JPEG_MARKER_SOF2:
+            case TMC_JPEG_MARKER_DHT:
+            case TMC_JPEG_MARKER_DQT:
+            case TMC_JPEG_MARKER_DNL:
+            case TMC_JPEG_MARKER_DRI:
+            case TMC_JPEG_MARKER_COM:
                 result = TMCJPEGDEC_move_ptr(segSize, work);
                 if (result < 0) {
                     return result;
                 }
                 break;
-            case 0xFFDA:
+            case TMC_JPEG_MARKER_SOS:
                 return -2;
-            case 0xFFD9:
+            case TMC_JPEG_MARKER_EOI:
                 return -2;
             default:
                 return -0x2F;
@@ -150,18 +181,18 @@ s32 TMCCJPEGDecGetInfoEXIF(TMCCJPEGDecExifInfo* pInfo, TMCCJPEGDecInitParam* pPa
         return -1;
     }
 
-    memset(pInfo, 0, 0x6D4);
-    memset(work, 0, 0x19E8);
+    memset(pInfo, 0, sizeof(TMCCJPEGDecExifInfo));
+    memset(work, 0, sizeof(TMCCJPEGDecWork));
 
     // TODO: this seems wrong. wrong parameter type?
     work->pState = (TMCCJPEGDecState*)pInfo;
     pInfo->pWorkBuf = work;
 
-    if (readU16(pParam->pBuf2, 0x4D4D) != 0xFFE1) {
+    if (readU16(pParam->pBuf2, TMC_EXIF_BIG_ENDIAN) != TMC_JPEG_MARKER_APP1) {
         return -0x45;
     }
 
-    segSize = readU16((const u8*)pParam->pBuf2 + 2, 0x4D4D);
+    segSize = readU16((const u8*)pParam->pBuf2 + 2, TMC_EXIF_BIG_ENDIAN);
     if (segSize < 2) {
         return -0x45;
     }
@@ -186,7 +217,7 @@ s32 TMCCJPEGDecGetInfoEXIF(TMCCJPEGDecExifInfo* pInfo, TMCCJPEGDecInitParam* pPa
         return -1;
     }
 
-    result = TMCJPEGDEC_init_buff_thumbnail((TMCCJPEGDecWork*)&pInfo->exifData, (u8*)work, (u8*)pParam + 0x10);
+    result = TMCJPEGDEC_init_buff_thumbnail((TMCCJPEGDecWork*)&pInfo->exifData, (u8*)work, (u8*)&pParam->pBuf2);
     if (result < 0) {
         return result;
     }
@@ -211,19 +242,19 @@ s32 TMCCJPEGDecGetInfoEXIF(TMCCJPEGDecExifInfo* pInfo, TMCCJPEGDecInitParam* pPa
     }
 
     switch (pInfo->converterType) {
-        case 0:
+        case TMCC_JPEG_OUTPUT_RGB565:
             result = TMCJPEGDEC_set_converterRGB565(work);
             if (result < 0) {
                 goto _error;
             }
             break;
-        case 1:
+        case TMCC_JPEG_OUTPUT_RGBA8:
             result = TMCJPEGDEC_set_converterRGBA8(work);
             if (result < 0) {
                 goto _error;
             }
             break;
-        case 2:
+        case TMCC_JPEG_OUTPUT_Y8U8V8:
             result = TMCJPEGDEC_set_converterY8U8V8(work);
             if (result < 0) {
                 goto _error;
@@ -262,10 +293,10 @@ static s32 TMCJPEGDEC_exif_parse(const u8* entries, u32 size, TMCCJPEGDecExifDat
         return -161;
     }
     byteOrder = data[0] | data[1] << 8;
-    if (byteOrder != 0x4D4D && byteOrder != 0x4949) {
+    if (byteOrder != TMC_EXIF_BIG_ENDIAN && byteOrder != TMC_EXIF_LITTLE_ENDIAN) {
         return -161;
     }
-    if (readExifU16(data + 2, byteOrder) != 42) {
+    if (readExifU16(data + 2, byteOrder) != TMC_EXIF_TIFF_MAGIC) {
         return -161;
     }
     ifdOffset = readU32(data + 4, byteOrder);
@@ -349,23 +380,23 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
     type = readExifU16(entry + 2, byteOrder);
 
     switch (tag) {
-        case 0x0103:
-        case 0x0111:
-        case 0x0201:
-        case 0x0202: {
+        case TMC_EXIF_TAG_COMPRESSION:
+        case TMC_EXIF_TAG_STRIP_OFFSETS:
+        case TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT:
+        case TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT_LENGTH: {
             break;
         }
-        case 0x0112: {
+        case TMC_EXIF_TAG_ORIENTATION: {
             pInfo->orientation = readU16(entry + 8, byteOrder);
             return;
         }
-        case 0x011A: {
+        case TMC_EXIF_TAG_X_RESOLUTION: {
             u32 offset = readU32(entry + 8, byteOrder);
             const u8* p = pInfo->thumbnailData + offset;
             if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p > pInfo->dataEnd - 4) {
+            if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
             pInfo->xResNum = readU32(p, byteOrder);
@@ -373,19 +404,19 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p > pInfo->dataEnd - 4) {
+            if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
             pInfo->xResDen = readU32(p, byteOrder);
             return;
         }
-        case 0x011B: {
+        case TMC_EXIF_TAG_Y_RESOLUTION: {
             u32 offset = readU32(entry + 8, byteOrder);
             const u8* p = pInfo->thumbnailData + offset;
             if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p > pInfo->dataEnd - 4) {
+            if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
             pInfo->yResNum = readU32(p, byteOrder);
@@ -393,17 +424,17 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p > pInfo->dataEnd - 4) {
+            if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
             pInfo->yResDen = readU32(p, byteOrder);
             return;
         }
-        case 0x0128: {
+        case TMC_EXIF_TAG_RESOLUTION_UNIT: {
             pInfo->resUnit = readU16(entry + 8, byteOrder);
             return;
         }
-        case 0x012D: {
+        case TMC_EXIF_TAG_TRANSFER_FUNCTION: {
             u32 offset = readU32(entry + 8, byteOrder);
             u32 channel;
             u32 index;
@@ -422,7 +453,7 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             }
             return;
         }
-        case 0x0132: {
+        case TMC_EXIF_TAG_DATE_TIME: {
             u32 offset = readU32(entry + 8, byteOrder);
             const u8* p = pInfo->thumbnailData + offset;
             if (pInfo->thumbnailData > p) {
@@ -439,52 +470,52 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             }
             return;
         }
-        case 0x0213: {
+        case TMC_EXIF_TAG_YCBCR_POSITIONING: {
             pInfo->yCbCrPos = readU16(entry + 8, byteOrder);
             return;
         }
-        case 0x8769: {
+        case TMC_EXIF_TAG_EXIF_IFD: {
             pInfo->nextIfdOffset = readU32(entry + 8, byteOrder);
             return;
         }
-        case 0x9000: {
+        case TMC_EXIF_TAG_EXIF_VERSION: {
             pInfo->exifVer[0] = entry[8];
             pInfo->exifVer[1] = entry[9];
             pInfo->exifVer[2] = entry[10];
             pInfo->exifVer[3] = entry[11];
             return;
         }
-        case 0x9101: {
+        case TMC_EXIF_TAG_COMPONENTS_CONFIGURATION: {
             pInfo->flashVer[0] = entry[8];
             pInfo->flashVer[1] = entry[9];
             pInfo->flashVer[2] = entry[10];
             pInfo->flashVer[3] = entry[11];
             return;
         }
-        case 0xA000: {
+        case TMC_EXIF_TAG_FLASHPIX_VERSION: {
             pInfo->flashPixVer[0] = entry[8];
             pInfo->flashPixVer[1] = entry[9];
             pInfo->flashPixVer[2] = entry[10];
             pInfo->flashPixVer[3] = entry[11];
             return;
         }
-        case 0xA001: {
+        case TMC_EXIF_TAG_COLOR_SPACE: {
             pInfo->colorSpace = readU16(entry + 8, byteOrder);
             return;
         }
-        case 0xA002: {
-            if (type == 3) {
+        case TMC_EXIF_TAG_PIXEL_X_DIMENSION: {
+            if (type == TMC_EXIF_TYPE_SHORT) {
                 pInfo->pixelXDim = readU16(entry + 8, byteOrder);
-            } else if (type == 4) {
+            } else if (type == TMC_EXIF_TYPE_LONG) {
                 pInfo->pixelXDim = readU32(entry + 8, byteOrder);
             }
             return;
         }
 
-        case 0xA003: {
-            if (type == 3) {
+        case TMC_EXIF_TAG_PIXEL_Y_DIMENSION: {
+            if (type == TMC_EXIF_TYPE_SHORT) {
                 pInfo->pixelYDim = readU16(entry + 8, byteOrder);
-            } else if (type == 4) {
+            } else if (type == TMC_EXIF_TYPE_LONG) {
                 pInfo->pixelYDim = readU32(entry + 8, byteOrder);
             }
             return;
@@ -496,22 +527,22 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
     s32 tag = readU16(entry, byteOrder);
 
     switch (tag) {
-        case 0x0132:
-        case 0x0111:
-        case 0x0112:
-        case 0x012D:
-        case 0x0213:
-        case 0x8769:
-        case 0x9000:
-        case 0x9101:
-        case 0x011C:
-        case 0xA000:
-        case 0xA001:
-        case 0xA002:
-        case 0xA003: {
+        case TMC_EXIF_TAG_DATE_TIME:
+        case TMC_EXIF_TAG_STRIP_OFFSETS:
+        case TMC_EXIF_TAG_ORIENTATION:
+        case TMC_EXIF_TAG_TRANSFER_FUNCTION:
+        case TMC_EXIF_TAG_YCBCR_POSITIONING:
+        case TMC_EXIF_TAG_EXIF_IFD:
+        case TMC_EXIF_TAG_EXIF_VERSION:
+        case TMC_EXIF_TAG_COMPONENTS_CONFIGURATION:
+        case TMC_EXIF_TAG_PLANAR_CONFIGURATION:
+        case TMC_EXIF_TAG_FLASHPIX_VERSION:
+        case TMC_EXIF_TAG_COLOR_SPACE:
+        case TMC_EXIF_TAG_PIXEL_X_DIMENSION:
+        case TMC_EXIF_TAG_PIXEL_Y_DIMENSION: {
             break;
         }
-        case 0x011A: {
+        case TMC_EXIF_TAG_X_RESOLUTION: {
             u32 offset;
             const u8* p;
             offset = readU32(entry + 8, byteOrder);
@@ -519,7 +550,7 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p > pInfo->dataEnd - 4) {
+            if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
             pInfo->xResNumIfd1 = readU32(p, byteOrder);
@@ -527,13 +558,13 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p > pInfo->dataEnd - 4) {
+            if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
             pInfo->xResDenIfd1 = readU32(p, byteOrder);
             return;
         }
-        case 0x011B: {
+        case TMC_EXIF_TAG_Y_RESOLUTION: {
             u32 offset;
             const u8* p;
             offset = readU32(entry + 8, byteOrder);
@@ -541,7 +572,7 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p > pInfo->dataEnd - 4) {
+            if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
             pInfo->planarConfigIfd1 = readU32(p, byteOrder);
@@ -549,25 +580,25 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             if (pInfo->thumbnailData > p) {
                 return;
             }
-            if (p > pInfo->dataEnd - 4) {
+            if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
             pInfo->yResDenIfd1 = readU32(p, byteOrder);
             return;
         }
-        case 0x0128: {
+        case TMC_EXIF_TAG_RESOLUTION_UNIT: {
             pInfo->resUnitIfd1 = readU16(entry + 8, byteOrder);
             return;
         }
-        case 0x0103: {
+        case TMC_EXIF_TAG_COMPRESSION: {
             pInfo->compressionIfd1 = readU16(entry + 8, byteOrder);
             return;
         }
-        case 0x0201: {
+        case TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT: {
             pInfo->thumbnailOffset = readU32(entry + 8, byteOrder);
             return;
         }
-        case 0x0202: {
+        case TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT_LENGTH: {
             pInfo->thumbnailLength = readU32(entry + 8, byteOrder);
             return;
         }
@@ -589,7 +620,7 @@ static s32 TMCJPEGDEC_ThumbnailCheck(TMCCJPEGDecInitParam* param, TMCCJPEGDecExi
         return -0xA0;
     }
 
-    if (info->exifData.compressionIfd1 != 6) {
+    if (info->exifData.compressionIfd1 != TMC_EXIF_COMPRESSION_JPEG) {
         return -0xA0;
     }
 
@@ -612,7 +643,8 @@ static s32 TMCJPEGDEC_ThumbnailCheck(TMCCJPEGDecInitParam* param, TMCCJPEGDecExi
 
     info->thumbFlag = 0;
 
-    if (param->unk_0x2C != 0 && param->unk_0x2C != 1 && param->unk_0x2C != 2) {
+    if (param->unk_0x2C != TMCC_JPEG_OUTPUT_RGB565 && param->unk_0x2C != TMCC_JPEG_OUTPUT_RGBA8 &&
+        param->unk_0x2C != TMCC_JPEG_OUTPUT_Y8U8V8) {
         return -1;
     }
 

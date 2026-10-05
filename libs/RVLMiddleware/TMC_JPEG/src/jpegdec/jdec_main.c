@@ -21,8 +21,8 @@ s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* 
     u8* compMapPtr;
     u32* mcuDataInfo;
 
-    u8* curBlockInfo;
-    u8* specificConvRowPtr;
+    u8** curBlockInfo;
+    u8** specificConvRowPtr;
 
     u8* blockCountPtr;
     u8* entTblBase;
@@ -35,7 +35,7 @@ s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* 
     u8* frameInfo;
     u8* scaleInfo;
 
-    u8* convRowPtrs;
+    u8** convRowPtrs;
     TMCCJPEGDecState* state;
 
     TMCIdctFunc* idctFunc;
@@ -44,10 +44,10 @@ s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* 
 
     state = work->pState;
     compMapBase = work->compMap;
-    frameInfo = (u8*)work + 0x17f0;
+    frameInfo = (u8*)&work->frameWidth;
     compMapPtr = compMapBase;
-    scaleInfo = (u8*)work + 0x58;
-    convRowPtrs = (u8*)work + 0x183c;
+    scaleInfo = &work->scaleFlag;
+    convRowPtrs = work->pConvRowPtrs;
     mcuDataInfo = (u32*)(compMapBase + 4);
     mcuIdx = 0;
 
@@ -57,13 +57,13 @@ s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* 
 
     pitch = work->pitch;
 
-    while (mcuIdx < (s32) * (frameInfo + 0x1b)) {
+    while (mcuIdx < ((TMCJpegFrameInfo*)frameInfo)->scanCompCount) {
         compIdx = *compMapPtr;
         entTblBase = scaleInfo + ((u32) * (compMapBase + compIdx + 0x18) << 8);
         TMCJPEGDEC_set_entropytbl((TMCCJPEGDecWork*)scaleInfo, *(compMapBase + compIdx + 0x1c), *(compMapBase + compIdx + 0x20));
 
         curBlockInfo = convRowPtrs;
-        specificConvRowPtr = convRowPtrs + (compIdx << 2);
+        specificConvRowPtr = convRowPtrs + compIdx;
         blockCountPtr = frameInfo + mcuIdx;
         blockIdx = 0;
 
@@ -76,16 +76,16 @@ s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* 
                 return ret;
 
             if (compIdx == 0) {
-                idctFunc(stackBlock, *(u8**)(curBlockInfo), pitch, ret);
+                idctFunc(stackBlock, *curBlockInfo, pitch, ret);
             } else {
-                idctLumiFunc(stackBlock, *(u8**)(specificConvRowPtr + 0x10), pitch, ret);
+                idctLumiFunc(stackBlock, specificConvRowPtr[4], pitch, ret);
             }
 
-            curBlockInfo += 4;
+            curBlockInfo++;
             blockIdx++;
         }
 
-        mcuDataInfo = (u32*)((u8*)mcuDataInfo + 4);
+        mcuDataInfo++;
         mcuIdx++;
         compMapPtr++;
     }
@@ -96,7 +96,7 @@ s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* 
         work->pConverterFuncEdge(work, maxMCU, mcuCount);
     }
 
-    if (*(u16*)(frameInfo + 0x2a) != 0) {
+    if (((TMCJpegFrameInfo*)frameInfo)->restartInterval != 0) {
         s32 r = TMCJPEGDEC_restart_interval(work, maxMCU, mcuCount);
         if (r < 0) {
             return r;
@@ -126,7 +126,7 @@ s32 TMCJPEGDEC_imagestart(TMCCJPEGDecWork* work) {
     if (r < 0) {
         return r;
     }
-    if (marker != 0xFFD8) {
+    if (marker != TMC_JPEG_MARKER_SOI) {
         return -0x20;
     }
     marker = 0;
@@ -134,7 +134,7 @@ s32 TMCJPEGDEC_imagestart(TMCCJPEGDecWork* work) {
     if (r < 0) {
         return r;
     }
-    if (marker != 0xFFC0) {
+    if (marker != TMC_JPEG_MARKER_SOF0) {
         return -0x10;
     }
     r = TMCJPEGDEC_parse_sof(work);
@@ -162,7 +162,7 @@ s32 TMCJPEGDEC_imageend(TMCCJPEGDecWork* work) {
             return r;
         }
 
-        if (marker != 0xFFD9) {
+        if (marker != TMC_JPEG_MARKER_EOI) {
             work->pState->decodeResult = -0x21;
             return 0;
         }
@@ -180,7 +180,7 @@ s32 TMCJPEGDEC_scanstart(TMCCJPEGDecWork* work) {
         return r;
     }
 
-    if (marker != 0xFFDA) {
+    if (marker != TMC_JPEG_MARKER_SOS) {
         return -0x22;
     }
 
@@ -258,7 +258,7 @@ s32 TMCJPEGDEC_scan_varinit(TMCCJPEGDecWork* work) {
     p->mcuXCount2 = p->mcuXCount2 + ((u8)remY != 0 ? 1 : 0);
     p->mcuTotal = (u32)p->mcuYCount * (u32)p->mcuXCount2;
 
-    for (idx = 0; idx < (s32)p->scanCompCount; idx++) {
+    for (idx = 0; idx < p->scanCompCount; idx++) {
         u8 compId;
         u32 blocks;
 
@@ -322,19 +322,19 @@ s32 TMCJPEGDEC_restart_interval(TMCCJPEGDecWork* work, u32 maxMCU, u32 mcuCount)
             return result;
         }
         result = TMCJPEGDEC_get_wbyte(&marker, work);
-        if (marker == 0xFFD9) {
+        if (marker == TMC_JPEG_MARKER_EOI) {
             work->scanCount = 1;
         }
         if (result < 0) {
             return result;
         }
-        if (marker >= 0xFFC0 && (marker < 0xFFD0 || marker > 0xFFD7)) {
+        if (marker >= TMC_JPEG_MARKER_SOF0 && (marker < TMC_JPEG_MARKER_RST0 || marker > TMC_JPEG_MARKER_RST7)) {
             result = TMCJPEGDEC_move_ptr(-2, work);
             if (result < 0) {
                 return result;
             }
         } else {
-            s32 expected = work->rstMarkerIdx + 0xFFD0;
+            s32 expected = work->rstMarkerIdx + TMC_JPEG_MARKER_RST0;
             if (marker != expected) {
                 return -0x23;
             }
@@ -435,58 +435,58 @@ static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
     do {
         result = TMCJPEGDEC_get_wbyte(&local, work);
         if (result < 0) {
-            if (result == TMCC_ERROR_UNDERFLOW && local == 0xFFD9) {
+            if (result == TMCC_ERROR_UNDERFLOW && local == TMC_JPEG_MARKER_EOI) {
                 result = 0;
             } else {
                 return result;
             }
         }
 
-        while (local == 0xFFFF) {
+        while (local == TMC_JPEG_MARKER_FILL) {
             result = TMCJPEGDEC_get_byte(&byte, work);
             if (result < 0) {
                 return result;
             }
-            local = 0xFF00 | byte;
+            local = TMC_JPEG_MARKER_PREFIX | byte;
         }
 
-        if (local >= 0xFFE0 && local <= 0xFFEF) {
+        if (local >= TMC_JPEG_MARKER_APP0 && local <= TMC_JPEG_MARKER_APP15) {
             result = parseApplication(work);
         } else {
-            switch ((s32)local) {
-                case 0xFFC4: {
+            switch (local) {
+                case TMC_JPEG_MARKER_DHT: {
                     result = TMCJPEGDEC_parse_dht(firstMarker, work);
                     break;
                 }
-                case 0xFFDB: {
+                case TMC_JPEG_MARKER_DQT: {
                     result = TMCJPEGDEC_parse_dqt(work);
                     break;
                 }
-                case 0xFFDD: {
+                case TMC_JPEG_MARKER_DRI: {
                     result = parseRestartInterval(work);
                     break;
                 }
-                case 0xFFDC: {
+                case TMC_JPEG_MARKER_DNL: {
                     result = parseNumberOfLines(work);
                     break;
                 }
-                case 0xFFFE: {
+                case TMC_JPEG_MARKER_COM: {
                     result = parseComment(work);
                     break;
                 }
-                case 0xFFC0: {
+                case TMC_JPEG_MARKER_SOF0: {
                     keepGoing = 1;
                     break;
                 }
-                case 0xFFC2: {
+                case TMC_JPEG_MARKER_SOF2: {
                     keepGoing = 1;
                     break;
                 }
-                case 0xFFDA: {
+                case TMC_JPEG_MARKER_SOS: {
                     keepGoing = 1;
                     break;
                 }
-                case 0xFFD9: {
+                case TMC_JPEG_MARKER_EOI: {
                     work->scanCount = 1;
                     keepGoing = 1;
                     break;
@@ -508,16 +508,16 @@ static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
 }
 
 static s32 TMCJPEGDEC_parse_dht(s32 first, TMCCJPEGDecWork* work) {
-    TMCUnknownInfo* scaleInfo;
+    TMCJpegTableInfo* scaleInfo;
     u16 len;
     u8 countBuf[17];
     u8 symBuf[256];
     s32 r;
     TMCHuffParam tblSet;
 
-    scaleInfo = (TMCUnknownInfo*)&work->scaleFlag;
+    scaleInfo = (TMCJpegTableInfo*)&work->scaleFlag;
 
-    memset(countBuf, 0, 17);
+    memset(countBuf, 0, sizeof(countBuf));
 
     r = TMCJPEGDEC_get_wbyte(&len, work);
     if (r < 0) {
@@ -627,7 +627,7 @@ static s32 TMCJPEGDEC_parse_dqt(TMCCJPEGDecWork* work) {
             return -0x41;
         }
 
-        ((TMCUnknownInfo*)scaleInfo)->quantTblFlag[qtInfo] = 1;
+        ((TMCJpegTableInfo*)scaleInfo)->quantTblFlag[qtInfo] = 1;
 
         zigPtr = TMCJPEGDEC_Zigzag_data;
         for (zzIdx = 0; zzIdx < 64; zzIdx++) {
@@ -947,7 +947,7 @@ _parse_sof_return:
 }
 #else
 static s32 TMCJPEGDEC_parse_sof(TMCCJPEGDecWork* work) {
-    TMCJpegFrameInfo* frameInfo = (TMCJpegFrameInfo*)((u8*)work + 0x17f0);
+    TMCJpegFrameInfo* frameInfo = (TMCJpegFrameInfo*)&work->frameWidth;
 
     u16 len;
     u8 precision;
@@ -1145,7 +1145,7 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
     } TMCComponentInfo;
     s32 idx;
     TMCComponentInfo* components;
-    TMCUnknownInfo* scalePtr;
+    TMCJpegTableInfo* scalePtr;
     TMCComponentInfo* mapPtr;
 
     s32 dcTbl;
@@ -1158,7 +1158,7 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
     u8 scanByte;
 
     components = (TMCComponentInfo*)work->compMap;
-    scalePtr = (TMCUnknownInfo*)&work->scaleFlag;
+    scalePtr = (TMCJpegTableInfo*)&work->scaleFlag;
 
     r = TMCJPEGDEC_get_wbyte(&len, work);
     if (r < 0) {
@@ -1179,13 +1179,13 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
         return -0x51;
     }
 
-    for (idx = 0; idx < (s32)work->scanCompCount; idx++) {
+    for (idx = 0; idx < work->scanCompCount; idx++) {
         r = TMCJPEGDEC_get_byte(&scanByte, work);
         if (r < 0) {
             return r;
         }
 
-        for (ci = 0; ci < (s32)work->compCount; ci++) {
+        for (ci = 0; ci < work->compCount; ci++) {
             if ((s32)scanByte == (s32)components->id[ci]) {
                 components->map[idx] = ci;
                 mapPtr = (TMCComponentInfo*)&components->map[idx];
