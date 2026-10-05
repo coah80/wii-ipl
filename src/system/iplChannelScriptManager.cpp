@@ -31,8 +31,8 @@ namespace ipl {
             memset(&mCSData, 0, sizeof(mCSData));
             memset(&mAltSound, 0, sizeof(mAltSound));
 
-            smCSState = CHANS_VM_STATE_UNK0;
-            mState = CHANS_VM_MSG_STATE_UNK0;
+            smCSState = CHANS_VM_STATE_IDLE;
+            mState = CHANS_VM_MSG_STATE_NONE;
             mAltSoundState = CHANS_VM_ALT_SND_STATE_UNAVAILABLE;
         }
 
@@ -85,24 +85,24 @@ namespace ipl {
             smpThread->setCalcFunc(calcCSThread);
             smpThread->start();
 
-            smCSState = CHANS_VM_STATE_UNK1;
+            smCSState = CHANS_VM_STATE_STARTING;
 
             return TRUE;
         }
 
         void ChannelScriptManager::calc() {
             OSMessage msg;
-            if (smCSState == CHANS_VM_STATE_UNK2 && smpThread->IsThreadSuspended() != FALSE) {
+            if (smCSState == CHANS_VM_STATE_WAIT_BEGIN_RENDER && smpThread->IsThreadSuspended() != FALSE) {
                 OSReceiveMessage(smpThread->getCalcQueue(), &msg, 0);
                 mState = *(u32*)msg;
-                if (mState == CHANS_VM_MSG_STATE_UNK1) {
-                    smCSState = CHANS_VM_STATE_UNK3;
+                if (mState == CHANS_VM_MSG_STATE_BEGIN_RENDER) {
+                    smCSState = CHANS_VM_STATE_RUNNING;
                     smpThread->Resume();
                 }
             }
 
-            if (smCSState == CHANS_VM_STATE_UNK3) {
-                if (mState == CHANS_VM_MSG_STATE_UNK2) {
+            if (smCSState == CHANS_VM_STATE_RUNNING) {
+                if (mState == CHANS_VM_MSG_STATE_WAIT_RETRACE) {
                     smpThread->Resume();
                 }
 
@@ -114,7 +114,7 @@ namespace ipl {
                 }
             }
 
-            if (smCSState == CHANS_VM_STATE_UNK4) {
+            if (smCSState == CHANS_VM_STATE_EXITING) {
                 smpThread->WaitForThreadExit();
                 smCSState = 0;
             }
@@ -164,12 +164,12 @@ namespace ipl {
 
             int msgState;
 
-#define SEND_STATE_4()                                                                                                                               \
+#define SEND_EXIT_STATE()                                                                                                                               \
     {                                                                                                                                                \
-        msgState = CHANS_VM_MSG_STATE_UNK4;                                                                                                          \
+        msgState = CHANS_VM_MSG_STATE_EXIT;                                                                                                          \
         BOOL old = OSDisableInterrupts() != FALSE;                                                                                                   \
         OSSendMessage(smpThread->getCalcQueue(), &msgState, OS_MESSAGE_BLOCK);                                                                       \
-        smCSState = CHANS_VM_STATE_UNK4;                                                                                                             \
+        smCSState = CHANS_VM_STATE_EXITING;                                                                                                             \
         OSRestoreInterrupts(old);                                                                                                                    \
     }
 
@@ -183,10 +183,10 @@ namespace ipl {
 
                 // CHANSVm is awaiting for render
                 if (result == CHANS_VM_ERR_SIGNAL && ((CHANSVmPrivate*)&smCSVm)->bpSignalPending == &VmSystemBeginRenderFlag) {
-                    if (smCSState == CHANS_VM_STATE_UNK1) {
-                        smCSState = CHANS_VM_STATE_UNK2;
+                    if (smCSState == CHANS_VM_STATE_STARTING) {
+                        smCSState = CHANS_VM_STATE_WAIT_BEGIN_RENDER;
 
-                        msgState = CHANS_VM_MSG_STATE_UNK1;
+                        msgState = CHANS_VM_MSG_STATE_BEGIN_RENDER;
                         OSSendMessage(smpThread->getCalcQueue(), &msgState, OS_MESSAGE_BLOCK);
 
                         smpThread->Suspend();
@@ -194,15 +194,15 @@ namespace ipl {
                         continue;
                     }
 
-                    SEND_STATE_4();
+                    SEND_EXIT_STATE();
 
                     return;
                 }
 
                 // CHANSVm is awaiting for retrace
                 if (result == CHANS_VM_ERR_SIGNAL && ((CHANSVmPrivate*)&smCSVm)->bpSignalPending == &VmSystemWaitForRetraceFlag) {
-                    if (smCSState == CHANS_VM_STATE_UNK3) {
-                        msgState = CHANS_VM_MSG_STATE_UNK2;
+                    if (smCSState == CHANS_VM_STATE_RUNNING) {
+                        msgState = CHANS_VM_MSG_STATE_WAIT_RETRACE;
                         OSSendMessage(smpThread->getCalcQueue(), &msgState, OS_MESSAGE_BLOCK);
 
                         smpThread->Suspend();
@@ -210,7 +210,7 @@ namespace ipl {
                         continue;
                     }
 
-                    SEND_STATE_4();
+                    SEND_EXIT_STATE();
 
                     return;
                 }
@@ -225,7 +225,7 @@ namespace ipl {
                 break;
             }
 
-            SEND_STATE_4();
+            SEND_EXIT_STATE();
         }
     }  // namespace channel
 }  // namespace ipl

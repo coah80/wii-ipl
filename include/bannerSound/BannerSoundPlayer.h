@@ -64,7 +64,7 @@ private:
     SimpleWavePlayer mWavePlayer;      // 0x18
     AxAdpcmSimplePlayer mAdpcmPlayer;  // 0x500
     AxAdpcmHandle mAdpcmHandle;        // 0x508
-    u8 unk_0x510;                      // 0x510
+    u8 mReserved;                      // 0x510
     f32 mMasterVolume;                 // 0x514
 };
 

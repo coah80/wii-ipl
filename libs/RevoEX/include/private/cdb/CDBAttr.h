@@ -12,7 +12,7 @@ extern "C" {
 
 typedef struct _CDBAttrSignature {
     u8 sha1Hmac[20];  // 0x00
-    u8 unk_0x14[0x1BC - 0x14];
+    u8 reserved[0x1BC - 0x14];
 } CDBAttrSignature;
 
 #define CDB_ATTR_BUF_MAGIC_LEN 7

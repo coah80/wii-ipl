@@ -264,22 +264,22 @@ CDBErr CDBRecordFileReadData(CDBRecord* record, void* buffer, u32 size, u32* rea
     CDBCryptBuf* cryptBuf = record->cryptBuf;
 
     if (cryptBuf != NULL) {
-        u32 unk = cryptBuf->size - cryptBuf->offset;
-        if (cryptBuf->size < unk) {
-            unk = 0;
+        u32 bytesToRead = cryptBuf->size - cryptBuf->offset;
+        if (cryptBuf->size < bytesToRead) {
+            bytesToRead = 0;
         }
 
-        if (size < unk) {
-            unk = size;
+        if (size < bytesToRead) {
+            bytesToRead = size;
         }
 
-        if (unk != 0) {
-            memcpy(buffer, (u8*)&cryptBuf->buffer[cryptBuf->offset], unk);
-            cryptBuf->offset += unk;
+        if (bytesToRead != 0) {
+            memcpy(buffer, (u8*)&cryptBuf->buffer[cryptBuf->offset], bytesToRead);
+            cryptBuf->offset += bytesToRead;
         }
 
         if (readSize != NULL) {
-            *readSize = unk;
+            *readSize = bytesToRead;
         }
 
         return CDB_ERROR_OK;

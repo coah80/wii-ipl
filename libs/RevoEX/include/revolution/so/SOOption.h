@@ -13,7 +13,7 @@ typedef struct IPAddrEntry {
     u8 bcastAddr[4];  // 0x08
 } IPAddrEntry;
 
-int SOGetInterfaceOpt(void* unk, int level, int optname, void* optval, int* optlen);
+int SOGetInterfaceOpt(void* interface, int level, int optname, void* optval, int* optlen);
 int SOSetSockOpt(int s, int level, int optname, const void* optval, int optlen);
 
 #ifdef __cplusplus

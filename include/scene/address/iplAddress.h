@@ -159,7 +159,7 @@ namespace ipl {
                 int mButton;      // 0x10
                 int mNextCount;   // 0x14
                 int mPrevCount;   // 0x18
-                int unk_0x1C;     // 0x1C
+                int mResetState;     // 0x1C
                 bool mbDragging;  // 0x20
             };
 
@@ -234,7 +234,7 @@ namespace ipl {
             DragInfo mDrag;                     // 0x64
             int mMode;                          // 0x88
             layout::Object* mpLayout;           // 0x8C
-            int unk_0x90;                       // 0x90
+            int mReserved;                       // 0x90
             AddressEvent* mpEvent;              // 0x94
             gui::PaneManager* mpGui;            // 0x98
             layout::Object* mpBackLayout;       // 0x9C

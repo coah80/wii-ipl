@@ -48,8 +48,8 @@ namespace ipl {
             void set_size(const char* paneName, const nw4r::lyt::Size& size);
             const nw4r::lyt::Size* get_size(const char* paneName);
 
-            undefined4 unk_0x00;
-            undefined4 unk_0x04;
+            undefined4 mReserved;
+            undefined4 mReservedState;
             BOOL mbWaitingFadeIn;  // 0x08
 
             layout::Object* mpLayout;  // 0x0C

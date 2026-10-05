@@ -57,8 +57,8 @@ namespace ipl {
             kitayama::NandSDWorker_AutoTest* mpAutoTest;  // 0x64
             void* mpWorkerBuf;                            // 0x68
             void* mpWorkerCacheBuf;                       // 0x6C
-            u32 unk_0x70;                                 // 0x70 (unused)
-            u32 unk_0x74;                                 // 0x74 (unused)
+            u32 mReservedWorkerState;                                 // 0x70 (unused)
+            u32 mReservedCacheState;                                 // 0x74 (unused)
         };
     }  // namespace scene
 }  // namespace ipl

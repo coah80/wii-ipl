@@ -47,7 +47,7 @@ typedef struct NWC24FriendInfo {
 
 // ???
 typedef struct NWC24SecretFriendInfo {
-    u8 unk_0x00[0x20];
+    u8 recordData[0x20];
 } NWC24SecretFriendInfo;
 
 NWC24Err NWC24ReadFriendInfo(NWC24FriendInfo* info, u32 index);

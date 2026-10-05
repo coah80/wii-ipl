@@ -139,7 +139,7 @@ typedef struct NCDApConfig {
 
 typedef struct NCDRakuApConfig {
     NCDApConfig cfg;
-    u32 unk_0x6c;
+    u32 reserved;
 } NCDRakuApConfig;
 
 typedef struct NCDUsbapConfig {

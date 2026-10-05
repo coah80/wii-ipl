@@ -15,21 +15,21 @@ typedef struct {
     u32 nwc24IdHigh;
     u32 nwc24IdLow;
     u16 groupId;
-    u8 unknown_0x16[2];
+    u8 reservedGroupData[2];
     u16 subTaskCount;
-    u16 unknown_0x1a;
+    u16 errorCount;
     u16 interval;
     u16 intervalWait;
-    u32 unknown_0x20;
+    u32 lastError;
     u8 retryCount;
     u8 retryEnabled;
-    u8 unknown_0x26[2];
+    u8 subTaskFlagStorage[2];
     u32 retryMask;
-    u8 unknown_0x2c[0x88];
+    u8 updateTimeStorage[0x88];
     char url[0xec];
     char fileName[0x5c];
     u8 optOutFlags;
-    u8 unknown_0x1fd[3];
+    u8 rootCaStorage[3];
 } DlTaskData;
 
 typedef struct {
@@ -43,13 +43,13 @@ typedef struct {
 typedef struct {
     u32 magic;
     u32 version;
-    u32 unknown_0x08;
-    u16 unknown_0x0c;
-    u16 unknown_0x0e;
+    u32 reserved;
+    u16 reservedHeaderWord0;
+    u16 reservedHeaderWord1;
     u16 legacyTaskCount;
     u16 taskCount;
     u16 maxTaskCount;
-    u8 unknown_0x16[0x6a];
+    u8 reservedTaskData[0x6a];
     DlTaskEntry entries[NWC24_DL_TASK_MAX];
 } DlTaskListHeader;
 
@@ -792,8 +792,8 @@ static inline NWC24Err ClearDlTaskError(NWC24DlTask* dlTask) {
     if (result != NWC24_OK) {
         return result;
     }
-    task->unknown_0x20 = 0;
-    task->unknown_0x1a = 0;
+    task->lastError = 0;
+    task->errorCount = 0;
     return NWC24_OK;
 }
 
@@ -1118,8 +1118,8 @@ NWC24Err NWC24iCreateDlTaskList() {
     memset(header, 0, 0x800);
     header->magic = 0x5763446c;
     header->version = 1;
-    header->unknown_0x0c = 0;
-    header->unknown_0x0e = 0;
+    header->reservedHeaderWord0 = 0;
+    header->reservedHeaderWord1 = 0;
     header->maxTaskCount = NWC24_DL_TASK_MAX;
     header->legacyTaskCount = 0x20;
     header->taskCount = 8;

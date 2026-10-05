@@ -10,7 +10,7 @@ extern "C" {
 
 ESError ES_InitLib();
 
-ESError ES_ImportTicket(ESTicket* ticket, void* certs, u32 certSize, void* crls, u32 crlSize, int unknown);
+ESError ES_ImportTicket(ESTicket* ticket, void* certs, u32 certSize, void* crls, u32 crlSize, int transferMode);
 
 ESError ES_ImportBoot(ESTicket* ticket, void* certs, u32 certSize, void* tmd, u32 tmdSize, void* tmdCerts, u32 tmdCertSize, void* crls, u32 crlSize,
                       void* app, u32 appSize);
@@ -20,7 +20,7 @@ ESError ES_GetTmdSizeFromView(ESTmdView* tmd, u32* tmdSize);
 
 ESError ES_GetDeviceId(ESDeviceId* deviceId);
 
-ESError ES_ImportTitleInit(void* tmd, u32 tmdSize, void* certs, u32 certSize, void* crls, u32 crlSize, int unknown0, int unknown1);
+ESError ES_ImportTitleInit(void* tmd, u32 tmdSize, void* certs, u32 certSize, void* crls, u32 crlSize, int importMode, int importOptions);
 ESFd ES_ImportContentBegin(ESTitleId titleId, ESContentId contentId);
 ESError ES_ImportContentData(ESFd fd, void* data, u32 dataSize);
 ESError ES_ImportContentEnd(ESFd fd);
@@ -60,7 +60,7 @@ ESError ES_GetDeviceCert(void* deviceCert);
 ESError ES_DiGetTmdView(ESTitleMeta* tmd, u32 tmdSize, ESTmdView* tmdView, u32* tmdViewSize);
 
 ESError ES_ExportTitleInit(ESTitleId titleId, ESDeviceId deviceId, ESTicketId ticketId, void* certs, u32 certSize, void* crls, u32 crlSize,
-                           int unknown, void* ticket, void* tmd, u32 tmdSize);
+                           int transferMode, void* ticket, void* tmd, u32 tmdSize);
 ESError ES_ExportContentBegin(ESTitleId titleId, ESContentId contentId);
 ESError ES_ExportContentData(ESFd fd, void* data, u32 dataSize);
 ESError ES_ExportContentEnd(ESFd fd);

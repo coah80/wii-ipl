@@ -17,18 +17,18 @@ typedef struct _CDBRecordFile {
     OSMutex mutex;
     BOOL used;
 #else
-    u8 unk_0x00[0x1C - 0x00];
+    u8 mutexAndUseState[0x1C - 0x00];
 #endif
     int allocFlag;  // 0x1C
     CDBAttr attr;              // 0x20
     CDBBridgeFile bridgeFile;  // 0x42C
-    u8 unk_0x434[0x438 - 0x434];
+    u8 reservedBeforeKey[0x438 - 0x434];
     CDBRecordKey key;  // 0x438
 #if defined(CDB_RECORD_IMPLEMENTATION) || defined(CDB_SYSTEM_IMPLEMENTATION)
     u32 database;
     u8 reserved[0x480 - 0x46C];
 #else
-    u8 unk_0x468[0x480 - 0x468];
+    u8 databaseStateStorage[0x480 - 0x468];
 #endif
 } CDBRecordFile;
 
@@ -53,7 +53,7 @@ BOOL CDBRecordKeyIsValid(CDBRecordKey* recordKey);
 
 void CDBRecordKeyInitByOnlyDate(CDBRecordKey* recordKey, CDBDate epoch);
 void CDBRecordKeyInitFromFileName2(CDBRecordKey* recordKey, char* keyString, char* gameCode, char* fileType);
-void CDBRecordKeyInit(CDBRecordKey* recordKey, CDBDate epoch, int gameCode, u16 makerCode, int serialNumber, char* fileType, int unk);
+void CDBRecordKeyInit(CDBRecordKey* recordKey, CDBDate epoch, int gameCode, u16 makerCode, int serialNumber, char* fileType, int recordLocation);
 
 void CDBRecordKeyGetKeyStr(CDBRecordKey* recordKey, char* keyString);
 

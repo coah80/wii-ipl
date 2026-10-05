@@ -334,7 +334,7 @@ static void DoneCallback(void* _task) {
     s32 rlen;
     u32 rshift;
 
-    u8 unk;
+    u8 cardStatus;
     u32 wk, wk1;
     u32 Ans2;
 
@@ -383,14 +383,14 @@ static void DoneCallback(void* _task) {
         return;
     }
 
-    result = __CARDReadStatus(chan, &unk);
+    result = __CARDReadStatus(chan, &cardStatus);
     if (!EXIProbe(chan)) {
         EXIUnlock(chan);
         __CARDMountCallback(chan, CARD_RESULT_NOCARD);
         return;
     }
 
-    if (result == CARD_RESULT_READY && !(unk & 0x40)) {
+    if (result == CARD_RESULT_READY && !(cardStatus & 0x40)) {
         EXIUnlock(chan);
         result = CARD_RESULT_IOERROR;
     }

@@ -83,7 +83,7 @@ namespace ipl {
         enum {
             TYPE_POINT = 0,
             TYPE_GRAB,
-            TYPE_UNK2,
+            TYPE_RESERVED,
             TYPE_MAX, /* ??? */
         };
 

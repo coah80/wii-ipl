@@ -811,16 +811,16 @@ static NWC24Err WriteContentTypeField(NWC24MsgObjPrivate* msg) {
     name = NWC24GetCharsetStr(msg->charset);
     if (name != NULL) {
         Mail_sprintf(buffer, (char*)ContentTypeTP, name);
-        msg->unk_0x50.ptr = (const void*)(msg->length + 34);
-        msg->unk_0x50.size = Mail_strlen(name) + 1;
+        msg->charsetData.ptr = (const void*)(msg->length + 34);
+        msg->charsetData.size = Mail_strlen(name) + 1;
         total = Mail_strlen(buffer);
         buffer += total;
     }
     encoding = NWC24GetEncodingStr(msg->encoding);
     if (encoding != NULL) {
         Mail_sprintf(buffer, (char*)ContentTxEncT, encoding);
-        msg->unk_0x58.ptr = (const void*)(total + msg->length + 27);
-        msg->unk_0x58.size = Mail_strlen(encoding) + 1;
+        msg->encodingData.ptr = (const void*)(total + msg->length + 27);
+        msg->encodingData.size = Mail_strlen(encoding) + 1;
         total += Mail_strlen(buffer);
     }
     if (total == 0)

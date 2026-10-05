@@ -112,13 +112,13 @@ NWC24Err NWC24ReadMsgTextEx(const NWC24MsgObj* msg, char* text, u32 textLen, con
 #endif
 NWC24Err NWC24ReadMsgAttached(const NWC24MsgObj* msg, u32 attachIndex, u8* attachData, u32 attachSize);
 
-NWC24Err NWC24ReadMsgSubjectPublic(const NWC24MsgObj* msg, u16* subject, u32* subjectLen, NWC24EncodingRegion encRegion, u16 unk, u8* work,
+NWC24Err NWC24ReadMsgSubjectPublic(const NWC24MsgObj* msg, u16* subject, u32* subjectLen, NWC24EncodingRegion encRegion, u16 alternative, u8* work,
                                    u32 workSize);
-NWC24Err NWC24ReadMsgTextPublic(const NWC24MsgObj* msg, u16* text, u32* textLen, NWC24EncodingRegion encRegion, u16 unk, u8* work, u32 workSize);
-NWC24Err NWC24SetMsgSubjectPublic(NWC24MsgObj* msg, const u16* subject, u32 subjectLen, NWC24EncodingRegion encRegion, u16 unk, u8* work,
+NWC24Err NWC24ReadMsgTextPublic(const NWC24MsgObj* msg, u16* text, u32* textLen, NWC24EncodingRegion encRegion, u16 alternative, u8* work, u32 workSize);
+NWC24Err NWC24SetMsgSubjectPublic(NWC24MsgObj* msg, const u16* subject, u32 subjectLen, NWC24EncodingRegion encRegion, u16 alternative, u8* work,
                                   u32 workSize);
 NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u32 subjectLen, const u16* text, u32 textLen,
-                                         NWC24EncodingRegion encRegion, u16 unk, u8* work, u32 workSize);
+                                         NWC24EncodingRegion encRegion, u16 alternative, u8* work, u32 workSize);
 
 NWC24Err NWC24CommitMsg(NWC24MsgObj* msg);
 

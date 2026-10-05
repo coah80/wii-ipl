@@ -42,7 +42,7 @@ CDBErr CDBDatabaseCreateRecordAtOnceEx(CDBDatabase* database, CDBRecord* record,
 CDBErr CDBDatabaseFindByKey(CDBDatabase* database, CDBRecord* record, CDBRecordKey* recordKey);
 
 CDBErr CDBDatabaseSearch(CDBDatabase* database, CDBDate beginDate, CDBDate endDate, CDBSearchDirection searchDirection, char* makerCode,
-                         char* gameCode, int unk7, CDBRecordLocation recordLocation, int unk9, CDBSearchRecordCB searchRecordCB,
+                         char* gameCode, int recordType, CDBRecordLocation recordLocation, int openRecord, CDBSearchRecordCB searchRecordCB,
                          void* searchRecordArg);
 
 CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLocation recordLocation);

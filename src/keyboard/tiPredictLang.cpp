@@ -374,7 +374,7 @@ namespace textinput {
                 if (pane != NULL) {
                     switch (event) {
                         case ON_TRIG: {
-                            if ((input->field_0x0C & 0x800)) {
+                            if ((input->trigger & 0x800)) {
                                 pane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                             }
                             break;
@@ -391,7 +391,7 @@ namespace textinput {
                     }
                 }
 
-                if (event == ON_TRIG && (input->field_0x0C & 0x800)) {
+                if (event == ON_TRIG && (input->trigger & 0x800)) {
                     char tmp[17];
                     // open-coded util::replaceChar
                     memset(tmp, 0, 17);

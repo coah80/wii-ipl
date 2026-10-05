@@ -15,7 +15,7 @@ namespace ipl {
                 NET_SETUP_REQUESTED_STARTUP,
                 NET_SETUP_RUNNING,
                 NET_SETUP_SUCCESS,
-                NET_SETUP_UNK_4,
+                NET_SETUP_ALTERNATE_ERROR,
                 NET_SETUP_ERROR,
             };
 

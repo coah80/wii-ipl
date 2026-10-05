@@ -28,7 +28,7 @@ BOOL CDBRecordKeyIsValid(CDBRecordKey* recordKey) {
     return FALSE;
 }
 
-void CDBRecordKeyInit(CDBRecordKey* recordKey, CDBDate epoch, int gameCode, u16 makerCode, int serialNumber, char* fileType, int unk) {
+void CDBRecordKeyInit(CDBRecordKey* recordKey, CDBDate epoch, int gameCode, u16 makerCode, int serialNumber, char* fileType, int recordLocation) {
     struct {
         char mcStr[4];
         char typeStr[8];
@@ -41,7 +41,7 @@ void CDBRecordKeyInit(CDBRecordKey* recordKey, CDBDate epoch, int gameCode, u16 
     CDBConvGCValueToGCStr(gameCode, strings.gcStr);
 
     recordKey->wiiId = CDBGetWiiId();
-    recordKey->location = unk;
+    recordKey->location = recordLocation;
 
     typeLength = strlen(fileType);
     strcpy(strings.typeStr, fileType);

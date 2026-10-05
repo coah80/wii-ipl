@@ -388,7 +388,7 @@ static u8 WUDiExistedDevice() {
 
     pWork->status = 1;
 
-    switch (pWork->UNK_0x5B) {
+    switch (pWork->syncMode) {
         case 0:
         case 2:
         case 4:
@@ -398,7 +398,7 @@ static u8 WUDiExistedDevice() {
                 WUDiRemoveDevice(pWork->devAddr);
                 return WUD_STATE_SYNC_PREPARE_FOR_UNKNOWN_DEVICE;
             } else {
-                pWork->UNK_0x5B = 4;
+                pWork->syncMode = 4;
             }
 
             break;
@@ -418,7 +418,7 @@ static u8 WUDiUnknownDevice() {
     WUDDevInfo* pWork = &_work;
 
     pWork->status = 1;
-    pWork->UNK_0x5B = _wcb.syncType == WUD_SYNC_TYPE_STANDARD ? 0 : 1;
+    pWork->syncMode = _wcb.syncType == WUD_SYNC_TYPE_STANDARD ? 0 : 1;
 
     WUD_BDCPY(pWork->devAddr, _discResp.devAddr);
     memcpy(pWork->conf.devName, _discResp.devName, sizeof(_discResp.devName));
@@ -445,12 +445,12 @@ static int WUDiSetPinCode(BD_ADDR addr) {
 
     pAddr = _wcb.syncType == WUD_SYNC_TYPE_STANDARD ? _wcb.hostAddr : addr;
 
-    if (_work.UNK_0x5B == 4) {
+    if (_work.syncMode == 4) {
         WUDiRemoveDevice(_work.devAddr);
         btm_remove_acl(_work.devAddr);
     }
 
-    _work.UNK_0x5A = 1;
+    _work.pinReplied = 1;
 
     ReverseAddr(pin, pAddr);
     BTA_DmPinReply(addr, TRUE, BD_ADDR_LEN, pin);
@@ -572,7 +572,7 @@ static u8 WUDiChangeSimpleToStandard() {
 static u8 WUDiRegisterSyncDevice() {
     WUDSyncState nextState;
 
-    switch (_work.UNK_0x5B) {
+    switch (_work.syncMode) {
         case 1: {
             nextState = WUD_STATE_SYNC_VIRGIN_SIMPLE;
             break;
@@ -973,15 +973,15 @@ static WUDStackState WUDiClearUnregisteredDevice() {
                 continue;
             }
 
-            if (pInfo->UNK_0x5C == 1) {
+            if (pInfo->linkKeyState == 1) {
                 p->linkKeyState = WUD_STATE_LINK_KEY_DELETING;
                 BTM_DeleteStoredLinkKey(pInfo->devAddr, WUDStoredLinkKeyCallback);
 
-                pInfo->UNK_0x5C = 0;
+                pInfo->linkKeyState = 0;
                 return WUD_STATE_STACK_CHECK_DEVICE_INFO;
             }
 
-            if (pInfo->UNK_0x5C != 3) {
+            if (pInfo->linkKeyState != 3) {
                 WUDiRemoveDevInfo(pInfo->devAddr);
             }
         }
@@ -1106,8 +1106,8 @@ static WUDInitState WUDiGetRegisteredDevice() {
         memcpy(&pInfo->conf, &_scArray.devices[i].info, sizeof(SC_BT_DEV_INFO));
 
         pInfo->status = 1;
-        pInfo->UNK_0x5B = 0;
-        pInfo->UNK_0x5C = 2;
+        pInfo->syncMode = 0;
+        pInfo->linkKeyState = 2;
         pInfo->subclass = 2;
         pInfo->hhAttrMask = 0x8074;
         pInfo->appID = 3;
@@ -1149,8 +1149,8 @@ static WUDInitState WUDiGetRegisteredDevice() {
         memcpy(&pInfo->linkKey, &_spArray.devices[i].linkKey, sizeof(LINK_KEY));
 
         pInfo->status = 1;
-        pInfo->UNK_0x5B = 1;
-        pInfo->UNK_0x5C = 3;
+        pInfo->syncMode = 1;
+        pInfo->linkKeyState = 3;
 
         if (WUD_DEV_NAME_IS_CNT_01(pInfo->conf.devName)) {
             pInfo->subclass = 2;
@@ -1186,7 +1186,7 @@ static WUDInitState WUDiInitComplete() {
     p->libStatus = WUD_LIB_STATUS_1;
 
     BTA_EnableBluetooth(WUDSecurityCallback);
-    return WUD_STATE_INIT_UNK5;
+    return WUD_STATE_INIT_BLUETOOTH_ENABLED;
 }
 
 static void InitHandler() {
@@ -2025,7 +2025,7 @@ void WUDiRegisterDevice(BD_ADDR addr) {
         BTA_HhAddDev(pInfo->devAddr, pInfo->hhAttrMask, pInfo->subclass, pInfo->appID, desc);
     }
 
-    if (pInfo->UNK_0x5B == 0 || pInfo->UNK_0x5B == 4 || pInfo->UNK_0x5B == 2 || pInfo->UNK_0x5B == 5) {
+    if (pInfo->syncMode == 0 || pInfo->syncMode == 4 || pInfo->syncMode == 2 || pInfo->syncMode == 5) {
         p->devNums++;
     } else {
         p->devSmpNums++;
@@ -2059,7 +2059,7 @@ void WUDiRemoveDevice(BD_ADDR addr) {
         status = BTA_DmRemoveDevice(pInfo->devAddr);
         DEBUGPrint("BTA_DmRemoveDevice(): %d\n", status);
 
-        if (pInfo->UNK_0x5B == 0 || pInfo->UNK_0x5B == 2 || pInfo->UNK_0x5B == 4 || pInfo->UNK_0x5B == 5) {
+        if (pInfo->syncMode == 0 || pInfo->syncMode == 2 || pInfo->syncMode == 4 || pInfo->syncMode == 5) {
             p->devNums--;
         } else {
             p->devSmpNums--;
@@ -2483,7 +2483,7 @@ BOOL WUDIsBusy() {
     enabled = OSDisableInterrupts();
 
     if (p->syncState == WUD_STATE_SYNC_START && p->deleteState == WUD_STATE_DELETE_START && p->stackState == WUD_STATE_STACK_INITIALIZED &&
-        p->initState == WUD_STATE_INIT_UNK5) {
+        p->initState == WUD_STATE_INIT_BLUETOOTH_ENABLED) {
         OSRestoreInterrupts(enabled);
         return FALSE;
     }
@@ -2805,7 +2805,7 @@ void WUDStoredLinkKeyCallback(void* p1) {
                     }
 
                     if (pInfo) {
-                        pInfo->UNK_0x5C = 1;
+                        pInfo->linkKeyState = 1;
                         pInfo->status = 1;
 
                         WUD_BDCPY(pInfo->devAddr, pPair->bd_addr);
@@ -2815,8 +2815,8 @@ void WUDStoredLinkKeyCallback(void* p1) {
                     WUD_BDCPY(pInfo->devAddr, pPair->bd_addr);
                     memcpy(pInfo->linkKey, pPair->link_key, LINK_KEY_LEN);
 
-                    if (pInfo->UNK_0x5C == 2) {
-                        pInfo->UNK_0x5C = 3;
+                    if (pInfo->linkKeyState == 2) {
+                        pInfo->linkKeyState = 3;
                     }
 
                     WUD_BDCPY(p->pairAddr, pPair->bd_addr);

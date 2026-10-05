@@ -198,11 +198,11 @@ namespace ipl {
             mbPreparing = true;
 
             // Setup text balloons
-            f32 unk4 = 30.0f;
-            f32 unk3 = 120.0f;
+            f32 balloonMargin4x3 = 30.0f;
+            f32 balloonMargin16x9 = 120.0f;
             for (int i = 0; i < MAX_BALLOONS; i++) {
                 mpBalloons[i] =
-                    new TextBalloon(getSceneHeap(), mpBalloonFile, "arc", "my_IplTopBalloon_a.brlyt", math::VEC3(0.0f, 0.0f, 0.0f), unk3, unk4);
+                    new TextBalloon(getSceneHeap(), mpBalloonFile, "arc", "my_IplTopBalloon_a.brlyt", math::VEC3(0.0f, 0.0f, 0.0f), balloonMargin16x9, balloonMargin4x3);
             }
         }
 
@@ -317,8 +317,8 @@ namespace ipl {
 
                 // ughhhh
                 f32 val = 0.5f;
-                f32 unk0 = projRect.GetWidth() * val;
-                f32 unk1 = rMode.fbWidth / projRect.GetWidth();
+                f32 halfProjectionWidth = projRect.GetWidth() * val;
+                f32 framebufferScaleX = rMode.fbWidth / projRect.GetWidth();
 
                 nw4r::lyt::Pane* cutPane = mpLayout->FindPaneByName("N_Cut_00");
                 nw4r::ut::Rect paneRect = cutPane->GetPaneRect(*mpLayout->getDrawInfo());
@@ -333,7 +333,7 @@ namespace ipl {
 
                 mpLayout->FindPaneByName("Mask_00")->SetVisible(true);
                 mpLayout->draw("Mask_00");
-                GXSetScissor((unk1 * (vec0.x + unk0)) + 0.5f, scTop, (unk1 * (vec1.x - vec0.x)) - 0.5f, scHeight);
+                GXSetScissor((framebufferScaleX * (vec0.x + halfProjectionWidth)) + 0.5f, scTop, (framebufferScaleX * (vec1.x - vec0.x)) - 0.5f, scHeight);
                 mpLayout->FindPaneByName("Mask_00")->SetVisible(false);
 
                 mpLayout->FindPaneByName("N_TopBtn")->SetVisible(false);

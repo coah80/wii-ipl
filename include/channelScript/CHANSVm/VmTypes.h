@@ -72,7 +72,7 @@ typedef struct CHANSVmObjHdr CHANSVmObjHdr;
 typedef struct CHANSVmNativeClass CHANSVmNativeClass;
 
 typedef struct {
-    vmU8 unk_0x00;  // 0x00
+    vmU8 reserved;  // 0x00
     vmS32 val;      // 0x01
 } vmInt32ObjVal;
 
@@ -168,7 +168,7 @@ typedef struct CHANSVmNativeMethod {
     u8 hasStar;                        // 0x06
     u8 pad_0x07;                       // 0x07
     CHANSVmFunction func;              // 0x08
-    undefined unk_0x0C[0x14];          // 0x0C
+    undefined reserved[0x14];          // 0x0C
 } CHANSVmNativeMethod;
 
 typedef struct CHANSVmPropertyList {
@@ -184,7 +184,7 @@ typedef struct CHANSVmNativeProperty {
     u8 pad_0x07;                         // 0x07
     CHANSVmFunction getter;              // 0x08
     CHANSVmFunction setter;              // 0x0C
-    undefined unk_0x10[0x10];            // 0x10
+    undefined reserved[0x10];            // 0x10
 } CHANSVmNativeProperty;
 
 struct CHANSVmNativeClass {
@@ -200,7 +200,7 @@ struct CHANSVmNativeClass {
     vmSize nameLength;  // 0x18
     char sName[4];      // 0x1C
 
-    undefined unk_0x20[0x1C];
+    undefined classNameStorage[0x1C];
 };
 
 #ifdef __cplusplus

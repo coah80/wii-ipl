@@ -166,20 +166,20 @@ namespace ipl {
 
                 nw4r::math::VEC2 pos(mConData[chan].pos);
 
-                f32 var_f31, var_f30, var_f29, var_f28;
-                var_f28 = 6.0f;
-                var_f29 = 25.0f;
-                var_f30 = 50.0f;
-                var_f31 = pos.x;
+                f32 pointerX, lineBottomOffset, lineTopOffset, hitMargin;
+                hitMargin = 6.0f;
+                lineTopOffset = 25.0f;
+                lineBottomOffset = 50.0f;
+                pointerX = pos.x;
 
                 while (url_col = (url_collision*)nw4r::ut::List_GetNext(&mUrlCollisions, url_col), url_col != NULL) {
                     while (line_col = (line_collision*)nw4r::ut::List_GetNext(&url_col->mLineCollisions, line_col), line_col != NULL) {
-                        f32 left = line_col->mLeft - var_f28;
-                        f32 right = var_f28 + line_col->mRight;
-                        f32 temp_f0 = ((mMemoTranslateY + mHitYOffset) - line_col->mY);
-                        f32 top = (var_f29 + temp_f0) - var_f28;
-                        f32 bottom = var_f28 + (var_f30 + temp_f0);
-                        if (left <= var_f31 && var_f31 <= right && top <= -pos.y && -pos.y <= bottom) {
+                        f32 left = line_col->mLeft - hitMargin;
+                        f32 right = hitMargin + line_col->mRight;
+                        f32 lineY = ((mMemoTranslateY + mHitYOffset) - line_col->mY);
+                        f32 top = (lineTopOffset + lineY) - hitMargin;
+                        f32 bottom = hitMargin + (lineBottomOffset + lineY);
+                        if (left <= pointerX && pointerX <= right && top <= -pos.y && -pos.y <= bottom) {
                             return url_col->mTagNo;
                         }
                     }

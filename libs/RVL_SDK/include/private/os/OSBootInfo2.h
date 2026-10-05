@@ -16,8 +16,8 @@ typedef struct OSBootInfo2 {
     u32 trackLocation;      // 0x10
     u32 trackSize;          // 0x14
     u32 countryCode;        // 0x18
-    u32 unk_0x1C;
-    u32 unk_0x20;
+    u32 reservedCountryWord;
+    u32 reservedPadWord;
     u32 padSpec;            // 0x24
     u32 codeLimit;          // 0x28
     u32 simulatedMem2Size;  // 0x2C

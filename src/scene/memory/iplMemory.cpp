@@ -398,7 +398,7 @@ namespace ipl {
             int blockOpenOffset = 0;
 
             const wchar_t* blockOpenMsg = System::getMessage(MESG_CHAN_EDIT_BLOCKS_OPEN);
-            const wchar_t* unkMsg = System::getMessage(MESG_CHAN_EDIT_BLANK);
+            const wchar_t* blankMessage = System::getMessage(MESG_CHAN_EDIT_BLANK);
 
             while (true) {
                 wchar_t chr = *blockOpenMsg++;
@@ -410,7 +410,7 @@ namespace ipl {
             blocksFreeMsg[--blockOpenOffset] = L' ';
             wcscpy(blocksFreeMsg + blockOpenOffset, digits + zeroOffset);
 
-            wcscat(blocksFreeMsg, unkMsg);
+            wcscat(blocksFreeMsg, blankMessage);
 
             mpSavedataBase->set_visible("T_Capa_00", true);
             mpSavedataBase->set_visible("N_Capa_00", true);
@@ -452,7 +452,7 @@ namespace ipl {
             int blockOpenOffset = 0;
 
             const wchar_t* blockOpenMsg = System::getMessage(MESG_CHAN_EDIT_BLOCKS_OPEN);
-            const wchar_t* unkMsg = System::getMessage(MESG_CHAN_EDIT_BLANK);
+            const wchar_t* blankMessage = System::getMessage(MESG_CHAN_EDIT_BLANK);
 
             while (true) {
                 wchar_t chr = *blockOpenMsg++;
@@ -464,7 +464,7 @@ namespace ipl {
             blocksFreeMsg[--blockOpenOffset] = L' ';
             wcscpy(blocksFreeMsg + blockOpenOffset, digits + zeroOffset);
 
-            wcscat(blocksFreeMsg, unkMsg);
+            wcscat(blocksFreeMsg, blankMessage);
 
             mpSavedataBase->set_visible("T_Capa_00", true);
             mpSavedataBase->set_visible("N_Capa_00", true);
@@ -1268,11 +1268,11 @@ namespace ipl {
                         OSReport("fail:  async result = %d\n", result);
                         switch (mProcessType) {
                             case PROC_CPY: {
-                                mpSavedataEdit->anmTextFadein(MESG_DATA_COPY_UNK_ERROR);
+                                mpSavedataEdit->anmTextFadein(MESG_DATA_COPY_FAILED);
                                 break;
                             }
                             case PROC_DEL: {
-                                mpSavedataEdit->anmTextFadein(MESG_DATA_DEL_UNK_ERROR);
+                                mpSavedataEdit->anmTextFadein(MESG_DATA_DELETE_FAILED);
                                 break;
                             }
                             case PROC_FMT: {
@@ -1280,7 +1280,7 @@ namespace ipl {
                                 break;
                             }
                             case PROC_MOV: {
-                                mpSavedataEdit->anmTextFadein(MESG_DATA_MOVE_UNK_ERROR);
+                                mpSavedataEdit->anmTextFadein(MESG_DATA_MOVE_FAILED);
                                 break;
                             }
                         }

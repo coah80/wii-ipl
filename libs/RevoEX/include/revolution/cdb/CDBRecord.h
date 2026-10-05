@@ -66,7 +66,7 @@ typedef struct _CDBRecord {
     void* cryptBuf;    // 0x04
     CDBRecordKey key;  // 0x08
     void* file;        // 0x38
-    u32 unk_0x3C;
+    u32 reserved;
 } CDBRecord;
 
 #define CDBKeyStrEpoch(keyString) ((char*)&keyString[offsetof(CDBRecordKey, keyStrStruct.epoch)])

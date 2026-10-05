@@ -69,9 +69,9 @@ struct WUDDevInfo {
     UINT8 appID;       // 0x58
     u8 status;         // 0x59
 
-    s8 UNK_0x5A;                   // 0x5A
-    u8 UNK_0x5B;                   // 0x5B
-    u8 UNK_0x5C;                   // 0x5C
+    s8 pinReplied;                   // 0x5A
+    u8 syncMode;                   // 0x5B
+    u8 linkKeyState;                   // 0x5C
     tBTA_HH_ATTR_MASK hhAttrMask;  // 0x5E
 };
 

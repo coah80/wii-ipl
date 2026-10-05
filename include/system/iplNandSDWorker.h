@@ -47,13 +47,13 @@ namespace ipl {
             RESULT_BROKEN_MEDIA = -9,
             RESULT_ILLEGAL_MEDIA = -10,
             RESULT_WRITE_PROTECTED = -11,
-            RESULT_UNK_N12 = -12,
+            RESULT_FILENAME_CONFLICT = -12,
             RESULT_NOCOPY = -13,
             RESULT_ES_ERROR = -14,
             RESULT_NOT_TRANSFERRABLE = -15,
             RESULT_VERSION_ERR = -16,
             RESULT_SD_APP_LOC_NOT_FOUND = -17,
-            RESULT_UNK_18 = -18,
+            RESULT_CANCELLED = -18,
         };
 
         typedef struct SDAppMetaEntry {
@@ -211,8 +211,8 @@ namespace ipl {
             MEMHeapHandle mainHeap;               // 0x1E690
             MEMHeapHandle saveCacheHeap;          // 0x1E694
             MEMHeapHandle appCacheHeap;           // 0x1E698
-            MEMHeapHandle unkHeap;                // 0x1E69C
-            MEMAllocator unkAllocator;            // 0x1E6A0
+            MEMHeapHandle scratchHeap;                // 0x1E69C
+            MEMAllocator scratchAllocator;            // 0x1E6A0
             u8 threadStack[STACK_SIZE];           // 0x1E6B0
             OSThread thread;                      // 0x3e6B0
             OSMutex mutex;                        // 0x3e9C8
@@ -240,7 +240,7 @@ namespace ipl {
             nw4r::ut::Link link;                  // 0x10
             u8 thumbnail[100 * 1024];             // 0x18
             channel::SChanMgrMetaHeader metaHdr;  // 0x19018
-            u8 unk_0x19018[8];                    // 0x19618
+            u8 reserved[8];                    // 0x19618
         } AppCacheEntry;
 
         typedef struct SaveCacheEntry {
@@ -248,7 +248,7 @@ namespace ipl {
             ESTitleId titleId;         // 0xF0A0
             s32 size;                  // 0xF0A8
             nw4r::ut::Link link;       // 0xF0AC
-            u8 unk_0xf0b4[12];         // 0xF0B4
+            u8 reserved[12];         // 0xF0B4
         } SaveCacheEntry;
 
         typedef struct SDSaveBanner {
@@ -265,8 +265,8 @@ namespace ipl {
             u32 thumbSize;        // 0x08
             NETMD5Sum headerMD5;  // 0x0C
             NETMD5Sum iconMD5;    // 0x1C
-            u64 unk_0x30;
-            u64 unk_0x38;
+            u64 reservedBeforeMeta;
+            u64 reservedBeforeMetaEnd;
             channel::SChanMgrMetaHeader metaHdr;  // 0x40
         } SDAppBanner;
 
@@ -332,7 +332,7 @@ namespace ipl {
             MESSAGE_CHECK_BACKUP_FITS,
             MESSAGE_COPY_SD_APP_TO_NAND,
             MESSAGE_DEL_NAND_APP_HIDDEN,
-            MESSAGE_UNK_49,
+            MESSAGE_CHECK_SD_APP_TITLES,
             MESSAGE_CHANGE_NAND_APP_COUNT,
             MESSAGE_CHECK_SD_TITLE_RESTORABLE
         } WorkMessage;

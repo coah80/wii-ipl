@@ -18,8 +18,8 @@ namespace ipl {
 
             utility::autoMutexLock lock(mMutex);
 
-            unk_0x39 = 0;
-            unk_0x38 = 0;
+            mReserved1 = 0;
+            mReserved0 = 0;
 
             CDBErr err = CDBDatabaseInit(&mDatabase);
             error_handling(err, 52);
@@ -391,11 +391,11 @@ namespace ipl {
             return error_handling(err, 707);
         }
 
-        BOOL Manager::search(const CDBDate& begin, const CDBDate& end, CDBSearchDirection searchDirection, CDBRecordLocation recordLocation, int unk2,
+        BOOL Manager::search(const CDBDate& begin, const CDBDate& end, CDBSearchDirection searchDirection, CDBRecordLocation recordLocation, int openRecord,
                              CDBSearchRecordCB searchRecordCB, void* searchRecordWork) {
             utility::autoMutexLock lock(mMutex);
             CDBErr err =
-                CDBDatabaseSearch(&mDatabase, begin, end, searchDirection, NULL, NULL, 0, recordLocation, unk2, searchRecordCB, searchRecordWork);
+                CDBDatabaseSearch(&mDatabase, begin, end, searchDirection, NULL, NULL, 0, recordLocation, openRecord, searchRecordCB, searchRecordWork);
             return error_handling(err, 741);
         }
 

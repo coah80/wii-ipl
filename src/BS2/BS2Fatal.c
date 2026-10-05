@@ -24,7 +24,7 @@ typedef struct BS2FatalParam {
     GXColor fg;       // 0x00
     GXColor bg;       // 0x04
     const char* msg;  // 0x08
-    u8 unk_0x0C[0x0C];
+    u8 reserved[0x0C];
 } BS2FatalParam;
 
 static BS2FatalParam FatalParam;

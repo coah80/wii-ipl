@@ -201,7 +201,7 @@ u32 OSGetConsoleType() {
 
     OSBootInfo* bootInfo = (OSBootInfo*)BootInfo;
     if (bootInfo == NULL || bootInfo->consoleType == 0) {
-        return OS_CONSOLE_UNK;
+        return OS_CONSOLE_DEFAULT_DEV;
     }
 
     hwRev = __OSGetHollywoodRev();

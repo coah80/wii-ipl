@@ -41,7 +41,7 @@ namespace ipl {
                 }
             
             private:
-                u32         unk_0x28;
+                u32         mReserved;
                 EGG::Heap*  mpHeap;
 
                 bool        mbDisableCon;           // 0x30

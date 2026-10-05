@@ -1009,14 +1009,14 @@ namespace ipl {
             return TRUE;
         }
 
-        BOOL Manager::isNewMessageThere(u32 unk) const {
+        BOOL Manager::isNewMessageThere(u32 appId) const {
             u32 titleTbl[MAX_MESSAGES_COUNT];
             if (!getNewTitleTbl(titleTbl)) {
                 return FALSE;
             }
 
             for (int i = 0; i < MAX_MESSAGES_COUNT && titleTbl[i] != 0; i++) {
-                if (unk == titleTbl[i]) {
+                if (appId == titleTbl[i]) {
                     return TRUE;
                 }
             }

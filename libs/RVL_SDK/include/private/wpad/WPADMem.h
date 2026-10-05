@@ -20,10 +20,10 @@ typedef enum {
 } WPADExtRegType;
 
 typedef struct WPADMemBlock {
-    int unk_0x00;           // 0x00
-    int unk_0x04;           // 0x04
-    s16 unk_0x08;           // 0x08
-    int unk_0x0C;           // 0x0C
+    int reserved0;           // 0x00
+    int reserved1;           // 0x04
+    s16 reserved2;           // 0x08
+    int reserved3;           // 0x0C
     WPADCallback callback;  // 0x10
 } WPADMemBlock;
 
@@ -33,7 +33,7 @@ typedef struct WPADGameInfo {
     char gameID[4];        // 0x2A
     u8 gameType;           // 0x2E
     u8 checksum;           // 0x2F
-    u8 UNK_0x30[8];
+    u8 reserved[8];
 } WPADGameInfo;
 
 extern WPADMemBlock _wmb[WPAD_MAX_CONTROLLERS];

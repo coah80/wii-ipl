@@ -38,7 +38,7 @@ namespace textinput {
                     nw4r::ut::Rect rect;
                     wchar_t character;
 #else
-                    u8  unk_0x00[32];
+                    u8  rectangleAndCharacterStorage[32];
 #endif
                 } DrawInfo;
 
@@ -177,7 +177,7 @@ namespace textinput {
                 u32 muDrawCacheStartPos;
 #else
             private:
-                u8      unk_0x50[0x78];
+                u8      mDrawStateStorage[0x78];
 #endif
                 bool    mbSecretMode;   // 0xC8
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TITEXTDRAWER_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION)
@@ -202,7 +202,7 @@ namespace textinput {
                 f32 mfDrawScrollY;
                 u8 mDrawCacheState[0x14];
 #else
-                u8      unk_0xCC[0x3C];
+                u8      mCacheStateStorage[0x3C];
 #endif
 #endif
         };

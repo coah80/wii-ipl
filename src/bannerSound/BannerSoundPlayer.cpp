@@ -3,7 +3,7 @@
 static u8 s_player_thread_stack[0x4000];
 s16* pBSWaveBuffer = NULL;
 
-BannerSoundPlayer::BannerSoundPlayer() : mSndMoveValue(), mWavePlayer(), mAdpcmPlayer(), mAdpcmHandle(), unk_0x510(0) {
+BannerSoundPlayer::BannerSoundPlayer() : mSndMoveValue(), mWavePlayer(), mAdpcmPlayer(), mAdpcmHandle(), mReserved(0) {
     mIsInitialized = false;
     mMasterVolume = 1.0f;
 }

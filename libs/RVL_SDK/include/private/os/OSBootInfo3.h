@@ -9,9 +9,9 @@ extern "C" {
 
 typedef struct OSBootInfo3 {
     u32 countryCode;  // 0x00
-    u8 unk_0x04[0x0C];
+    u8 reservedCountryData[0x0C];
     u8 parentalControlFlags[16];  // 0x10
-    u8 unk_0x14[0x1FDC];
+    u8 reservedConfiguration[0x1FDC];
     u32 magic;  // 0x1FFC
 } OSBootInfo3;
 

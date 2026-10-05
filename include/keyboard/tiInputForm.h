@@ -414,9 +414,9 @@ namespace textinput {
 #else
             private:
 #ifdef MYTIMANAGER_IMPLEMENTATION
-                u8  unk_0x2C0[0x48];
+                u8  mInputStateStorage[0x48];
 #else
-                u8  unk_0x2C0[0x4C];
+                u8  mInputStateStorage[0x4C];
 #endif
 #endif
         };

@@ -210,7 +210,7 @@ namespace ipl {
 
             u32 mBS2BootType;    // 0x21C
             u32 mBS2LaunchCode;  // 0x220
-            u32 unk_0x224;
+            u32 mReservedSceneState;
             char* mspNetSettingArg;    // 0x228
             char* mspDataManageArg;    // 0x22C
             char msBS2FirstArgv[128];  // 0x230
@@ -241,7 +241,7 @@ namespace ipl {
             vs32 mRegistState;                   // 0x2C0
             vs32 mRegistErrCode;                 // 0x2C4
             volatile bool mbGoingToDataManager;  // 0x2C8
-            u8 unk_0x2CC[0x2D0 - 0x2CC];
+            u8 mReserved[0x2D0 - 0x2CC];
             ESTitleId mBS2LaunchTitle;  // 0x2B0
 
             friend class System;

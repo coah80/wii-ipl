@@ -730,8 +730,8 @@ static void __ClearControlBlock(s32 chan) {
     p->lastControllerDataUpdate = __OSGetSystemTime();
     p->lastReportSendTime = __OSGetSystemTime();
     p->suppressDisconnect = 0;
-    p->unk_0x8C9 = 0;
-    p->unk_0x8C4 = 0;
+    p->reservedReceive = 0;
+    p->reservedConnection = 0;
     p->wmReadDataPtr = NULL;
     p->wmReadAddress = 0;
     p->wmReadLength = 0;
@@ -743,7 +743,7 @@ static void __ClearControlBlock(s32 chan) {
     p->radioQuality = WPAD_RADIO_QUALITY_BAD;
     p->radioQualityOkMs = 0;
     p->audioFrames = 0;
-    p->unk_0x982 = 0;
+    p->reservedRead = 0;
     p->radioSensitivity = 0;
     p->copyOutCount = 0;
     p->sleeping = TRUE;
@@ -777,10 +777,10 @@ static void __ClearControlBlock(s32 chan) {
 
     _extCnt[chan] = 0;
 
-    _wmb[chan].unk_0x00 = 0;
-    _wmb[chan].unk_0x04 = 0;
-    _wmb[chan].unk_0x08 = 0;
-    _wmb[chan].unk_0x0C = 0;
+    _wmb[chan].reserved0 = 0;
+    _wmb[chan].reserved1 = 0;
+    _wmb[chan].reserved2 = 0;
+    _wmb[chan].reserved3 = 0;
     _wmb[chan].callback = NULL;
 
     _rumbleCnt[chan] = 0;
@@ -1774,7 +1774,7 @@ s32 WPADControlSpeaker(s32 chan, u32 command, WPADCallback pCallback) {
     } else {
         switch (command) {
             case WPAD_SPEAKER_ON:
-            case WPAD_SPEAKER_UNK5: {
+            case WPAD_SPEAKER_ON_ALTERNATE: {
                 enabled = OSDisableInterrupts();
 
                 if (__CanPushCmdQueue(&p->stdCmdQueue, 7)) {

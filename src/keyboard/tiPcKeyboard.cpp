@@ -2741,7 +2741,7 @@ namespace textinput {
                                 nw4rmanager::AnmPane* animation = mpKeyboard->searchAnmPane(animationName);
                                 switch (static_cast<int>(event)) {
                                     case 4:
-                                        if (input->field_0x0C & 0x800) {
+                                        if (input->trigger & 0x800) {
                                             if (animation != NULL)
                                                 animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                                             mpKeyboard->onKey(4, animationName);
@@ -2760,11 +2760,11 @@ namespace textinput {
                                         }
                                         break;
                                 }
-                                if (event == 2 && (input->field_0x10 & 0x800) && !(input->field_0x0C & 0x800) &&
+                                if (event == 2 && (input->hold & 0x800) && !(input->trigger & 0x800) &&
                                     (util::strcmp("P_key_DELETE", animationName) || util::strcmp("P_Gkey_DELETE", animationName) ||
                                      util::strcmp("P_key_SPACE", animationName) || util::strcmp("P_Gkey_SPACE", animationName)) &&
-                                    component->isDragging(input->field_0x00)) {
-                                    u32 frames = mpKeyboard->getFlightDuration(input->field_0x00, name);
+                                    component->isDragging(input->controller)) {
+                                    u32 frames = mpKeyboard->getFlightDuration(input->controller, name);
                                     if (frames >= 30 && frames % 9 == 0) {
                                         animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                                         mpKeyboard->onKey(4, animationName);
@@ -3144,7 +3144,7 @@ namespace textinput {
                     name = "P_key_SHIFT";
                 switch (static_cast<int>(event)) {
                     case 4:
-                        if (input->field_0x0C & 0x800)
+                        if (input->trigger & 0x800)
                             mpLayout->onKey(4, const_cast<char*>(name));
                         break;
 

@@ -225,7 +225,7 @@ namespace ipl {
             nw4r::ut::List mNandListingList;  // 0x1C
             nw4r::ut::List mSDListingList;    // 0x28
 
-            undefined4 unk_0x34;        // 0x34
+            undefined4 mReserved;        // 0x34
             Thumbnail mThumbnails[15];  // 0x38
 
             WiiBannerFileInfo mBanners[15];     // 0x5C90
@@ -243,7 +243,7 @@ namespace ipl {
 
             bool mbDisableThumbFetch;  // 0xE8790
             ESTitleId mTmpTitleId;     // 0xE8798
-            bool unk_0xE87A0;          // 0xE87a0
+            bool mbDeleteSDAppAfterRestore;          // 0xE87a0
         };
     }  // namespace scene
 }  // namespace ipl

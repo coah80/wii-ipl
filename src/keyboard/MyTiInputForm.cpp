@@ -765,7 +765,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
     inputform::EventHandler::onTiEvent(component, event, input);
     const char* name = component->getPane()->GetName();
     if (name[0] == 'B') {
-        if (event == 4 && (input->field_0x0C & 0x800)) {
+        if (event == 4 && (input->trigger & 0x800)) {
             if (util::strcmp("B_Nigaoe", name)) mpMemoForm->onNigaoeButtonTrig();
             if (util::strcmp("B_ArwR", name)) mpMemoForm->onArrowRTrig();
             if (util::strcmp("B_ArwL", name)) mpMemoForm->onArrowLTrig();

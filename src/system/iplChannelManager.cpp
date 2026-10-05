@@ -119,7 +119,7 @@ namespace ipl {
 
             // Reset disk banner data
             memset(&mDiskChanMetaHdr, 0, sizeof(mDiskChanMetaHdr));
-            mDiskChanMetaHdr.blockHdr.unk_00 = TRUE;
+            mDiskChanMetaHdr.blockHdr.isDisk = TRUE;
 
             // Reset channel jump data
             memset(&mChJumpData, 0, sizeof(mChJumpData));
@@ -308,22 +308,22 @@ namespace ipl {
             return TRUE;
         }
 
-        void* Manager::getDiskThumbnail(bool unk) {
-            return getDiskBannerData(DISK_BANNERDATA_ICON, unk);
+        void* Manager::getDiskThumbnail(bool invalidateReady) {
+            return getDiskBannerData(DISK_BANNERDATA_ICON, invalidateReady);
         }
 
-        void* Manager::getDiskBanner(bool unk) {
-            return getDiskBannerData(DISK_BANNERDATA_BANNER, unk);
+        void* Manager::getDiskBanner(bool invalidateReady) {
+            return getDiskBannerData(DISK_BANNERDATA_BANNER, invalidateReady);
         }
 
-        void* Manager::getDiskSound(bool unk) {
+        void* Manager::getDiskSound(bool invalidateReady) {
             int diskPage, diskIndex;
             getDiskChannelLocation(&diskPage, &diskIndex);
 
             if (mChannels[diskPage][diskIndex].metaHdr->blockHdr.soundSize == 0) {
                 return NULL;
             } else {
-                return getDiskBannerData(DISK_BANNERDATA_SOUND, unk);
+                return getDiskBannerData(DISK_BANNERDATA_SOUND, invalidateReady);
             }
         }
 
@@ -1058,7 +1058,7 @@ namespace ipl {
                     return false;
                 }
 
-                metaBnr->blockHdr.unk_00 = 1;
+                metaBnr->blockHdr.isDisk = 1;
 
                 mChannels[diskPage][diskIndex].headerSize = metaBnr->blockHdr.headerSize;
                 mChannels[diskPage][diskIndex].metaHdr = metaBnr;
@@ -1070,12 +1070,12 @@ namespace ipl {
             }
         }
 
-        void* Manager::getDiskBannerData(int index, bool unk) {
+        void* Manager::getDiskBannerData(int index, bool invalidateReady) {
             u8** destData;
             u32 readSize;
             ARCFileInfo readFile;
 
-            if (unk) {
+            if (invalidateReady) {
                 mbDiskChannelReady = false;
             }
 

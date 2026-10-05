@@ -320,12 +320,12 @@ namespace textinput {
             mbOn = on;
             // TODO - ???
             struct {
-                int arg1;
-                bool arg2;
-            } unknown;
-            sendCommand(31, &unknown);
-            unknown.arg2 = on;
-            sendCommand(29, &unknown);
+                int mode;
+                bool enabled;
+            } predictionState;
+            sendCommand(31, &predictionState);
+            predictionState.enabled = on;
+            sendCommand(29, &predictionState);
         }
 
         void Base::updateFromReceiver(u32 cmd, void* data) {
@@ -1509,7 +1509,7 @@ namespace textinput {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
                         case 4:
-                            if (input->field_0x0C == 0x800) {
+                            if (input->trigger == 0x800) {
                                 s32 idx = GetSelectedPaneIdx();
                                 if (mnFocusedIdx >= 0 && idx >= 0) {
                                     mpTextBoxPane[idx]->init();
@@ -1661,7 +1661,7 @@ namespace textinput {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
                         case 4:
-                            if (input->field_0x0C == 0x800) {
+                            if (input->trigger == 0x800) {
                                 mpButtonAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                                 if (getID() == 1) {
                                     mgr()->onLeftPageScroll();
@@ -1671,8 +1671,8 @@ namespace textinput {
                             }
                             break;
                         case 2:
-                            if (input->field_0x10 == 0x800 && !(input->field_0x0C & 0x800) &&
-                                component.getFlightDuration(input->field_0x00) % 20 != 0) {
+                            if (input->hold == 0x800 && !(input->trigger & 0x800) &&
+                                component.getFlightDuration(input->controller) % 20 != 0) {
                                 mpButtonAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                                 if (getID() == 1) {
                                     mgr()->onLeftPageScroll();
@@ -1777,7 +1777,7 @@ namespace textinput {
                 }
                 switch (event) {
                     case 4:
-                        if (input->field_0x0C & 0x800) {
+                        if (input->trigger & 0x800) {
                             mgr()->onOnOffButton(true);
                         }
                         break;

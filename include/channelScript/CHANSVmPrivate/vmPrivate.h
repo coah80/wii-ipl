@@ -131,7 +131,7 @@ typedef struct CHANSVmPrivate {
     vmU32 exeStart;                        // 0x08
     vmU32 exeSize;                         // 0x0C
     vmS32 depth;                           // 0x10
-    vmU8 unk_0x14[4];                      // 0x14
+    vmU8 reserved[4];                      // 0x14
     CHANSVmExecutionCtx* pContextListHead; // 0x18
     vmU32 minFreeHeapSize;                 // 0x1C
     vmU8* pHeapStart;                      // 0x20

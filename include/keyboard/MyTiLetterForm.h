@@ -20,7 +20,7 @@ namespace textinput {
                     InputForm(textinput::Manager* manager, nw4r::lyt::MultiArcResourceAccessor* multiArc,
                               const char* layoutName, EventObserver* event, const char* fontName)
                         : textinput::MemoInputForm(manager, multiArc, layoutName, event, fontName),
-                          unk_0x400(0), mbPhotoDraw(false), meType(T_MailAddressSel) {}
+                          mbPhotoScaledUp(0), mbPhotoDraw(false), meType(T_MailAddressSel) {}
 #endif
 
 #ifdef MYTILETTERFORM_IMPLEMENTATION
@@ -50,7 +50,7 @@ namespace textinput {
 #ifdef MYTILETTERFORM_IMPLEMENTATION
                     bool mbPhotoScaledUp;
 #else
-                    u8      unk_0x400;
+                    u8      mbPhotoScaledUp;
 #endif
                     bool    mbPhotoDraw;    // 0x401
                     Type    meType;         // 0x404

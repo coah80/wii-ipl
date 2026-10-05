@@ -104,8 +104,8 @@ static u8 SRAMtoSCLang[OS_LANG_MAX];
 // Get some device from EXI.
 static void GetSomeDevFromExi() {
     u32 cmd;
-    u32 unk0 = 0;
-    u32 unk1;
+    u32 commandData = 0;
+    u32 registerSelect;
 
     u32 i;
 
@@ -119,16 +119,16 @@ static void GetSomeDevFromExi() {
         }
 
         if (i == 0) {
-            unk1 = 0;
+            registerSelect = 0;
         } else {
-            unk1 = 0x100;
+            registerSelect = 0x100;
         }
-        cmd = unk1 | 0xA1000000;
+        cmd = registerSelect | 0xA1000000;
 
         EXIImm(EXI_CHAN_0, &cmd, sizeof(cmd), EXI_WRITE, NULL);
         EXISync(EXI_CHAN_0);
 
-        EXIImm(EXI_CHAN_0, &unk0, sizeof(unk0), EXI_WRITE, NULL);
+        EXIImm(EXI_CHAN_0, &commandData, sizeof(commandData), EXI_WRITE, NULL);
         EXISync(EXI_CHAN_0);
 
         EXIDeselect(EXI_CHAN_0);

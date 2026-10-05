@@ -26,12 +26,12 @@ typedef struct NWC24MsgObjPrivate {
 #elif defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
     u32 headerSize;  // 0x10
 #else
-    u8 unk_0x10[0x4];
+    u8 headerSizeStorage[0x4];
 #endif
     u32 tag;             // 0x14
     u32 ledPattern;      // 0x18
 #if defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
-    u32 unk_0x1C;
+    u32 crc;
 #endif
 #if defined(NWC24_MBOX_CTRL) || defined(NWC24_MSG_COMMIT)
     union {
@@ -50,8 +50,8 @@ typedef struct NWC24MsgObjPrivate {
     NWC24Data toData;  // 0x38
     NWC24Data subject;  // 0x40
     NWC24Data text;     // 0x48
-    NWC24Data unk_0x50;
-    NWC24Data unk_0x58;
+    NWC24Data charsetData;
+    NWC24Data encodingData;
     NWC24Charset charset;                                  // 0x60
     NWC24Encoding encoding;                                // 0x64
     NWC24Data attached[NWC24_MSG_ATTACHMENT_MAX];          // 0x68
@@ -67,7 +67,7 @@ typedef struct NWC24MsgObjPrivate {
     union {
         struct {
             u32 noreply : 1;
-            u32 unknown : 7;
+            u32 reservedFlags : 7;
             u32 delay : 8;
             u32 regdate : 16;
         };

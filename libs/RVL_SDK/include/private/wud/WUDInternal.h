@@ -99,7 +99,7 @@ typedef enum {
     WUD_STATE_INIT_GET_DEV_INFO = 2,
     WUD_STATE_INIT_DONE = 3,
     WUD_STATE_INIT_INITIALIZED = 4,
-    WUD_STATE_INIT_UNK5 = 5,
+    WUD_STATE_INIT_BLUETOOTH_ENABLED = 5,
     WUD_STATE_INIT_ERROR = 255,
 } WUDInitState;
 
@@ -128,9 +128,9 @@ struct WUDDevInfoList {
 typedef struct WUDDiscResp {
     BD_ADDR devAddr;   // 0x00
     char devName[64];  // 0x06
-    u8 UNK_0x46[0xBA];
+    u8 reservedBeforeServices[0xBA];
     tBTA_SERVICE_MASK services;  // 0x100
-    u8 UNK_0x104[0x4];
+    u8 reserved[0x4];
 } WUDDiscResp;
 
 typedef struct WUDPatchCmd {

@@ -10,11 +10,11 @@ extern "C" {
 #endif  // __cplusplus
 
 typedef struct _CDBDatabasePool {
-    u8 unk_0x00[0x14000];
+    u8 storage[0x14000];
 } CDBDatabasePool;
 
 typedef struct _CDBDatabaseInstance {
-    u8 unk_0x00[0x3600];
+    u8 storage[0x3600];
 } _CDBDatabaseInstance;
 
 void CDBDatabaseInstancePoolInit(void* work);

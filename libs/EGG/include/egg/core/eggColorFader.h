@@ -44,7 +44,7 @@ namespace EGG {
         u16 mFadeFrame;  // 0x0A
         u16 mFrame;      // 0x0C
 
-        u8 unk_0x0E[2];
+        u8 mReserved[2];
 
         nw4r::ut::Color mColor;  // 0x10
         nw4r::ut::Rect mSpace;   // 0x14

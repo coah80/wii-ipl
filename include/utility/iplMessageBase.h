@@ -27,7 +27,7 @@ namespace ipl {
 
         private:
             OSMessage mMessages[count];  // 0x24
-            u32 unk_0x00;                // (sizeof(mMessages) * count) + 0x00
+            u32 mReserved;                // (sizeof(mMessages) * count) + 0x00
         };
     }  // namespace utility
 }  // namespace ipl

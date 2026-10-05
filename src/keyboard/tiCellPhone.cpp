@@ -1339,8 +1339,8 @@ namespace textinput {
                     if (animation) {
                         switch (static_cast<s32>(event)) {
                         case gui::EventHandler::ON_TRIG:
-                            if ((input->field_0x0C & 0x800) ||
-                                ((input->field_0x0C & 0x400) && isNormalCellPhoneKey(paneName))) {
+                            if ((input->trigger & 0x800) ||
+                                ((input->trigger & 0x400) && isNormalCellPhoneKey(paneName))) {
                                 if (animation->getKeyType() == KT_ControlButton) {
                                     nw4r::ut::List& panes = mpLayoutByNW4R->getAnmPaneList();
                                     CellPhoneAnmPane* other = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&panes, NULL));
@@ -1373,23 +1373,23 @@ namespace textinput {
                     u8 repeat;
                 } keyEvent = {paneName, 0, 0};
                 if (event == gui::EventHandler::ON_TRIG) {
-                    if (input->field_0x0C & 0x800) {
+                    if (input->trigger & 0x800) {
                         keyEvent.state = 0;
                         mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
-                    } else if ((input->field_0x0C & 0x400) && isNormalCellPhoneKey(paneName)) {
+                    } else if ((input->trigger & 0x400) && isNormalCellPhoneKey(paneName)) {
                         keyEvent.state = 1;
                         mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
-                        paneComponent->setFlightDuration(input->field_0x00, 0);
+                        paneComponent->setFlightDuration(input->controller, 0);
                     }
                 }
                 if (event == gui::EventHandler::ON_LEFT) {
                     mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
                 }
-                if (event == gui::EventHandler::ON_MOVE && (input->field_0x10 & 0x800) &&
-                    !(input->field_0x0C & 0x800) &&
+                if (event == gui::EventHandler::ON_MOVE && (input->hold & 0x800) &&
+                    !(input->trigger & 0x800) &&
                     (util::strcmp(csPaneNameNormalKey[13], paneName) || util::strcmp(csPaneNameNormalKey[16], paneName)) &&
-                    paneComponent->isDragging(input->field_0x00)) {
-                    u32 duration = mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName);
+                    paneComponent->isDragging(input->controller)) {
+                    u32 duration = mpLayoutByNW4R->getFlightDuration(input->controller, paneName);
                     if (duration >= 30 && duration % 9 == 0) {
                         char animationName[17];
                         util::replaceChar(animationName, sizeof(animationName), paneName, 0, 'W');
@@ -1398,7 +1398,7 @@ namespace textinput {
                         mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
                     }
                 }
-                if (event == gui::EventHandler::ON_MOVE && mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName) == 90) {
+                if (event == gui::EventHandler::ON_MOVE && mpLayoutByNW4R->getFlightDuration(input->controller, paneName) == 90) {
                     keyEvent.repeat = 1;
                     mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
                 }

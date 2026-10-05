@@ -199,7 +199,7 @@ enum {
 #define FA_INSERTED(driveTable) (driveTable.stat & FA_DRV_TBL_STAT_INSERTED)
 
 typedef struct FAFileInfo {
-    u8 unknown[32];
+    u8 fileInfoData[32];
 } FAFileInfo;
 
 /* Unsure; This were copied from VF */
@@ -244,7 +244,7 @@ typedef struct FAFileStat {
 } FAFileStat;
 
 enum {
-    FA_FILE_UNK_1 = (1 << 1),
+    FA_FILE_STAT_HIDDEN = (1 << 1),
     FA_FILE_STAT_DIR = (1 << 4)
 };
 

@@ -18,9 +18,9 @@ typedef struct NHTTPBgnEndInfo
     s32 socket;
     s32 sslError;
     NHTTPErr error;
-    u32 _unk7DC;
+    u32 stopping;
     void* threadStack;
-    u32 _unk7E4;
+    u32 reserved;
 } NHTTPBgnEndInfo;
 
 typedef struct NHTTPThreadInfo
@@ -29,7 +29,7 @@ typedef struct NHTTPThreadInfo
     OSMessage messages[3];
     OSThread thread;
     BOOL isCreateCommThreadMessageQueue;
-    u8 _unk34C[0x14];
+    u8 reserved[0x14];
     char commBuf[0x100];
 } NHTTPThreadInfo;
 
@@ -82,7 +82,7 @@ BOOL NHTTPi_createCommThread(NHTTPThreadInfo* info, s32 priority, void* stack)
 
 void NHTTPi_destroyCommThread(NHTTPThreadInfo* info, NHTTPBgnEndInfo* bgnEndInfo)
 {
-    bgnEndInfo->_unk7DC = 1;
+    bgnEndInfo->stopping = 1;
     OSSendMessage(&info->messageQueue, NULL, 0);
     OSJoinThread(&info->thread, NULL);
 }

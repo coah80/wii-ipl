@@ -187,7 +187,7 @@ namespace ipl {
                     break;
                 }
                 case NET_SETUP_NOT_STARTED:
-                case NET_SETUP_UNK_4:
+                case NET_SETUP_ALTERNATE_ERROR:
                 case NET_SETUP_ERROR:
                 default: {
                     break;

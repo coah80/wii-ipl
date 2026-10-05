@@ -209,9 +209,9 @@
 #define MESG_DATA_SD_CARD_LOCKED        62
 #define MESG_DATA_SD_PROCESS_FAILED     151
 #define MESG_DATA_FILE_CANT_BE_MOVED    205
-#define MESG_DATA_MOVE_UNK_ERROR        215
-#define MESG_DATA_COPY_UNK_ERROR        227
-#define MESG_DATA_DEL_UNK_ERROR         229
+#define MESG_DATA_MOVE_FAILED        215
+#define MESG_DATA_COPY_FAILED        227
+#define MESG_DATA_DELETE_FAILED         229
 #define MESG_DATA_ERASE_DIALOG          247
 #define MESG_DATA_ERASED                248
 #define MESG_DATA_ERASING               251

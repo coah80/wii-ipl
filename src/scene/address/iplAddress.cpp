@@ -45,7 +45,7 @@ namespace ipl {
         }
 
         Address::Address(EGG::Heap* heap, int mode)
-            : FaderSceneBase(heap), mMode(mode), mpLayout(NULL), unk_0x90(0), mpEvent(NULL), mpGui(NULL), mpBackLayout(NULL),
+            : FaderSceneBase(heap), mMode(mode), mpLayout(NULL), mReserved(0), mpEvent(NULL), mpGui(NULL), mpBackLayout(NULL),
               mFadeinState(FADEIN_STATE_FADEIN), mWaitOpenCount(0), mState(STATE_COVER_NORMAL), mPage(0), mNextPageNum(PAGE_MAX),
               mPrevPageNum(0), mSelectedButton(0), mChosenFriend(0), mbParentalOK(false) {
             setSceneParentFlags(SCN_PARENTFLAG_CALC | SCN_PARENTFLAG_DRAW);
@@ -1209,7 +1209,7 @@ namespace ipl {
             mDrag.mButton = buttonNo;
             mDrag.mNextCount = -1;
             mDrag.mPrevCount = -1;
-            mDrag.unk_0x1C = 0;
+            mDrag.mResetState = 0;
 
             System::getPointer()->changeType(con->getChannel(), 1);
             static_cast<Button*>(System::getScene(SCENE_BUTTON))->disableBtn();

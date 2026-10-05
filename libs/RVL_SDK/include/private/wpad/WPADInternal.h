@@ -200,9 +200,9 @@ typedef struct WPADCB {
     u8 devType;            // 0x8C1
     u8 devMode;            // 0x8C2
     s8 devHandle;          // 0x8C3
-    s32 unk_0x8C4;
+    s32 reservedConnection;
     u8 rxBufIndex;  // 0x8C8
-    s8 unk_0x8C9;
+    s8 reservedReceive;
     u8 defaultDpdSize;             // 0x8CA
     u8 currentDpdCommand;          // 0x8CB
     u8 pendingDpdCommand;          // 0x8CC
@@ -234,7 +234,7 @@ typedef struct WPADCB {
     u32 wmReadAddress;      // 0x978
     int wmReadHadError;     // 0x97C
     u16 wmReadLength;       // 0x980
-    s8 unk_0x982;
+    s8 reservedRead;
     u8 radioSensitivity;     // 0x983
     u16 copyOutCount;        // 0x984
     u8 sleeping;             // 0x986
@@ -244,12 +244,12 @@ typedef struct WPADCB {
 
     u8 encStatus;  // 0x98D
     u8 continuous;  // 0x98E
-    u8 unk_0x98F[0x9A0 - 0x990];
+    u8 reserved[0x9A0 - 0x990];
 } WPADCB;
 
 typedef struct WPADStorage {
     WPADCB controllers[WPAD_MAX_CONTROLLERS];
-    u8 unk_0x26C0[0x48];
+    u8 reserved[0x48];
 } WPADStorage;
 
 extern WPADStorage _wpd;

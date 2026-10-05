@@ -29,7 +29,7 @@ namespace ipl {
         NandSDCardManager::NandSDCardManager(Mode mode)
             : mState(STATE_INIT), mMode(mode), mpWorker(NULL), mpWorkerWorkBuf(NULL), mpWorkerDataBuf(NULL), mpNandTitleIds(NULL), mpSDTitleIds(NULL),
               mThumbnails(), mBanners(), mpActiveChanAppBox(NULL), mpActiveThumbnail(NULL), mpActiveSavedataBox(NULL), mpActiveBanner(NULL),
-              mNandBlocksFree(-1), mSDBlocksFree(-1), mbDisableThumbFetch(false), mTmpTitleId(0), unk_0xE87A0(false) {
+              mNandBlocksFree(-1), mSDBlocksFree(-1), mbDisableThumbFetch(false), mTmpTitleId(0), mbDeleteSDAppAfterRestore(false) {
             mpWorker = new (System::getMem2App()) NandSDWorker();
             mpWorkerWorkBuf = System::getMem2App()->alloc(0x3ea60, 0x40);
 
@@ -357,7 +357,7 @@ namespace ipl {
                     }
                     case CMD_COPY_SDAPP_TO_NAND: {
                         if (cmd.sdTitleId == (ESTitleId32)mTmpTitleId) {
-                            unk_0xE87A0 = false;
+                            mbDeleteSDAppAfterRestore = false;
                             mpWorker->check_sd_title_restorable_async(cmd.sdTitleId);
                             mState = STATE_CHECK_SD_TITLE_RESTORABLE;
                         } else {
@@ -457,7 +457,7 @@ namespace ipl {
                     case CMD_MOVE_SDAPP_TO_NAND: {
                         if (cmd.sdTitleId == (ESTitleId32)mTmpTitleId) {
                             mpActiveChanAppBox = cmd.chanAppBox;
-                            unk_0xE87A0 = true;
+                            mbDeleteSDAppAfterRestore = true;
                             mpWorker->check_sd_title_restorable_async(cmd.sdTitleId);
                             mState = STATE_CHECK_SD_TITLE_RESTORABLE;
                         } else {
@@ -644,7 +644,7 @@ namespace ipl {
         GATED_STATE(NandSDCardManager::on_sc_flush, SCCheckStatus() != SC_STATUS_BUSY, {
             mTmpTitleId = 0;
             System::getChannelManager()->reserveRefresh();
-            if (unk_0xE87A0) {
+            if (mbDeleteSDAppAfterRestore) {
                 mpWorker->delete_sd_app_async(mpActiveChanAppBox->getThumbnail()->getSDTitleId());
                 mState = STATE_DEL_SDAPP;
             } else {

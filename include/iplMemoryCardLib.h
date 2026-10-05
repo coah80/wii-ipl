@@ -15,11 +15,11 @@ namespace ipl {
         } FileInfo;            // 0x0C
 
         typedef struct CardState {
-            vu8  unk_0x00;    // 0x00
+            vu8  reservedState;    // 0x00
             vu8  changed;     // 0x01
             vs16 state;       // 0x02
-            vu16 unk_0x04;    // 0x04
-            vu16 unk_0x06;    // 0x06
+            vu16 reservedSlot;    // 0x04
+            vu16 reservedCommand;    // 0x06
             vu32 key;         // 0x08
             vu16 unk_0x0C;    // 0x0C
             vu16 unk_0x0E;    // 0x0E

@@ -196,9 +196,9 @@ namespace ipl {
             mpCaptionString->clear();
             mpCaptionString->set(System::getMessage(MESG_LETTERWRITER_LETTER_HEADER));
 
-            wchar_t* unk = wcsstr(mpCaptionString->getWCString(), L"xxxxxxxxxx");
+            wchar_t* namePlaceholder = wcsstr(mpCaptionString->getWCString(), L"xxxxxxxxxx");
 
-            mpCaptionString->replace((unk - mpCaptionString->getWCString()), RFL_NAME_LENGTH, headerCaption);
+            mpCaptionString->replace((namePlaceholder - mpCaptionString->getWCString()), RFL_NAME_LENGTH, headerCaption);
             return mpCaptionString->getWCString();
         }
 

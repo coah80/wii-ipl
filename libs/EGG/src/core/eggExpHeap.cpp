@@ -103,7 +103,7 @@ namespace EGG {
     }
 
     namespace {
-        void free_all_visitor(void* ptr, MEMiHeapHead* heapHandle, u32 unk) {
+        void free_all_visitor(void* ptr, MEMiHeapHead* heapHandle, u32 userData) {
             MEMFreeToExpHeap(heapHandle, ptr);
         }
     }  // namespace
