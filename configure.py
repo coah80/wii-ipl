@@ -1043,7 +1043,7 @@ config.libs = [
     RevoEXLib("net", [
             Object(Matching,    "net/nettime.c"),
             Object(Matching,    "net/crc.c"),
-            Object(NonMatching, "net/md5.c"),
+            Object(Matching,    "net/md5.c"),
             Object(Matching,    "net/sha1.c"),
             Object(Matching, "net/hmac.c"),
             Object(Matching,    "net/neterrorcode.c"),
