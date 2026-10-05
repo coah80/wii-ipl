@@ -1208,9 +1208,9 @@ namespace ipl {
             wchar_t blank[2] = {0, 0};
             static_cast<nw4r::lyt::TextBox*>(mpLayout->FindPaneByName(sTextNameB[mDrag.mButton]))->SetString(blank, 0);
 
-            nigaoe::Object* nigaoe = mMiiObj[buttonNo].mpNigaoe;
+            nigaoe::Object* nigaoe = mMiiObj[buttonNo].getPortrait();
             if (nigaoe != NULL) {
-                nw4r::lyt::Pane* miiPane = mpLayout->FindPaneByName("mii_move");
+                nw4r::lyt::Pane* miiPane = mpLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("mii_move", true);
                 miiPane->SetVisible(true);
 
                 mDragTexObj = nigaoe->getIconTexture();
