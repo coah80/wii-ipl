@@ -1,11 +1,6 @@
 #include "system/odh.h"
 #include <revolution/os/OSError.h>
 
-extern "C" void _savegpr_24();
-extern "C" void _restgpr_24();
-extern "C" void cdj_c_initializeCompressOdh__9CArGBAOdhFP16SArCDJ_OdhMasterPUsUcPUcPUcUl();
-extern "C" void cdj_c_compressLoop__9CArGBAOdhFP16SArCDJ_OdhMaster();
-extern "C" void cdj_c_colorConv__9CArGBAOdhFP16SArCDJ_OdhMasterPUci();
 extern "C" s32 huffmanDecoder__9CArGBAOdhFPUlP21SArCDJ_HuffmanRequestPPUsiUl(u32, int, int, u32, int, u32);
 extern "C" void idct_fast__9CArGBAOdhFPCUcPUlPUlPUcUl(u32, u32, int, int, int, u32);
 
@@ -478,12 +473,9 @@ static const u16 gArDc_chrominance_huffTable[] = {
     0x8001, 0x0008, 0x8001, 0x0009, 0x8001, 0x000A, 0x8001, 0x000B,
 };
 
-#pragma pack(1)
 struct HufftreeData {
     const u16* tables[4];
-    char messages[0x1BB];
 };
-#pragma pack()
 
 HufftreeData hufftreePtr = {
     {
@@ -492,16 +484,6 @@ HufftreeData hufftreePtr = {
         gArDc_chrominance_huffTable,
         gArDc_luminance_huffTable,
     },
-    "decompressGbaOdh : source size error\n\0"
-    "decompressGbaOdh : destination buffer over\n\0"
-    "decompressGbaOdh : INITIALIZE ERROR %08x\n\0"
-    "decompressGbaOdh : DECOMPRESSING ERROR %08x\n\0"
-    "decompressGbaOdh : COLOR DECONVERSION ERROR %08x\n\0"
-    "compressGbaOdh : INITIALIZE ERROR %08x\n\0"
-    "compressGbaOdh : COLOR CONVERSION ERROR %08x\n\0"
-    "compressGbaOdh : COMPRESS OVER AND RETRY %d q=%d, %08x\n\0"
-    "compressGbaOdh : INITIALIZE ERROR2 %08x\n\0"
-    "compressGbaOdh : COMPRESSING ERROR %08x\n",
 };
 
 class CArGBAOdh {
@@ -577,13 +559,12 @@ int ODHGetHeight(u8* data) {
 
 s32 CArGBAOdh::decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk, int format) {
     SArCDJ_OdhMaster master;
-    const char* messages = (const char*)&hufftreePtr;
     int width;
     int height;
     int outputSize;
 
     if (srcSize <= 0x10) {
-        OSReport(messages + 0x10);
+        OSReport("decompressGbaOdh : source size error\n");
         return 0;
     }
 
@@ -605,142 +586,67 @@ s32 CArGBAOdh::decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8
         unk = width * height * 3;
     }
     if (outputSize > destSize) {
-        OSReport(messages + 0x36);
+        OSReport("decompressGbaOdh : destination buffer over\n");
         return 0;
     }
 
     s32 result = cdj_d_initializeDecompressOdh(&master, work, src);
     if (result != 0) {
-        OSReport(messages + 0x62, result);
+        OSReport("decompressGbaOdh : INITIALIZE ERROR %08x\n", result);
         return 0;
     }
 
     result = cdj_d_decompressLoop(&master, srcSize, unk);
     if (result != 0) {
-        OSReport(messages + 0x8C, result);
+        OSReport("decompressGbaOdh : DECOMPRESSING ERROR %08x\n", result);
         return 0;
     }
 
     result = cdj_d_colorDeconv(&master, dest, format);
     if (result != 0) {
-        OSReport(messages + 0xB9, result);
+        OSReport("decompressGbaOdh : COLOR DECONVERSION ERROR %08x\n", result);
         return 0;
     }
 
     return height << 16 | width;
 }
 
-asm s32 CArGBAOdh::compressGbaOdh(u8* src, u8* dest, int width, int height, int quality, u32 sizeLimit, u8* work, int format) {
-    nofralloc
-    stwu r1, -0x4b0(r1)
-    mflr r0
-    stw r0, 0x4b4(r1)
-    addi r11, r1, 0x4b0
-    bl _savegpr_24
-    cmpwi r9, 0
-    lis r31, hufftreePtr@ha
-    lwz r29, 0x4b8(r1)
-    mr r24, r3
-    mr r30, r4
-    mr r25, r5
-    mr r26, r8
-    mr r27, r9
-    mr r28, r10
-    addi r31, r31, hufftreePtr@l
-    bne compressGbaOdh_L1
-    mullw r0, r6, r7
-    slwi r27, r0, 1
-compressGbaOdh_L1:
-    sth r6, 8(r1)
-    clrlwi r6, r8, 0x18
-    mr r3, r24
-    mr r8, r25
-    sth r7, 0xa(r1)
-    mr r7, r28
-    mr r9, r27
-    addi r4, r1, 0xc
-    addi r5, r1, 8
-    bl cdj_c_initializeCompressOdh__9CArGBAOdhFP16SArCDJ_OdhMasterPUsUcPUcPUcUl
-    cmpwi r3, 0
-    beq compressGbaOdh_L2
-    mr r4, r3
-    addi r3, r31, 0xeb
-    crclr 4*cr1+eq
-    bl OSReport
-    li r3, 0
-    b compressGbaOdh_L8
-compressGbaOdh_L2:
-    mr r3, r24
-    mr r5, r30
-    mr r6, r29
-    addi r4, r1, 0xc
-    bl cdj_c_colorConv__9CArGBAOdhFP16SArCDJ_OdhMasterPUci
-    cmpwi r3, 0
-    beq compressGbaOdh_L3
-    mr r4, r3
-    addi r3, r31, 0x113
-    crclr 4*cr1+eq
-    bl OSReport
-    li r3, 0
-    b compressGbaOdh_L8
-compressGbaOdh_L3:
-    mr r3, r24
-    addi r4, r1, 0xc
-    bl cdj_c_compressLoop__9CArGBAOdhFP16SArCDJ_OdhMaster
-    mr r30, r3
-    li r29, 1
-    b compressGbaOdh_L6
-compressGbaOdh_L4:
-    lbz r5, 0x10(r1)
-    mr r4, r29
-    mr r6, r30
-    addi r3, r31, 0x141
-    crclr 4*cr1+eq
-    addi r29, r29, 1
-    bl OSReport
-    addic. r26, r26, -5
-    ble compressGbaOdh_L7
-    mr r3, r24
-    mr r7, r28
-    mr r8, r25
-    mr r9, r27
-    addi r4, r1, 0xc
-    addi r5, r1, 8
-    clrlwi r6, r26, 0x18
-    bl cdj_c_initializeCompressOdh__9CArGBAOdhFP16SArCDJ_OdhMasterPUsUcPUcPUcUl
-    cmpwi r3, 0
-    beq compressGbaOdh_L5
-    mr r4, r3
-    addi r3, r31, 0x179
-    crclr 4*cr1+eq
-    bl OSReport
-    li r3, 0
-    b compressGbaOdh_L8
-compressGbaOdh_L5:
-    mr r3, r24
-    addi r4, r1, 0xc
-    bl cdj_c_compressLoop__9CArGBAOdhFP16SArCDJ_OdhMaster
-    mr r30, r3
-    b compressGbaOdh_L6
-compressGbaOdh_L7:
-    mr r4, r30
-    addi r3, r31, 0x1a2
-    crclr 4*cr1+eq
-    bl OSReport
-    li r3, 0
-    b compressGbaOdh_L8
-compressGbaOdh_L6:
-    addis r0, r30, -0x8000
-    cmplwi r0, 4
-    beq compressGbaOdh_L4
-    mr r3, r30
-compressGbaOdh_L8:
-    addi r11, r1, 0x4b0
-    bl _restgpr_24
-    lwz r0, 0x4b4(r1)
-    mtlr r0
-    addi r1, r1, 0x4b0
-    blr
+s32 CArGBAOdh::compressGbaOdh(u8* src, u8* dest, int width, int height, int quality, u32 sizeLimit, u8* work, int format) {
+    SArCDJ_OdhMaster master;
+    u16 dimensions[2];
+    if (sizeLimit == 0) {
+        sizeLimit = width * height * 2;
+    }
+    dimensions[0] = width;
+    dimensions[1] = height;
+    s32 result = cdj_c_initializeCompressOdh(&master, dimensions, quality, work, dest, sizeLimit);
+    if (result != ODH_ERROR_SUCCESS) {
+        OSReport("compressGbaOdh : INITIALIZE ERROR %08x\n", result);
+        return 0;
+    }
+    result = cdj_c_colorConv(&master, src, format);
+    if (result != ODH_ERROR_SUCCESS) {
+        OSReport("compressGbaOdh : COLOR CONVERSION ERROR %08x\n", result);
+        return 0;
+    }
+    result = cdj_c_compressLoop(&master);
+    int retry = 1;
+    while (result == ODH_ERROR_80000004) {
+        OSReport("compressGbaOdh : COMPRESS OVER AND RETRY %d q=%d, %08x\n", retry++, master.quality, result);
+        quality -= 5;
+        if (quality > 0) {
+            s32 initResult = cdj_c_initializeCompressOdh(&master, dimensions, quality, work, dest, sizeLimit);
+            if (initResult != ODH_ERROR_SUCCESS) {
+                OSReport("compressGbaOdh : INITIALIZE ERROR2 %08x\n", initResult);
+                return 0;
+            }
+            result = cdj_c_compressLoop(&master);
+        } else {
+            OSReport("compressGbaOdh : COMPRESSING ERROR %08x\n", result);
+            return 0;
+        }
+    }
+    return result;
 }
 
 s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimensions, u8 requestedQuality, u8* workBuffer, u8* outputBuffer, u32 outputCapacity) {
