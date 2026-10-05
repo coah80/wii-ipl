@@ -283,5 +283,3 @@ BOOL CDBFSSDIsEjected() {
 BOOL CDBFSSDIsInserted() {
     return s_fssdWork.isInserted;
 }
-
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, CDB_SD_VFF_FILE_NAME);  // Unused but linked

@@ -661,13 +661,6 @@ s32 NHTTPDisableVerifyOptionForDebug(NHTTPRequest* handle, u32 option)
             "NHTTPDisableVerifyOptionForDebug");
         return -1;
     }
-    {
-        static s32 debugSet;
-        if (debugSet == 0)
-        {
-            debugSet = 1;
-        }
-    }
     request->verifyOption &= ~option;
     return 0;
 }

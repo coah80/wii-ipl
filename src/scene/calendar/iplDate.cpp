@@ -62,10 +62,6 @@ namespace ipl {
         utility::Date Date::mscMinDate(MIN_YEAR, MIN_MONTH, MIN_DAY);
         utility::Date Date::mscMaxDate(MAX_YEAR, MAX_MONTH, MAX_DAY);
 
-        u8 padding[0x10];
-
-        DECOMP_FORCE_ACTIVE(iplDate_cpp, padding);
-
         Date::Date(EGG::Heap* heap, nand::LayoutFile* file, const char* layoutFolder, const char* layoutFileName)
             : ::gui::EventHandler(), mbAppearMsg(0), mFocusState(0), mPendingFocusCmd(0), mpLayout(NULL), mpCurrentPaneAnim(0), mPointCount(0) {
             // Layout
@@ -184,7 +180,11 @@ namespace ipl {
                 const char* paneName = component->getPane()->GetName();
                 controller::Interface* con = static_cast<controller::Interface*>(data);
 
-                int unused = con != NULL ? con->getChannel() : getLatestEventCtrlNo();
+                if (con != NULL) {
+                    con->getChannel();
+                } else {
+                    getLatestEventCtrlNo();
+                }
 
                 switch (event) {
                     // Pointer on button

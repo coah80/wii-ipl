@@ -175,13 +175,6 @@ namespace textinput {
                 return table->keySets[mode]->pPaneNameToCharCode;
             }
 
-            struct NumericKeyView {
-                const PaneNameToCharCode& key;
-                NumericKeyView(const KeySet& set, u16 index) : key(set.pPaneNameToCharCode[index]) {}
-                bool matches(const char* paneName) const { return util::strcmp(key.szPaneName, paneName); }
-                wchar_t character() const { return key.wc[0]; }
-            };
-
             static inline const PaneNameToCharCode* findLowerCaseKey(const LanguageDependencyData* table, const char* paneName) {
                 u16 index = 0;
                 const PaneNameToCharCode* keys = table->keySets[Base::IM_01]->pPaneNameToCharCode;
@@ -323,9 +316,8 @@ namespace textinput {
                         }
                     } else {
                         for (u16 index = 0; index < 12; index++) {
-                            const NumericKeyView key(csKeySetNumber, index);
-                            if (key.matches(paneName)) {
-                                wchar_t character = key.character();
+                            if (util::strcmp(csKeySetNumber.pPaneNameToCharCode[index].szPaneName, paneName)) {
+                                wchar_t character = csKeySetNumber.pPaneNameToCharCode[index].wc[0];
                                 ConfirmInput commandData = {0};
                                 commandData.character = character;
                                 commandData.letterMode = mCurrentInputMode;

@@ -561,29 +561,27 @@ static inline void GetOldestMsgId(const MBCHeader* header, volatile u32* id) {
 
 NWC24Err NWC24iMBoxCheck(NWC24MBoxType type, u32 size) {
     u32 required;
-    struct {
-        volatile u32 oldestId;
-        MBCHeader* header;
-    } mailbox;
+    MBCHeader* header;
+    volatile u32 oldestId;
     NWC24Err err;
     if (size >= 0x31C00)
         return NWC24_ERR_OVERFLOW;
     required = size + 0x4000;
-    err = GetCachedMBCHeader(type, &mailbox.header);
+    err = GetCachedMBCHeader(type, &header);
     if (err != NWC24_OK)
         return err;
     if (type == NWC24_MBOX_TYPE_SEND) {
-        if (mailbox.header->numMessages >= mailbox.header->capacity)
+        if (header->numMessages >= header->capacity)
             return NWC24_ERR_FULL;
-        if (mailbox.header->freeBytes <= required)
+        if (header->freeBytes <= required)
             return NWC24_ERR_FULL;
     } else if (type == NWC24_MBOX_TYPE_RECV) {
-        while (mailbox.header->numMessages >= mailbox.header->capacity || mailbox.header->freeBytes <= required) {
-            GetOldestMsgId(mailbox.header, &mailbox.oldestId);
-            err = DeleteMsg(type, mailbox.oldestId, FALSE);
+        while (header->numMessages >= header->capacity || header->freeBytes <= required) {
+            GetOldestMsgId(header, &oldestId);
+            err = DeleteMsg(type, oldestId, FALSE);
             if (err != NWC24_OK)
                 return err;
-            err = GetCachedMBCHeader(type, &mailbox.header);
+            err = GetCachedMBCHeader(type, &header);
             if (err != NWC24_OK)
                 return err;
         }

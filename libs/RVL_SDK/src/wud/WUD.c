@@ -238,11 +238,7 @@ static void DeleteFlushCallback(SCStatus status) {
         return;
     }
 
-    if (status == SC_STATUS_OK) {
-        p->deleteState = WUD_STATE_DELETE_DONE;
-    } else {
-        p->deleteState = WUD_STATE_DELETE_DONE;
-    }
+    p->deleteState = WUD_STATE_DELETE_DONE;
 }
 
 static void ShutFlushCallback(SCStatus status) {

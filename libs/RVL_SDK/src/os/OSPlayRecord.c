@@ -10,8 +10,6 @@ static NANDFileInfo FileInfo;
 static NANDCommandBlock Block;
 static OSAlarm PlayRecordAlarm;
 
-DECOMP_FORCE_ACTIVE(OSPlayRecord_c, PlayRecord);
-
 static BOOL PlayRecordGet = FALSE;
 static s32 PlayRecordState = OS_RECORD_STATE_STOPPED;
 static BOOL PlayRecordError = FALSE;
