@@ -163,9 +163,9 @@ ziU32 ZiDAWGGetGraph(ziPtr context) {
 }
 
 ziU32 ZiDAWGGetGraphInfo(zi8DawgCtx* context, ziU8* entry, ziU16* keys) {
-    ziU32 graph;
     ziU8 depth;
     ziU32 end;
+    ziU32 graph;
     ziS32 result;
 
     graph = ZiDAWGGetGraph(context);
@@ -199,10 +199,10 @@ checkEntry:
         }
 
         result = graph + (ziU32)entry[4] * 0x10000 + (((ziU16)entry[5] << 8) + entry[6]);
-        ((zi8DawgCtx*)context)->endNode =
+        context->endNode =
             graph + (ziU32)entry[7] * 0x10000 + (((ziU16)entry[8] << 8) + entry[9]);
-        if (((zi8DawgCtx*)context)->endNode == graph) {
-            ((zi8DawgCtx*)context)->endNode = 0;
+        if (context->endNode == graph) {
+            context->endNode = 0;
         }
 
         if ((((ziU16)entry[0] << 8) + entry[1]) == 0) {
