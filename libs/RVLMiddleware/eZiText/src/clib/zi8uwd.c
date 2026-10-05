@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <zi8clib/zitypes.h>
 #include <zi8clib/zierror.h>
 #include <zi8clib/zconvert.h>
@@ -7,19 +8,25 @@ typedef struct ziUserWord {
     ziU8 size, language, length, priority;
     ziU8 text[1];
 } ziUserWord;
+
+enum {
+    ZI_UWD_LENGTH_OFFSET = offsetof(ziUserWord, length),
+    ZI_UWD_PRIORITY_OFFSET = offsetof(ziUserWord, priority),
+    ZI_UWD_TEXT_OFFSET = offsetof(ziUserWord, text),
+};
 typedef struct ziUserDictionary {
     ziU16 flags, end, current, boundary;
     ziU8 entries[1];
 } ziUserDictionary;
 void Zi8Memset(ziPtr, ziU32, ziU32);
 
-ziBool Zi8_81480224(ziUserWord* word ZI_NEED_WORK) {
+ziBool Zi8_81480224(ziU8* word ZI_NEED_WORK) {
     ziU8 length;
     ziUwdNode* previous;
     ziUwdNode* current;
     ziUwdNode* added;
     ziU8 position;
-    ziUserWord* candidate;
+    ziU8* candidate;
     if (ZI_WORK->uwdCount >= 32) {
         Zi8LogError(0x19D, __zi8_work_data);
         return 0;
@@ -28,7 +35,7 @@ ziBool Zi8_81480224(ziUserWord* word ZI_NEED_WORK) {
         Zi8LogError(0x19F, __zi8_work_data);
         return 0;
     }
-    length = word->length;
+    length = word[ZI_UWD_LENGTH_OFFSET];
     if (length == 0) {
         Zi8LogError(0x193, __zi8_work_data);
         return 0;
@@ -40,12 +47,12 @@ ziBool Zi8_81480224(ziUserWord* word ZI_NEED_WORK) {
     previous = 0;
     current = ZI_WORK->uwdList;
     while (current != 0) {
-        candidate = (ziUserWord*)current->word;
-        if (ZI_WORK->uwdPrioritySort == 1 && word->priority > candidate->priority) break;
-        if (candidate->length == length) {
+        candidate = current->word;
+        if (ZI_WORK->uwdPrioritySort == 1 && word[ZI_UWD_PRIORITY_OFFSET] > candidate[ZI_UWD_PRIORITY_OFFSET]) break;
+        if (candidate[ZI_UWD_LENGTH_OFFSET] == length) {
             position = 0;
             while (position < length) {
-                if (candidate->text[position] != word->text[position]) break;
+                if (candidate[position + ZI_UWD_TEXT_OFFSET] != word[position + ZI_UWD_TEXT_OFFSET]) break;
                 position++;
             }
             if (position == length) {
@@ -203,7 +210,7 @@ next:
                             if (ZI_WORK->uwdContextRecord[prefixLength] != ((ziU8*)previous)[prefixLength] && ZI_WORK->uwdContextAlternateCase[prefixLength] != ((ziU8*)previous)[prefixLength]) goto next;
                         }
                     }
-                    Zi8_81480224((ziUserWord*)cursor, __zi8_work_data);
+                    Zi8_81480224(cursor, __zi8_work_data);
                 }
                 goto next;
             }
