@@ -156,11 +156,11 @@ static f32 kp_rm_acc_max = 3.4f;
 static f32 kp_fs_acc_max = 2.1f;
 f32 sensor_bar_angle_degrees = 24.0f;
 
-static Vec2 icenter_org;
-u32 kp_stick_clamp_cross;
-static Vec2 Vec2_0;
-static f32 kp_dist_vv1;
+static Vec2 icenter_org = {0.0f, 0.0f};
+u32 kp_stick_clamp_cross = FALSE;
+static Vec2 Vec2_0 = {0.0f, 0.0f};
 f32 kp_err_dist_min;
+static f32 kp_dist_vv1;
 
 static void KPADiSamplingCallback(s32 chan);
 static void KPADiControlDpdCallback(s32 chan, s32 result);
@@ -1501,15 +1501,17 @@ finish:
 
 void KPADInit(void) {
     KPADInside* kpad;
+    f32 degreesToRadians;
+    f32 zero;
+    f32 one;
     f32 distanceValue;
     f32 sensorDistance;
     f32 rotationElement;
-    f32 referenceWidth;
+    f64 negativeSine;
+    f32 sineElement;
     f32 referenceHeight;
     f32 objectInterval;
-    f32 zero;
-    f32 degreesToRadians;
-    f32 one;
+    f32 referenceWidth;
     u32 i;
     s32 chan;
     BOOL enabled;
@@ -1546,10 +1548,6 @@ void KPADInit(void) {
             referenceHeight -= distanceValue;
         }
         referenceWidth = referenceWidth < referenceHeight ? referenceWidth : referenceHeight;
-        initial_rotation_matrix[0] = one;
-        initial_rotation_matrix[1] = zero;
-        initial_rotation_matrix[2] = zero;
-        initial_rotation_matrix[3] = zero;
         kpad->sensorBarScale = sensorDistance / referenceWidth;
         kpad->value9C = zero;
         kpad->value94 = zero;
@@ -1568,13 +1566,18 @@ void KPADInit(void) {
         kpad->sensorHeightPending = 1;
         kpad->sensorBarPosition = 1;
         kpad->freeStyleAccelRotation = 0;
+        initial_rotation_matrix[0] = one;
+        initial_rotation_matrix[1] = zero;
+        initial_rotation_matrix[2] = zero;
+        initial_rotation_matrix[3] = zero;
         initial_rotation_matrix[4] = zero;
         rotationElement = (f32)cos(degreesToRadians * sensor_bar_angle_degrees);
         initial_rotation_matrix[5] = rotationElement;
-        rotationElement = (f32)-sin(degreesToRadians * sensor_bar_angle_degrees);
+        negativeSine = -sin(degreesToRadians * sensor_bar_angle_degrees);
+        sineElement = (f32)negativeSine;
         initial_rotation_matrix[7] = zero;
         initial_rotation_matrix[8] = zero;
-        initial_rotation_matrix[6] = rotationElement;
+        initial_rotation_matrix[6] = sineElement;
         rotationElement = (f32)sin(degreesToRadians * sensor_bar_angle_degrees);
         initial_rotation_matrix[9] = rotationElement;
         rotationElement = (f32)cos(degreesToRadians * sensor_bar_angle_degrees);

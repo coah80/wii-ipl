@@ -1,0 +1,8 @@
+{
+  "ScanListCast": "reinterpret_cast<unsigned short*>",
+  "SetFuncResult": "www::wiisetting::setFuncResult",
+  "Animator": "layout::Animator",
+  "Layout": "layout::Object",
+  "Pane": "nw4r::lyt::Pane",
+  "PaneManager": "gui::PaneManager"
+}

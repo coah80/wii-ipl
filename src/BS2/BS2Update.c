@@ -450,7 +450,8 @@ static void* UpdateThread(void* argument) {
                 if (UpdateProgress < UpdateHeader0.wadCount) {
                     BS2Report("Progress : %d\n", UpdateProgress);
                     if (Flags1[UpdateProgress] == 1) {
-                        BS2Report("Import : %s\n", discEntries[UpdateProgress].path);
+                        const char* path = discEntries[UpdateProgress].path;
+                        BS2Report("Import : %s\n", path);
                         State = 2;
                         CurrentEntry = &discEntries[UpdateProgress];
                         if (discEntries[UpdateProgress].type == 0) {
@@ -501,7 +502,8 @@ static void* UpdateThread(void* argument) {
                             UpdateProgress++;
                         }
                     } else {
-                        BS2Report("Not import : %s\n", discEntries[UpdateProgress].path);
+                        const char* path = discEntries[UpdateProgress].path;
+                        BS2Report("Not import : %s\n", path);
                         UpdateProgress++;
                     }
                 } else if (UpdateProgress == UpdateHeader0.wadCount) {
