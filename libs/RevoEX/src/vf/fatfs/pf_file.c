@@ -597,29 +597,15 @@ static pf_s32 VFiPFFILE_createEmptyFile(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent, PF_
 
     (void)namelength;
 
-    // stinky fakematch
-#ifdef DEBUG
-    err = 0;
-#endif
     if (p_vol->num_opened_files >= 5) {
         return 0x15;
     }
 
-#ifdef DEBUG
     err = VFiPFENT_InitENT(p_ent, p_fname, 0x20U, 1U, p_parent_ent, p_vol);
-    if (err == 0)
-#else
-    if (VFiPFENT_InitENT(p_ent, p_fname, 0x20U, 1U, p_parent_ent, p_vol) == 0)
-#endif
-    {
+    if (err == 0) {
         VFiPFFAT_InitFFD(&ffd, &hint, p_vol, &p_parent_ent->start_cluster);
-#ifdef DEBUG
         err = VFiPFENT_allocateEntry(p_ent, (p_ent->num_entry_LFNs + 1), &ffd, prev_chain, p_fname, 0x77U, &pos);
-        if (err == 0)
-#else
-        if (VFiPFENT_allocateEntry(p_ent, (p_ent->num_entry_LFNs + 1), &ffd, prev_chain, p_fname, 0x77U, &pos) == 0)
-#endif
-        {
+        if (err == 0) {
             p_ent->start_cluster = 0;
             if ((p_ent->long_name[0] != 0) && ((VFipf_vol_set.setting & 2) == 2)) {
                 VFiPFPATH_AdjustExtShortName(p_ent->short_name, pos);

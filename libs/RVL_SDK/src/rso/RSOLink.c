@@ -741,7 +741,7 @@ static void RSORelocate(RSORel* rel, int index, u32 offset) {
             x = offset + rel->addend;
             y = ((u32)p & ~0x03FFFFFC) | ((((u32)p & 0x03FFFFFC) + (*p & 0x03FFFFFC)) & 0x03FFFFFC);
 #if SDK_VERSION > 20090224 && !defined(SDK_IPL)
-            if (((u32)x != 0) && (x != y)) {
+            if ((x != 0) && (x != y)) {
                 *p = (u32)((*p & ~0x03FFFFFC) | 0x03FF0000 | 0xFFFC);
             }
 #endif

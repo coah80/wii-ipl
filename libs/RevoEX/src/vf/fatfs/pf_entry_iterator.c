@@ -79,7 +79,7 @@ static pf_s32 VFiPFENT_ITER_GetEntry(PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter, PF_
     if ((attr & 0xF) == 0xF) {
         is_match = 1;
     } else {
-        is_valid = VFiPFENT_CompareAttr(attr, (pf_u8)attr_required);
+        is_valid = VFiPFENT_CompareAttr(attr, attr_required);
         if (is_valid == 0) {
             is_match = 1;
         } else {

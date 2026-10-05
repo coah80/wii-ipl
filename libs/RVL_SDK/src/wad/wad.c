@@ -2955,7 +2955,7 @@ static void _WADRandPad(void* buffer, u32 size) {
         words += sizeof(u32);
     }
     if (remainder != 0) {
-        u8* tail = (u8*)words;
+        u8* tail = words;
         u8* randomBytes;
         u32 byteIndex;
 

@@ -82,7 +82,7 @@ loop:
                 image[j + 16] = 0;
             }
 
-            string = OSGetFontTexel((char*)string, image, 0, 6, &width);
+            string = OSGetFontTexel(string, image, 0, 6, &width);
 
             for (i = 0; i < 24; i++) {
                 j = (i & 7) + ((i >> 3) * 24);

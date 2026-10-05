@@ -396,7 +396,7 @@ void WPADiDecode(s32 chan, u8* data, u16 length, u16 offset) {
     u8 tableIndex;
     u16 i;
 
-    buffer = (u8*)data;
+    buffer = data;
 
     for (i = 0; i < length; i++) {
         tableIndex = (offset + i) % 8;

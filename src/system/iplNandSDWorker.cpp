@@ -3933,7 +3933,7 @@ namespace ipl {
         u32 iconBinOffset;
         iconBinOffset = hdrOffset + headerSize + ARCGetStartOffset(&arcFile);
 
-        ret = read_file(fd, fileKind, iconBinOffset, thumbnailSize, ((SDAppBackupData*)appBnrOut)->thumbnail);
+        ret = read_file(fd, fileKind, iconBinOffset, thumbnailSize, appBnrOut->thumbnail);
         if (ret == RESULT_OK) {
             ret = RESULT_OK;
         }

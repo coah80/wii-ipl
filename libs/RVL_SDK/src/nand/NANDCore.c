@@ -55,12 +55,11 @@ void nandRemoveTailToken(char* newPath, const char* oldPath) {
                 if (i != 0) {
                     strncpy(newPath, oldPath, i);
                     newPath[i] = '\0';
-                    break;
                 } else {
                     newPath[0] = '/';
                     newPath[1] = '\0';
-                    break;
                 }
+                break;
             }
         }
     }

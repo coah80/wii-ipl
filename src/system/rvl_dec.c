@@ -640,11 +640,10 @@ int Rvl_decode_ash(u8* out, u8* in) {
                                     }
                                     if ((int)literalBitWord < 0) {
                                         nodeVal = *(u16*)(&work[0x7fe] + nodeVal * 2);
-                                        literalBitWord = decodeBitsOrCount;
                                     } else {
                                         nodeVal = *(u16*)((u8*)work + nodeVal * 2);
-                                        literalBitWord = decodeBitsOrCount;
                                     }
+                                    literalBitWord = decodeBitsOrCount;
                                 }
                                 decodeBitsOrCount = distanceSymbol;
                                 if (nodeVal < 0x100) {
@@ -663,11 +662,10 @@ int Rvl_decode_ash(u8* out, u8* in) {
                                         }
                                         if ((int)distanceBitWord < 0) {
                                             decodeBitsOrCount = *(u16*)(&work[0x2ffa] + decodeBitsOrCount * 2);
-                                            distanceBitWord = nextDistanceBits;
                                         } else {
                                             decodeBitsOrCount = *(u16*)(&work[0xffc] + decodeBitsOrCount * 2);
-                                            distanceBitWord = nextDistanceBits;
                                         }
+                                        distanceBitWord = nextDistanceBits;
                                     }
                                     nodeVal = nodeVal - 0xfd;
                                     copySource = out - decodeBitsOrCount;

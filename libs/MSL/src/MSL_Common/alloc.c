@@ -432,8 +432,8 @@ static void* allocate_from_var_pools(__mem_pool_obj* pool, unsigned int size, un
 }
 
 static void* soft_allocate_from_var_pools(__mem_pool_obj* pool, unsigned int size, unsigned int* out) {
-    register Block* bp;
-    register SubBlock* ptr;
+    Block* bp;
+    SubBlock* ptr;
 
     size = (size + 15) & ~7;
     if (size < 0x50) {
@@ -681,9 +681,9 @@ static unsigned int __pool_allocate_resize(__mem_pool_obj* pool, void* ptr, unsi
     return 0;
 }
 
-void* malloc(register unsigned int size) {
+void* malloc(unsigned int size) {
     void* rv;
-    register __mem_pool_obj* pool_obj;
+    __mem_pool_obj* pool_obj;
 
     if (size == 0) {
         goto null_return;
@@ -712,8 +712,8 @@ void free(void* ptr) {
 }
 
 void* realloc(void* ptr, unsigned int size) {
-    register unsigned int rv = size;
-    register __mem_pool_obj* pool;
+    unsigned int rv = size;
+    __mem_pool_obj* pool;
     unsigned int current_size;
     unsigned int orig_size;
 
@@ -773,8 +773,8 @@ void* realloc(void* ptr, unsigned int size) {
 }
 
 void* calloc(unsigned int nmemb, unsigned int size) {
-    register void* ptr;
-    register unsigned int total;
+    void* ptr;
+    unsigned int total;
     __mem_pool_obj* pool_obj;
 
     pool_obj = (__mem_pool_obj*)get_malloc_pool();

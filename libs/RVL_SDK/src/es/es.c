@@ -1270,17 +1270,17 @@ ESError ES_Encrypt(u32 keyNum, u8* iv, u8* input, u32 size, u8* output) {
     vec[0].length = sizeof(*pKeyNum);
 
     // IV read
-    vec[1].base = (u8*)iv;
+    vec[1].base = iv;
     vec[1].length = 16;
 
-    vec[2].base = (u8*)input;
+    vec[2].base = input;
     vec[2].length = size;
 
     // IV write
-    vec[3].base = (u8*)iv;
+    vec[3].base = iv;
     vec[3].length = 16;
 
-    vec[4].base = (u8*)output;
+    vec[4].base = output;
     vec[4].length = size;
 
     ret = IOS_Ioctlv(__esFd, ES_IOCTLV_ENCRYPT, 3, 2, vec);
@@ -1306,17 +1306,17 @@ ESError ES_Decrypt(u32 keyNum, u8* iv, u8* input, u32 size, u8* output) {
     vec[0].length = sizeof(*pKeyNum);
 
     // IV read
-    vec[1].base = (u8*)iv;
+    vec[1].base = iv;
     vec[1].length = 16;
 
-    vec[2].base = (u8*)input;
+    vec[2].base = input;
     vec[2].length = size;
 
     // IV write
-    vec[3].base = (u8*)iv;
+    vec[3].base = iv;
     vec[3].length = 16;
 
-    vec[4].base = (u8*)output;
+    vec[4].base = output;
     vec[4].length = size;
 
     ret = IOS_Ioctlv(__esFd, ES_IOCTLV_DECRYPT, 3, 2, vec);

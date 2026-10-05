@@ -547,10 +547,3 @@ static u32 SSL_strnlen(const char* s, u32 n) {
     }
     return t - s;
 }
-
-#pragma push
-#pragma section data_type ".data"
-#pragma pop
-#pragma push
-#pragma section data_type ".sdata"
-#pragma pop

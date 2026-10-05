@@ -28,7 +28,7 @@ namespace nw4r {
             }
 
             void WsdTrack::Start(const void* wsdData, int index) {
-                mWsdData = (void*)wsdData;
+                mWsdData = wsdData;
                 mIndex = index;
             }
 

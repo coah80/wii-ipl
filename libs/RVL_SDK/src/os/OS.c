@@ -518,7 +518,7 @@ void OSInit() {
     void* bi2StartAddr;
     void* arenaAddr;
 
-    volatile OSExecParams* params = (volatile OSExecParams*)&__OSRebootParams;
+    OSExecParams* params = &__OSRebootParams;
 
     if (AreWeInitialized == FALSE) {
         BOOL enabled;

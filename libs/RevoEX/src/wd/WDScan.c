@@ -282,7 +282,7 @@ BOOL WDFindInformationElement(WDInfoElement** outIE, u32* outIELength, WDBssDesc
         WDInfoElement* infoElement;
 
         for (offset = 0; offset < bssDesc->ieLength; offset = (infoElement->length + offset) + sizeof(WDInfoElement)) {
-            infoElement = (WDInfoElement*)((u8*)ptr + offset);
+            infoElement = (WDInfoElement*)(ptr + offset);
             if (infoElement->id == id) {
                 break;
             }

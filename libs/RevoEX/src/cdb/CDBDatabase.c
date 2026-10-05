@@ -78,7 +78,7 @@ extern void _restgpr_24();
 extern void _restgpr_25();
 extern void _restgpr_26();
 extern int atoi();
-#pragma section sdata_type ".sdata"
+
 typedef struct {
     char path[256];
     CDBFindData find;
@@ -1372,7 +1372,6 @@ CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLocati
     return CDB_ERROR_OK;
 }
 
-#pragma section data_type ".data"
 #pragma align 8
 extern char scCdbMsg_DatabaseClosed[] = "CDBDatabaseClose database is closed\n";
 #pragma align 8

@@ -20,8 +20,8 @@ pf_u16* VFipf_w_strcpy(pf_u16* dst, const pf_u16* src) {
 }
 
 pf_s32 VFipf_w_strncmp(const pf_u16* s1, const pf_u16* s2, pf_u32 length) {
-    const pf_u16* p1 = (pf_u16*)s1;
-    const pf_u16* p2 = (pf_u16*)s2;
+    const pf_u16* p1 = s1;
+    const pf_u16* p2 = s2;
 
     while (length-- != 0) {
         if (*p1 == 0 || *p2 == 0 || *p1 != *p2) {

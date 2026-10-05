@@ -379,7 +379,7 @@ bool DVDLowOpenPartition(u32 partitionWordOffset, ESTicket* eTicket, u32 numCert
         ioVec[1].length = sizeof(ESTicket);
     }
 
-    ioVec[2].base = (u8*)certificates;
+    ioVec[2].base = certificates;
     if (certificates == 0) {
         ioVec[2].length = 0;
     } else {
@@ -453,7 +453,7 @@ bool DVDLowOpenPartitionWithTmdAndTicketView(u32 partitionWordOffset, ESTicketVi
     ioVec[2].base = (u8*)tmd;
     ioVec[2].length = numTmdBytes;
 
-    ioVec[3].base = (u8*)certificates;
+    ioVec[3].base = certificates;
     if (certificates == 0) {
         ioVec[3].length = 0;
     } else {

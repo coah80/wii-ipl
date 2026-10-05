@@ -1039,13 +1039,13 @@ void VIConfigure(const GXRenderModeObj* renderMode)
     if (HorVer.nonInter == 2 || HorVer.nonInter == 3) {
         register1 = ((u32)originalRegister1 & ~4) | (1 << 2);
         if (HorVer.tv == 8) {
-            register54 = (u32)originalRegister54 & ~1;
+            register54 = originalRegister54 & ~1;
         } else {
-            register54 = ((u32)originalRegister54 & ~1) | 1;
+            register54 = (originalRegister54 & ~1) | 1;
         }
     } else {
         register1 = ((u32)originalRegister1 & ~4) | ((HorVer.nonInter & 1) << 2);
-        register54 = (u32)originalRegister54 & ~1;
+        register54 = originalRegister54 & ~1;
     }
     register1 = (register1 & ~8) | (HorVer.threeD << 3);
     if (HorVer.tv == VI_PAL || HorVer.tv == VI_MPAL || HorVer.tv == 3) {

@@ -110,7 +110,6 @@ namespace textinput {
                     GXPosition3f32(x1 + realWidth, y0, z);
                     GXColor1u32(*(u32*)&color);
                 }
-                GXEnd();
             } else {
                 GXBegin(GX_QUADS, GX_VTXFMT0, 4);
                 {
@@ -123,8 +122,8 @@ namespace textinput {
                     GXPosition3f32(x1, y0 - realWidth, z);
                     GXColor1u32(*(u32*)&color);
                 }
-                GXEnd();
             }
+            GXEnd();
         }
     }  // namespace debug
 }  // namespace textinput

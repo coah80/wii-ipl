@@ -1326,7 +1326,7 @@ namespace ipl {
                 ARCFileInfo arcFile;
 
                 if (ARCOpen(&arc, "./chjump.bin", &arcFile)) {
-                    mpChJpData = (NWC24CHJumpObj*)((u8*)pArc + ARCGetStartOffset(&arcFile));
+                    mpChJpData = (NWC24CHJumpObj*)(pArc + ARCGetStartOffset(&arcFile));
 
                     if (nwc24Mgr->checkCHJumpObj(mpChJpData, ARCGetLength(&arcFile))) {
                         u64 titleId = 0;
