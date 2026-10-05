@@ -940,7 +940,7 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     pfd_sddrv_store_le16(sector_buffer, boot_sector->reserved_sector_count, offsetof(PFD_SDDRV_BPB, reserved_sector_count), 1);
     boot_sector->fat_count = 2;
     pfd_sddrv_store_le16(sector_buffer, boot_sector->root_entry_count, offsetof(PFD_SDDRV_BPB, root_entry_count), 0x200);
-    pfd_sddrv_store_le16(sector_buffer, boot_sector->total_sectors_16, offsetof(PFD_SDDRV_BPB, total_sectors_16), (u16)sectors_16);
+    pfd_sddrv_store_le16(sector_buffer, boot_sector->total_sectors_16, offsetof(PFD_SDDRV_BPB, total_sectors_16), sectors_16);
     boot_sector->media_descriptor = 0xf8;
     pfd_sddrv_store_le16(sector_buffer, boot_sector->sectors_per_fat_16, offsetof(PFD_SDDRV_BPB, sectors_per_fat_16), (u16)format_data->sectors_per_fat);
     pfd_sddrv_store_le16(sector_buffer, boot_sector->sectors_per_track, offsetof(PFD_SDDRV_BPB, sectors_per_track), (u16)settings.root_entries);
@@ -1245,11 +1245,11 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     master_boot_record = (PFD_SDDRV_MBR*)sector_buffer;
     partition = &master_boot_record->partitions[0];
     partition->boot_indicator = 0;
-    partition->start_head = (u8)start_head;
+    partition->start_head = start_head;
     pfd_sddrv_store_le16(sector_buffer, partition->start_sector_cylinder, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, start_sector_cylinder),
                          ((start_cylinder & 0xff) << 8) + ((start_sector & 0x3f) | ((start_cylinder & 0x300) >> 2)));
     partition->partition_type = partition_type;
-    partition->end_head = (u8)end_head;
+    partition->end_head = end_head;
     pfd_sddrv_store_le16(sector_buffer, partition->end_sector_cylinder, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, end_sector_cylinder),
                          ((end_cylinder & 0xff) << 8) + ((end_sector & 0x3f) | ((end_cylinder & 0x300) >> 2)));
     pfd_sddrv_store_le32(sector_buffer, partition->first_sector, offsetof(PFD_SDDRV_MBR, partitions) + offsetof(PFD_SDDRV_PARTITION_ENTRY, first_sector), format_data->partition_start_sector);

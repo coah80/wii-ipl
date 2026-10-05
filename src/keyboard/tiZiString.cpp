@@ -61,7 +61,7 @@ void WithZi::ChangeDictionaryLanguage(u8 language) {
         u32 attached;
         entryIndex = -1;
         baseIndex = 0;
-        dictionaryTable = (EZTXLanguageEntry*)mpDictionaries;
+        dictionaryTable = mpDictionaries;
         entry = dictionaryTable;
         for (s32 groups = 2; groups != 0; --groups) {
             for (s32 column = 0; column < 6; ++column) {
@@ -104,8 +104,8 @@ void WithZi::init() {
         mbContextChanged = 0;
         clearCandidates();
         memset(LatestWord, 0, 0x80);
-        LatestWord[0] = 0x20;
-        if (getPredictLanguage() == 1) {
+        LatestWord[0] = L' ';
+        if (getPredictLanguage() == ZI8_LANG_ZH) {
             update();
         }
     }
@@ -132,7 +132,7 @@ void WithZi::clearCandidates() {
         mSearch.maxCandidates = 0x28;
         mSearch.elementCount = 0;
         mSearch.firstCandidate = 0;
-        if (getPredictLanguage() == 1) {
+        if (getPredictLanguage() == ZI8_LANG_ZH) {
             mSearch.getMode = 1;
             mSearch.context = 0x10;
         }
@@ -319,7 +319,7 @@ void WithZi::update() {
     mSearch.completion = 0;
     mSearch.scratch = 0;
 
-    if (getPredictLanguage() == 1) {
+    if (getPredictLanguage() == ZI8_LANG_ZH) {
         mSearch.getMode = 1;
         mSearch.context = 0x11;
         if (mbKoreanPartialConfirm != 0) {
@@ -335,8 +335,8 @@ void WithZi::update() {
     }
     else if (elementCount == 1 &&
              (0xeff1 <= ElementBuffer[0] && ElementBuffer[0] <= 0xeff9) &&
-             mpHoldingKey != NULL && getPredictLanguage() != 0x12) {
-        CandidatedWord[0] = 0x3e;
+             mpHoldingKey != NULL && getPredictLanguage() != ZI8_LANG_KO) {
+        CandidatedWord[0] = L'>';
         CandidatedWord[1] = 0;
         mCandidateCount = 1;
         u16* output = CandidatedWord + 0x40;
@@ -355,7 +355,7 @@ void WithZi::update() {
         memcpy(PredictionBuffer, CandidatesBuffer, 0x200);
         ChangeDictionaryLanguage(getPredictLanguage());
         u32 count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
-        if (getPredictLanguage() == 1 && count == 0x61) {
+        if (getPredictLanguage() == ZI8_LANG_ZH && count == 0x61) {
             wchar_t* candidateOutput = reinterpret_cast<wchar_t*>(PredictionBuffer);
             mSearch.firstCandidate = 0x61;
             mSearch.candidates = candidateOutput + 0xC2;
@@ -367,7 +367,7 @@ void WithZi::update() {
         if (static_cast<s32>(count) > 0x28) {
             count = 0x28;
         }
-        if (getPredictLanguage() == 1 && mbContextChanged != 0 &&
+        if (getPredictLanguage() == ZI8_LANG_ZH && mbContextChanged != 0 &&
             (mbContextChanged = 0, mSearch.count == 0)) {
             u32 length = mCurrentWordLength;
             u32 wordLength = wcslen((wchar_t*)LatestWord) & 0xff;
@@ -380,8 +380,8 @@ void WithZi::update() {
             count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
         }
         if (count == 0) {
-            if (getPredictLanguage() != 1) {
-                if (getPredictLanguage() == 0x12) {
+            if (getPredictLanguage() != ZI8_LANG_ZH) {
+                if (getPredictLanguage() == ZI8_LANG_KO) {
                     backSpace();
                     return;
                 }
@@ -395,12 +395,12 @@ void WithZi::update() {
             u16* source = reinterpret_cast<u16*>(mSearch.candidates);
             u16* destination = CandidatedWord;
             for (s32 index = 0; index < static_cast<s32>(count); index++) {
-                if (getPredictLanguage() == 1) {
+                if (getPredictLanguage() == ZI8_LANG_ZH) {
                     u16* output;
                     s32 length;
                     length = 0;
                     output = destination;
-                    for (; *source != 0x20 && *source != 0; source++) {
+                    for (; *source != L' ' && *source != 0; source++) {
                         *output++ = *source;
                         ++length;
                     }
@@ -409,7 +409,7 @@ void WithZi::update() {
                 } else if (mPredictLanguage == PL_11) {
                     *destination = *source++;
                     destination[1] = 0;
-                } else if (getPredictLanguage() == 0x12) {
+                } else if (getPredictLanguage() == ZI8_LANG_KO) {
                     u16* output = destination;
                     u16 character;
                     while ((character = *source) >= 0x100) {
@@ -535,10 +535,10 @@ u32 WithZi::setElementBuffer() {
     while ((inputCharacter = buffers.read(static_cast<u16>(count))) != 0 && static_cast<u16>(count) < 0xff) {
         u16 index = count;
         buffers.element(index) = inputCharacter;
-        if (getPredictLanguage() == 1) {
+        if (getPredictLanguage() == ZI8_LANG_ZH) {
             s32 character = buffers.element(index);
-            if (0x30 <= character && character <= 0x39) buffers.element(index) = character + 0xf300;
-            else if ((0x61 <= character && character <= 0x7a) || (0x41 <= character && character <= 0x5a)) buffers.element(index) += 0xf300;
+            if (L'0' <= character && character <= L'9') buffers.element(index) = character + 0xf300;
+            else if ((L'a' <= character && character <= L'z') || (L'A' <= character && character <= L'Z')) buffers.element(index) += 0xf300;
         }
         ++count;
     }
@@ -569,7 +569,7 @@ u8 WithZi::getPredictLanguage() {
 
 void WithZi::setCurrentWord(const wchar_t* word) {
     if (word == NULL) {
-        LatestWord[0] = 0x20;
+        LatestWord[0] = L' ';
         LatestWord[1] = 0;
         return;
     }
@@ -580,7 +580,7 @@ void WithZi::setCurrentWord(const wchar_t* word) {
     mbContextChanged = 1;
     length = 0;
     currentWord = reinterpret_cast<wchar_t*>(LatestWord);
-    for (; *currentWord != 0 && *currentWord != 0x20;
+    for (; *currentWord != 0 && *currentWord != L' ';
          currentWord++, ++length) {
         if (length == 0x3f) {
             LatestWord[length] = 0;

@@ -4,26 +4,26 @@ void* NHTTPi_memcpy(void*, const void*, u32);
 s32 NHTTPi_SocRecv(void*, NHTTPRequestInfo*, s32, void*, s32, s32);
 
 static void FindHeaderBlock(const NHTTPResponseInfo* response, s32 position, NHTTPi_HDRBUFLIST** block, s32* offset) {
-    if(position<1024) { *offset=position; *block=NULL; }
+    if(position<NHTTP_HDRRECVBUF_INILEN) { *offset=position; *block=NULL; }
     else {
-        s32 blocks=(position-1024)>>9;
+        s32 blocks=(position-NHTTP_HDRRECVBUF_INILEN)>>NHTTP_HDRRECVBUF_BLOCKSHIFT;
         *block=response->hdrBufBlock_p;
         while(blocks--) *block=(*block)->next_p;
-        *offset=(position-1024)&511;
+        *offset=(position-NHTTP_HDRRECVBUF_INILEN)&NHTTP_HDRRECVBUF_BLOCKMASK;
     }
 }
 
 static int ReadHeaderChar(const NHTTPResponseInfo* response, NHTTPi_HDRBUFLIST** block, s32* offset) {
     if(!*block) {
-        if(*offset<1024) return (s8)response->hdrBufFirst[(*offset)++];
+        if(*offset<NHTTP_HDRRECVBUF_INILEN) return (s8)response->hdrBufFirst[(*offset)++];
         *block=response->hdrBufBlock_p;
         *offset=0;
-    } else if(*offset==512) { *offset=0; *block=(*block)->next_p; }
+    } else if(*offset==NHTTP_HDRRECVBUF_BLOCKLEN) { *offset=0; *block=(*block)->next_p; }
     return (*block)->block[(*offset)++];
 }
 
 static int LowerCase(int character) {
-    return ((character >= 'A') & (character <= 'Z')) ? character + 32 : character;
+    return ((character >= 'A') & (character <= 'Z')) ? character + ('a' - 'A') : character;
 }
 
 s32 NHTTPi_findNextLineHdrRecvBuf(const NHTTPResponseInfo* response, s32 position, s32 limit, s32* colon, s32* newlineLength) {
@@ -96,25 +96,25 @@ s32 NHTTPi_loadFromHdrRecvBuf(NHTTPResponseInfo* response, char* destination, s3
     NHTTPi_HDRBUFLIST* block;
     if (position + length <= response->headerLen) {
         if(length) {
-            if(position<1024) {
+            if(position<NHTTP_HDRRECVBUF_INILEN) {
                 amount=length;
-                if(length>1024-position) amount=1024-position;
+                if(length>NHTTP_HDRRECVBUF_INILEN-position) amount=NHTTP_HDRRECVBUF_INILEN-position;
                 NHTTPi_memcpy(destination,response->hdrBufFirst+position,amount);
                 position+=amount; length-=amount; destination+=amount;
             }
             if(length) {
                 s32 blocks;
-                position-=1024;
+                position-=NHTTP_HDRRECVBUF_INILEN;
                 block=response->hdrBufBlock_p;
-                blocks=position>>9;
-                position&=511;
+                blocks=position>>NHTTP_HDRRECVBUF_BLOCKSHIFT;
+                position&=NHTTP_HDRRECVBUF_BLOCKMASK;
                 while(blocks--) block=block->next_p;
                 while(length) {
                     amount=length;
-                    if(length>512-position) amount=512-position;
+                    if(length>NHTTP_HDRRECVBUF_BLOCKLEN-position) amount=NHTTP_HDRRECVBUF_BLOCKLEN-position;
                     NHTTPi_memcpy(destination,block->block+position,amount);
                     position+=amount;
-                    position&=511;
+                    position&=NHTTP_HDRRECVBUF_BLOCKMASK;
                     block=block->next_p;
                     length-=amount; destination+=amount;
                 }
@@ -135,12 +135,12 @@ s32 NHTTPi_RecvBuf(void* mutex, NHTTPRequestInfo* request, s32 socket, u32 offse
 s32 NHTTPi_RecvBufN(void* mutex, NHTTPRequestInfo* request, s32 socket, u32 offset, s32 length, s32 flags) {
     s32 available;
     NHTTPResponseInfo* response=request->response;
-    void* buf;
+    void* receiveCursor;
     if(response->recvBufLen<=offset) return -1003;
     available=response->recvBufLen;
-    buf=response->recvBuf_p;
+    receiveCursor=response->recvBuf_p;
     available=available-offset;
-    buf=(u8*)buf+offset;
+    receiveCursor=(u8*)receiveCursor+offset;
     if(length>available) length=available;
-    return NHTTPi_SocRecv(mutex,request,socket,buf,length,flags);
+    return NHTTPi_SocRecv(mutex,request,socket,receiveCursor,length,flags);
 }

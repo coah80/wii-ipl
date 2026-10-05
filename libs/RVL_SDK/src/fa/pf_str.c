@@ -134,19 +134,19 @@ pf_u16 PFSTR_StrNumChar(PF_STR* p_str, pf_u32 target) {
 pf_s32 PFSTR_StrCmp(const PF_STR* p_str, const pf_s8* s) {
     pf_u16 wc;
     const pf_u16* wp;
-    const pf_s8* p1;
-    const pf_s8* p2;
+    const pf_s8* stringCursor;
+    const pf_s8* compareCursor;
     pf_s32 ret;
 
     if (p_str->code_mode == 1) {
-        p1 = p_str->p_head;
-        p2 = s;
-        ret = pf_strcmp(p1, p2);
+        stringCursor = p_str->p_head;
+        compareCursor = s;
+        ret = pf_strcmp(stringCursor, compareCursor);
     } else {
         wp = (pf_u16*)p_str->p_head;
 
         do {
-            pf_vol_set.codeset.oem2unicode((pf_s8*)s, &wc);
+            pf_vol_set.codeset.oem2unicode(s, &wc);
             s++;
 
             if (*wp++ != wc) {
@@ -164,20 +164,20 @@ pf_s32 PFSTR_StrCmp(const PF_STR* p_str, const pf_s8* s) {
 pf_s32 PFSTR_StrNCmp(PF_STR* p_str, const pf_s8* s, pf_u32 target, pf_s16 offset, pf_u16 num) {
     pf_u16 wc;
     const pf_u16* wp;
-    const pf_s8* p1;
-    const pf_s8* p2;
+    const pf_s8* stringCursor;
+    const pf_s8* compareCursor;
     pf_s32 ret;
 
     if (p_str->code_mode == 1 || target == 3) {
         if (target == 1) {
-            p1 = &p_str->p_head[offset];
+            stringCursor = &p_str->p_head[offset];
         } else if (target == 2) {
-            p1 = &p_str->p_tail[offset];
+            stringCursor = &p_str->p_tail[offset];
         } else {
-            p1 = &p_str->p_current[offset];
+            stringCursor = &p_str->p_current[offset];
         }
-        p2 = s;
-        ret = pf_strncmp(p1, p2, num);
+        compareCursor = s;
+        ret = pf_strncmp(stringCursor, compareCursor, num);
     } else {
         if (target == 1) {
             wp = (pf_u16*)p_str->p_head + offset;
@@ -186,7 +186,7 @@ pf_s32 PFSTR_StrNCmp(PF_STR* p_str, const pf_s8* s, pf_u32 target, pf_s16 offset
         }
 
         do {
-            pf_vol_set.codeset.oem2unicode((pf_s8*)s, &wc);
+            pf_vol_set.codeset.oem2unicode(s, &wc);
             s++;
             num--;
 

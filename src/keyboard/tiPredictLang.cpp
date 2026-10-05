@@ -147,37 +147,37 @@ namespace textinput {
             mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
 
             for (u16 i = 0; i < ARRAY_LENGTH(csPaneToAnimation); i++) {
-                const PaneToAnimation& p = csPaneToAnimation[i];
+                const PaneToAnimation& paneAnimations = csPaneToAnimation[i];
                 AnmPane* pane = NULL;
-                switch (p.type) {
+                switch (paneAnimations.type) {
                     case KT_Whole: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(WholeAnmPane));
-                        pane = new (pBtnBuf) WholeAnmPane(getPane(p.paneName), this);
+                        pane = new (pBtnBuf) WholeAnmPane(getPane(paneAnimations.paneName), this);
                         break;
                     }
                     case KT_NormalButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane));
-                        pane = new (pBtnBuf) NormalButtonAnmPane(getPane(p.paneName), NULL);
+                        pane = new (pBtnBuf) NormalButtonAnmPane(getPane(paneAnimations.paneName), NULL);
                         break;
                     }
                     case KT_ChangeButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(ChangeButtonAnmPane));
-                        pane = new (pBtnBuf) ChangeButtonAnmPane(getPane(p.paneName), NULL, this);
+                        pane = new (pBtnBuf) ChangeButtonAnmPane(getPane(paneAnimations.paneName), NULL, this);
                         break;
                     }
                 }
 
                 nw4r::ut::List_Append(&mAnmPanes, pane);
 
-                for (u16 j = 0; j < p.count; j++) {
-                    void* pResource = mpMultiArcResourceAccessor->GetResource(0, p.pAnims[j]->fileName);
+                for (u16 j = 0; j < paneAnimations.count; j++) {
+                    void* pResource = mpMultiArcResourceAccessor->GetResource(0, paneAnimations.pAnims[j]->fileName);
                     AnimTransformPane* transform =
                         static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(pResource, mpMultiArcResourceAccessor));
 
-                    if (p.forceAddName == NULL) {
-                        pane->addAnimation(allocator, p.pAnims[j]->id, transform, false, true);
+                    if (paneAnimations.forceAddName == NULL) {
+                        pane->addAnimation(allocator, paneAnimations.pAnims[j]->id, transform, false, true);
                     } else {
-                        pane->forceAddAnimation(allocator, p.pAnims[j]->id, transform, p.forceAddName, false, true);
+                        pane->forceAddAnimation(allocator, paneAnimations.pAnims[j]->id, transform, paneAnimations.forceAddName, false, true);
                     }
                 }
             }
@@ -374,7 +374,7 @@ namespace textinput {
                 if (pane != NULL) {
                     switch (event) {
                         case ON_TRIG: {
-                            if ((input->trigger & 0x800)) {
+                            if ((input->trigger & WPAD_BUTTON_A)) {
                                 pane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                             }
                             break;
@@ -391,7 +391,7 @@ namespace textinput {
                     }
                 }
 
-                if (event == ON_TRIG && (input->trigger & 0x800)) {
+                if (event == ON_TRIG && (input->trigger & WPAD_BUTTON_A)) {
                     char paneName[17];
                     // open-coded util::replaceChar
                     memset(paneName, 0, 17);

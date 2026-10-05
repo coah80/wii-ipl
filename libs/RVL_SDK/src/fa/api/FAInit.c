@@ -11,7 +11,7 @@ extern s32 pfstub_init_prfile2(s32 config, void* parameter);
 FAError FAInit(int flag) {
     s32 error;
     if (FAInInitializing == 1) {
-        return -1;
+        return FA_ERR_SYSTEM;
     }
     FAInInitializing = 1;
     if (!FADiskInitialized) {
@@ -19,7 +19,7 @@ FAError FAInit(int flag) {
         FADiskInitialized = error == 0;
         if (error != 0) {
             FAInInitializing = 0;
-            return -1;
+            return FA_ERR_SYSTEM;
         }
     }
     if (!FAFileSysInitialized) {
@@ -27,10 +27,10 @@ FAError FAInit(int flag) {
         FAFileSysInitialized = error == 0;
         if (error == -1) {
             FAInInitializing = 0;
-            return -1;
+            return FA_ERR_SYSTEM;
         }
     }
     FAInInitializing = 0;
     OSRegisterVersion(__FAVersion[0]);
-    return 0;
+    return FA_ERR_SUCCESS;
 }

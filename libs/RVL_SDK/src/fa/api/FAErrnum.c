@@ -4,8 +4,8 @@ extern s32 pfstub_errnum(void);
 
 FAError FAErrnum(void) {
     s32 error = pfstub_errnum();
-    if (error == 5) {
-        return 5;
+    if (error == FA_ERR_EIO) {
+        return FA_ERR_EIO;
     }
-    return error == 0 ? 0 : error;
+    return error == FA_ERR_SUCCESS ? FA_ERR_SUCCESS : error;
 }

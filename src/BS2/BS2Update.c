@@ -73,7 +73,7 @@ void BS2UpdateInit(void* allocator) {
     memset(Flags1, 0, sizeof(Flags1));
     BS2Report("Create update thread\n");
     OSCreateThread(&Thread, UpdateThread, NULL, ThreadStack + sizeof(ThreadStack),
-                   sizeof(ThreadStack), 31, 1);
+                   sizeof(ThreadStack), 31, OS_THREAD_ATTR_DETACH);
     OSResumeThread(&Thread);
 }
 
@@ -113,37 +113,37 @@ static inline u32 BS2SelectUpdateEntries(void) {
     selectedSeatCount = 0;
     State = 0;
     ContainsSeatTitles = FALSE;
-    if (ES_GetTitleId(&scratch.titleId) != 0) {
+    if (ES_GetTitleId(&scratch.titleId) != ES_ERR_OK) {
         regionValid = FALSE;
     } else {
         titleRegion = (u8)scratch.titleId;
         switch (SCGetProductArea()) {
-        case 0:
-        case 5:
+        case SC_PRODUCT_AREA_JPN:
+        case SC_PRODUCT_AREA_TWN:
             if (titleRegion == 'J' || titleRegion == 'D') {
                 regionValid = TRUE;
                 goto product_region_checked;
             }
             goto invalid_product_region;
-        case 1:
+        case SC_PRODUCT_AREA_USA:
             if (titleRegion == 'E' || titleRegion == 'D') {
                 regionValid = TRUE;
                 goto product_region_checked;
             }
             goto invalid_product_region;
-        case 2:
+        case SC_PRODUCT_AREA_EUR:
             if (titleRegion == 'P' || titleRegion == 'D') {
                 regionValid = TRUE;
                 goto product_region_checked;
             }
             goto invalid_product_region;
-        case 6:
+        case SC_PRODUCT_AREA_KOR:
             if (titleRegion == 'K') {
                 regionValid = TRUE;
                 goto product_region_checked;
             }
             goto invalid_product_region;
-        case 11:
+        case SC_PRODUCT_AREA_CHN:
             if (titleRegion == 'C') {
                 regionValid = TRUE;
                 goto product_region_checked;
@@ -347,7 +347,7 @@ product_region_checked:
         if (seatEntries[index].type != 7) {
             continue;
         }
-        if (ES_GetTicketViews(seatEntries[index].titleId, NULL, &scratch.ticketCount) != 0) {
+        if (ES_GetTicketViews(seatEntries[index].titleId, NULL, &scratch.ticketCount) != ES_ERR_OK) {
             BS2Report("Faild to get eTicket views.\n");
             continue;
         }
@@ -378,7 +378,7 @@ product_region_checked:
             BS2Report("Error: cannot get channel count.");
             goto seats_done;
         }
-        if (NANDSecretGetUserAvailableArea(&scratch.freeBlocks, &scratch.freeInodes) != 0) {
+        if (NANDSecretGetUserAvailableArea(&scratch.freeBlocks, &scratch.freeInodes) != NAND_RESULT_OK) {
             BS2Report("Error: cannot get free user blocks.");
             goto seats_done;
         }

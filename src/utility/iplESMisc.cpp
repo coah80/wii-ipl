@@ -138,7 +138,7 @@ namespace ipl {
 
         BOOL ESMisc::ContentExist(ESTmdView* tmdView, u32 contentIndex, s32* result) {
             u32 numContents;
-            u32 contents[512] ALIGN32;
+            u32 contents[ES_MAX_CONTENT] ALIGN32;
 
             ESTitleId titleId = tmdView->head.titleId;
 
@@ -282,7 +282,7 @@ namespace ipl {
             ESTicketView* ticketView;
 
             if (ticket == NULL) {
-                if (GetTicketViewList(heap, titleId, &ticket, &ticketLength) < 0) {
+                if (GetTicketViewList(heap, titleId, &ticket, &ticketLength) < ES_ERR_OK) {
                     if (ticket != NULL) {
                         heap->free(ticket);
                     }
@@ -291,9 +291,9 @@ namespace ipl {
                 allocated = true;
             }
 
-            ticketView = (ESTicketView*)heap->alloc(0xe0, -32);
+            ticketView = (ESTicketView*)heap->alloc(0xe0, -DEFAULT_ALIGN);
 
-            if (ESP_InitLib() < 0) {
+            if (ESP_InitLib() < ES_ERR_OK) {
                 goto error;
             }
 
@@ -307,7 +307,7 @@ namespace ipl {
                 index = 0;
             }
 
-            memcpy(ticketView, (u8*)ticket + index * 0xd8, 0xd8);
+            memcpy(ticketView, &ticket[index], sizeof(ESTicketView));
 
             {
                 ESFd fd = ES_OpenTitleContentFile(titleId, ticketView, 0);
@@ -315,18 +315,18 @@ namespace ipl {
                 if (fd < 0) {
                     OSReport("ESMisc::GetValidTicketIndex: ES_OpenTitleContentFile fd %d\n", fd);
                 } else {
-                    char* buf = (char*)heap->alloc(0x40, -32);
+                    char* buf = (char*)heap->alloc(0x40, -DEFAULT_ALIGN);
                     u32 numRead = ES_ReadContentFile(fd, buf, 0x40);
 
                     if (numRead != 0x40) {
                         OSReport("ESMisc::GetValidTicketIndex: ES_ReadContentFile err %d\n", numRead);
                         heap->free(buf);
 
-                        if (ES_CloseContentFile(fd) < 0) {
+                        if (ES_CloseContentFile(fd) < ES_ERR_OK) {
                             goto error;
                         }
                     } else {
-                        if (ES_CloseContentFile(fd) < 0) {
+                        if (ES_CloseContentFile(fd) < ES_ERR_OK) {
                             heap->free(buf);
                             goto error;
                         }
@@ -997,7 +997,7 @@ namespace ipl {
                 goto cleanup;
             }
             for (u32 j = 0; j < *ticketViewCount; j++) {
-                memcpy(ticketViews, (u8*)ticketViewList + j * sizeof(ESTicketView), sizeof(ESTicketView));
+                memcpy(ticketViews, &ticketViewList[j], sizeof(ESTicketView));
                 ret = ES_DeleteTicket((ESTicketView*)ticketViews);
                 if (ret != ES_ERR_OK) {
                     OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret,
@@ -1262,7 +1262,7 @@ namespace ipl {
                 tmdSize = 0;
 
                 ret = Exist(titleId, &tmdOffset, &tmdSize);
-                if (ret == FALSE) {
+                if (!ret) {
                     ret = ES_ERR_NO_TMD_FILE_FOUND;
                     goto out;
                 }

@@ -177,11 +177,11 @@ pf_s32 pdm_part_get_partition(PDM_DISK* p_disk, pf_u32 id, PDM_PARTITION** pp_pa
     pf_s32 err;
     pf_u16 index;
     *pp_part = PF_NULL;
-    if (pdm_disk_set.num_partition >= 26) { return 10; }
-    for (index = 0; index < 26; index++) {
+    if (pdm_disk_set.num_partition >= PDM_DRIVE_COUNT) { return 10; }
+    for (index = 0; index < PDM_DRIVE_COUNT; index++) {
         if (!(pdm_disk_set.partition[index].status & 1)) { break; }
     }
-    if (index == 26) { return 10; }
+    if (index == PDM_DRIVE_COUNT) { return 10; }
     err = pdm_disk_set_disk(p_disk, &pdm_disk_set.partition[index]);
     if (err != 0) { return err; }
     pdm_disk_set.num_partition++;
@@ -298,7 +298,7 @@ pf_s32 pdm_part_unregister_callback(PDM_PARTITION* p_part) {
 }
 void pdm_part_set_change_media_state(PDM_DISK* p_disk, pf_bool is_inserted) {
     pf_u16 index;
-    for (index = 0; index < 26; index++) {
+    for (index = 0; index < PDM_DRIVE_COUNT; index++) {
         if ((pdm_disk_set.partition[index].status & 1) && pdm_disk_set.partition[index].p_disk == p_disk) {
             PDM_PARTITION* p_part = &pdm_disk_set.partition[index];
             p_part->status |= 2;

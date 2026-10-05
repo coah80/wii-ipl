@@ -214,7 +214,7 @@ pf_s32 PFENT_searchEmptyTailSFN(PFENTRY_FFD* p_ffd, pf_u32 tail_index, const pf_
     pf_memset(p_tail_bit, 0, p_vol->tail_entry.tracker_size * 4);
     iter.ffd = *p_ffd;
 
-    for (err = PFENT_ITER_IteratorInitialize(&iter, 0); PFENT_ITER_IsAtLogicalEnd(&iter) == PF_FALSE;
+    for (err = PFENT_ITER_IteratorInitialize(&iter, 0); !PFENT_ITER_IsAtLogicalEnd(&iter);
          err = PFENT_ITER_Advance(&iter, PF_FALSE)) {
         if (err != 0) {
             return err;

@@ -222,7 +222,7 @@ void ipl::scene::AddressEdit::stt_msg_no_established() {
 }
 
 void ipl::scene::AddressEdit::stt_msg_code_invalid() {
-    ipl::System::getScene(5);
+    ipl::System::getScene(ipl::SCENE_BUTTON);
     switch (ipl::System::getDialog()->getLastResult()) {
     case 1:
         mState = 0x11;
@@ -233,7 +233,7 @@ void ipl::scene::AddressEdit::stt_msg_code_invalid() {
 }
 
 void ipl::scene::AddressEdit::stt_msg_dup_wii_no() {
-    ipl::System::getScene(5);
+    ipl::System::getScene(ipl::SCENE_BUTTON);
     switch (ipl::System::getDialog()->getLastResult()) {
     case 1:
         mState = 0x11;
@@ -244,7 +244,7 @@ void ipl::scene::AddressEdit::stt_msg_dup_wii_no() {
 }
 
 void ipl::scene::AddressEdit::stt_msg_dup_email() {
-    ipl::System::getScene(5);
+    ipl::System::getScene(ipl::SCENE_BUTTON);
     switch (ipl::System::getDialog()->getLastResult()) {
     case 1:
         mState = 0x11;
@@ -255,7 +255,7 @@ void ipl::scene::AddressEdit::stt_msg_dup_email() {
 }
 
 void ipl::scene::AddressEdit::stt_msg_my_wii_no() {
-    ipl::System::getScene(5);
+    ipl::System::getScene(ipl::SCENE_BUTTON);
     switch (ipl::System::getDialog()->getLastResult()) {
     case 1:
         mState = 0x11;
@@ -266,7 +266,7 @@ void ipl::scene::AddressEdit::stt_msg_my_wii_no() {
 }
 
 void ipl::scene::AddressEdit::stt_msg_no_mii_add() {
-    ipl::System::getScene(5);
+    ipl::System::getScene(ipl::SCENE_BUTTON);
     switch (ipl::System::getDialog()->getLastResult()) {
     case 1:
         mState = 0x1d;
@@ -277,10 +277,10 @@ void ipl::scene::AddressEdit::stt_msg_no_mii_add() {
 }
 
 void ipl::scene::AddressEdit::stt_msg_add_rlt() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     switch (ipl::System::getDialog()->getLastResult()) {
     case 1:
-        button->reserveAnm(0xf);
+        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
         mState = 0x30;
         break;
     default:
@@ -289,7 +289,7 @@ void ipl::scene::AddressEdit::stt_msg_add_rlt() {
 }
 
 void ipl::scene::AddressEdit::stt_add_code_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     if (button->isActive()) {
         button->update();
     }
@@ -299,7 +299,7 @@ void ipl::scene::AddressEdit::stt_add_code_normal() {
 }
 
 void ipl::scene::AddressEdit::stt_add_name_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     if (button->isActive()) {
         button->update();
     }
@@ -382,7 +382,7 @@ void ipl::scene::AddressEdit::prepare() {
 void ipl::scene::AddressEdit::create() {
 
     ipl::nand::LayoutFile* boardFile =
-        static_cast<ipl::scene::Board*>(ipl::System::getScene(4))->getLayoutFile();
+        static_cast<ipl::scene::Board*>(ipl::System::getScene(ipl::SCENE_BOARD))->getLayoutFile();
 
     ipl::layout::Object* bLayout =
         new ipl::layout::Object(getHeap(), boardFile, "arc", "th_Adress_b.brlyt");
@@ -493,7 +493,7 @@ void ipl::scene::AddressEdit::create() {
     memset(&ipl::scene::sFriendInfo, 0, sizeof(ipl::scene::sFriendInfo));
     mpNigaoe = 0;
     mNigaoeState = 0;
-    ipl::scene::SceneObj* addressScene = ipl::System::getScene(0x14);
+    ipl::scene::SceneObj* addressScene = ipl::System::getScene(ipl::SCENE_ADDRESS);
     ipl::scene::Address* address = static_cast<ipl::scene::Address*>(addressScene);
     mpFriendCache = address->getFriendCache();
 
@@ -504,7 +504,7 @@ void ipl::scene::AddressEdit::create() {
         mSelectedFriend = address->getChosenFriendIndex();
         get_friendinfo();
         u32 friendIndex = mSelectedFriend;
-        if (mpFriendCache->getInfo(friendIndex).attr.status == 2) {
+        if (mpFriendCache->getInfo(friendIndex).attr.status == NWC24_FRIENDSTATUS_CONFIRMED) {
             (mpCodeLayout)->getAnim(0x15)->initAnmFrame();
             (mpCodeLayout)->getAnim(0x1a)->initAnmFrame();
         } else {
@@ -592,7 +592,7 @@ create_mode_done:
 void ipl::scene::AddressEdit::stt_wait_decide_anm() {
     nw4r::lyt::Pane* textPane;
     bool complete = true;
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     for (s32 i = 0; i < 5; ++i) {
         u16 index = static_cast<u16>(mSelectedButton + 6);
         complete = (complete & !mpCodeLayout->getAnim(index)->isPlaying()) != 0;
@@ -603,7 +603,7 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
 
     switch (mSelectedButton) {
     case 2: {
-        if (mpFriendCache->getInfo(mSelectedFriend).attr.status == 2) {
+        if (mpFriendCache->getInfo(mSelectedFriend).attr.status == NWC24_FRIENDSTATUS_CONFIRMED) {
             ipl::layout::Animator* statusAnimator = mpCodeLayout->getAnim(0x15);
             statusAnimator->initFrame();
             statusAnimator->restart();
@@ -618,16 +618,16 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
         animator = mpCodeLayout->getAnim(0x17);
         animator->initFrame();
         animator->restart();
-        button->reserveAnm(0xc);
+        button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
         mState = 3;
         mpBalloon->fadeoutForce();
         reset_gui();
         break;
     }
     case 1: {
-        button->reserveAnm(0xc);
-        button->reserveText(1, 0x2e);
-        button->reserveAnm(0xf);
+        button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+        button->reserveText(1, MESG_CMN_OK);
+        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
         ipl::layout::Animator* animator = mpNameLayout->getAnim(0);
         animator->initFrame();
         animator->restart();
@@ -657,12 +657,12 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
         if (mNigaoeState != 1) {
             mNigaoeState = 0;
             if (RFLGetAvailableOfficialDataNum() != 0) {
-                button->reserveAnm(0xc);
-                button->reserveAnm(0xb);
-                createChildScene(0x1c, this, 0, reinterpret_cast<void*>(1));
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
+                createChildScene(ipl::SCENE_FACE_SELECT, this, 0, reinterpret_cast<void*>(1));
                 mState = 0xb;
             } else {
-                ipl::System::getDialog()->callBtn1(0x17c, 0x2e);
+                ipl::System::getDialog()->callBtn1(MESG_TEXTWRITER_NO_MII, MESG_CMN_OK);
                 mState = 0xa;
             }
             mpBalloon->fadeoutForce();
@@ -673,17 +673,17 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
         SCParentalControlsInfo parentalInfo;
         BOOL parentalResult = SCGetParentalControl(&parentalInfo);
         if (!ipl::ncd::NCDSetting::getConnectEnableFlag()) {
-            button->animation(0x1d);
-            ipl::System::getDialog()->callBtn2(0x144, 0x146, 0x25, false);
+            button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            ipl::System::getDialog()->callBtn2(MESG_NETWORK_NO_CONFIG, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT, false);
             mState = 0x27;
-        } else if ((SCGetWCFlags() & 1) == 0) {
-            button->animation(0x1d);
-            ipl::System::getDialog()->callBtn2(0x17e, 0x146, 0x25, false);
+        } else if ((SCGetWCFlags() & SC_WC_FLAGS_ENABLED) == 0) {
+            button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            ipl::System::getDialog()->callBtn2(MESG_NETWORK_NO_WC24_CONFIG, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT, false);
             mState = 0x2a;
-        } else if (parentalResult != 0 && (parentalInfo.enable & 0x80) != 0 &&
-                   (SCGetNetContentRestrictions() & 2) != 0) {
-            button->animation(0x1d);
-            ipl::System::getDialog()->callBtn1(0x14c, 0x2e);
+        } else if (parentalResult != 0 && (parentalInfo.enable & SC_PARENTAL_FLAG_ENABLED) != 0 &&
+                   (SCGetNetContentRestrictions() & SC_NET_RESTRICTIONS_MSG_BOARD) != 0) {
+            button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            ipl::System::getDialog()->callBtn1(MESG_NETWORK_PARENTAL_RESTRICT, MESG_CMN_OK);
             mState = 0x2d;
         } else {
             s32 friendError = mpFriendCache->check();
@@ -699,15 +699,15 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
                 }
                 set_err_msg(errorMessage, 0x400,
                     static_cast<NWC24Err>(mpFriendCache->getLastErr()));
-                ipl::System::getDialog()->callBtn1(errorMessage, 0x2e);
-                button->animation(0x1d);
+                ipl::System::getDialog()->callBtn1(errorMessage, MESG_CMN_OK);
+                button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
                 mState = 0x2e;
             } else {
-                button->reserveAnm(0xc);
-                button->reserveText(1, 0x27);
-                button->reserveText(0, 0x4f);
-                button->reserveAnm(0xf);
-                requestSceneChange(0xb, reinterpret_cast<void*>(1));
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                button->reserveText(1, MESG_BOARD_SEND);
+                button->reserveText(0, MESG_CMN_BACK_ALT_2);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                requestSceneChange(ipl::SCENE_LETTER_WRITER, reinterpret_cast<void*>(1));
                 ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1e);
                 animator->initFrame();
                 animator->restart();
@@ -719,7 +719,7 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
         break;
     }
     case 4: {
-        ipl::System::getDialog()->callBtn1(mString.getDispCodeLong(), 0x2e);
+        ipl::System::getDialog()->callBtn1(mString.getDispCodeLong(), MESG_CMN_OK);
         mpBalloon->fadeoutForce();
         reset_gui();
         mState = 9;
@@ -732,7 +732,7 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm() {
 }
 
 void ipl::scene::AddressEdit::stt_wait_delete() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     switch (ipl::System::getDialog()->getLastResult()) {
     case 2: {
         delete_friendinfo();
@@ -743,7 +743,7 @@ void ipl::scene::AddressEdit::stt_wait_delete() {
         break;
     }
     case 1: {
-        button->reserveAnm(0xb);
+        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
         ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1d);
         animator->initFrame();
         animator->restart();
@@ -789,18 +789,18 @@ void ipl::scene::AddressEdit::stt_add_code_fadein() {
 
 void ipl::scene::AddressEdit::stt_add_name_input() {
     ipl::keyboard::Manager::State* state = ipl::System::getKeyboard()->getState();
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     s32 keyboardType = state->iplType;
-    if (keyboardType == 3) {
+    if (keyboardType == ipl::keyboard::Manager::STATE_DISAPPEARING) {
         goto state_disappearing;
     }
-    if (keyboardType >= 3) {
+    if (keyboardType >= ipl::keyboard::Manager::STATE_DISAPPEARING) {
         goto state_at_or_after_disappearing;
     }
-    if (keyboardType >= 2) {
+    if (keyboardType >= ipl::keyboard::Manager::STATE_VISIBLE) {
         goto done;
     }
-    if (keyboardType >= 0) {
+    if (keyboardType >= ipl::keyboard::Manager::STATE_HIDDEN) {
         goto state_hidden;
     }
     goto done;
@@ -828,7 +828,7 @@ state_disappearing: {
                 animator->initFrame();
                 animator->restart();
             }
-            button->reserveAnm(0xb);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
         } else {
             if (nameWasEmpty) {
                 ipl::layout::Animator* animator = mpNameLayout->getAnim(2);
@@ -839,10 +839,10 @@ state_disappearing: {
                 animator->restart();
             }
             if (mString.mbNameNotEmpty) {
-                button->reserveText(1, 0x2e);
-                button->reserveAnm(0xf);
+                button->reserveText(1, MESG_CMN_OK);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             } else {
-                button->reserveAnm(0xb);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
             }
         }
     }
@@ -850,7 +850,7 @@ state_disappearing: {
 
 state_visible: {
         mState = 0x19;
-        if (static_cast<u32>(ipl::System::getRegion()) == 6) {
+        if (static_cast<u32>(ipl::System::getRegion()) == SC_PRODUCT_AREA_KOR) {
             ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(false);
         }
     }
@@ -864,7 +864,7 @@ done:
 }
 
 void ipl::scene::AddressEdit::stt_add_mii_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     if (button->isActive()) {
         button->update();
     }
@@ -896,7 +896,7 @@ void ipl::scene::AddressEdit::stt_add_mii_input() {
 
     if (getChild() == NULL &&
         ipl::System::getSceneManager()->getReservedScene() == NULL) {
-        static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
+        static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
         mState = 0x1d;
         mNigaoeState = 0;
     }
@@ -1006,7 +1006,7 @@ void ipl::scene::AddressEdit::stt_add_confirm_fadeout() {
         return;
     }
 
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     switch (mSubState) {
     case 5: {
         ipl::utility::FrameController* animator = mpNameLayout->getAnim(0);
@@ -1017,9 +1017,9 @@ void ipl::scene::AddressEdit::stt_add_confirm_fadeout() {
     }
     case 7:
         add_friendinfo();
-        button->reserveText(1, 0x29);
-        static_cast<ipl::scene::Address*>(ipl::System::getScene(0x14))->reset_friend();
-        ipl::System::getDialog()->callBtn1(0x4a, 0x2e);
+        button->reserveText(1, MESG_ADDRESS_REGISTER);
+        static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
+        ipl::System::getDialog()->callBtn1(0x4a, MESG_CMN_OK);
         mState = 0x26;
         break;
     default:
@@ -1037,7 +1037,7 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm_add() {
         switch (mSelectedButton) {
         case 4:
             mpEditGui->init();
-            ipl::System::getDialog()->callBtn1(mString.getDispCodeLong(), 0x2e);
+            ipl::System::getDialog()->callBtn1(mString.getDispCodeLong(), MESG_CMN_OK);
             mState = 0x25;
             break;
         default:
@@ -1047,7 +1047,7 @@ void ipl::scene::AddressEdit::stt_wait_decide_anm_add() {
 }
 
 void ipl::scene::AddressEdit::stt_add_confirm_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     if (button->isActive()) {
         button->update();
     }
@@ -1058,7 +1058,7 @@ void ipl::scene::AddressEdit::stt_add_confirm_normal() {
 
 void ipl::scene::AddressEdit::stt_wait_parental() {
     ipl::scene::ParentalDialog* parental =
-        static_cast<ipl::scene::ParentalDialog*>(ipl::System::getScene(0x1b));
+        static_cast<ipl::scene::ParentalDialog*>(ipl::System::getScene(ipl::SCENE_PARENTAL_DIALOG));
     if (parental != NULL) {
         switch (parental->getResult()) {
         case 1:
@@ -1078,7 +1078,7 @@ void ipl::scene::AddressEdit::stt_wait_parental() {
 
 void ipl::scene::AddressEdit::stt_wait_parental_wc() {
     ipl::scene::ParentalDialog* parental =
-        static_cast<ipl::scene::ParentalDialog*>(ipl::System::getScene(0x1b));
+        static_cast<ipl::scene::ParentalDialog*>(ipl::System::getScene(ipl::SCENE_PARENTAL_DIALOG));
     if (parental != NULL) {
         switch (parental->getResult()) {
         case 1:
@@ -1100,11 +1100,11 @@ void ipl::scene::AddressEdit::stt_wait_parental_dst() {
     if (getChild() == NULL) {
         if (mbParentalOK) {
             ipl::System::getFader()->fadeOut();
-            reserveAllSceneDestruction(0x12, reinterpret_cast<void*>(1));
+            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(1));
             mState = 0x30;
         } else {
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->animation(0xb);
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
             mState = 0;
         }
     }
@@ -1114,11 +1114,11 @@ void ipl::scene::AddressEdit::stt_wait_parental_dst_wc() {
     if (getChild() == NULL) {
         if (mbParentalOK) {
             ipl::System::getFader()->fadeOut();
-            reserveAllSceneDestruction(0x12, reinterpret_cast<void*>(4));
+            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(4));
             mState = 0x30;
         } else {
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->animation(0xb);
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
             mState = 0;
         }
     }
@@ -1132,14 +1132,14 @@ void ipl::scene::AddressEdit::stt_msg_net() {
     case 1: {
         SCParentalControlsInfo info;
         if (SCGetParentalControl(&info) && (info.enable & SC_PARENTAL_FLAG_ENABLED)) {
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(NULL, NULL);
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->animation(0xc);
-            createChildScene(0x1b, this, NULL, reinterpret_cast<void*>(1));
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(NULL, NULL);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+            createChildScene(ipl::SCENE_PARENTAL_DIALOG, this, NULL, reinterpret_cast<void*>(1));
             mbParentalOK = false;
             mState = 0x28;
         } else {
             ipl::System::getFader()->fadeOut();
-            reserveAllSceneDestruction(0x12, reinterpret_cast<void*>(1));
+            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(1));
             mState = 0x30;
         }
         break;
@@ -1157,14 +1157,14 @@ void ipl::scene::AddressEdit::stt_msg_wc() {
     case 1: {
         SCParentalControlsInfo info;
         if (SCGetParentalControl(&info) && (info.enable & SC_PARENTAL_FLAG_ENABLED)) {
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(NULL, NULL);
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->animation(0xc);
-            createChildScene(0x1b, this, NULL, reinterpret_cast<void*>(1));
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(NULL, NULL);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+            createChildScene(ipl::SCENE_PARENTAL_DIALOG, this, NULL, reinterpret_cast<void*>(1));
             mbParentalOK = false;
             mState = 0x2b;
         } else {
             ipl::System::getFader()->fadeOut();
-            reserveAllSceneDestruction(0x12, reinterpret_cast<void*>(4));
+            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(4));
             mState = 0x30;
         }
         break;
@@ -1196,7 +1196,7 @@ void ipl::scene::AddressEdit::stt_select_mii() {
     }
 
     if (getChild() == NULL && ipl::System::getReservedScene() == NULL) {
-        static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
+        static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
         mState = 0;
         mNigaoeState = 0;
         mpEditGui->init();
@@ -1248,7 +1248,7 @@ void ipl::scene::AddressEditEvent::onEvent(u32 componentId, u32 event, void* dat
         break;
     case 0:
         if (data != NULL &&
-            static_cast<ipl::controller::Interface*>(data)->downTrg(0x100800)) {
+            static_cast<ipl::controller::Interface*>(data)->downTrg(ipl::controller::BTN_INTERACT)) {
             mpParent->start_trig_event(paneName);
         }
         break;
@@ -1267,7 +1267,7 @@ void ipl::scene::AddressInputEvent::onEvent(u32 componentId, u32 event, void* da
     switch (signedEvent) {
     case 0:
         if (data != NULL &&
-            static_cast<ipl::controller::Interface*>(data)->downTrg(0x100800)) {
+            static_cast<ipl::controller::Interface*>(data)->downTrg(ipl::controller::BTN_INTERACT)) {
             mpParent->start_ipt_trig_event(
                 paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
         }
@@ -1326,7 +1326,7 @@ ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcFadein() {
 }
 
 void ipl::scene::AddressEdit::initCalcNormal() {
-    static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(this);
+    static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(this);
 }
 
 ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcNormal() {
@@ -1584,7 +1584,7 @@ void ipl::scene::AddressEdit::stt_add_name_fadeout() {
         set_textbox(label, ipl::System::getMessage(0x55));
         label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
             "T_mii_msg_00", true);
-        set_textbox(label, ipl::System::getMessage(0x8b));
+        set_textbox(label, ipl::System::getMessage(MESG_TEXTWRITER_ADD_MII));
         mState = 0x1c;
         }
     state_done:
@@ -1593,7 +1593,7 @@ void ipl::scene::AddressEdit::stt_add_name_fadeout() {
 }
 
 void ipl::scene::AddressEdit::initCalcFadeout() {
-    static_cast<ipl::scene::Button*>(ipl::System::getScene(5))->setEventHandler(NULL);
+    static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(NULL);
     mpBalloon->calc();
 }
 
@@ -1606,7 +1606,7 @@ void ipl::scene::AddressEdit::calcCommonAfter() {
 }
 
 void ipl::scene::AddressEdit::stt_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     if (button->isActive()) {
         button->update();
     }
@@ -1623,7 +1623,7 @@ void ipl::scene::AddressEdit::stt_wait_del_msg_fadein() {
 
 void ipl::scene::AddressEdit::delete_friendinfo() {
     mpFriendCache->del(mSelectedFriend);
-    static_cast<ipl::scene::Address*>(ipl::System::getScene(0x14))->reset_friend();
+    static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
 }
 
 u64 ipl::scene::AddressEdit::utf16_wiiid(const wchar_t* value) {
@@ -1703,7 +1703,7 @@ void ipl::scene::AddressEdit::stt_wait_btn_fadeout() {
     const wchar_t* message;
     ipl::utility::FrameController* animator;
     bool friendFinished;
-    if (mpFriendCache->getInfo(mSelectedFriend).attr.status == 2) {
+    if (mpFriendCache->getInfo(mSelectedFriend).attr.status == NWC24_FRIENDSTATUS_CONFIRMED) {
         friendFinished = !mpCodeLayout->getAnim(0x15)->isPlaying();
     } else {
         friendFinished = !mpCodeLayout->getAnim(0x1b)->isPlaying();
@@ -1727,16 +1727,16 @@ void ipl::scene::AddressEdit::stt_wait_btn_fadeout() {
 void ipl::scene::AddressEdit::stt_wait_del_msg_fadeout_to_rlt() {
     if (!mpCodeLayout->getAnim(0x1d)->isPlaying()) {
         mState = 8;
-        ipl::System::getDialog()->callBtn1(0x51, 0x2e);
+        ipl::System::getDialog()->callBtn1(0x51, MESG_CMN_OK);
     }
 }
 
 void ipl::scene::AddressEdit::stt_msg_del_rlt() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     switch (ipl::System::getDialog()->getLastResult()) {
     case 1:
-        button->reserveText(1, 0x29);
-        button->reserveAnm(0xf);
+        button->reserveText(1, MESG_ADDRESS_REGISTER);
+        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
         ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1e);
         animator->initFrame();
         animator->restart();
@@ -1755,7 +1755,7 @@ void ipl::scene::AddressEdit::stt_ipt_wait_fadein() {
 }
 
 void ipl::scene::AddressEdit::stt_ipt_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     if (button->isActive()) {
         button->update();
     }
@@ -1767,7 +1767,7 @@ void ipl::scene::AddressEdit::stt_ipt_normal() {
 void ipl::scene::AddressEdit::stt_ipt_input() {
     ipl::keyboard::Manager::State* state = ipl::System::getKeyboard()->getState();
     ipl::scene::Button* button =
-        static_cast<ipl::scene::Button*>(ipl::System::getSceneManager()->getScene(5));
+        static_cast<ipl::scene::Button*>(ipl::System::getSceneManager()->getScene(ipl::SCENE_BUTTON));
     s32 keyboardType = state->iplType;
     if (keyboardType == ipl::keyboard::Manager::STATE_DISAPPEARING) {
         goto state_disappearing;
@@ -1807,7 +1807,7 @@ state_disappearing: {
                 pane->initFrame();
                 pane->restart();
             }
-            button->reserveAnm(0xb);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
         } else {
             if (nameWasEmpty) {
                 ipl::layout::Animator* pane = mpNameLayout->getAnim(2);
@@ -1818,10 +1818,10 @@ state_disappearing: {
                 pane->restart();
             }
             if (mString.mbNameNotEmpty != 0) {
-                button->reserveText(1, 0x2e);
-                button->reserveAnm(0xf);
+                button->reserveText(1, MESG_CMN_OK);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             } else {
-                button->reserveAnm(0xb);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
             }
         }
     }
@@ -1829,7 +1829,7 @@ state_disappearing: {
 
 state_hidden_after_disappear: {
         mState = 0xd;
-        if (static_cast<u32>(ipl::System::getRegion()) == 6) {
+        if (static_cast<u32>(ipl::System::getRegion()) == SC_PRODUCT_AREA_KOR) {
             ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(false);
         }
     }
@@ -1845,12 +1845,12 @@ done:
 
 void ipl::scene::AddressEdit::stt_add_code_input() {
     ipl::keyboard::Manager::State* state = ipl::System::getKeyboard()->getState();
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     switch (state->iplType) {
     case ipl::keyboard::Manager::STATE_DISAPPEARING: {
         BOOL codeWasEmpty = mString.mValue[0] == 0;
         if (state->pressOK) {
-            if (mMode == 1) {
+            if (mMode == SCENE_ADD_WII) {
                 mString.setWiiNo(state->wcString);
             } else {
                 mString.setEMail(state->wcString);
@@ -1867,7 +1867,7 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
                 pane->initFrame();
                 pane->restart();
             }
-            button->reserveAnm(0xb);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
         } else {
             if (codeWasEmpty) {
                 ipl::layout::Animator* pane = mpNameLayout->getAnim(2);
@@ -1880,10 +1880,10 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
             if (mString.mbValidMail != 0 &&
                 mString.isDupCode() == 0 &&
                 mString.isMyCode() == 0) {
-                button->reserveText(1, 0x2e);
-                button->reserveAnm(0xf);
+                button->reserveText(1, MESG_CMN_OK);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             } else {
-                button->reserveAnm(0xb);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
             }
         }
         break;
@@ -1891,24 +1891,24 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
     case ipl::keyboard::Manager::STATE_HIDDEN_AFTER_DISAPPEAR:
         if (state->pressOK) {
             if (mString.mValue[0] != 0) {
-                if (mMode == 1) {
+                if (mMode == SCENE_ADD_WII) {
                     if (mString.isMyCode() != 0) {
-                        ipl::System::getDialog()->callBtn1(0x56, 0x2e);
+                        ipl::System::getDialog()->callBtn1(0x56, MESG_CMN_OK);
                         mState = 0x16;
                     } else if (mString.isDupCode() != 0) {
-                        ipl::System::getDialog()->callBtn1(0x52, 0x2e);
+                        ipl::System::getDialog()->callBtn1(0x52, MESG_CMN_OK);
                         mState = 0x14;
                     } else if (mString.mbValidMail == 0) {
-                        ipl::System::getDialog()->callBtn1(0x54, 0x2e);
+                        ipl::System::getDialog()->callBtn1(0x54, MESG_CMN_OK);
                         mState = 0x13;
                     } else {
                         mState = 0x11;
                     }
                 } else if (mString.isDupCode() != 0) {
-                    ipl::System::getDialog()->callBtn1(0x53, 0x2e);
+                    ipl::System::getDialog()->callBtn1(0x53, MESG_CMN_OK);
                     mState = 0x15;
                 } else if (mString.mbValidMail == 0) {
-                    ipl::System::getDialog()->callBtn1(0x1be, 0x2e);
+                    ipl::System::getDialog()->callBtn1(0x1be, MESG_CMN_OK);
                     mState = 0x13;
                 } else {
                     mState = 0x11;
@@ -1922,7 +1922,7 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
         break;
     case ipl::keyboard::Manager::STATE_HIDDEN:
     case ipl::keyboard::Manager::STATE_APPEARING:
-        if (mMode != 1) {
+        if (mMode != SCENE_ADD_WII) {
             setDefaultTitleText(NULL, ipl::System::getKeyboard()->baseMgr()->isVacancy());
         }
         break;
@@ -1937,13 +1937,13 @@ void ipl::scene::AddressEdit::stt_add_code_fadeout() {
         pane = mpNameLayout->getAnim(6);
         if (!pane->isPlaying()) {
             nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-                reinterpret_cast<const char*>("T_question_00"), true);
+                "T_question_00", true);
             set_textbox(label, ipl::System::getMessage(0x32));
             nw4r::lyt::Pane* messageLabel = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-                reinterpret_cast<const char*>("T_msg_00"), true);
+                "T_msg_00", true);
             set_textbox(messageLabel, ipl::System::getMessage(0x49));
             nw4r::lyt::Pane* nameLabel = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-                    reinterpret_cast<const char*>("T_name_00"), true);
+                    "T_name_00", true);
             set_textbox(nameLabel, mString.mName);
             ipl::utility::FrameController* fade = mpNameLayout->getAnim(1);
             fade->initFrame();
@@ -2128,8 +2128,8 @@ state0:
 
 state0Button0: {
     u32 friendIndex = mSelectedFriend;
-    u32 friendType = mpFriendCache->getInfo(friendIndex).attr.status;
-    if (friendType != 2) {
+    u32 friendStatus = mpFriendCache->getInfo(friendIndex).attr.status;
+    if (friendStatus != NWC24_FRIENDSTATUS_CONFIRMED) {
         goto done;
     }
     s32* count = &mPointCount[buttonNo];
@@ -2152,7 +2152,7 @@ state0Button3: {
         ipl::layout::Object* layout = mpCodeLayout;
         nw4r::lyt::Pane* pane = layout->getNW4RLyt()->GetRootPane()->FindPaneByName(paneName, true);
         ipl::math::VEC3 position(0.0f, 0.0f, 0.0f);
-        PSMTXMultVec(pane->GetGlobalMtx(), reinterpret_cast<Vec*>(&position), reinterpret_cast<Vec*>(&position));
+        PSMTXMultVec(pane->GetGlobalMtx(), position, position);
         f32 xOffset;
         f32 scale;
         f32 height;
@@ -2196,7 +2196,7 @@ state22Button3:
             ipl::layout::Object* layout = mpCodeLayout;
             nw4r::lyt::Pane* pane = layout->getNW4RLyt()->GetRootPane()->FindPaneByName(paneName, true);
             ipl::math::VEC3 position(0.0f, 0.0f, 0.0f);
-            PSMTXMultVec(pane->GetGlobalMtx(), reinterpret_cast<Vec*>(&position), reinterpret_cast<Vec*>(&position));
+            PSMTXMultVec(pane->GetGlobalMtx(), position, position);
             f32 xOffset;
             f32 scale;
             f32 height;
@@ -2222,7 +2222,7 @@ void ipl::scene::AddressEdit::start_left_event(const char* paneName) {
     case 0:
         switch (buttonNo) {
         case 0: {
-            if (mpFriendCache->getInfo(mSelectedFriend).attr.status != 2) {
+            if (mpFriendCache->getInfo(mSelectedFriend).attr.status != NWC24_FRIENDSTATUS_CONFIRMED) {
                 break;
             }
             s32* count = &mPointCount[buttonNo];
@@ -2296,8 +2296,8 @@ void ipl::scene::AddressEdit::start_trig_event(
 
         state0Friend: {
             u32 friendIndex = mSelectedFriend;
-            u32 friendType = mpFriendCache->getInfo(friendIndex).attr.status;
-            if (friendType != 2) {
+            u32 friendStatus = mpFriendCache->getInfo(friendIndex).attr.status;
+            if (friendStatus != NWC24_FRIENDSTATUS_CONFIRMED) {
                 goto state0FriendError;
             }
             reset_gui();
@@ -2312,7 +2312,7 @@ void ipl::scene::AddressEdit::start_trig_event(
         }
 
         state0FriendError: {
-            ipl::System::getDialog()->callBtn1(0x57, 0x2e);
+            ipl::System::getDialog()->callBtn1(0x57, MESG_CMN_OK);
             (mpBalloon)->fadeoutForce();
             reset_gui();
             mState = 0x2f;
@@ -2360,7 +2360,7 @@ void ipl::scene::AddressEdit::start_trig_event(
 
 void ipl::scene::AddressEdit::start_ipt_trig_event(
     const char* paneName, int channel) {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
     ipl::controller::Interface* controller = ipl::System::getControllerManager()->getYoungController();
     if (controller == NULL) {
         return;
@@ -2372,18 +2372,18 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
         s32 state = mState;
         switch (state) {
     case 0xd: {
-        ipl::keyboard::Manager::KeyboardSetting setting(static_cast<ipl::keyboard::Manager::KeyboardType>(0xb), mString.mName, 0xa, 1);
+        ipl::keyboard::Manager::KeyboardSetting setting(ipl::keyboard::Manager::NORMAL_BIGTEXT_WITHOUT_LINEFEED_WITH_SIGN, mString.mName, 0xa, 1);
 
         switch (ipl::System::getRegion()) {
-        case 0xb: {
+        case SC_PRODUCT_AREA_CHN: {
             void* systemDictionary = ipl::System::getKeyboard()->getZiSystemDic();
             void* oemDictionary = ipl::System::getKeyboard()->getZiOemDic();
             ipl::System::getKeyboard()->baseMgr()->getInputForm()->setZiDictionary(oemDictionary, systemDictionary);
-            setting.type = static_cast<ipl::keyboard::Manager::KeyboardType>(0xd);
+            setting.type = ipl::keyboard::Manager::PREDICT_WITHOUT_LINEFEED;
             break;
         }
-        case 6:
-            setting.type = static_cast<ipl::keyboard::Manager::KeyboardType>(0xd);
+        case SC_PRODUCT_AREA_KOR:
+            setting.type = ipl::keyboard::Manager::PREDICT_WITHOUT_LINEFEED;
             ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(true);
             break;
         default:
@@ -2393,48 +2393,48 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
         ipl::System::getKeyboard()->start(channel, setting);
         setDefaultTitleText(mString.mName, false);
         if (mString.mbNameNotEmpty != 0) {
-            button->reserveAnm(0x10);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
         } else {
-            button->reserveAnm(0xc);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
         }
-        button->reserveText(1, 0x2e);
+        button->reserveText(1, MESG_CMN_OK);
         ipl::snd::getSystem()->startSE("WIPL_SE_DECIDE");
         mState = 0xe;
         break;
     }
     case 0x11: {
-        if (mMode == 1) {
-            ipl::keyboard::Manager::KeyboardSetting setting(static_cast<ipl::keyboard::Manager::KeyboardType>(0xc), mString.mValue, 0x10, 2);
+        if (mMode == SCENE_ADD_WII) {
+            ipl::keyboard::Manager::KeyboardSetting setting(ipl::keyboard::Manager::NUMERIC_WITH_SEPERATOR, mString.mValue, 0x10, 2);
             ipl::System::getKeyboard()->start(channel, setting);
         } else {
-            ipl::keyboard::Manager::KeyboardSetting setting(static_cast<ipl::keyboard::Manager::KeyboardType>(7), mString.mValue, 0x63, 5);
+            ipl::keyboard::Manager::KeyboardSetting setting(ipl::keyboard::Manager::ONLY_QWERTY_WITHOUT_LINEFEED_AND_SIGN, mString.mValue, 0x63, 5);
             ipl::System::getKeyboard()->start(channel, setting);
             setDefaultTitleText(mString.mValue, false);
         }
         if (mString.mbValidMail != 0 &&
             !mString.isDupCode() &&
             !mString.isMyCode()) {
-            button->reserveAnm(0x10);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
         } else {
-            button->reserveAnm(0xc);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
         }
         ipl::snd::getSystem()->startSE("WIPL_SE_DECIDE");
         mState = 0x12;
         break;
     }
     case 0x19: {
-        ipl::keyboard::Manager::KeyboardSetting setting(static_cast<ipl::keyboard::Manager::KeyboardType>(0xb), mString.mName, 0xa, 1);
+        ipl::keyboard::Manager::KeyboardSetting setting(ipl::keyboard::Manager::NORMAL_BIGTEXT_WITHOUT_LINEFEED_WITH_SIGN, mString.mName, 0xa, 1);
 
         switch (ipl::System::getRegion()) {
-        case 0xb: {
+        case SC_PRODUCT_AREA_CHN: {
             void* systemDictionary = ipl::System::getKeyboard()->getZiSystemDic();
             void* oemDictionary = ipl::System::getKeyboard()->getZiOemDic();
             ipl::System::getKeyboard()->baseMgr()->getInputForm()->setZiDictionary(oemDictionary, systemDictionary);
-            setting.type = static_cast<ipl::keyboard::Manager::KeyboardType>(0xd);
+            setting.type = ipl::keyboard::Manager::PREDICT_WITHOUT_LINEFEED;
             break;
         }
-        case 6:
-            setting.type = static_cast<ipl::keyboard::Manager::KeyboardType>(0xd);
+        case SC_PRODUCT_AREA_KOR:
+            setting.type = ipl::keyboard::Manager::PREDICT_WITHOUT_LINEFEED;
             ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(true);
             break;
         default:
@@ -2444,9 +2444,9 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
         ipl::System::getKeyboard()->start(channel, setting);
         setDefaultTitleText(mString.mName, false);
         if (mString.mbNameNotEmpty != 0) {
-            button->reserveAnm(0x10);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
         } else {
-            button->reserveAnm(0xc);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
         }
         ipl::snd::getSystem()->startSE("WIPL_SE_DECIDE");
         mState = 0x1a;
@@ -2456,13 +2456,13 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
         if (mNigaoeState != 1) {
             mNigaoeState = 0;
             if (RFLGetAvailableOfficialDataNum() != 0) {
-                createChildScene(0x1c, this, NULL, reinterpret_cast<void*>(2));
-                button->reserveAnm(0x10);
-                button->reserveAnm(0xb);
+                createChildScene(ipl::SCENE_FACE_SELECT, this, NULL, reinterpret_cast<void*>(2));
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
                 ipl::snd::getSystem()->startSE("WIPL_SE_DECIDE");
                 mState = 0x1e;
             } else {
-                ipl::System::getDialog()->callBtn1(0x17c, 0x2e);
+                ipl::System::getDialog()->callBtn1(MESG_TEXTWRITER_NO_MII, MESG_CMN_OK);
                 ipl::snd::getSystem()->startSE("WIPL_SE_DECIDE");
                 mState = 0x1f;
             }
@@ -2487,7 +2487,7 @@ void ipl::scene::AddressEdit::start_ipt_point_event(
                         ipl::layout::Object* layout = mpNameLayout;
                         nw4r::lyt::Pane* pane = layout->getNW4RLyt()->GetRootPane()->FindPaneByName(paneName, true);
                         ipl::math::VEC3 position(0.0f, 0.0f, 0.0f);
-                        PSMTXMultVec(pane->GetGlobalMtx(), reinterpret_cast<Vec*>(&position), reinterpret_cast<Vec*>(&position));
+                        PSMTXMultVec(pane->GetGlobalMtx(), position, position);
                         f32 y;
                         f32 offset;
                         offset = 50.0f;
@@ -2517,20 +2517,20 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
     if (controller == NULL) {
         return;
     }
-    if (!controller->downTrg(0x100800)) {
+    if (!controller->downTrg(ipl::controller::BTN_INTERACT)) {
         return;
     }
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(5));
-    ipl::System::getScene(0x14);
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    ipl::System::getScene(ipl::SCENE_ADDRESS);
 
         if (strcmp(paneName, smButtonName__Q33ipl5scene6Button[5]) == 0) {
         switch (mState) {
         case 0: {
-            button->reserveAnm(0x1b);
-            button->reserveAnm(0xc);
-            button->reserveText(0, 0x23);
-            button->reserveText(1, 0x29);
-            button->reserveAnm(0xf);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CALENDAR_EXIT);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+            button->reserveText(0, MESG_CMN_BACK);
+            button->reserveText(1, MESG_ADDRESS_REGISTER);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             ipl::layout::Animator* frame = mpCodeLayout->getAnim(0x1e);
             frame->initFrame();
             frame->restart();
@@ -2541,13 +2541,13 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             break;
         }
         case 0xd: {
-            button->reserveAnm(0x1b);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CALENDAR_EXIT);
             if (mString.mbNameNotEmpty != 0) {
-                button->reserveAnm(0x10);
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
             } else {
-                button->reserveAnm(0xc);
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
             }
-            button->reserveAnm(0xb);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
             ipl::layout::Animator* frame = mpNameLayout->getAnim(9);
             frame->initFrame();
             frame->restart();
@@ -2561,13 +2561,13 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
         }
         case 0x11: {
             requestSceneChange(getPreviousScene(), NULL);
-            button->reserveAnm(0x1b);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CALENDAR_EXIT);
             if (mString.mbValidMail != 0 &&
                 mString.isDupCode() == 0 &&
                 mString.isMyCode() == 0) {
-                button->reserveAnm(0x10);
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
             } else {
-                button->reserveAnm(0xc);
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
             }
             ipl::layout::Animator* frame;
             if (mString.mValue[0] != 0) {
@@ -2579,7 +2579,7 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
                 frame->initFrame();
                 frame->restart();
             }
-            button->reserveAnm(0xb);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
             frame = mpNameLayout->getAnim(9);
             frame->initFrame();
             frame->restart();
@@ -2592,27 +2592,27 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             break;
         }
         case 0x19: {
-            button->reserveAnm(0x1b);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CALENDAR_EXIT);
             if (mString.mbNameNotEmpty != 0) {
-                button->reserveAnm(0x10);
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
                 ipl::layout::Animator* frame = mpNameLayout->getAnim(6);
                 frame->initFrame();
                 frame->restart();
             } else {
                 u16 nameLength = mString.mName[0];
                 if (nameLength != 0) {
-                    button->reserveAnm(0xc);
+                    button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
                     ipl::layout::Animator* frame = mpNameLayout->getAnim(6);
                     frame->initFrame();
                     frame->restart();
                 } else {
-                    button->reserveAnm(0xc);
+                    button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
                     ipl::layout::Animator* frame = mpNameLayout->getAnim(7);
                     frame->initFrame();
                     frame->restart();
                 }
             }
-            button->reserveAnm(0xf);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             ipl::layout::Animator* frame = mpNameLayout->getAnim(5);
             frame->initFrame();
             frame->restart();
@@ -2622,9 +2622,9 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             break;
         }
         case 0x1d: {
-            button->reserveAnm(0x1b);
-            button->reserveAnm(0x10);
-            button->reserveAnm(0xf);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CALENDAR_EXIT);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             ipl::layout::Animator* frame = mpNameLayout->getAnim(5);
             frame->initFrame();
             frame->restart();
@@ -2639,9 +2639,9 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             break;
         }
         case 0x22: {
-            button->reserveAnm(0x1b);
-            button->reserveAnm(0x10);
-            button->reserveAnm(0xf);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CALENDAR_EXIT);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             ipl::layout::Animator* frame = mpCodeLayout->getAnim(0x1e);
             frame->initFrame();
             frame->restart();
@@ -2656,9 +2656,9 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
         } else if (strcmp(paneName, smButtonName__Q33ipl5scene6Button[7]) == 0) {
             switch (mState) {
         case 0xd: {
-            button->reserveAnm(0x1d);
-            button->reserveAnm(0x10);
-            button->reserveAnm(0xb);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
             ipl::layout::Object* layout = mpCodeLayout;
             nw4r::lyt::Pane* pane = layout->getNW4RLyt()->GetRootPane()->FindPaneByName(
                 "T_name_00", true);
@@ -2676,12 +2676,12 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             break;
         }
         case 0x11: {
-            button->reserveAnm(0x1d);
-            button->reserveAnm(0x10);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
             if (mString.mbNameNotEmpty != 0) {
-                button->reserveAnm(0xf);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             } else {
-                button->reserveAnm(0xb);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
             }
             ipl::layout::Animator* frame = mpNameLayout->getAnim(5);
             frame->initFrame();
@@ -2695,9 +2695,9 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             break;
         }
         case 0x19: {
-            button->reserveAnm(0x1d);
-            button->reserveAnm(0x10);
-            button->reserveAnm(0xf);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             ipl::layout::Animator* frame = mpNameLayout->getAnim(5);
             frame->initFrame();
             frame->restart();
@@ -2711,9 +2711,9 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             break;
         }
         case 0x1d: {
-            button->reserveAnm(0x1d);
-            button->reserveAnm(0x10);
-            button->reserveAnm(0xf);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
             ipl::layout::Animator* frame = mpNameLayout->getAnim(9);
             frame->initFrame();
             frame->restart();
@@ -2725,8 +2725,8 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
             break;
         }
         case 0x22: {
-            button->reserveAnm(0x1d);
-            button->reserveAnm(0x10);
+            button->reserveAnm(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_AND_RIGHT_BUTTON);
             ipl::layout::Animator* frame = mpCodeLayout->getAnim(0x1e);
             frame->initFrame();
             frame->restart();
@@ -2810,8 +2810,8 @@ void ipl::scene::AddressEdit::add_friendinfo() {
     NWC24FriendInfo info ALIGN32;
     memset(&info, 0, sizeof(info));
     switch (mMode) {
-    case 1:
-        info.attr.type = 1;
+    case SCENE_ADD_WII:
+        info.attr.type = NWC24_FRIENDTYPE_WII;
         {
             const wchar_t* name = mString.mName;
             wchar_t* storedName = reinterpret_cast<wchar_t*>(info.attr.name);
@@ -2820,8 +2820,8 @@ void ipl::scene::AddressEdit::add_friendinfo() {
         info.addr.wiiId = ipl::scene::AddressEdit::utf16_wiiid(mString.mValue);
         memcpy(&info.attr.fdId, &mCreateID, sizeof(mCreateID));
         break;
-    case 2:
-        info.attr.type = 2;
+    case SCENE_ADD_EMAIL:
+        info.attr.type = NWC24_FRIENDTYPE_EMAIL;
         {
             const wchar_t* name = mString.mName;
             wchar_t* storedName = reinterpret_cast<wchar_t*>(info.attr.name);
@@ -2839,11 +2839,11 @@ void ipl::scene::AddressEdit::add_friendinfo() {
     }
 
     ipl::scene::Address* address =
-        static_cast<ipl::scene::Address*>(ipl::System::getScene(0x14));
+        static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS));
     u32 index = address->getChosenFriendIndex();
-    if (index >= 100) {
+    if (index >= FriendListCache::FRIEND_MAX) {
         index = 0;
-        for (u32 remaining = 100; remaining != 0; --remaining) {
+        for (u32 remaining = FriendListCache::FRIEND_MAX; remaining != 0; --remaining) {
             if (!mpFriendCache->isThere(index)) {
                 break;
             }
@@ -2851,7 +2851,7 @@ void ipl::scene::AddressEdit::add_friendinfo() {
         }
     }
     mpFriendCache->add(index, info);
-    if (mMode == 2) {
+    if (mMode == SCENE_ADD_EMAIL) {
         mpFriendCache->sendRegisterMail(index);
     }
 }
@@ -2864,7 +2864,7 @@ void ipl::scene::AddressEdit::get_friendinfo() {
 
     wchar_t wiiNo[0x100];
     wchar_t email[0x102];
-    if (ipl::scene::sFriendInfo.attr.type == 1) {
+    if (ipl::scene::sFriendInfo.attr.type == NWC24_FRIENDTYPE_WII) {
         memset(wiiNo, 0, sizeof(wiiNo));
         ipl::scene::AddressEdit::wiiid_utf16(ipl::scene::sFriendInfo.addr.wiiId, wiiNo);
         mString.setWiiNo(wiiNo);
@@ -2878,14 +2878,14 @@ void ipl::scene::AddressEdit::get_friendinfo() {
 }
 
 void ipl::scene::AddressEdit::update_friendinfo() {
-    memset(ipl::scene::sFriendInfo.attr.name, 0, 0x18);
+    memset(ipl::scene::sFriendInfo.attr.name, 0, sizeof(ipl::scene::sFriendInfo.attr.name));
     wcsncpy(reinterpret_cast<wchar_t*>(ipl::scene::sFriendInfo.attr.name), mString.mName, 0xa);
     memcpy(&ipl::scene::sFriendInfo.attr.fdId, &mCreateID, sizeof(mCreateID));
     mpFriendCache->update(
         mSelectedFriend,
         reinterpret_cast<const wchar_t*>(ipl::scene::sFriendInfo.attr.name),
         ipl::scene::sFriendInfo.attr.fdId);
-    static_cast<ipl::scene::Address*>(ipl::System::getScene(0x14))->reset_friend();
+    static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
 }
 
 void ipl::scene::AddressEdit::String::setEMail(const wchar_t* value) {

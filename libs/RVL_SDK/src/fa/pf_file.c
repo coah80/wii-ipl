@@ -1,5 +1,6 @@
 #define PF_FA_STR_LAYOUT
 #include <decomp/utils.h>
+#include <revolution/fa/types.h>
 #include <private/vf/PrFILE2/fatfs/pf_volume.h>
 #include <private/vf/PrFILE2/fatfs/pf_dir.h>
 #include <private/vf/PrFILE2/fatfs/pf_path.h>
@@ -1717,13 +1718,13 @@ pf_s32 PFFILE_fseek(PFFILE_FILE* file, pf_s32 offset, pf_s32 origin) {
         return 0x26;
     }
     switch (origin) {
-    case 1:
+    case FA_SEEK_ORIGIN_CURRENT:
         file_io = file->cursor.position;
         break;
-    case 0:
+    case FA_SEEK_ORIGIN_BEGIN:
         file_io = 0;
         break;
-    case 2:
+    case FA_SEEK_ORIGIN_END:
         file_io = file->p_sfd->dir_entry.file_size;
         break;
     default:
