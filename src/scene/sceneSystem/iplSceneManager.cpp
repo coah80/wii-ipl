@@ -461,7 +461,7 @@ namespace ipl {
                 return TRUE;
             } else {
                 for (SceneObj::iterator it = SceneObj::iterator(mpRootScene); it.getPtr() != NULL; ++it) {
-                    if (it->isResetAcceptable() == FALSE) {
+                    if (!it->isResetAcceptable()) {
                         return FALSE;
                     }
                 }
@@ -482,7 +482,7 @@ namespace ipl {
                 return TRUE;
             } else {
                 for (SceneObj::iterator it = SceneObj::iterator(mpRootScene); it.getPtr() != NULL; ++it) {
-                    if (it->isResetProcessDone() == FALSE) {
+                    if (!it->isResetProcessDone()) {
                         return FALSE;
                     }
                 }

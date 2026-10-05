@@ -127,7 +127,7 @@ namespace ipl {
             switch (btnNo) {
                 case BTN_WII:
                 case BTN_EMAIL: {
-                    if (mbHovered[btnNo] == FALSE) {
+                    if (!mbHovered[btnNo]) {
                         // Play hover in animation
                         mpLayout->getAnim(btnNo + ANIM_BTN_FOCUS_IN)->play();
 
@@ -257,7 +257,7 @@ namespace ipl {
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
             const char* paneName = component->getPane()->GetName();
 
-            controller::Interface* con = reinterpret_cast<controller::Interface*>(data);
+            controller::Interface* con = static_cast<controller::Interface*>(data);
 
             switch (event) {
                 // Pointer on button

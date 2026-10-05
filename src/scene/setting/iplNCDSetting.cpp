@@ -832,8 +832,8 @@ namespace ipl {
         }
 
         void NCDSetting::adjustNWC24FlagEx_() {
-            u32 wcFlags = SCGetWCFlags() & 1;
-            u32 contentRestrictions = SCGetNetContentRestrictions() & 2;
+            u32 wcFlags = SCGetWCFlags() & SC_WC_FLAGS_ENABLED;
+            u32 contentRestrictions = SCGetNetContentRestrictions() & SC_NET_RESTRICTIONS_MSG_BOARD;
             mConfig.nwc24Permission = 0;
             if (wcFlags && SCGetEULA()) {
                 mConfig.nwc24Permission |= 4;

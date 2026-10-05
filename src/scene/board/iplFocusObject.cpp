@@ -1370,7 +1370,7 @@ namespace ipl {
                     const char* const* pFile = &scChangeTexFile[i].file;
 
                     if (ARCOpen(&arc, pFile[0], &arcFile)) {
-                        TPLPalette* tplData = (TPLPalette*)((u8*)mpArcData + ARCGetStartOffset(&arcFile));
+                        TPLPalette* tplData = (TPLPalette*)(mpArcData + ARCGetStartOffset(&arcFile));
                         u32 tplSize = ARCGetLength(&arcFile);
 
                         mpBoardObj->change_tex(mpLayout, pFile[1], tplData, tplSize);
@@ -1706,7 +1706,7 @@ namespace ipl {
         void focus_object::start_point_event(int btnNo, controller::Interface* con) {
             bool target = false;
 
-            if (mbHovered[btnNo] == FALSE) {
+            if (!mbHovered[btnNo]) {
                 switch (btnNo) {
                     case BTN_ARROW_RIGHT: {
                         mpLayout->getAnim(ANIM_ARROW_RIGHT_FOCUS_ON)->play();
@@ -1988,7 +1988,7 @@ namespace ipl {
             const char* paneName = component->getPane()->GetName();
             int btnNo = mpInstance->get_button_no(paneName);
 
-            controller::Interface* con = reinterpret_cast<controller::Interface*>(data);
+            controller::Interface* con = static_cast<controller::Interface*>(data);
 
             switch (event) {
                 // Pointer on button

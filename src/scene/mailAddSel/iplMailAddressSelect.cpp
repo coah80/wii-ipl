@@ -314,7 +314,7 @@ namespace ipl {
         void MailAddressSelect::start_point_event(const char* paneName, controller::Interface* con) {
             int btnNo = get_button_no(paneName);
             if (btnNo != -1) {
-                if (mbHovered[btnNo] == FALSE) {
+                if (!mbHovered[btnNo]) {
                     snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
                     if (con != NULL) {
                         con->rumble();
@@ -601,7 +601,7 @@ namespace ipl {
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
             const char* paneName = component->getPane()->GetName();
 
-            controller::Interface* con = reinterpret_cast<controller::Interface*>(data);
+            controller::Interface* con = static_cast<controller::Interface*>(data);
 
             switch (event) {
                 // Pointer on button

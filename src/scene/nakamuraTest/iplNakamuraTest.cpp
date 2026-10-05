@@ -69,7 +69,7 @@ namespace ipl {
                     break;
                 }
                 case 1: {
-                    if (System::isReceiveScheduleStopped() == FALSE) {
+                    if (!System::isReceiveScheduleStopped()) {
                         System::stopReceiveSchedule();
                         OSReport("[Receive Scheduler] Wait..\n");
                     } else {
@@ -133,7 +133,7 @@ namespace ipl {
                     IPLContestInitialize(mpNUPHeapBuf, mNetSetup.getproxy());
                     mpConnTestThreadStack = mpAppHeap->alloc(0x4000, 4);
 
-                    OSCreateThread(&mConnTestThread, conntestthread, NULL, (u8*)mpConnTestThreadStack + 0x4000, 0x4000, 0x12, 1);
+                    OSCreateThread(&mConnTestThread, conntestthread, NULL, (u8*)mpConnTestThreadStack + 0x4000, 0x4000, 0x12, OS_THREAD_ATTR_DETACH);
                     OSResumeThread(&mConnTestThread);
                     mState = 4;
                     break;

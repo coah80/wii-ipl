@@ -643,7 +643,7 @@ namespace ipl {
 
         FaderSceneCommand ChannelTitle::calcFadeout() {
             if (mState == STATE_BOOT_SCENE) {
-                if (mFadeoutTick == 0 && WPADGetStatus() == 0) {
+                if (mFadeoutTick == 0 && WPADGetStatus() == WPAD_LIB_STATUS_0) {
                     mFadeoutTick = OSGetTick();
                 }
 
@@ -661,7 +661,7 @@ namespace ipl {
                                 rebootSystem();
                             }
 
-                            for (; WPADGetStatus() != 0 || System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8 ||
+                            for (; WPADGetStatus() != WPAD_LIB_STATUS_0 || System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8 ||
                                    !System::getSaveData()->isFinished(mpSaveDataFile) ||
                                    (mModuleType != MODULE_TYPE_NONE && mModuleState != MODULE_STATE_4) ||
                                    (sdWorker != NULL && sdWorker->is_working());) {
@@ -674,7 +674,7 @@ namespace ipl {
                                     calcChannelCS();
                                 }
 
-                                if (WPADGetStatus() != 0) {
+                                if (WPADGetStatus() != WPAD_LIB_STATUS_0) {
                                     OSReport("wait for WPAD\n");
                                 }
                                 if (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
@@ -776,7 +776,7 @@ namespace ipl {
                                     calcChannelCS();
                                 }
 
-                                if (WPADGetStatus() != 0) {
+                                if (WPADGetStatus() != WPAD_LIB_STATUS_0) {
                                     OSReport("wait for WPAD\n");
                                 }
                                 if (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
@@ -952,7 +952,7 @@ namespace ipl {
         }
 
         BOOL ChannelTitle::isFirstCall() const {
-            return mbModuleTerminated == FALSE;
+            return !mbModuleTerminated;
         }
 
         void ChannelTitle::getRsoExBufData(void* rsoExBuf) const {
@@ -976,9 +976,9 @@ namespace ipl {
         }
 
         BOOL ChannelTitle::isStartAnimFinished() const {
-            return !((mpChanBannerAnims[BANNER_ANIM_LOOP] == NULL && mpChanBannerAnims[BANNER_ANIM_START] == NULL) ||
-                     (mpChanBannerAnims[BANNER_ANIM_START] != NULL && !mpChanBannerAnims[BANNER_ANIM_START]->isPlaying())) == FALSE ||
-                   !(mpChanBannerAnims[BANNER_ANIM_LOOP] != NULL && !mpChanBannerAnims[BANNER_ANIM_LOOP]->isPlaying()) == FALSE;
+            return (mpChanBannerAnims[BANNER_ANIM_LOOP] == NULL && mpChanBannerAnims[BANNER_ANIM_START] == NULL) ||
+                   (mpChanBannerAnims[BANNER_ANIM_START] != NULL && !mpChanBannerAnims[BANNER_ANIM_START]->isPlaying()) ||
+                   (mpChanBannerAnims[BANNER_ANIM_LOOP] != NULL && !mpChanBannerAnims[BANNER_ANIM_LOOP]->isPlaying());
         }
 
         void* ChannelTitle::allocFromRsoExHeap(u32 size, int align) {
@@ -1339,7 +1339,7 @@ namespace ipl {
             } else {
                 missingTicket = TRUE;
             }
-            if (!missingTicket && utility::ESMisc::CheckTmdCountryCode(mpCurTicket) == FALSE) {
+            if (!missingTicket && !utility::ESMisc::CheckTmdCountryCode(mpCurTicket)) {
                 IPLErrorDisplay(MESG_ERR_CHANNEL);
             }
 
@@ -2553,7 +2553,7 @@ namespace ipl {
 
         BOOL ChannelTitle::isTimeLimitedChannel(u32* hour, u32* minute) {
             if (mLimitType == LIMIT_TYPE_TIME) {
-                *hour = (u32)mTimeLimitRemain / (60 * 60);
+                *hour = mTimeLimitRemain / (60 * 60);
 
                 // FAKEMATCH: should be modular division. not whatever this is
                 *minute = (mTimeLimitRemain - ((60 * 60) * *hour)) / 60;
@@ -2813,7 +2813,7 @@ namespace ipl {
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
             const char* paneName = component->getPane()->GetName();
 
-            controller::Interface* con = reinterpret_cast<controller::Interface*>(data);
+            controller::Interface* con = static_cast<controller::Interface*>(data);
 
             switch (event) {
                 // Drag and trig events are swapped, but still act as intended?

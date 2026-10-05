@@ -674,7 +674,7 @@ namespace ipl {
     void* NandSDWorker::thread_main(void* work) {
         OSInitFastCast();
 
-        NandSDWorker* nandSdWorker = reinterpret_cast<NandSDWorker*>(work);
+        NandSDWorker* nandSdWorker = static_cast<NandSDWorker*>(work);
         return nandSdWorker->run();
     }
 
@@ -4147,7 +4147,7 @@ namespace ipl {
         u16 wadVersion = 0;
         if (!changeAppCount) {
             u32 numFreeSlots;
-            if (SCGetFreeChannelAppCount(&numFreeSlots) != 0) {
+            if (SCGetFreeChannelAppCount(&numFreeSlots)) {
                 OSReport("NandSDWorker: free nand app count = %d.\n", numFreeSlots);
                 if (numFreeSlots == 0) {
                     OSReport("NandSDWorker: there is no free count to install application.\n");
@@ -4269,7 +4269,7 @@ namespace ipl {
         }
 
         u32 installedCount = 0;
-        if (SCGetInstalledChannelAppCount(&installedCount) == 0) {
+        if (!SCGetInstalledChannelAppCount(&installedCount)) {
             OSReport("NandSDWorker: SCGetInstalledChannelAppCount failed.\n");
             return;
         }
@@ -4729,7 +4729,7 @@ namespace ipl {
 
     NandSDWorker::WorkMessage NandSDWorker::wait_work() {
         OSMessage cmd = NULL;
-        OSReceiveMessage(&myWork->msgQueue, &cmd, 1);
+        OSReceiveMessage(&myWork->msgQueue, &cmd, OS_MESSAGE_BLOCK);
         OSReport("NandSDWorker: recieve message = %d\n", cmd);
         return (WorkMessage)(u32)cmd;
     }
@@ -5387,7 +5387,7 @@ namespace ipl {
             goto clean_up;
         }
 
-        if (item_exist_nand_save_folder(titleId, c_nocopy_folder_name) != 0) {
+        if (item_exist_nand_save_folder(titleId, c_nocopy_folder_name)) {
             ret = get_num_nand_data_only_title_save_files(titleId, &numTitleFiles);
             if (ret != RESULT_OK) {
                 goto clean_up;
@@ -5401,7 +5401,7 @@ namespace ipl {
             goto clean_up;
         }
 
-        if (item_exist_nand_save_folder(titleId, c_notransfer_folder_name) != 0) {
+        if (item_exist_nand_save_folder(titleId, c_notransfer_folder_name)) {
             ret = get_num_nand_data_only_title_save_files(titleId, &numTitleFiles);
             if (ret != RESULT_OK) {
                 goto clean_up;

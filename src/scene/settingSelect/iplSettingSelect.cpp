@@ -215,7 +215,7 @@ namespace ipl {
         }
 
         void SettingSelect::stt_1st_fadein() {
-            if (!mpLayout->getAnim(ANIM_DATA_MANAGE_IN)->isPlaying() && !mpLayout->getAnim(7)->isPlaying()) {
+            if (!mpLayout->getAnim(ANIM_DATA_MANAGE_IN)->isPlaying() && !mpLayout->getAnim(ANIM_SETTING_IN)->isPlaying()) {
                 CHANGE_STATE(STATE_1ST_NORMAL);
             }
         }
@@ -449,7 +449,7 @@ namespace ipl {
             int btnNo = get_button_no(paneName);
 
             if (condition(btnNo)) {
-                if (mbHovered[btnNo] == FALSE) {
+                if (!mbHovered[btnNo]) {
                     start_focusin_anm(btnNo, con);
                 }
                 mbHovered[btnNo]++;
@@ -668,7 +668,7 @@ namespace ipl {
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
             const char* paneName = component->getPane()->GetName();
 
-            controller::Interface* controller = reinterpret_cast<controller::Interface*>(data);
+            controller::Interface* controller = static_cast<controller::Interface*>(data);
 
             switch (event) {
                 case ::gui::EventHandler::ON_POINT: {
@@ -739,12 +739,12 @@ namespace ipl {
 
         void SettingSelect::finish_exit_reboot() {
             if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
-                while (WPADGetStatus() != 0 || System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
+                while (WPADGetStatus() != WPAD_LIB_STATUS_0 || System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
                     snd::getSystem()->calc();
                     System::getBS2Manager()->update();
                     VIWaitForRetrace();
 
-                    if (WPADGetStatus() != 0) {
+                    if (WPADGetStatus() != WPAD_LIB_STATUS_0) {
                         OSReport("wait for WPAD\n");
                     }
 

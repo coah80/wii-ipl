@@ -60,7 +60,7 @@ namespace ipl {
             if (mpArc) {
                 if (mbIsNandFile) {
                     s32 result = wrapper::PrivateOpen(msNandFileName, &mNandFile, attr);
-                    if (nand_error_handling(result) == FALSE) {
+                    if (!nand_error_handling(result)) {
                         return FALSE;
                     }
                 }

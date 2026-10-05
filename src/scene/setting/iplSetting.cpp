@@ -502,7 +502,7 @@ namespace ipl {
         }
 
         void Setting::initString() {
-            mpStringBuffer = reinterpret_cast<www::wiisetting::SetStringBuf*>(getSceneHeap()->alloc(0x64e, 4));
+            mpStringBuffer = static_cast<www::wiisetting::SetStringBuf*>(getSceneHeap()->alloc(0x64e, 4));
             OSReport("HTML String Alloc Size:%d\n", 0x64e);
             memset(mpStringBuffer, 0, 0x64e);
             memset(mInputText, 0, 0x202);
@@ -625,7 +625,7 @@ namespace ipl {
             VIFlush();
             VIWaitForRetrace();
 
-            if (static_cast<u32>(System::getRegion()) == 2) {
+            if (static_cast<u32>(System::getRegion()) == SC_PRODUCT_AREA_EUR) {
                 if (mEuRgb60Mode == 0) {
                     *reinterpret_cast<u32*>(0x800000cc) = 1;
                 } else {
@@ -643,7 +643,7 @@ namespace ipl {
 
         bool Setting::isInitialSequenceExit(const controller::Interface* input) {
             u32 connectedMask = utility::wpad::getWpadConnectedMask();
-            if (input->downTrg(0x100800) ||
+            if (input->downTrg(controller::BTN_INTERACT) ||
                 ((OSGetTime() - mCreatePageTime) / (OS_TIMER_CLOCK / 1000) >= 500 &&
                  connectedMask != mConnectedControllerMask &&
                  utility::wpad::isIncreaseConnectedWpad(mConnectedControllerMask, connectedMask))) {
@@ -740,7 +740,7 @@ namespace ipl {
                 }
 
                 if (input != NULL) {
-                    if (input->downTrg(0x100800) && mpWiiSettingData->data[0x12] == 0x1e &&
+                    if (input->downTrg(controller::BTN_INTERACT) && mpWiiSettingData->data[0x12] == 0x1e &&
                         mActionFrame >= 0x1e && mActionFrame < 0x78) {
                         mActionFrame = 0x78;
                         www::wiisetting::setFuncResult(1);
@@ -823,7 +823,7 @@ namespace ipl {
                 break;
             case 5: {
                 scene::ParentalDialog* parentalDialog =
-                    static_cast<scene::ParentalDialog*>(System::getScene(0x1b));
+                    static_cast<scene::ParentalDialog*>(System::getScene(SCENE_PARENTAL_DIALOG));
                 if (parentalDialog != NULL) {
                     mUiStatus[3] = 1;
                     switch (parentalDialog->getResult()) {
@@ -849,16 +849,16 @@ namespace ipl {
                 break;
             }
             case 6:
-                if (System::getScene(0x1b) == NULL) {
+                if (System::getScene(SCENE_PARENTAL_DIALOG) == NULL) {
                     mUiStatus[3] = 0;
                     if (mpWiiSettingFlag->smthMsgData == 0x4fU) {
                         if (ncd::NCDSetting::getEnableFlag()) {
-                            if (SCGetEULA() != 0) {
+                            if (SCGetEULA()) {
                                 www::wiisetting::setFuncResult(6);
                                 mDialogState = 0;
                                 resetFuncMsgQ();
                             } else {
-                                if (static_cast<u32>(System::getRegion()) != 2) {
+                                if (static_cast<u32>(System::getRegion()) != SC_PRODUCT_AREA_EUR) {
                                     System::getDialog()->callBtn2(0x172, 0x2e, 0x25);
                                 } else {
                                     System::getDialog()->callBtn2(0x175, 0x2e, 0x25);
@@ -866,7 +866,7 @@ namespace ipl {
                                 mDialogState = 0xe;
                             }
                         } else {
-                            if (static_cast<u32>(System::getRegion()) != 2) {
+                            if (static_cast<u32>(System::getRegion()) != SC_PRODUCT_AREA_EUR) {
                                 System::getDialog()->callBtn2(0x170, 0x146, 0x25);
                             } else {
                                 System::getDialog()->callBtn2(0x174, 0x146, 0x25);
@@ -881,7 +881,7 @@ namespace ipl {
             case 7:
                 if (System::getDialog()->getLastResult() == 1) {
                     www::wiisetting::setFuncResult(1);
-                    SCSetWCFlags(SCGetWCFlags() & 0xfffffffe);
+                    SCSetWCFlags(SCGetWCFlags() & ~SC_WC_FLAGS_ENABLED);
                     SCIdleModeInfo idleMode = {0, 0};
                     SCSetIdleMode(&idleMode);
                     System::getNwc24Manager()->enableLedNotification(TRUE);
@@ -899,13 +899,13 @@ namespace ipl {
                 break;
             case 10:
                 if (System::getDialog()->getLastResult() == 2) {
-                    if (static_cast<u32>(System::getRegion()) != 2) {
+                    if (static_cast<u32>(System::getRegion()) != SC_PRODUCT_AREA_EUR) {
                         System::getDialog()->callBtn1(0x172, 1);
                     } else {
                         System::getDialog()->callBtn1(0x175, 1);
                     }
                     mDialogState = 0xb;
-                    SCSetWCFlags(SCGetWCFlags() & 0xfffffffe);
+                    SCSetWCFlags(SCGetWCFlags() & ~SC_WC_FLAGS_ENABLED);
                     SCIdleModeInfo idleMode = {0, 0};
                     SCSetIdleMode(&idleMode);
                     System::getNwc24Manager()->enableLedNotification(TRUE);
@@ -931,14 +931,14 @@ namespace ipl {
                 break;
             case 0xc:
                 if (System::getDialog()->getLastResult() == 2) {
-                    SCSetWCFlags(SCGetWCFlags() & 0xfffffffe);
+                    SCSetWCFlags(SCGetWCFlags() & ~SC_WC_FLAGS_ENABLED);
                     SCIdleModeInfo idleMode = {0, 0};
                     SCSetIdleMode(&idleMode);
                     System::getNwc24Manager()->enableLedNotification(TRUE);
                     SCSetEULA(0);
                     ncd::NCDSetting::adjustNWC24Flag();
                     SCFlush();
-                    if (static_cast<u32>(System::getRegion()) != 2) {
+                    if (static_cast<u32>(System::getRegion()) != SC_PRODUCT_AREA_EUR) {
                         System::getDialog()->callBtn1(0x170, 0x2e);
                     } else {
                         System::getDialog()->callBtn1(0x174, 0x2e);
@@ -1052,7 +1052,7 @@ namespace ipl {
             case 1:
                 resetFuncMsgQ();
                 waitStart();
-                createChildScene(0x19, this, NULL, NULL);
+                createChildScene(SCENE_NAKAMURA_TEST, this, NULL, NULL);
                 break;
             case 9:
                 setNUP();
@@ -1084,7 +1084,7 @@ namespace ipl {
                 if (!System::getResetHandler()->isResetting()) {
                     System::getHomeButtonMenu()->disable();
                     if (mBrowserStopRequested == 0 && youngController != NULL &&
-                        youngController->downTrg(0x100800)) {
+                        youngController->downTrg(controller::BTN_INTERACT)) {
                         resetFuncMsgQ();
                         System::getHomeButtonMenu()->enable();
                         www::wiisetting::setFuncResult(5);
@@ -1123,7 +1123,7 @@ namespace ipl {
                 resetFuncMsgQ();
                 break;
             case 0x1a:
-                if (static_cast<u32>(System::getRegion()) != 2) {
+                if (static_cast<u32>(System::getRegion()) != SC_PRODUCT_AREA_EUR) {
                     System::getDialog()->callBtn2(0x15f, 0x2e, 0x13b);
                 } else {
                     System::getDialog()->callBtn2(0x160, 0x2e, 0x13b);
@@ -1136,7 +1136,7 @@ namespace ipl {
             case 'N':
                 if (mpWiiSettingFlag->smthMsgData == 0x1d || calcSafeMode()) {
                     if (static_cast<u8>(parental::Parental::checkFlags()) != 0) {
-                        createChildScene(0x1b, this, NULL, reinterpret_cast<void*>(1));
+                        createChildScene(SCENE_PARENTAL_DIALOG, this, NULL, reinterpret_cast<void*>(1));
                         mDialogState = 5;
                     } else {
                         www::wiisetting::setFuncResult(1);
@@ -1154,8 +1154,8 @@ namespace ipl {
                 break;
             case 'P':
                 SCSetLanguage(mpWiiSettingData->data[0x30]);
-                if (SCGetConfigDoneFlag() == 0 && SCGetConfigDoneFlag2() == 0 &&
-                    static_cast<u32>(System::getRegion()) == 2) {
+                if (!SCGetConfigDoneFlag() && !SCGetConfigDoneFlag2() &&
+                    static_cast<u32>(System::getRegion()) == SC_PRODUCT_AREA_EUR) {
                     if (mpWiiSettingData->data[0x30] != 3) {
                         mpWiiSettingData->data[0x3c] = 0x40;
                         parental::Parental::setCountry(0x40);
@@ -1250,7 +1250,7 @@ namespace ipl {
                 }
                 break;
             case 'd':
-                createChildScene(0x1d, this, NULL, reinterpret_cast<void*>(2));
+                createChildScene(SCENE_KITAYAMA_TEST, this, NULL, reinterpret_cast<void*>(2));
                 resetFuncMsgQ();
                 waitStart();
                 break;
@@ -1307,16 +1307,16 @@ namespace ipl {
                     if (mInitialArgument == 2 || mInitialArgument == 5) {
                         SCSetConfigDoneFlag(TRUE);
                         SCSetConfigDoneFlag2(TRUE);
-                        SCSetUpdateType(0);
+                        SCSetUpdateType(SC_UPDATE_TYPE_NONE);
                         SCFlush();
                     }
 
-                    while (WPADGetStatus() != 0 ||
+                    while (WPADGetStatus() != WPAD_LIB_STATUS_0 ||
                            System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
                         snd::getSystem()->calc();
                         System::getBS2Manager()->update();
                         VIWaitForRetrace();
-                        if (WPADGetStatus() != 0) {
+                        if (WPADGetStatus() != WPAD_LIB_STATUS_0) {
                             OSReport("wait for WPAD\n");
                         }
                         if (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
@@ -1346,12 +1346,12 @@ namespace ipl {
                     if (mInitialArgument == 2 || mInitialArgument == 5) {
                         SCSetConfigDoneFlag(TRUE);
                         SCSetConfigDoneFlag2(TRUE);
-                        SCSetUpdateType(0);
+                        SCSetUpdateType(SC_UPDATE_TYPE_NONE);
                         SCFlush();
-                        reserveAllSceneDestruction(0x1a, NULL);
+                        reserveAllSceneDestruction(SCENE_HEALTH, NULL);
                     } else {
                         System::reloadDownloadTask();
-                        reserveAllSceneDestruction(0x15, NULL);
+                        reserveAllSceneDestruction(SCENE_SETTING_BG, NULL);
                     }
                     delete mpBrowserData;
                     return FADER_SCN_NEXT;
@@ -1722,12 +1722,12 @@ namespace ipl {
             if (mpWiiSettingData->data[0x11] != 13 && mpWiiSettingData->data[0x11] != 2 &&
                 mpWiiSettingData->data[0x11] != 18 && mpWiiSettingData->data[0x11] != 19 &&
                 mpWiiSettingData->data[0x11] != 22) {
-                utility::CharacterCode::UTF8ToUTF16(reinterpret_cast<wchar_t*>(mInputText), text, 0x101);
+                utility::CharacterCode::UTF8ToUTF16(mInputText, text, 0x101);
             }
 
-            size_t textLength = wcslen(reinterpret_cast<wchar_t*>(mInputText));
+            size_t textLength = wcslen(mInputText);
             OSReport("キーボード: %d %d %d %d\n", rowLimit, stringLimit, keyboardType, textLength);
-            reinterpret_cast<wchar_t*>(mInputText)[stringLimit] = 0;
+            mInputText[stringLimit] = 0;
 
             switch (mpWiiSettingData->data[0x11]) {
             case 1: case 2: case 3:
@@ -1753,7 +1753,7 @@ namespace ipl {
 
             keyboard::Manager::KeyboardSetting setting;
             setting.rowLimit = rowLimit;
-            setting.wcString = reinterpret_cast<const wchar_t*>(mInputText);
+            setting.wcString = mInputText;
             setting.stringLimit = stringLimit;
             setting.type = keyboardType;
             System::getKeyboard()->start(0, setting);
@@ -2020,18 +2020,18 @@ namespace ipl {
             u8 formId = mpWiiSettingData->data[0x11];
 
             if (formId == 2 || formId == 22) {
-                utility::CharacterCode::UTF16ToANSI(convertedText, reinterpret_cast<const wchar_t*>(mInputText), 0x100);
-                memset(convertedText + wcslen(reinterpret_cast<const wchar_t*>(mInputText)), 0,
-                       0x100 - wcslen(reinterpret_cast<const wchar_t*>(mInputText)));
+                utility::CharacterCode::UTF16ToANSI(convertedText, mInputText, 0x100);
+                memset(convertedText + wcslen(mInputText), 0,
+                       0x100 - wcslen(mInputText));
                 memcpy(mpStringBuffer->securityKey, convertedText, sizeof(mpStringBuffer->securityKey));
                 return;
             }
 
             if (formId == 18 || formId == 19) {
-                adjustSecA(reinterpret_cast<wchar_t*>(mInputText));
+                adjustSecA(mInputText);
             }
             utility::CharacterCode::UTF16ToUTF8(reinterpret_cast<char*>(convertedText),
-                                                reinterpret_cast<const wchar_t*>(mInputText), 0x301);
+                                                mInputText, 0x301);
 
             switch (mpWiiSettingData->data[0x11]) {
                 case 1:
@@ -2092,7 +2092,7 @@ namespace ipl {
         }
 
         void Setting::initNickName() {
-            bool nicknameExists = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData)) != 0;
+            bool nicknameExists = SCGetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData));
             OSReport("SCGetOwnerNickName:%d\n", nicknameExists);
             if (nicknameExists) {
                 SCOwnerNickname* ownerNickname = reinterpret_cast<SCOwnerNickname*>(mSettingData);
@@ -2100,7 +2100,7 @@ namespace ipl {
             }
             memset(mpStringBuffer->nickname, 0, sizeof(mpStringBuffer->nickname));
             utility::CharacterCode::UTF16ToUTF8(mpStringBuffer->nickname,
-                                                reinterpret_cast<const wchar_t*>(mInputText),
+                                                mInputText,
                                                 sizeof(mpStringBuffer->nickname));
         }
 
@@ -2188,7 +2188,7 @@ namespace ipl {
             memset(answer, 0, 0x44);
             wcsncpy(answer, parental::Parental::getSecA(), 0x20);
             memset(mInputText, 0, sizeof(mInputText));
-            wcsncpy(reinterpret_cast<wchar_t*>(mInputText), answer, 0x20);
+            wcsncpy(mInputText, answer, 0x20);
             adjustSecA(answer);
             utility::CharacterCode::UTF16ToUTF8(mpStringBuffer->parentalSecA, answer,
                                                 sizeof(mpStringBuffer->parentalSecA));
@@ -2212,12 +2212,12 @@ namespace ipl {
         }
 
         void Setting::setNickName() {
-            reinterpret_cast<SCOwnerNickname*>(mSettingData)->length = wcslen(reinterpret_cast<const wchar_t*>(mInputText));
+            reinterpret_cast<SCOwnerNickname*>(mSettingData)->length = wcslen(mInputText);
             if (checkTextNum(mpStringBuffer->nickname) == 3) {
                 memset(mSettingData, 0, sizeof(reinterpret_cast<SCOwnerNickname*>(mSettingData)->name));
                 memcpy(mSettingData, mInputText,
                        reinterpret_cast<SCOwnerNickname*>(mSettingData)->length * sizeof(wchar_t));
-                bool written = SCSetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData)) != 0;
+                bool written = SCSetOwnerNickName(reinterpret_cast<SCOwnerNickname*>(mSettingData));
                 OSReport("nicknameFlag:1 %d %s\n", written,
                          reinterpret_cast<SCOwnerNickname*>(mSettingData)->name);
             }
@@ -2275,7 +2275,7 @@ namespace ipl {
                 System::getDialog()->callBtn0(0x1be, 0xb4, false);
                 mDialogState = 2;
             } else {
-                if (ncd::NCDSetting::checkProxy(mpStringBuffer->proxy.server) != 0) {
+                if (ncd::NCDSetting::checkProxy(mpStringBuffer->proxy.server)) {
                     www::wiisetting::setFuncResult(3);
                     memset(proxy.server, 0, sizeof(proxy.server));
                     utility::CharacterCode::UTF8ToANSI(reinterpret_cast<u8*>(proxy.server),
@@ -2290,8 +2290,8 @@ namespace ipl {
         }
 
         void Setting::setBasic() {
-            if (ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.uname) != 0 &&
-                ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.pass) != 0) {
+            if (ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.uname) &&
+                ncd::NCDSetting::checkProxyBasic(mpStringBuffer->proxyBasic.pass)) {
                 NCDProxyServerProfile proxy;
                 www::wiisetting::setFuncResult(3);
                 memset(&proxy, 0, sizeof(proxy));
@@ -2362,11 +2362,11 @@ namespace ipl {
 
         void Setting::setSecA() {
             memset(mInputText, 0, sizeof(mInputText));
-            utility::CharacterCode::UTF8ToUTF16(reinterpret_cast<wchar_t*>(mInputText),
+            utility::CharacterCode::UTF8ToUTF16(mInputText,
                                                 mpStringBuffer->parentalSecA, 0x44);
             reAdjustSecA();
             if (checkTextNum(NULL) == 3) {
-                parental::Parental::setSecA(reinterpret_cast<const wchar_t*>(mInputText));
+                parental::Parental::setSecA(mInputText);
             }
             memset(mInputText, 0, sizeof(mInputText));
         }
@@ -2374,11 +2374,11 @@ namespace ipl {
         void Setting::setReSecA() {
             u8 result = 2;
             memset(mInputText, 0, sizeof(mInputText));
-            utility::CharacterCode::UTF8ToUTF16(reinterpret_cast<wchar_t*>(mInputText),
+            utility::CharacterCode::UTF8ToUTF16(mInputText,
                                                 mpStringBuffer->parentalReSecA, 0x44);
             reAdjustSecA();
             if (checkTextNum(NULL) == 3) {
-                if (parental::Parental::judgeSecA(reinterpret_cast<const wchar_t*>(mInputText))) {
+                if (parental::Parental::judgeSecA(mInputText)) {
                     result = 1;
                 }
                 www::wiisetting::setFuncResult(result);
@@ -2405,7 +2405,7 @@ namespace ipl {
             u32 message = 0;
             switch (mpWiiSettingData->data[0x36]) {
             case 2:
-                if (wcslen(reinterpret_cast<const wchar_t*>(mInputText)) != 0) {
+                if (wcslen(mInputText) != 0) {
                     if (checkSpace()) {
                         result = 3;
                     } else {
@@ -2438,7 +2438,7 @@ namespace ipl {
                     minimum = 6;
                     break;
                 }
-                if (wcslen(reinterpret_cast<const wchar_t*>(mInputText)) >= minimum) {
+                if (wcslen(mInputText) >= minimum) {
                     if (checkSpace()) {
                         result = 3;
                     } else {
@@ -2533,7 +2533,7 @@ namespace ipl {
                     break;
                 }
             }
-            if (containsWideCharacter && wcslen(reinterpret_cast<const wchar_t*>(mInputText)) > 0x10) {
+            if (containsWideCharacter && wcslen(mInputText) > 0x10) {
                 char secondLine[0x22];
                 SettingSecAText* lines = reinterpret_cast<SettingSecAText*>(text);
                 memcpy(secondLine, lines->wrappedLine, 0x22);
@@ -2710,7 +2710,7 @@ namespace ipl {
             switch (mAPScanState) {
                 case 1:
                     memset(&mAPScanList.count, 0, 0x800);
-                    mpAPScanThread->setResultData(reinterpret_cast<unsigned short*>(&mAPScanList.count));
+                    mpAPScanThread->setResultData(&mAPScanList.count);
                     memset(mpMem1BrowserBuffer, 0, 0x1000);
                     mpAPScanThread->Create(mpMem1BrowserBuffer, 0x1000, 0x12, true);
                     mAPScanState = 2;
@@ -3124,7 +3124,7 @@ namespace ipl {
             if (ncd::NCDSetting::getEnableFlag()) {
                 mEULAState = 1;
             } else {
-                if (static_cast<u32>(System::getRegion()) != 2) {
+                if (static_cast<u32>(System::getRegion()) != SC_PRODUCT_AREA_EUR) {
                     System::getDialog()->callBtn2(0x170, 0x146, 0x25);
                 } else {
                     System::getDialog()->callBtn2(0x174, 0x146, 0x25);
@@ -3214,7 +3214,7 @@ namespace ipl {
         void Setting::setUpdate_Init_() {
             if (ncd::NCDSetting::getEnableFlag()) {
                 www::wiisetting::setFuncResult(1);
-                if (static_cast<u32>(System::getRegion()) == 2) {
+                if (static_cast<u32>(System::getRegion()) == SC_PRODUCT_AREA_EUR) {
                     System::getDialog()->callBtn1Sml(0x177, 0x179);
                 } else {
                     System::getDialog()->callBtn1Sml(0x176, 0x178);
@@ -3234,15 +3234,15 @@ namespace ipl {
         }
 
         void Setting::setUpdate_ConnectTestStart_() {
-            if (System::getSceneManager()->getScene(0x19) == NULL && www::wiisetting::getFuncResult() == 0) {
+            if (System::getSceneManager()->getScene(SCENE_NAKAMURA_TEST) == NULL && www::wiisetting::getFuncResult() == 0) {
                 waitStart();
-                createChildScene(0x19, this, NULL, NULL);
+                createChildScene(SCENE_NAKAMURA_TEST, this, NULL, NULL);
                 mProfileIDMode = 3;
             }
         }
 
         void Setting::setUpdate_ConnectTestCreateWait_() {
-            if (System::getSceneManager()->getScene(0x19) != NULL) {
+            if (System::getSceneManager()->getScene(SCENE_NAKAMURA_TEST) != NULL) {
                 mProfileIDMode = 4;
             }
         }
@@ -3293,7 +3293,7 @@ namespace ipl {
 
         void Setting::setUpdate_EULAInit_() {
             if (System::getDialog()->getLastResult() >= 0) {
-                if (SCGetEULA() != 0) {
+                if (SCGetEULA()) {
                     mProfileIDMode = 10;
                 } else {
                     mProfileIDMode = 0;
@@ -3347,7 +3347,7 @@ namespace ipl {
                     mProfileIDMode = 6;
                     mUpdateTiming = 0;
                     mpWiiSettingFlag->smthMsgData = 0x54;
-                    SCSetUpdateType(2);
+                    SCSetUpdateType(SC_UPDATE_TYPE_NETWORK);
                     SCFlush();
                     break;
                 case 2:
@@ -3357,7 +3357,7 @@ namespace ipl {
                     break;
                 case 3:
                     System::getDialog()->terminate();
-                    if (SCGetConfigDoneFlag2() == 0) {
+                    if (!SCGetConfigDoneFlag2()) {
                         mProfileIDMode = 6;
                     } else {
                         mProfileIDMode = 7;
@@ -3393,7 +3393,7 @@ namespace ipl {
                     break;
                 case 1:
                     if (System::getDialog()->getLastResult() == 2) {
-                        if (static_cast<u32>(System::getRegion()) == 2) {
+                        if (static_cast<u32>(System::getRegion()) == SC_PRODUCT_AREA_EUR) {
                             System::getDialog()->callBtn1Sml(0x177, 0x179);
                         } else {
                             System::getDialog()->callBtn1Sml(0x176, 0x178);
@@ -3414,7 +3414,7 @@ namespace ipl {
                     mUpdateTiming = 4;
                     break;
                 case 4: {
-                    scene::NakamuraTest* test = static_cast<scene::NakamuraTest*>(System::getSceneManager()->getScene(0x19));
+                    scene::NakamuraTest* test = static_cast<scene::NakamuraTest*>(System::getSceneManager()->getScene(SCENE_NAKAMURA_TEST));
                     System::getDialog()->setProgBarLength(test->amtCompleted() * 100 / test->amtTotal());
                     break;
                 }
@@ -3485,16 +3485,16 @@ namespace ipl {
             prefixLength += detailLength;
             message[prefixLength] = 0;
             if (mpWiiSettingFlag->smthMsgData == 9) {
-                if (static_cast<u32>(System::getRegion()) == 2 &&
-                    static_cast<u32>(System::getLanguage()) == 2 &&
+                if (static_cast<u32>(System::getRegion()) == SC_PRODUCT_AREA_EUR &&
+                    System::getLanguage() == SC_LANG_GERMAN &&
                     static_cast<u32>(getErrorNum()) == 0x1b6) {
                     System::getDialog()->callBtn1(message, 0x2e, 78.0f);
                 } else {
                     System::getDialog()->callBtn1(message, 0x2e);
                 }
             } else if (mProfileIDMode == 0) {
-                if (static_cast<u32>(System::getRegion()) == 2 &&
-                    static_cast<u32>(System::getLanguage()) == 2 &&
+                if (static_cast<u32>(System::getRegion()) == SC_PRODUCT_AREA_EUR &&
+                    System::getLanguage() == SC_LANG_GERMAN &&
                     static_cast<u32>(getErrorNum()) == 0x1b6) {
                     System::getDialog()->callBtn1(message, 0x2e, 78.0f);
                 } else {
@@ -3612,8 +3612,8 @@ namespace ipl {
                         static_cast<USBAPThread*>(mpUSBAPThread)->setData(
                             reinterpret_cast<const wchar_t*>(mSettingData), &mUiStatus[1]);
                         static_cast<USBAPThread*>(mpUSBAPThread)->Init(
-                            reinterpret_cast<unsigned short*>(mpMem2BrowserBuffer),
-                            reinterpret_cast<u8*>(mpBrowserStringBuffer));
+                            static_cast<unsigned short*>(mpMem2BrowserBuffer),
+                            static_cast<u8*>(mpBrowserStringBuffer));
                         mUSBAPState = 2;
                     } else {
                         www::wiisetting::setFuncResult(2);
@@ -3667,7 +3667,7 @@ namespace ipl {
                 switch (mAOSSState) {
                 case 0:
                     if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE")) {
-                        if (!cancelled && static_cast<AOSSThread*>(mpAOSSThread)->start() != 0) {
+                        if (!cancelled && static_cast<AOSSThread*>(mpAOSSThread)->start()) {
                             mAOSSState = 1;
                         } else {
                             www::wiisetting::setFuncResult(cancelled ? 5 : 2);
@@ -3678,7 +3678,7 @@ namespace ipl {
                 case 1:
                 case 2: {
                     int result;
-                    if (static_cast<AOSSThread*>(mpAOSSThread)->finish(&m_AOSSConfig, &result) != 0) {
+                    if (static_cast<AOSSThread*>(mpAOSSThread)->finish(&m_AOSSConfig, &result)) {
                         mAOSSState = 0;
                         if (cancelled) {
                             www::wiisetting::setFuncResult(5);
@@ -3724,7 +3724,7 @@ namespace ipl {
                     case 0:
                     case 6:
                     case 7:
-                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, NULL) != 0) {
+                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, NULL)) {
                             www::wiisetting::setFuncResult(5);
                             resetFuncMsgQ();
                         }
@@ -3737,7 +3737,7 @@ namespace ipl {
                     switch (state) {
                     case 0:
                         if (!snd::getSystem()->isSEActive("WIPL_SE_DECIDE") &&
-                            static_cast<RakuRakuThread*>(mpRakuRakuThread)->start() == 0) {
+                            !static_cast<RakuRakuThread*>(mpRakuRakuThread)->start()) {
                             www::wiisetting::setFuncResult(cancelled ? 5 : 2);
                             resetFuncMsgQ();
                         }
@@ -3755,7 +3755,7 @@ namespace ipl {
                         }
                         break;
                     case 6: {
-                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(&m_RakuConfig.cfg, &result) != 0) {
+                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(&m_RakuConfig.cfg, &result)) {
                             if (result != 1) {
                                 www::wiisetting::setFuncResult(2);
                             } else {
@@ -3769,7 +3769,7 @@ namespace ipl {
                         break;
                     }
                     case 7: {
-                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, &result) != 0) {
+                        if (static_cast<RakuRakuThread*>(mpRakuRakuThread)->finish(NULL, &result)) {
                             www::wiisetting::setFuncResult(2);
                             resetFuncMsgQ();
                         }
@@ -3875,7 +3875,7 @@ namespace ipl {
                 break;
             case ::gui::EventHandler::ON_TRIG:
                 controller::Interface* input = static_cast<controller::Interface*>(data);
-                if (input->downTrg(0x100800)) {
+                if (input->downTrg(controller::BTN_INTERACT)) {
                     mpSetting->start_trig_event(paneName);
                 }
                 break;

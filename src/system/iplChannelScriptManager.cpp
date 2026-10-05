@@ -92,7 +92,7 @@ namespace ipl {
 
         void ChannelScriptManager::calc() {
             OSMessage msg;
-            if (smCSState == CHANS_VM_STATE_WAIT_BEGIN_RENDER && smpThread->IsThreadSuspended() != FALSE) {
+            if (smCSState == CHANS_VM_STATE_WAIT_BEGIN_RENDER && smpThread->IsThreadSuspended()) {
                 OSReceiveMessage(smpThread->getCalcQueue(), &msg, 0);
                 mState = *(u32*)msg;
                 if (mState == CHANS_VM_MSG_STATE_BEGIN_RENDER) {

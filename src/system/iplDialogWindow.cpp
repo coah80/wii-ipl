@@ -357,11 +357,11 @@ namespace ipl {
         // Wait for select animation to stop
         if (!mpCurDialog->gLayout->isPlaying(ANIM_SELECT_BTN_B) && !mpCurDialog->gLayout->isPlaying(ANIM_SELECT_BTN_A)) {
             if (mResult == RESULT_LEFT_BUTTON) {
-                if (mbBtnHovered[DIALOG_BTN_TYPE_BTN2] != FALSE && mpPages[mCurPage].isTwoBtn) {
+                if (mbBtnHovered[DIALOG_BTN_TYPE_BTN2] && mpPages[mCurPage].isTwoBtn) {
                     mpCurDialog->gLayout->getAnim(ANIM_FOCUS_BTN_A_ON)->play();
                 }
             } else {
-                if (mbBtnHovered[DIALOG_BTN_TYPE_BTN1] != FALSE) {
+                if (mbBtnHovered[DIALOG_BTN_TYPE_BTN1]) {
                     mpCurDialog->gLayout->getAnim(ANIM_FOCUS_BTN_B_ON)->play();
                 }
             }
@@ -1114,7 +1114,7 @@ namespace ipl {
         int btnNo = get_button_no(paneName);
         if (!(mState == DIALOG_STATE_PAGE_FADE || mState == DIALOG_STATE_PAGE_FADE_PREPARE) ||
             (btnNo != DIALOG_BTN_TYPE_BTN2 || mpPages[mCurPage].isTwoBtn == mpPages[mPrevPage].isTwoBtn)) {
-            if (btnNo != -1 && mbBtnHovered[btnNo] == FALSE) {
+            if (btnNo != -1 && !mbBtnHovered[btnNo]) {
                 int animIdx = -1;
 
                 // Get focus animation
@@ -1301,7 +1301,7 @@ namespace ipl {
         gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
         const char* paneName = component->getPane()->GetName();
 
-        controller::Interface* con = reinterpret_cast<controller::Interface*>(data);
+        controller::Interface* con = static_cast<controller::Interface*>(data);
 
         switch (event) {
             // Pointer on button

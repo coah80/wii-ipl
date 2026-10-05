@@ -1698,7 +1698,7 @@ namespace ipl {
 
         void SDChannelSelect::calcCommon() {
             if (mState == 2 && !mpLayout->isPlaying(0)) {
-                SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+                SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
                 if (button != NULL) {
                     button->setEventHandler(mpButtonEventHandler);
                     mState = 3;
@@ -1761,7 +1761,7 @@ namespace ipl {
                 finishPageScroll();
                 break;
             case 5:
-                createChildScene(0x23, this, NULL, this);
+                createChildScene(SCENE_SD_CHANNEL_TITLE, this, NULL, this);
                 mState = 6;
                 break;
             case 7:
@@ -1856,7 +1856,7 @@ namespace ipl {
                 System::getFader()->fadeOut();
                 TVRCManager::getHandle()->setEnable(FALSE);
                 System::getChannelManager()->refreshAsync();
-                reserveAllSceneDestruction(4, reinterpret_cast<void*>(System::getNwc24Manager()->received()));
+                reserveAllSceneDestruction(SCENE_BOARD, reinterpret_cast<void*>(System::getNwc24Manager()->received()));
             }
         }
 
@@ -2172,19 +2172,19 @@ namespace ipl {
                 mState = 28;
             }
 
-            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
             if (button != NULL && button->isActive()) {
                 button->update();
             }
 
             if (mState == 1) {
                 controller::Interface* controller = System::getMasterController();
-                if (controller->down(0x30001000)) {
+                if (controller->down(controller::BTN_NEXT_LEFT)) {
                     if (mCurrentPage > 0) {
                         setStateAndPlaySelectSound(8);
                         return;
                     }
-                } else if (controller->down(0x06000010) && mCurrentPage < mPageCount - 1) {
+                } else if (controller->down(controller::BTN_NEXT_RIGHT) && mCurrentPage < mPageCount - 1) {
                     setStateAndPlaySelectSound(9);
                     return;
                 }
@@ -2207,23 +2207,23 @@ namespace ipl {
                 return;
             }
 
-            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
             if (mState == 10) {
                 --mCurrentPage;
                 if (mCurrentPage == 0) {
-                    button->animation(15);
+                    button->animation(SDButton::IDANIM_ARROW_LEFT_DISAPPEAR);
                     mbLeftArrowVisible = false;
                 } else if (!mbRightArrowVisible) {
-                    button->animation(14);
+                    button->animation(SDButton::IDANIM_ARROW_RIGHT_APPEAR);
                     mbRightArrowVisible = true;
                 }
             } else {
                 ++mCurrentPage;
                 if (mCurrentPage == mPageCount - 1) {
-                    button->animation(16);
+                    button->animation(SDButton::IDANIM_ARROW_RIGHT_DISAPPEAR);
                     mbRightArrowVisible = false;
                 } else if (!mbLeftArrowVisible) {
-                    button->animation(13);
+                    button->animation(SDButton::IDANIM_ARROW_LEFT_APPEAR);
                     mbLeftArrowVisible = true;
                 }
             }
@@ -2243,9 +2243,9 @@ namespace ipl {
 
         void SDChannelSelect::initializeNormalPage() {
             if (!mpPageAnimations[0]->isPlaying() &&
-                System::getSceneManager()->getScene(0x23) == NULL) {
+                System::getSceneManager()->getScene(SCENE_SD_CHANNEL_TITLE) == NULL) {
                 SDButton* button = static_cast<SDButton*>(
-                    System::getSceneManager()->getScene(0x24));
+                    System::getSceneManager()->getScene(SCENE_SD_BUTTON));
                 button->enableBtn();
 
                 if (mCurrentPage > 0) {
@@ -2636,7 +2636,7 @@ namespace ipl {
                 0);
             iplSDChannelObj_playPageHide(channel);
 
-            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
             if (mbLeftArrowVisible) {
                 button->animation(SDButton::IDANIM_ARROW_LEFT_DISAPPEAR);
             }
@@ -2912,7 +2912,7 @@ namespace ipl {
         }
 
         void SDChannelSelect::updateDragState() {
-            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
             if (button != NULL && button->isActive()) {
                 button->update();
             }
@@ -2940,7 +2940,7 @@ namespace ipl {
         }
 
         void SDChannelSelect::updateDragPageTransition() {
-            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
             if (button != NULL && button->isActive()) {
                 button->update();
             }
@@ -2964,7 +2964,7 @@ namespace ipl {
             if (mbButtonEnabled || mbDialogActive) {
                 finishDrag();
             } else if (mCurrentPage > 0 && mPendingIndex >= 15) {
-                button->animation(7);
+                button->animation(SDButton::IDANIM_ARROW_LEFT_CLICK);
                 mpLayout->setMinFrame(0.0f, -1);
                 mpLayout->setMaxFrame(20.0f, -1);
                 mpLayout->setAnmType(ANIM_TYPE_FORWARD, -1);
@@ -2986,7 +2986,7 @@ namespace ipl {
 
                 snd::getSystem()->startSE("WSD_SELECT");
             } else if (mCurrentPage < mPageCount - 1 && mPendingPage >= 15) {
-                button->animation(8);
+                button->animation(SDButton::IDANIM_ARROW_RIGHT_CLICK);
                 mpLayout->setMinFrame(40.0f, -1);
                 mpLayout->setMaxFrame(60.0f, -1);
                 mpLayout->setAnmType(ANIM_TYPE_FORWARD, -1);
@@ -3141,7 +3141,7 @@ namespace ipl {
         }
 
         void SDChannelSelect::finishDragPageChange() {
-            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
             if (button != NULL && button->isActive()) {
                 button->update();
             }
@@ -3156,23 +3156,23 @@ namespace ipl {
                 return;
             }
 
-            button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+            button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
             if (mState == 22) {
                 --mCurrentPage;
                 if (mCurrentPage == 0) {
-                    button->animation(15);
+                    button->animation(SDButton::IDANIM_ARROW_LEFT_DISAPPEAR);
                     mbLeftArrowVisible = false;
                 } else if (!mbRightArrowVisible) {
-                    button->animation(14);
+                    button->animation(SDButton::IDANIM_ARROW_RIGHT_APPEAR);
                     mbRightArrowVisible = true;
                 }
             } else {
                 ++mCurrentPage;
                 if (mCurrentPage == mPageCount - 1) {
-                    button->animation(16);
+                    button->animation(SDButton::IDANIM_ARROW_RIGHT_DISAPPEAR);
                     mbRightArrowVisible = false;
                 } else if (!mbLeftArrowVisible) {
-                    button->animation(13);
+                    button->animation(SDButton::IDANIM_ARROW_LEFT_APPEAR);
                     mbLeftArrowVisible = true;
                 }
             }
@@ -3283,7 +3283,7 @@ namespace ipl {
             mpPageLayouts[0]->getAnim(0)->play();
             mpPageLayouts[1]->getAnim(0)->play();
 
-            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
             button->disableBtn();
 
             SDChannelObj* channel = NULL;
@@ -3319,7 +3319,7 @@ namespace ipl {
             System::getPointer()->changeType(mControllerChannel, 0);
             mpPageLayouts[1]->getAnim(1)->play();
 
-            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(0x24));
+            SDButton* button = static_cast<SDButton*>(System::getSceneManager()->getScene(SCENE_SD_BUTTON));
             button->enableBtn();
 
             mbButtonEnabled = false;
@@ -3466,14 +3466,14 @@ namespace ipl {
                 if (mpScene->mState == 1) {
                     if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
                         if (con != NULL) {
-                            if (con->downTrg(0x00100800)) {
+                            if (con->downTrg(controller::BTN_INTERACT)) {
                                 SDButton* button = static_cast<SDButton*>(
-                                    System::getSceneManager()->getScene(0x24));
+                                    System::getSceneManager()->getScene(SCENE_SD_BUTTON));
                                 if (strcmp(paneName,
                                            SDButton::smButtonName[SDButton::BTN_HELP]) == 0) {
                                     mpScene->mOperationResult = 0;
                                     mpScene->mState = 26;
-                                    button->animation(4);
+                                    button->animation(SDButton::IDANIM_HELP_BTN_CLICK);
                                     snd::getSystem()->startSE("WIPL_SE_DECIDE");
                                     return;
                                 }
@@ -3489,7 +3489,7 @@ namespace ipl {
                                 if (strcmp(paneName,
                                            SDButton::smButtonName[SDButton::BTN_ARROW_LEFT]) == 0 &&
                                     mpScene->mCurrentPage > 0) {
-                                    button->animation(7);
+                                    button->animation(SDButton::IDANIM_ARROW_LEFT_CLICK);
                                     mpScene->setStateAndPlaySelectSound(8);
                                     return;
                                 }
@@ -3497,7 +3497,7 @@ namespace ipl {
                                 if (strcmp(paneName,
                                            SDButton::smButtonName[SDButton::BTN_ARROW_RIGHT]) == 0 &&
                                     mpScene->mCurrentPage < mpScene->mPageCount - 1) {
-                                    button->animation(8);
+                                    button->animation(SDButton::IDANIM_ARROW_RIGHT_CLICK);
                                     mpScene->setStateAndPlaySelectSound(9);
                                 }
                             } else {

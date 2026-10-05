@@ -110,7 +110,7 @@ namespace ipl {
             OSReport("TREASURE HEAP: %p SIZE:%d\n", smArg.mpTreasureHeap, smArg.mpTreasureHeap->getAllocatableSize(4));
             OSReport("*****************************\n");
 
-            smArg.mpMem2Root = EGG::ExpHeap::create((void*)mem2Lo, ((u32)mem2Hi - (u32)mem2Lo), MEM_HEAP_OPT_DEBUG_FILL);
+            smArg.mpMem2Root = EGG::ExpHeap::create((void*)mem2Lo, (mem2Hi - mem2Lo), MEM_HEAP_OPT_DEBUG_FILL);
         } else {
             smArg.mpTreasureHeap = EGG::ExpHeap::create((void*)0x93440000, 0xC0000, MEM_HEAP_OPT_DEBUG_FILL);
 
@@ -118,7 +118,7 @@ namespace ipl {
             OSReport("TREASURE HEAP: %p SIZE:%d\n", smArg.mpTreasureHeap, smArg.mpTreasureHeap->getAllocatableSize(4));
             OSReport("*****************************\n");
 
-            smArg.mpMem2Root = EGG::ExpHeap::create((void*)mem2Lo, (0x93440000 - (u32)mem2Lo), MEM_HEAP_OPT_DEBUG_FILL);
+            smArg.mpMem2Root = EGG::ExpHeap::create((void*)mem2Lo, (0x93440000 - mem2Lo), MEM_HEAP_OPT_DEBUG_FILL);
         }
 
         OSSetMEM2ArenaLo((void*)mem2Hi);
@@ -535,7 +535,7 @@ namespace ipl {
 
             SCSetAspectRatio(SC_ASPECT_RATIO_4x3);
 
-            SCSetWpadSensorBarPosition(0);
+            SCSetWpadSensorBarPosition(SC_WPAD_SENSOR_BAR_POSITION_BOTTOM);
 #ifdef SYSMENU_REGION_USA
             SCSetBtDpdSensibility(3);
 #endif
@@ -916,9 +916,9 @@ namespace ipl {
 
             i++;
             if (i > WPAD_MAX_CONTROLLERS) {
-                if (WPADGetStatus() == 3) {
+                if (WPADGetStatus() == WPAD_LIB_STATUS_3) {
                     for (i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
-                        WPADControlMotor(i, 0);
+                        WPADControlMotor(i, WPAD_MOTOR_STOP);
                     }
                 }
                 i = 0;

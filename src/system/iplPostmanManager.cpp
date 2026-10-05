@@ -53,7 +53,7 @@ namespace ipl {
         }
 
         void Manager::alarm_handler_(OSAlarm* alarm, OSContext* context) {
-            Manager* manager = reinterpret_cast<Manager*>(OSGetAlarmUserData(alarm));
+            Manager* manager = static_cast<Manager*>(OSGetAlarmUserData(alarm));
             manager->Send_ReceiveImmediately();
         }
 

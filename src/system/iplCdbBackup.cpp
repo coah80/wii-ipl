@@ -365,7 +365,7 @@ namespace ipl {
     }
 
     BOOL cdb_backup_delete_search_cb_(void* work, CDBRecord* record) {
-        CdbBackup* cdbBackup = reinterpret_cast<CdbBackup*>(work);
+        CdbBackup* cdbBackup = static_cast<CdbBackup*>(work);
 
         BOOL result = TRUE;
 
@@ -398,7 +398,7 @@ namespace ipl {
     }
 
     BOOL cdb_backup_move_search_cb_(void* work, CDBRecord* record) {
-        CdbBackup* cdbBackup = reinterpret_cast<CdbBackup*>(work);
+        CdbBackup* cdbBackup = static_cast<CdbBackup*>(work);
 
         BOOL result = TRUE;
 
@@ -425,7 +425,7 @@ namespace ipl {
     }
 
     void cdb_backup_move_task_(void* work) {
-        CdbBackup* cdbBackup = reinterpret_cast<CdbBackup*>(work);
+        CdbBackup* cdbBackup = static_cast<CdbBackup*>(work);
 
         const CDBDate beginDate = CDBMakeCDBDate(MIN_YEAR, MIN_MONTH - 1, MIN_DAY, MIN_HOUR, MIN_MINUTE, MIN_SECOND);
         // @Bug should be MAX_MONTH-1

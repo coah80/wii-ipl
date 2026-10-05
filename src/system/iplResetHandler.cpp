@@ -112,7 +112,7 @@ namespace ipl {
                 case RESET_STATE_SHUTDOWN_SYSTEM: {
                     switch (mState) {
                         case STATE_RESTART: {
-                            if (WPADGetStatus() == 0) {
+                            if (WPADGetStatus() == WPAD_LIB_STATUS_0) {
                                 VISetBlack(TRUE);
                                 VIFlush();
                                 VIWaitForRetrace();
