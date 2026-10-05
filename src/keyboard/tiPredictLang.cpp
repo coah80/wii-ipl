@@ -364,13 +364,13 @@ namespace textinput {
             }
             const char* name = paneComponent->getPane()->GetName();
             if (name[0] == 'B') {
-                char tmp[17];
+                char paneName[17];
                 // open-coded util::replaceChar
-                memset(tmp, 0, 17);
-                strncpy(tmp, name, strlen(name));
-                tmp[0] = 'P';
+                memset(paneName, 0, 17);
+                strncpy(paneName, name, strlen(name));
+                paneName[0] = 'P';
 
-                AnmPane* pane = static_cast<AnmPane*>(mpLayoutByNW4R->searchAnmPane(tmp));
+                AnmPane* pane = static_cast<AnmPane*>(mpLayoutByNW4R->searchAnmPane(paneName));
                 if (pane != NULL) {
                     switch (event) {
                         case ON_TRIG: {
@@ -392,13 +392,13 @@ namespace textinput {
                 }
 
                 if (event == ON_TRIG && (input->trigger & 0x800)) {
-                    char tmp[17];
+                    char paneName[17];
                     // open-coded util::replaceChar
-                    memset(tmp, 0, 17);
-                    strncpy(tmp, name, strlen(name));
-                    tmp[0] = 'P';
+                    memset(paneName, 0, 17);
+                    strncpy(paneName, name, strlen(name));
+                    paneName[0] = 'P';
 
-                    inputform::Base::PredictMode mode = getPredictModeFromBPaneName(tmp);
+                    inputform::Base::PredictMode mode = getPredictModeFromBPaneName(paneName);
                     if (mode != inputform::Base::PM_End) {
                         mpLayoutByNW4R->setPredictMode(mode);
                         mpLayoutByNW4R->startToClose();

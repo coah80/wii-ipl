@@ -31,21 +31,21 @@ void DSPSendMailToDSP(u32 mail) {
 
 void DSPAssertInt() {
     BOOL old;
-    u16 tmp;
+    u16 controlStatus;
 
     old = OSDisableInterrupts();
 
-    tmp = DSP_READ_REG(DSP_CONTROL_STATUS);
-    CLEAR_FLAG(tmp, 0xA8);
-    SET_FLAG(tmp, 2);
-    DSP_WRITE_REG(DSP_CONTROL_STATUS, tmp);
+    controlStatus = DSP_READ_REG(DSP_CONTROL_STATUS);
+    CLEAR_FLAG(controlStatus, 0xA8);
+    SET_FLAG(controlStatus, 2);
+    DSP_WRITE_REG(DSP_CONTROL_STATUS, controlStatus);
 
     OSRestoreInterrupts(old);
 }
 
 void DSPInit() {
     BOOL old;
-    u16 tmp;
+    u16 controlStatus;
 
     __DSP_debug_printf("DSPInit(): Build Date: %s %s\n", "Apr 20 2010", "11:19:06");
 
@@ -60,15 +60,15 @@ void DSPInit() {
     __OSUnmaskInterrupts(OS_INTERRUPTMASK_DSP_DSP);
 
     // Reset DSP
-    tmp = DSP_READ_REG(DSP_CONTROL_STATUS);
-    CLEAR_FLAG(tmp, ((1 << DSP_CONTROL_STATUS_AIDINT) | (1 << DSP_CONTROL_STATUS_ARINT) | (1 << DSP_CONTROL_STATUS_DSPINT)));
-    SET_FLAG(tmp, (1 << DSP_CONTROL_STATUS_RESET));
-    DSP_WRITE_REG(DSP_CONTROL_STATUS, tmp);
+    controlStatus = DSP_READ_REG(DSP_CONTROL_STATUS);
+    CLEAR_FLAG(controlStatus, ((1 << DSP_CONTROL_STATUS_AIDINT) | (1 << DSP_CONTROL_STATUS_ARINT) | (1 << DSP_CONTROL_STATUS_DSPINT)));
+    SET_FLAG(controlStatus, (1 << DSP_CONTROL_STATUS_RESET));
+    DSP_WRITE_REG(DSP_CONTROL_STATUS, controlStatus);
 
-    tmp = DSP_READ_REG(DSP_CONTROL_STATUS);
-    CLEAR_FLAG(tmp, ((1 << DSP_CONTROL_STATUS_AIDINT) | (1 << DSP_CONTROL_STATUS_ARINT) | (1 << DSP_CONTROL_STATUS_DSPINT)) |
+    controlStatus = DSP_READ_REG(DSP_CONTROL_STATUS);
+    CLEAR_FLAG(controlStatus, ((1 << DSP_CONTROL_STATUS_AIDINT) | (1 << DSP_CONTROL_STATUS_ARINT) | (1 << DSP_CONTROL_STATUS_DSPINT)) |
                         (1 << DSP_CONTROL_STATUS_HALT));
-    DSP_WRITE_REG(DSP_CONTROL_STATUS, tmp);
+    DSP_WRITE_REG(DSP_CONTROL_STATUS, controlStatus);
 
     __DSP_first_task = __DSP_last_task = __DSP_curr_task = __DSP_tmp_task = NULL;
 

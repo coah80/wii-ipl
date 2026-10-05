@@ -412,9 +412,9 @@ NWC24Err NWC24InitFiles(void* work, BOOL force) {
 
     if (result == NWC24_OK) {
         NWC24UserId userId;
-        u32 arg1;
+        u32 generationReply;
 
-        result = NWC24iRequestGenerateUserId(&userId, &arg1);
+        result = NWC24iRequestGenerateUserId(&userId, &generationReply);
         if (result == NWC24_ERR_ID_GENERATED || result == NWC24_ERR_ID_REGISTERED) {
             result = NWC24_OK;
         }
@@ -609,14 +609,14 @@ NWC24Err AnalyzeScdErrors(s32* errorCode, u32 usage) {
 NWC24Err AnalyzeErrorCode(s32 errorCode, u32 usage, u32* score) {
     char digit[6];
     int i;
-    s32 tmp = -errorCode;
+    s32 errorNumber = -errorCode;
 
     *score = 0;
 
     // Convert code to strings
     for (i = 0; i < 6; i++) {
-        digit[i] = tmp % 10;
-        tmp = tmp / 10;
+        digit[i] = errorNumber % 10;
+        errorNumber = errorNumber / 10;
     }
 
     // If the code is 5XXXX, it is an NCD error
@@ -663,16 +663,16 @@ NWC24Err AnalyzeErrorCode(s32 errorCode, u32 usage, u32* score) {
         }
 
         // Get the NWC24Err code
-        tmp = digit[0] + (digit[1] * 10);
+        errorNumber = digit[0] + (digit[1] * 10);
         // Handle 3rd digit
         switch (digit[2]) {
             case 0: {
                 // Over 70 means success
-                if (tmp >= 70) {
+                if (errorNumber >= 70) {
                     return NWC24_OK;
                 }
                 *score = 60;
-                switch (tmp) {
+                switch (errorNumber) {
                     case 0:
                     case 1:
                     case 2:
@@ -692,7 +692,7 @@ NWC24Err AnalyzeErrorCode(s32 errorCode, u32 usage, u32* score) {
                 }
             }
             case 2: {
-                switch (-tmp) {
+                switch (-errorNumber) {
                     case -1: {
                         *score = 60;
                         return NWC24_ERR_FATAL;
@@ -718,7 +718,7 @@ NWC24Err AnalyzeErrorCode(s32 errorCode, u32 usage, u32* score) {
                 break;
             }
             case 3: {
-                switch (tmp) {
+                switch (errorNumber) {
                     case 1:
                     case 2:
                     case 3:
@@ -744,7 +744,7 @@ NWC24Err AnalyzeErrorCode(s32 errorCode, u32 usage, u32* score) {
                 }
             }
             case 4: {
-                switch (tmp) {
+                switch (errorNumber) {
                     case 9:
                     case 10:
                     case 11:

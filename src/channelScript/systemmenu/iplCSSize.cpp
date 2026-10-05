@@ -26,19 +26,19 @@ namespace ipl {
 
                 nw4r::lyt::Size* data = (nw4r::lyt::Size*)CHANSVmNewObjData(VmInst, VmReturnObj, sizeof(*data));
                 if (data != NULL) {
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgFloat(VmInst, 0);
-                    CHANSVmObjHdr* arg1 = CHANSVmGetArgFloat(VmInst, 1);
+                    CHANSVmObjHdr* widthArg = CHANSVmGetArgFloat(VmInst, 0);
+                    CHANSVmObjHdr* heightArg = CHANSVmGetArgFloat(VmInst, 1);
 
                     f32 width, height;
 
-                    if (arg0 != NULL) {
-                        width = arg0->value.float_v;
+                    if (widthArg != NULL) {
+                        width = widthArg->value.float_v;
                     } else {
                         width = 0.0;
                     }
 
-                    if (arg1 != NULL) {
-                        height = arg1->value.float_v;
+                    if (heightArg != NULL) {
+                        height = heightArg->value.float_v;
                     } else {
                         height = 0.0;
                     }
@@ -66,12 +66,12 @@ namespace ipl {
             template <int I>
             CHANSVmDefineMethod(set) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(VmInst, 0);
-                if (util::is_valid_datap(VmParentObj) && arg != NULL) {
+                CHANSVmObjHdr* dimensionArg = CHANSVmGetArgFloat(VmInst, 0);
+                if (util::is_valid_datap(VmParentObj) && dimensionArg != NULL) {
                     f32* data = static_cast<f32*>(*VmParentObj->value.ptr_v);
 
                     result = TRUE;
-                    data[I] = arg->value.float_v;
+                    data[I] = dimensionArg->value.float_v;
                 }
                 return result;
             }

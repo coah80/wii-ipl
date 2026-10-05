@@ -25,16 +25,16 @@ namespace nw4r {
         }
 
         VEC4* VEC4Transform(VEC4* pOut, const MTX44* pM, const VEC4* pV) {
-            VEC4 tmp;
-            tmp.x = pM->_00 * pV->x + pM->_01 * pV->y + pM->_02 * pV->z + pM->_03 * pV->w;
-            tmp.y = pM->_10 * pV->x + pM->_11 * pV->y + pM->_12 * pV->z + pM->_13 * pV->w;
-            tmp.z = pM->_20 * pV->x + pM->_21 * pV->y + pM->_22 * pV->z + pM->_23 * pV->w;
-            tmp.w = pM->_30 * pV->x + pM->_31 * pV->y + pM->_32 * pV->z + pM->_33 * pV->w;
+            VEC4 transformed;
+            transformed.x = pM->_00 * pV->x + pM->_01 * pV->y + pM->_02 * pV->z + pM->_03 * pV->w;
+            transformed.y = pM->_10 * pV->x + pM->_11 * pV->y + pM->_12 * pV->z + pM->_13 * pV->w;
+            transformed.z = pM->_20 * pV->x + pM->_21 * pV->y + pM->_22 * pV->z + pM->_23 * pV->w;
+            transformed.w = pM->_30 * pV->x + pM->_31 * pV->y + pM->_32 * pV->z + pM->_33 * pV->w;
 
-            pOut->x = tmp.x;
-            pOut->y = tmp.y;
-            pOut->z = tmp.z;
-            pOut->w = tmp.w;
+            pOut->x = transformed.x;
+            pOut->y = transformed.y;
+            pOut->z = transformed.z;
+            pOut->w = transformed.w;
             return pOut;
         }
     }  // namespace math

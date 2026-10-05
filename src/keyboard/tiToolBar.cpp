@@ -377,9 +377,9 @@ namespace textinput {
         void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) {
             const char* name = paneComponent->getPane()->GetName();
             if (name[0] == 'B') {
-                char tmp[17];
-                util::replaceChar(tmp, sizeof(tmp), name, 0, 'P');
-                AnmPane* pane = static_cast<AnmPane*>(mpLayoutByNW4R->searchAnmPane(tmp));
+                char paneName[17];
+                util::replaceChar(paneName, sizeof(paneName), name, 0, 'P');
+                AnmPane* pane = static_cast<AnmPane*>(mpLayoutByNW4R->searchAnmPane(paneName));
                 if (pane != NULL) {
                     switch (event) {
                         case ON_TRIG: {
@@ -401,16 +401,16 @@ namespace textinput {
                     }
                 }
                 if (event == ON_TRIG && (input->trigger & 0x800)) {
-                    if (util::strcmp(tmp, "P_BT_confirm")) {
+                    if (util::strcmp(paneName, "P_BT_confirm")) {
                         mpLayoutByNW4R->onOK();
-                    } else if (util::strcmp(tmp, "P_BT_cancel")) {
+                    } else if (util::strcmp(paneName, "P_BT_cancel")) {
                         mpLayoutByNW4R->onCancel();
-                    } else if (util::strcmp(tmp, "P_kyChng_QWERTY")) {
+                    } else if (util::strcmp(paneName, "P_kyChng_QWERTY")) {
                         if (!mpLayoutByNW4R->isQwerty()) {
                             mpLayoutByNW4R->searchAnmPane("P_kyChng_CP")->changeAnimation(6);
                         }
                         mpLayoutByNW4R->setQwertyWithSE(true);
-                    } else if (util::strcmp(tmp, "P_kyChng_CP")) {
+                    } else if (util::strcmp(paneName, "P_kyChng_CP")) {
                         if (mpLayoutByNW4R->isQwerty()) {
                             mpLayoutByNW4R->searchAnmPane("P_kyChng_QWERTY")->changeAnimation(6);
                         }

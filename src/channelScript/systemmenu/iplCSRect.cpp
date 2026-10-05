@@ -25,24 +25,24 @@ namespace ipl {
 
             CHANSVmDefineMethod(set_width) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(VmInst, 0);
-                if (util::is_valid_datap(VmParentObj) && arg != NULL) {
+                CHANSVmObjHdr* widthArg = CHANSVmGetArgFloat(VmInst, 0);
+                if (util::is_valid_datap(VmParentObj) && widthArg != NULL) {
                     nw4r::ut::Rect* data = static_cast<nw4r::ut::Rect*>(*VmParentObj->value.ptr_v);
 
                     result = TRUE;
-                    data->SetWidth(arg->value.float_v);
+                    data->SetWidth(widthArg->value.float_v);
                 }
                 return result;
             }
 
             CHANSVmDefineMethod(set_height) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(VmInst, 0);
-                if (util::is_valid_datap(VmParentObj) && arg != NULL) {
+                CHANSVmObjHdr* heightArg = CHANSVmGetArgFloat(VmInst, 0);
+                if (util::is_valid_datap(VmParentObj) && heightArg != NULL) {
                     nw4r::ut::Rect* data = static_cast<nw4r::ut::Rect*>(*VmParentObj->value.ptr_v);
 
                     result = TRUE;
-                    data->SetHeight(arg->value.float_v);
+                    data->SetHeight(heightArg->value.float_v);
                 }
                 return result;
             }
@@ -64,33 +64,33 @@ namespace ipl {
 
                 nw4r::ut::Rect* data = static_cast<nw4r::ut::Rect*>(CHANSVmNewObjData(VmInst, VmReturnObj, sizeof(*data)));
                 if (data != NULL) {
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgFloat(VmInst, 0);
-                    CHANSVmObjHdr* arg1 = CHANSVmGetArgFloat(VmInst, 1);
-                    CHANSVmObjHdr* arg2 = CHANSVmGetArgFloat(VmInst, 2);
-                    CHANSVmObjHdr* arg3 = CHANSVmGetArgFloat(VmInst, 3);
+                    CHANSVmObjHdr* leftArg = CHANSVmGetArgFloat(VmInst, 0);
+                    CHANSVmObjHdr* topArg = CHANSVmGetArgFloat(VmInst, 1);
+                    CHANSVmObjHdr* rightArg = CHANSVmGetArgFloat(VmInst, 2);
+                    CHANSVmObjHdr* bottomArg = CHANSVmGetArgFloat(VmInst, 3);
 
                     f32 left, top, right, bottom;
 
-                    if (arg0 != NULL) {
-                        left = arg0->value.float_v;
+                    if (leftArg != NULL) {
+                        left = leftArg->value.float_v;
                     } else {
                         left = 0.0;
                     }
 
-                    if (arg1 != NULL) {
-                        top = arg1->value.float_v;
+                    if (topArg != NULL) {
+                        top = topArg->value.float_v;
                     } else {
                         top = 0.0;
                     }
 
-                    if (arg2 != NULL) {
-                        right = arg2->value.float_v;
+                    if (rightArg != NULL) {
+                        right = rightArg->value.float_v;
                     } else {
                         right = 0.0;
                     }
 
-                    if (arg3 != NULL) {
-                        bottom = arg3->value.float_v;
+                    if (bottomArg != NULL) {
+                        bottom = bottomArg->value.float_v;
                     } else {
                         bottom = 0.0;
                     }

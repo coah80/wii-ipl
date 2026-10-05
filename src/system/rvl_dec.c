@@ -493,47 +493,47 @@ int Rvl_decode_ash(u8* out, u8* in) {
     u8* dst;
     u32* inWordPtr;
     u32 decodedSize;
-    u32 sym9;
-    u32 sym11;
+    u32 literalSymbol;
+    u32 distanceSymbol;
     u32 nodeVal;
     int needBits;
     u16 nodeCount;
     u16 nextNode;
-    u8* litPtr;
-    int bitOff1;
-    u32 bitPos1;
+    u8* copySource;
+    int literalWordOffset;
+    u32 literalBitPosition;
     u32 shifted;
-    u32 bitWord1;
-    u32 tmp15;
+    u32 literalBitWord;
+    u32 decodeBitsOrCount;
     int stackDepth;
-    int bitOff2;
-    u32 bitPos2;
-    u32 bitWord2;
-    u32 tmp20;
+    int distanceWordOffset;
+    u32 distanceBitPosition;
+    u32 distanceBitWord;
+    u32 nextDistanceBits;
     u16* stackPtr;
 
     decodedSize = *(u32*)(in + 4) & 0xffffff;
-    bitOff1 = 0x10;
-    bitPos1 = 0;
-    bitPos2 = 0;
-    bitWord2 = *(u32*)(*(int*)(in + 8) + in);
-    bitOff2 = *(int*)(in + 8) + 4;
+    literalWordOffset = 0x10;
+    literalBitPosition = 0;
+    distanceBitPosition = 0;
+    distanceBitWord = *(u32*)(*(int*)(in + 8) + in);
+    distanceWordOffset = *(int*)(in + 8) + 4;
     stackPtr = (u16*)&work[0x4ff8];
     nodeCount = 0x200;
     stackDepth = 0;
-    bitWord1 = *(u32*)(in + 0xc);
+    literalBitWord = *(u32*)(in + 0xc);
     nextNode = 0x200;
     do {
         while (1) {
-            if (bitPos1 == 0x1f) {
-                shifted = *(u32*)(in + bitOff1);
-                bitPos1 = 0;
-                bitOff1 = bitOff1 + 4;
+            if (literalBitPosition == 0x1f) {
+                shifted = *(u32*)(in + literalWordOffset);
+                literalBitPosition = 0;
+                literalWordOffset = literalWordOffset + 4;
             } else {
-                bitPos1 = bitPos1 + 1;
-                shifted = bitWord1 << 1;
+                literalBitPosition = literalBitPosition + 1;
+                shifted = literalBitWord << 1;
             }
-            if (-1 < (int)bitWord1) {
+            if (-1 < (int)literalBitWord) {
                 break;
             }
             *stackPtr = nextNode | 0x8000;
@@ -541,26 +541,26 @@ int Rvl_decode_ash(u8* out, u8* in) {
             stackPtr = stackPtr + 2;
             stackDepth = stackDepth + 2;
             nodeCount = nodeCount + 1;
-            bitWord1 = shifted;
+            literalBitWord = shifted;
             nextNode = nextNode + 1;
         }
-        needBits = bitPos1 + 9;
+        needBits = literalBitPosition + 9;
         if (needBits < 0x21) {
-            sym9 = shifted >> 0x17;
+            literalSymbol = shifted >> 0x17;
             if (needBits == 0x20) {
-                bitWord1 = *(u32*)(in + bitOff1);
-                bitPos1 = 0;
-                bitOff1 = bitOff1 + 4;
+                literalBitWord = *(u32*)(in + literalWordOffset);
+                literalBitPosition = 0;
+                literalWordOffset = literalWordOffset + 4;
             } else {
-                bitWord1 = shifted << 9;
-                bitPos1 = bitPos1 + 9;
+                literalBitWord = shifted << 9;
+                literalBitPosition = literalBitPosition + 9;
             }
         } else {
-            inWordPtr = (u32*)(in + bitOff1);
-            bitOff1 = bitOff1 + 4;
-            sym9 = shifted >> 0x17 | *inWordPtr >> (0x40U - needBits & 0x3f);
-            bitPos1 = bitPos1 - 0x17;
-            bitWord1 = *inWordPtr << (bitPos1 & 0x3f);
+            inWordPtr = (u32*)(in + literalWordOffset);
+            literalWordOffset = literalWordOffset + 4;
+            literalSymbol = shifted >> 0x17 | *inWordPtr >> (0x40U - needBits & 0x3f);
+            literalBitPosition = literalBitPosition - 0x17;
+            literalBitWord = *inWordPtr << (literalBitPosition & 0x3f);
         }
         while (1) {
             stackPtr = stackPtr - 1;
@@ -570,23 +570,23 @@ int Rvl_decode_ash(u8* out, u8* in) {
             if ((nextNode & 0x8000) == 0) {
                 break;
             }
-            *(u16*)(&work[0x7fe] + needBits) = (u16)sym9;
-            sym9 = nextNode & 0x3fff;
+            *(u16*)(&work[0x7fe] + needBits) = (u16)literalSymbol;
+            literalSymbol = nextNode & 0x3fff;
             if (stackDepth == 0) {
                 nodeCount = 0x800;
                 stackDepth = 0;
                 nextNode = 0x800;
                 do {
                     while (1) {
-                        if (bitPos2 == 0x1f) {
-                            shifted = *(u32*)(in + bitOff2);
-                            bitPos2 = 0;
-                            bitOff2 = bitOff2 + 4;
+                        if (distanceBitPosition == 0x1f) {
+                            shifted = *(u32*)(in + distanceWordOffset);
+                            distanceBitPosition = 0;
+                            distanceWordOffset = distanceWordOffset + 4;
                         } else {
-                            bitPos2 = bitPos2 + 1;
-                            shifted = bitWord2 << 1;
+                            distanceBitPosition = distanceBitPosition + 1;
+                            shifted = distanceBitWord << 1;
                         }
-                        if (-1 < (int)bitWord2) {
+                        if (-1 < (int)distanceBitWord) {
                             break;
                         }
                         *stackPtr = nextNode | 0x8000;
@@ -594,26 +594,26 @@ int Rvl_decode_ash(u8* out, u8* in) {
                         stackPtr = stackPtr + 2;
                         stackDepth = stackDepth + 2;
                         nodeCount = nodeCount + 1;
-                        bitWord2 = shifted;
+                        distanceBitWord = shifted;
                         nextNode = nextNode + 1;
                     }
-                    needBits = bitPos2 + 0xb;
+                    needBits = distanceBitPosition + 0xb;
                     if (needBits < 0x21) {
-                        sym11 = shifted >> 0x15;
+                        distanceSymbol = shifted >> 0x15;
                         if (needBits == 0x20) {
-                            bitWord2 = *(u32*)(in + bitOff2);
-                            bitPos2 = 0;
-                            bitOff2 = bitOff2 + 4;
+                            distanceBitWord = *(u32*)(in + distanceWordOffset);
+                            distanceBitPosition = 0;
+                            distanceWordOffset = distanceWordOffset + 4;
                         } else {
-                            bitWord2 = shifted << 0xb;
-                            bitPos2 = bitPos2 + 0xb;
+                            distanceBitWord = shifted << 0xb;
+                            distanceBitPosition = distanceBitPosition + 0xb;
                         }
                     } else {
-                        inWordPtr = (u32*)(in + bitOff2);
-                        bitOff2 = bitOff2 + 4;
-                        sym11 = shifted >> 0x15 | *inWordPtr >> (0x40U - needBits & 0x3f);
-                        bitPos2 = bitPos2 - 0x15;
-                        bitWord2 = *inWordPtr << (bitPos2 & 0x3f);
+                        inWordPtr = (u32*)(in + distanceWordOffset);
+                        distanceWordOffset = distanceWordOffset + 4;
+                        distanceSymbol = shifted >> 0x15 | *inWordPtr >> (0x40U - needBits & 0x3f);
+                        distanceBitPosition = distanceBitPosition - 0x15;
+                        distanceBitWord = *inWordPtr << (distanceBitPosition & 0x3f);
                     }
                     while (1) {
                         stackPtr = stackPtr - 1;
@@ -623,91 +623,91 @@ int Rvl_decode_ash(u8* out, u8* in) {
                         if ((nextNode & 0x8000) == 0) {
                             break;
                         }
-                        *(u16*)(&work[0x2ffa] + needBits) = (u16)sym11;
-                        sym11 = nextNode & 0x3fff;
-                        nodeVal = sym9;
+                        *(u16*)(&work[0x2ffa] + needBits) = (u16)distanceSymbol;
+                        distanceSymbol = nextNode & 0x3fff;
+                        nodeVal = literalSymbol;
                         shifted = decodedSize;
                         if (stackDepth == 0) {
                             do {
                                 while (0x1ff < nodeVal) {
-                                    if (bitPos1 == 0x1f) {
-                                        tmp15 = *(u32*)(in + bitOff1);
-                                        bitOff1 = bitOff1 + 4;
-                                        bitPos1 = 0;
+                                    if (literalBitPosition == 0x1f) {
+                                        decodeBitsOrCount = *(u32*)(in + literalWordOffset);
+                                        literalWordOffset = literalWordOffset + 4;
+                                        literalBitPosition = 0;
                                     } else {
-                                        bitPos1 = bitPos1 + 1;
-                                        tmp15 = bitWord1 << 1;
+                                        literalBitPosition = literalBitPosition + 1;
+                                        decodeBitsOrCount = literalBitWord << 1;
                                     }
-                                    if ((int)bitWord1 < 0) {
+                                    if ((int)literalBitWord < 0) {
                                         nodeVal = *(u16*)(&work[0x7fe] + nodeVal * 2);
-                                        bitWord1 = tmp15;
+                                        literalBitWord = decodeBitsOrCount;
                                     } else {
                                         nodeVal = *(u16*)((u8*)work + nodeVal * 2);
-                                        bitWord1 = tmp15;
+                                        literalBitWord = decodeBitsOrCount;
                                     }
                                 }
-                                tmp15 = sym11;
+                                decodeBitsOrCount = distanceSymbol;
                                 if (nodeVal < 0x100) {
                                     *out = (char)nodeVal;
                                     out = out + 1;
                                     shifted = shifted - 1;
                                 } else {
-                                    while (0x7ff < tmp15) {
-                                        if (bitPos2 == 0x1f) {
-                                            tmp20 = *(u32*)(in + bitOff2);
-                                            bitOff2 = bitOff2 + 4;
-                                            bitPos2 = 0;
+                                    while (0x7ff < decodeBitsOrCount) {
+                                        if (distanceBitPosition == 0x1f) {
+                                            nextDistanceBits = *(u32*)(in + distanceWordOffset);
+                                            distanceWordOffset = distanceWordOffset + 4;
+                                            distanceBitPosition = 0;
                                         } else {
-                                            bitPos2 = bitPos2 + 1;
-                                            tmp20 = bitWord2 << 1;
+                                            distanceBitPosition = distanceBitPosition + 1;
+                                            nextDistanceBits = distanceBitWord << 1;
                                         }
-                                        if ((int)bitWord2 < 0) {
-                                            tmp15 = *(u16*)(&work[0x2ffa] + tmp15 * 2);
-                                            bitWord2 = tmp20;
+                                        if ((int)distanceBitWord < 0) {
+                                            decodeBitsOrCount = *(u16*)(&work[0x2ffa] + decodeBitsOrCount * 2);
+                                            distanceBitWord = nextDistanceBits;
                                         } else {
-                                            tmp15 = *(u16*)(&work[0xffc] + tmp15 * 2);
-                                            bitWord2 = tmp20;
+                                            decodeBitsOrCount = *(u16*)(&work[0xffc] + decodeBitsOrCount * 2);
+                                            distanceBitWord = nextDistanceBits;
                                         }
                                     }
                                     nodeVal = nodeVal - 0xfd;
-                                    litPtr = out - tmp15;
+                                    copySource = out - decodeBitsOrCount;
                                     shifted = shifted - nodeVal;
-                                    tmp15 = nodeVal >> 3;
-                                    if (tmp15 == 0) {
+                                    decodeBitsOrCount = nodeVal >> 3;
+                                    if (decodeBitsOrCount == 0) {
                                         goto copy_lit_tail;
                                     }
                                     do {
-                                        *out = litPtr[-1];
-                                        out[1] = *litPtr;
-                                        out[2] = litPtr[1];
-                                        out[3] = litPtr[2];
-                                        out[4] = litPtr[3];
-                                        out[5] = litPtr[4];
-                                        out[6] = litPtr[5];
-                                        out[7] = litPtr[6];
-                                        litPtr = litPtr + 8;
+                                        *out = copySource[-1];
+                                        out[1] = *copySource;
+                                        out[2] = copySource[1];
+                                        out[3] = copySource[2];
+                                        out[4] = copySource[3];
+                                        out[5] = copySource[4];
+                                        out[6] = copySource[5];
+                                        out[7] = copySource[6];
+                                        copySource = copySource + 8;
                                         out = out + 8;
-                                        tmp15 = tmp15 - 1;
-                                    } while (tmp15 != 0);
+                                        decodeBitsOrCount = decodeBitsOrCount - 1;
+                                    } while (decodeBitsOrCount != 0);
                                     for (nodeVal = nodeVal & 7; nodeVal != 0; nodeVal = nodeVal - 1) {
 copy_lit_tail:
-                                        dst = litPtr - 1;
-                                        litPtr = litPtr + 1;
+                                        dst = copySource - 1;
+                                        copySource = copySource + 1;
                                         *out = *dst;
                                         out = out + 1;
                                     }
                                 }
-                                nodeVal = sym9;
+                                nodeVal = literalSymbol;
                             } while (shifted != 0);
                             return decodedSize;
                         }
                     }
-                    *(u16*)(&work[0xffc] + needBits) = (u16)sym11;
+                    *(u16*)(&work[0xffc] + needBits) = (u16)distanceSymbol;
                     nextNode = nodeCount;
                 } while (1);
             }
         }
-        *(u16*)((u8*)work + needBits) = (u16)sym9;
+        *(u16*)((u8*)work + needBits) = (u16)literalSymbol;
         nextNode = nodeCount;
     } while (1);
 }

@@ -29,13 +29,13 @@ namespace ipl {
                 COMPRESSION_RL = 0x30,
             };
 
-            BOOL load_(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2, EGG::Heap* heap);
+            BOOL load_(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj, EGG::Heap* heap);
             BOOL load_nand_(CHANSVm* vm, data* data, EGG::Heap* heap, long offset, u32 size, int align);
             BOOL load_vf_(CHANSVm* vm, data* data, EGG::Heap* heap, long offset, u32 size, int align);
             BOOL uncompress_all_(data* data, EGG::Heap* heap, int compressionType);
             BOOL uncompress_front_(data* data, EGG::Heap* heap, u32 outSize, int compressionType);
-            BOOL uncompress_(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2, EGG::Heap* heap);
-            u8* get_(CHANSVm* vm, CHANSVmObjHdr* hdr);
+            BOOL uncompress_(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj, EGG::Heap* heap);
+            u8* get_(CHANSVm* vm, CHANSVmObjHdr* parentObj);
 
             void get_fullpath(char* dest, const char* src) {
                 if (src[0] != '/') {
@@ -47,24 +47,24 @@ namespace ipl {
                 dest[MAX_PATH_LENGTH] = '\0';
             }
 
-            BOOL load_to_work(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
-                return load_(vm, hdr, hdr2, System::getCSManager()->getHeap());
+            BOOL load_to_work(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
+                return load_(vm, parentObj, returnObj, System::getCSManager()->getHeap());
             }
 
-            BOOL load_to_heap(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
-                return load_(vm, hdr, hdr2, System::getCSManager()->getData().heap);
+            BOOL load_to_heap(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
+                return load_(vm, parentObj, returnObj, System::getCSManager()->getData().heap);
             }
 
-            BOOL load_(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2, EGG::Heap* heap) {
+            BOOL load_(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj, EGG::Heap* heap) {
                 BOOL result = FALSE;
                 int error = 2;
 
-                if (util::is_valid_datap(hdr)) {
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgInteger(vm, 0);
-                    CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(vm, 1);
-                    s64 offset = (arg0 != NULL) ? arg0->value.data.len : 0;
-                    u32 size = (arg1 != NULL) ? arg1->value.data.len : 0;
-                    data* data = static_cast<savedata::data*>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    CHANSVmObjHdr* offsetArg = CHANSVmGetArgInteger(vm, 0);
+                    CHANSVmObjHdr* sizeArg = CHANSVmGetArgInteger(vm, 1);
+                    s64 offset = (offsetArg != NULL) ? offsetArg->value.data.len : 0;
+                    u32 size = (sizeArg != NULL) ? sizeArg->value.data.len : 0;
+                    data* data = static_cast<savedata::data*>(*parentObj->value.ptr_v);
 
                     if (data->pData == NULL && data->size == 0) {
                         if (data->sMountPath[0] == 0) {
@@ -81,25 +81,25 @@ namespace ipl {
                         }
                     }
                 }
-                CHANSVmSetInteger(vm, hdr2, (u32)(error == 0 ? 1 : 0));
+                CHANSVmSetInteger(vm, returnObj, (u32)(error == 0 ? 1 : 0));
                 return result;
             }
 
-            BOOL uncomp_to_work(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
-                return uncompress_(vm, hdr, hdr2, System::getCSManager()->getHeap());
+            BOOL uncomp_to_work(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
+                return uncompress_(vm, parentObj, returnObj, System::getCSManager()->getHeap());
             }
 
-            BOOL uncomp_to_heap(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
-                return uncompress_(vm, hdr, hdr2, System::getCSManager()->getData().heap);
+            BOOL uncomp_to_heap(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
+                return uncompress_(vm, parentObj, returnObj, System::getCSManager()->getData().heap);
             }
 
-            BOOL uncompress_(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2, EGG::Heap* heap) {
+            BOOL uncompress_(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj, EGG::Heap* heap) {
                 int error;
                 BOOL result = FALSE;
 
                 error = 2;
-                if (util::is_valid_datap(hdr)) {
-                    data* data = static_cast<savedata::data*>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    data* data = static_cast<savedata::data*>(*parentObj->value.ptr_v);
 
                     if (data->pData == NULL && data->size == 0) {
                         EGG::Heap* csHeap = System::getCSManager()->getHeap();
@@ -108,22 +108,22 @@ namespace ipl {
                         u32 outSize = 0;
 
                         u32 argc = CHANSVmGetArgc(vm);
-                        CHANSVmObjHdr* arg0 = CHANSVmGetArgInteger(vm, 0);
+                        CHANSVmObjHdr* compressionTypeArg = CHANSVmGetArgInteger(vm, 0);
 
-                        if (arg0 != NULL) {
-                            compressionType = arg0->value.int_v;
+                        if (compressionTypeArg != NULL) {
+                            compressionType = compressionTypeArg->value.int_v;
                         }
 
                         if (argc == 3) {
-                            CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(vm, 1);
-                            CHANSVmObjHdr* arg2 = CHANSVmGetArgInteger(vm, 2);
+                            CHANSVmObjHdr* compressedSizeArg = CHANSVmGetArgInteger(vm, 1);
+                            CHANSVmObjHdr* outputSizeArg = CHANSVmGetArgInteger(vm, 2);
 
-                            if (arg1 != NULL) {
-                                size = arg1->value.int_v;
+                            if (compressedSizeArg != NULL) {
+                                size = compressedSizeArg->value.int_v;
                             }
 
-                            if (arg2 != NULL) {
-                                outSize = arg2->value.int_v;
+                            if (outputSizeArg != NULL) {
+                                outSize = outputSizeArg->value.int_v;
                             }
                         }
 
@@ -148,7 +148,7 @@ namespace ipl {
                         result = (error - 2) != 0;
                     }
 
-                    CHANSVmSetInteger(vm, hdr2, error == 0);
+                    CHANSVmSetInteger(vm, returnObj, error == 0);
                 }
 
                 return result;
@@ -372,14 +372,14 @@ namespace ipl {
                 return result;
             }
 
-            BOOL copy_to_heap(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL copy_to_heap(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    data* data = static_cast<savedata::data*>(*hdr->value.ptr_v);
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgInteger(vm, 0);
-                    CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(vm, 1);
-                    u32 offset = (arg0 != NULL) ? arg0->value.data.len : 0;
-                    u32 size = (arg1 != NULL) ? arg1->value.data.len : 0;
+                if (util::is_valid_datap(parentObj)) {
+                    data* data = static_cast<savedata::data*>(*parentObj->value.ptr_v);
+                    CHANSVmObjHdr* offsetArg = CHANSVmGetArgInteger(vm, 0);
+                    CHANSVmObjHdr* sizeArg = CHANSVmGetArgInteger(vm, 1);
+                    u32 offset = (offsetArg != NULL) ? offsetArg->value.data.len : 0;
+                    u32 size = (sizeArg != NULL) ? sizeArg->value.data.len : 0;
 
                     if (size != 0) {
                         u32 bufSize = data->size;
@@ -389,7 +389,7 @@ namespace ipl {
                             if (buf != NULL) {
                                 memcpy(buf, data->pData + offset, size);
                                 DCStoreRange(buf, size);
-                                result = _ctor(vm, hdr2, (u32)buf, size);
+                                result = _ctor(vm, returnObj, (u32)buf, size);
                             }
                         }
                     }
@@ -397,35 +397,35 @@ namespace ipl {
                 return result;
             }
 
-            BOOL create_blob(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL create_blob(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    data* data = static_cast<savedata::data*>(*hdr->value.ptr_v);
-                    if (CHANSVmNewBlobObject(vm, hdr2, data->size, data->pData, data->size) != NULL) {
+                if (util::is_valid_datap(parentObj)) {
+                    data* data = static_cast<savedata::data*>(*parentObj->value.ptr_v);
+                    if (CHANSVmNewBlobObject(vm, returnObj, data->size, data->pData, data->size) != NULL) {
                         result = TRUE;
                     }
                 }
                 return result;
             }
 
-            BOOL decode_odh(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL decode_odh(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
                 CHANSVmImage* image;
-                if (util::is_valid_datap(hdr)) {
-                    data* data = static_cast<savedata::data*>(*hdr->value.ptr_v);
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgInteger(vm, 0);
-                    CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(vm, 1);
-                    CHANSVmObjHdr* arg2 = CHANSVmGetArgInteger(vm, 2);
+                if (util::is_valid_datap(parentObj)) {
+                    data* data = static_cast<savedata::data*>(*parentObj->value.ptr_v);
+                    CHANSVmObjHdr* formatArg = CHANSVmGetArgInteger(vm, 0);
+                    CHANSVmObjHdr* offsetArg = CHANSVmGetArgInteger(vm, 1);
+                    CHANSVmObjHdr* bufferSizeArg = CHANSVmGetArgInteger(vm, 2);
 
-                    if (arg0 == NULL) {
+                    if (formatArg == NULL) {
                         goto exit;
                     }
 
-                    u32 format = arg0->value.int_v;
-                    u32 pitch = (arg1 != NULL) ? arg1->value.int_v : 0;
-                    u32 bufSize = (arg2 != NULL) ? arg2->value.data.len : data->size;
+                    u32 format = formatArg->value.int_v;
+                    u32 dataOffset = (offsetArg != NULL) ? offsetArg->value.int_v : 0;
+                    u32 bufSize = (bufferSizeArg != NULL) ? bufferSizeArg->value.data.len : data->size;
 
-                    u8* src = data->pData + pitch;
+                    u8* src = data->pData + dataOffset;
 
                     if (format != 4 && format != 6) {
                         goto exit;
@@ -443,10 +443,10 @@ namespace ipl {
 
                     u32 workSize = width * height * 3;
 
-                    if (CHANSVmNewImageObject(vm, hdr2, NULL, (u16)width, (u16)height, (s32)(u8)format) == NULL) {
+                    if (CHANSVmNewImageObject(vm, returnObj, NULL, (u16)width, (u16)height, (s32)(u8)format) == NULL) {
                         goto exit;
                     }
-                    image = static_cast<CHANSVmImage*>(*hdr2->value.ptr_v);
+                    image = static_cast<CHANSVmImage*>(*returnObj->value.ptr_v);
 
                     u8* workBuf = new (System::getCSManager()->getHeap(), 0x20) u8[workSize];
                     if (workBuf != NULL) {
@@ -466,101 +466,101 @@ namespace ipl {
                 return result;
             }
 
-            BOOL get_size(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_size(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    data* data = static_cast<savedata::data*>(*hdr->value.ptr_v);
-                    result = CHANSVmSetInteger(vm, hdr2, data->size) == CHANS_VM_OK;
+                if (util::is_valid_datap(parentObj)) {
+                    data* data = static_cast<savedata::data*>(*parentObj->value.ptr_v);
+                    result = CHANSVmSetInteger(vm, returnObj, data->size) == CHANS_VM_OK;
                 }
                 return result;
             }
 
-            BOOL get_addr(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_addr(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                u8* ptr = get_(vm, hdr);
+                u8* ptr = get_(vm, parentObj);
                 if (ptr != NULL) {
-                    result = CHANSVmSetInteger(vm, hdr2, reinterpret_cast<vmInteger>(ptr)) == CHANS_VM_OK;
+                    result = CHANSVmSetInteger(vm, returnObj, reinterpret_cast<vmInteger>(ptr)) == CHANS_VM_OK;
                 }
                 return result;
             }
 
             template <typename T>
-            BOOL get(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                u8* ptr = get_(vm, hdr);
+                u8* ptr = get_(vm, parentObj);
                 if (ptr != NULL) {
                     if ((u32)ptr & (sizeof(T) - 1)) {
                     } else {
-                        result = CHANSVmSetInteger(vm, hdr2, static_cast<vmInteger>(*(const T*)ptr)) == CHANS_VM_OK;
+                        result = CHANSVmSetInteger(vm, returnObj, static_cast<vmInteger>(*(const T*)ptr)) == CHANS_VM_OK;
                     }
                 }
                 return result;
             }
 
             template <>
-            BOOL get<float>(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get<float>(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                u8* ptr = get_(vm, hdr);
+                u8* ptr = get_(vm, parentObj);
                 if (ptr != NULL && ((u32)ptr & 3) == 0) {
-                    result = CHANSVmSetFloat(vm, hdr2, *reinterpret_cast<f32*>(ptr)) == CHANS_VM_OK;
+                    result = CHANSVmSetFloat(vm, returnObj, *reinterpret_cast<f32*>(ptr)) == CHANS_VM_OK;
                 }
                 return result;
             }
 
-            BOOL get_str(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_str(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(vm, 1);
-                u8* ptr = get_(vm, hdr);
-                if (ptr != NULL && arg1 != NULL) {
-                    result = CHANSVmSetU16StringFromU8(vm, hdr2, reinterpret_cast<char*>(ptr), arg1->value.int_v) == CHANS_VM_OK;
+                CHANSVmObjHdr* lengthArg = CHANSVmGetArgInteger(vm, 1);
+                u8* ptr = get_(vm, parentObj);
+                if (ptr != NULL && lengthArg != NULL) {
+                    result = CHANSVmSetU16StringFromU8(vm, returnObj, reinterpret_cast<char*>(ptr), lengthArg->value.int_v) == CHANS_VM_OK;
                 }
                 return result;
             }
 
-            BOOL get_wstr(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_wstr(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(vm, 1);
-                u8* ptr = get_(vm, hdr);
-                if (ptr != NULL && arg1 != NULL) {
-                    result = CHANSVmSetU16String(vm, hdr2, (wchar_t*)ptr, arg1->value.int_v * 2) == CHANS_VM_OK;
+                CHANSVmObjHdr* lengthArg = CHANSVmGetArgInteger(vm, 1);
+                u8* ptr = get_(vm, parentObj);
+                if (ptr != NULL && lengthArg != NULL) {
+                    result = CHANSVmSetU16String(vm, returnObj, (wchar_t*)ptr, lengthArg->value.int_v * 2) == CHANS_VM_OK;
                 }
                 return result;
             }
 
-            u8* get_(CHANSVm* vm, CHANSVmObjHdr* hdr) {
+            u8* get_(CHANSVm* vm, CHANSVmObjHdr* parentObj) {
                 u8* buf = NULL;
-                if (util::is_valid_datap(hdr)) {
-                    data* data = static_cast<savedata::data*>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    data* data = static_cast<savedata::data*>(*parentObj->value.ptr_v);
                     buf = data->pData;
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgInteger(vm, 0);
-                    if (buf != NULL && arg0 != NULL) {
-                        buf += arg0->value.int_v;
+                    CHANSVmObjHdr* offsetArg = CHANSVmGetArgInteger(vm, 0);
+                    if (buf != NULL && offsetArg != NULL) {
+                        buf += offsetArg->value.int_v;
                     }
                 }
                 return buf;
             }
 
-            BOOL calc_crc16(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL calc_crc16(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(vm, 1);
-                u8* ptr = get_(vm, hdr);
+                CHANSVmObjHdr* sizeArg = CHANSVmGetArgInteger(vm, 1);
+                u8* ptr = get_(vm, parentObj);
                 if (ptr != NULL) {
-                    if (arg1 != NULL) {
-                        u16 crc = NETCalcCRC16(ptr, arg1->value.int_v);
-                        result = CHANSVmSetInteger(vm, hdr2, crc) == CHANS_VM_OK;
+                    if (sizeArg != NULL) {
+                        u16 crc = NETCalcCRC16(ptr, sizeArg->value.int_v);
+                        result = CHANSVmSetInteger(vm, returnObj, crc) == CHANS_VM_OK;
                     }
                 }
                 return result;
             }
 
-            BOOL calc_crc32(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL calc_crc32(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(vm, 1);
-                u8* ptr = get_(vm, hdr);
+                CHANSVmObjHdr* sizeArg = CHANSVmGetArgInteger(vm, 1);
+                u8* ptr = get_(vm, parentObj);
                 if (ptr != NULL) {
-                    if (arg1 != NULL) {
-                        u32 crc = NETCalcCRC32(ptr, arg1->value.int_v);
-                        result = CHANSVmSetInteger(vm, hdr2, crc) == CHANS_VM_OK;
+                    if (sizeArg != NULL) {
+                        u32 crc = NETCalcCRC32(ptr, sizeArg->value.int_v);
+                        result = CHANSVmSetInteger(vm, returnObj, crc) == CHANS_VM_OK;
                     }
                 }
                 return result;
@@ -580,22 +580,22 @@ namespace ipl {
                 return flag;
             }
 
-            BOOL ctor(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL ctor(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg0 = CHANSVmGetArgString(vm, 0);
-                CHANSVmObjHdr* arg1 = CHANSVmGetArgString(vm, 1);
-                if (arg0 != NULL) {
-                    data* data = static_cast<savedata::data*>(CHANSVmNewObjData(vm, hdr2, sizeof(savedata::data)));
+                CHANSVmObjHdr* mountOrPathArg = CHANSVmGetArgString(vm, 0);
+                CHANSVmObjHdr* pathArg = CHANSVmGetArgString(vm, 1);
+                if (mountOrPathArg != NULL) {
+                    data* data = static_cast<savedata::data*>(CHANSVmNewObjData(vm, returnObj, sizeof(savedata::data)));
                     if (data != NULL) {
-                        wchar_t temp[MAX_PATH_LENGTH + sizeof(wchar_t)];
+                        wchar_t widePath[MAX_PATH_LENGTH + sizeof(wchar_t)];
                         memset(data, 0, sizeof(savedata::data));
-                        memset(temp, 0, sizeof(temp));
-                        if (arg1 != NULL) {
-                            util::utf16_to_ascii(data->sMountPath, temp, MAX_PATH_LENGTH, arg0);
-                            memset(temp, 0, sizeof(temp));
-                            util::utf16_to_ascii(data->sPath, temp, MAX_PATH_LENGTH, arg1);
+                        memset(widePath, 0, sizeof(widePath));
+                        if (pathArg != NULL) {
+                            util::utf16_to_ascii(data->sMountPath, widePath, MAX_PATH_LENGTH, mountOrPathArg);
+                            memset(widePath, 0, sizeof(widePath));
+                            util::utf16_to_ascii(data->sPath, widePath, MAX_PATH_LENGTH, pathArg);
                         } else {
-                            util::utf16_to_ascii(data->sPath, temp, MAX_PATH_LENGTH, arg0);
+                            util::utf16_to_ascii(data->sPath, widePath, MAX_PATH_LENGTH, mountOrPathArg);
                         }
                         data->flag = 1;
                         result = TRUE;
@@ -624,7 +624,7 @@ namespace ipl {
             DECOMP_FORCE_LITERAL(iplCSSavedata_cpp, util::get_int<COMPRESSION_RL>)
 
             template <>
-            BOOL get<s8>(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2);
+            BOOL get<s8>(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj);
 
             // clang-format off
             const CHANSVmMethodList cMethodList[METHOD_COUNT] = {
@@ -660,12 +660,12 @@ namespace ipl {
 
 
             template <>
-                BOOL get<s8>(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+                BOOL get<s8>(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                u8* ptr = get_(vm, hdr);
+                u8* ptr = get_(vm, parentObj);
                 if (ptr != NULL) {
-                    s8 val = *ptr;
-                    result = CHANSVmSetInteger(vm, hdr2, val) == CHANS_VM_OK;
+                    s8 signedByte = *ptr;
+                    result = CHANSVmSetInteger(vm, returnObj, signedByte) == CHANS_VM_OK;
                 }
                 return result;
             }

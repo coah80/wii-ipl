@@ -29,13 +29,13 @@ namespace ipl {
 
             CHANSVmDefineMethod(set_font_size) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg0 = CHANSVmGetArgFloat(VmInst, 0);
-                CHANSVmObjHdr* arg1 = CHANSVmGetArgFloat(VmInst, 1);
-                if (util::is_valid_datap(VmParentObj) && arg0 != NULL && arg1 != NULL) {
+                CHANSVmObjHdr* widthArg = CHANSVmGetArgFloat(VmInst, 0);
+                CHANSVmObjHdr* heightArg = CHANSVmGetArgFloat(VmInst, 1);
+                if (util::is_valid_datap(VmParentObj) && widthArg != NULL && heightArg != NULL) {
                     nw4r::ut::TextWriterBase<char>* data = (nw4r::ut::TextWriterBase<char>*)*VmParentObj->value.ptr_v;
                     if (data != NULL) {
-                        f32 width = (f32)arg0->value.float_v;
-                        f32 height = (f32)arg1->value.float_v;
+                        f32 width = (f32)widthArg->value.float_v;
+                        f32 height = (f32)heightArg->value.float_v;
                         data->SetFontSize(width, height);
                         result = TRUE;
                     }
@@ -45,12 +45,12 @@ namespace ipl {
 
             CHANSVmDefineMethod(set_line_space) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(VmInst, 0);
-                if (util::is_valid_datap(VmParentObj) && arg != NULL) {
+                CHANSVmObjHdr* lineSpaceArg = CHANSVmGetArgFloat(VmInst, 0);
+                if (util::is_valid_datap(VmParentObj) && lineSpaceArg != NULL) {
                     nw4r::ut::TextWriterBase<char>* data = (nw4r::ut::TextWriterBase<char>*)*VmParentObj->value.ptr_v;
                     if (data != NULL) {
-                        f32 val = (f32)arg->value.float_v;
-                        data->SetLineSpace(val);
+                        f32 lineSpace = (f32)lineSpaceArg->value.float_v;
+                        data->SetLineSpace(lineSpace);
                         result = TRUE;
                     }
                 }
@@ -59,12 +59,12 @@ namespace ipl {
 
             CHANSVmDefineMethod(set_char_space) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(VmInst, 0);
-                if (util::is_valid_datap(VmParentObj) && arg != NULL) {
+                CHANSVmObjHdr* charSpaceArg = CHANSVmGetArgFloat(VmInst, 0);
+                if (util::is_valid_datap(VmParentObj) && charSpaceArg != NULL) {
                     nw4r::ut::TextWriterBase<char>* data = (nw4r::ut::TextWriterBase<char>*)*VmParentObj->value.ptr_v;
                     if (data != NULL) {
-                        f32 val = (f32)arg->value.float_v;
-                        data->SetCharSpace(val);
+                        f32 charSpace = (f32)charSpaceArg->value.float_v;
+                        data->SetCharSpace(charSpace);
                         result = TRUE;
                     }
                 }
@@ -106,8 +106,8 @@ namespace ipl {
                     (nw4r::ut::TextWriterBase<char>*)CHANSVmNewObjData(VmInst, VmReturnObj, sizeof(nw4r::ut::TextWriterBase<char>));
                 if (data != NULL) {
                     {
-                        nw4r::ut::TextWriterBase<char> temp;
-                        *data = temp;
+                        nw4r::ut::TextWriterBase<char> defaultWriter;
+                        *data = defaultWriter;
                     }
                     result = TRUE;
                 }

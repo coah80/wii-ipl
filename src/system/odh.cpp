@@ -801,29 +801,29 @@ s32 CArGBAOdh::cdj_c_flashBuffer(SArCDJ_OdhMaster* master) {
 
 void CArGBAOdh::cdj_c_setQuantizationTable(SArCDJ_OdhMaster* master, u32 qualityScale) {
     int i;
-    u32 temp;
+    u32 quantizationFactor;
     u32 table;
     u8 quantization[128];
 
     for (table = 0; table < 2; table++) {
         for (i = 0; i < 64; i++) {
-            temp = (qualityScale * gArCdj_std_quant_tbl[table * 64 + i] + 50) / 100;
-            if (temp == 0) {
-                temp = 1;
+            quantizationFactor = (qualityScale * gArCdj_std_quant_tbl[table * 64 + i] + 50) / 100;
+            if (quantizationFactor == 0) {
+                quantizationFactor = 1;
             }
-            if (temp > 255) {
-                temp = 255;
+            if (quantizationFactor > 255) {
+                quantizationFactor = 255;
             }
-            quantization[table * 64 + i] = temp;
+            quantization[table * 64 + i] = quantizationFactor;
         }
     }
 
     for (table = 0; table < 2; table++) {
         for (i = 0; i < 64; i++) {
-            temp = ((const u16*)gArAANScales)[i];
-            temp *= quantization[table * 64 + i];
-            temp = 0x4000000 / temp;
-            master->quantizationTables[table * 64 + i] = temp;
+            quantizationFactor = ((const u16*)gArAANScales)[i];
+            quantizationFactor *= quantization[table * 64 + i];
+            quantizationFactor = 0x4000000 / quantizationFactor;
+            master->quantizationTables[table * 64 + i] = quantizationFactor;
         }
     }
 }
@@ -957,9 +957,9 @@ void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutpu
     }
 }
 void CArGBAOdh::fdct_fast(u32* coefficients, u8* samples, u32 stride, u32* quantizationTable) {
-    int tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
-    int tmp10, tmp11, tmp12, tmp13;
-    int z1, z2, z3, z4, z5, z11, z13;
+    int sum07, sum16, sum25, sum34, difference34, difference25, difference16, difference07;
+    int butterflySum0, butterflySum1, butterflyCrossTerm, evenDifference;
+    int evenRotation, oddRotation35, oddRotationBase, oddRotation17, sharedOddRotation, oddSum17, oddDifference35;
     int* buffer;
     int counter;
 
@@ -971,85 +971,85 @@ void CArGBAOdh::fdct_fast(u32* coefficients, u8* samples, u32 stride, u32* quant
 
     buffer = (int*)coefficients;
     for (counter = 0; counter < 8; counter++) {
-        tmp0 = buffer[0] + buffer[7];
-        tmp7 = buffer[0] - buffer[7];
-        tmp1 = buffer[1] + buffer[6];
-        tmp6 = buffer[1] - buffer[6];
-        tmp2 = buffer[2] + buffer[5];
-        tmp5 = buffer[2] - buffer[5];
-        tmp3 = buffer[3] + buffer[4];
-        tmp4 = buffer[3] - buffer[4];
+        sum07 = buffer[0] + buffer[7];
+        difference07 = buffer[0] - buffer[7];
+        sum16 = buffer[1] + buffer[6];
+        difference16 = buffer[1] - buffer[6];
+        sum25 = buffer[2] + buffer[5];
+        difference25 = buffer[2] - buffer[5];
+        sum34 = buffer[3] + buffer[4];
+        difference34 = buffer[3] - buffer[4];
 
-        tmp10 = tmp0 + tmp3;
-        tmp13 = tmp0 - tmp3;
-        tmp11 = tmp1 + tmp2;
-        tmp12 = tmp1 - tmp2;
+        butterflySum0 = sum07 + sum34;
+        evenDifference = sum07 - sum34;
+        butterflySum1 = sum16 + sum25;
+        butterflyCrossTerm = sum16 - sum25;
 
-        buffer[0] = tmp10 + tmp11;
-        buffer[4] = tmp10 - tmp11;
+        buffer[0] = butterflySum0 + butterflySum1;
+        buffer[4] = butterflySum0 - butterflySum1;
 
-        z1 = (tmp12 + tmp13) * 181 >> 8;
-        buffer[2] = tmp13 + z1;
-        buffer[6] = tmp13 - z1;
+        evenRotation = (butterflyCrossTerm + evenDifference) * 181 >> 8;
+        buffer[2] = evenDifference + evenRotation;
+        buffer[6] = evenDifference - evenRotation;
 
-        tmp10 = tmp4 + tmp5;
-        tmp11 = tmp5 + tmp6;
-        tmp12 = tmp6 + tmp7;
+        butterflySum0 = difference34 + difference25;
+        butterflySum1 = difference25 + difference16;
+        butterflyCrossTerm = difference16 + difference07;
 
-        z5 = (tmp10 - tmp12) * 98 >> 8;
-        z2 = (tmp10 * 139 >> 8) + z5;
-        z4 = (tmp12 * 334 >> 8) + z5;
-        z3 = tmp11 * 181 >> 8;
+        sharedOddRotation = (butterflySum0 - butterflyCrossTerm) * 98 >> 8;
+        oddRotation35 = (butterflySum0 * 139 >> 8) + sharedOddRotation;
+        oddRotation17 = (butterflyCrossTerm * 334 >> 8) + sharedOddRotation;
+        oddRotationBase = butterflySum1 * 181 >> 8;
 
-        z11 = tmp7 + z3;
-        z13 = tmp7 - z3;
+        oddSum17 = difference07 + oddRotationBase;
+        oddDifference35 = difference07 - oddRotationBase;
 
-        buffer[5] = z13 + z2;
-        buffer[3] = z13 - z2;
-        buffer[1] = z11 + z4;
-        buffer[7] = z11 - z4;
+        buffer[5] = oddDifference35 + oddRotation35;
+        buffer[3] = oddDifference35 - oddRotation35;
+        buffer[1] = oddSum17 + oddRotation17;
+        buffer[7] = oddSum17 - oddRotation17;
         buffer += 8;
     }
 
     buffer = (int*)coefficients;
     for (counter = 0; counter < 8; counter++) {
-        tmp0 = buffer[0] + buffer[56];
-        tmp7 = buffer[0] - buffer[56];
-        tmp1 = buffer[8] + buffer[48];
-        tmp6 = buffer[8] - buffer[48];
-        tmp2 = buffer[16] + buffer[40];
-        tmp5 = buffer[16] - buffer[40];
-        tmp3 = buffer[24] + buffer[32];
-        tmp4 = buffer[24] - buffer[32];
+        sum07 = buffer[0] + buffer[56];
+        difference07 = buffer[0] - buffer[56];
+        sum16 = buffer[8] + buffer[48];
+        difference16 = buffer[8] - buffer[48];
+        sum25 = buffer[16] + buffer[40];
+        difference25 = buffer[16] - buffer[40];
+        sum34 = buffer[24] + buffer[32];
+        difference34 = buffer[24] - buffer[32];
 
-        tmp10 = tmp0 + tmp3;
-        tmp13 = tmp0 - tmp3;
-        tmp11 = tmp1 + tmp2;
-        tmp12 = tmp1 - tmp2;
+        butterflySum0 = sum07 + sum34;
+        evenDifference = sum07 - sum34;
+        butterflySum1 = sum16 + sum25;
+        butterflyCrossTerm = sum16 - sum25;
 
-        buffer[0] = tmp10 + tmp11;
-        buffer[32] = tmp10 - tmp11;
+        buffer[0] = butterflySum0 + butterflySum1;
+        buffer[32] = butterflySum0 - butterflySum1;
 
-        z1 = (tmp12 + tmp13) * 181 >> 8;
-        buffer[16] = tmp13 + z1;
-        buffer[48] = tmp13 - z1;
+        evenRotation = (butterflyCrossTerm + evenDifference) * 181 >> 8;
+        buffer[16] = evenDifference + evenRotation;
+        buffer[48] = evenDifference - evenRotation;
 
-        tmp10 = tmp4 + tmp5;
-        tmp11 = tmp5 + tmp6;
-        tmp12 = tmp6 + tmp7;
+        butterflySum0 = difference34 + difference25;
+        butterflySum1 = difference25 + difference16;
+        butterflyCrossTerm = difference16 + difference07;
 
-        z5 = (tmp10 - tmp12) * 98 >> 8;
-        z2 = (tmp10 * 139 >> 8) + z5;
-        z4 = (tmp12 * 334 >> 8) + z5;
-        z3 = tmp11 * 181 >> 8;
+        sharedOddRotation = (butterflySum0 - butterflyCrossTerm) * 98 >> 8;
+        oddRotation35 = (butterflySum0 * 139 >> 8) + sharedOddRotation;
+        oddRotation17 = (butterflyCrossTerm * 334 >> 8) + sharedOddRotation;
+        oddRotationBase = butterflySum1 * 181 >> 8;
 
-        z11 = tmp7 + z3;
-        z13 = tmp7 - z3;
+        oddSum17 = difference07 + oddRotationBase;
+        oddDifference35 = difference07 - oddRotationBase;
 
-        buffer[40] = z13 + z2;
-        buffer[24] = z13 - z2;
-        buffer[8] = z11 + z4;
-        buffer[56] = z11 - z4;
+        buffer[40] = oddDifference35 + oddRotation35;
+        buffer[24] = oddDifference35 - oddRotation35;
+        buffer[8] = oddSum17 + oddRotation17;
+        buffer[56] = oddSum17 - oddRotation17;
         buffer++;
     }
 
@@ -1614,19 +1614,19 @@ finishBlock:
 
 void CArGBAOdh::cdj_d_setDequantizationTable(SArCDJ_OdhMaster* master, u32 qualityScale) {
     int i;
-    u32 temp;
+    u32 quantizationFactor;
     u32 table;
 
     for (table = 0; table < 2; table++) {
         for (i = 0; i < 64; i++) {
-            temp = (qualityScale * gArCdj_std_quant_tbl[table * 64 + i] + 50) / 100;
-            if (temp == 0) {
-                temp = 1;
+            quantizationFactor = (qualityScale * gArCdj_std_quant_tbl[table * 64 + i] + 50) / 100;
+            if (quantizationFactor == 0) {
+                quantizationFactor = 1;
             }
-            if (temp > 255) {
-                temp = 255;
+            if (quantizationFactor > 255) {
+                quantizationFactor = 255;
             }
-            master->quantizationTables[table * 64 + i] = (temp * ((const u16*)gArAANScales)[i] + 2048) >> 12;
+            master->quantizationTables[table * 64 + i] = (quantizationFactor * ((const u16*)gArAANScales)[i] + 2048) >> 12;
         }
     }
 }
@@ -2083,7 +2083,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
             do {
                 if ((u32)(bytesConsumed + 4) > sourceLimit) {
                     decodeResult = 0x80000003;
-                    goto LAB_00013590;
+                    goto finishDecode;
                 }
                 bitIndex = 1;
                 tableIndex = 0;
@@ -2110,7 +2110,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                 }
                 if (bitIndex > 6) {
                     decodeResult = 0x80000003;
-                    goto LAB_00013590;
+                    goto finishDecode;
                 }
                 if (valueCategory == 7) {
                     bitCountAndMask += bitIndex;
@@ -2127,7 +2127,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                              (u32)(bitBuffer >> ((0x20 - bitIndex) - valueCategory));
                     if ((tableIndex & (u32)(1 << (valueCategory - 1))) == 0) {
                         decodeResult = 0x80000003;
-                        goto LAB_00013590;
+                        goto finishDecode;
                     }
                 } else {
                     tableIndex = 0;
@@ -2145,7 +2145,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                 }
                 if ((u32)(bytesConsumed + 4) > sourceLimit) {
                     decodeResult = 0x80000003;
-                    goto LAB_00013590;
+                    goto finishDecode;
                 }
                 maximumBitLength = 0xB;
                 bitBuffer = ((u32)*sourceCursor << 0x18) | ((u32)sourceCursor[1] << 0x10) | ((u32)sourceCursor[2] << 8) | sourceCursor[3];
@@ -2175,7 +2175,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                 }
                 if (bitIndex > maxHuffmanBits) {
                     decodeResult = 0x80000003;
-                    goto LAB_00013590;
+                    goto finishDecode;
                 }
                 if (valueCategory > 0) {
                     magnitudeMask = (1 << (valueCategory)) - 1;
@@ -2205,14 +2205,14 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
             *request->bitCount = bitCountAndMask;
         }
     }
-LAB_00013590:
+finishDecode:
     return decodeResult;
 }
 
 void CArGBAOdh::idct_fast(const u8* rangeLimitTable, u32* coefficients, u32* quantizationTable, u8* destination, u32 stride) {
-    int tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
-    int tmp10, tmp11, tmp12, tmp13;
-    int z5, z10, z11, z12, z13;
+    int evenPart0, evenPart1, evenPart2, evenPart3, oddPart3, oddPart2, oddPart1, oddPart0;
+    int butterflyTerm0, butterflyTerm1, butterflyTerm2, evenInnerSum;
+    int sharedOddRotation, oddDifference53, oddSum17, oddDifference17, oddSum53;
     int* input;
     int* quantization;
     int* workspacePointer;
@@ -2243,51 +2243,51 @@ void CArGBAOdh::idct_fast(const u8* rangeLimitTable, u32* coefficients, u32* qua
             continue;
         }
 
-        tmp0 = input[0] * quantization[0];
-        tmp1 = input[16] * quantization[16];
-        tmp2 = input[32] * quantization[32];
-        tmp3 = input[48] * quantization[48];
+        evenPart0 = input[0] * quantization[0];
+        evenPart1 = input[16] * quantization[16];
+        evenPart2 = input[32] * quantization[32];
+        evenPart3 = input[48] * quantization[48];
 
-        tmp10 = tmp0 + tmp2;
-        tmp11 = tmp0 - tmp2;
+        butterflyTerm0 = evenPart0 + evenPart2;
+        butterflyTerm1 = evenPart0 - evenPart2;
 
-        tmp13 = tmp1 + tmp3;
-        tmp12 = ((tmp1 - tmp3) * 362 >> 8) - tmp13;
+        evenInnerSum = evenPart1 + evenPart3;
+        butterflyTerm2 = ((evenPart1 - evenPart3) * 362 >> 8) - evenInnerSum;
 
-        tmp0 = tmp10 + tmp13;
-        tmp3 = tmp10 - tmp13;
-        tmp1 = tmp11 + tmp12;
-        tmp2 = tmp11 - tmp12;
+        evenPart0 = butterflyTerm0 + evenInnerSum;
+        evenPart3 = butterflyTerm0 - evenInnerSum;
+        evenPart1 = butterflyTerm1 + butterflyTerm2;
+        evenPart2 = butterflyTerm1 - butterflyTerm2;
 
-        tmp4 = input[8] * quantization[8];
-        tmp5 = input[24] * quantization[24];
-        tmp6 = input[40] * quantization[40];
-        tmp7 = input[56] * quantization[56];
+        oddPart3 = input[8] * quantization[8];
+        oddPart2 = input[24] * quantization[24];
+        oddPart1 = input[40] * quantization[40];
+        oddPart0 = input[56] * quantization[56];
 
-        z13 = tmp6 + tmp5;
-        z10 = tmp6 - tmp5;
-        z11 = tmp4 + tmp7;
-        z12 = tmp4 - tmp7;
+        oddSum53 = oddPart1 + oddPart2;
+        oddDifference53 = oddPart1 - oddPart2;
+        oddSum17 = oddPart3 + oddPart0;
+        oddDifference17 = oddPart3 - oddPart0;
 
-        tmp7 = z11 + z13;
-        tmp11 = (z11 - z13) * 362 >> 8;
+        oddPart0 = oddSum17 + oddSum53;
+        butterflyTerm1 = (oddSum17 - oddSum53) * 362 >> 8;
 
-        z5 = (z10 + z12) * 473 >> 8;
-        tmp10 = (z12 * 277 >> 8) - z5;
-        tmp12 = (z10 * -669 >> 8) + z5;
+        sharedOddRotation = (oddDifference53 + oddDifference17) * 473 >> 8;
+        butterflyTerm0 = (oddDifference17 * 277 >> 8) - sharedOddRotation;
+        butterflyTerm2 = (oddDifference53 * -669 >> 8) + sharedOddRotation;
 
-        tmp6 = tmp12 - tmp7;
-        tmp5 = tmp11 - tmp6;
-        tmp4 = tmp10 + tmp5;
+        oddPart1 = butterflyTerm2 - oddPart0;
+        oddPart2 = butterflyTerm1 - oddPart1;
+        oddPart3 = butterflyTerm0 + oddPart2;
 
-        workspacePointer[0] = tmp0 + tmp7;
-        workspacePointer[56] = tmp0 - tmp7;
-        workspacePointer[8] = tmp1 + tmp6;
-        workspacePointer[48] = tmp1 - tmp6;
-        workspacePointer[16] = tmp2 + tmp5;
-        workspacePointer[40] = tmp2 - tmp5;
-        workspacePointer[32] = tmp3 + tmp4;
-        workspacePointer[24] = tmp3 - tmp4;
+        workspacePointer[0] = evenPart0 + oddPart0;
+        workspacePointer[56] = evenPart0 - oddPart0;
+        workspacePointer[8] = evenPart1 + oddPart1;
+        workspacePointer[48] = evenPart1 - oddPart1;
+        workspacePointer[16] = evenPart2 + oddPart2;
+        workspacePointer[40] = evenPart2 - oddPart2;
+        workspacePointer[32] = evenPart3 + oddPart3;
+        workspacePointer[24] = evenPart3 - oddPart3;
 
         input++;
         quantization++;
@@ -2312,41 +2312,41 @@ void CArGBAOdh::idct_fast(const u8* rangeLimitTable, u32* coefficients, u32* qua
             continue;
         }
 
-        tmp10 = workspacePointer[0] + workspacePointer[4];
-        tmp11 = workspacePointer[0] - workspacePointer[4];
+        butterflyTerm0 = workspacePointer[0] + workspacePointer[4];
+        butterflyTerm1 = workspacePointer[0] - workspacePointer[4];
 
-        tmp13 = workspacePointer[2] + workspacePointer[6];
-        tmp12 = ((workspacePointer[2] - workspacePointer[6]) * 362 >> 8) - tmp13;
+        evenInnerSum = workspacePointer[2] + workspacePointer[6];
+        butterflyTerm2 = ((workspacePointer[2] - workspacePointer[6]) * 362 >> 8) - evenInnerSum;
 
-        tmp0 = tmp10 + tmp13;
-        tmp3 = tmp10 - tmp13;
-        tmp1 = tmp11 + tmp12;
-        tmp2 = tmp11 - tmp12;
+        evenPart0 = butterflyTerm0 + evenInnerSum;
+        evenPart3 = butterflyTerm0 - evenInnerSum;
+        evenPart1 = butterflyTerm1 + butterflyTerm2;
+        evenPart2 = butterflyTerm1 - butterflyTerm2;
 
-        z13 = workspacePointer[5] + workspacePointer[3];
-        z10 = workspacePointer[5] - workspacePointer[3];
-        z11 = workspacePointer[1] + workspacePointer[7];
-        z12 = workspacePointer[1] - workspacePointer[7];
+        oddSum53 = workspacePointer[5] + workspacePointer[3];
+        oddDifference53 = workspacePointer[5] - workspacePointer[3];
+        oddSum17 = workspacePointer[1] + workspacePointer[7];
+        oddDifference17 = workspacePointer[1] - workspacePointer[7];
 
-        tmp7 = z11 + z13;
-        tmp11 = (z11 - z13) * 362 >> 8;
+        oddPart0 = oddSum17 + oddSum53;
+        butterflyTerm1 = (oddSum17 - oddSum53) * 362 >> 8;
 
-        z5 = (z10 + z12) * 473 >> 8;
-        tmp10 = (z12 * 277 >> 8) - z5;
-        tmp12 = (z10 * -669 >> 8) + z5;
+        sharedOddRotation = (oddDifference53 + oddDifference17) * 473 >> 8;
+        butterflyTerm0 = (oddDifference17 * 277 >> 8) - sharedOddRotation;
+        butterflyTerm2 = (oddDifference53 * -669 >> 8) + sharedOddRotation;
 
-        tmp6 = tmp12 - tmp7;
-        tmp5 = tmp11 - tmp6;
-        tmp4 = tmp10 + tmp5;
+        oddPart1 = butterflyTerm2 - oddPart0;
+        oddPart2 = butterflyTerm1 - oddPart1;
+        oddPart3 = butterflyTerm0 + oddPart2;
 
-        outputRow[0] = rangeLimitTable[(u32)(tmp0 + tmp7) >> 5 & 0x3FF];
-        outputRow[7] = rangeLimitTable[(u32)(tmp0 - tmp7) >> 5 & 0x3FF];
-        outputRow[1] = rangeLimitTable[(u32)(tmp1 + tmp6) >> 5 & 0x3FF];
-        outputRow[6] = rangeLimitTable[(u32)(tmp1 - tmp6) >> 5 & 0x3FF];
-        outputRow[2] = rangeLimitTable[(u32)(tmp2 + tmp5) >> 5 & 0x3FF];
-        outputRow[5] = rangeLimitTable[(u32)(tmp2 - tmp5) >> 5 & 0x3FF];
-        outputRow[4] = rangeLimitTable[(u32)(tmp3 + tmp4) >> 5 & 0x3FF];
-        outputRow[3] = rangeLimitTable[(u32)(tmp3 - tmp4) >> 5 & 0x3FF];
+        outputRow[0] = rangeLimitTable[(u32)(evenPart0 + oddPart0) >> 5 & 0x3FF];
+        outputRow[7] = rangeLimitTable[(u32)(evenPart0 - oddPart0) >> 5 & 0x3FF];
+        outputRow[1] = rangeLimitTable[(u32)(evenPart1 + oddPart1) >> 5 & 0x3FF];
+        outputRow[6] = rangeLimitTable[(u32)(evenPart1 - oddPart1) >> 5 & 0x3FF];
+        outputRow[2] = rangeLimitTable[(u32)(evenPart2 + oddPart2) >> 5 & 0x3FF];
+        outputRow[5] = rangeLimitTable[(u32)(evenPart2 - oddPart2) >> 5 & 0x3FF];
+        outputRow[4] = rangeLimitTable[(u32)(evenPart3 + oddPart3) >> 5 & 0x3FF];
+        outputRow[3] = rangeLimitTable[(u32)(evenPart3 - oddPart3) >> 5 & 0x3FF];
 
         workspacePointer += 8;
     }

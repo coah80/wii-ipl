@@ -13,9 +13,9 @@ namespace ipl {
             extern const CHANSVmPropertyList cPropertyList[COLOR_PROPERTY_COUNT];
 
             typedef union CS_Color {
-                u32 val32;
+                u32 packedRgba;
                 GXColor gxColor;
-                u8 arr[4];
+                u8 components[4];
             } CS_Color;
 
             typedef struct _CS_Struct {
@@ -31,24 +31,24 @@ namespace ipl {
                 if (data != NULL) {
                     // new Color(GXColor)
                     if (CHANSVmGetArgc(VmInst) == 1) {
-                        CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
-                        if (arg != NULL) {
-                            *data = reinterpret_cast<CS_Struct*>(&arg->value.ptr_v)->argumentColor.gxColor;
+                        CHANSVmObjHdr* packedColorArg = CHANSVmGetArgInteger(VmInst, 0);
+                        if (packedColorArg != NULL) {
+                            *data = reinterpret_cast<CS_Struct*>(&packedColorArg->value.ptr_v)->argumentColor.gxColor;
                         }
                     }
                     // new Color(u8 r, u8 g, u8 b, u8 a)
                     else {
-                        CHANSVmObjHdr* arg0 = CHANSVmGetArgInteger(VmInst, 0);
-                        CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(VmInst, 1);
-                        CHANSVmObjHdr* arg2 = CHANSVmGetArgInteger(VmInst, 2);
-                        CHANSVmObjHdr* arg3 = CHANSVmGetArgInteger(VmInst, 3);
+                        CHANSVmObjHdr* redArg = CHANSVmGetArgInteger(VmInst, 0);
+                        CHANSVmObjHdr* greenArg = CHANSVmGetArgInteger(VmInst, 1);
+                        CHANSVmObjHdr* blueArg = CHANSVmGetArgInteger(VmInst, 2);
+                        CHANSVmObjHdr* alphaArg = CHANSVmGetArgInteger(VmInst, 3);
 
-                        u8 val;
+                        u8 componentValue;
 
-                        data->r = arg0 != NULL ? arg0->value.int_v : 0;
-                        data->g = arg1 != NULL ? arg1->value.int_v : 0;
-                        data->b = arg2 != NULL ? arg2->value.int_v : 0;
-                        data->a = arg3 != NULL ? arg3->value.int_v : 0;
+                        data->r = redArg != NULL ? redArg->value.int_v : 0;
+                        data->g = greenArg != NULL ? greenArg->value.int_v : 0;
+                        data->b = blueArg != NULL ? blueArg->value.int_v : 0;
+                        data->a = alphaArg != NULL ? alphaArg->value.int_v : 0;
                     }
                     result = TRUE;
                 }
@@ -82,14 +82,14 @@ namespace ipl {
             template <int I>
             CHANSVmDefineMethod(set) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
-                if (util::is_valid_datap(VmParentObj) && arg != NULL) {
+                CHANSVmObjHdr* componentArg = CHANSVmGetArgInteger(VmInst, 0);
+                if (util::is_valid_datap(VmParentObj) && componentArg != NULL) {
                     CS_Struct* data = static_cast<CS_Struct*>(*VmParentObj->value.ptr_v);
                     if (data != NULL) {
                         result = TRUE;
-                        CS_Color newVal = data->color;
-                        newVal.arr[I] = arg->value.int_v;
-                        data->color = newVal;
+                        CS_Color updatedColor = data->color;
+                        updatedColor.components[I] = componentArg->value.int_v;
+                        data->color = updatedColor;
                     }
                 }
                 return result;
@@ -101,8 +101,8 @@ namespace ipl {
                 if (util::is_valid_datap(VmParentObj)) {
                     CS_Struct* data = static_cast<CS_Struct*>(*VmParentObj->value.ptr_v);
                     if (data != NULL) {
-                        CS_Color val = data->color;
-                        result = CHANSVmSetInteger(VmInst, VmReturnObj, val.arr[I]) == CHANS_VM_OK;
+                        CS_Color colorValue = data->color;
+                        result = CHANSVmSetInteger(VmInst, VmReturnObj, colorValue.components[I]) == CHANS_VM_OK;
                     }
                 }
                 return result;
@@ -127,17 +127,17 @@ namespace ipl {
 
                 GXColorS10* data = static_cast<GXColorS10*>(CHANSVmNewObjData(VmInst, VmReturnObj, sizeof(*data)));
                 if (data != NULL) {
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgInteger(VmInst, 0);
-                    CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(VmInst, 1);
-                    CHANSVmObjHdr* arg2 = CHANSVmGetArgInteger(VmInst, 2);
-                    CHANSVmObjHdr* arg3 = CHANSVmGetArgInteger(VmInst, 3);
+                    CHANSVmObjHdr* redArg = CHANSVmGetArgInteger(VmInst, 0);
+                    CHANSVmObjHdr* greenArg = CHANSVmGetArgInteger(VmInst, 1);
+                    CHANSVmObjHdr* blueArg = CHANSVmGetArgInteger(VmInst, 2);
+                    CHANSVmObjHdr* alphaArg = CHANSVmGetArgInteger(VmInst, 3);
 
-                    u16 val;
+                    u16 componentValue;
 
-                    data->r = arg0 != NULL ? arg0->value.int_v : 0;
-                    data->g = arg1 != NULL ? arg1->value.int_v : 0;
-                    data->b = arg2 != NULL ? arg2->value.int_v : 0;
-                    data->a = arg3 != NULL ? arg3->value.int_v : 0;
+                    data->r = redArg != NULL ? redArg->value.int_v : 0;
+                    data->g = greenArg != NULL ? greenArg->value.int_v : 0;
+                    data->b = blueArg != NULL ? blueArg->value.int_v : 0;
+                    data->a = alphaArg != NULL ? alphaArg->value.int_v : 0;
 
                     result = TRUE;
                 }
@@ -171,12 +171,12 @@ namespace ipl {
             template <int I>
             CHANSVmDefineMethod(set) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
-                if (util::is_valid_datap(VmParentObj) && arg != NULL) {
+                CHANSVmObjHdr* componentArg = CHANSVmGetArgInteger(VmInst, 0);
+                if (util::is_valid_datap(VmParentObj) && componentArg != NULL) {
                     s16* data = static_cast<s16*>(*VmParentObj->value.ptr_v);
                     if (*VmParentObj->value.ptr_v != NULL) {
                         result = TRUE;
-                        data[I] = arg->value.int_v;
+                        data[I] = componentArg->value.int_v;
                     }
                 }
                 return result;
