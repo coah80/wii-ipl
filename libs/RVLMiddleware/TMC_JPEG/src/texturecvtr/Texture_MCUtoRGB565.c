@@ -166,16 +166,15 @@ s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {
 }
 
 static void TMCJPEGDEC_converterYUV411toRGB565(TMCCJPEGDecWork* work, s32 x, s32 y) {
-    u16* output;
-    s32 tileRow;
-    s32 cbValue;
-    s32 blue;
-    TMCCJPEGDecState* state;
-    s32 lumaSkip;
-    s32 crValue;
-    s32 width;
-    s32 height;
-    s32 chromaSkip;
+    s32 tileColumn;
+    s32 red;
+    s32 secondGreen;
+    s32 thirdGreen;
+    s32 fourthGreen;
+    s32 green;
+    s32 secondRed;
+    s32 thirdRed;
+    s32 fourthRed;
     u8* texture;
     u8* luminance;
     u8* cb;
@@ -183,13 +182,17 @@ static void TMCJPEGDEC_converterYUV411toRGB565(TMCCJPEGDecWork* work, s32 x, s32
     s32 column;
     s32 xEnd;
     s32 yEnd;
-    u8 value;
-    u32 tileWidth;
-    s32 greenOffset;
+    s32 tileWidth;
     s32 redOffset;
-    s32 red;
+    s32 greenOffset;
     s32 blueOffset;
-    s32 green;
+    s32 blue;
+    s32 value;
+    TMCCJPEGDecState* state;
+    s32 width;
+    s32 height;
+    s32 crValue;
+    s32 cbValue;
 
     luminance = work->convBuf + 4;
     cb = &work->convBuf[260];
@@ -201,12 +204,9 @@ static void TMCJPEGDEC_converterYUV411toRGB565(TMCCJPEGDecWork* work, s32 x, s32
     height = 8 / state->scaleFactor;
     xEnd = x + width;
     yEnd = y + height;
-    lumaSkip = 32 - width;
-    chromaSkip = lumaSkip >> 2;
     for (; y < yEnd; y++) {
-        tileRow = (y >> 2) * tileWidth;
-        output = (u16*)(texture + ((y & 3) << 3));
         for (column = x; column < xEnd; column += 4) {
+            tileColumn = column >> 2;
             cbValue = (s8)*cb++;
             crValue = (s8)*cr++;
             redOffset = (crValue * 359) >> 8;
@@ -216,46 +216,50 @@ static void TMCJPEGDEC_converterYUV411toRGB565(TMCCJPEGDecWork* work, s32 x, s32
             red = value + redOffset;
             green = value + greenOffset;
             blue = value + blueOffset;
-            if ((blue | red | green) >> 8) {
+            if ((red | green | blue) >> 8) {
                 blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
                 green = green > 255 ? 255 : green < 0 ? 0 : green;
                 red = red > 255 ? 255 : red < 0 ? 0 : red;
             }
-            output[(column & 3) + (((column >> 2) + tileRow) << 4)] = ((blue & 0xF8) >> 3) + ((red & 0xF8) << 8) + ((green & 0xFC) << 3);
+            ((u16*)(texture + ((y & 3) << 3)))[(column & 3) + ((tileColumn + (y >> 2) * tileWidth) << 4)] =
+                ((blue & 0xF8) >> 3) + (((red & 0xF8) << 8) + ((green & 0xFC) << 3));
             value = *luminance++;
-            red = value + redOffset;
-            green = value + greenOffset;
+            secondRed = value + redOffset;
+            secondGreen = value + greenOffset;
             blue = value + blueOffset;
-            if ((blue | red | green) >> 8) {
+            if ((secondRed | secondGreen | blue) >> 8) {
                 blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-                green = green > 255 ? 255 : green < 0 ? 0 : green;
-                red = red > 255 ? 255 : red < 0 ? 0 : red;
+                secondGreen = secondGreen > 255 ? 255 : secondGreen < 0 ? 0 : secondGreen;
+                secondRed = secondRed > 255 ? 255 : secondRed < 0 ? 0 : secondRed;
             }
-            output[((column + 1) & 3) + ((((column + 1) >> 2) + tileRow) << 4)] = ((blue & 0xF8) >> 3) + ((red & 0xF8) << 8) + ((green & 0xFC) << 3);
+            ((u16*)(texture + ((y & 3) << 3)))[((column + 1) & 3) + ((((column + 1) >> 2) + (y >> 2) * tileWidth) << 4)] =
+                ((blue & 0xF8) >> 3) + (((secondRed & 0xF8) << 8) + ((secondGreen & 0xFC) << 3));
             value = *luminance++;
-            red = value + redOffset;
-            green = value + greenOffset;
+            thirdRed = value + redOffset;
+            thirdGreen = value + greenOffset;
             blue = value + blueOffset;
-            if ((blue | red | green) >> 8) {
+            if ((thirdRed | thirdGreen | blue) >> 8) {
                 blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-                green = green > 255 ? 255 : green < 0 ? 0 : green;
-                red = red > 255 ? 255 : red < 0 ? 0 : red;
+                thirdGreen = thirdGreen > 255 ? 255 : thirdGreen < 0 ? 0 : thirdGreen;
+                thirdRed = thirdRed > 255 ? 255 : thirdRed < 0 ? 0 : thirdRed;
             }
-            output[((column + 2) & 3) + ((((column + 2) >> 2) + tileRow) << 4)] = ((blue & 0xF8) >> 3) + ((red & 0xF8) << 8) + ((green & 0xFC) << 3);
+            ((u16*)(texture + ((y & 3) << 3)))[((column + 2) & 3) + ((((column + 2) >> 2) + (y >> 2) * tileWidth) << 4)] =
+                ((blue & 0xF8) >> 3) + (((thirdRed & 0xF8) << 8) + ((thirdGreen & 0xFC) << 3));
             value = *luminance++;
-            red = value + redOffset;
-            green = value + greenOffset;
+            fourthRed = value + redOffset;
+            fourthGreen = value + greenOffset;
             blue = value + blueOffset;
-            if ((blue | red | green) >> 8) {
+            if ((fourthRed | fourthGreen | blue) >> 8) {
                 blue = blue > 255 ? 255 : blue < 0 ? 0 : blue;
-                green = green > 255 ? 255 : green < 0 ? 0 : green;
-                red = red > 255 ? 255 : red < 0 ? 0 : red;
+                fourthGreen = fourthGreen > 255 ? 255 : fourthGreen < 0 ? 0 : fourthGreen;
+                fourthRed = fourthRed > 255 ? 255 : fourthRed < 0 ? 0 : fourthRed;
             }
-            output[((column + 3) & 3) + ((((column + 3) >> 2) + tileRow) << 4)] = ((blue & 0xF8) >> 3) + ((red & 0xF8) << 8) + ((green & 0xFC) << 3);
+            ((u16*)(texture + ((y & 3) << 3)))[((column + 3) & 3) + ((((column + 3) >> 2) + (y >> 2) * tileWidth) << 4)] =
+                ((blue & 0xF8) >> 3) + (((fourthRed & 0xF8) << 8) + ((fourthGreen & 0xFC) << 3));
         }
-        luminance += lumaSkip;
-        cb += chromaSkip;
-        cr += chromaSkip;
+        luminance += 32 - width;
+        cb += (32 - width) >> 2;
+        cr += (32 - width) >> 2;
     }
 }
 
