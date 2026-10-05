@@ -1597,81 +1597,37 @@ void Base::init() {
     mfDrawScrollY = mfScrollY;
 }
 
-extern "C" asm void create__Q39textinput9inputform4BaseFP12MEMAllocatorPQ39textinput9inputform10EditBuffer() {
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    mr r31, r3
-    stw r30, 0x18(r1)
-    mr r30, r5
-    stw r29, 0x14(r1)
-    mr r29, r4
-    stw r4, 0x1d0(r3)
-    addi r3, r3, 0x10
-    bl create__Q39textinput10textdrawer4BaseFP12MEMAllocator
-    lwz r0, 4(r30)
-    mr r3, r29
-    lhz r4, 0x1fc(r31)
-    stw r0, 0x164(r31)
-    addi r0, r4, 2
-    lwz r5, 8(r30)
-    slwi r4, r0, 3
-    stw r5, 0x168(r31)
-    lwz r0, 0xc(r30)
-    stw r0, 0x16c(r31)
-    stw r29, 0x200(r31)
-    bl MEMAllocFromAllocator
-    stw r3, 0x1f8(r31)
-    addi r3, r31, 0x1f8
-    bl init__Q49textinput9inputform4Base14RowInfoManagerFv
-    lhz r0, 0x1fc(r31)
-    lwz r6, 0x1f8(r31)
-    slwi r0, r0, 3
-    add r3, r6, r0
-    lhz r0, 2(r3)
-    slwi r0, r0, 3
-    add r5, r6, r0
-    lhzx r8, r6, r0
-    lhz r7, 2(r5)
-    slwi r0, r8, 3
-    slwi r4, r7, 3
-    lhzx r9, r6, r4
-    add r3, r6, r0
-    sthx r8, r6, r4
-    cmplw r9, r9
-    sth r7, 2(r3)
-    sth r9, 0(r5)
-    sth r9, 2(r5)
-    lhz r3, 0x1fc(r31)
-    lwz r6, 0x1f8(r31)
-    addi r0, r3, 1
-    clrlslwi r0, r0, 16, 3
-    lhzx r0, r6, r0
-    slwi r0, r0, 3
-    add r4, r6, r0
-    bne create_L1
-    lhz r7, 2(r4)
-    slwi r3, r7, 3
-    lhzx r0, r6, r3
-    sth r0, 0(r5)
-    sth r7, 2(r5)
-    sth r9, 2(r4)
-    sthx r9, r6, r3
-create_L1:
-    li r3, 0
-    li r0, 1
-    sth r3, 4(r5)
-    sth r0, 6(r5)
-    stw r5, 0x204(r31)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    lwz r0, 0x24(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void Base::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
+    mpAllocator = allocator;
+    textdrawer::Base::create(allocator);
+    mpString = static_cast<tistring::Decolated*>(editBuffer->mpString);
+    mpUnfixString = static_cast<tistring::WithAtok*>(editBuffer->mpUnfixString);
+    mpZiString = static_cast<tistring::WithZi*>(editBuffer->mpZiString);
+    mriManager.mpAllocator = allocator;
+    mriManager.mpInfo = static_cast<Info_*>(MEMAllocFromAllocator(allocator, (mriManager.mMaxLength + 2) * sizeof(Info_)));
+    mriManager.init();
+    Info_* rows = mriManager.mpInfo;
+    struct RowCursor { Info_* row; };
+    RowCursor cursor = { &rows[rows[mriManager.mMaxLength].Next] };
+    u16 next = cursor.row->Next;
+    u16 previous = cursor.row->Back;
+    u16 selectedIndex = rows[next].Back;
+    rows[next].Back = previous;
+    rows[previous].Next = next;
+    cursor.row->Back = selectedIndex;
+    cursor.row->Next = selectedIndex;
+    RowCursor listEnd = { &mriManager.mpInfo[mriManager.mpInfo[static_cast<u16>(mriManager.mMaxLength + 1)].Back] };
+    rows = mriManager.mpInfo;
+    if (cursor.row->Back == cursor.row->Next) {
+        next = listEnd.row->Next;
+        cursor.row->Back = rows[next].Back;
+        cursor.row->Next = next;
+        listEnd.row->Next = selectedIndex;
+        rows[next].Back = selectedIndex;
+    }
+    cursor.row->StrCount = 0;
+    cursor.row->DispRowCount = 1;
+    mpCursorLine = cursor.row;
 }
 
 tistring::Decolated* Base::getCurrentString(bool inputting) {

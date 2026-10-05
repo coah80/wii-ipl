@@ -93,7 +93,6 @@ namespace ipl {
         extern "C" void List_GetNth__Q24nw4r2utFPCQ34nw4r2ut4ListUs();
         extern "C" void getChannelBasePane__Q33ipl5scene13ChannelSelectFi();
         extern "C" void initPane__Q33ipl3gui11PaneManagerFPQ34nw4r3lyt4Pane();
-        extern "C" void* updateDiskState_jumptable[];
         extern "C" void getCurrentChannel__Q33ipl7channel7ManagerFPiPi();
         extern "C" void calcNormalRestart__Q33ipl5scene13ChannelSelectFv();
         extern "C" void _savegpr_28();
@@ -108,7 +107,6 @@ namespace ipl {
         extern "C" void animation__Q33ipl5scene6ButtonFi();
         extern "C" void toggle_insert__Q33ipl5scene12SDMenuButtonFi();
         extern "C" void calc__Q33ipl6layout6ObjectFv();
-        extern "C" void updateDiskState__Q33ipl5scene13ChannelSelectFv();
         extern "C" void calcChannelModules__Q33ipl5scene13ChannelSelectFv();
         extern "C" void calcChannelThumbnails__Q33ipl5scene13ChannelSelectFv();
         extern "C" asm void calc__Q33ipl5scene5clockFv();
@@ -858,15 +856,7 @@ namespace ipl {
 
         extern "C" char scPaneName_N_GCIcon[] = "N_GCIcon";
         extern "C" char scPaneName_N_DiscUpdateIcon[] = "N_DiscUpdateIcon";
-        extern "C" void* updateDiskState_jumptable[7] = {
-            (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x4C),
-            (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x21C),
-            (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x284),
-            (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x2C8),
-            (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x30C),
-            (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x328),
-            (void*)((const char*)updateDiskState__Q33ipl5scene13ChannelSelectFv + 0x358)
-        };
+
 
         void ChannelSelect::createChannelThumbnails() {
             ChannelObj* chanObj = NULL;
@@ -1333,258 +1323,98 @@ namespace ipl {
             }
         }
 
-        extern "C" asm void updateDiskState__Q33ipl5scene13ChannelSelectFv() {
-            nofralloc
-            stwu r1, -0x20(r1)
-            mflr r0
-            stw r0, 0x24(r1)
-            addi r11, r1, 0x20
-            bl _savegpr_27
-            lis r28, smArg__Q23ipl6System@ha
-            lwz r0, 0xf0(r3)
-            addi r28, r28, smArg__Q23ipl6System@l
-            mr r31, r3
-            lwz r4, 0xa8(r28)
-            cmplwi r0, 0x6
-            lwz r27, 0x4(r4)
-            bgt updateDiskState_done
-            lis r4, updateDiskState_jumptable@ha
-            slwi r0, r0, 2
-            addi r4, r4, updateDiskState_jumptable@l
-            lwzx r4, r4, r0
-            mtctr r4
-            bctr
-        updateDiskState_case0:
-            lwz r4, 0xa4(r3)
-            lwz r0, 0x14(r4)
-            cmpwi r0, 0x1
-            beq updateDiskState_done
-            lwz r3, 0x94(r3)
-            lis r29, scPaneName_N_GCIcon@ha
-            addi r4, r29, scPaneName_N_GCIcon@l
-            li r5, 0x1
-            lwz r3, 0x14(r3)
-            lwz r12, 0x0(r3)
-            lwz r12, 0x3c(r12)
-            mtctr r12
-            bctrl
-            li r4, 0x1
-            bl SetVisible__Q34nw4r3lyt4PaneFb
-            lwz r3, 0x94(r31)
-            lis r30, scPaneName_N_DiscUpdateIcon@ha
-            addi r4, r30, scPaneName_N_DiscUpdateIcon@l
-            li r5, 0x1
-            lwz r3, 0x14(r3)
-            lwz r12, 0x0(r3)
-            lwz r12, 0x3c(r12)
-            mtctr r12
-            bctrl
-            li r4, 0x0
-            bl SetVisible__Q34nw4r3lyt4PaneFb
-            cmpwi r27, 0x5
-            bne updateDiskState_case0_diskState3
-            lwz r4, 0xc0(r31)
-            lwz r3, 0x84(r28)
-            subi r4, r4, 0xf
-            subic r0, r4, 0x1
-            subfe r4, r0, r4
-            bl getDiskThumbnail__Q33ipl7channel7ManagerFb
-            lwz r0, 0xc0(r31)
-            mr r27, r3
-            cmpwi r0, 0xf
-            bne updateDiskState_case0_afterThumb
-            lwz r3, 0xa8(r28)
-            addi r4, r31, 0xf8
-            addi r5, r31, 0xfc
-            bl getDiskInfo__Q33ipl3bs27ManagerFPPcPPc
-        updateDiskState_case0_afterThumb:
-            cmpwi r27, 0x0
-            beq updateDiskState_case0_afterLayout
-            lwz r3, 0x90(r31)
-            mr r4, r27
-            bl createDiskLayout__Q33ipl5scene10ChannelObjFPv
-        updateDiskState_case0_afterLayout:
-            lbz r0, 0xf4(r31)
-            cmpwi r0, 0x0
-            bne updateDiskState_case0_afterDiskIn
-            mr r3, r31
-            bl startDiskInEvent__Q33ipl5scene13ChannelSelectFv
-        updateDiskState_case0_afterDiskIn:
-            li r3, 0x0
-            li r0, 0x1
-            stb r3, 0xf4(r31)
-            stw r0, 0xf0(r31)
-            b updateDiskState_done
-        updateDiskState_case0_diskState3:
-            cmpwi r27, 0x3
-            bne updateDiskState_case0_diskState6
-            lwz r3, 0x84(r28)
-            li r0, 0x0
-            addi r4, r29, scPaneName_N_GCIcon@l
-            li r5, 0x1
-            stb r0, 0x1b81(r3)
-            lwz r3, 0x94(r31)
-            lwz r3, 0x14(r3)
-            lwz r12, 0x0(r3)
-            lwz r12, 0x3c(r12)
-            mtctr r12
-            bctrl
-            li r4, 0x0
-            bl SetVisible__Q34nw4r3lyt4PaneFb
-            lwz r3, 0x94(r31)
-            addi r4, r30, scPaneName_N_DiscUpdateIcon@l
-            li r5, 0x1
-            lwz r3, 0x14(r3)
-            lwz r12, 0x0(r3)
-            lwz r12, 0x3c(r12)
-            mtctr r12
-            bctrl
-            li r4, 0x1
-            bl SetVisible__Q34nw4r3lyt4PaneFb
-            lwz r3, 0x94(r31)
-            bl setLangPane__Q33ipl5scene10ChannelObjFPCQ33ipl6layout6Object
-            lwz r3, 0x98(r31)
-            cmpwi r3, 0x0
-            beq updateDiskState_case0_state3_afterAnim
-            li r0, 0x2
-            stw r0, 0x18(r3)
-            lwz r28, 0x98(r31)
-            mr r3, r28
-            bl initFrame__Q33ipl7utility15FrameControllerFv
-            li r0, 0x1
-            stw r0, 0x14(r28)
-        updateDiskState_case0_state3_afterAnim:
-            lbz r0, 0xf4(r31)
-            cmpwi r0, 0x0
-            bne updateDiskState_case0_state3_afterDiskIn
-            mr r3, r31
-            bl startDiskInEvent__Q33ipl5scene13ChannelSelectFv
-        updateDiskState_case0_state3_afterDiskIn:
-            li r3, 0x0
-            li r0, 0x1
-            stb r3, 0xf4(r31)
-            stw r0, 0xf0(r31)
-            b updateDiskState_done
-        updateDiskState_case0_diskState6:
-            cmpwi r27, 0x6
-            bne updateDiskState_done
-            lbz r0, 0xf4(r31)
-            cmpwi r0, 0x0
-            bne updateDiskState_case0_state6_afterDiskIn
-            mr r3, r31
-            bl startDiskInEvent__Q33ipl5scene13ChannelSelectFv
-        updateDiskState_case0_state6_afterDiskIn:
-            li r3, 0x0
-            li r0, 0x4
-            stb r3, 0xf4(r31)
-            stw r0, 0xf0(r31)
-            b updateDiskState_done
-        updateDiskState_case1:
-            lwz r4, 0x8c(r3)
-            lwz r0, 0x14(r4)
-            cmpwi r0, 0x1
-            beq updateDiskState_done
-            lwz r3, 0x90(r3)
-            bl resetDiskTitleName__Q33ipl5scene10ChannelObjFv
-            cmpwi r27, 0x5
-            bne updateDiskState_case1_setState3
-            lwz r3, 0x90(r31)
-            lwz r3, 0x34(r3)
-            cmpwi r3, 0x0
-            beq updateDiskState_case1_setState2
-            li r0, 0x2
-            stw r0, 0x18(r3)
-            lwz r3, 0x90(r31)
-            lwz r27, 0x34(r3)
-            mr r3, r27
-            bl initFrame__Q33ipl7utility15FrameControllerFv
-            li r0, 0x1
-            stw r0, 0x14(r27)
-        updateDiskState_case1_setState2:
-            li r0, 0x2
-            stw r0, 0xf0(r31)
-            b updateDiskState_done
-        updateDiskState_case1_setState3:
-            li r0, 0x3
-            stw r0, 0xf0(r31)
-            b updateDiskState_done
-        updateDiskState_case2:
-            cmpwi r27, 0x5
-            bne updateDiskState_case2_doOut
-            lwz r4, 0x84(r28)
-            lbz r0, 0x1b81(r4)
-            cmpwi r0, 0x0
-            beq updateDiskState_done
-        updateDiskState_case2_doOut:
-            lwz r3, 0xa0(r3)
-            lwz r0, 0x14(r3)
-            cmpwi r0, 0x1
-            beq updateDiskState_done
-            mr r3, r31
-            bl startDiskOutEvent__Q33ipl5scene13ChannelSelectFv
-            lwz r3, 0x90(r31)
-            bl changeDisk__Q33ipl5scene10ChannelObjFv
-            li r0, 0x6
-            stw r0, 0xf0(r31)
-            b updateDiskState_done
-        updateDiskState_case3:
-            cmpwi r27, 0x3
-            bne updateDiskState_case3_doOut
-            lwz r4, 0x84(r28)
-            lbz r0, 0x1b81(r4)
-            cmpwi r0, 0x0
-            beq updateDiskState_done
-        updateDiskState_case3_doOut:
-            lwz r3, 0xa0(r3)
-            lwz r0, 0x14(r3)
-            cmpwi r0, 0x1
-            beq updateDiskState_done
-            mr r3, r31
-            bl startDiskOutEvent__Q33ipl5scene13ChannelSelectFv
-            lwz r3, 0x90(r31)
-            bl changeDisk__Q33ipl5scene10ChannelObjFv
-            li r0, 0x6
-            stw r0, 0xf0(r31)
-            b updateDiskState_done
-        updateDiskState_case4:
-            lwz r4, 0x8c(r3)
-            lwz r0, 0x14(r4)
-            cmpwi r0, 0x1
-            beq updateDiskState_done
-            li r0, 0x5
-            stw r0, 0xf0(r3)
-            b updateDiskState_done
-        updateDiskState_case5:
-            cmpwi r27, 0x6
-            beq updateDiskState_done
-            lwz r4, 0xa0(r3)
-            lwz r0, 0x14(r4)
-            cmpwi r0, 0x1
-            beq updateDiskState_done
-            bl startDiskOutEvent__Q33ipl5scene13ChannelSelectFv
-            lwz r3, 0x90(r31)
-            bl changeDisk__Q33ipl5scene10ChannelObjFv
-            li r0, 0x6
-            stw r0, 0xf0(r31)
-            b updateDiskState_done
-        updateDiskState_case6:
-            lwz r4, 0x8c(r3)
-            lwz r0, 0x14(r4)
-            cmpwi r0, 0x1
-            beq updateDiskState_done
-            lwz r3, 0x90(r3)
-            bl destroyDiskLayout__Q33ipl5scene10ChannelObjFv
-            lwz r3, 0x90(r31)
-            bl resetDiskTitleName__Q33ipl5scene10ChannelObjFv
-            li r0, 0x0
-            stw r0, 0xf0(r31)
-        updateDiskState_done:
-            addi r11, r1, 0x20
-            bl _restgpr_27
-            lwz r0, 0x24(r1)
-            mtlr r0
-            addi r1, r1, 0x20
-            blr
+        void ChannelSelect::updateDiskState() {
+            int diskState = System::getBS2Manager()->getIPLState();
+            switch (mDiskState) {
+                case DISK_STATE_READ:
+                    if (!mpDiskOutAnim->isPlaying()) {
+                        mpDiskLayout->FindPaneByName(scPaneName_N_GCIcon)->SetVisible(true);
+                        mpDiskLayout->FindPaneByName(scPaneName_N_DiscUpdateIcon)->SetVisible(false);
+                        if (diskState == bs2::IPL_STATE_RVL_GAME) {
+                            void* thumbnail = System::getChannelManager()->getDiskThumbnail(mState != STATE_INACTIVE);
+                            if (mState == STATE_INACTIVE) {
+                                System::getBS2Manager()->getDiskInfo(&mspDiskID, &mspDiskMaker);
+                            }
+                            if (thumbnail != NULL) {
+                                mpDiskChanObj->createDiskLayout(thumbnail);
+                            }
+                            if (!mbDiskInserted) {
+                                startDiskInEvent();
+                            }
+                            mbDiskInserted = false;
+                            mDiskState = DISK_STATE_PLAY_THUMB;
+                        } else if (diskState == bs2::IPL_STATE_DISK_UPDATE) {
+                            System::getChannelManager()->setDiskChannelReady(false);
+                            mpDiskLayout->FindPaneByName(scPaneName_N_GCIcon)->SetVisible(false);
+                            mpDiskLayout->FindPaneByName(scPaneName_N_DiscUpdateIcon)->SetVisible(true);
+                            ChannelObj::setLangPane(mpDiskLayout);
+                            if (mpDiskAnim != NULL) {
+                                mpDiskAnim->setAnmType(ANIM_TYPE_LOOP);
+                                mpDiskAnim->play();
+                            }
+                            if (!mbDiskInserted) {
+                                startDiskInEvent();
+                            }
+                            mbDiskInserted = false;
+                            mDiskState = DISK_STATE_PLAY_THUMB;
+                        } else if (diskState == bs2::IPL_STATE_GC_GAME) {
+                            if (!mbDiskInserted) {
+                                startDiskInEvent();
+                            }
+                            mbDiskInserted = false;
+                            mDiskState = DISK_STATE_GC_GAME_WAIT;
+                        }
+                    }
+                    break;
+                case DISK_STATE_PLAY_THUMB:
+                    if (!mpDiskFadeAnim->isPlaying()) {
+                        mpDiskChanObj->resetDiskTitleName();
+                        if (diskState == bs2::IPL_STATE_RVL_GAME) {
+                            if (mpDiskChanObj->mpThumbAnim != NULL) {
+                                mpDiskChanObj->mpThumbAnim->setAnmType(ANIM_TYPE_LOOP);
+                                layout::Animator* thumbnailAnim = mpDiskChanObj->mpThumbAnim;
+                                thumbnailAnim->play();
+                            }
+                            mDiskState = DISK_STATE_RVL_GAME;
+                        } else {
+                            mDiskState = DISK_STATE_DISK_UPDATE;
+                        }
+                    }
+                    break;
+                case DISK_STATE_RVL_GAME:
+                    if ((diskState != bs2::IPL_STATE_RVL_GAME || System::getChannelManager()->isDiskChannelReady()) && !mpDiskInAnim->isPlaying()) {
+                        startDiskOutEvent();
+                        mpDiskChanObj->changeDisk();
+                        mDiskState = DISK_STATE_DESTROY;
+                    }
+                    break;
+                case DISK_STATE_DISK_UPDATE:
+                    if ((diskState != bs2::IPL_STATE_DISK_UPDATE || System::getChannelManager()->isDiskChannelReady()) && !mpDiskInAnim->isPlaying()) {
+                        startDiskOutEvent();
+                        mpDiskChanObj->changeDisk();
+                        mDiskState = DISK_STATE_DESTROY;
+                    }
+                    break;
+                case DISK_STATE_GC_GAME_WAIT:
+                    if (!mpDiskFadeAnim->isPlaying()) {
+                        mDiskState = DISK_STATE_GC_GAME;
+                    }
+                    break;
+                case DISK_STATE_GC_GAME:
+                    if (diskState != bs2::IPL_STATE_GC_GAME && !mpDiskInAnim->isPlaying()) {
+                        startDiskOutEvent();
+                        mpDiskChanObj->changeDisk();
+                        mDiskState = DISK_STATE_DESTROY;
+                    }
+                    break;
+                case DISK_STATE_DESTROY:
+                    if (!mpDiskFadeAnim->isPlaying()) {
+                        mpDiskChanObj->destroyDiskLayout();
+                        mpDiskChanObj->resetDiskTitleName();
+                        mDiskState = DISK_STATE_READ;
+                    }
+                    break;
+            }
         }
 
 
