@@ -54,13 +54,13 @@ BOOL __DSP_rude_task_pending;
 
 void __DSPHandler(__OSInterrupt intr, OSContext* context) {
     OSContext exceptionContext;
-    u16 tmp;
+    u16 controlStatus;
     u32 mail;
 
-    tmp = DSP_READ_REG(DSP_CONTROL_STATUS);
-    CLEAR_FLAG(tmp, ((1 << DSP_CONTROL_STATUS_AIDINT) | (1 << DSP_CONTROL_STATUS_ARINT)));
-    SET_FLAG(tmp, (1 << DSP_CONTROL_STATUS_DSPINT));
-    DSP_WRITE_REG(DSP_CONTROL_STATUS, tmp);
+    controlStatus = DSP_READ_REG(DSP_CONTROL_STATUS);
+    CLEAR_FLAG(controlStatus, ((1 << DSP_CONTROL_STATUS_AIDINT) | (1 << DSP_CONTROL_STATUS_ARINT)));
+    SET_FLAG(controlStatus, (1 << DSP_CONTROL_STATUS_DSPINT));
+    DSP_WRITE_REG(DSP_CONTROL_STATUS, controlStatus);
 
     OSClearContext(&exceptionContext);
     OSSetCurrentContext(&exceptionContext);

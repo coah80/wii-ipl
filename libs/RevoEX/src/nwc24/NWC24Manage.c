@@ -520,7 +520,7 @@ NWC24Err NWC24iInitMsgBoxDir(BOOL force) {
     }
 
     result = NANDPrivateReadDir(path, NULL, &num);
-    if (result == -12) {
+    if (result == NAND_RESULT_NOEXISTS) {
         result = NWC24CreateDir(path);
         if (result != NWC24_OK) {
             return NWC24_ERR_FATAL;
@@ -531,16 +531,16 @@ NWC24Err NWC24iInitMsgBoxDir(BOOL force) {
 
     if (force) {
         result = NANDPrivateDelete(mboxDir);
-        if (result != 0 && result != -12) {
-            if (result == -4) {
-                return -38;
+        if (result != 0 && result != NAND_RESULT_NOEXISTS) {
+            if (result == NAND_RESULT_CORRUPT) {
+                return NWC24_ERR_NAND_CORRUPT;
             }
             return NWC24_ERR_FATAL;
         }
     }
 
     result = NWC24CreateDir(mboxDir);
-    if (result != -15 && result != 0) {
+    if (result != NWC24_ERR_DONE && result != 0) {
         return NWC24_ERR_FATAL;
     }
 

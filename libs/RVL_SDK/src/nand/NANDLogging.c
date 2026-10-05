@@ -27,7 +27,7 @@ static NANDLoggingCallback s_callback = NULL;
     if (s_callback)                                                                                                                                  \
     s_callback(b)
 
-static void asyncRoutine(ISFSError result, void* arg);
+static void asyncRoutine(ISFSError result, void* callbackContext);
 static void PrepareLine(char* line, int count, const char* msg) {
     int result;
     char titleID[64];
@@ -169,7 +169,7 @@ BOOL NANDLoggingAddMessageAsync(NANDLoggingCallback callback, const char* fmt, .
     }
 }
 
-static void asyncRoutine(ISFSError result, void* arg) {
+static void asyncRoutine(ISFSError result, void* callbackContext) {
     ISFSError ret;
     static char s_rBuf[LINE_MAX_EACH] ATTRIBUTE_ALIGN(LINE_MAX);
     static char s_wBuf[LINE_MAX_EACH] ATTRIBUTE_ALIGN(LINE_MAX);

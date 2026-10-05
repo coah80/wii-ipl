@@ -34,7 +34,7 @@ inline u8* getCurrAddr(VoiceInfo* voice) {
 inline bool currAddrInZeroBuf(VoiceInfo* currVoice) {
     nw4r::ut::AutoInterruptLock lock;
     u8* apbCurrAddr = getCurrAddr(currVoice);
-    u8* zeroBufAddr = (u8*)SimpleWavePlayer::convertDSPAddr(zeroBuffer, 0, 0);
+    u8* zeroBufAddr = (u8*)SimpleWavePlayer::convertDSPAddr(zeroBuffer, 0, AX_SAMPLE_FORMAT_DSP_ADPCM);
     if (zeroBufAddr <= apbCurrAddr && apbCurrAddr < zeroBufAddr + 0x200) {
         return true;
     } else {
@@ -278,7 +278,7 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
             coeffsBufB[i] = ADD_OFFSET(AdpcmCoeffs, infoBlockDataBase, chanInfo->coeffOff);
 
             pAxvpbBuf = axVoiceBuf;
-            pAxvpbBuf[i] = AXAcquireVoice(0x1f, VoiceCallback, 0);
+            pAxvpbBuf[i] = AXAcquireVoice(AX_PRIORITY_MAX, VoiceCallback, 0);
             if (pAxvpbBuf[i] == NULL) {
                 chanCount = 0;
                 break;
@@ -293,20 +293,20 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
                 axAdpcmLoop.loop_yn1 = coeffsBufB[i]->cfg.loopYn1;
                 // @bug Doesn't copy the loop value correctly :(
                 axAdpcmLoop.loop_yn2 = coeffsBufB[i]->cfg.loopYn1;
-                loopAddr = SimpleWavePlayer::convertDSPAddr(chanDataBuf[i], infoBlock->loopStart, 0);
+                loopAddr = SimpleWavePlayer::convertDSPAddr(chanDataBuf[i], infoBlock->loopStart, AX_SAMPLE_FORMAT_DSP_ADPCM);
             } else {
-                loopAddr = SimpleWavePlayer::convertDSPAddr(zeroBuffer, 0, 0);
+                loopAddr = SimpleWavePlayer::convertDSPAddr(zeroBuffer, 0, AX_SAMPLE_FORMAT_DSP_ADPCM);
             }
 
             void* chanData = chanDataBuf[i];
             axAddr.loopAddressHi = (u32)loopAddr >> 0x10;
             axAddr.loopAddressLo = (u32)loopAddr;
 
-            void* endAddr = SimpleWavePlayer::convertDSPAddr(chanData, infoBlock->loopEnd, 0);
+            void* endAddr = SimpleWavePlayer::convertDSPAddr(chanData, infoBlock->loopEnd, AX_SAMPLE_FORMAT_DSP_ADPCM);
             axAddr.endAddressHi = (u32)endAddr >> 0x10;
             axAddr.endAddressLo = (u32)endAddr & 0xFFFF;
 
-            void* currAddr = SimpleWavePlayer::convertDSPAddr(chanData, 0, 0);
+            void* currAddr = SimpleWavePlayer::convertDSPAddr(chanData, 0, AX_SAMPLE_FORMAT_DSP_ADPCM);
             axAddr.currentAddressHi = (u32)currAddr >> 0x10;
             axAddr.currentAddressLo = (u32)currAddr & 0xFFFF;
 
@@ -337,7 +337,7 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
             axSrc.last_samples[3] = axSrc.last_samples[2] = axSrc.last_samples[1] = axSrc.last_samples[0] = axSrc.currentAddressFrac = 0;
 
             AXVPB* vpbA = pAxvpbBuf[i];
-            AXSetVoiceType(vpbA, 0);
+            AXSetVoiceType(vpbA, AX_VOICE_NORMAL);
             AXSetVoiceAddr(vpbA, &axAddr);
             AXSetVoiceAdpcm(vpbA, &axAdpcm);
             AXSetVoiceAdpcmLoop(vpbA, &axAdpcmLoop);

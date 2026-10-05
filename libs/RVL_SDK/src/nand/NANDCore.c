@@ -30,8 +30,8 @@ static char s_homeDir[NAND_MAX_PATH] ALIGN32;
 
 static BOOL nandOnShutdown(BOOL final, u32 event);
 
-static void nandShutdownCallback(ISFSError result, void* arg);
-static void nandChangeDirCallback(ISFSError result, void* arg);
+static void nandShutdownCallback(ISFSError result, void* callbackContext);
+static void nandChangeDirCallback(ISFSError result, void* callbackContext);
 
 static OSShutdownFunctionInfo s_shutdownFuncInfo = {nandOnShutdown, 0xFF, NULL, NULL};
 
@@ -360,8 +360,8 @@ static BOOL nandOnShutdown(BOOL final, u32 event) {
     }
 }
 
-static void nandShutdownCallback(ISFSError result, void* arg) {
-    *(BOOL*)arg = TRUE;
+static void nandShutdownCallback(ISFSError result, void* callbackContext) {
+    *(BOOL*)callbackContext = TRUE;
 }
 
 static ISFSError nandChangeDir(const char* path, NANDCommandBlock* block, BOOL isAsync, BOOL hasPrivateAccess) {
@@ -400,8 +400,8 @@ s32 NANDChangeDir(const char* path) {
     return nandConvertErrorCode(nandChangeDir(path, NULL, FALSE, FALSE));
 }
 
-static void nandChangeDirCallback(ISFSError result, void* arg) {
-    NANDCommandBlock* block = (NANDCommandBlock*)arg;
+static void nandChangeDirCallback(ISFSError result, void* callbackContext) {
+    NANDCommandBlock* block = (NANDCommandBlock*)callbackContext;
     if (result == ISFS_ERROR_OK) {
         BOOL enabled = OSDisableInterrupts();
         strcpy(s_currentDir, block->absPath);
@@ -435,12 +435,12 @@ s32 NANDGetHomeDir(char* path) {
     return NAND_RESULT_OK;
 }
 
-void nandCallback(ISFSError result, void* arg) {
-    NANDCommandBlock* block = (NANDCommandBlock*)arg;
+void nandCallback(ISFSError result, void* callbackContext) {
+    NANDCommandBlock* block = (NANDCommandBlock*)callbackContext;
     block->callback(nandConvertErrorCode(result), block);
 }
 
-static void nandGetTypeCallback(ISFSError result, void* arg);
+static void nandGetTypeCallback(ISFSError result, void* callbackContext);
 
 static ISFSError nandGetType(const char* path, u8* type, NANDCommandBlock* block, BOOL isAsync, BOOL hasPrivateAccess) {
     if (strlen(path) == 0) {
@@ -505,8 +505,8 @@ s32 NANDPrivateGetTypeAsync(const char* path, u8* type, NANDCallback callback, N
     return nandConvertErrorCode(nandGetType(path, type, block, TRUE, TRUE));
 }
 
-static void nandGetTypeCallback(ISFSError result, void* arg) {
-    NANDCommandBlock* block = (NANDCommandBlock*)arg;
+static void nandGetTypeCallback(ISFSError result, void* callbackContext) {
+    NANDCommandBlock* block = (NANDCommandBlock*)callbackContext;
 
     if (result == ISFS_ERROR_OK || result == ISFS_ERROR_ACCESS) {
         *block->type = NAND_TYPE_DIR;

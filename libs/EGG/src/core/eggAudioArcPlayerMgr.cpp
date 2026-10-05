@@ -202,7 +202,7 @@ namespace EGG {
             return false;
         }
 
-        return mSoundArchivePlayer.LoadGroup((int)id, pHeap, 0);
+        return mSoundArchivePlayer.LoadGroup(id, pHeap, 0);
     }
 
     bool ArcPlayer::loadGroup(const char* pName, nw4r::snd::SoundHeap* pHeap) {

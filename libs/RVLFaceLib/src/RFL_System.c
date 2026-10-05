@@ -86,7 +86,7 @@ RFLErrcode RFLInitResAsync(void* workBuffer, void* resBuffer, u32 resSize, BOOL 
                 } else {
                     size = (RFLi_WORK_SIZE - sizeof(RFLiSysManager));
                 }
-                RFLiGetManager()->mRootHeap = MEMCreateExpHeapEx(RFLiGetManager()->mWorkBuffer, size, 1);
+                RFLiGetManager()->mRootHeap = MEMCreateExpHeapEx(RFLiGetManager()->mWorkBuffer, size, MEM_HEAP_OPT_CLEAR_ALLOC);
                 RFLi_REPORT(" rootHeap  : 0x%08x - 0x%08x (%6dByte)\n", (u8*)RFLiGetManager()->mWorkBuffer,
                             (size + (u32)RFLiGetManager()->mWorkBuffer), size);
             }

@@ -508,7 +508,7 @@ bool WaveFileAiff::checkFile(const void* _data, u32 _dataLen, bool ignoreSize) {
         return false;
     }
 
-    if (self->mIsLoop != false) {
+    if (self->mIsLoop) {
         // Loop start must be before end, start must be before end of data, end must
         // be at or before end of data
         if (self->mLoopStart >= self->mLoopEnd) {
@@ -586,7 +586,7 @@ bool WaveFileWav::init(const void* data, u32 dataLen) {
 
     u32 offsetAfterRiffChunk = reader.getOffset();
 
-    if (reader.seekChunk('fmt ', fileEnd) == FALSE) {
+    if (!reader.seekChunk('fmt ', fileEnd)) {
         return false;
     }
 
@@ -624,7 +624,7 @@ bool WaveFileWav::init(const void* data, u32 dataLen) {
     }
 
     reader.seekTo(offsetAfterRiffChunk);
-    if (reader.seekChunk('data', fileEnd) == FALSE)
+    if (!reader.seekChunk('data', fileEnd))
         return false;
 
     reader.seekTo(reader.getOffset() - 4);
@@ -658,7 +658,7 @@ bool WaveFileWav::checkFile(const void* data, u32 dataLen, bool ignoreSize) {
 
     u32 offsetAfterRiffChunk = reader.getOffset();
 
-    if (reader.seekChunk('fmt ', fileEnd) == FALSE) {
+    if (!reader.seekChunk('fmt ', fileEnd)) {
         return false;
     }
 
@@ -711,7 +711,7 @@ bool WaveFileWav::checkFile(const void* data, u32 dataLen, bool ignoreSize) {
     }
 
     reader.seekTo(offsetAfterRiffChunk);
-    if (reader.seekChunk('data', fileEnd) == FALSE) {
+    if (!reader.seekChunk('data', fileEnd)) {
         return false;
     }
 
@@ -729,7 +729,7 @@ bool WaveFileWav::checkFile(const void* data, u32 dataLen, bool ignoreSize) {
 
     // Loop start must be before end, start must be before end of data, end must
     // be at or before end of data
-    if (mIsLoop != false) {
+    if (mIsLoop) {
         if (mLoopStart >= mLoopEnd) {
             return false;
         }

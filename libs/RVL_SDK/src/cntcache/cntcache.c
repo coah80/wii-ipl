@@ -45,8 +45,8 @@ void _CNTCACHEDeleteTitle();
 void _CNTCACHEDeleteContent();
 
 
-void CNTCACHEInit(int unk0, int unk1) {
-    if (_CNTCACHEInitialized == FALSE) {
+void CNTCACHEInit(int cacheValue, int cacheHighWord) {
+    if (!_CNTCACHEInitialized) {
         BOOL old;
 
         OSRegisterVersion(__CNTCACHEVersion);
@@ -60,8 +60,8 @@ void CNTCACHEInit(int unk0, int unk1) {
     }
     CNTCACHEClear();
 
-    _CNTCACHEUnused816997A4 = unk0;
-    *((int*)&_CNTCACHEUnused816997A8) = unk1;
+    _CNTCACHEUnused816997A4 = cacheValue;
+    *((int*)&_CNTCACHEUnused816997A8) = cacheHighWord;
 }
 asm void CNTCACHEClear() {
     clrlwi r11, r1, 0x1b

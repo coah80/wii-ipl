@@ -13,7 +13,7 @@
 static BOOL nandInspectPermission(u8 perm);
 static void nandSplitPerm(u8 perm, u32* owner, u32* group, u32* others);
 
-static void nandGetStatusCallback(ISFSError result, void* arg);
+static void nandGetStatusCallback(ISFSError result, void* callbackContext);
 
 static ISFSError nandCreate(const char* path, u8 perm, u8 attr, NANDCommandBlock* block, BOOL isAsync, BOOL hasPrivateAccess) {
     char absPath[NAND_MAX_PATH] = "";
@@ -302,8 +302,8 @@ s32 NANDTell(NANDFileInfo* info, u32* pos) {
     return nandConvertErrorCode(nandGetFileStatus(info->fileDescriptor, NULL, pos));
 }
 
-static void nandGetFileStatusAsyncCallback(ISFSError result, void* arg) {
-    NANDCommandBlock* block = (NANDCommandBlock*)arg;
+static void nandGetFileStatusAsyncCallback(ISFSError result, void* callbackContext) {
+    NANDCommandBlock* block = (NANDCommandBlock*)callbackContext;
     ISFSFileStats* isfsStats = (ISFSFileStats*)OSRoundUp32B((u32)block->absPath);
 
     if (result == ISFS_ERROR_OK) {
@@ -411,8 +411,8 @@ static ISFSError nandGetStatus(const char* path, NANDStatus* status, NANDCommand
     }
 }
 
-static void nandGetStatusCallback(ISFSError result, void* arg) {
-    NANDCommandBlock* block = (NANDCommandBlock*)arg;
+static void nandGetStatusCallback(ISFSError result, void* callbackContext) {
+    NANDCommandBlock* block = (NANDCommandBlock*)callbackContext;
     if (result == ISFS_ERROR_OK) {
         NANDStatus* status = (NANDStatus*)block->status;
         status->attribute = block->attr;

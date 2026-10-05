@@ -349,7 +349,7 @@ RFLErrcode makeNWC24MsgforExchange_(NWC24MsgObj* obj, RFLCharData* sendTarget, B
             RFLi_ASSERTLINE(aidx <= count, 407);
 
             for (i = 0; i < aidx - 1; i++) {
-                u16 tmp;
+                u16 shuffledIndex;
                 u16 target;
 
                 target = (((rand >> 0x10) + rand) & 0xFFFF) % (aidx - 1);
@@ -357,9 +357,9 @@ RFLErrcode makeNWC24MsgforExchange_(NWC24MsgObj* obj, RFLCharData* sendTarget, B
                     target++;
                 }
 
-                tmp = array[target];
+                shuffledIndex = array[target];
                 array[target] = array[i];
-                array[i] = tmp;
+                array[i] = shuffledIndex;
 
                 rand = (rand + 0x02ED47B1) * 0x032ED8B7;
             }
@@ -447,14 +447,14 @@ RFLErrcode makeNWC24MsgforExchange_(NWC24MsgObj* obj, RFLCharData* sendTarget, B
             int k;
 
             for (k = 0; k < friendsNum; k++) {
-                NWC24FriendInfo* tmp;
+                NWC24FriendInfo* shuffledFriend;
                 u32 l;
 
                 rand = (rand + 0x02ED47B1) * 0x032ED8B7;
                 l = rand % friendsNum;
-                tmp = lists[k];
+                shuffledFriend = lists[k];
                 lists[k] = lists[l];
-                lists[l] = tmp;
+                lists[l] = shuffledFriend;
             }
 
             for (i = 0; i < (int)GET_ARRAY_LENGTH(receiver); i++) {

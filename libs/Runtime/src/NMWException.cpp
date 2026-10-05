@@ -48,7 +48,7 @@ void* __construct_new_array(void* block, void* ctor, void* dtor, size_t size, si
             __partial_array_destructor pad(ptr, size, n, dtor);
             char* p;
 
-            for (pad.i = 0, p = (char*)ptr; pad.i < n; pad.i++, p += size) {
+            for (pad.i = 0, p = ptr; pad.i < n; pad.i++, p += size) {
                 CTORCALL_COMPLETE(ctor, p);
             }
         }

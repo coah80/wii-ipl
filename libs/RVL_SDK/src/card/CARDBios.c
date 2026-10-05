@@ -233,13 +233,13 @@ static void SetupTimeoutAlarm(CARDControl* card) {
             break;
         }
         case 0xF4: {
-            if (card->pageSize > 0x80) {
+            if (card->pageSize > CARD_PAGE_SIZE) {
                 OSSetAlarm(&card->alarm, OSSecondsToTicks((OSTime)2) * (card->cBlock / 0x40), TimeoutHandler);
                 break;
             }
         }
         case 0xF1: {
-            OSSetAlarm(&card->alarm, OSSecondsToTicks((OSTime)2) * (card->sectorSize / 0x2000), TimeoutHandler);
+            OSSetAlarm(&card->alarm, OSSecondsToTicks((OSTime)2) * (card->sectorSize / CARD_SYSTEM_BLOCK_SIZE), TimeoutHandler);
             break;
         }
     }
@@ -408,7 +408,7 @@ s32 __CARDWritePage(s32 chan, CARDCallback callback) {
     card = &__CARDBlock[chan];
     card->cmd[0] = 0xF2;
 
-    if (card->pageSize > 0x80) {
+    if (card->pageSize > CARD_PAGE_SIZE) {
         card->cmd[1] = AD1(card->addr) | 0x80;
     } else {
         card->cmd[1] = AD1(card->addr);
@@ -444,11 +444,11 @@ s32 __CARDEraseSector(s32 chan, u32 addr, CARDCallback callback) {
 
     card = &__CARDBlock[chan];
 
-    if (card->pageSize > 0x80) {
+    if (card->pageSize > CARD_PAGE_SIZE) {
         if (callback) {
-            callback(chan, 0);
+            callback(chan, CARD_RESULT_READY);
         }
-        return 0;
+        return CARD_RESULT_READY;
     }
 
     card->cmd[0] = 0xF1;
@@ -496,7 +496,7 @@ void CARDInit() {
         OSInitThreadQueue(&card->threadQueue);
         OSCreateAlarm(&card->alarm);
     }
-    __CARDSetDiskID((void*)OSPhysicalToCached(OS_ADDR_BOOT_INFO));
+    __CARDSetDiskID(OSPhysicalToCached(OS_ADDR_BOOT_INFO));
 
     OSRegisterShutdownFunction(&ShutdownFunctionInfo);
 }

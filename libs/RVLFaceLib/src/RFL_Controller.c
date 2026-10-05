@@ -590,7 +590,7 @@ static void replacebuffer_(s32 chan, RFLiCtrlBuffer* buffer, u8 count) {
 
     offset = (count * sizeof(RFLiCtrlBuffer)) + OFFSET;
 
-    write = WPADWriteFaceData(chan, ((u8*)walker + OFFSET), 4, WPAD_FACE_ADDR + offset, replacecallback_);
+    write = WPADWriteFaceData(chan, (walker + OFFSET), 4, WPAD_FACE_ADDR + offset, replacecallback_);
     if (write != WPAD_ERR_OK) {
         RFLiEndWorkingReason(RFLErrcode_Controllerfail, write);
     }

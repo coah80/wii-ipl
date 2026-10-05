@@ -408,7 +408,7 @@ RFLErrcode RFLiOpenAsync(RFLiFileType type, u8 openmode, RFLSimpleCB cb) {
     strncpy(info->openinfo.filename, filename, NAND_MAX_PATH);
     info->openinfo.filename[NAND_MAX_PATH] = 0;
 
-    info->openinfo.openmode = (u8)openmode;
+    info->openinfo.openmode = openmode;
     info->openinfo.permission = scFilePermissions[type];
     info->openinfo.attribute = scFileAttributes[type];
 
@@ -626,8 +626,8 @@ RFLErrcode RFLiReadAsync(RFLiFileType type, void* dst, u32 size, RFLSimpleCB cb,
 
 static void writecallback_(s32 result, NANDCommandBlock* block);
 
-static void retryWrite_(u32 arg) {
-    RFLiFileType type = (RFLiFileType)arg;
+static void retryWrite_(u32 fileType) {
+    RFLiFileType type = (RFLiFileType)fileType;
     RFLiNANDAccessInfo* info = RFLiGetAccInfo(type);
 
     {
@@ -734,8 +734,8 @@ static s32 writestart_(RFLiFileType type) {
 
 static void writeseekcallback_(s32 result, NANDCommandBlock* block);
 
-static void retryWriteSeek_(u32 arg) {
-    RFLiFileType type = (RFLiFileType)arg;
+static void retryWriteSeek_(u32 fileType) {
+    RFLiFileType type = (RFLiFileType)fileType;
     RFLiNANDAccessInfo* info = RFLiGetAccInfo(type);
 
     {

@@ -103,15 +103,15 @@ static BOOL checkHiddenData_(RFLiHiddenCharData* data) {
 
     RFLiConvertHRaw2Info(data, &info);
 
-    if (RFLiCheckValidInfo(&info) == FALSE) {
+    if (!RFLiCheckValidInfo(&info)) {
         return FALSE;
     }
 
     return TRUE;
 }
 
-static void updateHDBcallback_(u32 arg) {
-    RFLiMiddleDatabase* db = (RFLiMiddleDatabase*)arg;
+static void updateHDBcallback_(u32 databaseAddr) {
+    RFLiMiddleDatabase* db = (RFLiMiddleDatabase*)databaseAddr;
     RFL_NEW_OLD_PARAM* param = (RFL_NEW_OLD_PARAM*)&db->userdata1;
 
     if (RFLGetAsyncStatus() == RFLErrcode_Success || RFLGetAsyncStatus() == RFLErrcode_Broken) {
@@ -299,8 +299,8 @@ static void loadHiddenRandomSync_(RFLiMiddleDatabase* db) {
     RFLiGetManager()->mLastErrcode = db->storedSize < db->size ? RFLErrcode_DBNodata : RFLErrcode_Success;
 }
 
-static void updateHDBRandcallback_(u32 arg) {
-    RFLiMiddleDatabase* db = (RFLiMiddleDatabase*)arg;
+static void updateHDBRandcallback_(u32 databaseAddr) {
+    RFLiMiddleDatabase* db = (RFLiMiddleDatabase*)databaseAddr;
     RFL_HIDDEN_RANDOM_PARAM* param = (RFL_HIDDEN_RANDOM_PARAM*)&db->userdata1;
 
     if (RFLGetAsyncStatus() == RFLErrcode_Success || RFLGetAsyncStatus() == RFLErrcode_Broken) {
@@ -387,7 +387,7 @@ static void updateHiddenRandom_(RFLiMiddleDatabase* db, BOOL use_cache) {
     RFLi_ASSERTLINE(aidx == count, 514);
 
     for (i = 0; i < (count - 1); i++) {
-        u16 tmp;
+        u16 shuffledIndex;
         u16 target;
 
         target = (((rand >> 0x10) + rand) & 0xFFFF) % (count - 1);
@@ -395,9 +395,9 @@ static void updateHiddenRandom_(RFLiMiddleDatabase* db, BOOL use_cache) {
             target++;
         }
 
-        tmp = array[target];
+        shuffledIndex = array[target];
         array[target] = array[i];
-        array[i] = tmp;
+        array[i] = shuffledIndex;
 
         rand = 0x04F8BB63 * (rand + 0x046AC055);
     }
@@ -586,12 +586,12 @@ RFLMiddleDBType RFLGetMiddleDBType(const RFLMiddleDatabase* db) {
 
 u16 RFLGetMiddleDBSize(const RFLMiddleDatabase* db) {
     RFLi_ASSERTLINE_NULL(db, 772);
-    return (u16)((RFLiMiddleDatabase*)db)->size;
+    return ((RFLiMiddleDatabase*)db)->size;
 }
 
 u16 RFLGetMiddleDBStoredSize(const RFLMiddleDatabase* db) {
     RFLi_ASSERTLINE_NULL(db, 789);
-    return (u16)((RFLiMiddleDatabase*)db)->storedSize;
+    return ((RFLiMiddleDatabase*)db)->storedSize;
 }
 
 BOOL RFLiGetCharInfoMiddleDB(RFLiCharInfo* info, const RFLMiddleDatabase* db, u16 index) {
