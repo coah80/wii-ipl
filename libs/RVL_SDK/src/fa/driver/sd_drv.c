@@ -970,6 +970,11 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     u8 end_head;
     u16 end_sector;
     u16 end_cylinder;
+    u32 sectors_per_track;
+    u32 first_sector;
+    u32 sectors_per_cylinder;
+    u32 last_sector;
+    u32 sector_count;
 
     if (format_data == 0) {
         return -30;
@@ -991,18 +996,23 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
         OSReport("ERR Failed to get values with total sectors. pfd_sddrv_get_value_with_total_sectors()\n");
         return result;
     }
-    start_cylinder = format_data->partition_start_sector / (settings.fat_copies * settings.root_entries);
-    start_head = (format_data->partition_start_sector % (settings.fat_copies * settings.root_entries)) / settings.root_entries;
-    start_sector = format_data->partition_start_sector % settings.root_entries + 1;
-    end_cylinder = (format_data->total_sectors - 1) / (settings.fat_copies * settings.root_entries);
-    end_head = ((format_data->total_sectors - 1) % (settings.fat_copies * settings.root_entries)) / settings.root_entries;
-    end_sector = (format_data->total_sectors - 1) % settings.root_entries + 1;
-    if (format_data->partition_sector_count == 0) {
+    sectors_per_track = settings.root_entries;
+    sectors_per_cylinder = settings.fat_copies * sectors_per_track;
+    first_sector = format_data->partition_start_sector;
+    last_sector = format_data->total_sectors - 1;
+    sector_count = format_data->partition_sector_count;
+    start_cylinder = first_sector / sectors_per_cylinder;
+    start_head = (first_sector % sectors_per_cylinder) / sectors_per_track;
+    start_sector = first_sector % sectors_per_track + 1;
+    end_cylinder = last_sector / sectors_per_cylinder;
+    end_head = (last_sector % sectors_per_cylinder) / sectors_per_track;
+    end_sector = last_sector % sectors_per_track + 1;
+    if (sector_count == 0) {
         return -30;
     }
-    if (format_data->partition_sector_count != 0 && format_data->partition_sector_count < 0x7fa8) {
+    if (sector_count != 0 && sector_count < 0x7fa8) {
         partition_type = 1;
-    } else if (format_data->partition_sector_count >= 0x7fa8 && format_data->partition_sector_count < 0x10000) {
+    } else if (sector_count >= 0x7fa8 && sector_count < 0x10000) {
         partition_type = 4;
     } else {
         partition_type = 6;
