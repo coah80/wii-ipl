@@ -38,7 +38,7 @@ s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_ro
     s32* conv_row;
 
     conv_row = (s32*)conv_row_ptr;
-    dcf = work->pDCFast;
+    dcf = work->tables.pDCFast;
     if (work->bitCount <= 8) {
         r = TMCJPEGDEC_load_buff(work);
         if (r < 0) {
@@ -54,7 +54,7 @@ s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_ro
         work->bitCount -= val;
         val = tmp;
     } else {
-        val = TMCJPEGDEC_vl_decode_rc(work->pDCHuffTbl, work->pDCHuffSym, work);
+        val = TMCJPEGDEC_vl_decode_rc(work->tables.pDCHuffTbl, work->tables.pDCHuffSym, work);
         if (val < 0) {
             return val;
         }
@@ -73,9 +73,9 @@ s32 TMCJPEGDEC_decode_iquant_rc(s32* block, u8* conv_row_ptr, u32* dc_predict_ro
 
     *block = dc_predict_row_ptr[0] * conv_row[0];
 
-    ac_fast = work->pACFast;
-    ac_vl = work->pACHuffTbl;
-    ac_sym = work->pACHuffSym;
+    ac_fast = work->tables.pACFast;
+    ac_vl = work->tables.pACHuffTbl;
+    ac_sym = work->tables.pACHuffSym;
     blk_size = work->blockSize;
     blk_mul = work->blockSizeMul;
 
