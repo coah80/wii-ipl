@@ -58,19 +58,21 @@ CDBDate CDBMakeCDBDate(int year, int month, int day, int hour, int min, int sec)
     return OSTicksToSeconds(OSCalendarTimeToTicks(&calendar));
 }
 
-CDBDate CDBMakeCDBDateDayBegin(int year, int month, int day, int hour, int min, int sec) {
+CDBDate CDBMakeCDBDateDayBegin(int year, int month, int day) {
     return CDBMakeCDBDate(year, month, day, MIN_HOUR, MIN_MINUTE, MIN_SECOND);
 }
 
-CDBDate CDBMakeCDBDateDayEnd(int year, int month, int day, int hour, int min, int sec) {
+CDBDate CDBMakeCDBDateDayEnd(int year, int month, int day) {
     return CDBMakeCDBDate(year, month, day, MAX_HOUR, MAX_MINUTE, MAX_SECOND);
 }
 
-CDBDate CDBMakeCDBDateMonthBegin(int year, int month, int day, int hour, int min, int sec) {
+CDBDate CDBMakeCDBDateMonthBegin(int year, int month) {
     return CDBMakeCDBDate(year, month, MIN_DAY, MIN_HOUR, MIN_MINUTE, MIN_SECOND);
 }
 
-CDBDate CDBMakeCDBDateMonthEnd(int year, int month, int day, int hour, int min, int sec) {
+CDBDate CDBMakeCDBDateMonthEnd(int year, int month) {
+    int day;
+
     switch (month) {
         case 1: {
             day = 28;
@@ -101,11 +103,11 @@ CDBDate CDBMakeCDBDateMonthEnd(int year, int month, int day, int hour, int min, 
     return CDBMakeCDBDate(year, month, day, MAX_HOUR, MAX_MINUTE, MAX_SECOND);
 }
 
-CDBDate CDBMakeCDBDateYearBegin(int year, int month, int day, int hour, int min, int sec) {
+CDBDate CDBMakeCDBDateYearBegin(int year) {
     return CDBMakeCDBDate(year, MIN_MONTH - 1, MIN_DAY, MIN_HOUR, MIN_MINUTE, MIN_SECOND);
 }
 
-CDBDate CDBMakeCDBDateYearEnd(int year, int month, int day, int hour, int min, int sec) {
+CDBDate CDBMakeCDBDateYearEnd(int year) {
     return CDBMakeCDBDate(year, MAX_MONTH - 1, MAX_DAY, MAX_HOUR, MAX_MINUTE, MAX_SECOND);
 }
 
@@ -231,7 +233,7 @@ void CDBConvFileNameStrToFullPath(char* fullPath, char* yearStr, char* monthStr,
     CDBFSConcatenatePath(fullPath, fileNameStr);
 }
 
-CDBDate CDBConvDirStrToCDBDate(char* yearStr, char* monthStr, char* dayStr, char* hourStr, char* minuteStr, CDBLocation location, u64* wiiId) {
+CDBDate CDBConvDirStrToCDBDate(char* yearStr, char* monthStr, char* dayStr, char* hourStr, char* minuteStr) {
     return CDBMakeCDBDate(atoi(yearStr), atoi(monthStr), atoi(dayStr), atoi(hourStr), atoi(minuteStr), 0);
 }
 
