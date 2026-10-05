@@ -1191,9 +1191,6 @@ namespace ipl {
             return (wchar_t*)diskInMsgs->messages[lookup[SC_LANG_JAPANESE]];
         }
 
-// Unused?!!! force.
-#pragma push
-#pragma force_active on
         BOOL Manager::nand_error_handling(int code) {
             BOOL result = FALSE;
 
@@ -1232,8 +1229,6 @@ namespace ipl {
 
             return result;
         }
-
-#pragma pop
 
         SEntry* Manager::findEntryByTitleId(ESTitleId titleId) {
             for (int page = 0; page < MAX_CHANNEL_PAGE; page++) {

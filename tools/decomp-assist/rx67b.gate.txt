@@ -1,0 +1,98 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/dvd/dvd_broadway] pool: IDENTICAL
+[libs/RVL_SDK/src/dvd/dvd_broadway] objdiff: code 8900/8900 data 4248/4248 functions 30/30 fuzzy 100.0000 linked code 8900
+[libs/RVL_SDK/src/dvd/dvd_broadway] instruction-exact functions: 30/30
+[libs/RVL_SDK/src/dvd/dvd_broadway]   section .bss size 416 match 100.0
+[libs/RVL_SDK/src/dvd/dvd_broadway]   section .data size 3776 match 100.0
+[libs/RVL_SDK/src/dvd/dvd_broadway]   section .sbss size 40 match 100.0
+[libs/RVL_SDK/src/dvd/dvd_broadway]   section .sdata size 16 match 100.0
+[libs/RVL_SDK/src/dvd/dvd_broadway]   section .text size 8900 match 100.0
+[libs/RVL_SDK/src/dvd/dvd_broadway] baseline: code 8900/8900 data 4248 functions 30 fuzzy 100.0000
+[libs/RVL_SDK/src/os/OSReset] pool: IDENTICAL
+[libs/RVL_SDK/src/os/OSReset] objdiff: code 1308/1308 data 672/672 functions 8/8 fuzzy 100.0000 linked code 1308
+[libs/RVL_SDK/src/os/OSReset] instruction-exact functions: 8/8
+[libs/RVL_SDK/src/os/OSReset]   section .data size 648 match 100.0
+[libs/RVL_SDK/src/os/OSReset]   section .sbss size 16 match 100.0
+[libs/RVL_SDK/src/os/OSReset]   section .sdata size 8 match 100.0
+[libs/RVL_SDK/src/os/OSReset]   section .text size 1308 match 100.0
+[libs/RVL_SDK/src/os/OSReset] baseline: code 1308/1308 data 672 functions 8 fuzzy 100.0000
+[libs/RVL_SDK/src/usb/usb] pool: IDENTICAL
+[libs/RVL_SDK/src/usb/usb] objdiff: code 4396/4396 data 1712/1712 functions 13/13 fuzzy 100.0000 linked code 4396
+[libs/RVL_SDK/src/usb/usb] instruction-exact functions: 13/13
+[libs/RVL_SDK/src/usb/usb]   section .data size 1680 match 100.0
+[libs/RVL_SDK/src/usb/usb]   section .sbss size 16 match 100.0
+[libs/RVL_SDK/src/usb/usb]   section .sdata size 16 match 100.0
+[libs/RVL_SDK/src/usb/usb]   section .text size 4396 match 100.0
+[libs/RVL_SDK/src/usb/usb] baseline: code 4396/4396 data 1712 functions 13 fuzzy 100.0000
+[libs/RVL_SDK/src/wud/WUD] pool: IDENTICAL
+[libs/RVL_SDK/src/wud/WUD] objdiff: code 18852/18852 data 12016/12016 functions 66/66 fuzzy 100.0000 linked code 18852
+[libs/RVL_SDK/src/wud/WUD] instruction-exact functions: 66/66
+[libs/RVL_SDK/src/wud/WUD]   section .bss size 8104 match 100.0
+[libs/RVL_SDK/src/wud/WUD]   section .data size 3864 match 100.0
+[libs/RVL_SDK/src/wud/WUD]   section .sbss size 32 match 100.0
+[libs/RVL_SDK/src/wud/WUD]   section .sdata size 8 match 100.0
+[libs/RVL_SDK/src/wud/WUD]   section .sdata2 size 8 match 100.0
+[libs/RVL_SDK/src/wud/WUD]   section .text size 18852 match 100.0
+[libs/RVL_SDK/src/wud/WUD] baseline: code 18852/18852 data 12016 functions 66 fuzzy 100.0000
+[src/keyboard/tiPredictLang] pool: IDENTICAL
+[src/keyboard/tiPredictLang] objdiff: code 5536/5536 data 2300/2300 functions 36/36 fuzzy 100.0000 linked code 5536
+[src/keyboard/tiPredictLang] instruction-exact functions: 36/36
+[src/keyboard/tiPredictLang]   section .ctors size 4 match 100.0
+[src/keyboard/tiPredictLang]   section .data size 1672 match 100.0
+[src/keyboard/tiPredictLang]   section .rodata size 616 match 100.0
+[src/keyboard/tiPredictLang]   section .sdata size 8 match 100.0
+[src/keyboard/tiPredictLang]   section .text size 5536 match 100.0
+[src/keyboard/tiPredictLang] baseline: code 5536/5536 data 2300 functions 36 fuzzy 100.0000
+[src/system/RsoSystem] pool: IDENTICAL
+[src/system/RsoSystem] objdiff: code 2848/2848 data 96/96 functions 25/25 fuzzy 100.0000 linked code 2848
+[src/system/RsoSystem] instruction-exact functions: 25/25
+[src/system/RsoSystem]   section .data size 72 match 100.0
+[src/system/RsoSystem]   section .sdata size 16 match 100.0
+[src/system/RsoSystem]   section .sdata2 size 8 match 100.0
+[src/system/RsoSystem]   section .text size 2848 match 100.0
+[src/system/RsoSystem] baseline: code 2848/2848 data 96 functions 25 fuzzy 100.0000
+[src/system/TVRC] pool: IDENTICAL
+[src/system/TVRC] objdiff: code 2312/2312 data 280/280 functions 9/9 fuzzy 100.0000 linked code 2312
+[src/system/TVRC] instruction-exact functions: 9/9
+[src/system/TVRC]   section .bss size 96 match 100.0
+[src/system/TVRC]   section .sbss size 120 match 100.0
+[src/system/TVRC]   section .sdata size 32 match 100.0
+[src/system/TVRC]   section .sdata2 size 32 match 100.0
+[src/system/TVRC]   section .text size 2312 match 100.0
+[src/system/TVRC] baseline: code 2312/2312 data 280 functions 9 fuzzy 100.0000
+[src/system/iplChannelManager] pool: IDENTICAL
+[src/system/iplChannelManager] objdiff: code 12552/12552 data 1080/1080 functions 74/74 fuzzy 100.0000 linked code 12552
+[src/system/iplChannelManager] instruction-exact functions: 74/74
+[src/system/iplChannelManager]   section .data size 224 match 100.0
+[src/system/iplChannelManager]   section .rodata size 816 match 100.0
+[src/system/iplChannelManager]   section .sbss size 24 match 100.0
+[src/system/iplChannelManager]   section .sdata size 16 match 100.0
+[src/system/iplChannelManager]   section .text size 12552 match 100.0
+[src/system/iplChannelManager] baseline: code 12552/12552 data 1080 functions 74 fuzzy 100.0000
+[src/system/iplSystem] pool: IDENTICAL
+[src/system/iplSystem] objdiff: code 12456/12456 data 2228/2228 functions 63/63 fuzzy 100.0000 linked code 12456
+[src/system/iplSystem] instruction-exact functions: 63/63
+[src/system/iplSystem]   section .bss size 728 match 100.0
+[src/system/iplSystem]   section .ctors size 4 match 100.0
+[src/system/iplSystem]   section .data size 1416 match 100.0
+[src/system/iplSystem]   section .sdata size 32 match 100.0
+[src/system/iplSystem]   section .sdata2 size 48 match 100.0
+[src/system/iplSystem]   section .text size 12456 match 100.0
+[src/system/iplSystem] baseline: code 12456/12456 data 2228 functions 63 fuzzy 100.0000
+[src/utility/iplESMisc] pool: IDENTICAL
+[src/utility/iplESMisc] objdiff: code 9404/11200 data 4416/4416 functions 30/31 fuzzy 99.8625 linked code 0
+[src/utility/iplESMisc] instruction-exact functions: 30/31
+[src/utility/iplESMisc]   section .data size 4384 match 100.0
+[src/utility/iplESMisc]   section .sdata size 32 match 100.0
+[src/utility/iplESMisc]   section .text size 11200 match 99.8625
+[src/utility/iplESMisc]   below 100: DeleteUnauthorizedData__Q33ipl7utility6ESMiscFPQ23EGG4Heap 99.14254
+[src/utility/iplESMisc] baseline: code 9404/11200 data 4416 functions 30 fuzzy 99.8625
+regressions vs baseline: 0
+global matched_code_percent: 94.32581 -> 94.32581
+global fuzzy_match_percent: 99.82009 -> 99.82009
+global complete_code_percent: 81.01454 -> 81.01454
+global matched_data_percent: 99.99410 -> 99.99410
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS

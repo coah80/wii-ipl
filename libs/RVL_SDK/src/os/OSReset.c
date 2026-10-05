@@ -67,7 +67,32 @@ static char resetSource[] = "OSReset.c";
 static char hotResetFailure[] = "__OSHotReset(): Falied to reset system.\n";
 
 DECOMP_FORCE_ACTIVE(OSReset_c, "OSReturnToMenu(): Falied to boot system menu.\n");
-DECOMP_FORCE_ACTIVE(OSReset_c, "OSReturnToDataManager(): Falied to boot system menu.\n");
+
+void __OSReturnToMenu(u8 menuMode) {
+    OSStateFlags state;
+
+    __OSStopPlayRecord();
+    __OSUnRegisterStateEvent();
+    __DVDPrepareReset();
+    __OSReadStateFlags(&state);
+    state.discState = __OSGetDiscState(state.discState);
+    state.shutdownType = OS_STATE_FLAGS_SHUTDOWN_RETURN_MENU;
+    state.menuMode = menuMode;
+    __OSClearRTCFlags();
+    __OSWriteStateFlags(&state);
+    OSDisableScheduler();
+    __OSShutdownDevices(OS_SHUTDOWN_RETURN_MENU);
+    OSEnableScheduler();
+    __OSLaunchMenu();
+    OSDisableScheduler();
+    __VISetRGBModeImm();
+    __OSHotResetForError();
+}
+
+void OSReturnToDataManager(void) {
+    __OSReturnToMenu(OS_STATE_FLAGS_MENUMODE_DATA_MANAGER);
+    OSPanic(resetSource, __LINE__, "OSReturnToDataManager(): Falied to boot system menu.\n");
+}
 
 enum {
     LAUNCH_ARG_MENU = 0,
@@ -255,5 +280,11 @@ u32 OSGetResetCode() {
     return code;
 }
 
-DECOMP_FORCE_ACTIVE(OSReset_c, "OSResetSystem() is obsoleted. It doesn't work any longer.\n");
-DECOMP_FORCE_ACTIVE(OSReset_c, "OSSetBootDol() is obsoleted. It doesn't work any longer.\n");
+void OSResetSystem(int reset, u32 resetCode, int forceMenu) {
+    OSPanic(resetSource, __LINE__, "OSResetSystem() is obsoleted. It doesn't work any longer.\n");
+}
+
+u32 OSSetBootDol(u32 dolOffset) {
+    OSPanic(resetSource, __LINE__, "OSSetBootDol() is obsoleted. It doesn't work any longer.\n");
+    return 0;
+}

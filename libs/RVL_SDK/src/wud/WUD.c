@@ -1609,7 +1609,25 @@ static BOOL StopSync() {
     return success;
 }
 
-DECOMP_FORCE_ACTIVE(WUD_c1, "WUDStartSyncSpDevice()\n");
+BOOL WUDStartSyncSpDevice(u8 type) {
+    WUDCB* p_wcb = &_wcb;
+    WUDSyncDeviceCallback cb;
+    BOOL enable;
+    BOOL busy;
+
+    WUD_DEBUGPrint("WUDStartSyncSpDevice()\n");
+    busy = StartSyncDevice(1, -1, type, FALSE);
+
+    enable = OSDisableInterrupts();
+    cb = p_wcb->syncSmpCB;
+    OSRestoreInterrupts(enable);
+
+    if (!busy && cb) {
+        cb(-1, 0);
+    }
+
+    return busy;
+}
 DECOMP_FORCE_ACTIVE(WUD_c2, "WUDCancelSyncDevice()\n");
 
 BOOL WUDStopSyncSimple() {
@@ -1977,7 +1995,29 @@ void WUDiAutoSync() {
     }
 }
 
-DECOMP_FORCE_ACTIVE(WUD_c3, "WUDiCancelSync()\n");
+void WUDiCancelSync() {
+    WUDCB* p_wcb = &_wcb;
+    WUDSyncDeviceCallback callback;
+    BOOL enable;
+
+    WUD_DEBUGPrint("WUDiCancelSync()\n");
+
+    enable = OSDisableInterrupts();
+    if (p_wcb->syncState != 0) {
+        if (p_wcb->syncState == 3) {
+            BTA_DmSearchCancel();
+        }
+        OSCancelAlarm(&p_wcb->alarm);
+
+        callback = (p_wcb->syncType == 0) ? p_wcb->syncStdCB : p_wcb->syncSmpCB;
+        if (callback) {
+            callback(1, p_wcb->syncedNum);
+        }
+
+        p_wcb->syncState = 0;
+    }
+    OSRestoreInterrupts(enable);
+}
 
 void WUDiDeleteAllLinkKeys() {
     WUDCB* p = &_wcb;
@@ -2950,10 +2990,57 @@ u8 _WUDGetLinkNumber() {
     return num;
 }
 
-DECOMP_FORCE_ACTIVE(WUD_c4, "_WUDEnableTestMode\n")
-DECOMP_FORCE_ACTIVE(WUD_c5, "_WUDStartSyncDevice()\n")
-DECOMP_FORCE_ACTIVE(WUD_c6, "_WUDDeleteStoreDevice()\n")
-DECOMP_FORCE_ACTIVE(WUD_c7, "dev number = %d\n")
+BOOL _WUDEnableTestMode() {
+    tBTM_STATUS status;
+    BOOL enable;
+
+    WUD_DEBUGPrint("_WUDEnableTestMode\n");
+
+    status = BTM_EnableTestMode();
+    enable = (status == BTM_SUCCESS) ? TRUE : FALSE;
+
+    return enable;
+}
+
+void _WUDStartSyncDevice(BD_ADDR bd_addr, u8* bd_name) {
+    WUDCB* p_wcb = &_wcb;
+    BOOL enable;
+    s32 status;
+
+    WUD_DEBUGPrint("_WUDStartSyncDevice()\n");
+
+    enable = OSDisableInterrupts();
+    status = p_wcb->libStatus;
+    OSRestoreInterrupts(enable);
+
+    if (status == 3) {
+        if (WUDIsBusy() == FALSE) {
+            WUD_DEBUGPrint("start\n");
+            enable = OSDisableInterrupts();
+            p_wcb->syncState = 5;
+            p_wcb->syncedNum = 0;
+            memcpy(_discResp.devName, bd_name, 64);
+            memcpy(_discResp.devAddr, bd_addr, BD_ADDR_LEN);
+            OSCreateAlarm(&p_wcb->alarm);
+            OSSetPeriodicAlarm(&p_wcb->alarm, OSGetTime(), OSMillisecondsToTicks(20), SyncHandler0);
+            OSRestoreInterrupts(enable);
+        }
+    }
+}
+
+void _WUDDeleteStoredDevice() {
+    WUDCB* p_wcb = &_wcb;
+
+    WUD_DEBUGPrint("_WUDDeleteStoreDevice()\n");
+
+    WUDiDeleteAllLinkKeys();
+
+    do {
+        ;
+    } while (p_wcb->deleteState != 0);
+
+    WUD_DEBUGPrint("dev number = %d\n", WUDiGetDevNumber());
+}
 
 static u8 reset_auth_count_cmd[] = {0x30, 0x36, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -2962,4 +3049,21 @@ void WUDResetAuthFailCount() {
     BTM_VendorSpecificCommand(BT_VSC_NINTENDO_WRITE_PATCH, (u8)sizeof(reset_auth_count_cmd), reset_auth_count_cmd, NULL);
 }
 
-DECOMP_FORCE_ACTIVE(WUD_c8, "Nintendo RVL-WBC")
+WUDDevInfo* WUDiGetRemoveWbcDevice() {
+    WUDCB* p_wcb = &_wcb;
+    WUDDevInfo* p_info = NULL;
+    WUDDevInfoList* ptr;
+    BOOL enable;
+
+    enable = OSDisableInterrupts();
+    ptr = p_wcb->stdListHead;
+    while (ptr != NULL) {
+        if (!memcmp(ptr->devInfo->conf.devName, "Nintendo RVL-WBC", 16)) {
+            p_info = ptr->devInfo;
+        }
+        ptr = ptr->next;
+    }
+    OSRestoreInterrupts(enable);
+
+    return p_info;
+}
