@@ -648,7 +648,7 @@ config.libs = [
             Object(Matching,    "system/iplDialogWindow.cpp"),
             Object(Matching,    "system/iplHomeButtonMenu.cpp"),
             Object(Matching,    "system/iplNandSDWorker.cpp"),
-            Object(Equivalent,  "system/iplKeyboard.cpp"),
+            Object(Matching,    "system/iplKeyboard.cpp"),
             Object(Matching,    "system/iplErrorHandler.cpp"),
             Object(Matching,    "system/iplResetHandler.cpp"),
             Object(Matching,    "system/iplWarningHandler.cpp"),

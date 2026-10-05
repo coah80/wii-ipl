@@ -724,7 +724,15 @@ namespace ipl {
             addi r1, r1, 0x30
             blr
         }
+    }
+}
 
+textinput::extend::savedata::MemoSetting textinput::extend::memo::Manager::getSaveData() {
+    return mMemoSetting;
+}
+
+namespace ipl {
+    namespace keyboard {
         void Manager::touchFormInDisp(int unused) {
             mpManager->changeState(textinput::extend::memo::Manager::STL_Transition);
             snd::getSystem()->startSE("WIPL_SE_SK_OPEN");
@@ -748,7 +756,3 @@ namespace ipl {
         }
     }  // namespace keyboard
 }  // namespace ipl
-
-textinput::extend::savedata::MemoSetting textinput::extend::memo::Manager::getSaveData() {
-    return mMemoSetting;
-}
