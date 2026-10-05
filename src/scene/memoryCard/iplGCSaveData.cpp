@@ -49,9 +49,9 @@ namespace ipl {
             nw4r::lyt::Material* material = pane->FindMaterialByName("DataBanner_00");
             pane->SetVisible(true);
 
-            if (static_cast<MemoryCard*>(System::getScene(0xE))->getManager()->isIconValidate(mSlot, mIndex) &&
-                static_cast<MemoryCard*>(System::getScene(0xE))->getManager()->create_icon(mSlot, mIndex) != NULL) {
-                material->SetTexture(0, *static_cast<MemoryCard*>(System::getScene(0xE))
+            if (static_cast<MemoryCard*>(System::getScene(SCENE_MEMORY_CARD))->getManager()->isIconValidate(mSlot, mIndex) &&
+                static_cast<MemoryCard*>(System::getScene(SCENE_MEMORY_CARD))->getManager()->create_icon(mSlot, mIndex) != NULL) {
+                material->SetTexture(0, *static_cast<MemoryCard*>(System::getScene(SCENE_MEMORY_CARD))
                                             ->getManager()
                                             ->create_icon(mSlot, mIndex));
             } else {
@@ -80,12 +80,12 @@ namespace ipl {
         void GCSaveData::onPoint(const char* paneName, controller::Interface* controller) {
             AnmButton* button = get_anmbutton(paneName);
             if (button != NULL) {
-                if (button->unk_0x04 == 0) {
-                    if (System::getScene(0xE) != NULL) {
-                        if (static_cast<MemoryCard*>(System::getScene(0xE))
+                if (button->mHoverCount == 0) {
+                    if (System::getScene(SCENE_MEMORY_CARD) != NULL) {
+                        if (static_cast<MemoryCard*>(System::getScene(SCENE_MEMORY_CARD))
                                 ->getManager()
                                 ->isIconValidate(mSlot, mIndex)) {
-                            mpBalloon->init(static_cast<MemoryCard*>(System::getScene(0xE))
+                            mpBalloon->init(static_cast<MemoryCard*>(System::getScene(SCENE_MEMORY_CARD))
                                                 ->getManager()
                                                 ->getComment(mSlot, mIndex, 0),
                                             0);
@@ -100,25 +100,25 @@ namespace ipl {
                     }
                     button->onCmdRecv(1);
                 }
-                button->unk_0x04++;
+                button->mHoverCount++;
             }
         }
 
         void GCSaveData::onLeft(const char* paneName) {
             AnmButton* button = get_anmbutton(paneName);
             if (button != NULL) {
-                if (button->unk_0x04 == 1) {
+                if (button->mHoverCount == 1) {
                     button->onCmdRecv(2);
                 }
-                button->unk_0x04--;
+                button->mHoverCount--;
             }
         }
 
         void GCSaveData::onTrig(const char* paneName) {
-            if (static_cast<MemoryCard*>(System::getScene(0xE)) != NULL &&
-                static_cast<MemoryCard*>(System::getScene(0xE))->getManager()->isIconValidate(mSlot, mIndex) &&
+            if (System::getScene(SCENE_MEMORY_CARD) != NULL &&
+                static_cast<MemoryCard*>(System::getScene(SCENE_MEMORY_CARD))->getManager()->isIconValidate(mSlot, mIndex) &&
                 get_anmbutton(paneName) != NULL) {
-                static_cast<MemoryCard*>(System::getScene(0xE))->onFocus(this);
+                static_cast<MemoryCard*>(System::getScene(SCENE_MEMORY_CARD))->onFocus(this);
             }
         }
 

@@ -285,10 +285,10 @@ FaderSceneCommand SDChannelTitle::calcFadein() {
     }
     if (!mpFade->isPlaying()) {
         iplSDChannelTitle_playBannerIntro(this);
-        SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
+        SDButton* button = static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON));
         button->setEventHandler(mpButtonEventHandler);
-        button->animation(13);
-        button->animation(14);
+        button->animation(SDButton::IDANIM_ARROW_LEFT_APPEAR);
+        button->animation(SDButton::IDANIM_ARROW_RIGHT_APPEAR);
         mState = 1;
         return FADER_SCN_NEXT;
     } else {
@@ -311,7 +311,7 @@ FaderSceneCommand SDChannelTitle::calcNormal() {
     case 15: iplSDChannelTitle_updateCopyStart(this); break;
     case 16: iplSDChannelTitle_updateAfterClearTmp(this); break;
     case 17: SCSetTmpTitleID(mTitleId); SCFlushAsync(NULL); mState = 18; break;
-    case 18: if (SCCheckStatus() != 1) { mState = 21; } break;
+    case 18: if (SCCheckStatus() != SC_STATUS_BUSY) { mState = 21; } break;
     case 19: iplSDChannelTitle_startCopyProgress(this); break;
     case 20: iplSDChannelTitle_updateCopyPrepare(this); break;
     case 23: iplSDChannelTitle_updateMemoryCalc(this); break;
@@ -339,33 +339,33 @@ FaderSceneCommand SDChannelTitle::calcNormal() {
 }
 
 void SDChannelTitle::initCalcFadeout() {
-    SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
+    SDButton* button = static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON));
     if (mState == 5 || mState == 7 || mState == 31) {
         System::getFader()->fadeOut();
         snd::getSystem()->stopAllSound(20);
         OSReport("sound stopped\n");
     } else if (mState == 6) {
-        button->animation(15);
-        button->animation(16);
+        button->animation(SDButton::IDANIM_ARROW_LEFT_DISAPPEAR);
+        button->animation(SDButton::IDANIM_ARROW_RIGHT_DISAPPEAR);
     }
     button->setEventHandler(NULL);
 }
 
 FaderSceneCommand SDChannelTitle::calcFadeout() {
     if (mState == 5) {
-        if (!mWpadStopTick && WPADGetStatus() == 0) {
+        if (!mWpadStopTick && WPADGetStatus() == WPAD_LIB_STATUS_0) {
             mWpadStopTick = OSGetTick();
         }
         if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN && System::isReceiveScheduleStopped() &&
             (!System::getNwc24Manager() || System::getNwc24Manager()->isReceivingIdle())) {
             OSReport("NWC24 Scheduler stopped.\n");
             NandSDWorker* worker = mpChannelSelect->getWorker();
-            if (mNextScene == 17) {
+            if (mNextScene == SCENE_UNLOCKED_TITLE) {
                 if (!nandwall::checkNandCapacityAppBootable()) {
                     OSReport("Nand full! OSRebootSystem.\n");
                     iplSDChannelTitle_rebootSystem(this);
                 }
-                while (WPADGetStatus() != 0 || System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8 ||
+                while (WPADGetStatus() != WPAD_LIB_STATUS_0 || System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8 ||
                        !System::getSaveData()->isFinished(mpSaveFile) ||
                        (mScriptEnabled && mScriptState != 4) || (worker && worker->is_working())) {
                     snd::getSystem()->calc();
@@ -374,7 +374,7 @@ FaderSceneCommand SDChannelTitle::calcFadeout() {
                     if (mScriptEnabled == 1) {
                         iplSDChannelTitle_updateScript(this);
                     }
-                    if (WPADGetStatus() != 0) {
+                    if (WPADGetStatus() != WPAD_LIB_STATUS_0) {
                         OSReport("wait for WPAD\n");
                     }
                     if (System::getBS2Manager()->getIPLState() != bs2::IPL_STATE_8) {
@@ -537,7 +537,7 @@ extern "C" void iplSDChannelTitle_createBannerLayout(SDChannelTitle* scene) {
         scene->mpIconLayout->destroyHeap();
         scene->mpIconLayout = NULL;
     }
-    if (scene->mpBannerFiles[scene->mLoadedIndex] && scene->mpBannerFiles[scene->mLoadedIndex]->checkData() == 1) {
+    if (scene->mpBannerFiles[scene->mLoadedIndex] && scene->mpBannerFiles[scene->mLoadedIndex]->checkData() == nand::RESULT_SUCCESS) {
         scene->mpBannerLayout = layout::Object::create(scene->mpBannerHeap, 0x40000,
             scene->mpBannerFiles[scene->mLoadedIndex], "arc", "banner.brlyt");
         iplSDChannelObj_applyLanguageGroups(scene->mpBannerLayout);
@@ -574,7 +574,7 @@ extern "C" void iplSDChannelTitle_createIconLayout(SDChannelTitle* scene) {
 }
 
 extern "C" void iplSDChannelTitle_updateIdleState(SDChannelTitle* scene) {
-    SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
+    SDButton* button = static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON));
     if (button && button->isActive()) {
         button->update();
     }
@@ -586,11 +586,11 @@ extern "C" void iplSDChannelTitle_updateIdleState(SDChannelTitle* scene) {
             controller::Interface* controller = System::getMasterController();
             int page;
             int index;
-            if (controller->down(0x30001000)) {
+            if (controller->down(controller::BTN_NEXT_LEFT)) {
                 scene->mpChannelSelect->findAdjacentChannel(1, &page, &index);
                 iplSDChannelTitle_setPageAndIndex(scene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
-            } else if (controller->down(0x6000010)) {
+            } else if (controller->down(controller::BTN_NEXT_RIGHT)) {
                 scene->mpChannelSelect->findAdjacentChannel(0, &page, &index);
                 iplSDChannelTitle_setPageAndIndex(scene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
@@ -648,11 +648,11 @@ extern "C" void iplSDChannelTitle_updateChangeWait(SDChannelTitle* scene) {
 }
 
 extern "C" void iplSDChannelTitle_updateParentalResult(SDChannelTitle* scene) {
-    ParentalDialog* parental = static_cast<ParentalDialog*>(System::getScene(0x1b));
+    ParentalDialog* parental = static_cast<ParentalDialog*>(System::getScene(SCENE_PARENTAL_DIALOG));
     if (!parental && !System::getReservedScene()) {
         if (scene->mParentalResult == 1) {
-            if (scene->mNextScene == 0x12) {
-                scene->reserveAllSceneDestruction(0x12, reinterpret_cast<void*>(1));
+            if (scene->mNextScene == SCENE_SETTING) {
+                scene->reserveAllSceneDestruction(SCENE_SETTING, reinterpret_cast<void*>(1));
                 scene->mState = 7;
             } else if (scene->mbCopiedTitle) {
                 scene->mState = 25;
@@ -663,8 +663,8 @@ extern "C" void iplSDChannelTitle_updateParentalResult(SDChannelTitle* scene) {
             scene->mState = 29;
         } else {
             scene->mpButtonAnimations[1][0]->play();
-            static_cast<SDButton*>(System::getScene(0x24))->animation(13);
-            static_cast<SDButton*>(System::getScene(0x24))->animation(14);
+            static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_LEFT_APPEAR);
+            static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_RIGHT_APPEAR);
             for (int button = 0; button < 2; ++button) {
                 scene->mHoverCounts[button] = 0;
                 scene->mpPaneManager->initPane(scene->mpLayout->FindPaneByName(sButtonNames[button]));
@@ -698,8 +698,8 @@ extern "C" void iplSDChannelTitle_updateDialogResult(SDChannelTitle* scene) {
         if (scene->mbCopiedTitle) {
             scene->mState = 29;
         } else {
-            static_cast<SDButton*>(System::getScene(0x24))->animation(13);
-            static_cast<SDButton*>(System::getScene(0x24))->animation(14);
+            static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_LEFT_APPEAR);
+            static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_RIGHT_APPEAR);
             scene->mpButtonAnimations[1][0]->play();
             for (int button = 0; button < 2; ++button) {
                 scene->mHoverCounts[button] = 0;
@@ -714,7 +714,7 @@ extern "C" void iplSDChannelTitle_updateDialogResult(SDChannelTitle* scene) {
         if (iplSDChannelTitle_isParentalEnabled()) {
             iplSDChannelTitle_openParentalDialog(scene, reinterpret_cast<void*>(1));
         } else {
-            scene->reserveAllSceneDestruction(0x12, reinterpret_cast<void*>(1));
+            scene->reserveAllSceneDestruction(SCENE_SETTING, reinterpret_cast<void*>(1));
             scene->mState = 7;
         }
         break;
@@ -755,8 +755,8 @@ extern "C" void iplSDChannelTitle_updateCopyPrepare(SDChannelTitle* scene) {
     }
     {
         int result = scene->mpChannelSelect->getWorker()->get_async_result();
-        if (result == 0 || result == -6) {
-            if (scene->mpChannelSelect->isCurrentTitleUsageEnough(reinterpret_cast<const s32*>(&scene->mTitleRange))) {
+        if (result == NandSDWorker::RESULT_OK || result == NandSDWorker::RESULT_ALREADY_EXISTS) {
+            if (scene->mpChannelSelect->isCurrentTitleUsageEnough(&scene->mTitleRange.mByteSize)) {
                 scene->mState = 15;
             } else {
                 SDMemory::TitleRange sdRange;
@@ -778,7 +778,7 @@ extern "C" void iplSDChannelTitle_updateCopyPrepare(SDChannelTitle* scene) {
         } else if (static_cast<u32>(result + 15) <= 1) {
             scene->mState = 26;
             scene->mErrorMessage = 0xaf;
-        } else if (result == -16) {
+        } else if (result == NandSDWorker::RESULT_VERSION_ERR) {
             scene->mState = 26;
             scene->mErrorMessage = 199;
         } else {
@@ -802,7 +802,7 @@ extern "C" void iplSDChannelTitle_updateMemoryCalc(SDChannelTitle* scene) {
     }
     switch (static_cast<s32>(scene->mMemory.mErrorCode)) {
     case 4:
-        scene->reserveAllSceneDestruction(0x15, reinterpret_cast<void*>(2));
+        scene->reserveAllSceneDestruction(SCENE_SETTING_BG, reinterpret_cast<void*>(2));
         scene->mState = 31;
         return;
     case 1:
@@ -878,7 +878,7 @@ extern "C" void iplSDChannelTitle_updateCopyProgress(SDChannelTitle* scene) {
     scene->mpProgressLayout->getAnim(2)->initAnmFrame(NandSDWorker::getCompletionPct());
     if (!scene->mpChannelSelect->getWorker()->is_working()) {
         int result = scene->mpChannelSelect->getWorker()->get_async_result();
-        if (result == 0 || result == -6) {
+        if (result == NandSDWorker::RESULT_OK || result == NandSDWorker::RESULT_ALREADY_EXISTS) {
             System::getChannelManager()->loadTmpMetaHeader(scene->mTitleId);
             scene->mpProgressLayout->getAnim(3)->stop();
             snd::getSystem()->stopSE(scene->mpCopySound, 0);
@@ -890,9 +890,9 @@ extern "C" void iplSDChannelTitle_updateCopyProgress(SDChannelTitle* scene) {
             SCSetTmpTitleID(0);
             SCFlushAsync(NULL);
             scene->mState = 26;
-            if (result == -15) {
+            if (result == NandSDWorker::RESULT_NOT_TRANSFERRABLE) {
                 scene->mErrorMessage = 0xaf;
-            } else if (result == -16) {
+            } else if (result == NandSDWorker::RESULT_VERSION_ERR) {
                 scene->mErrorMessage = 199;
             } else {
                 scene->mErrorMessage = 0xae;
@@ -910,7 +910,7 @@ extern "C" void iplSDChannelTitle_showCopyError(SDChannelTitle* scene) {
 }
 
 extern "C" void iplSDChannelTitle_updateCopyErrorDialog(SDChannelTitle* scene) {
-    if (SCCheckStatus() != 1 && System::getDialog()->getLastResult() != -1) {
+    if (SCCheckStatus() != SC_STATUS_BUSY && System::getDialog()->getLastResult() != -1) {
         scene->mState = 29;
     }
 }
@@ -928,8 +928,8 @@ extern "C" void iplSDChannelTitle_finishProgressHide(SDChannelTitle* scene) {
         scene->mpButtonAnimations[6][5]->play();
         scene->mpButtonAnimations[1][0]->initAnmFrame();
         scene->mpButtonAnimations[1][0]->play();
-        static_cast<SDButton*>(System::getScene(0x24))->animation(13);
-        static_cast<SDButton*>(System::getScene(0x24))->animation(14);
+        static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_LEFT_APPEAR);
+        static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_RIGHT_APPEAR);
         System::startReceiveSchedule();
         scene->mState = 30;
     }
@@ -987,7 +987,7 @@ extern "C" void iplSDChannelTitle_updateTmdReady(SDChannelTitle* scene) {
         scene->mMakerCode = scene->mpTmd->head.groupId;
         if (!iplSDChannelTitle_isNetworkAllowed(scene, scene->mpTmd, scene->mTitleId)) {
             iplSDChannelTitle_confirmLeaveToSettings(scene, false);
-            scene->mNextScene = 18;
+            scene->mNextScene = SCENE_SETTING;
         } else if (iplSDChannelTitle_passesParentalCheck(scene, scene->mpTmd)) {
             iplSDChannelTitle_prepareSceneExit(scene, scene->mNextScene);
             if (scene->mbCopiedTitle) {
@@ -1105,7 +1105,7 @@ extern "C" void iplSDChannelTitle_updateScriptLoad(SDChannelTitle* scene) {
     if (!scene->mpScriptFile->isFinished()) {
         return;
     }
-    if (scene->mpScriptFile->checkData() != 1 && scene->mpScriptFile->checkData() != 0) {
+    if (scene->mpScriptFile->checkData() != nand::RESULT_SUCCESS && scene->mpScriptFile->checkData() != nand::RESULT_NONE) {
         scene->mScriptFrame = 0;
         scene->mbScriptFailed = true;
         scene->mScriptState = 0;
@@ -1164,7 +1164,7 @@ extern "C" void iplSDChannelTitle_playBannerIntro(SDChannelTitle* scene) {
 }
 
 extern "C" void iplSDChannelTitle_startBannerSound(SDChannelTitle* scene) {
-    if (scene->mpSoundFiles[scene->mLoadedIndex] && scene->mpSoundFiles[scene->mLoadedIndex]->checkData() == 1) {
+    if (scene->mpSoundFiles[scene->mLoadedIndex] && scene->mpSoundFiles[scene->mLoadedIndex]->checkData() == nand::RESULT_SUCCESS) {
         void* sound = scene->mpSoundFiles[scene->mLoadedIndex]->getBuffer();
         u32 size = System::getChannelManager()->getSoundSize(scene->mTitleId);
         snd::getSystem()->startBannerSound(sound, size, false);
@@ -1244,11 +1244,11 @@ extern "C" BOOL iplSDChannelTitle_isParentalEnabled() {
 extern "C" void iplSDChannelTitle_openParentalDialog(SDChannelTitle* scene, void* arguments) {
     System::getHomeButtonMenu()->enable();
     scene->mbResetAcceptable = true;
-    if (static_cast<SDButton*>(System::getScene(0x24))->isLeftArrowVisible()) {
-        static_cast<SDButton*>(System::getScene(0x24))->animation(15);
-        static_cast<SDButton*>(System::getScene(0x24))->animation(16);
+    if (static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->isLeftArrowVisible()) {
+        static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_LEFT_DISAPPEAR);
+        static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_RIGHT_DISAPPEAR);
     }
-    scene->createChildScene(0x1b, scene, NULL, arguments);
+    scene->createChildScene(SCENE_PARENTAL_DIALOG, scene, NULL, arguments);
     scene->mParentalResult = 0;
     scene->mState = 11;
 }
@@ -1283,8 +1283,8 @@ extern "C" void iplSDChannelTitle_beginLaunch(SDChannelTitle* scene, SDChannelOb
 extern "C" void iplSDChannelTitle_cleanupAndLeave(SDChannelTitle* scene) {
     scene->mParentalResult = 0;
     scene->mbStartAnimation = false;
-    static_cast<SDButton*>(System::getScene(0x24))->animation(15);
-    static_cast<SDButton*>(System::getScene(0x24))->animation(16);
+    static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_LEFT_DISAPPEAR);
+    static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_RIGHT_DISAPPEAR);
     if (scene->mpBannerFiles[scene->mLoadedIndex]) {
         delete scene->mpBannerFiles[scene->mLoadedIndex];
     }
@@ -1299,12 +1299,12 @@ extern "C" void iplSDChannelTitle_cleanupAndLeave(SDChannelTitle* scene) {
     scene->mpSoundFiles[scene->mLoadedIndex] = NULL;
     int page;
     int index;
-    bool hasTitle = System::getChannelManager()->hasChannel(scene->mTitleId, &page, &index) != 0;
+    bool hasTitle = System::getChannelManager()->hasChannel(scene->mTitleId, &page, &index);
     bool hasTemporaryTitle = false;
     if (scene->mTitleId == SCGetTmpTitleID() && System::getChannelManager()->isLoadedTmp()) {
         hasTemporaryTitle = true;
     }
-    scene->mNextScene = 17;
+    scene->mNextScene = SCENE_UNLOCKED_TITLE;
     scene->mbTmdReady = false;
     scene->mMakerCode = 0;
     scene->mbResetAcceptable = false;
@@ -1324,12 +1324,12 @@ extern "C" void iplSDChannelTitle_cleanupAndLeave(SDChannelTitle* scene) {
 
 extern "C" void iplSDChannelTitle_confirmLeaveToSettings(SDChannelTitle* scene, bool settings) {
     if (settings) {
-        scene->reserveAllSceneDestruction(0x12, reinterpret_cast<void*>(1));
+        scene->reserveAllSceneDestruction(SCENE_SETTING, reinterpret_cast<void*>(1));
         scene->mState = 7;
     } else {
-        if (static_cast<SDButton*>(System::getScene(0x24))->isLeftArrowVisible()) {
-            static_cast<SDButton*>(System::getScene(0x24))->animation(15);
-            static_cast<SDButton*>(System::getScene(0x24))->animation(16);
+        if (static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->isLeftArrowVisible()) {
+            static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_LEFT_DISAPPEAR);
+            static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON))->animation(SDButton::IDANIM_ARROW_RIGHT_DISAPPEAR);
         }
         System::getDialog()->callBtn2(0x143, 0x146, 0x25, false);
         scene->mState = 12;
@@ -1345,7 +1345,7 @@ extern "C" void iplSDChannelTitle_prepareSceneExit(SDChannelTitle* scene, int ne
             controller->cancelRumbling();
         }
     }
-    if (nextScene == 17) {
+    if (nextScene == SCENE_UNLOCKED_TITLE) {
         System::getHomeButtonMenu()->disable();
         scene->mbResetAcceptable = false;
     }
@@ -1469,11 +1469,11 @@ extern "C" BOOL iplSDChannelTitle_passesParentalCheck(SDChannelTitle* scene, EST
 
 void SDTitlePaneEventHandler::onEvent(u32 component, u32 event, void* data) {
     SDTitlePaneEventHandler* handler = this;
-    const controller::Interface* controller = static_cast<const controller::Interface*>(data);
+    controller::Interface* controller = static_cast<controller::Interface*>(data);
     const char* paneName = handler->getPane(component)->GetName();
     switch (event) {
     case ::gui::EventHandler::ON_TRIG: {
-        if (handler->mpScene->mState == 1 && controller->downTrg(0x100800)) {
+        if (handler->mpScene->mState == 1 && controller->downTrg(controller::BTN_INTERACT)) {
             if (strcmp(paneName, sButtonNames[0]) == 0) {
                 handler->mpScene->mpButtonAnimations[2][2]->play();
                 snd::getSystem()->startSE("WIPL_SE_BT_PUSH");
@@ -1500,7 +1500,7 @@ void SDTitlePaneEventHandler::onEvent(u32 component, u32 event, void* data) {
                 if (handler->mpScene->mHoverCounts[button] <= 1) {
                     handler->mpScene->mpButtonAnimations[button][1]->play();
                     snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
-                    const_cast<controller::Interface*>(controller)->rumble(0);
+                    controller->rumble(0);
                     break;
                 }
             }
@@ -1531,21 +1531,21 @@ void SDTitleButtonEventHandler::onEventDerived(u32 component, u32 event, const c
     SDTitleButtonEventHandler* handler = this;
     const char* name = handler->getPane(component)->GetName();
     switch (event) {
-    case 0:
-        if (handler->mpScene->mState == 1 && controller->downTrg(0x100800)) {
-            SDButton* button = static_cast<SDButton*>(System::getScene(0x24));
+    case ::gui::EventHandler::ON_TRIG:
+        if (handler->mpScene->mState == 1 && controller->downTrg(controller::BTN_INTERACT)) {
+            SDButton* button = static_cast<SDButton*>(System::getScene(SCENE_SD_BUTTON));
             if (strcmp(name, SDButton::getButtonName(SDButton::BTN_ARROW_LEFT)) == 0) {
                 int page;
                 int index;
                 handler->mpScene->mpChannelSelect->findAdjacentChannel(1, &page, &index);
-                button->animation(7);
+                button->animation(SDButton::IDANIM_ARROW_LEFT_CLICK);
                 iplSDChannelTitle_setPageAndIndex(handler->mpScene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
             } else if (strcmp(name, SDButton::getButtonName(SDButton::BTN_ARROW_RIGHT)) == 0) {
                 int page;
                 int index;
                 handler->mpScene->mpChannelSelect->findAdjacentChannel(0, &page, &index);
-                button->animation(8);
+                button->animation(SDButton::IDANIM_ARROW_RIGHT_CLICK);
                 iplSDChannelTitle_setPageAndIndex(handler->mpScene, page, index);
                 snd::getSystem()->startSE("WSD_SELECT");
             }

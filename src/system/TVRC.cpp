@@ -130,7 +130,7 @@ BOOL TVRCInit(void* pRsrc) {
         return FALSE;
     }
 
-    if (ARCInitHandle(pRsrc, &_database) == FALSE) {
+    if (!ARCInitHandle(pRsrc, &_database)) {
         _lastError = 4;
         return FALSE;
     }
@@ -154,10 +154,10 @@ BOOL TVRCSetModelType(int makerID, int typeNo, void* pFileData, int length) {
 
     ARCFileInfo file;
 
-    if (_isInitialized == FALSE || _database.archiveStartAddr == NULL) {
+    if (!_isInitialized || _database.archiveStartAddr == NULL) {
         return FALSE;
     }
-    if (((ARCHeader*)_database.archiveStartAddr)->magic != ARC_MAGIC) {
+    if (static_cast<ARCHeader*>(_database.archiveStartAddr)->magic != ARC_MAGIC) {
         return FALSE;
     }
     if (makerID == _makerID && typeNo == _typeNo) {
@@ -177,7 +177,7 @@ BOOL TVRCSetModelType(int makerID, int typeNo, void* pFileData, int length) {
     }
     ARCCloseDir(&dir);
 
-    if (ARCFastOpen(&_database, dirEntry.entryNum, &file) == FALSE) {
+    if (!ARCFastOpen(&_database, dirEntry.entryNum, &file)) {
         _lastError = 6;
         return FALSE;
     }
@@ -188,7 +188,7 @@ BOOL TVRCSetModelType(int makerID, int typeNo, void* pFileData, int length) {
     }
     memcpy(pFileData, ARCGetStartAddrInMem(&file), fileLen);
 
-    _tvrcFile = (_FileData*)pFileData;
+    _tvrcFile = static_cast<_FileData*>(pFileData);
     _makerID = makerID;
     _typeNo = typeNo;
     _database.archiveStartAddr = NULL;
@@ -478,13 +478,13 @@ void LibTVRC::__FTVRCLoop0Handler(OSAlarm* alarm, OSContext* ctx) {
 
 namespace LibTVRC {
     void __FTVRCLoop1Handler(OSAlarm *alarm, OSContext *ctx) {
-        if (_ctCombo != 0 && _isActive != 0) {
+        if (_ctCombo != 0 && _isActive) {
             if (_func1state == -1) {
                 _unitStartTime = OSGetTime();
                 _func1state = 0;
             }
 
-            if (_isLastOnOff != 0) {
+            if (_isLastOnOff) {
                 _unitLastTime = OSGetTime();
 
                 if (_func1state == 0) {
@@ -494,7 +494,7 @@ namespace LibTVRC {
                     return;
                 }
 
-                BOOL active = (int)(_unitLastTime - _unitStartTime) < (int)(*(u32*)&_tickT * _ctCombo);
+                BOOL active = (int)(_unitLastTime - _unitStartTime) < (int)(_tickT * _ctCombo);
                 WPADSetSensorBarPower(FALSE);
                 _func1state = 0;
                 if (active) {
@@ -504,7 +504,7 @@ namespace LibTVRC {
                 }
             } else {
                 WPADSetSensorBarPower(FALSE);
-                OSSetAlarm(&_alarm, *(u32*)&_tickT * _ctCombo, __FTVRCLoop0Handler);
+                OSSetAlarm(&_alarm, _tickT * _ctCombo, __FTVRCLoop0Handler);
             }
         }
     }

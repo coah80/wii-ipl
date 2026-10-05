@@ -806,7 +806,7 @@ namespace ipl {
             }
 
             if (System::getDialog()->getLastResult() != -1) {
-                if (mpSDChannelSelect->getWorker()->get_async_result() == 0) {
+                if (mpSDChannelSelect->getWorker()->get_async_result() == NandSDWorker::RESULT_OK) {
                     mNandTitleCount = mTitleListState.mSecondaryCount;
                     mTitleNameCount = mTitleListState.mNameCount;
                 } else {
@@ -958,7 +958,7 @@ namespace ipl {
         void SDMemory::onDialogState13() {
             if (!mpSDChannelSelect->getWorker()->is_working()) {
                 s32 result = mpSDChannelSelect->getWorker()->get_async_result();
-                if (result == 0) {
+                if (result == NandSDWorker::RESULT_OK) {
                     ESTitleId titleId = mTitleIds[mCurrentTitle];
                     if (iplSDMemory_containsTitleId(this, titleId,
                                              mNandTitleIds, mNandTitleCount)) {
@@ -967,7 +967,7 @@ namespace ipl {
                         mDialogState = 13;
                     }
                 } else {
-                    if (result > 0) {
+                    if (result > NandSDWorker::RESULT_OK) {
                         System::getDialog()->terminate();
                         mDialogState = 20;
                         mErrorCode = 2;
@@ -1028,12 +1028,12 @@ namespace ipl {
 
             if (!mpSDChannelSelect->getWorker()->is_working()) {
                 s32 result = mpSDChannelSelect->getWorker()->get_async_result();
-                if (result == 0) {
+                if (result == NandSDWorker::RESULT_OK) {
                     mDialogState = 15;
                 } else {
                     System::getDialog()->terminate();
                     mDialogState = 20;
-                    if (result == -7) {
+                    if (result == NandSDWorker::RESULT_OUT_OF_SPACE) {
                         mErrorCode = 2;
                         mMessageId = 0xB5;
                     } else {
@@ -1069,7 +1069,7 @@ namespace ipl {
             const ESTitleId* titleEntry = &mTitleIds[mCurrentTitle];
             System::getChannelManager()->unloadBanner(*titleEntry);
 
-            if (mpSDChannelSelect->getWorker()->get_async_result() == 0) {
+            if (mpSDChannelSelect->getWorker()->get_async_result() == NandSDWorker::RESULT_OK) {
                 mCurrentTitle++;
                 if (mTitleCount > mCurrentTitle) {
                     ESTitleId nextTitleId = mTitleIds[mCurrentTitle];
@@ -1114,7 +1114,7 @@ namespace ipl {
 
         void SDMemory::onDialogState19() {
             if (!mpSDChannelSelect->getWorker()->is_working()) {
-                if (mpSDChannelSelect->getWorker()->get_async_result() == 0) {
+                if (mpSDChannelSelect->getWorker()->get_async_result() == NandSDWorker::RESULT_OK) {
                     mDialogState = 13;
                 } else {
                     System::getDialog()->terminate();
