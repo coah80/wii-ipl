@@ -170,11 +170,17 @@ namespace ipl {
             mpKeyboardMgr->cancel();
         }
 
+        static inline textinput::extend::savedata::MemoSetting loadMemoSetting() {
+            textinput::extend::savedata::MemoSetting memoSetting;
+            memoSetting = System::getSaveData()->getMemoSetting();
+            return memoSetting;
+        }
+
         void Manager::create(nand::File* file, EGG::Heap* heap) {
             u8* arcBuffer = file->getBuffer();
 
             // Open arc
-            nw4r::lyt::ArcResourceLink* arcLink = new (heap, 4) nw4r::lyt::ArcResourceLink();
+            nw4r::lyt::ArcResourceLink* const arcLink = new (heap, 4) nw4r::lyt::ArcResourceLink();
             arcLink->Set(arcBuffer, "arc");
             nw4r::lyt::MultiArcResourceAccessor* multiArc = new (heap, 4) nw4r::lyt::MultiArcResourceAccessor();
             multiArc->Attach(arcLink);
@@ -198,7 +204,7 @@ namespace ipl {
             multiArc->RegistFont(&wbf2Private);
 
             // Allocators
-            EGG::Allocator* allocator = new (heap, 4) EGG::Allocator(heap, 4);
+            EGG::Allocator* const allocator = new (heap, 4) EGG::Allocator(heap, 4);
             nw4r::lyt::Layout::SetAllocator(allocator);
 
             u8* systemDict = NULL;
@@ -206,20 +212,22 @@ namespace ipl {
 
 #ifdef USE_ZI8
             // Zi dictionaries
-            for (int i = 0, oemIndex = EZTX_LANG_MAX; i < EZTX_LANG_MAX; i++, oemIndex++) {
+            for (u32 i = 0; i < EZTX_LANG_MAX; i++) {
                 if (systemDict == NULL && System::getZiDicData(i) != NULL) {
                     systemDict = System::getZiDicData(i);
                 }
                 if (oemDict == NULL && System::getZiDicData(i) != NULL) {
-                    oemDict = System::getZiOemDicData(oemIndex - EZTX_LANG_MAX);
+                    oemDict = System::getZiDicData()[static_cast<int>(i + EZTX_LANG_MAX)];
                 }
             }
 
-            for (int i = 0, oemIndex = EZTX_LANG_MAX; i < EZTX_LANG_MAX; i++, oemIndex++) {
+            for (u32 i = 0; i < EZTX_LANG_MAX; i++) {
                 u8* usedSystemDict = System::getZiDicData(i);
-                u8* usedOemDict = System::getZiOemDicData(oemIndex - EZTX_LANG_MAX);
+                u8* usedOemDict = System::getZiDicData()[static_cast<int>(i + EZTX_LANG_MAX)];
 
-                usedSystemDict = usedSystemDict != NULL ? usedSystemDict : systemDict;
+                if (usedSystemDict == NULL) {
+                    usedSystemDict = systemDict;
+                }
                 if (usedOemDict == NULL) {
                     usedOemDict = oemDict;
                 }
@@ -230,11 +238,7 @@ namespace ipl {
 #endif  // USE_ZI8
 
             // Save data
-            textinput::extend::savedata::MemoSetting memoSettingCopy;
-            textinput::extend::savedata::MemoSetting memoSetting;
-            memoSetting = System::getSaveData()->getMemoSetting();
-            memoSettingCopy = memoSetting;
-            mSaveData = memoSettingCopy;
+            mSaveData = textinput::extend::savedata::MemoSetting(loadMemoSetting());
 
             // Memo manager
             mpManager = new (heap, 4) textinput::MemoManager(allocator, multiArc, &mEvent);
