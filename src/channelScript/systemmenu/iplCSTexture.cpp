@@ -19,8 +19,9 @@ namespace ipl {
 
                     found = FALSE;
                     // Cleaning this part breaks the match...
-                    if (!(formatValue > 14)) {
-                        if (1 << formatIndex & 0x407F) {
+                    if (!(formatValue > GX_TF_CMPR)) {
+                        if (1 << formatIndex & ((1 << GX_TF_I4) | (1 << GX_TF_I8) | (1 << GX_TF_IA4) | (1 << GX_TF_IA8) |
+                                                (1 << GX_TF_RGB565) | (1 << GX_TF_RGB5A3) | (1 << GX_TF_RGBA8) | (1 << GX_TF_CMPR))) {
                             found = TRUE;
                         }
                     }
@@ -33,7 +34,7 @@ namespace ipl {
 
             BOOL is_valid_wrap(const CHANSVmObjHdr* obj) {
                 BOOL result = FALSE;
-                if (obj != NULL && obj->value.int_v <= 2ULL) {
+                if (obj != NULL && obj->value.int_v <= static_cast<u64>(GX_MIRROR)) {
                     result = TRUE;
                 }
                 return result;
@@ -126,7 +127,7 @@ namespace ipl {
                     CHANSVmObjHdr* imageArg = CHANSVmGetArg(VmInst, 0);
                     if (CHANSVmCheckNativeInstance(imageArg, "Image")) {
                         if (util::is_valid_datap(imageArg)) {
-                            u32 addr = *(u32*)*imageArg->value.ptr_v;
+                            u32 addr = reinterpret_cast<u32>(static_cast<CHANSVmImage*>(*imageArg->value.ptr_v)->pData);
                             result = init_texobj(VmInst, VmReturnObj, addr);
                         }
                     } else {

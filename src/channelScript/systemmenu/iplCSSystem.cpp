@@ -10,7 +10,7 @@ namespace ipl {
             CHANSVmDefineMethod(is_first_call) {
                 BOOL result = FALSE;
                 if (util::is_valid_datap(VmParentObj)) {
-                    result = CHANSVmSetInteger(VmInst, VmReturnObj, System::getCSManager()->getData().threadTerminated == false) == CHANS_VM_OK;
+                    result = CHANSVmSetInteger(VmInst, VmReturnObj, !System::getCSManager()->getData().threadTerminated) == CHANS_VM_OK;
                 }
                 return result;
             }

@@ -13,7 +13,7 @@ extern "C" const u8 scCsFatalColorA;
         if (!(x)) { \
             GXColor front = {scCsFatalColorR, scCsFatalColorG, scCsFatalColorB, scCsFatalColorA}; \
             GXColor back = {0, 0, 0, 0}; \
-            OSFatal((GXColor)front, (GXColor)back, scCsFatalMsg); \
+            OSFatal(front, back, scCsFatalMsg); \
         } \
     }
 
@@ -376,7 +376,7 @@ namespace ipl {
                     u32 argc = CHANSVmGetArgc(VmInst);
                     CHANSVmObjHdr* vertexIndexArg = CHANSVmGetArgInteger(VmInst, 0);
                     if (pane != NULL && argc == 1 && vertexIndexArg != NULL) {
-                        if (vertexIndexArg->value.int_v < 4ULL) {
+                        if (vertexIndexArg->value.int_v < static_cast<u64>(nw4r::lyt::VERTEXCOLOR_MAX)) {
                             result = color::_ctor(VmInst, VmReturnObj, (nw4r::ut::Color) static_cast<u32>(pane->GetVtxColor(vertexIndexArg->value.int_v))) == TRUE;
                         }
                     }
@@ -432,7 +432,7 @@ namespace ipl {
                         CHANSVmObjHdr* colorIndexArg = CHANSVmGetArgInteger(VmInst, 0);
                         CHANSVmObjHdr* colorArg = CHANSVmGetArg(VmInst, 1);
                         if (box != NULL && argc == 2 && colorIndexArg != NULL && util::is_valid_class(colorArg, "Color")) {
-                            if (colorIndexArg->value.int_v < 2ULL) {
+                            if (colorIndexArg->value.int_v < static_cast<u64>(nw4r::lyt::TEXTCOLOR_MAX)) {
                                 u8* src = static_cast<u8*>(*colorArg->value.ptr_v);
                                 box->SetTextColor(static_cast<s32>(colorIndexArg->value.int_v), *(nw4r::ut::Color*)src);
                                 result = TRUE;
