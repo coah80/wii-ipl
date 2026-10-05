@@ -1,17 +1,14 @@
 #include <revolution/gx/GXStruct.h>
 #include <revolution/os/OSError.h>
 
-extern "C" const unsigned char scRsoFatalColorR;
-extern "C" const unsigned char scRsoFatalColorG;
-extern "C" const unsigned char scRsoFatalColorB;
-extern "C" const unsigned char scRsoFatalColorA;
 extern "C" const char scRsoFatalMsg[65];
+extern GXColor scRsoFatalColor;
 
 #define NW4R_DB_ASSERT_H
 #define NW4R_ASSERT(x)                                                                                                                               \
     {                                                                                                                                                \
         if (!(x)) {                                                                                                                                  \
-            GXColor front = {*((volatile const unsigned char*)&scRsoFatalColorR), *((volatile const unsigned char*)&scRsoFatalColorG), *((volatile const unsigned char*)&scRsoFatalColorB), *((volatile const unsigned char*)&scRsoFatalColorA)}; \
+            GXColor front = scRsoFatalColor;                                                                                                         \
             GXColor back = {0, 0, 0, 0};                                                                                                             \
             OSFatal((GXColor)front, (GXColor)back, scRsoFatalMsg);                                                                                  \
         }                                                                                                                                            \
@@ -324,10 +321,7 @@ __declspec(export) void IplRso_symbolMaker() {
     wideTextWriter->CalcStringRect(&rect, L"");
 }
 
-extern "C" __declspec(section ".sdata") const unsigned char scRsoFatalColorR = 255;
-extern "C" __declspec(section ".sdata") const unsigned char scRsoFatalColorG = 255;
-extern "C" __declspec(section ".sdata") const unsigned char scRsoFatalColorB = 255;
-extern "C" __declspec(section ".sdata") const unsigned char scRsoFatalColorA = 0;
+GXColor scRsoFatalColor = {255, 255, 255, 0};
 
 extern "C" __declspec(section ".data") const char scRsoFatalMsg[65] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
 

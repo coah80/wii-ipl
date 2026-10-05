@@ -359,7 +359,7 @@ CXStreamingResult CXReadUncompHuffman(CXUncompContextHuffman* context, const voi
 
         while (context->bitsLeft) {
             BOOL currBit = context->bits >> 31;
-            int c = (*(vu8*)context->decodeTable << currBit) & 0x80;  // ?
+            int c = (context->decodeTable->raw << currBit) & 0x80;
 
             context->decodeTable = GetNextNode((CXHuffmanDecodeTableEntry*)context->decodeTable, currBit);
             context->bits <<= 1;

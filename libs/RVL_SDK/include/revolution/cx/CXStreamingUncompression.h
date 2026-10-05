@@ -38,7 +38,7 @@ typedef struct CXUncompContextLZ {
 } CXUncompContextLZ;
 
 typedef union CXHuffmanDecodeTableEntry {
-    u8 raw;
+    volatile u8 raw;
     struct {
         u8 leafR : 1;      // 10000000
         u8 leafL : 1;      // 01000000

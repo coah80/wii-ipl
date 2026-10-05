@@ -1,0 +1,100 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/os/OSSemaphore] pool: IDENTICAL
+[libs/RVL_SDK/src/os/OSSemaphore] objdiff: code 296/296 data None/None functions 3/3 fuzzy 100.0000 linked code 296
+[libs/RVL_SDK/src/os/OSSemaphore] instruction-exact functions: 3/3
+[libs/RVL_SDK/src/os/OSSemaphore]   section .text size 296 match 100.0
+[libs/RVL_SDK/src/os/OSSemaphore] baseline: code 296/296 data None functions 3 fuzzy 100.0000
+[libs/RVL_SDK/src/cx/CXStreamingUncompression] pool: IDENTICAL
+[libs/RVL_SDK/src/cx/CXStreamingUncompression] objdiff: code 2684/2684 data None/None functions 6/6 fuzzy 100.0000 linked code 2684
+[libs/RVL_SDK/src/cx/CXStreamingUncompression] instruction-exact functions: 6/6
+[libs/RVL_SDK/src/cx/CXStreamingUncompression]   section .text size 2684 match 100.0
+[libs/RVL_SDK/src/cx/CXStreamingUncompression] baseline: code 2684/2684 data None functions 6 fuzzy 100.0000
+[libs/RVL_SDK/src/dvd/dvd] pool: IDENTICAL
+[libs/RVL_SDK/src/dvd/dvd] objdiff: code 21692/21692 data 20688/20688 functions 65/65 fuzzy 100.0000 linked code 21692
+[libs/RVL_SDK/src/dvd/dvd] instruction-exact functions: 65/65
+[libs/RVL_SDK/src/dvd/dvd]   section .bss size 19632 match 100.0
+[libs/RVL_SDK/src/dvd/dvd]   section .data size 880 match 100.0
+[libs/RVL_SDK/src/dvd/dvd]   section .sbss size 152 match 100.0
+[libs/RVL_SDK/src/dvd/dvd]   section .sdata size 24 match 100.0
+[libs/RVL_SDK/src/dvd/dvd]   section .text size 21692 match 100.0
+[libs/RVL_SDK/src/dvd/dvd] baseline: code 21692/21692 data 20688 functions 65 fuzzy 100.0000
+[src/system/iplNand] pool: IDENTICAL
+[src/system/iplNand] objdiff: code 5108/5108 data 272/272 functions 36/36 fuzzy 100.0000 linked code 5108
+[src/system/iplNand] instruction-exact functions: 36/36
+[src/system/iplNand]   section .data size 256 match 100.0
+[src/system/iplNand]   section .sdata size 16 match 100.0
+[src/system/iplNand]   section .text size 5108 match 100.0
+[src/system/iplNand] baseline: code 5108/5108 data 272 functions 36 fuzzy 100.0000
+[libs/RevoEX/src/nwc24/NWC24Schedule] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24Schedule] objdiff: code 4140/4140 data 584/584 functions 20/20 fuzzy 100.0000 linked code 4140
+[libs/RevoEX/src/nwc24/NWC24Schedule] instruction-exact functions: 20/20
+[libs/RevoEX/src/nwc24/NWC24Schedule]   section .bss size 384 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Schedule]   section .data size 176 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Schedule]   section .sbss size 16 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Schedule]   section .sdata size 8 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Schedule]   section .text size 4140 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Schedule] baseline: code 4140/4140 data 584 functions 20 fuzzy 100.0000
+[libs/RVL_SDK/src/sdi/sdi_api] pool: IDENTICAL
+[libs/RVL_SDK/src/sdi/sdi_api] objdiff: code 5948/5948 data 248/248 functions 22/22 fuzzy 100.0000 linked code 5948
+[libs/RVL_SDK/src/sdi/sdi_api] instruction-exact functions: 22/22
+[libs/RVL_SDK/src/sdi/sdi_api]   section .bss size 128 match 100.0
+[libs/RVL_SDK/src/sdi/sdi_api]   section .data size 80 match 100.0
+[libs/RVL_SDK/src/sdi/sdi_api]   section .sbss size 32 match 100.0
+[libs/RVL_SDK/src/sdi/sdi_api]   section .sdata size 8 match 100.0
+[libs/RVL_SDK/src/sdi/sdi_api]   section .text size 5948 match 100.0
+[libs/RVL_SDK/src/sdi/sdi_api] baseline: code 5948/5948 data 248 functions 22 fuzzy 100.0000
+[src/system/iplChannelScriptManager] pool: IDENTICAL
+[src/system/iplChannelScriptManager] objdiff: code 2148/2148 data 1024/1024 functions 10/10 fuzzy 100.0000 linked code 2148
+[src/system/iplChannelScriptManager] instruction-exact functions: 10/10
+[src/system/iplChannelScriptManager]   section .bss size 624 match 100.0
+[src/system/iplChannelScriptManager]   section .data size 392 match 100.0
+[src/system/iplChannelScriptManager]   section .sbss size 8 match 100.0
+[src/system/iplChannelScriptManager]   section .text size 2148 match 100.0
+[src/system/iplChannelScriptManager] baseline: code 2148/2148 data 1024 functions 10 fuzzy 100.0000
+[libs/RevoEX/src/ncd/ncdsystem] pool: IDENTICAL
+[libs/RevoEX/src/ncd/ncdsystem] objdiff: code 4180/4180 data 496/496 functions 15/15 fuzzy 100.0000 linked code 4180
+[libs/RevoEX/src/ncd/ncdsystem] instruction-exact functions: 15/15
+[libs/RevoEX/src/ncd/ncdsystem]   section .bss size 96 match 100.0
+[libs/RevoEX/src/ncd/ncdsystem]   section .data size 384 match 100.0
+[libs/RevoEX/src/ncd/ncdsystem]   section .sbss size 8 match 100.0
+[libs/RevoEX/src/ncd/ncdsystem]   section .sdata size 8 match 100.0
+[libs/RevoEX/src/ncd/ncdsystem]   section .text size 4180 match 100.0
+[libs/RevoEX/src/ncd/ncdsystem] baseline: code 4180/4180 data 496 functions 15 fuzzy 100.0000
+[src/scene/board/iplUrlProcessor] pool: IDENTICAL
+[src/scene/board/iplUrlProcessor] objdiff: code 2488/2488 data 48/48 functions 17/17 fuzzy 100.0000 linked code 2488
+[src/scene/board/iplUrlProcessor] instruction-exact functions: 17/17
+[src/scene/board/iplUrlProcessor]   section .data size 24 match 100.0
+[src/scene/board/iplUrlProcessor]   section .sdata2 size 24 match 100.0
+[src/scene/board/iplUrlProcessor]   section .text size 2488 match 100.0
+[src/scene/board/iplUrlProcessor] baseline: code 2488/2488 data 48 functions 17 fuzzy 100.0000
+[src/scene/calendar/iplCalendar] pool: IDENTICAL
+[src/scene/calendar/iplCalendar] objdiff: code 7452/7452 data 1244/1244 functions 42/42 fuzzy 100.0000 linked code 7452
+[src/scene/calendar/iplCalendar] instruction-exact functions: 42/42
+[src/scene/calendar/iplCalendar]   section .bss size 24 match 100.0
+[src/scene/calendar/iplCalendar]   section .ctors size 4 match 100.0
+[src/scene/calendar/iplCalendar]   section .data size 728 match 100.0
+[src/scene/calendar/iplCalendar]   section .rodata size 448 match 100.0
+[src/scene/calendar/iplCalendar]   section .sdata size 24 match 100.0
+[src/scene/calendar/iplCalendar]   section .sdata2 size 16 match 100.0
+[src/scene/calendar/iplCalendar]   section .text size 7452 match 100.0
+[src/scene/calendar/iplCalendar] baseline: code 7452/7452 data 1244 functions 42 fuzzy 100.0000
+[src/system/RsoSystem] pool: IDENTICAL
+[src/system/RsoSystem] objdiff: code 2848/2848 data 96/96 functions 25/25 fuzzy 100.0000 linked code 2848
+[src/system/RsoSystem] instruction-exact functions: 25/25
+[src/system/RsoSystem]   section .data size 72 match 100.0
+[src/system/RsoSystem]   section .sdata size 16 match 100.0
+[src/system/RsoSystem]   section .sdata2 size 8 match 100.0
+[src/system/RsoSystem]   section .text size 2848 match 100.0
+[src/system/RsoSystem] baseline: code 2848/2848 data 96 functions 25 fuzzy 100.0000
+regressions vs baseline: 0
+global matched_code_percent: 94.31032 -> 94.31032
+global fuzzy_match_percent: 99.82008 -> 99.82008
+global complete_code_percent: 80.92587 -> 80.92587
+global matched_data_percent: 99.99410 -> 99.99410
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+review note: libs/RVL_SDK/include/revolution/cx/CXStreamingUncompression.h: volatile object declaration (orchestrator checks the target really re-reads it) (+1 net), e.g. volatile u8 raw;
+review note: libs/RVL_SDK/include/revolution/os/OSSemaphore.h: volatile object declaration (orchestrator checks the target really re-reads it) (+1 net), e.g. volatile s32 count;
+note: config touched: config/43U/symbols.txt (orchestrator reviews every config/symbols change)
+GATE PASS

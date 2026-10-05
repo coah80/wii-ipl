@@ -242,12 +242,3 @@ namespace ipl {
         }
     }  // namespace scene
 }  // namespace ipl
-
-namespace ipl {
-    namespace scene {
-        __declspec(weak) u32 url_processor_data_pad() {
-            static const u32 pad __attribute__((section(".data"), aligned(1))) = 0;
-            return *((volatile const u32*)&pad);
-        }
-    }  // namespace scene
-}  // namespace ipl

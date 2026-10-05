@@ -879,7 +879,6 @@ namespace ipl {
         }
 
         BOOL Calendar::is_lower_limit() {
-            static const f32 pad0 __attribute__((section(".data"), aligned(1), used)) = 0.0f;
             return mpBoardDate->year == mscMinDate.year && mpBoardDate->month == mscMinDate.month;
         }
     }  // namespace scene

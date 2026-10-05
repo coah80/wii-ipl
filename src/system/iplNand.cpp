@@ -275,10 +275,8 @@ namespace ipl {
 
                 DCStoreRange(mpBuffer, mFileLength);
 
-                // Seems like there was going to be logic when close_ returns false, but it seemed like it was not included on release.
-                // However it did left the compare instruction!
                 if (!close_()) {
-                    u32 dummy = 0;
+                    ASSERTLINE(false, 278);
                 }
             }
 

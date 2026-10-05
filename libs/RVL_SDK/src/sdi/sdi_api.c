@@ -314,7 +314,7 @@ static IOSFd sduOpenFD(u32 slot) {
     switch (ret) {
         case IPC_RESULT_ACCESS:
         case IPC_RESULT_EXISTS: {
-            int dummy = 0;
+            ASSERTLINE(ret >= 0, 314);
         }
     }
     return ret;

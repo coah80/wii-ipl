@@ -1894,7 +1894,7 @@ s32 DVDGetCommandBlockStatus(const DVDCommandBlock* block) {
 
     if (block->state == DVD_STATE_COVER_CLOSED) {
         retVal = DVD_STATE_BUSY;
-    } else if (((volatile DVDCommandBlock*)block)->state == DVD_STATE_COVER_OPENED) {
+    } else if (block->state == DVD_STATE_COVER_OPENED) {
         retVal = DVD_STATE_NO_DISK;
     } else if (executing == &__DVDStopMotorCommandBlock) {
         next = __DVDGetNextWaitingQueue();
@@ -1912,7 +1912,7 @@ s32 DVDGetCommandBlockStatus(const DVDCommandBlock* block) {
             }
         }
     } else {
-        retVal = ((volatile DVDCommandBlock*)block)->state;
+        retVal = block->state;
     }
 
     OSRestoreInterrupts(enabled);
