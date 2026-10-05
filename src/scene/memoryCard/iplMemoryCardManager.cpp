@@ -431,17 +431,17 @@ GXTexObj* MemoryCardManager::create_banner(u8 slot, s16 index) {
     if (dirs[slot][file].fileNo == 0 || !icons[slot][file].bannerEnable) {
         return NULL;
     }
-    memorycard::IconState* icon = &icons[slot][file];
-    if ((int)icon->bannerType == GX_TF_RGB5A3) {
-        GXInitTexObj(&mFileCell[slot][file].banner, reinterpret_cast<u8*>(icon) + icon->bannerOffset,
-                     0x60, 0x20, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
-        GXLoadTexObj(&mFileCell[slot][file].banner, GX_TEXMAP0);
-    } else if ((int)icon->bannerType == GX_TF_C8) {
-        GXInitTexObjCI(&mFileCell[slot][file].banner, reinterpret_cast<u8*>(icon) + icon->bannerOffset,
-                       0x60, 0x20, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
-        GXInitTlutObj(&mFileCell[slot][file].bannerTlut, reinterpret_cast<u8*>(icon) + icons[slot][file].bannerTlutOffset, GX_TL_RGB5A3, 0x100);
-        GXLoadTlut(&mFileCell[slot][file].bannerTlut, GX_TLUT0);
-        GXLoadTexObj(&mFileCell[slot][file].banner, GX_TEXMAP0);
+    if ((int)icons[slot][file].bannerType == GX_TF_RGB5A3) {
+        GXTexObj* banner = initBannerTexture(slot, file,
+            reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].bannerOffset);
+        GXLoadTexObj(banner, GX_TEXMAP0);
+    } else if ((int)icons[slot][file].bannerType == GX_TF_C8) {
+        initBannerTextureCI(slot, file,
+            reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].bannerOffset);
+        GXTlutObj* tlut = initBannerPalette(slot, file,
+            reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].bannerTlutOffset);
+        GXLoadTlut(tlut, GX_TLUT0);
+        GXLoadTexObj(&mFileCell[slot][(s32)file].banner, GX_TEXMAP0);
     }
     return &mFileCell[slot][file].banner;
 }

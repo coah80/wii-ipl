@@ -1200,3 +1200,688 @@ Rx7b final validation and handoff (2026-10-05)
 - Remaining allocator findings: SD's generated smArg still receives priority before the string-pool base; thread mount-offset and mount-slot split webs and reply coalescing remain wrong despite corrected persistent-local order; icon accessors still leave a full texture pointer live across GX initialization; banner validation CSE still forms the selected metadata pointer too early and gives it priority over the offsets. Candidate simplify, coalescing and assignment dumps are retained under build/rx7b/mwdbg-* and explained above.
 - Post-gate Ninja progress/report/43U-ok and decomp_status.py pass. Literal-reference check for the matched function: 21 arguments, 0 candidate mismatches, 0 errors. DOL SHA1: 26116613f624061ba99c8d1a299aaa6efa85670d. check_decomp_complete.py exits 1 because the whole project remains incomplete (12442/12563 exact functions, 977/1027 linked units); this is a one-function handoff, not a completion claim.
 - Retained tracked paths are only src/scene/cardSequence/iplCardSequence.cpp and this attempts log. No MemoryCardManager/SDMemory/header/configuration changes, carrier structs, new assembly, or compiler-flag changes are retained. No push, PR, merge or rebase was performed. Final source review and git diff --check pass.
+
+
+Rx7c continuation (2026-10-05), branch agent/w1005/rx7c at e208b205, containing PR #1195. Re-read levers 11/18/20/21/22 and mwdbg README; prior partial candidates stay private. The new focus is real mount/listing/free-block helper boundaries and per-branch results in cardThreadMain, and actual texture-object initialization/load member boundaries for the GX functions. Reuse validated previous captures while rebuilding all owned objects against this branch.
+
+c-thread-prior-25: Revalidate the prior 25-difference candidate with the landed move/copy match preserved. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-prior-25.
+
+c-thread-free-helper-freeFile-freeBlocks-result: Factor the game-block counting loop into a returning helper; test real helper-local order freeFile-freeBlocks-result. objdiff 98.52159%; insns 301/301 diffs 48; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-free-helper-freeFile-freeBlocks-result.
+
+c-thread-free-helper-freeFile-result-freeBlocks: Factor the game-block counting loop into a returning helper; test real helper-local order freeFile-result-freeBlocks. objdiff 98.52159%; insns 301/301 diffs 48; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-free-helper-freeFile-result-freeBlocks.
+
+c-thread-free-helper-freeBlocks-freeFile-result: Factor the game-block counting loop into a returning helper; test real helper-local order freeBlocks-freeFile-result. objdiff 98.355484%; insns 301/301 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-free-helper-freeBlocks-freeFile-result.
+
+c-thread-free-helper-freeBlocks-result-freeFile: Factor the game-block counting loop into a returning helper; test real helper-local order freeBlocks-result-freeFile. objdiff 98.355484%; insns 301/301 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-free-helper-freeBlocks-result-freeFile.
+
+c-thread-free-helper-result-freeFile-freeBlocks: Factor the game-block counting loop into a returning helper; test real helper-local order result-freeFile-freeBlocks. objdiff 98.52159%; insns 301/301 diffs 48; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-free-helper-result-freeFile-freeBlocks.
+
+c-thread-free-helper-result-freeBlocks-freeFile: Factor the game-block counting loop into a returning helper; test real helper-local order result-freeBlocks-freeFile. objdiff 98.355484%; insns 301/301 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-free-helper-result-freeBlocks-freeFile.
+
+c-thread-free-helper-u8: Use u8 for the real counting-helper slot input. objdiff 98.28904%; insns 301/301 diffs 50; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-free-helper-u8.
+
+c-thread-free-helper-u32: Use u32 for the real counting-helper slot input. objdiff 98.52159%; insns 301/301 diffs 48; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-free-helper-u32.
+
+c-thread-free-helper-const-s32: Use const s32 for the real counting-helper slot input. objdiff 98.52159%; insns 301/301 diffs 48; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-free-helper-const-s32.
+
+c-thread-list-helper-s32-False: Factor the complete directory-reporting loop, preserving format-string token order; return final listing index False. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-list-helper-s32-False.
+
+c-thread-list-helper-s32-True: Factor the complete directory-reporting loop, preserving format-string token order; return final listing index True. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-list-helper-s32-True.
+
+c-thread-list-helper-u8-False: Factor the complete directory-reporting loop, preserving format-string token order; return final listing index False. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-list-helper-u8-False.
+
+c-thread-list-helper-u8-True: Factor the complete directory-reporting loop, preserving format-string token order; return final listing index True. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-list-helper-u8-True.
+
+c-thread-list-helper-u32-False: Factor the complete directory-reporting loop, preserving format-string token order; return final listing index False. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-list-helper-u32-False.
+
+c-thread-list-helper-u32-True: Factor the complete directory-reporting loop, preserving format-string token order; return final listing index True. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-list-helper-u32-True.
+
+c-thread-loops-both: Combine independent real loop helpers and both local lifetime structure. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-loops-both.
+
+c-thread-loops-both-reverse: Combine independent real loop helpers and both-reverse local lifetime structure. objdiff 96.52492%; insns 302/301 diffs 290; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-loops-both-reverse.
+
+c-thread-loops-branch-results: Combine independent real loop helpers and branch-results local lifetime structure. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-loops-branch-results.
+
+c-icon-member-rgb-s16: Move actual rgb GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-rgb-s16/compile.log.
+
+c-icon-member-init-s16: Move actual init GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-init-s16/compile.log.
+
+c-icon-member-loads-s16: Move actual loads GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-loads-s16/compile.log.
+
+c-icon-member-all-s16: Move actual all GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-all-s16/compile.log.
+
+c-icon-member-rgb-s32: Move actual rgb GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-rgb-s32/compile.log.
+
+c-icon-member-init-s32: Move actual init GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-init-s32/compile.log.
+
+c-icon-member-loads-s32: Move actual loads GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-loads-s32/compile.log.
+
+c-icon-member-all-s32: Move actual all GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-all-s32/compile.log.
+
+c-icon-member-rgb-u32: Move actual rgb GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-rgb-u32/compile.log.
+
+c-icon-member-init-u32: Move actual init GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-init-u32/compile.log.
+
+c-icon-member-loads-u32: Move actual loads GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-loads-u32/compile.log.
+
+c-icon-member-all-u32: Move actual all GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-icon-member-all-u32/compile.log.
+
+c-banner-member-rgb-s16: Move actual rgb GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-rgb-s16/compile.log.
+
+c-banner-member-init-s16: Move actual init GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-init-s16/compile.log.
+
+c-banner-member-loads-s16: Move actual loads GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-loads-s16/compile.log.
+
+c-banner-member-all-s16: Move actual all GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-all-s16/compile.log.
+
+c-banner-member-rgb-s32: Move actual rgb GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-rgb-s32/compile.log.
+
+c-banner-member-init-s32: Move actual init GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-init-s32/compile.log.
+
+c-banner-member-loads-s32: Move actual loads GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-loads-s32/compile.log.
+
+c-banner-member-all-s32: Move actual all GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-all-s32/compile.log.
+
+c-banner-member-rgb-u32: Move actual rgb GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-rgb-u32/compile.log.
+
+c-banner-member-init-u32: Move actual init GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-init-u32/compile.log.
+
+c-banner-member-loads-u32: Move actual loads GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-loads-u32/compile.log.
+
+c-banner-member-all-u32: Move actual all GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. Compile failed; see build/rx7c/trials/c-banner-member-all-u32/compile.log.
+
+c-icon-member-fixed-rgb-s16: Move actual rgb GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-rgb-s16.
+
+c-icon-member-fixed-init-s16: Move actual init GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-init-s16.
+
+c-icon-member-fixed-loads-s16: Move actual loads GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-loads-s16.
+
+c-icon-member-fixed-all-s16: Move actual all GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-all-s16.
+
+c-icon-member-fixed-rgb-s32: Move actual rgb GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-rgb-s32.
+
+c-icon-member-fixed-init-s32: Move actual init GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-init-s32.
+
+c-icon-member-fixed-loads-s32: Move actual loads GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-loads-s32.
+
+c-icon-member-fixed-all-s32: Move actual all GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-all-s32.
+
+c-icon-member-fixed-rgb-u32: Move actual rgb GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. objdiff 93.35%; insns 100/100 diffs 17; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-rgb-u32.
+
+c-icon-member-fixed-init-u32: Move actual init GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. objdiff 94.69%; insns 99/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-init-u32.
+
+c-icon-member-fixed-loads-u32: Move actual loads GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. objdiff 90.74%; insns 100/100 diffs 20; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-loads-u32.
+
+c-icon-member-fixed-all-u32: Move actual all GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. objdiff 90.69%; insns 101/100 diffs 32; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-fixed-all-u32.
+
+c-banner-member-fixed-rgb-s16: Move actual rgb GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. objdiff 87.386795%; insns 109/106 diffs 86; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-rgb-s16.
+
+c-banner-member-fixed-init-s16: Move actual init GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. objdiff 81.83962%; insns 110/106 diffs 87; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-init-s16.
+
+c-banner-member-fixed-loads-s16: Move actual loads GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. objdiff 92.169815%; insns 110/106 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-loads-s16.
+
+c-banner-member-fixed-all-s16: Move actual all GX calls into ordinary MemoryCardManager methods with s16 file input, computing fields inside the member boundary. objdiff 82.113205%; insns 110/106 diffs 89; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-all-s16.
+
+c-banner-member-fixed-rgb-s32: Move actual rgb GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. objdiff 91.69811%; insns 108/106 diffs 78; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-rgb-s32.
+
+c-banner-member-fixed-init-s32: Move actual init GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. objdiff 96.41509%; insns 107/106 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-init-s32.
+
+c-banner-member-fixed-loads-s32: Move actual loads GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. objdiff 96.41509%; insns 107/106 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-loads-s32.
+
+c-banner-member-fixed-all-s32: Move actual all GX calls into ordinary MemoryCardManager methods with s32 file input, computing fields inside the member boundary. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-all-s32.
+
+c-banner-member-fixed-rgb-u32: Move actual rgb GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-rgb-u32.
+
+c-banner-member-fixed-init-u32: Move actual init GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-init-u32.
+
+c-banner-member-fixed-loads-u32: Move actual loads GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-loads-u32.
+
+c-banner-member-fixed-all-u32: Move actual all GX calls into ordinary MemoryCardManager methods with u32 file input, computing fields inside the member boundary. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-member-fixed-all-u32.
+
+c-thread-result-case: Separate each format/delete operation result at case declaration scope. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-result-case.
+
+c-thread-result-root-first: Separate each format/delete operation result at root-first declaration scope. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-result-root-first.
+
+c-thread-result-root-last: Separate each format/delete operation result at root-last declaration scope. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-result-root-last.
+
+c-thread-slot-case: Separate each format/delete operation slot at case declaration scope. objdiff 98.65449%; insns 301/301 diffs 41; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-slot-case.
+
+c-thread-slot-root-first: Separate each format/delete operation slot at root-first declaration scope. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-slot-root-first.
+
+c-thread-slot-root-last: Separate each format/delete operation slot at root-last declaration scope. objdiff 98.65449%; insns 301/301 diffs 41; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-slot-root-last.
+
+c-thread-both-case: Separate each format/delete operation both at case declaration scope. objdiff 98.65449%; insns 301/301 diffs 41; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-both-case.
+
+c-thread-both-root-first: Separate each format/delete operation both at root-first declaration scope. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-both-root-first.
+
+c-thread-both-root-last: Separate each format/delete operation both at root-last declaration scope. objdiff 98.65449%; insns 301/301 diffs 41; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-both-root-last.
+
+c-thread-reuse-listing-file: Reuse the real file value for the nonoverlapping listing loop, keeping the unsigned bound. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-reuse-listing-file.
+
+c-thread-reuse-listing-fileNo: Reuse the real fileNo value for the nonoverlapping listing loop, keeping the unsigned bound. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-reuse-listing-fileNo.
+
+c-thread-reuse-listing-command: Reuse the real command value for the nonoverlapping listing loop, keeping the unsigned bound. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-reuse-listing-command.
+
+c-thread-valid-set-report-u32-False: Create a real state assignment/report boundary using u32 return value. objdiff 98.72093%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-set-report-u32-False.
+
+c-thread-valid-set-report-u32-True: Create a real state assignment/report boundary using u32 reference output. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-set-report-u32-True.
+
+c-thread-valid-set-report-s32-False: Create a real state assignment/report boundary using s32 return value. objdiff 98.52159%; insns 301/301 diffs 32; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-set-report-s32-False.
+
+c-thread-valid-set-report-s32-True: Create a real state assignment/report boundary using s32 reference output. objdiff 98.72093%; insns 301/301 diffs 26; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-set-report-s32-True.
+
+c-thread-valid-set-report-u8-False: Create a real state assignment/report boundary using u8 return value. objdiff 98.72093%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-set-report-u8-False.
+
+c-thread-valid-set-report-u8-True: Create a real state assignment/report boundary using u8 reference output. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-set-report-u8-True.
+
+c-thread-valid-set-report-bool-False: Create a real state assignment/report boundary using bool return value. objdiff 98.72093%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-set-report-bool-False.
+
+c-thread-valid-set-report-bool-True: Create a real state assignment/report boundary using bool reference output. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-set-report-bool-True.
+
+c-banner-split-member-ci-s32: Isolate ci operations behind real member calls with s32 indices; preserve separate address uses. objdiff 88.76415%; insns 109/106 diffs 78; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-ci-s32.
+
+c-banner-split-member-ci-u32: Isolate ci operations behind real member calls with u32 indices; preserve separate address uses. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-ci-u32.
+
+c-banner-split-member-tlut-s32: Isolate tlut operations behind real member calls with s32 indices; preserve separate address uses. objdiff 90.330185%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-tlut-s32.
+
+c-banner-split-member-tlut-u32: Isolate tlut operations behind real member calls with u32 indices; preserve separate address uses. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-tlut-u32.
+
+c-banner-split-member-ci-tlut-s32: Isolate ci-tlut operations behind real member calls with s32 indices; preserve separate address uses. objdiff 92.12264%; insns 107/106 diffs 60; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-ci-tlut-s32.
+
+c-banner-split-member-ci-tlut-u32: Isolate ci-tlut operations behind real member calls with u32 indices; preserve separate address uses. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-ci-tlut-u32.
+
+c-banner-split-member-rgb-ci-s32: Isolate rgb-ci operations behind real member calls with s32 indices; preserve separate address uses. objdiff 89.70755%; insns 109/106 diffs 75; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-rgb-ci-s32.
+
+c-banner-split-member-rgb-ci-u32: Isolate rgb-ci operations behind real member calls with u32 indices; preserve separate address uses. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-rgb-ci-u32.
+
+c-banner-split-member-rgb-load-s32: Isolate rgb-load operations behind real member calls with s32 indices; preserve separate address uses. objdiff 90.66038%; insns 109/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-rgb-load-s32.
+
+c-banner-split-member-rgb-load-u32: Isolate rgb-load operations behind real member calls with u32 indices; preserve separate address uses. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-rgb-load-u32.
+
+c-banner-split-member-load-s32: Isolate load operations behind real member calls with s32 indices; preserve separate address uses. objdiff 91.603775%; insns 109/106 diffs 78; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-load-s32.
+
+c-banner-split-member-load-u32: Isolate load operations behind real member calls with u32 indices; preserve separate address uses. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-load-u32.
+
+c-banner-split-member-loadtlut-s32: Isolate loadtlut operations behind real member calls with s32 indices; preserve separate address uses. objdiff 92.5%; insns 108/106 diffs 61; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-loadtlut-s32.
+
+c-banner-split-member-loadtlut-u32: Isolate loadtlut operations behind real member calls with u32 indices; preserve separate address uses. objdiff 92.169815%; insns 108/106 diffs 81; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-split-member-loadtlut-u32.
+
+c-icon-split-member-ci-s32: Isolate ci operations behind real member calls with s32 indices; preserve separate address uses. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-ci-s32.
+
+c-icon-split-member-ci-u32: Isolate ci operations behind real member calls with u32 indices; preserve separate address uses. objdiff 81.17%; insns 101/100 diffs 66; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-ci-u32.
+
+c-icon-split-member-tlut-s32: Isolate tlut operations behind real member calls with s32 indices; preserve separate address uses. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-tlut-s32.
+
+c-icon-split-member-tlut-u32: Isolate tlut operations behind real member calls with u32 indices; preserve separate address uses. objdiff 90.24%; insns 100/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-tlut-u32.
+
+c-icon-split-member-ci-tlut-s32: Isolate ci-tlut operations behind real member calls with s32 indices; preserve separate address uses. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-ci-tlut-s32.
+
+c-icon-split-member-ci-tlut-u32: Isolate ci-tlut operations behind real member calls with u32 indices; preserve separate address uses. objdiff 90.69%; insns 100/100 diffs 22; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-ci-tlut-u32.
+
+c-icon-split-member-rgb-ci-s32: Isolate rgb-ci operations behind real member calls with s32 indices; preserve separate address uses. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-rgb-ci-s32.
+
+c-icon-split-member-rgb-ci-u32: Isolate rgb-ci operations behind real member calls with u32 indices; preserve separate address uses. objdiff 84.08%; insns 101/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-rgb-ci-u32.
+
+c-icon-split-member-rgb-load-s32: Isolate rgb-load operations behind real member calls with s32 indices; preserve separate address uses. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-rgb-load-s32.
+
+c-icon-split-member-rgb-load-u32: Isolate rgb-load operations behind real member calls with u32 indices; preserve separate address uses. objdiff 87.64%; insns 102/100 diffs 37; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-rgb-load-u32.
+
+c-icon-split-member-load-s32: Isolate load operations behind real member calls with s32 indices; preserve separate address uses. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-load-s32.
+
+c-icon-split-member-load-u32: Isolate load operations behind real member calls with u32 indices; preserve separate address uses. objdiff 88.54%; insns 101/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-load-u32.
+
+c-icon-split-member-loadtlut-s32: Isolate loadtlut operations behind real member calls with s32 indices; preserve separate address uses. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-loadtlut-s32.
+
+c-icon-split-member-loadtlut-u32: Isolate loadtlut operations behind real member calls with u32 indices; preserve separate address uses. objdiff 90.49%; insns 100/100 diffs 26; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-split-member-loadtlut-u32.
+
+c-banner-rgb-param-const-s32: Keep CI and palette helper boundaries; test primitive RGB parameter identity const s32. objdiff 96.41509%; insns 107/106 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-rgb-param-const-s32.
+
+c-banner-rgb-param-const-u32: Keep CI and palette helper boundaries; test primitive RGB parameter identity const u32. objdiff 96.41509%; insns 107/106 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-rgb-param-const-u32.
+
+c-banner-rgb-param-int: Keep CI and palette helper boundaries; test primitive RGB parameter identity int. objdiff 96.41509%; insns 107/106 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-rgb-param-int.
+
+c-banner-rgb-param-unsigned-int: Keep CI and palette helper boundaries; test primitive RGB parameter identity unsigned int. objdiff 96.41509%; insns 107/106 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-rgb-param-unsigned-int.
+
+c-banner-rgb-param-long: Keep CI and palette helper boundaries; test primitive RGB parameter identity long. objdiff 96.41509%; insns 107/106 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-rgb-param-long.
+
+c-banner-rgb-param-unsigned-long: Keep CI and palette helper boundaries; test primitive RGB parameter identity unsigned long. objdiff 92.12264%; insns 107/106 diffs 60; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-rgb-param-unsigned-long.
+
+c-banner-rgb-return-index: Expose the real RGB initialization return-index to test inter-inline copy propagation. objdiff 96.41509%; insns 107/106 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-rgb-return-index.
+
+c-banner-rgb-return-texture: Expose the real RGB initialization return-texture to test inter-inline copy propagation. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-rgb-return-texture.
+
+c-banner-rgb-local-copy: Expose the real RGB initialization local-copy to test inter-inline copy propagation. objdiff 96.41509%; insns 107/106 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-rgb-local-copy.
+
+c-thread-process-entry-s32-direct: Return each mounted-file processing result through a real helper; direct result form with s32 slot. objdiff 96.122925%; insns 293/301 diffs 199; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-process-entry-s32-direct.
+
+c-thread-process-entry-s32-result: Return each mounted-file processing result through a real helper; result result form with s32 slot. objdiff 96.122925%; insns 293/301 diffs 199; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-process-entry-s32-result.
+
+c-thread-process-entry-s32-boolean: Return each mounted-file processing result through a real helper; boolean result form with s32 slot. objdiff 97.833885%; insns 298/301 diffs 198; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-process-entry-s32-boolean.
+
+c-thread-process-entry-u8-direct: Return each mounted-file processing result through a real helper; direct result form with u8 slot. objdiff 96.122925%; insns 293/301 diffs 199; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-process-entry-u8-direct.
+
+c-thread-process-entry-u8-result: Return each mounted-file processing result through a real helper; result result form with u8 slot. objdiff 96.122925%; insns 293/301 diffs 199; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-process-entry-u8-result.
+
+c-thread-process-entry-u8-boolean: Return each mounted-file processing result through a real helper; boolean result form with u8 slot. objdiff 97.833885%; insns 298/301 diffs 198; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-process-entry-u8-boolean.
+
+c-thread-valid-report-expression-19: Use the real validity update as the OSReport argument; the preceding validState==TRUE guard proves its value. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-report-expression-19.
+
+c-thread-valid-report-expression-20: Use the real validity update as the OSReport argument; the preceding validState==TRUE guard proves its value. objdiff 97.87376%; insns 301/301 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-report-expression-20.
+
+c-thread-valid-report-expression-36: Use the real validity update as the OSReport argument; the preceding validState==TRUE guard proves its value. objdiff 98.20598%; insns 302/301 diffs 261; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-valid-report-expression-36.
+
+c-thread-response-command-reference: Test actual response packet update/value boundary command-reference without a carrier. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-response-command-reference.
+
+c-thread-response-message-reference: Test actual response packet update/value boundary message-reference without a carrier. objdiff 97.92359%; insns 302/301 diffs 256; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-response-message-reference.
+
+c-thread-response-nested-value: Test actual response packet update/value boundary nested-value without a carrier. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-response-nested-value.
+
+c-thread-response-assign-loop-state: Test actual response packet update/value boundary assign-loop-state without a carrier. objdiff 98.239204%; insns 301/301 diffs 32; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-response-assign-loop-state.
+
+c-banner-last-tlut-local: Resolve the last palette-load scheduling pair via the actual tlut-local value boundary. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-tlut-local.
+
+c-banner-last-tlut-return: Resolve the last palette-load scheduling pair via the actual tlut-return value boundary. objdiff 98.49056%; insns 107/106 diffs 18; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-tlut-return.
+
+c-banner-last-tlut-member-u32: Resolve the last palette-load scheduling pair via the actual tlut-member-u32 value boundary. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-tlut-member-u32.
+
+c-banner-last-tlut-member-s32: Resolve the last palette-load scheduling pair via the actual tlut-member-s32 value boundary. objdiff 91.79245%; insns 108/106 diffs 59; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-tlut-member-s32.
+
+c-banner-last-tlut-comma: Resolve the last palette-load scheduling pair via the actual tlut-comma value boundary. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-tlut-comma.
+
+c-banner-last-load-separate-map: Resolve the last palette-load scheduling pair via the actual load-separate-map value boundary. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-load-separate-map.
+
+c-icon-return-rgb-s32: Use returning member initialization for rgb while retaining the real texture and palette fields. objdiff 93.34%; insns 101/100 diffs 40; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-return-rgb-s32.
+
+c-icon-return-rgb-tlut-s32: Use returning member initialization for rgb-tlut while retaining the real texture and palette fields. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-return-rgb-tlut-s32.
+
+c-icon-return-rgb-ci-s32: Use returning member initialization for rgb-ci while retaining the real texture and palette fields. objdiff 85.6%; insns 101/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-return-rgb-ci-s32.
+
+c-icon-return-rgb-ci-tlut-s32: Use returning member initialization for rgb-ci-tlut while retaining the real texture and palette fields. objdiff 90.65%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-return-rgb-ci-tlut-s32.
+
+c-icon-return-rgb-u32: Use returning member initialization for rgb while retaining the real texture and palette fields. objdiff 93.84%; insns 99/100 diffs 58; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-return-rgb-u32.
+
+c-icon-return-rgb-tlut-u32: Use returning member initialization for rgb-tlut while retaining the real texture and palette fields. objdiff 92.84%; insns 100/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-return-rgb-tlut-u32.
+
+c-icon-return-rgb-ci-u32: Use returning member initialization for rgb-ci while retaining the real texture and palette fields. objdiff 92.54%; insns 101/100 diffs 45; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-return-rgb-ci-u32.
+
+c-icon-return-rgb-ci-tlut-u32: Use returning member initialization for rgb-ci-tlut while retaining the real texture and palette fields. objdiff 94.29%; insns 100/100 diffs 42; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-return-rgb-ci-tlut-u32.
+
+c-banner-tlut-file-u32: Test actual palette initializer file parameter u32 at the remaining scheduling pair. objdiff 90.14151%; insns 108/106 diffs 62; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-file-u32.
+
+c-banner-tlut-file-const-s32: Test actual palette initializer file parameter const s32 at the remaining scheduling pair. objdiff 92.92453%; insns 108/106 diffs 63; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-file-const-s32.
+
+c-banner-tlut-file-const-u32: Test actual palette initializer file parameter const u32 at the remaining scheduling pair. objdiff 92.92453%; insns 108/106 diffs 63; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-file-const-u32.
+
+c-banner-tlut-file-s16: Test actual palette initializer file parameter s16 at the remaining scheduling pair. objdiff 90.14151%; insns 109/106 diffs 64; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-file-s16.
+
+c-sd-receiver-first: Move the real repeated receiver declaration to first scope to test its simplify threshold against the generated smArg address. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-receiver-first.
+
+c-banner-tlut-file-u16: Test actual palette initializer file parameter u16 at the remaining scheduling pair. objdiff 90.14151%; insns 109/106 diffs 64; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-file-u16.
+
+c-banner-tlut-file-int: Test actual palette initializer file parameter int at the remaining scheduling pair. objdiff 92.92453%; insns 108/106 diffs 63; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-file-int.
+
+c-sd-receiver-last: Move the real repeated receiver declaration to last scope to test its simplify threshold against the generated smArg address. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-receiver-last.
+
+c-banner-tlut-file-unsigned-int: Test actual palette initializer file parameter unsigned int at the remaining scheduling pair. objdiff 92.92453%; insns 108/106 diffs 63; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-file-unsigned-int.
+
+c-banner-tlut-slot-const-u8: Test actual palette initializer slot parameter const u8 at the remaining scheduling pair. objdiff 85.471695%; insns 111/106 diffs 67; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-slot-const-u8.
+
+c-banner-tlut-slot-u32: Test actual palette initializer slot parameter u32 at the remaining scheduling pair. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-slot-u32.
+
+c-sd-receiver-scoped-main: Move the real repeated receiver declaration to scoped-main scope to test its simplify threshold against the generated smArg address. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-receiver-scoped-main.
+
+c-banner-tlut-slot-s32: Test actual palette initializer slot parameter s32 at the remaining scheduling pair. objdiff 85.471695%; insns 111/106 diffs 67; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-slot-s32.
+
+c-banner-tlut-slot-const-u32: Test actual palette initializer slot parameter const u32 at the remaining scheduling pair. objdiff 85.471695%; insns 111/106 diffs 67; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-slot-const-u32.
+
+c-banner-tlut-slot-int: Test actual palette initializer slot parameter int at the remaining scheduling pair. objdiff 85.471695%; insns 111/106 diffs 67; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-tlut-slot-int.
+
+c-sd-receiver-scoped-layouts: Move the real repeated receiver declaration to scoped-layouts scope to test its simplify threshold against the generated smArg address. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-receiver-scoped-layouts.
+
+c-banner-last-boundary-texture-ref: Test the real palette/texture texture-ref boundary while preserving the matched address allocation. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-boundary-texture-ref.
+
+c-banner-last-boundary-palette-ref: Test the real palette/texture palette-ref boundary while preserving the matched address allocation. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-boundary-palette-ref.
+
+c-banner-last-boundary-const-palette-ref: Test the real palette/texture const-palette-ref boundary while preserving the matched address allocation. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-boundary-const-palette-ref.
+
+c-banner-last-boundary-separate-palette-return: Test the real palette/texture separate-palette-return boundary while preserving the matched address allocation. objdiff 100.0%; insns 106/106 diffs 0; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-boundary-separate-palette-return.
+
+c-sd-trigger-loop-control: Place the self-contained control pane-trigger loops across a real inline boundary. objdiff 98.69643%; insns 1065/1064 diffs 336; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-trigger-loop-control.
+
+c-banner-last-boundary-palette-address-return: Test the real palette/texture palette-address-return boundary while preserving the matched address allocation. objdiff 98.49056%; insns 107/106 diffs 18; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-boundary-palette-address-return.
+
+c-banner-last-boundary-load-texture-member: Test the real palette/texture load-texture-member boundary while preserving the matched address allocation. objdiff 98.49056%; insns 107/106 diffs 21; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-boundary-load-texture-member.
+
+c-banner-last-boundary-init-tlut-data-first: Test the real palette/texture init-tlut-data-first boundary while preserving the matched address allocation. objdiff 98.113205%; insns 106/106 diffs 2; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-last-boundary-init-tlut-data-first.
+
+c-sd-trigger-loop-dialog: Place the self-contained dialog pane-trigger loops across a real inline boundary. objdiff 98.81485%; insns 1065/1064 diffs 201; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-trigger-loop-dialog.
+
+c-sd-trigger-loop-all: Place the self-contained all pane-trigger loops across a real inline boundary. objdiff 94.95395%; insns 1022/1064 diffs 287; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-trigger-loop-all.
+
+c-sd-hoist-cursors-first: Hoist the real pane-walk cursors at first to delay or advance low-degree node removal. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-hoist-cursors-first.
+
+c-sd-hoist-cursors-before-receiver: Hoist the real pane-walk cursors at before-receiver to delay or advance low-degree node removal. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-hoist-cursors-before-receiver.
+
+c-sd-hoist-cursors-last: Hoist the real pane-walk cursors at last to delay or advance low-degree node removal. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-hoist-cursors-last.
+
+c-icon-load-index-mask-1: Apply the returning GX member boundaries with load-index-mask-1 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-index-mask-1.
+
+c-icon-load-index-mask-2: Apply the returning GX member boundaries with load-index-mask-2 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-index-mask-2.
+
+c-icon-load-index-mask-3: Apply the returning GX member boundaries with load-index-mask-3 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-index-mask-3.
+
+c-icon-load-index-mask-4: Apply the returning GX member boundaries with load-index-mask-4 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-index-mask-4.
+
+c-icon-load-index-mask-5: Apply the returning GX member boundaries with load-index-mask-5 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-index-mask-5.
+
+c-icon-load-index-mask-6: Apply the returning GX member boundaries with load-index-mask-6 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-index-mask-6.
+
+c-icon-load-index-mask-7: Apply the returning GX member boundaries with load-index-mask-7 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-index-mask-7.
+
+c-icon-result-s32-root-first: Apply the returning GX member boundaries with result-s32-root-first to preserve separate row and column values. objdiff 90.55%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-s32-root-first.
+
+c-icon-result-s32-root-last: Apply the returning GX member boundaries with result-s32-root-last to preserve separate row and column values. objdiff 90.55%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-s32-root-last.
+
+c-icon-result-s32-branch: Apply the returning GX member boundaries with result-s32-branch to preserve separate row and column values. objdiff 86.55%; insns 100/100 diffs 60; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-s32-branch.
+
+c-icon-result-u32-root-first: Apply the returning GX member boundaries with result-u32-root-first to preserve separate row and column values. objdiff 97.69%; insns 101/100 diffs 29; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-u32-root-first.
+
+c-icon-result-u32-root-last: Apply the returning GX member boundaries with result-u32-root-last to preserve separate row and column values. objdiff 97.69%; insns 101/100 diffs 29; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-u32-root-last.
+
+c-icon-result-u32-branch: Apply the returning GX member boundaries with result-u32-branch to preserve separate row and column values. objdiff 92.19%; insns 101/100 diffs 55; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-u32-branch.
+
+c-icon-result-int-root-first: Apply the returning GX member boundaries with result-int-root-first to preserve separate row and column values. objdiff 90.55%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-int-root-first.
+
+c-icon-result-int-root-last: Apply the returning GX member boundaries with result-int-root-last to preserve separate row and column values. objdiff 90.55%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-int-root-last.
+
+c-icon-result-int-branch: Apply the returning GX member boundaries with result-int-branch to preserve separate row and column values. objdiff 86.55%; insns 100/100 diffs 60; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-int-branch.
+
+c-icon-result-unsigned-int-root-first: Apply the returning GX member boundaries with result-unsigned-int-root-first to preserve separate row and column values. objdiff 97.69%; insns 101/100 diffs 29; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-unsigned-int-root-first.
+
+c-icon-result-unsigned-int-root-last: Apply the returning GX member boundaries with result-unsigned-int-root-last to preserve separate row and column values. objdiff 97.69%; insns 101/100 diffs 29; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-unsigned-int-root-last.
+
+c-icon-result-unsigned-int-branch: Apply the returning GX member boundaries with result-unsigned-int-branch to preserve separate row and column values. objdiff 92.19%; insns 101/100 diffs 55; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-result-unsigned-int-branch.
+
+c-icon-ci-param-const-s32: Apply the returning GX member boundaries with ci-param-const-s32 to preserve separate row and column values. objdiff 87.89%; insns 99/100 diffs 67; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-ci-param-const-s32.
+
+c-icon-ci-param-int: Apply the returning GX member boundaries with ci-param-int to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-ci-param-int.
+
+c-icon-ci-param-u32: Apply the returning GX member boundaries with ci-param-u32 to preserve separate row and column values. objdiff 87.89%; insns 99/100 diffs 67; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-ci-param-u32.
+
+c-icon-ci-param-const-u32: Apply the returning GX member boundaries with ci-param-const-u32 to preserve separate row and column values. objdiff 87.89%; insns 99/100 diffs 67; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-ci-param-const-u32.
+
+c-icon-ci-param-s16: Apply the returning GX member boundaries with ci-param-s16 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-ci-param-s16.
+
+c-banner-clean: Keep the exact banner with readable private member names and formatting, guarded to this translation unit. objdiff 100.0%; insns 106/106 diffs 0; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-banner-clean.
+
+c-icon-member-index-types-s32-s32-s32-s32: Apply the returning GX member boundaries with member-index-types-s32-s32-s32-s32 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-s32-s32-s32-s32.
+
+c-icon-member-index-types-s32-s32-s32-u32: Apply the returning GX member boundaries with member-index-types-s32-s32-s32-u32 to preserve separate row and column values. objdiff 92.84%; insns 100/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-s32-s32-s32-u32.
+
+c-icon-member-index-types-s32-s32-u32-s32: Apply the returning GX member boundaries with member-index-types-s32-s32-u32-s32 to preserve separate row and column values. objdiff 95.84%; insns 99/100 diffs 58; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-s32-s32-u32-s32.
+
+c-icon-member-index-types-s32-s32-u32-u32: Apply the returning GX member boundaries with member-index-types-s32-s32-u32-u32 to preserve separate row and column values. objdiff 96.74%; insns 99/100 diffs 59; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-s32-s32-u32-u32.
+
+c-icon-member-index-types-s32-u32-s32-s32: Apply the returning GX member boundaries with member-index-types-s32-u32-s32-s32 to preserve separate row and column values. objdiff 92.98%; insns 101/100 diffs 40; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-s32-u32-s32-s32.
+
+c-icon-member-index-types-s32-u32-s32-u32: Apply the returning GX member boundaries with member-index-types-s32-u32-s32-u32 to preserve separate row and column values. objdiff 86.89%; insns 100/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-s32-u32-s32-u32.
+
+c-icon-member-index-types-s32-u32-u32-s32: Apply the returning GX member boundaries with member-index-types-s32-u32-u32-s32 to preserve separate row and column values. objdiff 91.89%; insns 100/100 diffs 52; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-s32-u32-u32-s32.
+
+c-icon-member-index-types-s32-u32-u32-u32: Apply the returning GX member boundaries with member-index-types-s32-u32-u32-u32 to preserve separate row and column values. objdiff 87.89%; insns 99/100 diffs 67; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-s32-u32-u32-u32.
+
+c-icon-member-index-types-u32-s32-s32-s32: Apply the returning GX member boundaries with member-index-types-u32-s32-s32-s32 to preserve separate row and column values. objdiff 87.89%; insns 99/100 diffs 67; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-u32-s32-s32-s32.
+
+c-icon-member-index-types-u32-s32-s32-u32: Apply the returning GX member boundaries with member-index-types-u32-s32-s32-u32 to preserve separate row and column values. objdiff 91.89%; insns 100/100 diffs 52; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-u32-s32-s32-u32.
+
+c-icon-member-index-types-u32-s32-u32-s32: Apply the returning GX member boundaries with member-index-types-u32-s32-u32-s32 to preserve separate row and column values. objdiff 86.89%; insns 100/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-u32-s32-u32-s32.
+
+c-icon-member-index-types-u32-s32-u32-u32: Apply the returning GX member boundaries with member-index-types-u32-s32-u32-u32 to preserve separate row and column values. objdiff 92.98%; insns 101/100 diffs 40; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-u32-s32-u32-u32.
+
+c-icon-member-index-types-u32-u32-s32-s32: Apply the returning GX member boundaries with member-index-types-u32-u32-s32-s32 to preserve separate row and column values. objdiff 96.74%; insns 99/100 diffs 59; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-u32-u32-s32-s32.
+
+c-icon-member-index-types-u32-u32-s32-u32: Apply the returning GX member boundaries with member-index-types-u32-u32-s32-u32 to preserve separate row and column values. objdiff 95.84%; insns 99/100 diffs 58; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-u32-u32-s32-u32.
+
+c-icon-member-index-types-u32-u32-u32-s32: Apply the returning GX member boundaries with member-index-types-u32-u32-u32-s32 to preserve separate row and column values. objdiff 92.84%; insns 100/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-u32-u32-u32-s32.
+
+c-icon-member-index-types-u32-u32-u32-u32: Apply the returning GX member boundaries with member-index-types-u32-u32-u32-u32 to preserve separate row and column values. objdiff 96.84%; insns 100/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-index-types-u32-u32-u32-u32.
+
+c-icon-palette-load-in-member-s32-s32: Keep the complete palette load-in-member operation within a real member boundary and consume its s32 file index. objdiff 85.6%; insns 101/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-in-member-s32-s32.
+
+c-icon-palette-load-in-member-s32-u32: Keep the complete palette load-in-member operation within a real member boundary and consume its s32 file index. objdiff 92.64%; insns 102/100 diffs 36; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-in-member-s32-u32.
+
+Rx7c banner exact candidate and allocator explanation
+
+- Target banner register map: metadata root r31, file-byte offset r30, slot-byte offset r29, file r28, slot r27, this r26, selected metadata r25; CI texture row r22, shared column r24, palette row r23. Re-read the target Ghidra export and every GX call in target asm. Target validation computes (file offset + root) + slot offset, then the selected metadata computes (root + slot offset) + file offset. Each palette use recomputes row + column. There is no extra out-of-line member call; an inlined member boundary is consistent with the target.
+- Direct metadata expressions plus actual MemoryCardManager GX initializer methods produce the target metadata graph. The signed file parameter gives the inline indexed calculation a distinct boundary from the caller's u32 file. In mwdbg-c-banner-exact, root v50, file offset v39 and slot offset v38 survive until final simplify at degrees 12, 13, 14 and color first as r31, r30, r29. The selected metadata v66 instead simplifies at degree 28 during the first sweep, so it colors after this/slot/file and takes target r25. Baseline selected-pointer CSE had colored before the offsets.
+- A void RGB initializer left a second column multiply after GXInitTexObj, 107/106 instructions. Returning its actual GXTexObj pointer and loading that return value preserves the target row/column operands across the call, giving 106 instructions with only the two palette-load setup instructions swapped. Returning the actual GXTlutObj pointer from palette initialization moves its address formation before the map constant. Using the same signed file index for the following texture load removes the otherwise extra column-copy mr. These are ordinary field access and initialized object returns, with no carrier or uninitialized value.
+- The final member helpers are private, formatted normally, and restricted by the existing IPL_MEMORY_CARD_MANAGER_CPP macro. They add no fields or virtual methods. create_banner reads the same metadata and passes the same addresses/data/formats to the same GX functions in the same order. The file values are directory indices into the 127-entry cell arrays; the explicit signed index agrees with the initializer parameters.
+- mwdbg-c-banner-exact is byte-identical to independent original-Ninja-flags wibo, including SJIS. The cleaned source compiled by normal Ninja is byte-identical to that captured whole object. Exact-name objdiff 90.42453 -> 100.0, ctxdiff 106/106 diffs 0, empty pools identical, no other function drops. The quick three-unit gate passes, with zero forbidden additions or readability warnings. Clean final gate remains pending until all searches finish.
+
+c-icon-palette-load-in-member-u32-s32: Keep the complete palette load-in-member operation within a real member boundary and consume its u32 file index. objdiff 82.6%; insns 102/100 diffs 55; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-in-member-u32-s32.
+
+c-icon-palette-load-in-member-u32-u32: Keep the complete palette load-in-member operation within a real member boundary and consume its u32 file index. objdiff 85.79%; insns 102/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-in-member-u32-u32.
+
+c-icon-palette-load-and-return-s32-s32: Keep the complete palette load-and-return operation within a real member boundary and consume its s32 file index. objdiff 85.6%; insns 101/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-and-return-s32-s32.
+
+c-icon-palette-load-and-return-s32-u32: Keep the complete palette load-and-return operation within a real member boundary and consume its s32 file index. objdiff 85.6%; insns 101/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-and-return-s32-u32.
+
+c-icon-palette-load-and-return-u32-s32: Keep the complete palette load-and-return operation within a real member boundary and consume its u32 file index. objdiff 85.79%; insns 102/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-and-return-u32-s32.
+
+c-icon-palette-load-and-return-u32-u32: Keep the complete palette load-and-return operation within a real member boundary and consume its u32 file index. objdiff 85.79%; insns 102/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-and-return-u32-u32.
+
+c-icon-palette-cell-reference-s32-s32: Keep the complete palette cell-reference operation within a real member boundary and consume its s32 file index. objdiff 90.55%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-cell-reference-s32-s32.
+
+c-icon-palette-cell-reference-s32-u32: Keep the complete palette cell-reference operation within a real member boundary and consume its s32 file index. objdiff 97.69%; insns 101/100 diffs 29; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-cell-reference-s32-u32.
+
+c-icon-palette-cell-reference-u32-s32: Keep the complete palette cell-reference operation within a real member boundary and consume its u32 file index. objdiff 85.64%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-cell-reference-u32-s32.
+
+c-icon-palette-cell-reference-u32-u32: Keep the complete palette cell-reference operation within a real member boundary and consume its u32 file index. objdiff 90.49%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-cell-reference-u32-u32.
+
+c-icon-palette-load-return-index-s32-s32: Keep the complete palette load-return-index operation within a real member boundary and consume its s32 file index. objdiff 92.64%; insns 102/100 diffs 36; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-return-index-s32-s32.
+
+c-icon-palette-load-return-index-s32-u32: Keep the complete palette load-return-index operation within a real member boundary and consume its s32 file index. objdiff 92.64%; insns 102/100 diffs 36; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-return-index-s32-u32.
+
+c-icon-palette-load-return-index-u32-s32: Keep the complete palette load-return-index operation within a real member boundary and consume its u32 file index. objdiff 85.79%; insns 102/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-return-index-u32-s32.
+
+c-icon-palette-load-return-index-u32-u32: Keep the complete palette load-return-index operation within a real member boundary and consume its u32 file index. objdiff 85.79%; insns 102/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-palette-load-return-index-u32-u32.
+
+c-thread-degree-free-slot-file-scanResult-listingFile: Order the actual mount slot, file, joined result and listing nodes across c-thread-free-helper-freeFile-freeBlocks-result so fewer neighbors remain at first simplify. objdiff 98.52159%; insns 301/301 diffs 48; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-free-slot-file-scanResult-listingFile.
+
+c-thread-degree-free-scanResult-file-slot-listingFile: Order the actual mount slot, file, joined result and listing nodes across c-thread-free-helper-freeFile-freeBlocks-result so fewer neighbors remain at first simplify. objdiff 98.58804%; insns 301/301 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-free-scanResult-file-slot-listingFile.
+
+c-thread-degree-free-file-slot-scanResult-listingFile: Order the actual mount slot, file, joined result and listing nodes across c-thread-free-helper-freeFile-freeBlocks-result so fewer neighbors remain at first simplify. objdiff 98.75415%; insns 301/301 diffs 34; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-free-file-slot-scanResult-listingFile.
+
+c-thread-degree-free-listingFile-slot-file-scanResult: Order the actual mount slot, file, joined result and listing nodes across c-thread-free-helper-freeFile-freeBlocks-result so fewer neighbors remain at first simplify. objdiff 98.52159%; insns 301/301 diffs 48; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-free-listingFile-slot-file-scanResult.
+
+c-thread-degree-free-slot-scanResult-file-listingFile: Order the actual mount slot, file, joined result and listing nodes across c-thread-free-helper-freeFile-freeBlocks-result so fewer neighbors remain at first simplify. objdiff 98.63787%; insns 301/301 diffs 42; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-free-slot-scanResult-file-listingFile.
+
+c-thread-degree-free-slot-listingFile-file-scanResult: Order the actual mount slot, file, joined result and listing nodes across c-thread-free-helper-freeFile-freeBlocks-result so fewer neighbors remain at first simplify. objdiff 98.52159%; insns 301/301 diffs 48; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-free-slot-listingFile-file-scanResult.
+
+c-thread-degree-entry-slot-file-scanResult-listingFile: Order the actual mount slot, file, joined result and listing nodes across c-thread-process-entry-s32-boolean so fewer neighbors remain at first simplify. objdiff 97.65116%; insns 298/301 diffs 201; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-entry-slot-file-scanResult-listingFile.
+
+c-thread-degree-entry-scanResult-file-slot-listingFile: Order the actual mount slot, file, joined result and listing nodes across c-thread-process-entry-s32-boolean so fewer neighbors remain at first simplify. objdiff 97.601326%; insns 298/301 diffs 202; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-entry-scanResult-file-slot-listingFile.
+
+c-thread-degree-entry-file-slot-scanResult-listingFile: Order the actual mount slot, file, joined result and listing nodes across c-thread-process-entry-s32-boolean so fewer neighbors remain at first simplify. objdiff 97.76744%; insns 298/301 diffs 198; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-entry-file-slot-scanResult-listingFile.
+
+c-thread-degree-entry-listingFile-slot-file-scanResult: Order the actual mount slot, file, joined result and listing nodes across c-thread-process-entry-s32-boolean so fewer neighbors remain at first simplify. objdiff 97.65116%; insns 298/301 diffs 201; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-entry-listingFile-slot-file-scanResult.
+
+c-thread-degree-entry-slot-scanResult-file-listingFile: Order the actual mount slot, file, joined result and listing nodes across c-thread-process-entry-s32-boolean so fewer neighbors remain at first simplify. objdiff 97.601326%; insns 298/301 diffs 202; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-entry-slot-scanResult-file-listingFile.
+
+c-thread-degree-entry-slot-listingFile-file-scanResult: Order the actual mount slot, file, joined result and listing nodes across c-thread-process-entry-s32-boolean so fewer neighbors remain at first simplify. objdiff 97.65116%; insns 298/301 diffs 201; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-degree-entry-slot-listingFile-file-scanResult.
+
+Rx7c thread and SD allocator follow-up
+
+- The self-contained game-block-count helper preserves 301 instructions but changes color reuse rather than fixing mount state. In mwdbg-c-thread-free-helper, command v35 simplifies first at degree24, scanResult v37 at23, file v38 at23 and listingFile v39 at21; mount slot v36 still survives to the final sweep at degree17 and takes r26. Named result/file/listing then take r22/r20/r19, while the target needs r20/r23/r23 and slot r22. The actual outer-slot/validity/exit state remains correctly r26/r25/r24. Six helper-local declaration orders, combined mount-local orders, and independent format/delete result variables do not solve that threshold. The completed debugger object equals original-flags wibo.
+- The directory-listing helper introduces one instruction and the per-file process helper combines error branches, dropping three or eight instructions. Neither matches the target. Returning validity state after reporting, passing it by reference, assigning it inside the report argument, reusing successive file indices and response-value boundaries also fail to stop the reply's command coalescing/constant-one substitution. Only private snapshots changed.
+- SD receiver declarations at first/last/root/per-layout scopes and hoisted actual pane cursors all normalize to 1064 instructions and 175 differences. mwdbg-c-sd-hoisted-cursors validates against original-flags wibo. smArg remains in the final simplify sweep after the pool base; the receiver has low degree and is removed early. Real pane-trigger loop helpers add one instruction or fail to inline the complete tail. These are rejected, with source unchanged.
+- No banner source search is needed after the manual exact match. Nine 1200-second searches for thread, SD and icon are queued under the unchanged 24-slot limiter, using seeds 207/219/231 and new helper candidates where available. Their time budgets start only after a slot is acquired.
+
+c-sd-message-inline-const-u32: Change only the actual System message inline primitive parameter identity to const u32; inspect the late smArg temporary. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-message-inline-const-u32.
+
+c-thread-mount-helper-u8-result-reference: Separate mount/repair/check into a real success helper with result-reference output and u8 slot. objdiff 96.3289%; insns 305/301 diffs 239; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-mount-helper-u8-result-reference.
+
+c-sd-message-inline-unsigned-int: Change only the actual System message inline primitive parameter identity to unsigned int; inspect the late smArg temporary. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-message-inline-unsigned-int.
+
+c-thread-mount-helper-u8-result-pointer: Separate mount/repair/check into a real success helper with result-pointer output and u8 slot. objdiff 96.3289%; insns 305/301 diffs 239; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-mount-helper-u8-result-pointer.
+
+c-thread-mount-helper-s32-result-reference: Separate mount/repair/check into a real success helper with result-reference output and s32 slot. objdiff 96.3289%; insns 305/301 diffs 239; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-mount-helper-s32-result-reference.
+
+c-sd-message-inline-const-unsigned-int: Change only the actual System message inline primitive parameter identity to const unsigned int; inspect the late smArg temporary. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-message-inline-const-unsigned-int.
+
+c-thread-mount-helper-s32-result-pointer: Separate mount/repair/check into a real success helper with result-pointer output and s32 slot. objdiff 96.3289%; insns 305/301 diffs 239; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-mount-helper-s32-result-pointer.
+
+c-sd-message-inline-s32: Change only the actual System message inline primitive parameter identity to s32; inspect the late smArg temporary. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-message-inline-s32.
+
+c-thread-mount-helper-const-u8-result-reference: Separate mount/repair/check into a real success helper with result-reference output and const u8 slot. objdiff 96.3289%; insns 305/301 diffs 239; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-mount-helper-const-u8-result-reference.
+
+c-sd-message-inline-const-s32: Change only the actual System message inline primitive parameter identity to const s32; inspect the late smArg temporary. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-message-inline-const-s32.
+
+c-thread-mount-helper-const-u8-result-pointer: Separate mount/repair/check into a real success helper with result-pointer output and const u8 slot. objdiff 96.3289%; insns 305/301 diffs 239; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-thread-mount-helper-const-u8-result-pointer.
+
+c-sd-return-assigned-pointer-u32: Return the actual localized text receiver from its assignment boundary with pointer and u32 inputs. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-return-assigned-pointer-u32.
+
+c-sd-return-assigned-pointer-const-u32: Return the actual localized text receiver from its assignment boundary with pointer and const u32 inputs. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-return-assigned-pointer-const-u32.
+
+c-sd-return-assigned-pointer-unsigned-int: Return the actual localized text receiver from its assignment boundary with pointer and unsigned int inputs. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-return-assigned-pointer-unsigned-int.
+
+c-sd-return-assigned-reference-u32: Return the actual localized text receiver from its assignment boundary with reference and u32 inputs. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-return-assigned-reference-u32.
+
+c-sd-return-assigned-reference-const-u32: Return the actual localized text receiver from its assignment boundary with reference and const u32 inputs. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-return-assigned-reference-const-u32.
+
+c-sd-return-assigned-reference-unsigned-int: Return the actual localized text receiver from its assignment boundary with reference and unsigned int inputs. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-sd-return-assigned-reference-unsigned-int.
+
+c-icon-load-return-direct-s16-ci: Return the actually loaded texture from a MemoryCardManager member after palette setup; s16 ci input boundary. objdiff 91.74%; insns 100/100 diffs 35; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-s16-ci.
+
+c-icon-load-return-direct-s16-both: Return the actually loaded texture from a MemoryCardManager member after palette setup; s16 both input boundary. objdiff 79.59%; insns 98/100 diffs 51; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-s16-both.
+
+c-icon-load-return-direct-s16-member-index: Return the actually loaded texture from a MemoryCardManager member after palette setup; s16 member-index input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-s16-member-index.
+
+c-icon-load-return-direct-s32-ci: Return the actually loaded texture from a MemoryCardManager member after palette setup; s32 ci input boundary. objdiff 91.74%; insns 100/100 diffs 35; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-s32-ci.
+
+c-icon-load-return-direct-s32-both: Return the actually loaded texture from a MemoryCardManager member after palette setup; s32 both input boundary. objdiff 79.59%; insns 98/100 diffs 51; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-s32-both.
+
+c-icon-load-return-direct-s32-member-index: Return the actually loaded texture from a MemoryCardManager member after palette setup; s32 member-index input boundary. objdiff 91.74%; insns 100/100 diffs 35; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-s32-member-index.
+
+c-icon-load-return-direct-u32-ci: Return the actually loaded texture from a MemoryCardManager member after palette setup; u32 ci input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-u32-ci.
+
+c-icon-load-return-direct-u32-both: Return the actually loaded texture from a MemoryCardManager member after palette setup; u32 both input boundary. objdiff 79.59%; insns 98/100 diffs 51; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-u32-both.
+
+c-icon-load-return-direct-u32-member-index: Return the actually loaded texture from a MemoryCardManager member after palette setup; u32 member-index input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-u32-member-index.
+
+c-icon-load-return-direct-const-u32-ci: Return the actually loaded texture from a MemoryCardManager member after palette setup; const u32 ci input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-const-u32-ci.
+
+c-icon-load-return-direct-const-u32-both: Return the actually loaded texture from a MemoryCardManager member after palette setup; const u32 both input boundary. objdiff 79.59%; insns 98/100 diffs 51; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-const-u32-both.
+
+c-icon-load-return-direct-const-u32-member-index: Return the actually loaded texture from a MemoryCardManager member after palette setup; const u32 member-index input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-direct-const-u32-member-index.
+
+c-icon-load-return-joined-s16-ci: Return the actually loaded texture from a MemoryCardManager member after palette setup; s16 ci input boundary. objdiff 91.74%; insns 100/100 diffs 35; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-s16-ci.
+
+c-icon-load-return-joined-s16-both: Return the actually loaded texture from a MemoryCardManager member after palette setup; s16 both input boundary. objdiff 79.59%; insns 98/100 diffs 51; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-s16-both.
+
+c-icon-load-return-joined-s16-member-index: Return the actually loaded texture from a MemoryCardManager member after palette setup; s16 member-index input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-s16-member-index.
+
+c-icon-load-return-joined-s32-ci: Return the actually loaded texture from a MemoryCardManager member after palette setup; s32 ci input boundary. objdiff 91.74%; insns 100/100 diffs 35; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-s32-ci.
+
+c-icon-load-return-joined-s32-both: Return the actually loaded texture from a MemoryCardManager member after palette setup; s32 both input boundary. objdiff 79.59%; insns 98/100 diffs 51; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-s32-both.
+
+c-icon-load-return-joined-s32-member-index: Return the actually loaded texture from a MemoryCardManager member after palette setup; s32 member-index input boundary. objdiff 91.74%; insns 100/100 diffs 35; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-s32-member-index.
+
+c-icon-load-return-joined-u32-ci: Return the actually loaded texture from a MemoryCardManager member after palette setup; u32 ci input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-u32-ci.
+
+c-icon-load-return-joined-u32-both: Return the actually loaded texture from a MemoryCardManager member after palette setup; u32 both input boundary. objdiff 79.59%; insns 98/100 diffs 51; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-u32-both.
+
+c-icon-load-return-joined-u32-member-index: Return the actually loaded texture from a MemoryCardManager member after palette setup; u32 member-index input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-u32-member-index.
+
+c-icon-load-return-joined-const-u32-ci: Return the actually loaded texture from a MemoryCardManager member after palette setup; const u32 ci input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-const-u32-ci.
+
+c-icon-load-return-joined-const-u32-both: Return the actually loaded texture from a MemoryCardManager member after palette setup; const u32 both input boundary. objdiff 79.59%; insns 98/100 diffs 51; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-const-u32-both.
+
+c-icon-load-return-joined-const-u32-member-index: Return the actually loaded texture from a MemoryCardManager member after palette setup; const u32 member-index input boundary. objdiff 94.24%; insns 101/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-load-return-joined-const-u32-member-index.
+
+The nine current searches remained queued together. The previously validated private fair_search_handoff wrapper now waits on ordinary existing global slots, releasing each reservation before resuming only our queued process. Every compiler search still acquires its own unchanged 24-slot limiter and runs the full 1200-second budget. No other process, lock file or capacity limit is modified.
+
+c-icon-joined-types-s32-s32-s32-joined: Align actual initializer index types with the unsigned result lookup and joined texture-result lifetime. objdiff 97.69%; insns 101/100 diffs 29; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-s32-s32-s32-joined.
+
+c-icon-joined-types-s32-s32-s32-initialized: Align actual initializer index types with the unsigned result lookup and initialized texture-result lifetime. objdiff 97.69%; insns 101/100 diffs 29; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-s32-s32-s32-initialized.
+
+c-icon-joined-types-s32-s32-u32-joined: Align actual initializer index types with the unsigned result lookup and joined texture-result lifetime. objdiff 97.69%; insns 101/100 diffs 29; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-s32-s32-u32-joined.
+
+c-icon-joined-types-s32-s32-u32-initialized: Align actual initializer index types with the unsigned result lookup and initialized texture-result lifetime. objdiff 97.69%; insns 101/100 diffs 29; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-s32-s32-u32-initialized.
+
+c-icon-joined-types-s32-u32-s32-joined: Align actual initializer index types with the unsigned result lookup and joined texture-result lifetime. objdiff 90.49%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-s32-u32-s32-joined.
+
+c-icon-joined-types-s32-u32-s32-initialized: Align actual initializer index types with the unsigned result lookup and initialized texture-result lifetime. objdiff 90.49%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-s32-u32-s32-initialized.
+
+c-icon-joined-types-s32-u32-u32-joined: Align actual initializer index types with the unsigned result lookup and joined texture-result lifetime. objdiff 90.49%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-s32-u32-u32-joined.
+
+c-icon-joined-types-s32-u32-u32-initialized: Align actual initializer index types with the unsigned result lookup and initialized texture-result lifetime. objdiff 90.49%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-s32-u32-u32-initialized.
+
+c-icon-joined-types-u32-s32-s32-joined: Align actual initializer index types with the unsigned result lookup and joined texture-result lifetime. objdiff 85.64%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-u32-s32-s32-joined.
+
+c-icon-joined-types-u32-s32-s32-initialized: Align actual initializer index types with the unsigned result lookup and initialized texture-result lifetime. objdiff 85.64%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-u32-s32-s32-initialized.
+
+c-icon-joined-types-u32-s32-u32-joined: Align actual initializer index types with the unsigned result lookup and joined texture-result lifetime. objdiff 85.64%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-u32-s32-u32-joined.
+
+c-icon-joined-types-u32-s32-u32-initialized: Align actual initializer index types with the unsigned result lookup and initialized texture-result lifetime. objdiff 85.64%; insns 101/100 diffs 56; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-u32-s32-u32-initialized.
+
+c-icon-joined-types-u32-u32-s32-joined: Align actual initializer index types with the unsigned result lookup and joined texture-result lifetime. objdiff 90.55%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-u32-u32-s32-joined.
+
+c-icon-joined-types-u32-u32-s32-initialized: Align actual initializer index types with the unsigned result lookup and initialized texture-result lifetime. objdiff 90.55%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-u32-u32-s32-initialized.
+
+c-icon-joined-types-u32-u32-u32-joined: Align actual initializer index types with the unsigned result lookup and joined texture-result lifetime. objdiff 90.55%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-u32-u32-u32-joined.
+
+c-icon-joined-types-u32-u32-u32-initialized: Align actual initializer index types with the unsigned result lookup and initialized texture-result lifetime. objdiff 90.55%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-joined-types-u32-u32-u32-initialized.
+
+c-icon-member-field-s32-result: Select the actual MCFileCell texture member through a typed member-pointer accessor at result uses. objdiff 91.0%; insns 102/100 diffs 45; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-field-s32-result.
+
+Rx7c icon allocator conclusion from the new member calls
+
+- mwdbg-c-icon-return-members is validated byte-for-byte against original-flags wibo. It fixes the metadata prefix and the RGB address operation, reaching 96.84% at 100/100 instructions, but the common texture result is v42/r27 rather than target r24. The CI full texture pointer is still formed before GXInitTexObjCI, so its lifetime displaces the column to r28 and row to r23 and expands the save frame to 0x40 rather than 0x30. The result-to-r3 copies all fail coalescing due to interference.
+- An explicitly joined result with an unsigned final lookup avoids the early complete pointer but adds one late column copy. mwdbg-c-icon-result-index validates independently: before allocation the final column is a second mulli v109; later optimization turns it into mr, after allocation. Its extra use keeps file v34 live, blocking the target column r27. The named result v38 simplifies at degree12, CI row v41 at26, column v44 at23; their colors are result/row r23 and column r26. The desired early column CSE must occur without recreating full-pointer CSE.
+- Signed/unsigned initializer parameters, returned palette references, initializer-and-load member boundaries, explicit returned texture joins, and initialization of that genuine result were tested. They either restore full-pointer CSE or leave the extra late copy/instruction. No icon helper or index change is retained. The best positional candidate remains 17 differences and 93.35%, while the higher 96.84% candidate still has the wrong frame/address lifetime.
+
+c-icon-member-field-s32-init: Select the actual MCFileCell texture member through a typed member-pointer accessor at init uses. objdiff 90.0%; insns 103/100 diffs 46; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-field-s32-init.
+
+c-icon-member-field-s32-all: Select the actual MCFileCell texture member through a typed member-pointer accessor at all uses. objdiff 71.93%; insns 108/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-field-s32-all.
+
+c-icon-member-field-u32-result: Select the actual MCFileCell texture member through a typed member-pointer accessor at result uses. objdiff 90.0%; insns 103/100 diffs 46; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-field-u32-result.
+
+c-icon-member-field-u32-init: Select the actual MCFileCell texture member through a typed member-pointer accessor at init uses. objdiff 86.3%; insns 104/100 diffs 52; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-field-u32-init.
+
+c-icon-member-field-u32-all: Select the actual MCFileCell texture member through a typed member-pointer accessor at all uses. objdiff 71.93%; insns 108/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-member-field-u32-all.
+
+c-icon-row-array-s32-result: Use the actual fixed MCFileCell row as the result accessor input. objdiff 91.0%; insns 102/100 diffs 45; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-row-array-s32-result.
+
+c-icon-row-array-s32-init: Use the actual fixed MCFileCell row as the init accessor input. objdiff 90.0%; insns 103/100 diffs 46; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-row-array-s32-init.
+
+c-icon-row-array-u32-result: Use the actual fixed MCFileCell row as the result accessor input. objdiff 90.0%; insns 103/100 diffs 46; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-row-array-u32-result.
+
+c-icon-row-array-u32-init: Use the actual fixed MCFileCell row as the init accessor input. objdiff 86.3%; insns 104/100 diffs 52; pool identical; other drops []. Trial retained only under build/rx7c/trials/c-icon-row-array-u32-init.
+
+Rx7c manual-pass audit: sd 21 compiled source trials, icon 140 compiled source trials, thread 70 compiled source trials, banner 61 compiled source trials. All four assigned functions received more than three distinct source-level attempts, target/Ghidra review and independently validated candidate allocator dumps. Only the exact banner source and its ordinary private member helpers are applied. Candidate results and source hashes are indexed in build/rx7c/manual-summary.json; failed compile trials are also logged above.
+
+Banner source review confirms sort_file_array writes real file numbers from its 0..0x7E loop; card removal also uses the existing -1 sentinel. The signed helper index and explicit final cast agree for all valid entries. No validation or sentinel handling changed, and the complete emitted function is exact. Only create_banner differs outside the guarded nonvirtual member definitions; every other owned function score is unchanged. The literal checker analyzes the banner successfully with zero string arguments and no errors.
+
+Search interpretation: srcsearch prints SOLUTION for equal instruction counts even below 100% fuzzy. Current thread-219 messages in the 98.x range are partial candidates, not exact matches. The final handoff checks exact-name objdiff and zero positional differences independently; no such partial candidate is applied.
+
+Rx7c completed source searches
+
+- thread seeds 207/219/231: 360/357/358 trials; best scores 98.920265/98.87043/98.920265%. All ran their full 1200-second budgets after acquiring normal global slots and exited 0. No exact function found; no search source applied.
+- sd seeds 207/219/231: 313/315/311 trials; best scores 99.15884/99.15884/99.15884%. All ran their full 1200-second budgets after acquiring normal global slots and exited 0. No exact function found; no search source applied.
+- icon seeds 207/219/231: 1280/1295/1288 trials; best scores 96.84/93.35/96.84%. All ran their full 1200-second budgets after acquiring normal global slots and exited 0. No exact function found; no search source applied.
+- All nine search processes and the private fairness helper have exited. No full build ran concurrently with another full build. The clean three-unit gate started after the last search exited; output is build/rx7c/final-gate.log. Search details: build/rx7c/search-summary.json.
+
+
+Rx7c final clean gate and handoff (2026-10-05)
+
+- Clean gate (without --quick) passed for MemoryCardManager, CardSequence and SDMemory. Full 43U build passed; main.dol SHA1 is 26116613f624061ba99c8d1a299aaa6efa85670d. All three pools are IDENTICAL. There are zero regressions against origin/main, zero net forbidden patterns and zero readability warnings. Evidence: build/rx7c/final-gate.log.
+- MemoryCardManager: exact functions 24/26 -> 25/26; matched code 4572/5396 -> 4996/5396; no data section. create_banner 90.42453% -> 100.0%, 106/106 instructions, diffs 0. _create_icon remains 87.55%, 100/100 instructions, diffs 37. getComment remains 100.0%, 123/123 instructions, diffs 0.
+- CardSequence: exact functions 28/30 -> 28/30; code 6600/9852 and data 1496/1496 unchanged. cardThreadMain remains 97.9402%, 301/301 instructions, diffs 78. The landed runCardMoveOrCopy remains 100.0%, 608/608 instructions, diffs 0.
+- SDMemory: exact functions 64/66 -> 64/66; code 14812/20872 and data 3344/3344 unchanged. create remains 99.15884%, 1064/1064 instructions, diffs 175.
+- Post-gate progress/report generation, decomp_status.py and build/43U/ok passed. check_decomp_complete.py exits 1 because the overall project still has unmatched/unlinked code and data (overall exact code 93.589424%, linked code 79.266525%). This result is not a full-project completion claim. Evidence: build/rx7c/final-{progress,status,completion}.log.
+- Post-gate exact-name objdiff, ctxdiff and pool results are recorded in build/rx7c/final-measurements.json and final-ctx-*.txt/final-pool-*.txt. The banner literal check analyzed one function, zero string arguments, zero candidates and zero errors.
+- Final source hashes equal the retained candidate hashes in build/rx7c/retained-source.json. Only create_banner, its three private nonvirtual member initializers, and this attempts log are changed. The winning object was also independently byte-validated by mwdbg against the original Ninja flags. No source changes were retained for the other three assigned functions.
+- Allocator handoff: banner root/file-offset/slot-offset survive final simplification at degrees 12/13/14 and take r31/r30/r29; selected metadata simplifies earlier at degree 28 and takes r25. Returning initialized texture/palette objects moves their address formation past GX calls; matching the signed initializer index at the CI texture load removes the last late copy. SD still gives late smArg priority over the string pool; thread still has mount-slot degree and reply-coalescing differences; icon still has full-pointer CSE or an extra column copy after allocation. Detailed validated dump paths and rejected source trials are recorded above.
+
+GATE PASS
