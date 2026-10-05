@@ -112,7 +112,7 @@ namespace ipl {
 
             void startChangeChannel(int page, int index);
             void reserveNextScene();
-            void reserveSettingScene(bool unk);
+            void reserveSettingScene(bool skipConfirmation);
 
             void prepareForBoot1(int sceneID);
             void prepareForBoot2(int sceneID);
@@ -318,9 +318,9 @@ namespace ipl {
             int mDiskState2;  // 0x78
 
             nw4r::math::VEC3 mDispTrans;  // 0x7C
-            u32 unk_0x88;
-            int unk_0x8C;
-            bool unk_0x90;
+            u32 mBootWaitFrame;
+            int mStartButtonState;
+            bool mbBannerStartPending;
 
             layout::GroupAnimator* mpGrpAnims[ANIM_GRP_MAX][ANIM_MAX];  // 0x94
             layout::Animator* mpChangeAnims[ANIM_MAX];                  // 0x1D4
@@ -352,8 +352,8 @@ namespace ipl {
             layout::Object* mpDiskBnrLayout;                                     // 0x254
             layout::Animator* mpDiskBnrAnims[DISK_ANIM_GRP_MAX][DISK_ANIM_MAX];  // 0x258
 
-            undefined unk_0x320[4];
-            undefined unk_0x324;
+            undefined reservedAfterDiskAnims[4];
+            undefined mWiiDiskReady;
 
             nand::LayoutFile* mpGCBannerFile;       // 0x328
             layout::Object* mpGCBannerLyt;          // 0x32C
@@ -371,24 +371,24 @@ namespace ipl {
             CsChanTtlButtonEventHandler* mpButtonEvent;  // 0x354
             utility::Capture* mpCapture;                 // 0x358
             ESTmdView* mpCurTicket;                      // 0x35C
-            bool unk_0x360;
+            bool mbTmdReady;
             u16 mCurGameCode;  // 0x362
 
             ESTitleId mTmpTitleID;  // 0x368
-            bool unk_0x370;
-            bool unk_0x371;
+            bool mbTmpTitleCleanupDone;
+            bool mbTicketLimitReady;
 
             u32 mLimitType;        // 0x374
             u32 mTimeLimitRemain;  // 0x378
 
-            bool unk_0x37C;
+            bool mbStartButtonFocusPlayed;
 
             int mModuleState;                   // 0x380
             int mModuleType;                    // 0x384
             volatile bool mbModuleSceneChange;  // 0x388
             bool mbRSODoneCalc;                 // 0x389
-            u32 unk_0x38C;
-            u32 unk_0x390;
+            u32 mModuleFrame;
+            u32 mModuleInterval;
             nand::SharedFile* mpModuleFile;                       // 0x394
             EGG::ExpHeap* mpRsoExpHeaps[2];                       // 0x398
             int mCurRsoExpHeap;                                   // 0x39C

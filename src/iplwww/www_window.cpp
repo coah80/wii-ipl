@@ -31,12 +31,12 @@ namespace ext_ead {
             unk_0x2B0 = 0;
             mRenderingMode = 6;
 
-            unk_0x2C4[0] = 0;
-            unk_0x2C4[1] = 0;
-            unk_0x2C4[2] = 0;
-            unk_0x2C4[3] = 0;
-            unk_0x2C4[4] = 0;
-            unk_0x2C4[5] = 0;
+            mPageLoadStatus[0] = 0;
+            mPageLoadStatus[1] = 0;
+            mPageLoadStatus[2] = 0;
+            mPageLoadStatus[3] = 0;
+            mPageLoadStatus[4] = 0;
+            mPageLoadStatus[5] = 0;
 
             int i, j;
             for (i = 0; i < (int)ARRAY_LENGTH(mTexBufArr); i++) {
@@ -140,42 +140,42 @@ namespace ext_ead {
         }
 
         void BrowserWindow::UpdateTexture() {
-            if (unk_0x2C4[0] == 0 && unk_0x2C4[1] != 0) {
+            if (mPageLoadStatus[0] == 0 && mPageLoadStatus[1] != 0) {
                 print::IPLWWWReport(print::WWW_DEBUG, "   XXX BrowserWindow::CopyToTextureBuffer\n");
                 TileBlit_();
-                unk_0x2C4[1] = 0;
+                mPageLoadStatus[1] = 0;
             }
         }
 
         void BrowserWindow::ExecWwwEvent_(int eventCode, WWWHandleEventData* dataHandle) {
             switch (eventCode) {
                 case WWW_EVT_URL_CHANGE: {
-                    if (unk_0x2C4[2] == '\0') {
+                    if (mPageLoadStatus[2] == '\0') {
                         unk_0x2C0 = (unk_0x2B0 + 1) % 2;
                         unk_0x2BC = unk_0x2B4[unk_0x2C0];
                     }
-                    unk_0x2C4[4] = 1;
-                    unk_0x2C4[2] = 1;
-                    unk_0x2C4[0] = 1;
+                    mPageLoadStatus[4] = 1;
+                    mPageLoadStatus[2] = 1;
+                    mPageLoadStatus[0] = 1;
                     break;
                 }
                 case WWW_EVT_LOADING_START: {
-                    if (unk_0x2C4[2] == '\0') {
-                        if (unk_0x2C4[4] == '\0') {
+                    if (mPageLoadStatus[2] == '\0') {
+                        if (mPageLoadStatus[4] == '\0') {
                             unk_0x2C0 = unk_0x2B0;
                             unk_0x2BC = (int)(unk_0x2B4[unk_0x2B0] + 1) % 3;
                         }
-                        unk_0x2C4[4] = 1;
-                        unk_0x2C4[0] = 1;
+                        mPageLoadStatus[4] = 1;
+                        mPageLoadStatus[0] = 1;
                         print::IPLWWWReport(2, " LoadinStart: %d\n", unk_0x2B4[unk_0x2B0]);
                     }
                     break;
                 }
                 case WWW_EVT_LOADING_FINISHED: {
                     BOOL level = OSDisableInterrupts();
-                    if (unk_0x2C4[0] != '\0') {
-                        unk_0x2C4[0] = 0;
-                        unk_0x2C4[1] = 1;
+                    if (mPageLoadStatus[0] != '\0') {
+                        mPageLoadStatus[0] = 0;
+                        mPageLoadStatus[1] = 1;
                     }
                     OSRestoreInterrupts(level);
                     break;
@@ -209,7 +209,7 @@ namespace ext_ead {
 
         void BrowserWindow::TileBlit_() {
             typedef u32 SubRow[4];
-            if (unk_0x2C4[0] != '\0') {
+            if (mPageLoadStatus[0] != '\0') {
                 return;
             }
 
@@ -267,15 +267,15 @@ namespace ext_ead {
             *newRect = rect;
 
             BOOL level = OSDisableInterrupts();
-            if (unk_0x2C4[2] != '\0') {
-                unk_0x2C4[2] = 0;
-                unk_0x2C4[3] = 1;
+            if (mPageLoadStatus[2] != '\0') {
+                mPageLoadStatus[2] = 0;
+                mPageLoadStatus[3] = 1;
             }
 
-            unk_0x2C4[4] = 0;
+            mPageLoadStatus[4] = 0;
             unk_0x2B0 = unk_0x2C0;
             unk_0x2B4[unk_0x2C0] = unk_0x2BC;
-            unk_0x2C4[5] = 1;
+            mPageLoadStatus[5] = 1;
 
             OSRestoreInterrupts(level);
         }
@@ -445,9 +445,9 @@ namespace ext_ead {
         void* BrowserWindow::GetTextureBuffer(int a, bool b, WWWRect** rectPtrOut) {
             u32 i;
             u32 j;
-            if (!b && unk_0x2C4[5] == 0)
+            if (!b && mPageLoadStatus[5] == 0)
                 return NULL;
-            if (unk_0x2C4[4] != 0 && b) {
+            if (mPageLoadStatus[4] != 0 && b) {
                 i = unk_0x2C0;
                 j = unk_0x2BC;
             } else {

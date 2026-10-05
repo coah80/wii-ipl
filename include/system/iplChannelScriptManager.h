@@ -20,7 +20,7 @@ namespace ipl {
         // here to avoid typing in long namespaces constantly :P
         enum {
             CHANS_VM_ALT_SND_STATE_UNAVAILABLE = 0,
-            CHANS_VM_ALT_SND_STATE_UNK1,
+            CHANS_VM_ALT_SND_STATE_FALLBACK,
             CHANS_VM_ALT_SND_STATE_PLAY,
         };
 
@@ -32,7 +32,7 @@ namespace ipl {
                 layout::Animator** anims;  // 0x08
                 u64 titleId;               // 0x10
                 bool threadTerminated;     // 0x18
-                bool unk_0x19;
+                bool isThumbnail;
                 bool mbHasNewMessage;  // 0x1A
 
                 EGG::ExpHeap* getHeap() { return heap; }

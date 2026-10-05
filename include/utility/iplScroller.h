@@ -32,8 +32,8 @@ namespace ipl {
             void set_arw_param();
 
             int mState;  // 0x04
-            math::VEC2 unk_0x08;
-            math::VEC2 unk_0x10;
+            math::VEC2 mPointerPosition;
+            math::VEC2 mScrollOrigin;
             f32 mSpeed;      // 0x18
             f32 mSoundFreq;  // 0x1C
         };
@@ -94,9 +94,9 @@ namespace ipl {
             f32 mUpLimit;    // 0x38
             f32 unk_0x3C;
             f32 mScroll;  // 0x40
-            f32 unk_0x44;
-            f32 unk_0x48;
-            f32 unk_0x4C;
+            f32 mButtonScrollOrigin;
+            f32 mVelocityDecay;
+            f32 mScrollAcceleration;
         };
     }  // namespace utility
 }  // namespace ipl

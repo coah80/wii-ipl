@@ -45,15 +45,15 @@ namespace ipl {
 
         typedef struct AOSSConfig {
             u16 version;           // 0x000
-            u8 unk_0x02;           // 0x002
-            u16 unk_0x04;          // 0x004
+            u8 interfaceType;           // 0x002
+            u16 ssidLength;          // 0x004
             u8 name[3];            // 0x006
             u8 pad_0x09[0xFD];     // 0x009
-            u16 unk_0x106;         // 0x106
-            u16 unk_0x108;         // 0x108
-            u16 unk_0x10A;         // 0x10A
-            u16 unk_0x10C;         // 0x10C
-            u16 unk_0x10E;         // 0x10E
+            u16 connectionAttemptLimit;         // 0x106
+            u16 responseWaitCount;         // 0x108
+            u16 requestAttemptLimit;         // 0x10A
+            u16 requestRetryDelay;         // 0x10C
+            u16 socketTimeoutMs;         // 0x10E
             u8 mac[6];             // 0x110
             u8 result;             // 0x116
             AOSSResult security;   // 0x117
@@ -62,7 +62,7 @@ namespace ipl {
         static u32 sAOSSStartTimeHi;
         static u32 sAOSSStartTimeLo;
         static s32 sAOSSState;
-        static s32 sAOSSUnk;
+        static s32 sAOSSReservedState;
 
         struct AOSSStack {
             u32 storage[4080];
@@ -173,14 +173,14 @@ namespace ipl {
 
             memset(&mAoss, 0, sizeof(mAoss));
             mAoss.version = 0xF;
-            mAoss.unk_0x106 = 0x32;
-            mAoss.unk_0x10A = 0x32;
-            mAoss.unk_0x108 = 0x64;
-            mAoss.unk_0x10C = 0x64;
-            mAoss.unk_0x10E = 0x4E20;
-            mAoss.unk_0x02 = 0x50;
+            mAoss.connectionAttemptLimit = 0x32;
+            mAoss.requestAttemptLimit = 0x32;
+            mAoss.responseWaitCount = 0x64;
+            mAoss.requestRetryDelay = 0x64;
+            mAoss.socketTimeoutMs = 0x4E20;
+            mAoss.interfaceType = 0x50;
             memcpy(mAoss.name, "Wii", 3);
-            mAoss.unk_0x04 = 4;
+            mAoss.ssidLength = 4;
             NETGetWirelessMacAddress(mAoss.mac);
 
             mpStack->sentinel = 0x97654321;

@@ -113,37 +113,37 @@ namespace ipl {
             void init(const T& start, const T& end, f32 maxFrame, f32 startTangent, f32 endTangent, int playback = ANIM_TYPE_FORWARD, f32 speed = 1.0f);
 
             T get() const {
-                f32 var_f27 = mFrame;
-                f32 var_f28 = 1.0f / mMaxFrame;
+                f32 frame = mFrame;
+                f32 inverseDuration = 1.0f / mMaxFrame;
                 T r =
                     (mStart *
-                     (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
-                    (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
+                     (1.0f + ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                              (inverseDuration * (inverseDuration * (3.0f * frame * frame)))))) -
+                    (mEnd * ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                              (inverseDuration * (inverseDuration * (3.0f * frame * frame)))));
                 r +=
                     (mStartTangent *
-                     (var_f27 +
-                      ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
-                       (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                    (mEndTangent * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
-                                (var_f28 * (var_f27 * var_f27))));
+                     (frame +
+                      ((inverseDuration * (inverseDuration * (frame * (frame * frame)))) -
+                       (inverseDuration * (2.0f * frame * frame))))) +
+                    (mEndTangent * ((inverseDuration * (inverseDuration * (frame * (frame * frame)))) -
+                                (inverseDuration * (frame * frame))));
 
                 return r;
 
-                /*f32 var_f27 = mMaxFrame;
-                f32 var_f28 = 1.0f / mMaxFrame;
-                T sp28 = mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                 (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))));
-                T sp1C = mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                           (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
-                T r = sp1C - sp28;
+                /*f32 maxFrame = mMaxFrame;
+                f32 inverseDuration = 1.0f / mMaxFrame;
+                T weightedEnd = mEnd * ((inverseDuration * (inverseDuration * (inverseDuration * (maxFrame * (2.0f * maxFrame * maxFrame))))) -
+                                 (inverseDuration * (inverseDuration * (3.0f * maxFrame * maxFrame))));
+                T weightedStart = mStart * (1.0f + ((inverseDuration * (inverseDuration * (inverseDuration * (maxFrame * (2.0f * maxFrame * maxFrame))))) -
+                                           (inverseDuration * (inverseDuration * (3.0f * maxFrame * maxFrame)))));
+                T r = weightedStart - weightedEnd;
 
-                f32 temp_f4 = var_f27 * var_f27;
-                f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
-                f32 temp_f3 =
-                    (mStartTangent * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (mEndTangent * (temp_f7 - (var_f28 * temp_f4)));
-                r = r + temp_f3;
+                f32 frameSquared = maxFrame * maxFrame;
+                f32 scaledCubic = inverseDuration * (inverseDuration * (maxFrame * frameSquared));
+                f32 tangentContribution =
+                    (mStartTangent * (maxFrame + (scaledCubic - (inverseDuration * (2.0f * maxFrame * maxFrame))))) + (mEndTangent * (scaledCubic - (inverseDuration * frameSquared)));
+                r = r + tangentContribution;
                 return r;*/
             }
 
@@ -167,20 +167,20 @@ namespace ipl {
             f32 get() const;
 #else
             f32 get() const {
-                f32 var_f27 = mFrame;
-                f32 var_f28 = 1.0f / mMaxFrame;
+                f32 frame = mFrame;
+                f32 inverseDuration = 1.0f / mMaxFrame;
                 f32 r =
                     (mStart *
-                     (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
-                    (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
+                     (1.0f + ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                              (inverseDuration * (inverseDuration * (3.0f * frame * frame)))))) -
+                    (mEnd * ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                              (inverseDuration * (inverseDuration * (3.0f * frame * frame)))));
                 r +=
                     (mStartTangent *
-                     (var_f27 + ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
-                                 (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                    (mEndTangent * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
-                                (var_f28 * (var_f27 * var_f27))));
+                     (frame + ((inverseDuration * (inverseDuration * (frame * (frame * frame)))) -
+                                 (inverseDuration * (2.0f * frame * frame))))) +
+                    (mEndTangent * ((inverseDuration * (inverseDuration * (frame * (frame * frame)))) -
+                                (inverseDuration * (frame * frame))));
 
                 return r;
             }
@@ -231,35 +231,35 @@ namespace ipl {
             }
 #else
             T get() const {
-                f32 var_f27 = mFrame;
-                f32 var_f28 = 1.0f / mMaxFrame;
+                f32 frame = mFrame;
+                f32 inverseDuration = 1.0f / mMaxFrame;
                 f32 t1t2 =
-                    (var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) - (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)));
+                    (inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) - (inverseDuration * (inverseDuration * (3.0f * frame * frame)));
 
                 T r = (mStart * (1.0f + t1t2)) - (mEnd * t1t2);
 
-                f32 temp_f4 = var_f27 * var_f27;
-                f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
-                f32 temp_f3 =
-                    (mStartTangent * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (mEndTangent * (temp_f7 - (var_f28 * temp_f4)));
+                f32 frameSquared = frame * frame;
+                f32 scaledCubic = inverseDuration * (inverseDuration * (frame * frameSquared));
+                f32 tangentContribution =
+                    (mStartTangent * (frame + (scaledCubic - (inverseDuration * (2.0f * frame * frame))))) + (mEndTangent * (scaledCubic - (inverseDuration * frameSquared)));
 
-                r = r + temp_f3;
+                r = r + tangentContribution;
 
                 return r;
 
-                /*f32 var_f27 = mMaxFrame;
-                f32 var_f28 = 1.0f / mMaxFrame;
-                T sp28 = mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                 (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))));
-                T sp1C = mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                           (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
-                T r = sp1C - sp28;
+                /*f32 maxFrame = mMaxFrame;
+                f32 inverseDuration = 1.0f / mMaxFrame;
+                T weightedEnd = mEnd * ((inverseDuration * (inverseDuration * (inverseDuration * (maxFrame * (2.0f * maxFrame * maxFrame))))) -
+                                 (inverseDuration * (inverseDuration * (3.0f * maxFrame * maxFrame))));
+                T weightedStart = mStart * (1.0f + ((inverseDuration * (inverseDuration * (inverseDuration * (maxFrame * (2.0f * maxFrame * maxFrame))))) -
+                                           (inverseDuration * (inverseDuration * (3.0f * maxFrame * maxFrame)))));
+                T r = weightedStart - weightedEnd;
 
-                f32 temp_f4 = var_f27 * var_f27;
-                f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
-                f32 temp_f3 =
-                    (mStartTangent * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) + (mEndTangent * (temp_f7 - (var_f28 * temp_f4)));
-                r = r + temp_f3;
+                f32 frameSquared = maxFrame * maxFrame;
+                f32 scaledCubic = inverseDuration * (inverseDuration * (maxFrame * frameSquared));
+                f32 tangentContribution =
+                    (mStartTangent * (maxFrame + (scaledCubic - (inverseDuration * (2.0f * maxFrame * maxFrame))))) + (mEndTangent * (scaledCubic - (inverseDuration * frameSquared)));
+                r = r + tangentContribution;
                 return r;*/
             }
 #endif

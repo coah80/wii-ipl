@@ -40,7 +40,7 @@ namespace ipl {
 
             void initExtModule(EGG::Heap* workHeap, channel::RsoThread* thread);
 
-            int calcExtModule(EGG::ExpHeap* expHeap, bool unk0, bool unk1);
+            int calcExtModule(EGG::ExpHeap* expHeap, bool canStartModule, bool onSceneChange);
 
             void drawThumbnail();
             void drawCursor();
@@ -57,14 +57,14 @@ namespace ipl {
             BOOL isDiskChannel() const;
             BOOL isValid() const;
 
-            void onPoint(int unk);
-            void onLeft(int unk);
-            void onPinch(bool unk);
+            void onPoint(int eventFlags);
+            void onLeft(int eventFlags);
+            void onPinch(bool pinched);
 
             void setCursorDecideAnim();
 
-            void initCursorAnim(bool unk);
-            void initBalloonAnim(bool unk);
+            void initCursorAnim(bool resetPointCount);
+            void initBalloonAnim(bool resetPointCount);
 
             void FillModuleCount();
 
@@ -83,15 +83,15 @@ namespace ipl {
             void initCursor();
             void calcCursor(const nw4r::math::VEC3& vec);
 
-            void setCursorAnim(int unk) NO_INLINE;
+            void setCursorAnim(int state) NO_INLINE;
             void calcCursorAnim();
-            void startCursorAnim(int unk);
+            void startCursorAnim(int animationIndex);
 
             void initBalloon();
             void setBalloonText(const wchar_t* text);
             void calcBalloon(const nw4r::math::VEC3& vec);
 
-            void setBalloonAnim(int unk) NO_INLINE;
+            void setBalloonAnim(int state) NO_INLINE;
             void calcBalloonAnim();
 
             void clearModuleParam();
@@ -107,7 +107,7 @@ namespace ipl {
             }
 
         private:
-            u8 unk_0x00[8];
+            u8 mListLinkStorage[8];
 
             EGG::Heap* mpCursorHeap;   // 0x08
             EGG::Heap* mpBalloonHeap;  // 0x0C
@@ -149,22 +149,22 @@ namespace ipl {
 
             layout::Object* mpCursorLayout;                    // 0x48
             layout::Animator* mpCursorAnims[ANIM_CURSOR_MAX];  // 0x4C
-            int unk_0x58;
-            int unk_0x5C;
+            int mCursorState;
+            int mPendingCursorState;
 
             layout::Object* mpBalloonLayout;  // 0x60
             layout::Animator* mpBalloonAnim;  // 0x64
-            int unk_0x68;
-            int unk_0x6C;
-            int unk_0x70;
+            int mBalloonState;
+            int mPendingBalloonState;
+            int mBalloonWaitFrame;
 
-            int unk_0x74;
+            int mPointCount;
 
             nw4r::lyt::Group* mpNwc24NewGroup;      // 0x78
             layout::GroupAnimator* mpNwc24NewAnim;  // 0x7C
             bool mpNwc24NewPlayAnim;                // 0x80
-            int unk_0x84;
-            u32 unk_0x88;
+            int mNewMessageState;
+            u32 mNewMessageFrame;
 
             f32 mThumbWidth;      // 0x8C
             f32 mThumbHeight;     // 0x90
@@ -188,7 +188,7 @@ namespace ipl {
             channel::RsoThread* mpModuleThread;                   // 0xE8
             int mExtModuleState;                                  // 0xEC
             nand::SharedFile* mpModuleFile;                       // 0xF0
-            bool unk_0xF4;
+            bool mbModuleFlag;
             u32 mModuleCount;     // 0xF8
             u32 mMaxModuleCount;  // 0xFC
 

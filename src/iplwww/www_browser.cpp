@@ -442,10 +442,10 @@ namespace ext_ead {
             while (mCmdPacketQueue.TryReceiveTypedMessage(&cmd)) {
                 BrowserWindow* pBrowserWindow = (BrowserWindow*)mpBrowserWindows[0];
                 bool something = false;
-                if ((pBrowserWindow->unk_0x2C4[2] != '\0') && (pBrowserWindow->unk_0x2C4[3] != '\0')) {
+                if ((pBrowserWindow->mPageLoadStatus[2] != '\0') && (pBrowserWindow->mPageLoadStatus[3] != '\0')) {
                     something = true;
                 }
-                if (something || pBrowserWindow->unk_0x2C4[0] != '\0') {
+                if (something || pBrowserWindow->mPageLoadStatus[0] != '\0') {
                     continue;
                 }
 
@@ -505,16 +505,16 @@ namespace ext_ead {
             BrowserWindow* pBrowserWindow;
 
             pBrowserWindow = (BrowserWindow*)SurfaceManager::GetInstance()->GetBrowserThread()->mpBrowserWindows[0];
-            if ((pBrowserWindow->unk_0x2C4[0] == '\0') && (pBrowserWindow->unk_0x2C4[1] == '\0')) {
+            if ((pBrowserWindow->mPageLoadStatus[0] == '\0') && (pBrowserWindow->mPageLoadStatus[1] == '\0')) {
                 level = OSDisableInterrupts();
-                if (pBrowserWindow->unk_0x2C4[2] == '\0') {
-                    if (pBrowserWindow->unk_0x2C4[4] == '\0') {
+                if (pBrowserWindow->mPageLoadStatus[2] == '\0') {
+                    if (pBrowserWindow->mPageLoadStatus[4] == '\0') {
                         pBrowserWindow->unk_0x2C0 = pBrowserWindow->unk_0x2B0;
                         pBrowserWindow->unk_0x2BC = (int)(pBrowserWindow->unk_0x2B4[pBrowserWindow->unk_0x2B0] + 1) % 3;
                     }
-                    pBrowserWindow->unk_0x2C4[4] = 1;
+                    pBrowserWindow->mPageLoadStatus[4] = 1;
                 }
-                pBrowserWindow->unk_0x2C4[1] = 1;
+                pBrowserWindow->mPageLoadStatus[1] = 1;
                 OSRestoreInterrupts(level);
             }
             return;
@@ -551,7 +551,7 @@ namespace ext_ead {
             }
 
             data->imeID = wwwData->imeID;
-            data->unk_0x00 = 0;
+            data->eventType = 0;
             data->unk_0x0C = wwwData->unk_0x08;
             data->unk_0x10 = wwwData->unk_0x0C;
             data->unk_0x14 = wwwData->unk_0x10;
@@ -602,7 +602,7 @@ namespace ext_ead {
         }
 
         ImeData& ImeData::operator=(const ImeData& other) {
-            unk_0x00 = other.unk_0x00;
+            eventType = other.eventType;
             imeID = other.imeID;
             text = other.text;
             unk_0x0C = other.unk_0x0C;

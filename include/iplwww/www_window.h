@@ -59,7 +59,7 @@ namespace ext_ead {
             u32 unk_0x2B4[2];  // 0x2B4
             u32 unk_0x2BC;     // 0x2BC
             u32 unk_0x2C0;     // 0x2C0
-            u8 unk_0x2C4[6];   // 0x2C4
+            u8 mPageLoadStatus[6];   // 0x2C4
         };
     }  // namespace www
 }  // namespace ext_ead

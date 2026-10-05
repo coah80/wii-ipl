@@ -76,7 +76,7 @@ namespace ipl {
             void appendToChannelList(int page, int index);
             void destroyChannelObj(ChannelObj * channelObj);
             void sortChannelList(int page);
-            void sortChannelListByPage(int page, int unk);
+            void sortChannelListByPage(int page, int edgeDirection);
             ChannelObj* searchList(int page, int index) const;
 
             void setupDiskChanObj();
@@ -87,7 +87,7 @@ namespace ipl {
             void setChanFrameVisibility();
 
             BOOL isChannelInView(int page, int index) const;
-            BOOL isChannelInCalc(int page, int index, int unk2) const;
+            BOOL isChannelInCalc(int page, int index, int currentPage) const;
 
             BOOL isPageCreated(int page) const;
             BOOL isPageCreatedAllDone(int page) const;
@@ -108,14 +108,14 @@ namespace ipl {
             BOOL prepareRestarting(int page);
             void restart(int page, int index);
 
-            nw4r::lyt::Pane* getChannelBasePane(int page, int index, int unk3) const;
+            nw4r::lyt::Pane* getChannelBasePane(int page, int index, int currentPage) const;
             const nw4r::lyt::Pane* getChannelBasePane(int index) const;
             nw4r::lyt::Pane* getChannelBasePane(int index);
 
             nw4r::math::VEC3 getDispChanTrans(int index) const;
 
             void setChannelScissor(const ChannelObj* channelObj) const;
-            void initChanZoomParam(const math::VEC3& pos, BOOL unk);
+            void initChanZoomParam(const math::VEC3& pos, BOOL zoomOut);
 
             void calcChanZoomParam();
             void setChanZoomOrtho();
@@ -148,11 +148,11 @@ namespace ipl {
             void startResetting();
 
             bool unkBool() {
-                return !unk_0x185 || unk_0x180 == 3;
+                return !mbWaitForModuleStop || mModuleState == 3;
             }
             void setSomething() {
                 mbModuleSceneChange = true;
-                unk_0x185 = 1;
+                mbWaitForModuleStop = 1;
             }
 
             enum {
@@ -274,25 +274,25 @@ namespace ipl {
             clock mClock;      // 0x108
             s32 mPrevSDState;  // 0x168
 
-            EGG::Heap* unk_0x16C;
+            EGG::Heap* mpThumbnailHeap;
 
             EGG::Heap* mpDiskHeap;     // 0x170
             EGG::Heap* mpCursorHeap;   // 0x174
             EGG::Heap* mpBalloonHeap;  // 0x178
 
-            EGG::Heap* unk_0x17C;
+            EGG::Heap* mpChannelObjHeap;
 
-            int unk_0x180;
+            int mModuleState;
 
             bool mbModuleSceneChange;  // 0x184
-            bool unk_0x185;
+            bool mbWaitForModuleStop;
             ChannelObj* mpCurrentRsoChanObj;  // 0x188
-            ChannelObj* unk_0x18C;
+            ChannelObj* mpPriorityModuleChanObj;
 
             EGG::Heap* mpModuleWorkHeap;         // 0x190
             channel::RsoThread* mpModuleThread;  // 0x194
             EGG::ExpHeap* mpModuleHeaps[49];     // 0x198
-            bool unk_0x25C[49];
+            bool mbModuleHeapInUse[49];
 
             nw4r::math::VEC2 mDragPos;  // 0x290
             int mConChan;               // 0x298
@@ -300,21 +300,21 @@ namespace ipl {
             int mMoveOldIndex;          // 0x2A0
             int mMoveNewPage;           // 0x2A4
             int mMoveNewIndex;          // 0x2A8
-            int unk_0x2AC;
-            int unk_0x2B0;
-            int unk_0x2B4;
-            bool unk_0x2B8;
+            int mDragRightScrollFrame;
+            int mDragLeftScrollFrame;
+            int mReleaseWaitFrame;
+            bool mbDragReleased;
             nand::File* mpSaveDataFile;  // 0x2BC
-            ChannelObj* unk_0x2C0;
-            layout::Object* unk_0x2C4;
-            layout::Animator* unk_0x2C8;
+            ChannelObj* mpMovedChanObj;
+            layout::Object* mpMoveThumbnailLayout;
+            layout::Animator* mpMoveThumbnailAnim;
             u32 unused_0x2CC;
 
             static BOOL msInitFlag;
             static const char* mscChanPaneNames[CHAN_SCROLL_MAX][MAX_CHANNEL_INDEX];
             static const char* mscBasePaneNames[CHAN_SCROLL_MAX];
-            static const char* mscUnk0PaneNames[CHAN_SCROLL_MAX];
-            static const char* mscUnk1PaneNames[CHAN_SCROLL_MAX];
+            static const char* mscPicturePaneNames[CHAN_SCROLL_MAX];
+            static const char* mscEdgePaneNames[CHAN_SCROLL_MAX];
             static const char* mscClockPaneNames[3];
             static const char* mscMaskPaneName;
 

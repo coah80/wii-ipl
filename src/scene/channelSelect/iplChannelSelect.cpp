@@ -28,32 +28,32 @@ namespace ipl {
 
         template <>
         VEC3 HermiteIntp<VEC3>::get() const {
-            f32 var_f27 = mFrame;
-            f32 var_f28 = 1.0f / mMaxFrame;
+            f32 frame = mFrame;
+            f32 inverseDuration = 1.0f / mMaxFrame;
             VEC3 r(subHermitePoints(
-                mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                  (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))),
-                mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                        (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27))))));
-            f32 temp_f4 = var_f27 * var_f27;
-            f32 temp_f7 = var_f28 * (var_f28 * (var_f27 * temp_f4));
-            f32 temp_f3 = (mStartTangent * (var_f27 + (temp_f7 - (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                          (mEndTangent * (temp_f7 - (var_f28 * temp_f4)));
-            r.x += temp_f3;
-            r.y += temp_f3;
-            r.z += temp_f3;
+                mStart * (1.0f + ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                                  (inverseDuration * (inverseDuration * (3.0f * frame * frame))))),
+                mEnd * ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                        (inverseDuration * (inverseDuration * (3.0f * frame * frame))))));
+            f32 frameSquared = frame * frame;
+            f32 scaledCubic = inverseDuration * (inverseDuration * (frame * frameSquared));
+            f32 tangentContribution = (mStartTangent * (frame + (scaledCubic - (inverseDuration * (2.0f * frame * frame))))) +
+                          (mEndTangent * (scaledCubic - (inverseDuration * frameSquared)));
+            r.x += tangentContribution;
+            r.y += tangentContribution;
+            r.z += tangentContribution;
             return r;
         }
 
         inline f32 HermiteIntp<f32>::get() const {
-            f32 var_f27 = mFrame;
-            f32 var_f28 = 1.0f / mMaxFrame;
-            f32 r = (mStart * (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                                       (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
-                    (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                             (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
-            r += (mStartTangent * (var_f27 + ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                 (mEndTangent * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) - (var_f28 * (var_f27 * var_f27))));
+            f32 frame = mFrame;
+            f32 inverseDuration = 1.0f / mMaxFrame;
+            f32 r = (mStart * (1.0f + ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                                       (inverseDuration * (inverseDuration * (3.0f * frame * frame)))))) -
+                    (mEnd * ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                             (inverseDuration * (inverseDuration * (3.0f * frame * frame)))));
+            r += (mStartTangent * (frame + ((inverseDuration * (inverseDuration * (frame * (frame * frame)))) - (inverseDuration * (2.0f * frame * frame))))) +
+                 (mEndTangent * ((inverseDuration * (inverseDuration * (frame * (frame * frame)))) - (inverseDuration * (frame * frame))));
             return r;
         }
     }  // namespace math
@@ -249,7 +249,7 @@ namespace ipl {
         };
 
 
-        const char* ChannelSelect::mscUnk0PaneNames[CHAN_SCROLL_MAX] = {
+        const char* ChannelSelect::mscPicturePaneNames[CHAN_SCROLL_MAX] = {
             "Picture_00",
             "Picture_01",
             "Picture_02",
@@ -257,7 +257,7 @@ namespace ipl {
             "Picture_04"
         };
         
-        const char* ChannelSelect::mscUnk1PaneNames[CHAN_SCROLL_MAX] = {
+        const char* ChannelSelect::mscEdgePaneNames[CHAN_SCROLL_MAX] = {
             "Edge0",
             "Edge1",
             "Edge2",
@@ -306,10 +306,10 @@ namespace ipl {
 
             mPrevSDState = 0;
 
-            unk_0x180 = 1;
+            mModuleState = 1;
             mbModuleSceneChange = false;
             mpCurrentRsoChanObj = NULL;
-            unk_0x18C = NULL;
+            mpPriorityModuleChanObj = NULL;
 
             mMaxPages = MAX_CHANNEL_PAGE;
 
@@ -342,8 +342,8 @@ namespace ipl {
             // ??? (although nothing really happens)
             memset(&mDragPos, 0, 0x34);
 
-            unk_0x17C = EGG::ExpHeap::create(0x3D28, heap, MEM_HEAP_OPT_DEBUG_FILL | MEM_HEAP_OPT_THREAD_SAFE);
-            unk_0x16C = EGG::UnitHeap::create(EGG::UnitHeap::calcHeapSize(0x212B8, 0x31, 32), 0x212B8, System::getMem2App(), 32, 2);
+            mpChannelObjHeap = EGG::ExpHeap::create(0x3D28, heap, MEM_HEAP_OPT_DEBUG_FILL | MEM_HEAP_OPT_THREAD_SAFE);
+            mpThumbnailHeap = EGG::UnitHeap::create(EGG::UnitHeap::calcHeapSize(0x212B8, 0x31, 32), 0x212B8, System::getMem2App(), 32, 2);
 
             nw4r::ut::List_Init(&mChanList, 0);
             makeChannelList(mCurrentPage, true);
@@ -468,7 +468,7 @@ namespace ipl {
             mpMoveLytMask->calc();
             mpMoveLytObject->calc();
             mpMoveLytDrop->calc();
-            unk_0x2C4->calc();
+            mpMoveThumbnailLayout->calc();
 
             mClock.calc();
 
@@ -614,7 +614,7 @@ namespace ipl {
 
             if (mState == STATE_BOARD_SCENE || mState == STATE_START_SETTING_SCENE) {
                 mbModuleSceneChange = true;
-                unk_0x185 = true;
+                mbWaitForModuleStop = true;
                 return FADER_SCN_NEXT;
             }
             return FADER_SCN_CONTINUE;
@@ -700,7 +700,7 @@ namespace ipl {
                 chanObj = NULL;
             }
 
-            unk_0x16C->destroy();
+            mpThumbnailHeap->destroy();
 
             for (int i = 0; i < 49; i++) {
                 mpModuleHeaps[i]->destroy();
@@ -709,7 +709,7 @@ namespace ipl {
             delete mpModuleThread;
 
             mpModuleWorkHeap->destroy();
-            unk_0x17C->destroy();
+            mpChannelObjHeap->destroy();
             mpDiskHeap->destroy();
             mpCursorHeap->destroy();
             mpBalloonHeap->destroy();
@@ -771,7 +771,7 @@ namespace ipl {
             mpModuleWorkHeap = EGG::ExpHeap::create(System::getChannelArena(), 0x200000, 0);
             for (int i = 0; i < 49; i++) {
                 mpModuleHeaps[i] = EGG::ExpHeap::create(0x10000, System::getMem2App(), MEM_HEAP_OPT_DEBUG_FILL | MEM_HEAP_OPT_THREAD_SAFE);
-                unk_0x25C[i] = false;
+                mbModuleHeapInUse[i] = false;
             }
         }
 
@@ -786,8 +786,8 @@ namespace ipl {
                 mpLayout->FindPaneByName("Picture_16")->GetMaterial()->GetTexture(&texObj[0], GX_TEXMAP0);
 
                 for (int i = 0; i < CHAN_SCROLL_MAX; i++) {
-                    mpLayout->FindPaneByName(mscUnk0PaneNames[i])->GetMaterial()->SetTexture(GX_TEXMAP0, texObj[1]);
-                    mpLayout->FindPaneByName(mscUnk1PaneNames[i])->GetMaterial()->SetTexture(GX_TEXMAP0, texObj[0]);
+                    mpLayout->FindPaneByName(mscPicturePaneNames[i])->GetMaterial()->SetTexture(GX_TEXMAP0, texObj[1]);
+                    mpLayout->FindPaneByName(mscEdgePaneNames[i])->GetMaterial()->SetTexture(GX_TEXMAP0, texObj[0]);
                 }
             }
 
@@ -877,7 +877,7 @@ namespace ipl {
         }
 
         void ChannelSelect::calcChannelModules() {
-            if (unk_0x180 == 3) {
+            if (mModuleState == 3) {
                 return;
             }
 
@@ -886,8 +886,8 @@ namespace ipl {
                 EGG::ExpHeap* expHeap = getFreeModuleExHeap();
                 ChannelObj* chanObj = NULL;
                 FOREACH_CHANNEL_OBJ(chanObj) {
-                    if (unk_0x18C == NULL || chanObj == unk_0x18C) {
-                        if (unk_0x180 == 2) {
+                    if (mpPriorityModuleChanObj == NULL || chanObj == mpPriorityModuleChanObj) {
+                        if (mModuleState == 2) {
                             result = false;
                         }
 
@@ -895,19 +895,19 @@ namespace ipl {
                         if (state == ChannelObj::EXT_MODULE_RESULT_DESTROY) {
                             updateModuleExHeap(chanObj->mpPrevModuleHeap, expHeap);
                             mpCurrentRsoChanObj = NULL;
-                            unk_0x180 = 1;
-                        } else if (state == ChannelObj::EXT_MODULE_RESULT_CALC && unk_0x180 == 1) {
-                            unk_0x180 = 2;
+                            mModuleState = 1;
+                        } else if (state == ChannelObj::EXT_MODULE_RESULT_CALC && mModuleState == 1) {
+                            mModuleState = 2;
                             mpCurrentRsoChanObj = chanObj;
                         }
                     }
                 }
             }
 
-            unk_0x18C = NULL;
-            if (mbModuleSceneChange && unk_0x180 == 1) {
+            mpPriorityModuleChanObj = NULL;
+            if (mbModuleSceneChange && mModuleState == 1) {
                 mbModuleSceneChange = false;
-                unk_0x180 = 3;
+                mModuleState = 3;
             }
         }
 
@@ -917,8 +917,8 @@ namespace ipl {
                 chanObj->calc();
             }
 
-            if (unk_0x2C0 != NULL) {
-                unk_0x2C0->calc();
+            if (mpMovedChanObj != NULL) {
+                mpMovedChanObj->calc();
             }
 
             calcDiskLayout();
@@ -993,9 +993,9 @@ namespace ipl {
                         case STATE_DRAG_SCROLL_RIGHT: {
                             if (chanPage == mMoveOldPage && chanIndex == mMoveOldIndex) {
                                 nw4r::math::VEC3 trans = chanObj->getTranslate();
-                                unk_0x2C4->GetRootPane()->SetTranslate(trans);
-                                unk_0x2C4->calcMtx();
-                                unk_0x2C4->draw();
+                                mpMoveThumbnailLayout->GetRootPane()->SetTranslate(trans);
+                                mpMoveThumbnailLayout->calcMtx();
+                                mpMoveThumbnailLayout->draw();
                             }
                         }
                     }
@@ -1220,10 +1220,10 @@ namespace ipl {
                 isDisk = true;
                 frmHeap = NULL;
             } else {
-                frmHeap = EGG::FrmHeap::create(0x212B8, unk_0x16C, 2);
+                frmHeap = EGG::FrmHeap::create(0x212B8, mpThumbnailHeap, 2);
             }
 
-            ChannelObj* chanObj = new (unk_0x17C, 4) ChannelObj(frmHeap, page, index);
+            ChannelObj* chanObj = new (mpChannelObjHeap, 4) ChannelObj(frmHeap, page, index);
             nw4r::ut::List_Append(&mChanList, chanObj);
 
             if (isDisk) {
@@ -1264,10 +1264,10 @@ namespace ipl {
             }
         }
 
-        void ChannelSelect::sortChannelListByPage(int page, int unk) {
+        void ChannelSelect::sortChannelListByPage(int page, int edgeDirection) {
             for (int i = 0; i < MAX_CHANNEL_INDEX; i++) {
                 // TODO: fix this ugly madness
-                if (unk == -1) {
+                if (edgeDirection == -1) {
                     if (!(i & 3)) {
                         continue;
                     }
@@ -1277,7 +1277,7 @@ namespace ipl {
 
                 goto block_7;
             block_6:
-                if (!(unk != 1 || (i & 3) != 3)) {
+                if (!(edgeDirection != 1 || (i & 3) != 3)) {
                     continue;
                 }
             block_7:
@@ -1286,7 +1286,7 @@ namespace ipl {
                 nw4r::ut::List_Append(&mChanList, chanObj);
             }
 
-            if (unk != 1 && page + 1 < mMaxPages) {
+            if (edgeDirection != 1 && page + 1 < mMaxPages) {
                 for (int i = 0; i < MAX_CHANNEL_INDEX; i += MAX_CHANNEL_ROW) {
                     ChannelObj* chanObj = searchList(page + 1, i);
                     nw4r::ut::List_Remove(&mChanList, chanObj);
@@ -1294,7 +1294,7 @@ namespace ipl {
                 }
             }
 
-            if (unk != -1 && page - 1 >= 0) {
+            if (edgeDirection != -1 && page - 1 >= 0) {
                 for (int i = MAX_CHANNEL_COLUMN; i < MAX_CHANNEL_INDEX; i += MAX_CHANNEL_ROW) {
                     ChannelObj* chanObj = searchList(page - 1, i);
                     nw4r::ut::List_Remove(&mChanList, chanObj);
@@ -1439,10 +1439,10 @@ namespace ipl {
             }
 
             if ((mCurrentPage - 1) - neg >= 0) {
-                mpLayout->FindPaneByName(mscUnk1PaneNames[0])->SetVisible(true);
-                mpLayout->FindPaneByName(mscUnk1PaneNames[1])->SetVisible(true);
+                mpLayout->FindPaneByName(mscEdgePaneNames[0])->SetVisible(true);
+                mpLayout->FindPaneByName(mscEdgePaneNames[1])->SetVisible(true);
             } else {
-                mpLayout->FindPaneByName(mscUnk1PaneNames[1 - neg])->SetVisible(false);
+                mpLayout->FindPaneByName(mscEdgePaneNames[1 - neg])->SetVisible(false);
             }
 
             if (mState == STATE_RIGHT_PAGE_SCROLL || mState == STATE_DRAG_SCROLL_RIGHT) {
@@ -1452,65 +1452,65 @@ namespace ipl {
             }
 
             if ((mCurrentPage + 1) + neg < mMaxPages) {
-                mpLayout->FindPaneByName(mscUnk1PaneNames[3])->SetVisible(true);
-                mpLayout->FindPaneByName(mscUnk1PaneNames[4])->SetVisible(true);
+                mpLayout->FindPaneByName(mscEdgePaneNames[3])->SetVisible(true);
+                mpLayout->FindPaneByName(mscEdgePaneNames[4])->SetVisible(true);
             } else {
-                mpLayout->FindPaneByName(mscUnk1PaneNames[3 + neg])->SetVisible(false);
+                mpLayout->FindPaneByName(mscEdgePaneNames[3 + neg])->SetVisible(false);
             }
         }
 
         BOOL ChannelSelect::isChannelInView(int page, int index) const {
-            int unk = mCurrentPage;
-            if (page == unk) {
+            int pageOrEdgeIndex = mCurrentPage;
+            if (page == pageOrEdgeIndex) {
                 return TRUE;
             }
 
-            if (page == unk - 1) {
+            if (page == pageOrEdgeIndex - 1) {
                 if (mState == STATE_LEFT_PAGE_SCROLL || mState == STATE_DRAG_SCROLL_LEFT) {
                     return TRUE;
                 }
-                unk = 3;
+                pageOrEdgeIndex = 3;
                 for (int i = 0; i < MAX_CHANNEL_COLUMN; i++) {
-                    if (unk == index) {
+                    if (pageOrEdgeIndex == index) {
                         return TRUE;
                     }
-                    unk += MAX_CHANNEL_ROW;
+                    pageOrEdgeIndex += MAX_CHANNEL_ROW;
                 }
             }
 
-            else if (page == unk - 2) {
+            else if (page == pageOrEdgeIndex - 2) {
                 if (mState == STATE_LEFT_PAGE_SCROLL || mState == STATE_DRAG_SCROLL_LEFT) {
-                    unk = 3;
+                    pageOrEdgeIndex = 3;
                     for (int i = 0; i < MAX_CHANNEL_COLUMN; i++) {
-                        if (unk == index) {
+                        if (pageOrEdgeIndex == index) {
                             return TRUE;
                         }
-                        unk += MAX_CHANNEL_ROW;
+                        pageOrEdgeIndex += MAX_CHANNEL_ROW;
                     }
                 }
             }
 
-            else if (page == unk + 1) {
+            else if (page == pageOrEdgeIndex + 1) {
                 if (mState == STATE_RIGHT_PAGE_SCROLL || mState == STATE_DRAG_SCROLL_RIGHT) {
                     return TRUE;
                 }
-                unk = 0;
+                pageOrEdgeIndex = 0;
                 for (int i = 0; i < MAX_CHANNEL_COLUMN; i++) {
-                    if (unk == index) {
+                    if (pageOrEdgeIndex == index) {
                         return TRUE;
                     }
-                    unk += MAX_CHANNEL_ROW;
+                    pageOrEdgeIndex += MAX_CHANNEL_ROW;
                 }
             }
 
-            else if (page == unk + 2) {
+            else if (page == pageOrEdgeIndex + 2) {
                 if (mState == STATE_RIGHT_PAGE_SCROLL || mState == STATE_DRAG_SCROLL_RIGHT) {
-                    unk = 0;
+                    pageOrEdgeIndex = 0;
                     for (int i = 0; i < MAX_CHANNEL_COLUMN; i++) {
-                        if (unk == index) {
+                        if (pageOrEdgeIndex == index) {
                             return TRUE;
                         }
-                        unk += MAX_CHANNEL_ROW;
+                        pageOrEdgeIndex += MAX_CHANNEL_ROW;
                     }
                 }
             }
@@ -1518,9 +1518,9 @@ namespace ipl {
             return FALSE;
         }
 
-        BOOL ChannelSelect::isChannelInCalc(int page, int index, int unk2) const {
-            int unk = page - unk2;
-            if (unk <= -3 || unk >= 3 || strcmp(mscChanPaneNames[unk + 2][index], "") == 0) {
+        BOOL ChannelSelect::isChannelInCalc(int page, int index, int currentPage) const {
+            int pageOffset = page - currentPage;
+            if (pageOffset <= -3 || pageOffset >= 3 || strcmp(mscChanPaneNames[pageOffset + 2][index], "") == 0) {
                 return FALSE;
             } else {
                 return TRUE;
@@ -1570,7 +1570,7 @@ namespace ipl {
         void ChannelSelect::preparePageScrolling(int nextState) {
             mbModuleSceneChange = true;
             mState = nextState;
-            unk_0x185 = false;
+            mbWaitForModuleStop = false;
             snd::getSystem()->startSE(scSE_WSD_SELECT);
         }
 
@@ -1631,7 +1631,7 @@ namespace ipl {
 
             mState = STATE_NORMAL_WAIT_LOADING;
             mbModuleSceneChange = true;
-            unk_0x185 = true;
+            mbWaitForModuleStop = true;
 
             snd::getSystem()->startSE("WIPL_SE_BT_PUSH");
             snd::getSystem()->stopBGM(5);
@@ -1695,7 +1695,7 @@ namespace ipl {
                 }
             }
 
-            unk_0x18C = searchList(page, index);
+            mpPriorityModuleChanObj = searchList(page, index);
 
             ChannelObj* chanObj = NULL;
             FOREACH_CHANNEL_OBJ(chanObj) {
@@ -1705,9 +1705,9 @@ namespace ipl {
             mState = STATE_NORMAL_RESTART;
         }
 
-        nw4r::lyt::Pane* ChannelSelect::getChannelBasePane(int page, int index, int unk3) const {
-            if (isChannelInCalc(page, index, unk3)) {
-                return mpLayout->FindPaneByName(mscChanPaneNames[(page - unk3) + 2][index]);
+        nw4r::lyt::Pane* ChannelSelect::getChannelBasePane(int page, int index, int currentPage) const {
+            if (isChannelInCalc(page, index, currentPage)) {
+                return mpLayout->FindPaneByName(mscChanPaneNames[(page - currentPage) + 2][index]);
             } else {
                 return mpLayout->FindPaneByName("Picture_16");
             }
@@ -1788,29 +1788,29 @@ namespace ipl {
             }
         }
 
-        void ChannelSelect::initChanZoomParam(const math::VEC3& pos, BOOL unk) {
+        void ChannelSelect::initChanZoomParam(const math::VEC3& pos, BOOL zoomOut) {
             nw4r::ut::Rect projRect;
             System::getProjectionRect(&projRect);
 
-            math::VEC3 iStack_34(projRect.left, -projRect.top, 0.0f);
-            math::VEC3 iStack_40(pos.x - mChanThumbOff_X, pos.y + mChanThumbOff_Y, 0.0f);
-            math::VEC3 iStack_4C(projRect.right, -projRect.top, 0.0f);
-            math::VEC3 iStack_58(pos.x + mChanThumbOff_X, pos.y + mChanThumbOff_Y, 0.0f);
-            math::VEC3 iStack_64(projRect.left, -projRect.bottom, 0.0f);
-            math::VEC3 iStack_70(pos.x - mChanThumbOff_X, pos.y - mChanThumbOff_Y, 0.0f);
-            math::VEC3 iStack_7C(projRect.right, -projRect.bottom, 0.0f);
-            math::VEC3 iStack_88(pos.x + mChanThumbOff_X, pos.y - mChanThumbOff_Y, 0.0f);
+            math::VEC3 screenTopLeft(projRect.left, -projRect.top, 0.0f);
+            math::VEC3 channelTopLeft(pos.x - mChanThumbOff_X, pos.y + mChanThumbOff_Y, 0.0f);
+            math::VEC3 screenTopRight(projRect.right, -projRect.top, 0.0f);
+            math::VEC3 channelTopRight(pos.x + mChanThumbOff_X, pos.y + mChanThumbOff_Y, 0.0f);
+            math::VEC3 screenBottomLeft(projRect.left, -projRect.bottom, 0.0f);
+            math::VEC3 channelBottomLeft(pos.x - mChanThumbOff_X, pos.y - mChanThumbOff_Y, 0.0f);
+            math::VEC3 screenBottomRight(projRect.right, -projRect.bottom, 0.0f);
+            math::VEC3 channelBottomRight(pos.x + mChanThumbOff_X, pos.y - mChanThumbOff_Y, 0.0f);
 
-            if (!unk) {
-                mpChanZoomParams[0]->init(iStack_34, iStack_40, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
-                mpChanZoomParams[1]->init(iStack_4C, iStack_58, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
-                mpChanZoomParams[2]->init(iStack_64, iStack_70, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
-                mpChanZoomParams[3]->init(iStack_7C, iStack_88, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
+            if (!zoomOut) {
+                mpChanZoomParams[0]->init(screenTopLeft, channelTopLeft, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
+                mpChanZoomParams[1]->init(screenTopRight, channelTopRight, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
+                mpChanZoomParams[2]->init(screenBottomLeft, channelBottomLeft, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
+                mpChanZoomParams[3]->init(screenBottomRight, channelBottomRight, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
             } else {
-                mpChanZoomParams[0]->init(iStack_40, iStack_34, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
-                mpChanZoomParams[1]->init(iStack_58, iStack_4C, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
-                mpChanZoomParams[2]->init(iStack_70, iStack_64, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
-                mpChanZoomParams[3]->init(iStack_88, iStack_7C, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
+                mpChanZoomParams[0]->init(channelTopLeft, screenTopLeft, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
+                mpChanZoomParams[1]->init(channelTopRight, screenTopRight, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
+                mpChanZoomParams[2]->init(channelBottomLeft, screenBottomLeft, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
+                mpChanZoomParams[3]->init(channelBottomRight, screenBottomRight, 28.0f, 0.0f, 0.0f, ANIM_TYPE_FORWARD);
             }
 
             for (int i = 0; i < 4; i++) {
@@ -1850,7 +1850,7 @@ namespace ipl {
         EGG::ExpHeap* ChannelSelect::getFreeModuleExHeap() {
             int i = 0;
             for (i = 0; i < 49; i++) {
-                if (!unk_0x25C[i]) {
+                if (!mbModuleHeapInUse[i]) {
                     break;
                 }
             }
@@ -1861,11 +1861,11 @@ namespace ipl {
             if (heap1 != NULL || heap2 != NULL) {
                 for (int i = 0; i < 49; i++) {
                     if (heap1 != NULL && mpModuleHeaps[i] == heap1) {
-                        unk_0x25C[i] = false;
+                        mbModuleHeapInUse[i] = false;
                         heap1->freeAll();
                     }
                     if (heap2 != NULL && mpModuleHeaps[i] == heap2) {
-                        unk_0x25C[i] = true;
+                        mbModuleHeapInUse[i] = true;
                     }
                 }
             }
@@ -1873,20 +1873,20 @@ namespace ipl {
 
         void ChannelSelect::restartChannelModules() {
             if (!mbModuleSceneChange) {
-                unk_0x180 = 1;
+                mModuleState = 1;
             }
             mbModuleSceneChange = false;
-            unk_0x185 = true;
+            mbWaitForModuleStop = true;
         }
 
         void ChannelSelect::createChanMoveLayout() {
-            unk_0x2C4 = new layout::Object(getSceneHeap(), mpLayoutFile, "arc", "my_IplTop_b.brlyt");
-            unk_0x2C8 = unk_0x2C4->bind("my_IplTop_b.brlan");
+            mpMoveThumbnailLayout = new layout::Object(getSceneHeap(), mpLayoutFile, "arc", "my_IplTop_b.brlyt");
+            mpMoveThumbnailAnim = mpMoveThumbnailLayout->bind("my_IplTop_b.brlan");
 
             f32 frame = System::getRndm()->get_u16() % 2000;
-            unk_0x2C8->play();
-            unk_0x2C4->finishBinding();
-            unk_0x2C8->setCurrentFrame(frame);
+            mpMoveThumbnailAnim->play();
+            mpMoveThumbnailLayout->finishBinding();
+            mpMoveThumbnailAnim->setCurrentFrame(frame);
 
             mpMoveLytMask = new layout::Object(getSceneHeap(), mpLayoutFile, "arc", "my_TVMask_a.brlyt");
             mpMoveLytMask->bind("my_TVMask_a_Apear.brlan", "Picture_00", false);
@@ -1930,14 +1930,14 @@ namespace ipl {
 
             if (System::getControllerManager()->getController(mConChan) == NULL ||
                 !System::getControllerManager()->getController(mConChan)->pinch()) {
-                unk_0x2B8 = true;
+                mbDragReleased = true;
             }
 
-            if (unk_0x2B0 >= 0) {
-                unk_0x2B0++;
+            if (mDragLeftScrollFrame >= 0) {
+                mDragLeftScrollFrame++;
             }
-            if (unk_0x2AC >= 0) {
-                unk_0x2AC++;
+            if (mDragRightScrollFrame >= 0) {
+                mDragRightScrollFrame++;
             }
 
             moveDrag();
@@ -1957,24 +1957,24 @@ namespace ipl {
 
             if (System::getControllerManager()->getController(mConChan) == NULL ||
                 !System::getControllerManager()->getController(mConChan)->pinch()) {
-                unk_0x2B8 = true;
+                mbDragReleased = true;
             }
 
-            if (unk_0x2B0 >= 0) {
-                unk_0x2B0++;
+            if (mDragLeftScrollFrame >= 0) {
+                mDragLeftScrollFrame++;
             }
-            if (unk_0x2AC >= 0) {
-                unk_0x2AC++;
+            if (mDragRightScrollFrame >= 0) {
+                mDragRightScrollFrame++;
             }
 
             moveDrag();
 
-            if (unk_0x2B8) {
+            if (mbDragReleased) {
                 finishDrag();
                 return;
             }
 
-            if (mCurrentPage > 0 && unk_0x2B0 >= 15 && isPageCreatedAllDone(mCurrentPage)) {
+            if (mCurrentPage > 0 && mDragLeftScrollFrame >= 15 && isPageCreatedAllDone(mCurrentPage)) {
                 if (unkBool()) {
                     button->animation(Button::IDANIM_ARROW_LEFT_SELECT);
                     mpLayout->setMinFrame(0.0f);
@@ -1984,8 +1984,8 @@ namespace ipl {
 
                     mState = STATE_DRAG_SCROLL_LEFT;
 
-                    unk_0x2B0 = 0;
-                    unk_0x2AC = -1;
+                    mDragLeftScrollFrame = 0;
+                    mDragRightScrollFrame = -1;
 
                     ChannelObj* chanObj = NULL;
                     FOREACH_CHANNEL_OBJ(chanObj) {
@@ -2000,7 +2000,7 @@ namespace ipl {
                 }
             }
 
-            if (mCurrentPage < mMaxPages - 1 && unk_0x2AC >= 15 && isPageCreatedAllDone(mCurrentPage)) {
+            if (mCurrentPage < mMaxPages - 1 && mDragRightScrollFrame >= 15 && isPageCreatedAllDone(mCurrentPage)) {
                 if (unkBool()) {
                     button->animation(Button::IDANIM_ARROW_RIGHT_SELECT);
                     mpLayout->setMinFrame(40.0f);
@@ -2010,8 +2010,8 @@ namespace ipl {
 
                     mState = STATE_DRAG_SCROLL_RIGHT;
 
-                    unk_0x2B0 = -1;
-                    unk_0x2AC = 0;
+                    mDragLeftScrollFrame = -1;
+                    mDragRightScrollFrame = 0;
 
                     ChannelObj* chanObj = NULL;
                     FOREACH_CHANNEL_OBJ(chanObj) {
@@ -2028,8 +2028,8 @@ namespace ipl {
         }
 
         void ChannelSelect::calcNormalReleaseWait() {
-            unk_0x2B4++;
-            if (unk_0x2B4 > 20) {
+            mReleaseWaitFrame++;
+            if (mReleaseWaitFrame > 20) {
                 mpMoveLytMask->getAnim(1)->play();
                 mState = STATE_NORMAL_RELEASE;
             }
@@ -2049,24 +2049,24 @@ namespace ipl {
                     mState = STATE_NORMAL_MOVE_CHAN_OUT;
                 } else {
                     System::getChannelManager()->moveChannelInfo(mMoveOldPage, mMoveOldIndex, mMoveNewPage, mMoveNewIndex);
-                    unk_0x2C0 = searchList(mMoveOldPage, mMoveOldIndex);
-                    if (unk_0x2C0 == NULL) {
-                        EGG::FrmHeap* heap = EGG::FrmHeap::create(0x212B8, unk_0x16C, MEM_HEAP_OPT_DEBUG_FILL);
-                        unk_0x2C0 = new (unk_0x17C, 4) ChannelObj(heap, mMoveNewPage, mMoveNewIndex);
-                        createChannelThumbnail(unk_0x2C0);
+                    mpMovedChanObj = searchList(mMoveOldPage, mMoveOldIndex);
+                    if (mpMovedChanObj == NULL) {
+                        EGG::FrmHeap* heap = EGG::FrmHeap::create(0x212B8, mpThumbnailHeap, MEM_HEAP_OPT_DEBUG_FILL);
+                        mpMovedChanObj = new (mpChannelObjHeap, 4) ChannelObj(heap, mMoveNewPage, mMoveNewIndex);
+                        createChannelThumbnail(mpMovedChanObj);
                     } else {
                         ChannelObj* chanObj = searchList(mMoveNewPage, mMoveNewIndex);
-                        unk_0x2C0->setBasePane(getChannelBasePane(mMoveNewPage, mMoveNewIndex, mCurrentPage));
+                        mpMovedChanObj->setBasePane(getChannelBasePane(mMoveNewPage, mMoveNewIndex, mCurrentPage));
                         chanObj->setBasePane(getChannelBasePane(mMoveOldPage, mMoveOldIndex, mCurrentPage));
 
-                        unk_0x2C0->setPageIndex(mMoveNewPage, mMoveNewIndex);
+                        mpMovedChanObj->setPageIndex(mMoveNewPage, mMoveNewIndex);
                         chanObj->setPageIndex(mMoveOldPage, mMoveOldIndex);
 
-                        unk_0x2C0->calc();
+                        mpMovedChanObj->calc();
                         chanObj->calc();
 
-                        unk_0x2C0 = NULL;
-                        chanObj->mpThumbAnim->setCurrentFrame(unk_0x2C8->getCurrentFrame());
+                        mpMovedChanObj = NULL;
+                        chanObj->mpThumbAnim->setCurrentFrame(mpMoveThumbnailAnim->getCurrentFrame());
                     }
 
                     mpSaveDataFile = System::getSaveData()->flushAsync(System::getMem2App());
@@ -2076,13 +2076,13 @@ namespace ipl {
         }
 
         void ChannelSelect::calcNormalMoveChanSave() {
-            if (System::getSaveData()->isFinished(mpSaveDataFile) && (unk_0x2C0 == NULL || unk_0x2C0->isLayoutCreated())) {
-                if (unk_0x2C0 != NULL) {
+            if (System::getSaveData()->isFinished(mpSaveDataFile) && (mpMovedChanObj == NULL || mpMovedChanObj->isLayoutCreated())) {
+                if (mpMovedChanObj != NULL) {
                     ChannelObj* chanObj = searchList(mMoveNewPage, mMoveNewIndex);
-                    nw4r::ut::List_Insert(&mChanList, chanObj, unk_0x2C0);
+                    nw4r::ut::List_Insert(&mChanList, chanObj, mpMovedChanObj);
                     nw4r::ut::List_Remove(&mChanList, chanObj);
                     destroyChannelObj(chanObj);
-                    unk_0x2C0 = NULL;
+                    mpMovedChanObj = NULL;
                 } else {
                     ChannelObj* chanObj = searchList(mMoveOldPage, mMoveOldIndex);
                     ChannelObj* chanObj2 = searchList(mMoveNewPage, mMoveNewIndex);
@@ -2116,7 +2116,7 @@ namespace ipl {
             }
 
             f32 frame = System::getRndm()->get_u16() % 2000;
-            unk_0x2C8->setCurrentFrame(frame);
+            mpMoveThumbnailAnim->setCurrentFrame(frame);
             restartChannelModules();
             mState = STATE_NORMAL;
         }
@@ -2129,7 +2129,7 @@ namespace ipl {
 
             if (System::getControllerManager()->getController(mConChan) == NULL ||
                 !System::getControllerManager()->getController(mConChan)->pinch()) {
-                unk_0x2B8 = true;
+                mbDragReleased = true;
             }
 
             moveDrag();
@@ -2177,7 +2177,7 @@ namespace ipl {
                         if (!con->pinch()) {
                             mMoveNewIndex = id;
                             mMoveNewPage = mCurrentPage;
-                            unk_0x2B8 = true;
+                            mbDragReleased = true;
                             break;
                         }
                         break;
@@ -2209,20 +2209,20 @@ namespace ipl {
                 switch (event) {
                     case ::gui::EventHandler::ON_LEFT: {
                         if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0 && mCurrentPage > 0) {
-                            unk_0x2B0 = -1;
+                            mDragLeftScrollFrame = -1;
                         } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_RIGHT) == 0 && mCurrentPage < mMaxPages - 1) {
-                            unk_0x2AC = -1;
+                            mDragRightScrollFrame = -1;
                         }
                         break;
                     }
                     case ::gui::EventHandler::ON_POINT: {
                         if (Button::cmpButtonName(paneName, Button::BTN_ARROW_LEFT) == 0 && mCurrentPage > 0) {
-                            if (unk_0x2B0 < 0) {
-                                unk_0x2B0 = 0;
+                            if (mDragLeftScrollFrame < 0) {
+                                mDragLeftScrollFrame = 0;
                             }
                         } else if (Button::cmpButtonName(paneName, Button::BTN_ARROW_RIGHT) == 0 && mCurrentPage < mMaxPages - 1) {
-                            if (unk_0x2AC < 0) {
-                                unk_0x2AC = 0;
+                            if (mDragRightScrollFrame < 0) {
+                                mDragRightScrollFrame = 0;
                             }
                         }
                         break;
@@ -2244,10 +2244,10 @@ namespace ipl {
                 mMoveOldIndex = index;
                 mMoveNewPage = -1;
                 mMoveNewIndex = -1;
-                unk_0x2AC = -1;
-                unk_0x2B0 = -1;
-                unk_0x2B4 = 0;
-                unk_0x2B8 = false;
+                mDragRightScrollFrame = -1;
+                mDragLeftScrollFrame = -1;
+                mReleaseWaitFrame = 0;
+                mbDragReleased = false;
 
                 System::getPointer()->changeType(con->getChannel(), Pointer::TYPE_GRAB);
 
@@ -2264,7 +2264,7 @@ namespace ipl {
                 }
 
                 mbModuleSceneChange = true;
-                unk_0x185 = true;
+                mbWaitForModuleStop = true;
 
                 snd::getSystem()->startSEwithPos(scSE_WIPL_SE_CH_HOLD, mDragPos.x);
 
@@ -2295,7 +2295,7 @@ namespace ipl {
 
             getButton()->enableBtn();
 
-            unk_0x2B8 = false;
+            mbDragReleased = false;
 
             ChannelObj* chanObj = NULL;
             FOREACH_CHANNEL_OBJ(chanObj) {
