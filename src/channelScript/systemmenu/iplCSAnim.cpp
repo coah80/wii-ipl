@@ -125,7 +125,7 @@ namespace ipl {
                     s32 type = typeArg->value.int_v;
                     ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        if (type >= 0 && type < 4) {
+                        if (type >= ANIM_TYPE_FORWARD && type < ANIM_TYPE_ALTERNATE + 1) {
                             anim->setAnmType(type);
                             ret = TRUE;
                         }
@@ -235,10 +235,10 @@ namespace ipl {
             };
 
             const CHANSVmPropertyList cPropertyList[] = {
-                {"*TYPE_FORWARD", util::get_int<0>, NULL},
-                {"*TYPE_BACKWARD", util::get_int<1>, NULL},
-                {"*TYPE_LOOP", util::get_int<2>, NULL},
-                {"*TYPE_ALTERNATE", util::get_int<3>, NULL},
+                {"*TYPE_FORWARD", util::get_int<ANIM_TYPE_FORWARD>, NULL},
+                {"*TYPE_BACKWARD", util::get_int<ANIM_TYPE_BACKWARD>, NULL},
+                {"*TYPE_LOOP", util::get_int<ANIM_TYPE_LOOP>, NULL},
+                {"*TYPE_ALTERNATE", util::get_int<ANIM_TYPE_ALTERNATE>, NULL},
             };
 
             BOOL init(CHANSVm* vm) {

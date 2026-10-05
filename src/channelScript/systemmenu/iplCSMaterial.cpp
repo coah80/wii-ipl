@@ -54,7 +54,7 @@ namespace ipl {
                     u32 argc = CHANSVmGetArgc(vm);
                     colorIndexArg = CHANSVmGetArgInteger(vm, 0);
                     if (mat != NULL && argc == 1 && colorIndexArg != NULL) {
-                        if (colorIndexArg->value.int_v < 3ULL) {
+                        if (colorIndexArg->value.int_v < static_cast<u64>(nw4r::lyt::TEVCOLOR_MAX)) {
                             result = color_s10::_ctor(vm, returnObj, mat->GetTevColor(colorIndexArg->value.int_v)) == TRUE;
                         }
                     }
@@ -74,7 +74,7 @@ namespace ipl {
                     colorIndexArg = CHANSVmGetArgInteger(vm, 0);
                     colorArg = CHANSVmGetArg(vm, 1);
                     if (mat != NULL && argc == 2 && colorIndexArg != NULL && util::is_valid_class(colorArg, "GXColorS10")) {
-                        if (colorIndexArg->value.int_v < 3ULL) {
+                        if (colorIndexArg->value.int_v < static_cast<u64>(nw4r::lyt::TEVCOLOR_MAX)) {
                             mat->SetTevColor(colorIndexArg->value.int_v, *static_cast<GXColorS10*>(*colorArg->value.ptr_v));
                             result = TRUE;
                         }
@@ -93,7 +93,7 @@ namespace ipl {
                     u32 argc = CHANSVmGetArgc(vm);
                     colorIndexArg = CHANSVmGetArgInteger(vm, 0);
                     if (mat != NULL && argc == 1 && colorIndexArg != NULL) {
-                        if (colorIndexArg->value.int_v < 4ULL) {
+                        if (colorIndexArg->value.int_v < static_cast<u64>(GX_MAX_KCOLOR)) {
                             result = color::_ctor(vm, returnObj, mat->GetTevKColor(colorIndexArg->value.int_v).ToU32()) == TRUE;
                         }
                     }
@@ -113,7 +113,7 @@ namespace ipl {
                     colorIndexArg = CHANSVmGetArgInteger(vm, 0);
                     colorArg = CHANSVmGetArg(vm, 1);
                     if (mat != NULL && argc == 2 && colorIndexArg != NULL && util::is_valid_class(colorArg, "Color")) {
-                        if (colorIndexArg->value.int_v < 4ULL) {
+                        if (colorIndexArg->value.int_v < static_cast<u64>(GX_MAX_KCOLOR)) {
                             mat->SetTevKColor(colorIndexArg->value.int_v, *static_cast<nw4r::ut::Color*>(*colorArg->value.ptr_v));
                             result = TRUE;
                         }

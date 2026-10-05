@@ -93,12 +93,12 @@ namespace ipl {
 
             // clang-format off
             const CHANSVmPropertyList cPropertyList[LAYOUT_PROPERTY_COUNT] = {
-                {"*VERTEXCOLOR_LT", util::get_int<0>, NULL},
-                {"*VERTEXCOLOR_RT", util::get_int<1>, NULL},
-                {"*VERTEXCOLOR_LB", util::get_int<2>, NULL},
-                {"*VERTEXCOLOR_RB", util::get_int<3>, NULL},
-                {"*TEXTCOLOR_TOP", util::get_int<0>, NULL},
-                {"*TEXTCOLOR_BOTTOM", util::get_int<1>, NULL},
+                {"*VERTEXCOLOR_LT", util::get_int<nw4r::lyt::VERTEXCOLOR_LT>, NULL},
+                {"*VERTEXCOLOR_RT", util::get_int<nw4r::lyt::VERTEXCOLOR_RT>, NULL},
+                {"*VERTEXCOLOR_LB", util::get_int<nw4r::lyt::VERTEXCOLOR_LB>, NULL},
+                {"*VERTEXCOLOR_RB", util::get_int<nw4r::lyt::VERTEXCOLOR_RB>, NULL},
+                {"*TEXTCOLOR_TOP", util::get_int<nw4r::lyt::TEXTCOLOR_TOP>, NULL},
+                {"*TEXTCOLOR_BOTTOM", util::get_int<nw4r::lyt::TEXTCOLOR_BOTTOM>, NULL},
             };
             // clang-format on
         }  // namespace layout

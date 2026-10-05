@@ -73,7 +73,7 @@ namespace ipl {
                             error = load_vf_(vm, data, heap, offset, size, 0x20);
                         }
 
-                        result = (u32)(error - 2) != 0;
+                        result = error != 2;
                         if (result) {
                             if (data->pData != NULL || data->size != 0) {
                                 data->flag = 0;
@@ -145,7 +145,7 @@ namespace ipl {
                             delete[] oldBuf;
                         }
 
-                        result = (error - 2) != 0;
+                        result = error != 2;
                     }
 
                     CHANSVmSetInteger(vm, returnObj, error == 0);
@@ -164,9 +164,9 @@ namespace ipl {
                 get_fullpath(pathBuf, data->sPath);
                 fileSize = 0;
 
-                if (nand::wrapper::PrivateOpen(pathBuf, &fileInfo, 1) == 0) {
-                    if (nand::wrapper::GetLength(&fileInfo, &fileSize) == 0) {
-                        if (offset == 0 || (offset > 0 && offset < fileSize && nand::wrapper::Seek(&fileInfo, offset, 0) > 0)) {
+                if (nand::wrapper::PrivateOpen(pathBuf, &fileInfo, NAND_ACCESS_READ) == NAND_RESULT_OK) {
+                    if (nand::wrapper::GetLength(&fileInfo, &fileSize) == NAND_RESULT_OK) {
+                        if (offset == 0 || (offset > 0 && offset < fileSize && nand::wrapper::Seek(&fileInfo, offset, NAND_SEEK_BEG) > 0)) {
                             if (size != 0 && size + offset <= fileSize) {
                                 fileSize = size;
                             } else {
@@ -187,7 +187,7 @@ namespace ipl {
                         result = 2;
                     }
 
-                    if (nand::wrapper::Close(&fileInfo) != 0) {
+                    if (nand::wrapper::Close(&fileInfo) != NAND_RESULT_OK) {
                         result = 2;
                     }
                 }
@@ -204,15 +204,15 @@ namespace ipl {
                 s32 fileSize;
 
                 memset(mountBuf, 0, sizeof(mountBuf));
-                get_fullpath(mountBuf, (const char*)data);
-                if (VFMountDriveNANDFlashEx("@CS", mountBuf) == 0) {
+                get_fullpath(mountBuf, data->sMountPath);
+                if (VFMountDriveNANDFlashEx("@CS", mountBuf) == VF_ERR_SUCCESS) {
                     memset(vfPath, 0, sizeof(vfPath));
                     snprintf(vfPath, 0x103, "%s:/%s", "@CS", data->sPath);
                     fd = VFOpenFile(vfPath, "r", 0);
                     if (fd != NULL) {
                         fileSize = VFGetFileSizeByFd(fd);
                         if (fileSize > 0) {
-                            if (offset == 0 || offset > 0 && (u32)offset < fileSize && VFSeekFile(fd, offset, 0) == 0) {
+                            if (offset == 0 || offset > 0 && (u32)offset < fileSize && VFSeekFile(fd, offset, VF_SEEK_ORIGIN_BEGIN) == VF_ERR_SUCCESS) {
                                 if (readSize != 0) {
                                     if (readSize + offset <= fileSize) {
                                         fileSize = readSize;
@@ -220,7 +220,7 @@ namespace ipl {
                                 }
 
                                 u8* buf = new (heap, align) u8[fileSize];
-                                if (buf != NULL && VFReadFile(fd, buf, fileSize, &readSize) == 0) {
+                                if (buf != NULL && VFReadFile(fd, buf, fileSize, &readSize) == VF_ERR_SUCCESS) {
                                     DCStoreRange(buf, readSize);
                                     data->pData = buf;
 
@@ -234,11 +234,11 @@ namespace ipl {
                             result = 2;
                         }
 
-                        if (VFCloseFile(fd) != 0) {
+                        if (VFCloseFile(fd) != VF_ERR_SUCCESS) {
                             result = 2;
                         }
                     }
-                    if (VFUnmountDrive("@CS") != 0) {
+                    if (VFUnmountDrive("@CS") != VF_ERR_SUCCESS) {
                         result = 2;
                     }
                 }
@@ -427,7 +427,7 @@ namespace ipl {
 
                     u8* src = data->pData + dataOffset;
 
-                    if (format != 4 && format != 6) {
+                    if (format != GX_TF_RGB565 && format != GX_TF_RGBA8) {
                         goto exit;
                     }
 

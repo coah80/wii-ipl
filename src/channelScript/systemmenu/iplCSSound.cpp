@@ -24,7 +24,7 @@ namespace ipl {
             }
 
             CHANSVmDefineMethod(start_default_sound) {
-                System::getCSManager()->setAltBannerSoundState(1);
+                System::getCSManager()->setAltBannerSoundState(channel::CHANS_VM_ALT_SND_STATE_FALLBACK);
                 return TRUE;
             }
 
