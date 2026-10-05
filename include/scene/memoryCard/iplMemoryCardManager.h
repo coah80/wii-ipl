@@ -187,6 +187,22 @@ namespace ipl {
             }
 
         private:
+            GXTexObj* initBannerTexture(u8 slot, s32 file, void* data) {
+                GXInitTexObj(&mFileCell[slot][file].banner, data, 0x60, 0x20,
+                             GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
+                return &mFileCell[slot][file].banner;
+            }
+
+            void initBannerTextureCI(u8 slot, s32 file, void* data) {
+                GXInitTexObjCI(&mFileCell[slot][file].banner, data, 0x60, 0x20,
+                               GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
+            }
+
+            GXTlutObj* initBannerPalette(u8 slot, s32 file, void* data) {
+                GXInitTlutObj(&mFileCell[slot][file].bannerTlut, data, GX_TL_RGB5A3, 0x100);
+                return &mFileCell[slot][file].bannerTlut;
+            }
+
             u32                  unk_0x04;            // 0x00004
             MCFile               mFile[2][0x7F];      // 0x00008
             MCFileCell           mFileCell[2][0x7F];  // 0x00FE8
