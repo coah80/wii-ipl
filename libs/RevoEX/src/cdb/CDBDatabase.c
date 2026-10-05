@@ -12,7 +12,7 @@ extern CDBErr CDBDatabaseFree(CDBDatabase* database);
 extern CDBErr CDBRecordCreateAtOnce(CDBRecord* record, CDBDatabase* database, const char* desc, char* fileType, CDBDate epoch, int gameCode, u16 makerCode, void* buffer, u32 size);
 extern void CDBRecordInitDescriptor(CDBRecord* record, CDBDatabase* database, CDBRecordKey* key);
 extern BOOL CDBRecordIsExistFile(CDBRecord* record);
-extern void CDBRecordOpenReadOnly();
+extern CDBErr CDBRecordOpenReadOnly(CDBRecord* record);
 extern void CDBRecordKeyArrayInit();
 extern void CDBRecordKeyArraySetReverse();
 extern void CDBRecordKeyArraySize();
@@ -357,79 +357,43 @@ CDBErr CDBDatabaseSearchConditionsIsMatch(CDBSearchConditions* conditions, char*
     return CDB_ERROR_1;
 }
 
-asm CDBErr CDBDatabaseSearchCallCallback() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    mr r31, r3
-    stw r30, 0x18(r1)
-    mr r30, r5
-    stw r29, 0x14(r1)
-    mr r29, r4
-    bl CDBLock
-    lwz r3, 0x8(r31)
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchCallCallback_L_81487C78
-    addis r3, r3, 0x1
-    lwz r31, -0x3ff0(r3)
-    b CDBDatabaseSearchCallCallback_L_81487C7C
-    CDBDatabaseSearchCallCallback_L_81487C78:
-    li r31, 0x0
-    CDBDatabaseSearchCallCallback_L_81487C7C:
-    bl CDBUnlock
-    mr r3, r29
-    addi r4, r30, 0x8
-    bl CDBDatabaseSearchConditionsIsMatch
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchCallCallback_L_81487D0C
-    lwz r0, 0x24(r29)
-    cmpwi r0, 0x0
-    beq CDBDatabaseSearchCallCallback_L_81487CCC
-    rlwinm. r0, r31, 0, 30, 30
-    beq CDBDatabaseSearchCallCallback_L_81487CB4
-    mr r3, r30
-    bl CDBRecordOpen
-    b CDBDatabaseSearchCallCallback_L_81487CBC
-    CDBDatabaseSearchCallCallback_L_81487CB4:
-    mr r3, r30
-    bl CDBRecordOpenReadOnly
-    CDBDatabaseSearchCallCallback_L_81487CBC:
-    cmpwi r3, 0x20
-    bne CDBDatabaseSearchCallCallback_L_81487CD0
-    li r3, 0x0
-    b CDBDatabaseSearchCallCallback_L_81487D10
-    CDBDatabaseSearchCallCallback_L_81487CCC:
-    li r3, 0x0
-    CDBDatabaseSearchCallCallback_L_81487CD0:
-    cmpwi r3, 0x0
-    bne CDBDatabaseSearchCallCallback_L_81487D10
-    lwz r12, 0x18(r29)
-    mr r4, r30
-    lwz r3, 0x1c(r29)
-    mtctr r12
-    bctrl
-    stw r3, 0x20(r29)
-    lwz r0, 0x38(r30)
-    cmpwi r0, 0x0
-    beq CDBDatabaseSearchCallCallback_L_81487D0C
-    mr r3, r30
-    bl CDBRecordClose
-    b CDBDatabaseSearchCallCallback_L_81487D0C
-    b CDBDatabaseSearchCallCallback_L_81487D10
-    CDBDatabaseSearchCallCallback_L_81487D0C:
-    li r3, 0x0
-    CDBDatabaseSearchCallCallback_L_81487D10:
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
-#endif
+CDBErr CDBDatabaseSearchCallCallback(CDBDatabase* database, CDBSearchConditions* conditions, CDBRecord* record) {
+    CDBDatabaseState* instance;
+    u32 flags;
+    CDBErr result;
+
+    CDBLock();
+    instance = database->instance;
+    if (instance != NULL) {
+        flags = instance->flags;
+    } else {
+        flags = 0;
+    }
+    CDBUnlock();
+
+    if (CDBDatabaseSearchConditionsIsMatch(conditions, record->key.keyString)) {
+        if (conditions->openRecord) {
+            if (flags & 2) {
+                result = CDBRecordOpen(record);
+            } else {
+                result = CDBRecordOpenReadOnly(record);
+            }
+            if (result == CDB_ERROR_32) {
+                return CDB_ERROR_OK;
+            }
+        } else {
+            result = CDB_ERROR_OK;
+        }
+        if (result == CDB_ERROR_OK) {
+            conditions->keepSearching = conditions->callback(conditions->callbackArg, record);
+            if (record->file != NULL) {
+                CDBRecordClose(record);
+            }
+        } else {
+            return result;
+        }
+    }
+    return CDB_ERROR_OK;
 }
 
 asm CDBErr CDBDatabaseSearchRecordLayer() {
