@@ -396,7 +396,7 @@ extern "C" s32 reportCardThreadError(s32 slot, s32 state, s32 result);
 extern "C" void sendCardSlotState(s32 slot, s32 state, s32 fileNo);
 extern "C" void clearAllCardFileEntries(s32 slot);
 extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir);
-extern "C" void runCardMoveOrCopy(s32 slot, s16 fileNo, s32 command);
+extern "C" void runCardMoveOrCopy(u8 slot, s16 fileNo, s32 command);
 
 static inline void sendValidityResponse(u32 command, u32 valid) {
     union {
@@ -949,25 +949,62 @@ extern "C" s32 checkCardFileDuplicate(s32 slot, s16 fileNo) {
     return 0;
 }
 
-extern "C" void runCardMoveOrCopy(s32 slot, s16 fileNo, s32 command) {
+static inline u32 clampCardTransferBlocks(u32 remaining, u32 maximum) {
+    return remaining > maximum ? maximum : remaining;
+}
+
+static inline s16 createCardTemporaryFile(s32 destinationSlot, const CARDDir& source, s32 sectorSize) {
+    s16 destinationFileNo = -1;
+    s32 result;
+    s32 attempt = 0;
+    u32 fileSize = (u32)source.length * sectorSize;
+    do {
+        sprintf(sThread->temporaryFileName, "Broken File%03d", attempt);
+        result = CARDCreate(destinationSlot, sThread->temporaryFileName,
+                            fileSize, &sThread->destinationFile);
+        if (result < 0 && result != -7) {
+            OSReport("Can't Create temp File with Error.");
+            return (s16)result;
+        }
+        ++attempt;
+    } while (result != 0 && attempt < 0x80);
+    if (attempt < 0x80) {
+        destinationFileNo = sThread->destinationFile.fileNo;
+    } else {
+        destinationFileNo = -0x80;
+    }
+    return destinationFileNo;
+}
+
+extern "C" void runCardMoveOrCopy(u8 slot, s16 fileNo, s32 command) {
     CARDDir createStatus;
     CARDDir checkedStatus;
     CARDDir ioStatus;
     CARDDir sourceStatus;
     CARDDir renamedStatus;
     CARDDir moveStatus;
-    s16 destinationFileNo = -1;
-    s32 destinationSlot;
     u32 destinationSectorSize;
     u32 sourceSectorSize;
     s32 commonSectorSize;
-    BOOL temporaryCreated = FALSE;
-    BOOL metadataCopied = FALSE;
-    BOOL cancelSent;
     s32 result;
     s32 sectorError;
     s32 statusResult;
+    u32 oldTime;
+    BOOL cancelSent;
     s32 stage;
+    s32 offset;
+    s32 size;
+    u32 maxBlocks;
+    s32 block;
+    s32 ioResult;
+    s32 copyResult;
+    s32 moveResult;
+    s32 moveStage;
+    s16 renameAttempt;
+    s32 destinationSlot;
+    s16 destinationFileNo = -1;
+    BOOL temporaryCreated = FALSE;
+    BOOL metadataCopied = FALSE;
 
     result = checkCardFileDuplicate(slot, fileNo);
 
@@ -1034,28 +1071,7 @@ sectorSizeDone:
     }
 
     destinationSlot = slot ^ 1;
-    u32 createSize = (u32)createStatus.length * commonSectorSize;
-    {
-        s32 attempt = 0;
-        do {
-            sprintf(sThread->temporaryFileName, "Broken File%03d", attempt);
-            result = CARDCreate(destinationSlot, sThread->temporaryFileName,
-                                createSize, &sThread->destinationFile);
-            if (result < 0 && result != -7) {
-                OSReport("Can't Create temp File with Error.");
-                destinationFileNo = result;
-                goto createDone;
-            }
-            ++attempt;
-        } while (result != 0 && attempt < 0x80);
-        if (attempt < 0x80) {
-            destinationFileNo = sThread->destinationFile.fileNo;
-        } else {
-            destinationFileNo = -0x80;
-        }
-createDone:
-        ;
-    }
+    destinationFileNo = createCardTemporaryFile(destinationSlot, createStatus, commonSectorSize);
     if (destinationFileNo < 0) {
         reportCardThreadError(destinationSlot, command, destinationFileNo);
         goto finish;
@@ -1066,9 +1082,6 @@ createDone:
     cancelSent = FALSE;
     {
         u32 sectorSize;
-        u32 maxBlocks;
-        s32 block;
-        s32 ioResult;
 
         ioResult = __CARDGetStatusEx(slot, fileNo, &ioStatus);
         if (ioResult < 0) {
@@ -1088,10 +1101,9 @@ createDone:
         block = 0;
         stage = 3;
         for (; block < ioStatus.length; block += maxBlocks) {
-            u32 blocksRemaining = (u32)ioStatus.length - block;
-            u32 blocks = blocksRemaining > maxBlocks ? maxBlocks : blocksRemaining;
-            s32 offset = block * sectorSize;
-            s32 size = blocks * sectorSize;
+            u32 blocks = clampCardTransferBlocks((u32)ioStatus.length - block, maxBlocks);
+            offset = block * sectorSize;
+            size = blocks * sectorSize;
             ioResult = CARDRead(&sThread->sourceFile,
                                 sThread->transferBuffer, size, offset);
             if (ioResult < 0) {
@@ -1150,133 +1162,135 @@ copyIoDone:
         ;
     }
 
-    if (result >= 0) {
-        if (command == 2) {
-            result = __CARDGetStatusEx(slot, fileNo, &sourceStatus);
-            if (result < 0) {
-                OSReport("Can't get status for src file\n");
+    if (result < 0) {
+        goto cleanup;
+    }
+    if (command == 2) {
+        copyResult = __CARDGetStatusEx(slot, fileNo, &sourceStatus);
+        if (copyResult < 0) {
+            OSReport("Can't get status for src file\n");
+        } else {
+            ++sourceStatus.copyTimes;
+            copyResult = __CARDSetStatusEx(slot, fileNo, &sourceStatus);
+            if (copyResult < 0) {
+                OSReport("Can't set status for src file %d\n", copyResult);
             } else {
-                ++sourceStatus.copyTimes;
-                result = __CARDSetStatusEx(slot, fileNo, &sourceStatus);
-                if (result < 0) {
-                    OSReport("Can't set status for src file %d\n", result);
-                } else {
-                    u32 oldTime = sourceStatus.time;
-                    sourceStatus.time = (u32)(OSGetTime() / (*(u32*)0x800000F8 >> 2));
-                    result = __CARDSetStatusEx(destinationSlot, destinationFileNo,
-                                               &sourceStatus);
-                    if (result < 0) {
-                        OSReport("Can't set status for dst file (src file copyTimes--)\n");
-                        if (result != -3) {
-                            --sourceStatus.copyTimes;
-                        }
-                        sourceStatus.time = oldTime;
-                        s32 restoreResult = __CARDSetStatusEx(slot, fileNo, &sourceStatus);
-                        if (restoreResult < 0) {
-                            OSReport("Can't set status for src file(src file copyTimes--)\n");
-                        }
-                    } else {
-                        metadataCopied = TRUE;
-                        result = loadCardFileIcons(destinationSlot, destinationFileNo,
-                                                      &sourceStatus);
-                        if (result < 0) {
-                            OSReport("Can't read icon for move dstfile\n");
-                        } else {
-                            result = 0;
-                        }
-                        if (result < 0) {
-                            goto cleanup;
-                        }
+                oldTime = sourceStatus.time;
+                sourceStatus.time = (u32)(OSGetTime() / (*(u32*)0x800000F8 >> 2));
+                copyResult = __CARDSetStatusEx(destinationSlot, destinationFileNo,
+                                                    &sourceStatus);
+                if (copyResult < 0) {
+                    OSReport("Can't set status for dst file (src file copyTimes--)\n");
+                    if (copyResult != -3) {
+                        --sourceStatus.copyTimes;
                     }
-                }
-            }
-        } else if (command == 3) {
-            s16 attempt = 0;
-            s32 stage = 0;
-            result = __CARDGetStatusEx(slot, fileNo, &moveStatus);
-            if (result >= 0) {
-                stage = 1;
-                renamedStatus = moveStatus;
-                memset(renamedStatus.company, 0, 2);
-                memset(renamedStatus.gameName, 0, 4);
-                do {
-                    memset(renamedStatus.fileName, 0, 0x20);
-                    sprintf((char*)renamedStatus.fileName, "Broken File%03d", attempt);
-                    result = __CARDSetStatusEx(slot, fileNo, &renamedStatus);
-                    if (result < 0 && result != -7) {
-                        goto moveStatusError;
+                    sourceStatus.time = oldTime;
+                    s32 restoreResult = __CARDSetStatusEx(slot, fileNo, &sourceStatus);
+                    if (restoreResult < 0) {
+                        OSReport("Can't set status for src file(src file copyTimes--)\n");
                     }
-                    ++attempt;
-                } while (result != 0 && attempt < 0x80);
-                stage = 2;
-                result = __CARDSetStatusEx(destinationSlot, destinationFileNo,
-                                           &moveStatus);
-                if (result < 0) {
-                    s32 setResult = result;
-                    if (result == -3) {
-                        CARDFastDelete(slot, fileNo);
-                        clearCardFileEntry(slot, fileNo);
-                    } else {
-                        s32 restoreResult = __CARDSetStatusEx(slot, fileNo, &moveStatus);
-                        if (restoreResult < 0) {
-                            OSReport("Can't repair src file - carddir\n");
-                        }
-                    }
-                    result = setResult;
                 } else {
                     metadataCopied = TRUE;
-                    stage = 3;
-                    result = CARDFastDelete(slot, fileNo);
-                    if (result >= 0) {
-                        clearCardFileEntry(slot, fileNo);
-                        stage = 4;
-                        result = __CARDGetStatusEx(destinationSlot,
-                                                   destinationFileNo, &moveStatus);
-                        if (result >= 0) {
-                            stage = 5;
-                            if ((result = loadCardFileIcons(
-                                     destinationSlot, destinationFileNo, &moveStatus)) < 0) {
-                                goto moveStatusError;
-                            }
-                            result = 0;
-                            goto moveStatusDone;
-                        }
+                    copyResult = loadCardFileIcons(destinationSlot, destinationFileNo,
+                                                       &sourceStatus);
+                    if (copyResult < 0) {
+                        OSReport("Can't read icon for move dstfile\n");
+                    } else {
+                        copyResult = 0;
                     }
                 }
             }
-moveStatusError:
-            switch (stage) {
-            case 0:
-                OSReport("Cant' get status for src file.\n");
-                break;
-            case 1:
-                OSReport("Can't set status for src file\n");
-                break;
-            case 2:
-                OSReport("Can't rename dst file\n");
-                break;
-            case 3:
-                OSReport("Can't Delete src file\n");
-                break;
-            case 4:
-                OSReport("Cant' get status for dst file.\n");
-                break;
-            case 5:
-                OSReport("Can't read icon for move dstfile\n");
-                break;
+        }
+        result = copyResult;
+        if (result < 0) {
+            goto cleanup;
+        }
+    } else if (command == 3) {
+        renameAttempt = 0;
+        moveStage = 0;
+        moveResult = __CARDGetStatusEx(slot, fileNo, &moveStatus);
+        if (moveResult >= 0) {
+            ++moveStage;
+            renamedStatus = moveStatus;
+            memset(renamedStatus.company, 0, 2);
+            memset(renamedStatus.gameName, 0, 4);
+            do {
+                memset(renamedStatus.fileName, 0, 0x20);
+                sprintf((char*)renamedStatus.fileName, "Broken File%03d", renameAttempt);
+                moveResult = __CARDSetStatusEx(slot, fileNo, &renamedStatus);
+                if (moveResult < 0 && moveResult != -7) {
+                    goto moveStatusError;
+                }
+                ++renameAttempt;
+            } while (moveResult != 0 && renameAttempt < 0x80);
+            moveStage = 2;
+            moveResult = __CARDSetStatusEx(destinationSlot, destinationFileNo,
+                                       &moveStatus);
+            if (moveResult < 0) {
+                s32 setResult = moveResult;
+                if (moveResult == -3) {
+                    CARDFastDelete(slot, fileNo);
+                    clearCardFileEntry(slot, fileNo);
+                } else {
+                    s32 restoreResult = __CARDSetStatusEx(slot, fileNo, &moveStatus);
+                    if (restoreResult < 0) {
+                        OSReport("Can't repair src file - carddir\n");
+                    }
+                }
+                moveResult = setResult;
+            } else {
+                metadataCopied = TRUE;
+                moveStage = 3;
+                moveResult = CARDFastDelete(slot, fileNo);
+                if (moveResult >= 0) {
+                    clearCardFileEntry(slot, fileNo);
+                    moveStage = 4;
+                    moveResult = __CARDGetStatusEx(destinationSlot,
+                                                  destinationFileNo, &moveStatus);
+                    if (moveResult >= 0) {
+                        moveStage = 5;
+                        if ((moveResult = loadCardFileIcons(
+                                 destinationSlot, destinationFileNo, &moveStatus)) < 0) {
+                            goto moveStatusError;
+                        }
+                        moveResult = 0;
+                        goto moveStatusDone;
+                    }
+                }
             }
+        }
+moveStatusError:
+        switch (moveStage) {
+        case 0:
+            OSReport("Cant' get status for src file.\n");
+            break;
+        case 1:
+            OSReport("Can't set status for src file\n");
+            break;
+        case 2:
+            OSReport("Can't rename dst file\n");
+            break;
+        case 3:
+            OSReport("Can't Delete src file\n");
+            break;
+        case 4:
+            OSReport("Cant' get status for dst file.\n");
+            break;
+        case 5:
+            OSReport("Can't read icon for move dstfile\n");
+            break;
+        }
 moveStatusDone:
-            ;
+        if (moveResult < 0) {
+            goto cleanup;
         }
     }
 
-    if (result >= 0) {
-        refreshCardSlotInfo(slot);
-        refreshCardSlotInfo(destinationSlot);
-        sendCardSlotState(slot, 0, fileNo & 0xFF);
-        sendCardSlotState(destinationSlot, command, destinationFileNo & 0xFF);
-        goto finish;
-    }
+    refreshCardSlotInfo(slot);
+    refreshCardSlotInfo(destinationSlot);
+    sendCardSlotState(slot, 0, fileNo & 0xFF);
+    sendCardSlotState(destinationSlot, command, destinationFileNo & 0xFF);
+    goto finish;
 
 cleanup:
     destinationSlot = slot ^ 1;

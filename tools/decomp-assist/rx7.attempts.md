@@ -357,3 +357,846 @@ Final search and handoff audit
 - The shared search script's global 24-slot lock block and the private copy's block are byte-identical. A local waiting wrapper staggered the last two queued jobs through existing lock slots; each search still acquired its own normal global lock before doing compiler work. Both final processes and the watcher exited successfully.
 - Source commit: 0100c7bc (match memory card comment trimming). Only getComment changed. After the clean gate and completed searches, MemoryCardManager source SHA256 remains d466a4cfff609ff4cd4e01f727d06b247e19d5ecc57730c957ddf92a32bc78ca; SDMemory and CardSequence sources remain unchanged. Final DOL SHA1 remains 26116613f624061ba99c8d1a299aaa6efa85670d.
 - Final accepted scores: getComment 98.94309 -> 100.0; SDMemory::create 99.15884 -> 99.15884; cardThreadMain 97.9402 -> 97.9402; runCardMoveOrCopy 97.88651 -> 97.88651; _create_icon 87.55 -> 87.55; create_banner 90.42453 -> 90.42453. GATE PASS is recorded in build/rx7/final-gate.txt. This handoff contains one new exact function; five assigned functions still need work.
+
+## rx7b continuation after PR 1188
+
+Starting branch agent/w1005/rx7b, HEAD 1a7f21da. The landed getComment match stays intact. Scope is the same five open functions. This round tests first-use and declaration order with simplify traces, target Ghidra address reconstruction, and real inline or statement boundaries. Private tools and artifacts live in build/rx7b. Ghidra exports use a private project directory in this worktree.
+
+b-icon-direct-result-at-load: Ghidra computes the complete return texture immediately before GXLoadTexObj; combine that real result local with direct metadata access. objdiff 85.6%; insns 101/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-direct-result-at-load.
+
+b-icon-rgb-offset-first: Target RGB image uses offset plus base while CI uses base plus offset; preserve the target per-arm operand order. objdiff 85.6%; insns 101/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-rgb-offset-first.
+
+b-icon-accessor-pointer-init: Use the actual icon texture accessor with pointer array input at init uses; test row/column temporary creation inside an inline. objdiff 82.15%; insns 103/100 diffs 77; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-accessor-pointer-init.
+
+b-icon-accessor-pointer-all: Use the actual icon texture accessor with pointer array input at all uses; test row/column temporary creation inside an inline. objdiff 82.45%; insns 101/100 diffs 63; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-accessor-pointer-all.
+
+b-icon-accessor-pointer-load: Use the actual icon texture accessor with pointer array input at load uses; test row/column temporary creation inside an inline. objdiff 82.5%; insns 105/100 diffs 74; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-accessor-pointer-load.
+
+b-icon-accessor-reference-init: Use the actual icon texture accessor with reference array input at init uses; test row/column temporary creation inside an inline. objdiff 70.29%; insns 109/100 diffs 80; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-accessor-reference-init.
+
+b-icon-accessor-reference-all: Use the actual icon texture accessor with reference array input at all uses; test row/column temporary creation inside an inline. objdiff 79.49%; insns 104/100 diffs 68; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-accessor-reference-all.
+
+b-icon-accessor-reference-load: Use the actual icon texture accessor with reference array input at load uses; test row/column temporary creation inside an inline. objdiff 74.04%; insns 111/100 diffs 81; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-accessor-reference-load.
+
+b-icon-indexed-load-return: Move the actual indexed texture lookup into the load-and-return helper instead of passing an already computed pointer. objdiff 82.45%; insns 105/100 diffs 74; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-indexed-load-return.
+
+b-icon-member-accessor-init: Use a real MemoryCardManager inline accessor at init sites; this pointer enters the boundary before any array offset. Compile failed; see build/rx7b/trials/b-icon-member-accessor-init/compile.log.
+
+b-icon-member-accessor-load: Use a real MemoryCardManager inline accessor at load sites; this pointer enters the boundary before any array offset. Compile failed; see build/rx7b/trials/b-icon-member-accessor-load/compile.log.
+
+b-icon-member-accessor-all: Use a real MemoryCardManager inline accessor at all sites; this pointer enters the boundary before any array offset. Compile failed; see build/rx7b/trials/b-icon-member-accessor-all/compile.log.
+
+b-icon-member-indexed-load: Real member loads and returns its indexed icon texture; array address is formed inside the inline. Compile failed; see build/rx7b/trials/b-icon-member-indexed-load/compile.log.
+
+b-banner-member-accessor-init: Test the corresponding real banner accessor at init sites with native parameter types. Compile failed; see build/rx7b/trials/b-banner-member-accessor-init/compile.log.
+
+b-banner-member-accessor-load: Test the corresponding real banner accessor at load sites with native parameter types. Compile failed; see build/rx7b/trials/b-banner-member-accessor-load/compile.log.
+
+b-banner-member-accessor-all: Test the corresponding real banner accessor at all sites with native parameter types. Compile failed; see build/rx7b/trials/b-banner-member-accessor-all/compile.log.
+
+b-icon-member2-accessor-init: Use a real MemoryCardManager inline accessor at init sites; this pointer enters the boundary before any array offset. objdiff 89.34%; insns 101/100 diffs 43; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member2-accessor-init.
+
+b-icon-member2-accessor-load: Use a real MemoryCardManager inline accessor at load sites; this pointer enters the boundary before any array offset. objdiff 85.6%; insns 101/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member2-accessor-load.
+
+b-icon-member2-accessor-all: Use a real MemoryCardManager inline accessor at all sites; this pointer enters the boundary before any array offset. objdiff 82.45%; insns 101/100 diffs 63; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member2-accessor-all.
+
+b-icon-member2-indexed-load: Real member loads and returns its indexed icon texture; array address is formed inside the inline. objdiff 85.6%; insns 101/100 diffs 57; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member2-indexed-load.
+
+b-banner-member2-accessor-init: Test the corresponding real banner accessor at init sites with native parameter types. objdiff 92.92453%; insns 105/106 diffs 88; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-member2-accessor-init.
+
+b-sd-named-message-after-receiver: Give each getMessage return an explicit statement using one reused named message pointer, preserving lookup and call order. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-named-message-after-receiver.
+
+b-banner-member2-accessor-load: Test the corresponding real banner accessor at load sites with native parameter types. objdiff 87.830185%; insns 106/106 diffs 70; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-member2-accessor-load.
+
+b-banner-member2-accessor-all: Test the corresponding real banner accessor at all sites with native parameter types. objdiff 82.028305%; insns 107/106 diffs 85; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-member2-accessor-all.
+
+b-sd-named-message-first: Move the real message local before receiver and cache locals to change its virtual-register number. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-named-message-first.
+
+b-sd-cast-receiver-at-use: Keep the found Pane as the actual local and downcast only at SetString; test temporary creation at the receiver use. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-cast-receiver-at-use.
+
+b-sd-c-style-receiver-cast: Compare C-style receiver downcasts with static_cast at the existing lookup boundary. Compile failed; see build/rx7b/trials/b-sd-c-style-receiver-cast/compile.log.
+
+b-sd-message-return-inline: Return the localized message through one real lookup helper with a const primitive parameter. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-message-return-inline.
+
+b-sd-message-return-inline-mutable: Remove const from the real lookup helper parameter to test inline temporary allocation. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-message-return-inline-mutable.
+
+b-sd-block-message-and-receiver: Use a scoped receiver and message pair per localization operation, preserving all original calls and string order. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-block-message-and-receiver.
+
+b-thread-persistent-values-last-outer-valid-exit: persistent values last outer valid exit. objdiff 98.53821%; insns 301/301 diffs 45; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-persistent-values-last-outer-valid-exit.
+
+b-thread-persistent-values-last-outer-exit-valid: persistent values last outer exit valid. objdiff 98.40532%; insns 301/301 diffs 53; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-persistent-values-last-outer-exit-valid.
+
+b-thread-persistent-values-last-valid-outer-exit: persistent values last valid outer exit. objdiff 98.40532%; insns 301/301 diffs 52; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-persistent-values-last-valid-outer-exit.
+
+b-sd-c-style-receiver-cast-fixed: C-style zero-offset cast with receiver parentheses preserved. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-c-style-receiver-cast-fixed.
+
+b-move-io-register-locals-before-persistent-state: io register locals before persistent state. objdiff 97.63158%; insns 608/608 diffs 206; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-io-register-locals-before-persistent-state.
+
+b-move-all-lived-register-locals-before-state: all lived register locals before state. objdiff 97.63158%; insns 608/608 diffs 206; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-all-lived-register-locals-before-state.
+
+b-move-persistent-state-last-destination-first: persistent state last destination first. objdiff 97.44244%; insns 608/608 diffs 226; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-persistent-state-last-destination-first.
+
+b-move-persistent-state-last-metadata-first: persistent state last metadata first. objdiff 97.50494%; insns 608/608 diffs 219; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-persistent-state-last-metadata-first.
+
+rx7b baseline and Ghidra evidence
+- Freshly fetched origin/main and rebuilt source/target objects plus the report. Baseline remains MC 24/26 exact, code 4572/5396; CardSequence 27/30, code 4168/9852, data 1496/1496; SDMemory 64/66, code 14812/20872, data 3344/3344. All three pools are identical.
+- Exported all five assigned target functions with the Ghidra helper, using a private project path. Files: build/rx7b/ghidra-{mc,card,sd}.c. Ghidra's inferred types and savegpr prototypes are imperfect; assembly remains authoritative.
+- _create_icon target 0x1004 adds texture row+column for GXInitTexObj, then 0x100c recomputes and saves the complete pointer for GXLoadTexObj and return. Target CI similarly keeps row+column separate across GXInitTlutObj/GXLoadTlut, then materializes the returned texture before GXLoadTexObj. The source instead carries complete RGB and palette pointers across calls. Ghidra shows these same lifetimes. This supports testing an accessor boundary, but does not prove the original used an accessor.
+- create_banner target 0x1334-0x133c uses column+root then row for validation, and 0x1350-0x1354 recomputes root+row then column for format. RGB image uses the first base; CI uses the second. Both SDK texture paths retain separate row/column values. The baseline shares one selected metadata pointer and complete texture pointers instead.
+- The first member-accessor trials failed because MWCC could not open a Unix absolute include. Those are setup failures, not source measurements. Fixed trials use a relative private-header path. No shared project header was edited.
+
+b-icon-metadata-accessor-narrow: Separate selected metadata address into a real array accessor using narrow parameters; keep validation and pixel reads unchanged. objdiff 85.05%; insns 97/100 diffs 81; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-metadata-accessor-narrow.
+
+b-icon-image-base-accessor-narrow: Put the image byte-view conversion inside its own accessor; test whether the target recomputed base stays separate from metadata-field CSE. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-image-base-accessor-narrow.
+
+b-icon-metadata-accessor-const: Separate selected metadata address into a real array accessor using const parameters; keep validation and pixel reads unchanged. objdiff 85.05%; insns 97/100 diffs 81; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-metadata-accessor-const.
+
+b-icon-image-base-accessor-const: Put the image byte-view conversion inside its own accessor; test whether the target recomputed base stays separate from metadata-field CSE. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-image-base-accessor-const.
+
+b-icon-metadata-accessor-word: Separate selected metadata address into a real array accessor using word parameters; keep validation and pixel reads unchanged. objdiff 85.05%; insns 97/100 diffs 81; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-metadata-accessor-word.
+
+b-icon-image-base-accessor-word: Put the image byte-view conversion inside its own accessor; test whether the target recomputed base stays separate from metadata-field CSE. objdiff 88.05%; insns 100/100 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-image-base-accessor-word.
+
+b-banner-metadata-accessor-narrow: Separate selected metadata address into a real array accessor using narrow parameters; keep validation and pixel reads unchanged. objdiff 90.51887%; insns 108/106 diffs 77; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-metadata-accessor-narrow.
+
+b-banner-image-base-accessor-narrow: Put the image byte-view conversion inside its own accessor; test whether the target recomputed base stays separate from metadata-field CSE. objdiff 79.68868%; insns 109/106 diffs 85; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-image-base-accessor-narrow.
+
+b-banner-metadata-accessor-const: Separate selected metadata address into a real array accessor using const parameters; keep validation and pixel reads unchanged. objdiff 89.386795%; insns 109/106 diffs 90; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-metadata-accessor-const.
+
+b-banner-image-base-accessor-const: Put the image byte-view conversion inside its own accessor; test whether the target recomputed base stays separate from metadata-field CSE. objdiff 81.85849%; insns 110/106 diffs 86; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-image-base-accessor-const.
+
+b-banner-metadata-accessor-word: Separate selected metadata address into a real array accessor using word parameters; keep validation and pixel reads unchanged. objdiff 90.42453%; insns 106/106 diffs 70; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-metadata-accessor-word.
+
+b-banner-image-base-accessor-word: Put the image byte-view conversion inside its own accessor; test whether the target recomputed base stays separate from metadata-field CSE. objdiff 90.42453%; insns 106/106 diffs 70; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-image-base-accessor-word.
+
+b-thread-target-local-order-0: target local order 0. objdiff 98.53821%; insns 301/301 diffs 45; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-target-local-order-0.
+
+b-thread-target-local-order-1: target local order 1. objdiff 98.57143%; insns 301/301 diffs 43; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-target-local-order-1.
+
+b-thread-target-local-order-2: target local order 2. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-target-local-order-2.
+
+b-thread-target-local-order-3: target local order 3. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-target-local-order-3.
+
+b-thread-plain-local-packet: Replace the existing anonymous packet union with ordinary integer message packing at a plain-local-packet boundary. objdiff 99.00332%; insns 301/301 diffs 36; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-plain-local-packet.
+
+b-thread-packet-reference-setter: Replace the existing anonymous packet union with ordinary integer message packing at a packet-reference-setter boundary. objdiff 99.00332%; insns 301/301 diffs 36; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-packet-reference-setter.
+
+b-thread-packet-return: Replace the existing anonymous packet union with ordinary integer message packing at a packet-return boundary. objdiff 99.00332%; insns 301/301 diffs 36; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-packet-return.
+
+b-thread-report-return-u32: Return the reported validity through its actual report operation; preserve message token order and one OSReport call. objdiff 98.50498%; insns 301/301 diffs 43; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-report-return-u32.
+
+b-thread-report-return-const-u32: Return the reported validity through its actual report operation; preserve message token order and one OSReport call. objdiff 98.50498%; insns 301/301 diffs 43; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-report-return-const-u32.
+
+b-thread-report-return-u32ref: Return the reported validity through its actual report operation; preserve message token order and one OSReport call. objdiff 98.50498%; insns 301/301 diffs 43; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-report-return-u32ref.
+
+b-thread-report-return-const-u32ref: Return the reported validity through its actual report operation; preserve message token order and one OSReport call. objdiff 98.50498%; insns 301/301 diffs 43; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-report-return-const-u32ref.
+
+b-thread-separate-mount-block: Keep CARDMount and mount-recovery results separate from the main operation result, avoiding the early result-to-r4 coalesce. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-separate-mount-block.
+
+b-thread-separate-mount-root-first: Keep CARDMount and mount-recovery results separate from the main operation result, avoiding the early result-to-r4 coalesce. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-separate-mount-root-first.
+
+b-thread-separate-mount-root-last: Keep CARDMount and mount-recovery results separate from the main operation result, avoiding the early result-to-r4 coalesce. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-separate-mount-root-last.
+
+b-thread-separate-mount-reuse-file: Reuse one file index for the two nonoverlapping listing loops after separating the mount result. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-separate-mount-reuse-file.
+
+b-icon-result-null-else: Model the real texture result and load using result-null-else control flow; both successful formats retain exactly one load. objdiff 86.0%; insns 100/100 diffs 49; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-result-null-else.
+
+b-icon-result-initialized-null: Model the real texture result and load using result-initialized-null control flow; both successful formats retain exactly one load. objdiff 83.24%; insns 99/100 diffs 88; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-result-initialized-null.
+
+b-icon-rgb-result-after-ci-join: Model the real texture result and load using rgb-result-after-ci-join control flow; both successful formats retain exactly one load. objdiff 81.8%; insns 98/100 diffs 70; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-rgb-result-after-ci-join.
+
+b-icon-result-index-s32-s32: Name the real texture index at its word width and use a corresponding typed result index, testing separate address-expression CSE. objdiff 83.75%; insns 102/100 diffs 71; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-result-index-s32-s32.
+
+b-icon-result-index-u32-u32: Name the real texture index at its word width and use a corresponding typed result index, testing separate address-expression CSE. objdiff 92.44%; insns 103/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-result-index-u32-u32.
+
+b-icon-result-index-s32-u32: Name the real texture index at its word width and use a corresponding typed result index, testing separate address-expression CSE. objdiff 92.44%; insns 103/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-result-index-s32-u32.
+
+b-icon-result-index-u32-s32: Name the real texture index at its word width and use a corresponding typed result index, testing separate address-expression CSE. objdiff 83.75%; insns 102/100 diffs 71; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-result-index-u32-s32.
+
+b-icon-image-value-before-call: Compute the actual image argument as a separate statement before the GX initialization call. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-image-value-before-call.
+
+b-sd-cache-count-lookup: Move the real cached-title traversal into an inline helper with lookup ownership of the manager lookup. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-cache-count-lookup.
+
+b-sd-cache-count-pointer: Move the real cached-title traversal into an inline helper with pointer ownership of the manager lookup. objdiff 99.13064%; insns 1064/1064 diffs 179; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-cache-count-pointer.
+
+b-sd-cache-count-reference: Move the real cached-title traversal into an inline helper with reference ownership of the manager lookup. objdiff 99.13064%; insns 1064/1064 diffs 179; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-cache-count-reference.
+
+b-sd-layout-construction-helper: Factor the repeated layout construction without moving string literals or changing constructor argument order. objdiff 97.79605%; insns 1072/1064 diffs 950; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-layout-construction-helper.
+
+b-sd-receiver-declared-at-first-use: Move the reused text receiver declaration to its first pane lookup so earlier inline constructor locals are encountered first. objdiff 99.15884%; insns 1064/1064 diffs 175; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-sd-receiver-declared-at-first-use.
+
+rx7b cardThreadMain simplify confirmation
+- build/rx7b/mwdbg-b-thread-persistent-values-last is byte-identical to original-flags wibo. Moving declarations to end in outerSlot, validState, exitThread order creates v34/v33/v32. The two state nodes are still above the threshold at first visit; outerSlot now starts with degree 30 rather than reaching degree 28 after freeBlocks/freeFile were removed. It also defers.
+- The final sweep removes exitThread at degree 19, validState at 18, outerSlot at 17, then pool/switch/one/slot-names/zero at 16 through 12. Reverse coloring gives outerSlot r26, validState r25, exitThread r24, all as requested. The other local colors and reply coalescing remain wrong. This is a measured source lever, not an exact function.
+- Keeping the initial CARDMount result in a distinct block or root local normalized to the same 301-instruction output. Integer reply packing is readable and reaches 99.00332%, but it changes the target insertion sequence, so it remains private.
+rx7b SDMemory statement-boundary confirmation
+- build/rx7b/mwdbg-b-sd-message-first is byte-identical to original-flags wibo. Adding and moving the message return local leaves the smArg/pool saved-register priority unchanged and still produces 1064 instructions with 175 differences. The real cached-title helper with a manager pointer/reference adds four instruction differences; a complete layout-construction helper adds eight instructions. All are rejected.
+rx7b runCardMoveOrCopy first hoist confirmation
+- build/rx7b/mwdbg-b-move-persistent-state-last is byte-identical to original-flags wibo. Moving I/O locals earlier makes metadataCopied v42, but nested move stage v36 and attempt v37 still simplify first in the second sweep. Those removals bring metadataCopied down to degree 28, so it simplifies before the parameters. It then takes r15 rather than the target r28. The next test moves those real move-operation counters ahead of the persistent-state declarations too.
+
+b-move-move-stage-and-rename-counter-before-state: move stage and rename counter before state. objdiff 98.7829%; insns 608/608 diffs 70; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-move-stage-and-rename-counter-before-state.
+
+b-move-all-operation-counters-before-state: all operation counters before state. objdiff 98.7829%; insns 608/608 diffs 70; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-all-operation-counters-before-state.
+
+b-move-destination-slot-at-first-input-use: destination slot at first input use. objdiff 97.302635%; insns 607/608 diffs 290; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-destination-slot-at-first-input-use.
+
+b-move-io-order-target: Order real I/O locals by the target reverse-color priority, keeping the newly fixed persistent-state ordering. objdiff 98.947365%; insns 608/608 diffs 57; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-io-order-target.
+
+b-move-joined-results-order-0: Combine separate copy/move status joins and the real temporary-file helper with the target persistent-state and I/O declaration order. objdiff 99.30099%; insns 608/608 diffs 46; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-joined-results-order-0.
+
+b-move-io-order-size-offset: Order real I/O locals by the target reverse-color priority, keeping the newly fixed persistent-state ordering. objdiff 98.898026%; insns 608/608 diffs 61; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-io-order-size-offset.
+
+b-move-joined-word-destination: Keep the returned destination file number in a signed word local while narrowing only at SDK uses. objdiff 99.00494%; insns 608/608 diffs 49; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-joined-word-destination.
+
+b-move-io-order-io-before-block: Order real I/O locals by the target reverse-color priority, keeping the newly fixed persistent-state ordering. objdiff 98.98026%; insns 608/608 diffs 50; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-io-order-io-before-block.
+
+b-move-joined-results-order-1: Combine separate copy/move status joins and the real temporary-file helper with the target persistent-state and I/O declaration order. objdiff 99.49835%; insns 608/608 diffs 23; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-joined-results-order-1.
+
+b-move-joined-results-order-2: Combine separate copy/move status joins and the real temporary-file helper with the target persistent-state and I/O declaration order. objdiff 99.49835%; insns 608/608 diffs 23; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-joined-results-order-2.
+
+b-move-rename-initialization-order: Initialize the actual rename counter before its stage, matching the target two zero loads. objdiff 99.5148%; insns 608/608 diffs 21; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-initialization-order.
+
+b-move-rename-stage-after-status-copy: Set the rename stage after copying the status, which has no failure path or external side effect. objdiff 99.49506%; insns 608/608 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-after-status-copy.
+
+b-move-create-helper-s32-const-u32: Use const primitive or reference parameters for the real temporary-file creation helper. objdiff 99.49506%; insns 608/608 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-create-helper-s32-const-u32.
+
+b-move-create-helper-s32-const-u32ref: Use const primitive or reference parameters for the real temporary-file creation helper. objdiff 99.49506%; insns 608/608 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-create-helper-s32-const-u32ref.
+
+b-move-create-helper-const-s32-u32: Use const primitive or reference parameters for the real temporary-file creation helper. objdiff 99.49506%; insns 608/608 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-create-helper-const-s32-u32.
+
+b-move-create-helper-const-s32-const-u32: Use const primitive or reference parameters for the real temporary-file creation helper. objdiff 99.49506%; insns 608/608 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-create-helper-const-s32-const-u32.
+
+b-move-create-helper-const-s32-const-u32ref: Use const primitive or reference parameters for the real temporary-file creation helper. objdiff 99.49506%; insns 608/608 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-create-helper-const-s32-const-u32ref.
+
+b-move-clamp-one-local: Express the same bounded transfer-block count as clamp-one-local to change its temporary order. objdiff 99.49506%; insns 608/608 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-clamp-one-local.
+
+b-move-clamp-if-else: Express the same bounded transfer-block count as clamp-if-else to change its temporary order. objdiff 99.49506%; insns 608/608 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-clamp-if-else.
+
+b-move-clamp-declare-result-first: Express the same bounded transfer-block count as clamp-declare-result-first to change its temporary order. objdiff 99.49506%; insns 608/608 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-clamp-declare-result-first.
+
+b-move-clamp-min-first: Express the same bounded transfer-block count as clamp-min-first to change its temporary order. objdiff 99.33059%; insns 609/608 diffs 442; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-clamp-min-first.
+
+b-move-clamp-helper: Move the actual transfer count clamp into a small inline helper without an invented carrier. objdiff 99.552635%; insns 608/608 diffs 22; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-clamp-helper.
+
+b-thread-command-parameter-const-u32ref: Change the actual reply helper command parameter boundary while preserving packet bits. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-command-parameter-const-u32ref.
+
+b-thread-command-parameter-u32ref: Change the actual reply helper command parameter boundary while preserving packet bits. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-command-parameter-u32ref.
+
+b-thread-command-parameter-const-u32: Change the actual reply helper command parameter boundary while preserving packet bits. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-command-parameter-const-u32.
+
+b-thread-validity-report-reference-u32: Set and report the actual validity state inside one real operation; retain assignment before the report call. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-report-reference-u32.
+
+b-thread-validity-report-plain-packet-u32: Combine the real validity assignment/report helper with ordinary integer packet encoding. objdiff 99.00332%; insns 301/301 diffs 36; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-report-plain-packet-u32.
+
+b-thread-validity-report-reference-const-u32: Set and report the actual validity state inside one real operation; retain assignment before the report call. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-report-reference-const-u32.
+
+b-thread-validity-report-plain-packet-const-u32: Combine the real validity assignment/report helper with ordinary integer packet encoding. objdiff 99.00332%; insns 301/301 diffs 36; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-report-plain-packet-const-u32.
+
+b-move-clamp-helper-stage-before-copy: Combine the exact transfer-clamp registers with the closer original status-copy stage placement. objdiff 99.572365%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-clamp-helper-stage-before-copy.
+
+b-move-const-inputs-cmm: Mark immutable input values const at the existing function definition; test the two prologue copies. objdiff 99.572365%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-const-inputs-cmm.
+
+b-move-const-inputs-mcm: Mark immutable input values const at the existing function definition; test the two prologue copies. objdiff 99.572365%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-const-inputs-mcm.
+
+b-move-const-inputs-mmc: Mark immutable input values const at the existing function definition; test the two prologue copies. objdiff 99.572365%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-const-inputs-mmc.
+
+b-move-const-inputs-ccc: Mark immutable input values const at the existing function definition; test the two prologue copies. objdiff 99.572365%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-const-inputs-ccc.
+
+b-move-create-size-inside-helper-count-first: Compute the real source byte length inside temporary-file creation, with count-first declaration order. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-create-size-inside-helper-count-first.
+
+b-move-create-size-inside-helper-size-first: Compute the real source byte length inside temporary-file creation, with size-first declaration order. objdiff 99.572365%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-create-size-inside-helper-size-first.
+
+b-move-rename-memcpy-stage-before: Use explicit memcpy for the real CARDDir copy with stage assignment before it. objdiff 92.447365%; insns 575/608 diffs 338; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-memcpy-stage-before.
+
+b-move-rename-memcpy-stage-after: Use explicit memcpy for the real CARDDir copy with stage assignment after it. objdiff 92.259865%; insns 575/608 diffs 338; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-memcpy-stage-after.
+
+b-move-rename-stage-type-int: Use int for the bounded rename stage, whose only values are zero through five. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-type-int.
+
+b-move-rename-stage-type-s16: Use s16 for the bounded rename stage, whose only values are zero through five. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-type-s16.
+
+b-move-rename-stage-type-u16: Use u16 for the bounded rename stage, whose only values are zero through five. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-type-u16.
+
+b-move-rename-stage-type-u8: Use u8 for the bounded rename stage, whose only values are zero through five. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-type-u8.
+
+b-move-rename-stage-type-u32: Use u32 for the bounded rename stage, whose only values are zero through five. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-type-u32.
+
+b-move-input-copy-sourceFile-s32: Use a typed source input local at its first duplicate-check use; parameter values remain unchanged. Compile failed; see build/rx7b/trials/b-move-input-copy-sourceFile-s32/compile.log.
+
+b-move-input-copy-sourceSlot-s32: Use a typed source input local at its first duplicate-check use; parameter values remain unchanged. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-input-copy-sourceSlot-s32.
+
+b-move-input-copy-sourceFile-const-s32: Use a typed source input local at its first duplicate-check use; parameter values remain unchanged. Compile failed; see build/rx7b/trials/b-move-input-copy-sourceFile-const-s32/compile.log.
+
+b-move-rename-copy-helper-pointer: Put the actual CARDDir copy or rename preparation in a small pointer inline helper. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-copy-helper-pointer.
+
+b-move-rename-copy-helper-reference: Put the actual CARDDir copy or rename preparation in a small reference inline helper. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-copy-helper-reference.
+
+b-move-rename-copy-helper-prepare: Put the actual CARDDir copy or rename preparation in a small prepare inline helper. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-copy-helper-prepare.
+
+b-move-source-file-word-copy-s32: Use a word source-file value at first use without changing CARDFileInfo member names. objdiff 99.39967%; insns 608/608 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-source-file-word-copy-s32.
+
+b-move-source-file-word-copy-const-s32: Use a word source-file value at first use without changing CARDFileInfo member names. objdiff 99.39967%; insns 608/608 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-source-file-word-copy-const-s32.
+
+b-move-rename-status-copy-initializer: Initialize the real rename directory at first use rather than assigning an already-declared aggregate. objdiff 93.46546%; insns 580/608 diffs 344; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-status-copy-initializer.
+
+b-move-rename-status-local-scope: Give the two move-operation directory objects their actual operation scope while preserving their declaration order. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-status-local-scope.
+
+b-move-rename-status-return-value-false: Return the real CARDDir value from a copy/preparation helper, testing aggregate return-value optimization without a carrier type. objdiff 98.054276%; insns 617/608 diffs 263; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-status-return-value-false.
+
+b-move-rename-status-return-value-true: Return the real CARDDir value from a copy/preparation helper, testing aggregate return-value optimization without a carrier type. objdiff 93.791115%; insns 626/608 diffs 258; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-status-return-value-true.
+
+b-move-duplicate-validation-helper: Keep duplicate validation and its error report in one real inline operation, testing the first parameter-copy use. objdiff 99.2023%; insns 610/608 diffs 585; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-duplicate-validation-helper.
+
+b-move-file-type-move-word: Test word file-number parameters against the target input copies; all in-tree move/copy callers extract an unsigned message byte. objdiff 99.47369%; insns 609/608 diffs 600; pool identical; other drops ['cardThreadMain']. Trial retained only under build/rx7b/trials/b-move-file-type-move-word.
+
+b-move-file-type-both-word: Test word file-number parameters against the target input copies; all in-tree move/copy callers extract an unsigned message byte. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops ['cardThreadMain', 'checkCardFileDuplicate']. Trial retained only under build/rx7b/trials/b-move-file-type-both-word.
+
+b-move-rename-stage-before-destinationSectorSize: Move the real rename-stage declaration before destinationSectorSize and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.42434%; insns 608/608 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-destinationSectorSize.
+
+b-move-rename-stage-before-commonSectorSize: Move the real rename-stage declaration before commonSectorSize and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.42434%; insns 608/608 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-commonSectorSize.
+
+b-move-rename-stage-before-result: Move the real rename-stage declaration before result and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.42434%; insns 608/608 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-result.
+
+b-move-rename-stage-before-oldTime: Move the real rename-stage declaration before oldTime and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.42434%; insns 608/608 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-oldTime.
+
+b-move-rename-stage-before-cancelSent: Move the real rename-stage declaration before cancelSent and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.42434%; insns 608/608 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-cancelSent.
+
+b-move-rename-stage-before-stage: Move the real rename-stage declaration before stage and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.42434%; insns 608/608 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-stage.
+
+b-move-rename-stage-before-offset: Move the real rename-stage declaration before offset and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.42434%; insns 608/608 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-offset.
+
+b-move-rename-stage-before-maxBlocks: Move the real rename-stage declaration before maxBlocks and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.42434%; insns 608/608 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-maxBlocks.
+
+b-move-rename-stage-before-ioResult: Move the real rename-stage declaration before ioResult and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.523026%; insns 608/608 diffs 21; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-ioResult.
+
+b-move-rename-stage-before-copyResult: Move the real rename-stage declaration before copyResult and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-copyResult.
+
+b-move-rename-stage-before-renameAttempt: Move the real rename-stage declaration before renameAttempt and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-renameAttempt.
+
+b-move-rename-stage-before-destinationSlot: Move the real rename-stage declaration before destinationSlot and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.523026%; insns 608/608 diffs 21; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-destinationSlot.
+
+b-move-rename-stage-before-metadataCopied: Move the real rename-stage declaration before metadataCopied and inspect whether its pre-allocation scheduling changes while target colors remain. objdiff 99.523026%; insns 608/608 diffs 21; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-before-metadataCopied.
+
+b-move-rename-stage-helper-before-reference: Pass the rename stage as a genuine preparation output; set the stage before copying the directory. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-helper-before-reference.
+
+b-move-rename-stage-helper-before-pointer: Pass the rename stage as a genuine preparation output; set the stage before copying the directory. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-helper-before-pointer.
+
+b-move-rename-stage-helper-after-reference: Pass the rename stage as a genuine preparation output; set the stage after copying the directory. objdiff 99.61842%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-helper-after-reference.
+
+b-move-rename-stage-helper-after-pointer: Pass the rename stage as a genuine preparation output; set the stage after copying the directory. objdiff 99.61842%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-helper-after-pointer.
+
+b-move-rename-stage-expression-comma-before: Test the actual directory-copy and error-stage expression boundary; diagnostic spelling only. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-expression-comma-before.
+
+b-move-rename-stage-expression-comma-after: Test the actual directory-copy and error-stage expression boundary; diagnostic spelling only. objdiff 99.61842%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-expression-comma-after.
+
+b-move-rename-stage-expression-chain-assign: Test the actual directory-copy and error-stage expression boundary; diagnostic spelling only. objdiff 99.63816%; insns 608/608 diffs 15; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-expression-chain-assign.
+
+b-move-slot-width-s16: Test a bounded card-slot formal of s16 against target incoming-value copy scheduling; inspect caller and conversion changes. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops ['cardThreadMain']. Trial retained only under build/rx7b/trials/b-move-slot-width-s16.
+
+b-move-slot-width-u16: Test a bounded card-slot formal of u16 against target incoming-value copy scheduling; inspect caller and conversion changes. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-slot-width-u16.
+
+b-move-slot-width-u8: Test a bounded card-slot formal of u8 against target incoming-value copy scheduling; inspect caller and conversion changes. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-slot-width-u8.
+
+b-move-duplicate-helper-value-slot-first: Apply a real duplicate-check inline boundary with value inputs in slot-first order; preserve the signed file-number conversion. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-duplicate-helper-value-slot-first.
+
+b-move-duplicate-helper-value-file-first: Apply a real duplicate-check inline boundary with value inputs in file-first order; preserve the signed file-number conversion. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-duplicate-helper-value-file-first.
+
+b-move-duplicate-helper-const-value-slot-first: Apply a real duplicate-check inline boundary with const-value inputs in slot-first order; preserve the signed file-number conversion. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-duplicate-helper-const-value-slot-first.
+
+b-move-duplicate-helper-const-value-file-first: Apply a real duplicate-check inline boundary with const-value inputs in file-first order; preserve the signed file-number conversion. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-duplicate-helper-const-value-file-first.
+
+b-move-duplicate-helper-reference-slot-first: Apply a real duplicate-check inline boundary with reference inputs in slot-first order; preserve the signed file-number conversion. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-duplicate-helper-reference-slot-first.
+
+b-move-duplicate-helper-reference-file-first: Apply a real duplicate-check inline boundary with reference inputs in file-first order; preserve the signed file-number conversion. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-duplicate-helper-reference-file-first.
+
+b-move-duplicate-helper-const-reference-slot-first: Apply a real duplicate-check inline boundary with const-reference inputs in slot-first order; preserve the signed file-number conversion. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-duplicate-helper-const-reference-slot-first.
+
+b-move-duplicate-helper-const-reference-file-first: Apply a real duplicate-check inline boundary with const-reference inputs in file-first order; preserve the signed file-number conversion. objdiff 99.63816%; insns 608/608 diffs 8; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-duplicate-helper-const-reference-file-first.
+
+b-move-rename-stage-preincrement: Advance the zero-initialized rename stage naturally after the successful status read. objdiff 100.0%; insns 608/608 diffs 0; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-preincrement.
+
+b-move-rename-stage-postincrement: Advance the zero-initialized rename stage naturally after the successful status read. objdiff 100.0%; insns 608/608 diffs 0; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-postincrement.
+
+b-move-rename-stage-compound: Advance the zero-initialized rename stage naturally after the successful status read. objdiff 100.0%; insns 608/608 diffs 0; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-compound.
+
+b-move-rename-stage-add: Advance the zero-initialized rename stage naturally after the successful status read. objdiff 100.0%; insns 608/608 diffs 0; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-add.
+
+b-move-rename-stage-type-s8-byte-slot: Use a bounded small rename-stage local without changing its zero-through-five values. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-type-s8-byte-slot.
+
+b-move-rename-stage-type-char-byte-slot: Use a bounded small rename-stage local without changing its zero-through-five values. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-type-char-byte-slot.
+
+b-move-rename-stage-type-unsigned-char-byte-slot: Use a bounded small rename-stage local without changing its zero-through-five values. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-type-unsigned-char-byte-slot.
+
+b-move-rename-stage-condition-assignment: Change the real status-success block boundary while retaining the same stage and cleanup paths. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-condition-assignment.
+
+b-move-rename-stage-early-failure: Change the real status-success block boundary while retaining the same stage and cleanup paths. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-early-failure.
+
+b-move-rename-stage-explicit-success-else: Change the real status-success block boundary while retaining the same stage and cleanup paths. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-explicit-success-else.
+
+b-move-rename-stage-enum-implicit: Give the existing six error-report states a named enum without adding storage or a wrapper. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-enum-implicit.
+
+b-move-rename-stage-enum-explicit: Give the existing six error-report states a named enum without adding storage or a wrapper. objdiff 99.67105%; insns 608/608 diffs 6; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-rename-stage-enum-explicit.
+
+b-move-exact-clean: Whitespace-only cleanup of the exact byte-slot, helper, declaration-order and stage-increment candidate. objdiff 100.0%; insns 608/608 diffs 0; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-exact-clean.
+
+Rx7b exact candidate: runCardMoveOrCopy reaches 100.0%, 608/608 instructions, zero differences and no other function drops with b-move-rename-stage-preincrement. The two queued move searches and the running move-119 search were stopped because the manual candidate is exact. No search-lock policy was bypassed. Remaining four functions continue their three seeds.
+
+b-thread-decl-file-before-brokenFile: Move the actual file declaration across BOOL brokenFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-file-before-brokenFile.
+
+b-thread-decl-file-before-freeBlocks: Move the actual file declaration across s32 freeBlocks; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-file-before-freeBlocks.
+
+b-thread-decl-file-before-freeFile: Move the actual file declaration across s32 freeFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-file-before-freeFile.
+
+b-thread-decl-file-before-outerSlot: Move the actual file declaration across s32 outerSlot; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-file-before-outerSlot.
+
+b-thread-decl-file-before-validState: Move the actual file declaration across u32 validState = TRUE; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-file-before-validState.
+
+b-thread-decl-file-before-exitThread: Move the actual file declaration across BOOL exitThread = FALSE; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-file-before-exitThread.
+
+b-thread-decl-slot-before-brokenFile: Move the actual slot declaration across BOOL brokenFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-slot-before-brokenFile.
+
+b-thread-decl-slot-before-freeBlocks: Move the actual slot declaration across s32 freeBlocks; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-slot-before-freeBlocks.
+
+b-thread-decl-slot-before-freeFile: Move the actual slot declaration across s32 freeFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-slot-before-freeFile.
+
+b-thread-decl-slot-before-outerSlot: Move the actual slot declaration across s32 outerSlot; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-slot-before-outerSlot.
+
+b-thread-decl-slot-before-validState: Move the actual slot declaration across u32 validState = TRUE; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-slot-before-validState.
+
+b-thread-decl-slot-before-exitThread: Move the actual slot declaration across BOOL exitThread = FALSE; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-slot-before-exitThread.
+
+b-thread-decl-command-before-brokenFile: Move the actual command declaration across BOOL brokenFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-command-before-brokenFile.
+
+b-thread-decl-command-before-freeBlocks: Move the actual command declaration across s32 freeBlocks; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-command-before-freeBlocks.
+
+b-thread-decl-command-before-freeFile: Move the actual command declaration across s32 freeFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-command-before-freeFile.
+
+b-thread-decl-command-before-outerSlot: Move the actual command declaration across s32 outerSlot; to change its simplify visit and saved-register availability. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-command-before-outerSlot.
+
+b-thread-decl-command-before-validState: Move the actual command declaration across u32 validState = TRUE; to change its simplify visit and saved-register availability. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-command-before-validState.
+
+b-thread-decl-command-before-exitThread: Move the actual command declaration across BOOL exitThread = FALSE; to change its simplify visit and saved-register availability. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-command-before-exitThread.
+
+b-thread-decl-result-before-brokenFile: Move the actual result declaration across BOOL brokenFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-result-before-brokenFile.
+
+b-thread-decl-result-before-freeBlocks: Move the actual result declaration across s32 freeBlocks; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-result-before-freeBlocks.
+
+b-thread-decl-result-before-freeFile: Move the actual result declaration across s32 freeFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-result-before-freeFile.
+
+b-thread-decl-result-before-outerSlot: Move the actual result declaration across s32 outerSlot; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-result-before-outerSlot.
+
+b-thread-decl-result-before-validState: Move the actual result declaration across u32 validState = TRUE; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-result-before-validState.
+
+b-thread-decl-result-before-exitThread: Move the actual result declaration across BOOL exitThread = FALSE; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-result-before-exitThread.
+
+b-thread-decl-listingFile-before-brokenFile: Move the actual listingFile declaration across BOOL brokenFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-listingFile-before-brokenFile.
+
+b-thread-decl-listingFile-before-freeBlocks: Move the actual listingFile declaration across s32 freeBlocks; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-listingFile-before-freeBlocks.
+
+b-thread-decl-listingFile-before-freeFile: Move the actual listingFile declaration across s32 freeFile; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-listingFile-before-freeFile.
+
+b-thread-decl-listingFile-before-outerSlot: Move the actual listingFile declaration across s32 outerSlot; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-listingFile-before-outerSlot.
+
+b-thread-decl-listingFile-before-validState: Move the actual listingFile declaration across u32 validState = TRUE; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-listingFile-before-validState.
+
+b-thread-decl-listingFile-before-exitThread: Move the actual listingFile declaration across BOOL exitThread = FALSE; to change its simplify visit and saved-register availability. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-decl-listingFile-before-exitThread.
+
+b-thread-file-scope-loop: Give the mounted-file index its natural loop scope so its virtual-register creation follows that scope. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-file-scope-loop.
+
+b-thread-file-scope-case: Give the mounted-file index its natural case scope so its virtual-register creation follows that scope. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-file-scope-case.
+
+b-icon-unsigned-site-mask-3: Test consistent unsigned destination index views across related GX uses; only valid file-array indices are dereferenced, and no conversion changes their value. objdiff 90.69%; insns 101/100 diffs 32; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-site-mask-3.
+
+b-icon-unsigned-site-mask-5: Test consistent unsigned destination index views across related GX uses; only valid file-array indices are dereferenced, and no conversion changes their value. objdiff 84.08%; insns 101/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-site-mask-5.
+
+b-icon-unsigned-site-mask-9: Test consistent unsigned destination index views across related GX uses; only valid file-array indices are dereferenced, and no conversion changes their value. objdiff 93.39%; insns 100/100 diffs 22; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-site-mask-9.
+
+b-icon-unsigned-site-mask-17: Test consistent unsigned destination index views across related GX uses; only valid file-array indices are dereferenced, and no conversion changes their value. objdiff 93.64%; insns 100/100 diffs 20; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-site-mask-17.
+
+b-icon-unsigned-site-mask-33: Test consistent unsigned destination index views across related GX uses; only valid file-array indices are dereferenced, and no conversion changes their value. objdiff 90.09%; insns 101/100 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-site-mask-33.
+
+b-icon-unsigned-site-mask-65: Test consistent unsigned destination index views across related GX uses; only valid file-array indices are dereferenced, and no conversion changes their value. objdiff 89.19%; insns 101/100 diffs 30; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-site-mask-65.
+
+b-icon-unsigned-site-mask-127: Test consistent unsigned destination index views across related GX uses; only valid file-array indices are dereferenced, and no conversion changes their value. objdiff 88.35%; insns 100/100 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-site-mask-127.
+
+b-icon-unsigned-named-index-rgb: Use one actual word-width texture index for the rgb GX operations while retaining the native signed public parameter. objdiff 90.69%; insns 101/100 diffs 32; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-named-index-rgb.
+
+b-icon-unsigned-named-index-ci: Use one actual word-width texture index for the ci GX operations while retaining the native signed public parameter. objdiff 90.69%; insns 101/100 diffs 32; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-named-index-ci.
+
+b-icon-unsigned-named-index-all: Use one actual word-width texture index for the all GX operations while retaining the native signed public parameter. objdiff 90.69%; insns 101/100 diffs 32; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-unsigned-named-index-all.
+
+b-thread-directory-report-helper-u8: Factor the real debug directory listing into a small inline, with its own actual file counter and caller-owned buffers. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-directory-report-helper-u8.
+
+b-thread-directory-report-helper-s32: Factor the real debug directory listing into a small inline, with its own actual file counter and caller-owned buffers. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-directory-report-helper-s32.
+
+b-thread-directory-report-helper-const-u8: Factor the real debug directory listing into a small inline, with its own actual file counter and caller-owned buffers. objdiff 96.441864%; insns 302/301 diffs 289; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-directory-report-helper-const-u8.
+
+b-thread-broken-test-helper-false: Give the repeated directory validation a real inline boundary. objdiff 97.56146%; insns 300/301 diffs 230; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-broken-test-helper-false.
+
+b-thread-broken-test-helper-true: Give the repeated directory validation a real inline boundary and pass the loop index by reference at its status read. objdiff 97.56146%; insns 300/301 diffs 230; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-broken-test-helper-true.
+
+b-thread-scan-result-joined-before-brokenFile: Separate the mount-scan error result from unrelated command results and place its named register before BOOL brokenFile;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-joined-before-brokenFile.
+
+b-thread-scan-result-joined-before-file: Separate the mount-scan error result from unrelated command results and place its named register before s32 file;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-joined-before-file.
+
+b-thread-scan-result-joined-before-freeFile: Separate the mount-scan error result from unrelated command results and place its named register before s32 freeFile;. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-joined-before-freeFile.
+
+b-thread-scan-result-joined-before-outerSlot: Separate the mount-scan error result from unrelated command results and place its named register before s32 outerSlot;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-joined-before-outerSlot.
+
+b-thread-scan-result-all-before-brokenFile: Separate the mount-scan error result from unrelated command results and place its named register before BOOL brokenFile;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-all-before-brokenFile.
+
+b-thread-scan-result-all-before-file: Separate the mount-scan error result from unrelated command results and place its named register before s32 file;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-all-before-file.
+
+b-thread-scan-result-all-before-freeFile: Separate the mount-scan error result from unrelated command results and place its named register before s32 freeFile;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-all-before-freeFile.
+
+b-thread-scan-result-all-before-outerSlot: Separate the mount-scan error result from unrelated command results and place its named register before s32 outerSlot;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-all-before-outerSlot.
+
+b-thread-scan-result-file-operation-before-brokenFile: Separate the mount-scan error result from unrelated command results and place its named register before BOOL brokenFile;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-file-operation-before-brokenFile.
+
+b-thread-scan-result-file-operation-before-file: Separate the mount-scan error result from unrelated command results and place its named register before s32 file;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-file-operation-before-file.
+
+b-thread-scan-result-file-operation-before-freeFile: Separate the mount-scan error result from unrelated command results and place its named register before s32 freeFile;. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-file-operation-before-freeFile.
+
+b-thread-scan-result-file-operation-before-outerSlot: Separate the mount-scan error result from unrelated command results and place its named register before s32 outerSlot;. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-result-file-operation-before-outerSlot.
+
+b-thread-validity-type-u8: Test the actual two-state validity value as u8; preserve unsigned comparison when the local is signed. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-type-u8.
+
+b-thread-validity-type-bool: Test the actual two-state validity value as bool; preserve unsigned comparison when the local is signed. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-type-bool.
+
+b-thread-validity-type-BOOL: Test the actual two-state validity value as BOOL; preserve unsigned comparison when the local is signed. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-type-BOOL.
+
+b-thread-validity-type-s16: Test the actual two-state validity value as s16; preserve unsigned comparison when the local is signed. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-type-s16.
+
+b-thread-validity-type-u16: Test the actual two-state validity value as u16; preserve unsigned comparison when the local is signed. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-type-u16.
+
+b-thread-validity-type-unsigned-int: Test the actual two-state validity value as unsigned int; preserve unsigned comparison when the local is signed. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-type-unsigned-int.
+
+b-thread-validity-update-or-assign: Test a real validity-state expression boundary; this case is entered only after validState == TRUE, so its value stays exactly one. objdiff 98.355484%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-update-or-assign.
+
+b-thread-validity-update-or: Test a real validity-state expression boundary; this case is entered only after validState == TRUE, so its value stays exactly one. objdiff 98.355484%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-update-or.
+
+b-thread-validity-update-boolean-normalize: Test a real validity-state expression boundary; this case is entered only after validState == TRUE, so its value stays exactly one. objdiff 97.74086%; insns 302/301 diffs 261; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-validity-update-boolean-normalize.
+
+b-thread-scan-order-slot-before-result: With a named joined scan result, change slot-before-result so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-slot-before-result.
+
+b-thread-scan-order-slot-before-file: With a named joined scan result, change slot-before-file so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-slot-before-file.
+
+b-thread-scan-order-slot-before-scanResult: With a named joined scan result, change slot-before-scanResult so mount-phase values choose registers in target priority order. objdiff 98.85382%; insns 301/301 diffs 29; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-slot-before-scanResult.
+
+b-thread-scan-order-slot-before-freeFile: With a named joined scan result, change slot-before-freeFile so mount-phase values choose registers in target priority order. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-slot-before-freeFile.
+
+b-thread-scan-order-slot-before-command: With a named joined scan result, change slot-before-command so mount-phase values choose registers in target priority order. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-slot-before-command.
+
+b-thread-scan-order-slot-before-outerSlot: With a named joined scan result, change slot-before-outerSlot so mount-phase values choose registers in target priority order. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-slot-before-outerSlot.
+
+b-thread-scan-order-file-before-result: With a named joined scan result, change file-before-result so mount-phase values choose registers in target priority order. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-file-before-result.
+
+b-thread-scan-order-file-before-slot: With a named joined scan result, change file-before-slot so mount-phase values choose registers in target priority order. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-file-before-slot.
+
+b-thread-scan-order-file-before-scanResult: With a named joined scan result, change file-before-scanResult so mount-phase values choose registers in target priority order. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-file-before-scanResult.
+
+b-thread-scan-order-file-before-freeFile: With a named joined scan result, change file-before-freeFile so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-file-before-freeFile.
+
+b-thread-scan-order-file-before-command: With a named joined scan result, change file-before-command so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-file-before-command.
+
+b-thread-scan-order-file-before-outerSlot: With a named joined scan result, change file-before-outerSlot so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-file-before-outerSlot.
+
+b-thread-scan-order-listingFile-before-result: With a named joined scan result, change listingFile-before-result so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-listingFile-before-result.
+
+b-thread-scan-order-listingFile-before-slot: With a named joined scan result, change listingFile-before-slot so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-listingFile-before-slot.
+
+b-thread-scan-order-listingFile-before-scanResult: With a named joined scan result, change listingFile-before-scanResult so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-listingFile-before-scanResult.
+
+b-thread-scan-order-listingFile-before-freeFile: With a named joined scan result, change listingFile-before-freeFile so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-listingFile-before-freeFile.
+
+b-thread-scan-order-listingFile-before-command: With a named joined scan result, change listingFile-before-command so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-listingFile-before-command.
+
+b-thread-scan-order-listingFile-before-outerSlot: With a named joined scan result, change listingFile-before-outerSlot so mount-phase values choose registers in target priority order. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-listingFile-before-outerSlot.
+
+b-thread-scan-order-command-before-result: With a named joined scan result, change command-before-result so mount-phase values choose registers in target priority order. objdiff 98.77077%; insns 301/301 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-command-before-result.
+
+b-thread-scan-order-command-before-slot: With a named joined scan result, change command-before-slot so mount-phase values choose registers in target priority order. objdiff 98.77077%; insns 301/301 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-command-before-slot.
+
+b-thread-scan-order-command-before-file: With a named joined scan result, change command-before-file so mount-phase values choose registers in target priority order. objdiff 98.77077%; insns 301/301 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-command-before-file.
+
+b-thread-scan-order-command-before-scanResult: With a named joined scan result, change command-before-scanResult so mount-phase values choose registers in target priority order. objdiff 98.77077%; insns 301/301 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-command-before-scanResult.
+
+b-thread-scan-order-command-before-freeFile: With a named joined scan result, change command-before-freeFile so mount-phase values choose registers in target priority order. objdiff 98.77077%; insns 301/301 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-order-command-before-freeFile.
+
+Rx7b allocator explanation and exact runCardMoveOrCopy candidate (2026-10-05)
+
+- Target persistent values: destinationSlot r31, destinationFileNo r30, temporaryCreated r29, metadataCopied r28, command r27, fileNo r26, slot r25. The callback is r24, constant one r23, and the string-pool base r22. Copy I/O uses cancelSent r21, stage r20, offset r19, size r18, maxBlocks r17, block r16, and ioResult r15.
+- The first hoist moved only I/O locals. mwdbg-b-move-persistent-state-last still simplified metadataCopied v42 at degree 28, then temporaryCreated/destinationFileNo/destinationSlot at 27/26/25. The three parameters deferred another sweep and took the highest saved registers. Moving the real nested renameAttempt and moveStage declarations before the persistent state kept those state nodes above the 29-register threshold until the parameter sweep. This is an interference-degree effect, not just a reversal of declaration order.
+- In the exact capture, the final simplify sweep removes slot v32 at degree 18, fileNo v33 at 17, command v34 at 16, metadataCopied v38 at 15, temporaryCreated v39 at 14, destinationFileNo v40 at 13, and destinationSlot v41 at 12. Reverse coloring requests r31 through r25 in precisely the target order. The temporary-file helper return v76 coalesces into destinationFileNo v40; ABI argument copies that interfere remain separate. Moving declarations without preserving those degrees does not work.
+- The real createCardTemporaryFile helper removes the old creation-result join from the outer function. Its attempt counter is declared before the actual byte length, so the helper's counter/size get the target r17/r16. Separate copyResult and moveResult keep the two metadata operation results in their target webs. A small clampCardTransferBlocks helper gives the transfer remainder and sector size the target transient registers. Pools remain identical because the temporary-file strings stay first in source-token order.
+- The last eight differences were not coloring failures. With s32 slot, initial PCode began mr(slot), extsh(fileNo); before allocation, the file-number copy had moved ahead of the slot copy. Using the actual bounded u8 card slot produces initial rlwinm(slot), extsh(fileNo), both reduced to copies in the target order before allocation. Both call sites supply `(message >> 16) & 1`; cardThreadMain and every other function's score remain unchanged. Widening fileNo instead also changed checkCardFileDuplicate and two caller conversions, so those trials were rejected.
+- The last six differences were the rename-stage constant. `moveStage = 1` entered initial PCode as a li and was already scheduled before the four leading CARDDir stores. `++moveStage` enters as addi v43,v43,1 after the dominating zero assignment. Before allocation it folds to li v43,1 after mtctr, exactly where the target has li r15,1. The successful status read cannot change this unaliased local, so increment and assignment compute the same value on every path. Plain/compound increments also match; the retained spelling is ++moveStage.
+- mwdbg-b-move-exact validates byte-for-byte against an independent wibo compile using the original Ninja flags, including SJIS. Normal project Ninja compilation of the cleaned candidate gives ctxdiff 608/608, diffs 0, and POOL IDENTICAL 43/43. b-move-exact-clean reports exact-name objdiff 100.0 and no other function drops. Only the exact move/copy source is retained; no pragma, carrier, cast-based volatile access, assembly, or flag change was added.
+
+Rx7b additional open-function evidence
+
+- cardThreadMain target outerSlot/validState/exitThread are r26/r25/r24. Moving those declarations to the end makes v34/v33/v32 survive the first simplify sweep and fixes all three colors. In mwdbg-b-thread-local-order-two, the named mount-loop file v37 still simplifies at degree 24 in the first sweep; the split mount-error result v47 is visited later and colors before file, taking r23 while file gets r20. The reply v72 also coalesces into command and uses the hoisted constant-one v71/r29 instead of target validState/r25. Moving file, slot or listing declarations by themselves does not undo these split webs. Separating the joined scan result improves its color to r20 but leaves slot/file/mount-offset differences. Real directory-report and broken-file-test helpers change instruction counts (302 and 300 versus target 301) and are rejected.
+- SDMemory::create still has the generated smArg address v319 ahead of pool v145 in color priority: r31 and r30 respectively, while textBox v41 gets r26. The target needs pool r31, receiver r30, and smArg r26. v319 has 43 original neighbors; reused/scoped message locals, first-use declaration changes, C-style downcasts, and real lookup helpers all normalize to the same late generated address and graph. The new named-message-first capture independently reproduces the old allocation, 1064/1064 instructions and 175 differences.
+- _create_icon target metadata r31, file offset r30, slot offset r29, this r25, slot r26, file r27, frame r28. The Ghidra export and target assembly agree that RGB retains row and column through GXInitTexObj and forms the returned texture just before GXLoadTexObj; the palette address is likewise recomputed for each call. In the validated real-member-accessor capture, metadata v60 colors first to r31, file offset v41 to r30, and slot offset v40 to r29, but full texture-pointer CSE still has a different lifetime. Signed/unsigned destination-index boundaries change the row/column CSE, but the best equal-sized candidate is still inexact; combining index-site changes did not solve both RGB and palette paths.
+- create_banner target validation uses (fileOffset + root) + slotOffset, then recomputes (root + slotOffset) + fileOffset for the selected metadata. It retains separate texture/palette rows and columns across GX calls. The validated member-accessor-load capture still colors the selected metadata before file/slot offsets, contrary to the target selected pointer r25 and file/slot r30/r29. Real texture/palette accessors, metadata accessors, and pixel-base helpers either normalize to this ordering or change instruction count. No private header experiment is retained.
+
+b-thread-scan-combo-file-before-result: Combine the corrected slot declaration order with file-before-result to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-file-before-result.
+
+b-thread-scan-combo-file-before-listingFile: Combine the corrected slot declaration order with file-before-listingFile to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-file-before-listingFile.
+
+b-thread-scan-combo-file-before-scanResult: Combine the corrected slot declaration order with file-before-scanResult to resolve the remaining mount-phase register rotation. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-file-before-scanResult.
+
+b-thread-scan-combo-file-before-slot: Combine the corrected slot declaration order with file-before-slot to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-file-before-slot.
+
+b-thread-scan-combo-file-before-freeFile: Combine the corrected slot declaration order with file-before-freeFile to resolve the remaining mount-phase register rotation. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-file-before-freeFile.
+
+b-thread-scan-combo-file-before-command: Combine the corrected slot declaration order with file-before-command to resolve the remaining mount-phase register rotation. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-file-before-command.
+
+b-thread-scan-combo-file-before-outerSlot: Combine the corrected slot declaration order with file-before-outerSlot to resolve the remaining mount-phase register rotation. objdiff 98.803986%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-file-before-outerSlot.
+
+b-thread-scan-combo-scanResult-before-result: Combine the corrected slot declaration order with scanResult-before-result to resolve the remaining mount-phase register rotation. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-scanResult-before-result.
+
+b-thread-scan-combo-scanResult-before-listingFile: Combine the corrected slot declaration order with scanResult-before-listingFile to resolve the remaining mount-phase register rotation. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-scanResult-before-listingFile.
+
+b-thread-scan-combo-scanResult-before-file: Combine the corrected slot declaration order with scanResult-before-file to resolve the remaining mount-phase register rotation. objdiff 98.73754%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-scanResult-before-file.
+
+b-thread-scan-combo-scanResult-before-freeBlocks: Combine the corrected slot declaration order with scanResult-before-freeBlocks to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-scanResult-before-freeBlocks.
+
+b-thread-scan-combo-scanResult-before-freeFile: Combine the corrected slot declaration order with scanResult-before-freeFile to resolve the remaining mount-phase register rotation. objdiff 98.85382%; insns 301/301 diffs 29; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-scanResult-before-freeFile.
+
+b-thread-scan-combo-scanResult-before-command: Combine the corrected slot declaration order with scanResult-before-command to resolve the remaining mount-phase register rotation. objdiff 98.85382%; insns 301/301 diffs 29; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-scanResult-before-command.
+
+b-thread-reply-valid-const-u32ref: Use const u32& at the real reply helper validity boundary to check constant-one propagation and command-copy coalescing. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-reply-valid-const-u32ref.
+
+b-thread-scan-combo-scanResult-before-outerSlot: Combine the corrected slot declaration order with scanResult-before-outerSlot to resolve the remaining mount-phase register rotation. objdiff 98.85382%; insns 301/301 diffs 29; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-scanResult-before-outerSlot.
+
+b-thread-reply-valid-u32ref: Use u32& at the real reply helper validity boundary to check constant-one propagation and command-copy coalescing. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-reply-valid-u32ref.
+
+b-thread-scan-combo-listingFile-before-result: Combine the corrected slot declaration order with listingFile-before-result to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-listingFile-before-result.
+
+b-thread-reply-valid-u8: Use u8 at the real reply helper validity boundary to check constant-one propagation and command-copy coalescing. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-reply-valid-u8.
+
+b-thread-scan-combo-listingFile-before-freeBlocks: Combine the corrected slot declaration order with listingFile-before-freeBlocks to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-listingFile-before-freeBlocks.
+
+b-thread-reply-valid-const-u8: Use const u8 at the real reply helper validity boundary to check constant-one propagation and command-copy coalescing. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-reply-valid-const-u8.
+
+b-thread-scan-combo-listingFile-before-scanResult: Combine the corrected slot declaration order with listingFile-before-scanResult to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-listingFile-before-scanResult.
+
+b-thread-reply-valid-s16: Use s16 at the real reply helper validity boundary to check constant-one propagation and command-copy coalescing. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-reply-valid-s16.
+
+b-thread-scan-combo-listingFile-before-slot: Combine the corrected slot declaration order with listingFile-before-slot to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-listingFile-before-slot.
+
+b-thread-reply-valid-const-s32: Use const s32 at the real reply helper validity boundary to check constant-one propagation and command-copy coalescing. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-reply-valid-const-s32.
+
+b-thread-scan-combo-listingFile-before-freeFile: Combine the corrected slot declaration order with listingFile-before-freeFile to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-listingFile-before-freeFile.
+
+b-thread-reply-valid-const-u32: Use const u32 at the real reply helper validity boundary to check constant-one propagation and command-copy coalescing. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-reply-valid-const-u32.
+
+b-thread-scan-combo-listingFile-before-command: Combine the corrected slot declaration order with listingFile-before-command to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-listingFile-before-command.
+
+b-thread-reply-valid-bool: Use bool at the real reply helper validity boundary to check constant-one propagation and command-copy coalescing. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-reply-valid-bool.
+
+b-thread-scan-combo-listingFile-before-outerSlot: Combine the corrected slot declaration order with listingFile-before-outerSlot to resolve the remaining mount-phase register rotation. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-listingFile-before-outerSlot.
+
+b-thread-scan-combo-command-before-result: Combine the corrected slot declaration order with command-before-result to resolve the remaining mount-phase register rotation. objdiff 98.88705%; insns 301/301 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-command-before-result.
+
+b-thread-scan-combo-command-before-listingFile: Combine the corrected slot declaration order with command-before-listingFile to resolve the remaining mount-phase register rotation. objdiff 98.88705%; insns 301/301 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-command-before-listingFile.
+
+b-thread-scan-combo-command-before-file: Combine the corrected slot declaration order with command-before-file to resolve the remaining mount-phase register rotation. objdiff 98.88705%; insns 301/301 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-command-before-file.
+
+b-thread-scan-combo-command-before-freeBlocks: Combine the corrected slot declaration order with command-before-freeBlocks to resolve the remaining mount-phase register rotation. objdiff 98.88705%; insns 301/301 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-command-before-freeBlocks.
+
+b-thread-scan-combo-command-before-scanResult: Combine the corrected slot declaration order with command-before-scanResult to resolve the remaining mount-phase register rotation. objdiff 98.88705%; insns 301/301 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-command-before-scanResult.
+
+b-thread-scan-combo-command-before-slot: Combine the corrected slot declaration order with command-before-slot to resolve the remaining mount-phase register rotation. objdiff 98.88705%; insns 301/301 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-command-before-slot.
+
+b-thread-scan-combo-command-before-freeFile: Combine the corrected slot declaration order with command-before-freeFile to resolve the remaining mount-phase register rotation. objdiff 98.88705%; insns 301/301 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-scan-combo-command-before-freeFile.
+
+b-thread-packet-fields-signed-valid: Model the existing four-byte response packet with signed-valid fields; check the real bit-insert and command-copy boundary without adding a carrier. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-packet-fields-signed-valid.
+
+b-thread-packet-fields-native-unsigned: Model the existing four-byte response packet with native-unsigned fields; check the real bit-insert and command-copy boundary without adding a carrier. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-packet-fields-native-unsigned.
+
+b-thread-packet-fields-bytes: Model the existing four-byte response packet with bytes fields; check the real bit-insert and command-copy boundary without adding a carrier. objdiff 97.65116%; insns 302/301 diffs 262; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-packet-fields-bytes.
+
+b-thread-packet-fields-signed-bytes: Model the existing four-byte response packet with signed-bytes fields; check the real bit-insert and command-copy boundary without adding a carrier. objdiff 97.65116%; insns 302/301 diffs 262; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-packet-fields-signed-bytes.
+
+b-thread-mount-offset-before-brokenFile: Name the mount-buffer offset separately from the command byte, placing its real node before BOOL brokenFile;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-brokenFile.
+
+b-thread-mount-offset-before-result: Name the mount-buffer offset separately from the command byte, placing its real node before s32 result;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-result.
+
+b-thread-mount-offset-before-listingFile: Name the mount-buffer offset separately from the command byte, placing its real node before u32 listingFile;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-listingFile.
+
+b-thread-mount-offset-before-file: Name the mount-buffer offset separately from the command byte, placing its real node before s32 file;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-file.
+
+b-thread-mount-offset-before-freeBlocks: Name the mount-buffer offset separately from the command byte, placing its real node before s32 freeBlocks;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-freeBlocks.
+
+b-thread-mount-offset-before-scanResult: Name the mount-buffer offset separately from the command byte, placing its real node before s32 scanResult;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-scanResult.
+
+b-thread-mount-offset-before-slot: Name the mount-buffer offset separately from the command byte, placing its real node before u8 slot;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-slot.
+
+b-thread-mount-offset-before-freeFile: Name the mount-buffer offset separately from the command byte, placing its real node before s32 freeFile;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-freeFile.
+
+b-thread-mount-offset-before-command: Name the mount-buffer offset separately from the command byte, placing its real node before u32 command;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-command.
+
+b-thread-mount-offset-before-outerSlot: Name the mount-buffer offset separately from the command byte, placing its real node before s32 outerSlot;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-outerSlot.
+
+b-thread-mount-offset-before-validState: Name the mount-buffer offset separately from the command byte, placing its real node before u32 validState = TRUE;. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-before-validState.
+
+b-thread-mount-offset-case-local: Give the actual mount-buffer offset a case-scoped local instead of reusing the command byte. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-case-local.
+
+b-icon-member-width-u32-init: Use a real class field accessor with u32 file index at init sites to test the target row/column lifetime across GX calls. objdiff 94.69%; insns 99/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-u32-init.
+
+b-icon-member-width-u32-load: Use a real class field accessor with u32 file index at load sites to test the target row/column lifetime across GX calls. objdiff 96.19%; insns 102/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-u32-load.
+
+b-icon-member-width-u32-all: Use a real class field accessor with u32 file index at all sites to test the target row/column lifetime across GX calls. objdiff 82.45%; insns 101/100 diffs 63; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-u32-all.
+
+b-icon-member-width-unsigned-int-init: Use a real class field accessor with unsigned int file index at init sites to test the target row/column lifetime across GX calls. objdiff 94.69%; insns 99/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-unsigned-int-init.
+
+b-icon-member-width-unsigned-int-load: Use a real class field accessor with unsigned int file index at load sites to test the target row/column lifetime across GX calls. objdiff 96.19%; insns 102/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-unsigned-int-load.
+
+b-icon-member-width-unsigned-int-all: Use a real class field accessor with unsigned int file index at all sites to test the target row/column lifetime across GX calls. objdiff 82.45%; insns 101/100 diffs 63; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-unsigned-int-all.
+
+b-icon-member-width-int-init: Use a real class field accessor with int file index at init sites to test the target row/column lifetime across GX calls. objdiff 94.29%; insns 100/100 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-int-init.
+
+b-icon-member-width-int-load: Use a real class field accessor with int file index at load sites to test the target row/column lifetime across GX calls. objdiff 90.65%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-int-load.
+
+b-icon-member-width-int-all: Use a real class field accessor with int file index at all sites to test the target row/column lifetime across GX calls. objdiff 82.45%; insns 101/100 diffs 63; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-int-all.
+
+b-icon-member-width-const-s16-init: Use a real class field accessor with const s16 file index at init sites to test the target row/column lifetime across GX calls. objdiff 94.69%; insns 99/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-const-s16-init.
+
+b-icon-member-width-const-s16-load: Use a real class field accessor with const s16 file index at load sites to test the target row/column lifetime across GX calls. objdiff 96.19%; insns 102/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-const-s16-load.
+
+b-icon-member-width-const-s16-all: Use a real class field accessor with const s16 file index at all sites to test the target row/column lifetime across GX calls. objdiff 82.45%; insns 101/100 diffs 63; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-member-width-const-s16-all.
+
+b-thread-mount-slot-before-brokenFile: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before BOOL brokenFile;. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-brokenFile.
+
+b-thread-mount-slot-before-result: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before s32 result;. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-result.
+
+b-thread-mount-slot-before-listingFile: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before u32 listingFile;. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-listingFile.
+
+b-thread-mount-slot-before-file: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before s32 file;. objdiff 98.704315%; insns 301/301 diffs 37; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-file.
+
+b-thread-mount-slot-before-freeBlocks: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before s32 freeBlocks;. objdiff 98.820595%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-freeBlocks.
+
+b-thread-mount-slot-before-scanResult: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before s32 scanResult;. objdiff 98.75415%; insns 301/301 diffs 35; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-scanResult.
+
+b-thread-mount-slot-before-slot: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before u8 slot;. objdiff 98.820595%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-slot.
+
+b-thread-mount-slot-before-freeFile: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before s32 freeFile;. objdiff 98.820595%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-freeFile.
+
+b-thread-mount-slot-before-command: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before u32 command;. objdiff 98.820595%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-command.
+
+b-thread-mount-slot-before-outerSlot: Separate the mount-operation slot from format/delete inputs and give its actual value a named declaration before s32 outerSlot;. objdiff 98.820595%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-before-outerSlot.
+
+b-thread-mount-slot-case-local: Declare the actual mount slot inside its command case. objdiff 98.820595%; insns 301/301 diffs 31; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-slot-case-local.
+
+b-icon-reference-cell-s16-init: Return the real cell object by reference through a MemoryCardManager accessor at init sites, with s16 file index. objdiff 78.74%; insns 102/100 diffs 77; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-cell-s16-init.
+
+b-icon-reference-texture-s16-init: Return the real texture object by reference through a MemoryCardManager accessor at init sites, with s16 file index. objdiff 94.29%; insns 100/100 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-texture-s16-init.
+
+b-icon-reference-cell-s16-load: Return the real cell object by reference through a MemoryCardManager accessor at load sites, with s16 file index. objdiff 77.44%; insns 104/100 diffs 77; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-cell-s16-load.
+
+b-icon-reference-texture-s16-load: Return the real texture object by reference through a MemoryCardManager accessor at load sites, with s16 file index. objdiff 90.65%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-texture-s16-load.
+
+b-icon-reference-cell-s16-all: Return the real cell object by reference through a MemoryCardManager accessor at all sites, with s16 file index. objdiff 78.28%; insns 100/100 diffs 66; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-cell-s16-all.
+
+b-icon-reference-cell-u32-init: Return the real cell object by reference through a MemoryCardManager accessor at init sites, with u32 file index. objdiff 76.14%; insns 104/100 diffs 75; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-cell-u32-init.
+
+b-icon-reference-texture-u32-init: Return the real texture object by reference through a MemoryCardManager accessor at init sites, with u32 file index. objdiff 94.69%; insns 99/100 diffs 28; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-texture-u32-init.
+
+b-icon-reference-cell-u32-load: Return the real cell object by reference through a MemoryCardManager accessor at load sites, with u32 file index. objdiff 75.59%; insns 106/100 diffs 76; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-cell-u32-load.
+
+b-icon-reference-texture-u32-load: Return the real texture object by reference through a MemoryCardManager accessor at load sites, with u32 file index. objdiff 96.19%; insns 102/100 diffs 61; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-texture-u32-load.
+
+b-icon-reference-cell-u32-all: Return the real cell object by reference through a MemoryCardManager accessor at all sites, with u32 file index. objdiff 78.28%; insns 100/100 diffs 66; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-cell-u32-all.
+
+b-icon-reference-cell-int-init: Return the real cell object by reference through a MemoryCardManager accessor at init sites, with int file index. objdiff 78.74%; insns 102/100 diffs 77; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-cell-int-init.
+
+b-icon-reference-texture-int-init: Return the real texture object by reference through a MemoryCardManager accessor at init sites, with int file index. objdiff 94.29%; insns 100/100 diffs 33; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-texture-int-init.
+
+b-icon-reference-cell-int-load: Return the real cell object by reference through a MemoryCardManager accessor at load sites, with int file index. objdiff 77.44%; insns 104/100 diffs 77; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-cell-int-load.
+
+b-icon-reference-texture-int-load: Return the real texture object by reference through a MemoryCardManager accessor at load sites, with int file index. objdiff 90.65%; insns 100/100 diffs 44; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-texture-int-load.
+
+b-icon-reference-cell-int-all: Return the real cell object by reference through a MemoryCardManager accessor at all sites, with int file index. objdiff 78.28%; insns 100/100 diffs 66; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-icon-reference-cell-int-all.
+
+Further thread declaration confirmation: mwdbg-b-thread-scan-result is byte-identical to original-flags wibo. The joined scanResult is now a named v37 instead of the old generated mount-error v47, so it can take the target r20. Moving slot past scanResult then gives the loop file r23, reducing the exact instruction diff to 25. The independently split mount-buffer offset still takes r22 instead of r19 and makes slot use r26; naming mountOffset separately normalizes back to the same graph. The packet input-reference, width and signed-bitfield variants also normalize. Byte-struct packet fields add an instruction. None of these partial thread variants are retained.
+
+Additional icon accessor evidence: real member getters using signed/unsigned word indices or actual MCFileCell/GX object references were tested at initialization, loading and return sites. A 94.29% equal-count candidate changes the save range and keeps a full texture pointer live before GXInitTexObj; 96.19% is 102/100 instructions. These scores do not meet the target addressing or exactness requirements, so no header or MC source edit is retained.
+
+b-thread-value-type-slot-s32: Use s32 for actual bounded slot while preserving target signedness of loop comparisons. objdiff 98.72093%; insns 301/301 diffs 26; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-slot-s32.
+
+b-thread-value-type-slot-u32: Use u32 for actual bounded slot while preserving target signedness of loop comparisons. objdiff 98.72093%; insns 301/301 diffs 26; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-slot-u32.
+
+b-thread-value-type-slot-int: Use int for actual bounded slot while preserving target signedness of loop comparisons. objdiff 98.72093%; insns 301/301 diffs 26; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-slot-int.
+
+b-thread-value-type-slot-u16: Use u16 for actual bounded slot while preserving target signedness of loop comparisons. objdiff 98.903656%; insns 301/301 diffs 26; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-slot-u16.
+
+b-thread-value-type-command-u8: Use u8 for actual bounded command while preserving target signedness of loop comparisons. objdiff 98.88705%; insns 301/301 diffs 27; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-command-u8.
+
+b-thread-value-type-command-u16: Use u16 for actual bounded command while preserving target signedness of loop comparisons. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-command-u16.
+
+b-thread-value-type-command-int: Use int for actual bounded command while preserving target signedness of loop comparisons. objdiff 96.57807%; insns 304/301 diffs 252; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-command-int.
+
+b-thread-value-type-command-unsigned-int: Use unsigned int for actual bounded command while preserving target signedness of loop comparisons. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-command-unsigned-int.
+
+b-thread-value-type-file-int: Use int for actual bounded file while preserving target signedness of loop comparisons. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-file-int.
+
+b-thread-value-type-file-u32: Use u32 for actual bounded file while preserving target signedness of loop comparisons. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-file-u32.
+
+b-thread-value-type-listingFile-unsigned-int: Use unsigned int for actual bounded listingFile while preserving target signedness of loop comparisons. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-listingFile-unsigned-int.
+
+b-thread-value-type-listingFile-s32: Use s32 for actual bounded listingFile while preserving target signedness of loop comparisons. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-listingFile-s32.
+
+b-thread-value-type-scanResult-int: Use int for actual bounded scanResult while preserving target signedness of loop comparisons. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-value-type-scanResult-int.
+
+Focused retained-source review: only runCardMoveOrCopy changes score in the rebuilt card unit: 97.88651 -> 100.0. Unit exact functions 27/30 -> 28/30, exact code 4168/9852 -> 6600/9852, data 1496/1496 unchanged. The helper retains the temporary-name loop limit and signed result truncation, each metadata failure still reaches the same cleanup, and moveStage is zero before its only increment. git diff --check passes. Literal-reference analysis: 21 arguments, 0 candidate mismatches, 0 errors.
+
+b-banner-validation-helper-mutable-bool-slot-first: Give the validation byte load its own real getter with bool result and slot-first inputs, retaining the later selected metadata lookup. objdiff 87.07547%; insns 107/106 diffs 73; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-validation-helper-mutable-bool-slot-first.
+
+b-banner-validation-helper-mutable-bool-file-first: Give the validation byte load its own real getter with bool result and file-first inputs, retaining the later selected metadata lookup. objdiff 87.07547%; insns 107/106 diffs 73; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-validation-helper-mutable-bool-file-first.
+
+b-banner-validation-helper-mutable-u8-slot-first: Give the validation byte load its own real getter with u8 result and slot-first inputs, retaining the later selected metadata lookup. objdiff 90.42453%; insns 106/106 diffs 70; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-validation-helper-mutable-u8-slot-first.
+
+b-banner-validation-helper-mutable-u8-file-first: Give the validation byte load its own real getter with u8 result and file-first inputs, retaining the later selected metadata lookup. objdiff 90.42453%; insns 106/106 diffs 70; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-validation-helper-mutable-u8-file-first.
+
+b-banner-validation-helper-const-bool-slot-first: Give the validation byte load its own real getter with const bool result and slot-first inputs, retaining the later selected metadata lookup. objdiff 90.471695%; insns 108/106 diffs 75; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-validation-helper-const-bool-slot-first.
+
+b-banner-validation-helper-const-bool-file-first: Give the validation byte load its own real getter with const bool result and file-first inputs, retaining the later selected metadata lookup. objdiff 90.471695%; insns 108/106 diffs 75; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-validation-helper-const-bool-file-first.
+
+b-banner-validation-helper-const-u8-slot-first: Give the validation byte load its own real getter with const u8 result and slot-first inputs, retaining the later selected metadata lookup. objdiff 91.27358%; insns 107/106 diffs 73; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-validation-helper-const-u8-slot-first.
+
+b-banner-validation-helper-const-u8-file-first: Give the validation byte load its own real getter with const u8 result and file-first inputs, retaining the later selected metadata lookup. objdiff 91.27358%; insns 107/106 diffs 73; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-banner-validation-helper-const-u8-file-first.
+
+Further banner boundary check: a getter for only the validation byte was tested with mutable/const array inputs, bool/u8 results and slot-first/file-first arguments. Mutable u8 getters normalize to the baseline 106 instructions; mutable bool and const u8 getters produce 107/106, and const bool getters produce 108/106. None produces the target distinct validation and selected-metadata address webs. Merely moving the first lookup into an inline does not solve this CSE; no banner edit is retained.
+
+b-move-exact-no-empty-scope: Remove the now-unneeded outer lexical block around the two metadata-operation branches; preserve real inner scopes and all declarations. objdiff 100.0%; insns 608/608 diffs 0; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-move-exact-no-empty-scope.
+
+Final source cleanup removes an unnecessary outer lexical block around the copy/move metadata branches. b-move-exact-no-empty-scope remains 100.0%, 608/608, diffs 0; its entire object is byte-identical to b-move-exact-clean. This is the retained source.
+
+Search queue note: banner-107, icon-107 and sd-131 were still waiting for the global limiter after the other seeds completed. Their existing queued processes were briefly paused/resumed at staggered times to break synchronized five-second polling. No lock file, slot count, lock loop, source-search budget or other worker process was changed; each still must acquire a normal slot before its 1200-second budget starts.
+
+The last thread candidate also has a completed independent debugger validation: build/rx7b/mwdbg-b-thread-25-diffs matches original-flags wibo byte-for-byte. Its 25 remaining differences are the reply's three-instruction copy/insert group, mount-buffer offset r22 versus target r19, mount slot r26 versus r22, and listing index r22 versus r23. The real scan result and first file loop now use target r20/r23. Naming the mount slot separately, changing bounded scalar widths, and changing the existing packet's bitfield types do not resolve these remaining webs. The source remains at the original 97.9402% because this partial candidate is not exact.
+
+b-thread-mount-offset-update-or: Preserve the actual mount command value while adding its slot-offset bits; command is exactly zero on entry to case zero, so the computed value is unchanged. objdiff 96.54485%; insns 303/301 diffs 251; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-update-or.
+
+b-thread-mount-offset-update-add: Preserve the actual mount command value while adding its slot-offset bits; command is exactly zero on entry to case zero, so the computed value is unchanged. objdiff 96.69435%; insns 303/301 diffs 251; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-mount-offset-update-add.
+
+b-thread-report-state-reference-mutable: Return the actual updated state by reference from the set-and-report operation and consume it as the reply input, preserving assignment-before-report order. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-report-state-reference-mutable.
+
+b-thread-report-state-reference-const: Return the actual updated state by reference from the set-and-report operation and consume it as the reply input, preserving assignment-before-report order. objdiff 98.920265%; insns 301/301 diffs 25; pool identical; other drops []. Trial retained only under build/rx7b/trials/b-thread-report-state-reference-const.
+
+Search starvation handling: after the same three processes remained queued, build/rx7b/fair_search_handoff.py waits with ordinary blocking flock requests on existing slots 0, 1 and 2. Each reservation is released before its paused queued process resumes; the unmodified srcsearch limiter must then acquire its own slot. The helper does not replace lock files, increase the 24-slot limit, run a compiler without a slot, shorten the 1200-second budget, or affect another worker process. It only gives the queued jobs a chance at a capacity release instead of synchronized polling.
+
+Completed current-round thread seeds 107/119/131: 395/394/396 trials, all best 99.00332% from the plain packet candidate, no exact gain. Completed SD seeds 107/119/131: 345/355/341 trials, all best 99.15884%, no gain. Each ran its full 1200-second budget after acquiring a normal global slot.
+
+
+Rx7b final validation and handoff (2026-10-05)
+
+- Final GX searches also completed their full 1200-second budgets: icon seeds 107/119/131 ran 1276/1438/1380 trials, best 93.35%; banner seeds 107/119/131 ran 1269/1446/1479 trials, best 90.42453%. Together with the completed thread and SD searches above, all twelve required searches for the four still-open functions finished normally. The three move searches were stopped only after the manual exact match. No partial search result was applied. Machine-readable summary: build/rx7b/search-summary.json.
+- Clean gate command: python3 /mnt/drive2/projects/wii-ipl-workers/_restore0928-tools/gate.py src/scene/memoryCard/iplMemoryCardManager src/scene/cardSequence/iplCardSequence src/scene/sdChannelMemory/iplSDMemory. This ran without --quick after every source-search process exited. Raw output: build/rx7b/final-gate.log. GATE PASS; full 43U build passes; all three pools identical; regressions 0; forbidden additions 0; readability warnings 0.
+- Final exact-name objdiff: runCardMoveOrCopy 97.88651 -> 100.0, 608/608 instructions, diffs 0; SDMemory::create 99.15884 -> 99.15884; cardThreadMain 97.9402 -> 97.9402; _create_icon 87.55 -> 87.55; create_banner 90.42453 -> 90.42453. Previously landed getComment remains 100.0, 123/123, diffs 0. All per-function results and context diffs are in build/rx7b/final-measurements.json.
+- CardSequence exact functions 27/30 -> 28/30, matched code 4168/9852 -> 6600/9852, data 1496/1496 unchanged. MemoryCardManager stays 24/26 and SDMemory stays 64/66. Only runCardMoveOrCopy changes score; four assigned functions remain open.
+- Retained allocator explanation: declaring the real nested state locals before persistent move/copy values keeps those persistent nodes above the first-sweep degree threshold. The later simplify order is slot/file/command/metadataCopied/temporaryCreated/destinationFileNo/destinationSlot; reverse coloring assigns the target r25 through r31. The actual creation helper return coalesces into destinationFileNo. Separate operation results preserve the target error paths. The u8 slot type restores entry-copy order, and incrementing the initialized moveStage delays constant folding until after the target directory-copy setup. Final debugger validation is byte-identical to the original-flags wibo object.
+- Remaining allocator findings: SD's generated smArg still receives priority before the string-pool base; thread mount-offset and mount-slot split webs and reply coalescing remain wrong despite corrected persistent-local order; icon accessors still leave a full texture pointer live across GX initialization; banner validation CSE still forms the selected metadata pointer too early and gives it priority over the offsets. Candidate simplify, coalescing and assignment dumps are retained under build/rx7b/mwdbg-* and explained above.
+- Post-gate Ninja progress/report/43U-ok and decomp_status.py pass. Literal-reference check for the matched function: 21 arguments, 0 candidate mismatches, 0 errors. DOL SHA1: 26116613f624061ba99c8d1a299aaa6efa85670d. check_decomp_complete.py exits 1 because the whole project remains incomplete (12442/12563 exact functions, 977/1027 linked units); this is a one-function handoff, not a completion claim.
+- Retained tracked paths are only src/scene/cardSequence/iplCardSequence.cpp and this attempts log. No MemoryCardManager/SDMemory/header/configuration changes, carrier structs, new assembly, or compiler-flag changes are retained. No push, PR, merge or rebase was performed. Final source review and git diff --check pass.
