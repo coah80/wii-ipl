@@ -12,10 +12,7 @@
 static NCDConfig* ncdCommonBuffer;
 static u32 ncdInitialized;
 
-struct NCDMutex {
-    OSMutex mutex;
-    u8 padding[8];
-} ncdMutex;
+OSMutex ncdMutex;
 s32 ncdCommonResult[8] ATTRIBUTE_ALIGN(32);
 IOSIoVector ncdCommonVector[4] ATTRIBUTE_ALIGN(32);
 
@@ -137,7 +134,7 @@ NCDErr NCDSetIfConfig(NCDIfConfig* ifConfig) {
     } else {
         result = -2;
     }
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
     return result;
 }
 
@@ -224,7 +221,7 @@ NCDErr NCDSetIpConfig(NCDIpConfig* ipConfig) {
     } else {
         err = -2;
     }
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
     return err;
 }
 
@@ -266,7 +263,7 @@ NCDErr NCDGetCurrentIpConfig(NCDIpConfig* ipConfig) {
         }
     }
 
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
     return err;
 }
 
@@ -302,7 +299,7 @@ NCDErr NCDGetLinkStatus(void) {
             err = -1;
         }
     }
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
     return err;
 }
 
@@ -359,7 +356,7 @@ NCDErr NCDiGetWirelessMacAddress(u8* macAddr) {
             err = -1;
         }
     }
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
     return err;
 }
 
@@ -395,7 +392,7 @@ NCDErr NCDLockWirelessDriver(void) {
             err = -1;
         }
     }
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
     return err;
 }
 
@@ -433,7 +430,7 @@ NCDErr NCDUnlockWirelessDriver(s32 id) {
             err = -1;
         }
     }
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
     return err;
 }
 
@@ -459,7 +456,7 @@ s32 NCDRestoreConfig(void) {
     } else {
         err = -2;
     }
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
     return err;
 }
 
@@ -493,7 +490,7 @@ NCDErr NCDiGetEnabledConfigList(u32* list0, u32* list1, u32* list2) {
             }
         }
     }
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
 
     if (list0 != NULL) {
         *list0 = mask0;
@@ -557,7 +554,7 @@ static NCDErr ExecConfigCommand(const char* name, NCDConfig* config, u32 command
             err = -1;
         }
     }
-    OSUnlockMutex(&ncdMutex.mutex);
+    OSUnlockMutex(&ncdMutex);
     return err;
 }
 
@@ -568,7 +565,7 @@ static void LockRight(void) {
     enabled = OSDisableInterrupts();
     if (!(ncdInitialized & 1)) {
         OSRegisterVersion(__NCDVersion);
-        OSInitMutex(&ncdMutex.mutex);
+        OSInitMutex(&ncdMutex);
         lo = (void*)OSRoundUp32B(IPCGetBufferLo());
         if ((u32)IPCGetBufferHi() - (u32)lo < NCD_IPC_HEAP_SIZE) {
             OSPanic("ncdsystem.c", 0x5B1, "Could not reserve heap for NCD library from IPC arena");
@@ -581,5 +578,5 @@ static void LockRight(void) {
         ncdInitialized |= 1;
     }
     OSRestoreInterrupts(enabled);
-    OSLockMutex(&ncdMutex.mutex);
+    OSLockMutex(&ncdMutex);
 }

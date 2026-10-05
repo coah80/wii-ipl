@@ -13,7 +13,7 @@ s32 OSWaitSemaphore(OSSemaphore* sem) {
     BOOL enabled = OSDisableInterrupts();
     s32 count;
 
-    while ((count = ((volatile OSSemaphore*)sem)->count) <= 0) {
+    while ((count = sem->count) <= 0) {
         OSSleepThread(&sem->queue);
     }
     sem->count--;
@@ -28,7 +28,7 @@ s32 OSSignalSemaphore(OSSemaphore* sem) {
     s32 count;
 
     count = sem->count;
-    sem->count++;
+    sem->count = count + 1;
 
     OSWakeupThread(&sem->queue);
 

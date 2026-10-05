@@ -152,11 +152,10 @@ namespace ipl {
             EGG::Heap* heap1 = mpHeap;
             EGG::Heap* heap2 = mCSData.heap;
 
-            /* ??? (not even a `(void)heap->getEndAddress()`)*/
-            void* unused1 = heap1->getEndAddress();
-            void* unused2 = heap2->getEndAddress();
+            void* end1 = heap1->getEndAddress();
+            void* end2 = heap2->getEndAddress();
 
-            return heap1->isHeapPointer(addr) || heap2->isHeapPointer(addr);
+            return (heap1->getStartAddress() <= addr && addr < end1) || (heap2->getStartAddress() <= addr && addr < end2);
         }
 
         void ChannelScriptManager::calcCSThread() {

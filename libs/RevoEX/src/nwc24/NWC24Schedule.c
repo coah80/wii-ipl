@@ -182,8 +182,7 @@ NWC24Err NWC24ExecDownloadTask(u32 flags, u16 taskId, u32 subTaskMask) {
     if (result >= NWC24_OK && saveMail) {
         result = NWC24iSaveMailNow();
     } else if (result == NWC24_ERR_PROTECTED) {
-        // Stripped out but left out if statement
-        u32 dummy = 0;
+        ASSERTLINE(result != NWC24_ERR_PROTECTED, 184);
     }
 
     if (result < NWC24_OK) {
