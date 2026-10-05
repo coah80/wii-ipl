@@ -1,7 +1,7 @@
 #include <zi8clib/zitypes.h>
 
-void Zi8Memset(ziPtr, ziU32, ziU32);
-void Zi8Memcpy(ziPtr, ziPtr, ziU32);
+ziPtr Zi8Memset(ziPtr destination, ziU32 value, ziS32 count);
+ziPtr Zi8Memcpy(ziPtr destination, ziPtr source, ziS32 count);
 ziBool Zi8IsComponent(ziWChar ZI_NEED_WORK);
 ziU32 Zi8GetTableAddress(ziU8, ziU8 ZI_NEED_WORK);
 ziU16 Zi8GetTableCount(ziU8, ziU8 ZI_NEED_WORK);
@@ -60,15 +60,14 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
     }
   }
   if (elementCount != 0) {
-    element = request->elements[0];
-    match->comp = element;
+    match->comp = element = request->elements[0];
     if (Zi8IsComponent(element,__zi8_work_data) != 0) {
       elementIndex++;
       hasComponent = 1;
       buffers.component = (ziU8*)Zi8GetTableAddress(1,2,__zi8_work_data);
       buffers.componentIndex = (ziU8*)Zi8GetTableAddress(1,6,__zi8_work_data);
       buffers.componentIndex += (element - 0xef10) * 2;
-      match->componentIndex = ((buffers.componentIndex[1] & 0x3f) << 8) + *buffers.componentIndex;
+      match->componentIndex = (((ziU16)buffers.componentIndex[1] & 0x3f) << 8) + *buffers.componentIndex;
       buffers.component += (ziU32)match->componentIndex * 8;
       switch(*buffers.component & 0xf) {
       case 0:
@@ -249,8 +248,10 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
     else {
       initial = 0;
       final = 0;
-      bestFinal = bestInitial = 0;
-      previousFinal = previousInitial = 0;
+      bestInitial = 0;
+      bestFinal = 0;
+      previousInitial = 0;
+      previousFinal = 0;
       buffers.phoneticInput = request->elements;
       match->nCand = 0;
       request->completion = request->elementCount;

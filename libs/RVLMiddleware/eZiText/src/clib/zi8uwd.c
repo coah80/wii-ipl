@@ -18,7 +18,7 @@ typedef struct ziUserDictionary {
     ziU16 flags, end, current, boundary;
     ziU8 entries[1];
 } ziUserDictionary;
-void Zi8Memset(ziPtr, ziU32, ziU32);
+ziPtr Zi8Memset(ziPtr destination, ziU32 value, ziS32 count);
 
 ziBool Zi8_81480224(ziU8* word ZI_NEED_WORK) {
     ziU8 length;

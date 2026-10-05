@@ -1,7 +1,7 @@
 #include <zi8clib/zitypes.h>
 #include <zi8clib/zierror.h>
 
-extern void Zi8Memset(ziPtr p, ziU32 v, ziU32 len);
+extern ziPtr Zi8Memset(ziPtr destination, ziU32 value, ziS32 count);
 extern void Zi8SetLatinSearchOrder(ziU32 a, ziU8 b ZI_NEED_WORK);
 extern void ZADP_Zi8SetPDremoveOpt(ziU8 a ZI_NEED_WORK);
 extern ziU16 Zi8GetFormatVersion(ziU8 a ZI_NEED_WORK);

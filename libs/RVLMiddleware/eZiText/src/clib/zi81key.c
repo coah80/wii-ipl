@@ -185,7 +185,7 @@ extern ziU16 Zi8Ord2Ord(ziU16, ziPtr);
 extern ziU8 Zi8LangSupported(ziU8, ziPtr);
 extern ziU16 Zi8GetTableCount(ziU8,ziU8,ziPtr);
 extern ziU32 Zi8GetTableAddress(ziU8,ziU8,ziPtr);
-extern void Zi8Memset(ziU8*,ziU32,ziS32);
+extern ziPtr Zi8Memset(ziPtr destination, ziU32 value, ziS32 count);
 extern ziU8 _Zi8GetCandidates(ziGetParam*,ziPtr);
 extern void Zi8InitDupWordBuf(ziPtr);
 extern ziU32 Zi8GetPInfo(ziU32,ziWChar *,ziU8,ziPtr);
@@ -778,7 +778,7 @@ ziU32 Zi8Get1KeyPressSpelling(ziGetParam *params,Zi8OneKeyOptions *options,Zi8On
           if (options->countOnly == '\0') {
             *output++ = spellingBuffer[spellingIndex];
             *output++ = 0;
-            candidateCount = candidateCount + 1;
+            ++candidateCount;
           }
           else if ((int)totalCandidates >= options->maxCount) goto finishSpelling;
           if (candidateCount >= params->maxCandidates) goto finishSpelling;
@@ -1321,8 +1321,7 @@ ziU32 Zi8Get1KeyPressCandidates(ziGetParam *params,Zi8OneKeyOptions *options,Zi8
         wordBuffer[params->wordCharCount + wordLength] = 0;
       }
       if (optionsMask == 5) {
-        totalCandidates++;
-        if (totalCandidates >= options->maxCount) goto finishCandidates;
+        if (++totalCandidates >= options->maxCount) goto finishCandidates;
       } else if (remaining == 0) {
         totalCandidates++;
         candidateCount++;
@@ -1390,8 +1389,7 @@ ziU32 Zi8Get1KeyPressCandidates(ziGetParam *params,Zi8OneKeyOptions *options,Zi8
         wordBuffer[params->wordCharCount + wordLength] = 0;
       }
       if (optionsMask == 5) {
-        totalCandidates++;
-        if (totalCandidates >= options->maxCount) goto finishCandidates;
+        if (++totalCandidates >= options->maxCount) goto finishCandidates;
       } else if (remaining == 0) {
         totalCandidates++;
         candidateCount++;
@@ -1431,7 +1429,7 @@ ziU32 Zi8Get1KeyPressCandidates(ziGetParam *params,Zi8OneKeyOptions *options,Zi8
       }
       if ((*phraseEntries & 0x80) != 0) {
         entryRemaining = 0;
-        phraseEntries = phraseEntries + ((int)(*phraseEntries & 0x7f) >> 4) + 1;
+        phraseEntries += ((int)(*phraseEntries & 0x7f) >> 4) + 1;
       } else {
         entryRemaining = 0x80;
       }
@@ -1513,8 +1511,7 @@ ziU32 Zi8Get1KeyPressCandidates(ziGetParam *params,Zi8OneKeyOptions *options,Zi8
               output[outputIndex + wordLength] = 0;
             }
             if (optionsMask == 5) {
-              totalCandidates++;
-              if (totalCandidates >= options->maxCount) goto finishCandidates;
+              if (++totalCandidates >= options->maxCount) goto finishCandidates;
             } else if (remaining == 0) {
               totalCandidates++;
               candidateCount++;

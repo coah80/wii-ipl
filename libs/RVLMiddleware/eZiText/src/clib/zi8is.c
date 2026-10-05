@@ -5,7 +5,7 @@ extern ziU8 Zi8LangSupported(ziU8 lang ZI_NEED_WORK);
 extern ziU16 Zi8GetTableCount(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK);
 extern ziU32 Zi8GetTableAddress(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK);
 extern ziU8 _Zi8GetCandidates(ziGetParam* getParam ZI_NEED_WORK);
-extern void Zi8Memset(ziPtr p, ziU32 v, ziU32 len);
+extern ziPtr Zi8Memset(ziPtr destination, ziU32 value, ziS32 count);
 
 ziU8 Zi8GetZHCharSet(ziPtr __zi8_work_data) {
     ziU8 charSet = 0;
