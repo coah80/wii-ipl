@@ -5504,18 +5504,42 @@ VmMethodDefine(Blob, Unpack) {
         u64 value;
         u32 words[2];
     } unpackBuf;
-    BlobHeader* srcBlob;
+    s32 hexByteCount;
+    u8* hexDigits;
     CHANSVmObjHdr* argStr;
-    wchar_t* fmtStr;
-    u32 fmtLen;
-    u32 blobOff;
-    u32 argCount;
-    u32 fmtPos;
-    s32 count;
+    BlobHeader* srcBlob;
+    u32 stringLength;
     u32 elemIdx;
+    CHANSVmObjHdr* stringElement;
+    s32 hexIndex;
+    CHANSVmObjHdr* integerElement;
+    u32 fmtPos;
+    u8* hexSource;
+    CHANSVmObjHdr* blobElement;
+    u32 unpackPos;
     u32 iterIdx;
-    s64 value;
-    CHANSVmObjHdr* arrElem;
+    u32 stringIndex;
+    u8* stringData;
+    u8* hexSourceData;
+    u32 argCount;
+    wchar_t* fmtStr;
+    u8 hexByte;
+    wchar_t* hexDestination;
+    wchar_t* hexString;
+    s32 elementCount;
+    u32 remainingChars;
+    CHANSVmObjHdr* hexElement;
+    u32 fmtLen;
+    s32 blobCount;
+    u32 blobOff;
+    s32 count;
+    u32 valueHigh;
+    u32 valueLow;
+    u8* stringSource;
+    s32 digitCount;
+    s32 charCount;
+    u8* blobData;
+    u8 hexNibble;
 
     srcBlob = (BlobHeader*)VmGetStrFromObjHdr(VmParentObj);
     argStr = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, CHANSVmGetArg(VmInst, 0));
@@ -5633,7 +5657,7 @@ VmMethodDefine(Blob, Unpack) {
     }
 
     elemIdx = 0;
-    fmtPos = 0;
+    unpackPos = 0;
 
     while (vmTrue) {
         u32 outPos;
@@ -5641,7 +5665,7 @@ VmMethodDefine(Blob, Unpack) {
         u32 outType = 0;
         s32 outVal = 1;
 
-        fmtPos = vmBlobParsePackFormatString(&outPos, &outType, &outSize, (u32*)&outVal, fmtStr, fmtLen, fmtPos);
+        unpackPos = vmBlobParsePackFormatString(&outPos, &outType, &outSize, (u32*)&outVal, fmtStr, fmtLen, unpackPos);
 
         if (outType == 1) {
             break;
@@ -5653,25 +5677,23 @@ VmMethodDefine(Blob, Unpack) {
 
         switch (outType) {
             case 4: {
-                u8* dataPtr;
-
                 if (outVal < 0) {
-                    count = srcBlob->size - srcBlob->offset;
+                    blobCount = srcBlob->size - srcBlob->offset;
                 } else {
-                    count = outVal;
+                    blobCount = outVal;
                 }
-                if (count < 0 || !CHANSVmBlobHasSpace(srcBlob, count)) {
+                if (blobCount < 0 || !CHANSVmBlobHasSpace(srcBlob, blobCount)) {
                     goto error;
                 }
 
-                dataPtr = srcBlob->pData + srcBlob->offset;
-                arrElem = CHANSVmGetArrayElement(VmInst, VmReturnObj, elemIdx);
+                blobData = srcBlob->pData + srcBlob->offset;
+                blobElement = CHANSVmGetArrayElement(VmInst, VmReturnObj, elemIdx);
                 elemIdx++;
-                if (arrElem == vmNull || CHANSVmNewBlobObject(VmInst, arrElem, count, dataPtr, count) == vmNull) {
+                if (blobElement == vmNull || CHANSVmNewBlobObject(VmInst, blobElement, blobCount, blobData, blobCount) == vmNull) {
                     goto error;
                 }
 
-                srcBlob->offset += count;
+                srcBlob->offset += blobCount;
                 break;
             }
             case 5: {
@@ -5690,15 +5712,15 @@ VmMethodDefine(Blob, Unpack) {
                     if (outSize == 0) {
                         goto error;
                     }
-                    count = (srcBlob->size - srcBlob->offset) / outSize;
+                    elementCount = (srcBlob->size - srcBlob->offset) / outSize;
                 } else {
-                    count = outVal;
+                    elementCount = outVal;
                 }
-                if (count < 0 || !CHANSVmBlobHasSpace(srcBlob, outSize * count)) {
+                if (elementCount < 0 || !CHANSVmBlobHasSpace(srcBlob, outSize * elementCount)) {
                     goto error;
                 }
 
-                for (iterIdx = 0; iterIdx < count; iterIdx++) {
+                for (iterIdx = 0; iterIdx < elementCount; iterIdx++) {
                     unpackBuf.words[1] = 0;
                     unpackBuf.words[0] = 0;
                     memcpy(unpackBuf.words, srcBlob->pData + srcBlob->offset, outSize);
@@ -5736,19 +5758,23 @@ VmMethodDefine(Blob, Unpack) {
                             // signed
                             switch (outSize) {
                                 case 1: {
-                                    value = *(s8*)unpackBuf.words;
+                                    valueLow = *(s8*)unpackBuf.words;
+                                    valueHigh = (s32)valueLow >> 31;
                                     break;
                                 }
                                 case 2: {
-                                    value = *(s16*)unpackBuf.words;
+                                    valueLow = *(s16*)unpackBuf.words;
+                                    valueHigh = (s32)valueLow >> 31;
                                     break;
                                 }
                                 case 4: {
-                                    value = *(s32*)unpackBuf.words;
+                                    valueLow = *(s32*)unpackBuf.words;
+                                    valueHigh = (s32)valueLow >> 31;
                                     break;
                                 }
                                 case 8: {
-                                    value = unpackBuf.value;
+                                    valueHigh = unpackBuf.words[0];
+                                    valueLow = unpackBuf.words[1];
                                     break;
                                 }
                                 default: {
@@ -5762,15 +5788,18 @@ VmMethodDefine(Blob, Unpack) {
                             // unsigned
                             switch (outSize) {
                                 case 1: {
-                                    value = *(u8*)unpackBuf.words;
+                                    valueLow = *(u8*)unpackBuf.words;
+                                    valueHigh = 0;
                                     break;
                                 }
                                 case 2: {
-                                    value = *(u16*)unpackBuf.words;
+                                    valueLow = *(u16*)unpackBuf.words;
+                                    valueHigh = 0;
                                     break;
                                 }
                                 case 4: {
-                                    value = unpackBuf.words[0];
+                                    valueLow = unpackBuf.words[0];
+                                    valueHigh = 0;
                                     break;
                                 }
                                 default: {
@@ -5784,9 +5813,9 @@ VmMethodDefine(Blob, Unpack) {
                         }
                     }
 
-                    arrElem = CHANSVmGetArrayElement(VmInst, VmReturnObj, elemIdx);
+                    integerElement = CHANSVmGetArrayElement(VmInst, VmReturnObj, elemIdx);
                     elemIdx++;
-                    if (arrElem == vmNull || CHANSVmSetInteger(VmInst, arrElem, value) != CHANS_VM_OK) {
+                    if (integerElement == vmNull || CHANSVmSetInteger(VmInst, integerElement, (s64)(((u64)valueHigh << 32) | valueLow)) != CHANS_VM_OK) {
                         goto error;
                     }
 
@@ -5798,104 +5827,92 @@ VmMethodDefine(Blob, Unpack) {
             case 11:
             case 12:
             case 13: {
-                u8* srcPtr;
-                count = outVal;
-                if ((s32)count < 0) {
+                charCount = outVal;
+                if ((s32)charCount < 0) {
                     if (outSize == 0) {
                         goto error;
                     }
-                    count = (srcBlob->size - srcBlob->offset) / outSize;
+                    charCount = (srcBlob->size - srcBlob->offset) / outSize;
                 }
-                if ((s32)count < 0 || !CHANSVmBlobHasSpace(srcBlob, outSize * count)) {
+                if ((s32)charCount < 0 || !CHANSVmBlobHasSpace(srcBlob, outSize * charCount)) {
                     goto error;
                 }
 
-                srcPtr = srcBlob->pData + srcBlob->offset;
-                arrElem = CHANSVmGetArrayElement(VmInst, VmReturnObj, elemIdx);
+                stringSource = srcBlob->pData + srcBlob->offset;
+                stringElement = CHANSVmGetArrayElement(VmInst, VmReturnObj, elemIdx);
                 elemIdx++;
-                if (arrElem == vmNull) {
+                if (stringElement == vmNull) {
                     goto error;
                 }
 
                 if (outSize == 1) {
-                    if (CHANSVmSetU16StringFromU8(VmInst, arrElem, (char*)srcPtr, count) != CHANS_VM_OK) {
+                    if (CHANSVmSetU16StringFromU8(VmInst, stringElement, (char*)stringSource, charCount) != CHANS_VM_OK) {
                         goto error;
                     }
-                } else if (CHANSVmSetU16String(VmInst, arrElem, (wchar_t*)srcPtr, outSize * count) != CHANS_VM_OK) {
+                } else if (CHANSVmSetU16String(VmInst, stringElement, (wchar_t*)stringSource, outSize * charCount) != CHANS_VM_OK) {
                     goto error;
                 }
 
                 if (outType == 0xB || outType == 0xD) {
-                    u8* strData;
-                    u32 strLen;
-                    u32 i;
-                    strData = (u8*)VmGetStrFromObjHdr(arrElem);
-                    strLen = (u32)VmGetIntFromObjHdr(arrElem);
-                    if (strData != vmNull && strLen != 0 && arrElem->type == CHANS_VM_OBJ_TYPE_STRING) {
-                        u32 remaining = strLen / 2;
-                        i = 0;
-                        while (remaining-- != 0 && VM_READ_BE_U16(strData, 0) != 0) {
-                            strData += 2;
-                            i++;
+                    stringData = (u8*)VmGetStrFromObjHdr(stringElement);
+                    stringLength = (u32)VmGetIntFromObjHdr(stringElement);
+                    if (stringData != vmNull && stringLength != 0 && stringElement->type == CHANS_VM_OBJ_TYPE_STRING) {
+                        remainingChars = stringLength / 2;
+                        stringIndex = 0;
+                        while (remainingChars-- != 0 && VM_READ_BE_U16(stringData, 0) != 0) {
+                            stringData += 2;
+                            stringIndex++;
                         }
-                        arrElem->value.string_v->len = i * 2;
+                        stringElement->value.string_v->len = stringIndex * 2;
                     }
                 }
 
-                srcBlob->offset += outSize * count;
+                srcBlob->offset += outSize * charCount;
                 continue;
             }
             case 14: {
-                u8* srcData;
-                s32 bufSize;
-                count = outVal;
-                if ((s32)count < 0) {
-                    count = (srcBlob->size - srcBlob->offset) * 2;
+                digitCount = outVal;
+                if ((s32)digitCount < 0) {
+                    digitCount = (srcBlob->size - srcBlob->offset) * 2;
                 }
-                if ((s32)count < 0) {
+                if ((s32)digitCount < 0) {
                     goto error;
                 }
 
-                bufSize = (s32)(count + 1) / 2;
-                if (!CHANSVmBlobHasSpace(srcBlob, bufSize)) {
+                hexByteCount = (s32)(digitCount + 1) / 2;
+                if (!CHANSVmBlobHasSpace(srcBlob, hexByteCount)) {
                     goto error;
                 }
 
-                srcData = srcBlob->pData + srcBlob->offset;
-                arrElem = CHANSVmGetArrayElement(VmInst, VmReturnObj, elemIdx);
+                hexSourceData = srcBlob->pData + srcBlob->offset;
+                hexElement = CHANSVmGetArrayElement(VmInst, VmReturnObj, elemIdx);
                 elemIdx++;
-                if (arrElem == vmNull || CHANSVmNewObject(VmInst, vmFalse, arrElem, CHANS_VM_OBJ_TYPE_STRING, count * 2) == vmNull) {
+                if (hexElement == vmNull || CHANSVmNewObject(VmInst, vmFalse, hexElement, CHANS_VM_OBJ_TYPE_STRING, digitCount * 2) == vmNull) {
                     goto error;
                 }
 
                 {
-                    wchar_t* destStr = (wchar_t*)VmGetStrFromObjHdr(arrElem);
-                    s32 i;
-                    u8* srcPos;
-                    wchar_t* destPos;
-                    u8* hexTable;
-                    u8 byte;
-                    u8 nibble;
-                    hexTable = (u8*)scHexDigitsPtr2;
-                    srcPos = srcData;
-                    destPos = destStr;
+                    hexString = (wchar_t*)VmGetStrFromObjHdr(hexElement);
 
-                    for (i = 0; i < (s32)count / 2; i++) {
-                        byte = *srcPos;
-                        srcPos++;
-                        nibble = (byte / 16) & 0xF;
-                        byte &= 0xF;
-                        destPos[0] = (wchar_t)(s8)hexTable[nibble];
-                        destPos[1] = (wchar_t)(s8)hexTable[byte];
-                        destPos += 2;
+                    hexDigits = (u8*)scHexDigitsPtr2;
+                    hexSource = hexSourceData;
+                    hexDestination = hexString;
+
+                    for (hexIndex = 0; hexIndex < (s32)digitCount / 2; hexSource++, hexIndex++) {
+                        hexByte = *hexSource;
+                        hexNibble = (hexByte / 16) & 0xF;
+                        hexByte &= 0xF;
+                        hexDestination[0] = (wchar_t)(s8)hexDigits[hexNibble];
+                        hexDestination[1] = (wchar_t)(s8)hexDigits[hexByte];
+                        hexDestination += 2;
                     }
-                    if (i * 2 < (s32)count) {
-                        byte = *srcPos;
-                        *destPos = (wchar_t)(s8)hexTable[(byte >> 4) & 0xF];
+                    if (hexIndex * 2 < (s32)digitCount) {
+                        hexByte = *hexSource;
+                        *hexDestination = (wchar_t)(s8)hexDigits[(hexByte >> 4) & 0xF];
                     }
                 }
 
-                srcBlob->offset += bufSize;
+                srcBlob->offset += hexByteCount;
                 continue;
             }
             default: {
