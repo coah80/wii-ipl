@@ -295,13 +295,13 @@ void Manager::changeState(StateTimeLine stateTimeLine) {
 void Manager::setState(StateType stateType) {
     switch (stateType) {
     case ST_Hidden:
-        getEventObserverForMemo()->onSE(static_cast<sound::SE>(27));
+        getEventObserverForMemo()->onSE(sound::SE_OPEN);
         mpCurrentState->end();
         mpCurrentState = &sAppearMemoState;
         mpCurrentState->start();
         break;
     case ST_Appearing:
-        getEventObserverForMemo()->onSE(static_cast<sound::SE>(28));
+        getEventObserverForMemo()->onSE(sound::SE_APPEARED);
         mpCurrentState->end();
         mpCurrentState = &sEditMemoState;
         mpCurrentState->start();
@@ -312,7 +312,7 @@ void Manager::setState(StateType stateType) {
         mpCurrentState->start();
         break;
     case ST_Disappearing:
-        getEventObserverForMemo()->onSE(static_cast<sound::SE>(29));
+        getEventObserverForMemo()->onSE(sound::SE_DISAPPEARD);
         mpCurrentState->end();
         mpCurrentState = &sDispMemoState;
         mpCurrentState->start();
@@ -582,7 +582,7 @@ void Manager::configNormalBigTextWithoutLineFeedWithSign() {
 void Manager::configNormalWithoutLineFeedWithSign() {
     configDefault();
     textinput::Manager::init();
-    meConfigType = static_cast<ConfigType>(10);
+    meConfigType = CT_NormalBigTextWithoutLineFeedWithSign;
     getCellPhoneKeyboardForMemo()->setLineFeedButton(false);
     getPCKeyboardForMemo()->setLineFeedButton(false);
     getCandidateBoxForMemo()->setActive(false);

@@ -148,7 +148,7 @@ namespace nw4r {
                             return NULL;
                         }
 
-                        pSub = reinterpret_cast<const BankFile::DataRegion*>(pIndexTable->ref + (splitKey - pIndexTable->min));
+                        pSub = pIndexTable->ref + (splitKey - pIndexTable->min);
                         break;
                     }
                 }

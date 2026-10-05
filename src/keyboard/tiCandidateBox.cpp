@@ -331,10 +331,10 @@ namespace textinput {
         void Base::updateFromReceiver(u32 cmd, void* data) {
             // TODO - enum
             if ((int)cmd == 34) {
-                setInvalid(*reinterpret_cast<bool*>(data));
+                setInvalid(*static_cast<bool*>(data));
             }
             if ((int)cmd == 35) {
-                *reinterpret_cast<bool*>(data) = isInvalid();
+                *static_cast<bool*>(data) = isInvalid();
             }
         }
 
@@ -1496,30 +1496,29 @@ namespace textinput {
                 } else {
                     ChangeBaseIdx_(mnBaseIdx + dat);
                 }
-                UIObj::riseEvent(0x100, reinterpret_cast<void*>(0));
+                UIObj::riseEvent(0x100, NULL);
             }
         }
 
         void UITextArea::onGUIEvent(gui::PaneComponent& component, u32 event, nw4rmanager::TiEventHandler::Input* input) {
-            // TODO event enum?
-            if (mgr()->isInScroll() && event != 1 && event != 0) {
+            if (mgr()->isInScroll() && event != gui::EventHandler::ON_LEFT && event != gui::EventHandler::ON_POINT) {
                 return;
             }
-            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == 1) {
+            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == gui::EventHandler::ON_LEFT) {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
-                        case 4:
-                            if (input->trigger == 0x800) {
+                        case gui::EventHandler::ON_TRIG:
+                            if (input->trigger == WPAD_BUTTON_A) {
                                 s32 idx = GetSelectedPaneIdx();
                                 if (mnFocusedIdx >= 0 && idx >= 0) {
                                     mpTextBoxPane[idx]->init();
                                     mpBoundingPane[idx]->init();
                                     mpTextAnmPane[idx]->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                                    riseEvent(0x101, reinterpret_cast<void*>(0));
+                                    riseEvent(0x101, NULL);
                                 }
                             }
                             break;
-                        case 0:
+                        case gui::EventHandler::ON_POINT:
                             if (&component == mpTextAreaPane) {
                                 mbOnTextArea = true;
                                 for (int i = 0; i < NUM_PANES; i++) {
@@ -1539,7 +1538,7 @@ namespace textinput {
                                 }
                             }
                             break;
-                        case 1:
+                        case gui::EventHandler::ON_LEFT:
                             if (&component == mpTextAreaPane) {
                                 mbOnTextArea = false;
                                 for (int i = 0; i < NUM_PANES; i++) {
@@ -1621,8 +1620,8 @@ namespace textinput {
         }
 
         void UITextWindow::onChangeAnmState(AnmEvent anmEvent, nw4rmanager::AnmPane* anmPane, nw4rmanager::Anim* anim) {
-            if (anim->muID == 0 && anmEvent == E_1) {
-                riseEvent(0x400, reinterpret_cast<void*>(0));
+            if (anim->muID == ANM_Normal && anmEvent == E_1) {
+                riseEvent(0x400, NULL);
             }
         }
 
@@ -1653,15 +1652,14 @@ namespace textinput {
         }
 
         void UIButton::onGUIEvent(gui::PaneComponent& component, u32 event, nw4rmanager::TiEventHandler::Input* input) {
-            // TODO event enum?
-            if (mgr()->isInScroll() && event != 1 && event != 0) {
+            if (mgr()->isInScroll() && event != gui::EventHandler::ON_LEFT && event != gui::EventHandler::ON_POINT) {
                 return;
             }
-            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == 1) {
+            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == gui::EventHandler::ON_LEFT) {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
-                        case 4:
-                            if (input->trigger == 0x800) {
+                        case gui::EventHandler::ON_TRIG:
+                            if (input->trigger == WPAD_BUTTON_A) {
                                 mpButtonAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                                 if (getID() == 1) {
                                     mgr()->onLeftPageScroll();
@@ -1670,8 +1668,8 @@ namespace textinput {
                                 }
                             }
                             break;
-                        case 2:
-                            if (input->hold == 0x800 && !(input->trigger & 0x800) &&
+                        case gui::EventHandler::ON_MOVE:
+                            if (input->hold == WPAD_BUTTON_A && !(input->trigger & WPAD_BUTTON_A) &&
                                 component.getFlightDuration(input->controller) % 20 != 0) {
                                 mpButtonAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                                 if (getID() == 1) {
@@ -1681,10 +1679,10 @@ namespace textinput {
                                 }
                             }
                             break;
-                        case 1:
+                        case gui::EventHandler::ON_LEFT:
                             mpButtonAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_2);
                             break;
-                        case 0:
+                        case gui::EventHandler::ON_POINT:
                             mpButtonAnmPane->onAnmEvent(nw4rmanager::AnmPane::PE_1);
                             riseEvent(0, reinterpret_cast<void*>(4));
                             break;
@@ -1753,22 +1751,21 @@ namespace textinput {
 
         void UIOnOffButton::onChangeAnmState(AnmEvent anmEvent, nw4rmanager::AnmPane* anmPane, nw4rmanager::Anim* anim) {
             if (anmPane == mpOnAnmPane) {
-                if (anim->muID == 7 && anmEvent == E_1) {
-                    riseEvent(0x301, reinterpret_cast<void*>(0));
+                if (anim->muID == ANM_OnOffPushed && anmEvent == E_1) {
+                    riseEvent(0x301, NULL);
                 }
             } else if (anmPane == mpOffAnmPane) {
-                if (anim->muID == 7 && anmEvent == E_1) {
-                    riseEvent(0x300, reinterpret_cast<void*>(0));
+                if (anim->muID == ANM_OnOffPushed && anmEvent == E_1) {
+                    riseEvent(0x300, NULL);
                 }
             }
         }
 
         void UIOnOffButton::onGUIEvent(gui::PaneComponent& component, u32 event, nw4rmanager::TiEventHandler::Input* input) {
-            // TODO event enum?
-            if (mgr()->isInScroll() && event != 1 && event != 0) {
+            if (mgr()->isInScroll() && event != gui::EventHandler::ON_LEFT && event != gui::EventHandler::ON_POINT) {
                 return;
             }
-            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == 1) {
+            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == gui::EventHandler::ON_LEFT) {
                 OnOffAnmPane* p;
                 if (&component == mpOnBoundPane) {
                     p = mpOnAnmPane;
@@ -1776,15 +1773,15 @@ namespace textinput {
                     p = mpOffAnmPane;
                 }
                 switch (event) {
-                    case 4:
-                        if (input->trigger & 0x800) {
+                    case gui::EventHandler::ON_TRIG:
+                        if (input->trigger & WPAD_BUTTON_A) {
                             mgr()->onOnOffButton(true);
                         }
                         break;
-                    case 1:
+                    case gui::EventHandler::ON_LEFT:
                         p->onAnmEvent(nw4rmanager::AnmPane::PE_2);
                         break;
-                    case 0:
+                    case gui::EventHandler::ON_POINT:
                         p->onAnmEvent(nw4rmanager::AnmPane::PE_1);
                         riseEvent(0, reinterpret_cast<void*>(4));
                         break;

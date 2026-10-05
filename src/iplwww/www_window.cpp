@@ -70,7 +70,7 @@ namespace ext_ead {
                 for (int j = 0; j < (int)ARRAY_LENGTH(mTexBufArr[0]); j++) {
                     mTexDisplayRects[i][j] = rect;
 
-                    u32 texBufSize = GXGetTexBufferSize(texW, texH, GX_TF_RGB565, 0, 0);
+                    u32 texBufSize = GXGetTexBufferSize(texW, texH, GX_TF_RGB565, GX_FALSE, 0);
                     mTexBufArr[i][j] = Heap::allocMem2(texBufSize, 32);
 
                     memset(mTexBufArr[i][j], 0, texBufSize);

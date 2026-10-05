@@ -60,7 +60,7 @@ namespace ipl {
                     // Animate and alternate direction; Once reaching the maximum frame, it then animates forwards.
                     // And once reaching the minimum frame, it animates backwards. Then repeat.
                     case ANIM_TYPE_ALTERNATE: {
-                        if (mbAlternateBack == false) {
+                        if (!mbAlternateBack) {
                             if ((mFrame += speed) >= mMaxFrame) {
                                 mFrame = mMaxFrame;
                                 mbAlternateBack = true;

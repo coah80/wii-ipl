@@ -160,7 +160,7 @@ namespace nw4r {
         void WavePlayer::Pause(bool flag) {
             ut::AutoInterruptLock lock;
 
-            if (mStartFlag == false) {
+            if (!mStartFlag) {
                 return;
             }
 
@@ -224,7 +224,7 @@ namespace nw4r {
         }
 
         void WavePlayer::VoiceCallbackFunc(detail::AxVoice* voice, detail::AxVoice::CallbackStatus status, void* arg) {
-            WavePlayer* wavePlayer = reinterpret_cast<WavePlayer*>(arg);
+            WavePlayer* wavePlayer = static_cast<WavePlayer*>(arg);
             switch (status) {
                 case detail::AxVoice::CALLBACK_STATUS_FINISH_WAVE:
                 case detail::AxVoice::CALLBACK_STATUS_INVALIDATE_WAVE: {

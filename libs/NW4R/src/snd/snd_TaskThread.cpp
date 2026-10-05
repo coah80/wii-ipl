@@ -33,7 +33,7 @@ namespace nw4r {
 
             void* TaskThread::ThreadFunc(void* arg) {
                 TaskThread* thread = static_cast<TaskThread*>(arg);
-                OSInitMessageQueue(&thread->mMsgQueue, thread->mMsgBuffer, 8);
+                OSInitMessageQueue(&thread->mMsgQueue, thread->mMsgBuffer, MSG_QUEUE_CAPACITY);
 
                 thread->ThreadProc();
 
@@ -44,7 +44,7 @@ namespace nw4r {
                 OSMessage msg;
 
                 while (true) {
-                    OSReceiveMessage(&mMsgQueue, &msg, 1);
+                    OSReceiveMessage(&mMsgQueue, &msg, OS_MESSAGE_BLOCK);
 
                     if (reinterpret_cast<u32>(msg) == MSG_EXECUTE) {
                         TaskManager::GetInstance().Execute();

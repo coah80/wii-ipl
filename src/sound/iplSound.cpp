@@ -138,18 +138,18 @@ namespace ipl {
             }
 
             block = FIsSEActive(sndName);
-            if (block != NULL && block->handle.GetId() == 0x39) {
+            if (block != NULL && block->handle.GetId() == WIPL_SE_GRAY_BUTTON) {
                 goto return_block;
             }
             if (block == NULL) {
                 goto continue_block;
             }
-            if (block->handle.GetId() != 0x35) {
+            if (block->handle.GetId() != WIPL_SE_ERROR) {
                 goto continue_block;
             }
 
         return_block:
-            return reinterpret_cast<nw4r::snd::SoundHandle*>(block);
+            return &block->handle;
 
         continue_block:
             if (block == NULL) {
@@ -163,7 +163,7 @@ namespace ipl {
             EGG::ArcPlayer::startSound(&block->handle, sndName);
             block->name = sndName;
             block->id = block->handle.GetId();
-            return reinterpret_cast<nw4r::snd::SoundHandle*>(block);
+            return &block->handle;
         }
 
         int System::startSEIndex(u32 sndIndex) {
@@ -174,13 +174,13 @@ namespace ipl {
             }
 
             block = FIsSEActive(sndIndex);
-            if (block != NULL && block->handle.GetId() == 0x39) {
+            if (block != NULL && block->handle.GetId() == WIPL_SE_GRAY_BUTTON) {
                 goto return_block_index;
             }
             if (block == NULL) {
                 goto continue_block_index;
             }
-            if (block->handle.GetId() != 0x35) {
+            if (block->handle.GetId() != WIPL_SE_ERROR) {
                 goto continue_block_index;
             }
 

@@ -484,9 +484,9 @@ bool LayoutByNW4R::updateInput(input::HKBManager& manager) {
 void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) {
     s32 eventType = event;
     const char* name = paneComponent->getPane()->GetName();
-    if (!mpLayoutByNW4R->isLocked() || event != 4) {
-        if (event == 4 && (input->trigger & 0x800) != 0) {
-            mpLayoutByNW4R->onKey(4, const_cast<char*>(name));
+    if (!mpLayoutByNW4R->isLocked() || event != gui::EventHandler::ON_TRIG) {
+        if (event == gui::EventHandler::ON_TRIG && (input->trigger & WPAD_BUTTON_A) != 0) {
+            mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, const_cast<char*>(name));
         }
         if (name[0] == 'B') {
             char paneName[24];
@@ -496,15 +496,15 @@ void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input
             AnmPane* pane = static_cast<AnmPane*>(mpLayoutByNW4R->searchAnmPane(paneName));
             if (pane != NULL) {
                 switch (eventType) {
-                case 4:
-                    if ((input->trigger & 0x800) != 0) {
+                case gui::EventHandler::ON_TRIG:
+                    if ((input->trigger & WPAD_BUTTON_A) != 0) {
                         pane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                     }
                     break;
-                case 1:
+                case gui::EventHandler::ON_LEFT:
                     pane->onAnmEvent(nw4rmanager::AnmPane::PE_2);
                     break;
-                case 0:
+                case gui::EventHandler::ON_POINT:
                     mpEventObserver->onSE(sound::SE_SELECT);
                     mpLayoutByNW4R->setPaneLastDrawReceived(pane->getPane());
                     pane->onAnmEvent(nw4rmanager::AnmPane::PE_1);

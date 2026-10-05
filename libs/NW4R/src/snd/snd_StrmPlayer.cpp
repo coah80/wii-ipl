@@ -718,7 +718,7 @@ namespace nw4r {
             }
 
             void StrmPlayer::NotifyStrmHeaderAsyncEndCallback(bool result, const StrmHeader* header, void* userData) {
-                StrmPlayer* player = reinterpret_cast<StrmPlayer*>(userData);
+                StrmPlayer* player = static_cast<StrmPlayer*>(userData);
                 if (result) {
                     player->Setup(header);
                 } else {

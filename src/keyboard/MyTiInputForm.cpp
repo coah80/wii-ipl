@@ -419,12 +419,12 @@ void InputForm::onArrowLTrig() {
 
 bool InputForm::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
     if (meEditMode == EM_Disp) {
-        if (hold & 0x400) return textinput::InputForm::updateInput(chan, 0.0f, 0.0f, 0, 0, 0, data);
-        if (trig & 8) mpScrollButton->changeAnimation(false, 4);
-        if (release & 8) mpScrollButton->changeAnimation(false, 3);
-        if (trig & 4) mpScrollButton->changeAnimation(true, 4);
-        if (release & 4) mpScrollButton->changeAnimation(true, 3);
-        if (hold & 8) {
+        if (hold & WPAD_BUTTON_B) return textinput::InputForm::updateInput(chan, 0.0f, 0.0f, 0, 0, 0, data);
+        if (trig & WPAD_BUTTON_UP) mpScrollButton->changeAnimation(false, 4);
+        if (release & WPAD_BUTTON_UP) mpScrollButton->changeAnimation(false, 3);
+        if (trig & WPAD_BUTTON_DOWN) mpScrollButton->changeAnimation(true, 4);
+        if (release & WPAD_BUTTON_DOWN) mpScrollButton->changeAnimation(true, 3);
+        if (hold & WPAD_BUTTON_UP) {
             if (getScrollMin() <= mfScroll) {
                 setScroll(mfScroll - 3.5f);
                 if (mfScroll <= getScrollMin()) setScroll(getScrollMin());
@@ -432,7 +432,7 @@ bool InputForm::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 rele
             }
             mpScrollButton->changeAnimation(false, 4);
         } else mpScrollButton->changeAnimation(false, 3);
-        if (hold & 4) {
+        if (hold & WPAD_BUTTON_DOWN) {
             if (getScrollMax() >= mfScroll) {
                 setScroll(3.5f + mfScroll);
                 if (mfScroll >= getScrollMax()) setScroll(getScrollMax());
@@ -492,7 +492,7 @@ static nw4r::math::VEC2 transformedOrigin(const nw4r::ut::Rect& rect, const Mtx&
     position.x = rect.left;
     position.y = rect.bottom;
     position.z = 0.0f;
-    PSMTXMultVec(matrix, reinterpret_cast<const Vec*>(&position), reinterpret_cast<Vec*>(&position));
+    PSMTXMultVec(matrix, position, position);
     return nw4r::math::VEC2(position.x, -position.y);
 }
 
@@ -765,17 +765,17 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
     inputform::EventHandler::onTiEvent(component, event, input);
     const char* name = component->getPane()->GetName();
     if (name[0] == 'B') {
-        if (event == 4 && (input->trigger & 0x800)) {
+        if (event == gui::EventHandler::ON_TRIG && (input->trigger & WPAD_BUTTON_A)) {
             if (util::strcmp("B_Nigaoe", name)) mpMemoForm->onNigaoeButtonTrig();
             if (util::strcmp("B_ArwR", name)) mpMemoForm->onArrowRTrig();
             if (util::strcmp("B_ArwL", name)) mpMemoForm->onArrowLTrig();
         }
-        if (event == 0) {
+        if (event == gui::EventHandler::ON_POINT) {
             if (util::strcmp("B_Nigaoe", name)) mpMemoForm->onNigaoeButtonPoint();
             if (util::strcmp("B_ArwR", name)) mpMemoForm->onArrowRPoint();
             if (util::strcmp("B_ArwL", name)) mpMemoForm->onArrowLPoint();
         }
-        if (event == 1) {
+        if (event == gui::EventHandler::ON_LEFT) {
             if (util::strcmp("B_Nigaoe", name)) mpMemoForm->onNigaoeButtonLeft();
             if (util::strcmp("B_ArwR", name)) mpMemoForm->onArrowRLeft();
             if (util::strcmp("B_ArwL", name)) mpMemoForm->onArrowLLeft();

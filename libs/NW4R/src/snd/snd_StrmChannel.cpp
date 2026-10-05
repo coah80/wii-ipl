@@ -52,7 +52,7 @@ namespace nw4r {
 
                     u8 mask = 1 << 0;
 
-                    for (int j = 0; j < 8; j++, mask <<= 1) {
+                    for (int j = 0; j < BITS_PER_BYTE; j++, mask <<= 1) {
                         // Block represented by this bit is in use
                         if (flag & mask) {
                             continue;

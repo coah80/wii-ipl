@@ -720,7 +720,7 @@ namespace ipl {
                 u32 mask = 0;
                 u32 info[1];
                 for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
-                    if (WPADProbe(i, info) == 0 && info[0] != 0xFD) {
+                    if (WPADProbe(i, info) == WPAD_ERR_OK && info[0] != WPAD_DEV_NOT_FOUND) {
                         mask |= 1 << i;
                     }
                 }

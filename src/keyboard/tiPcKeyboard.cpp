@@ -2138,7 +2138,7 @@ namespace textinput {
                 mKeyState.abcFlags = ((mKeyState.abcFlags ^ 64) & 64) | (mKeyState.abcFlags & ~64);
                 mKeyState.refresh_();
                 mCapsButton.SetState((mKeyState.abcFlags >> 6) & 1, 11);
-                mpEventObserver->onSE(static_cast<sound::SE>(13));
+                mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
             }
 
             inline void UIModifierButton::SetState(bool enabled, u32 inactiveAnimation) {
@@ -2160,7 +2160,7 @@ namespace textinput {
                 }
                 mShiftButton.SetState(true, 5);
                 if (sound)
-                    mpEventObserver->onSE(static_cast<sound::SE>(13));
+                    mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
             }
 
             void LayoutByNW4R::onReleasedShift() {
@@ -2204,7 +2204,7 @@ namespace textinput {
                                 mCapsButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(10));
                             else
                                 mCapsButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(11));
-                            mpEventObserver->onSE(static_cast<sound::SE>(13));
+                            mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
 
                             break;
                         }
@@ -2227,33 +2227,33 @@ namespace textinput {
                                 mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(10));
                             else
                                 mShiftButton.mpAnimation->onAnmEvent(static_cast<AnmPane::AnmPaneEvent>(11));
-                            mpEventObserver->onSE(static_cast<sound::SE>(13));
+                            mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
                             break;
                         }
                         case 0:
-                            mpEventObserver->onSE(static_cast<sound::SE>(9));
+                            mpEventObserver->onSE(sound::SE_CHAR_DECIDE);
                             break;
                         case 11:
                             if (!isABC()) {
-                                mpEventObserver->onSE(static_cast<sound::SE>(13));
+                                mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
                                 searchAnmPane("W_JP_Chng_KANA")->changeAnimation(6);
                             }
                             break;
                         case 12:
                             if (isABC()) {
-                                mpEventObserver->onSE(static_cast<sound::SE>(13));
+                                mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
                                 searchAnmPane("W_JP_Chng_ABC")->changeAnimation(6);
                             }
                             break;
                         case 18:
                             if ((mKeyState.aiuFlags & 15) == 1) {
-                                mpEventObserver->onSE(static_cast<sound::SE>(13));
+                                mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
                                 searchAnmPane("P_katakana")->changeAnimation(6);
                             }
                             break;
                         case 19:
                             if ((mKeyState.aiuFlags & 15) == 0) {
-                                mpEventObserver->onSE(static_cast<sound::SE>(13));
+                                mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
                                 searchAnmPane("P_hiragana")->changeAnimation(6);
                             }
                             break;
@@ -2527,7 +2527,7 @@ namespace textinput {
                 u32 oldMode = mKeyState.abcFlags & 15;
                 Base::setTranslateMode(mode);
                 if (oldMode != (mKeyState.abcFlags & 15)) {
-                    mpEventObserver->onSE(static_cast<sound::SE>(13));
+                    mpEventObserver->onSE(sound::SE_KETAI_MODE_SWITCHING);
                     switch (static_cast<int>(oldMode)) {
                         case 0:
                             searchAnmPane("P_Mode_direct")->changeAnimation(6);
@@ -2561,7 +2561,7 @@ namespace textinput {
                 bool handled = nw4rmanager::Layout::updateInput(chan, x, y, trig, hold, release, data);
                 LayoutGather& gather = LayoutGather::Singleton::getInstance();
                 bool wasShift = gather.isHoldingShift();
-                if (!(!(hold & 0x400))) {
+                if (hold & WPAD_BUTTON_B) {
                     gather.setPressedShiftB(true);
                     input::HKBManager::getInstance().SetForceModifierState(2, 2);
                     if (!wasShift) {
@@ -2740,34 +2740,34 @@ namespace textinput {
                                 }
                                 nw4rmanager::AnmPane* animation = mpKeyboard->searchAnmPane(animationName);
                                 switch (static_cast<int>(event)) {
-                                    case 4:
-                                        if (input->trigger & 0x800) {
+                                    case gui::EventHandler::ON_TRIG:
+                                        if (input->trigger & WPAD_BUTTON_A) {
                                             if (animation != NULL)
                                                 animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                                            mpKeyboard->onKey(4, animationName);
+                                            mpKeyboard->onKey(gui::EventHandler::ON_TRIG, animationName);
                                         }
                                         break;
-                                    case 1:
+                                    case gui::EventHandler::ON_LEFT:
                                         if (animation != NULL)
                                             animation->onAnmEvent(nw4rmanager::AnmPane::PE_2);
-                                        mpKeyboard->onKey(1, animationName);
+                                        mpKeyboard->onKey(gui::EventHandler::ON_LEFT, animationName);
                                         break;
-                                    case 0:
+                                    case gui::EventHandler::ON_POINT:
                                         if (animation != NULL) {
-                                            mpEventObserver->onSE(static_cast<sound::SE>(4));
+                                            mpEventObserver->onSE(sound::SE_SELECT);
                                             mpKeyboard->setPaneLastDrawReceived(animation->getPane());
                                             animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
                                         }
                                         break;
                                 }
-                                if (event == 2 && (input->hold & 0x800) && !(input->trigger & 0x800) &&
+                                if (event == gui::EventHandler::ON_MOVE && (input->hold & WPAD_BUTTON_A) && !(input->trigger & WPAD_BUTTON_A) &&
                                     (util::strcmp("P_key_DELETE", animationName) || util::strcmp("P_Gkey_DELETE", animationName) ||
                                      util::strcmp("P_key_SPACE", animationName) || util::strcmp("P_Gkey_SPACE", animationName)) &&
                                     component->isDragging(input->controller)) {
                                     u32 frames = mpKeyboard->getFlightDuration(input->controller, name);
                                     if (frames >= 30 && frames % 9 == 0) {
                                         animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                                        mpKeyboard->onKey(4, animationName);
+                                        mpKeyboard->onKey(gui::EventHandler::ON_TRIG, animationName);
                                     }
                                 }
                             }
@@ -3143,16 +3143,16 @@ namespace textinput {
                 if (mId == 1)
                     name = "P_key_SHIFT";
                 switch (static_cast<int>(event)) {
-                    case 4:
-                        if (input->trigger & 0x800)
-                            mpLayout->onKey(4, const_cast<char*>(name));
+                    case gui::EventHandler::ON_TRIG:
+                        if (input->trigger & WPAD_BUTTON_A)
+                            mpLayout->onKey(gui::EventHandler::ON_TRIG, const_cast<char*>(name));
                         break;
 
-                    case 1:
+                    case gui::EventHandler::ON_LEFT:
                         mpAnimation->onAnmEvent(AnmPane::PE_2);
-                        mpLayout->onKey(1, const_cast<char*>(name));
+                        mpLayout->onKey(gui::EventHandler::ON_LEFT, const_cast<char*>(name));
                         break;
-                    case 0:
+                    case gui::EventHandler::ON_POINT:
                         if (mpListener != NULL)
                             mpListener->onEvent(this, 0, reinterpret_cast<void*>(4));
                         mpLayout->setPaneLastDrawReceived(mpAnimation->getPane());

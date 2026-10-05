@@ -29,10 +29,10 @@ namespace ipl {
 
             utility::FrameController::init(anmType, maxFrame, 0.0f);
 
-            if (bRecursive != FALSE) {
+            if (bRecursive) {
                 mFlags |= (1 << FLAG_RECURSIVE);
             }
-            if (bUnused != FALSE) {
+            if (bUnused) {
                 mFlags |= (1 << FLAG_UNUSED);
             }
         }

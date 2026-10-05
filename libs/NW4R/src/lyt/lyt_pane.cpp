@@ -411,8 +411,8 @@ namespace nw4r {
                 mtxPtr = mGlbMtx;
             }
 
-            GXLoadPosMtxImm(mtxPtr, 0);
-            GXSetCurrentMtx(0);
+            GXLoadPosMtxImm(mtxPtr, GX_PNMTX0);
+            GXSetCurrentMtx(GX_PNMTX0);
         }
 
         math::VEC2 Pane::GetVtxPos() const {

@@ -259,14 +259,14 @@ void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input
     nw4r::lyt::Pane* pane = paneComponent->getPane();
     const char* paneName = pane->GetName();
     if (paneName[0] == 'B') {
-        if (event == gui::GUIComponent::EVENT_TRIG && (input->trigger & 0x800) &&
+        if (event == gui::GUIComponent::EVENT_TRIG && (input->trigger & WPAD_BUTTON_A) &&
             util::strcmp("B_Pic", paneName)) {
             static_cast<InputForm*>(mpMemoForm)->onPhotoTrig();
         }
-        if (event == 0 && util::strcmp("B_Pic", paneName)) {
+        if (event == gui::EventHandler::ON_POINT && util::strcmp("B_Pic", paneName)) {
             static_cast<InputForm*>(mpMemoForm)->onPhotoPoint();
         }
-        if (event == 1 && util::strcmp("B_Pic", paneName)) {
+        if (event == gui::EventHandler::ON_LEFT && util::strcmp("B_Pic", paneName)) {
             static_cast<InputForm*>(mpMemoForm)->onPhotoLeft();
         }
     }

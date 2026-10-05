@@ -251,7 +251,7 @@ void Base::inputInputting_(wchar_t character) {
             current->setCandidate(character);
         }
     }
-    if (character != 0) onSE(static_cast<sound::SE>(10));
+    if (character != 0) onSE(sound::SE_CHAR_INPUT);
     meScrollFlag = SF_ScrollOn;
 }
 void Base::inputCharDefault_(wchar_t character, u32 modifiers) {
@@ -279,8 +279,8 @@ void Base::inputCharDefault_(wchar_t character, u32 modifiers) {
             }
         }
     } else current->inputChar(character);
-    if (character == L' ') onSE(static_cast<sound::SE>(9));
-    else if (character != L'\n') onSE(static_cast<sound::SE>(10));
+    if (character == L' ') onSE(sound::SE_CHAR_DECIDE);
+    else if (character != L'\n') onSE(sound::SE_CHAR_INPUT);
     meScrollFlag = SF_ScrollOn;
 }
 
@@ -615,7 +615,7 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         }
         if (mDKStream.lookAhead()) mDKStream.putChar(0xffff);
         else mDKStream.putChar(L' ');
-        if (mDKStream.isEmpty()) onSE(static_cast<sound::SE>(10));
+        if (mDKStream.isEmpty()) onSE(sound::SE_CHAR_INPUT);
         {
             tistring::WithAtok* unfix = mpUnfixString;
             if (getCurrentString(false) == unfix) unfix->isConverting();
@@ -665,7 +665,7 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         if (input->deadKey) character = DeadKeyStream::ToCombineClass(meLanguage, character);
         if (character == L' ' && mDKStream.lookAhead()) mDKStream.putChar(0xffff);
         else mDKStream.putChar(character);
-        if (mDKStream.isEmpty()) onSE(static_cast<sound::SE>(10));
+        if (mDKStream.isEmpty()) onSE(sound::SE_CHAR_INPUT);
         {
             tistring::WithAtok* unfix = mpUnfixString;
             if (getCurrentString(false) == unfix) unfix->isConverting();
@@ -698,8 +698,8 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         break;
     }
     case 1:
-        if (current->canBackSpace()) onSE(static_cast<sound::SE>(7));
-        else onSE(static_cast<sound::SE>(8));
+        if (current->canBackSpace()) onSE(sound::SE_CHAR_DELETE);
+        else onSE(sound::SE_CHAR_DELETE_ERROR);
         if (current == mpString) {
             resetInputRelation();
             mpString->getCursorPos();
@@ -724,11 +724,11 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         break;
     case 2:
         if (current != fixed) {
-            onSE(static_cast<sound::SE>(8));
+            onSE(sound::SE_CHAR_DELETE_ERROR);
             return;
         }
-        if (!fixed->deleteForward()) onSE(static_cast<sound::SE>(8));
-        else onSE(static_cast<sound::SE>(7));
+        if (!fixed->deleteForward()) onSE(sound::SE_CHAR_DELETE_ERROR);
+        else onSE(sound::SE_CHAR_DELETE);
         break;
     case 7:
         if (current == fixed) {
@@ -757,7 +757,7 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
             bool atLimit = true;
             if (muLimitRowNum >= static_cast<u32>(getLine() + 1) && !mpManager->getCandidateBox()->isActive()) atLimit = false;
             if (allowed) {
-                onSE(static_cast<sound::SE>(9));
+                onSE(sound::SE_CHAR_DECIDE);
                 mpString->getCursorPos();
                 mpString->inputChar(L'\n');
                 mpString->getCursorPos();
@@ -767,12 +767,12 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
                 }
             } else {
                 if (atLimit) {
-                    onSE(static_cast<sound::SE>(8));
+                    onSE(sound::SE_CHAR_DELETE_ERROR);
                     return;
                 } else return;
             }
         } else if (current == mpZiString) {
-            onSE(static_cast<sound::SE>(9));
+            onSE(sound::SE_CHAR_DECIDE);
             if (getPredictMode() == PM_11 || getPredictMode() == PM_12) confirmInput_();
             else if (!(mbCursorSelected | mbZuSelected) && mpManager->getToolBar()->isQwerty()) {
                 if (mbPredictOn && mePredictMode != PM_Atok) {
@@ -787,7 +787,7 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
                 }
             } else confirmInput_();
         } else {
-            onSE(static_cast<sound::SE>(9));
+            onSE(sound::SE_CHAR_DECIDE);
             if (mpUnfixString->isConverting()) {
                 mpUnfixString->commitPredicted(mpUnfixString->getSelectedConverting());
                 updateCandidateState_();
@@ -809,8 +809,8 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         if (!input->character) return;
         confirmInputting_(input->character, input->direct, input->letterMode, input->confirmOnly, input->holdingKey);
         if (!input->silent) {
-            if (input->confirmOnly) onSE(static_cast<sound::SE>(9));
-            else onSE(static_cast<sound::SE>(10));
+            if (input->confirmOnly) onSE(sound::SE_CHAR_DECIDE);
+            else onSE(sound::SE_CHAR_INPUT);
         }
         meScrollFlag = SF_ScrollOn;
         if (checkHeadOfSentence(true)) onCommand(static_cast<INPUT_COMMAND>(33), NULL);
@@ -832,11 +832,11 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
             nw4r::math::VEC2 origin = getGlobalLeftTopPos();
             nw4r::math::VEC2* cursor = static_cast<nw4r::math::VEC2*>(data);
             current->setCursorPos(calcCursorPos(cursor->x - origin.x, cursor->y - origin.y));
-            onSE(static_cast<sound::SE>(5));
+            onSE(sound::SE_CHAR_CURSOR);
             onCommand(static_cast<INPUT_COMMAND>(12), NULL);
             resetInputRelation();
         } else {
-            onSE(static_cast<sound::SE>(9));
+            onSE(sound::SE_CHAR_DECIDE);
             onCommand(static_cast<INPUT_COMMAND>(6), NULL);
         }
         return;
@@ -856,7 +856,7 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
             nw4r::math::VEC2* cursor = static_cast<nw4r::math::VEC2*>(data);
             u32 position = calcCursorPos(cursor->x - origin.x, cursor->y - origin.y);
             current->setCursorPos(position);
-            if (previous != position) onSE(static_cast<sound::SE>(5));
+            if (previous != position) onSE(sound::SE_CHAR_CURSOR);
             meScrollFlag = SF_ScrollOn;
         }
         return;
@@ -924,10 +924,10 @@ void Base::onCommand(INPUT_COMMAND command, void* data) {
         }
         meScrollFlag = SF_ScrollOn;
         return;
-    case 25: current->converDakuten(); onSE(static_cast<sound::SE>(10)); break;
-    case 26: current->converHandaku(); onSE(static_cast<sound::SE>(10)); break;
+    case 25: current->converDakuten(); onSE(sound::SE_CHAR_INPUT); break;
+    case 26: current->converHandaku(); onSE(sound::SE_CHAR_INPUT); break;
     case 27: current->convertAll(); break;
-    case 28: current->converSmall(); onSE(static_cast<sound::SE>(10)); break;
+    case 28: current->converSmall(); onSE(sound::SE_CHAR_INPUT); break;
     case 29: {
         PredictionState* prediction = static_cast<PredictionState*>(data);
         mePredictMode = prediction->mode;
@@ -1056,7 +1056,7 @@ void Base::onHKBCtrlCode(HVKCode code, u32 modifiers) {
     case 18:
         if (mePredictMode == PM_Atok) {
             if (mpManager->getPCKeyboard()->getTranslateMode() == keyboard::pctype::Base::TM_00 && !mbPredictOn) {
-                if (!mpManager->getPCKeyboard()->isQwertyOnly()) onSE(static_cast<sound::SE>(6));
+                if (!mpManager->getPCKeyboard()->isQwertyOnly()) onSE(sound::SE_CHAR_CURSOR_FIX);
             } else toggleAtokMode_(2);
         }
         break;
@@ -1165,7 +1165,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     mfFontHeight = textBox->GetFontSize().height;
     mRect = textBox->GetPaneRect(mDrawInfo);
     AdjustPaneMtx(mMtx.m, mDrawInfo, textBox->GetGlobalMtx());
-    csCharColor = textBox->GetTextColor(0);
+    csCharColor = textBox->GetTextColor(nw4r::lyt::TEXTCOLOR_TOP);
     setVisible("N_2line", true);
     mpPaneManager->setAllComponentTriggerTarget(false);
     mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
@@ -1202,8 +1202,8 @@ inline const nw4r::lyt::Pane* LayoutByNW4R::getLanguageTextPane() const {
 
 void LayoutByNW4R::init() {
     Base::init();
-    searchAnmPane("P_txtScrll_UP")->changeAnimation(7);
-    searchAnmPane("P_txtScrll_DOWN")->changeAnimation(7);
+    searchAnmPane("P_txtScrll_UP")->changeAnimation(ANM_Off);
+    searchAnmPane("P_txtScrll_DOWN")->changeAnimation(ANM_Off);
     mbUpVisible = false;
     mbDownVisible = false;
     mUpRepeat = 0;
@@ -1303,7 +1303,7 @@ void LayoutByNW4R::onCommand(INPUT_COMMAND command, void* data) {
         mpString->getCursorPos(&start, &end);
         if (start >= limit && !mpString->isKanaFix()) {
             mpString->clearKana();
-            onSE(static_cast<sound::SE>(8));
+            onSE(sound::SE_CHAR_DELETE_ERROR);
         }
         if (!mpString->isKanaFix()) limit = muLimitStringLength - 1;
     }
@@ -1311,7 +1311,7 @@ void LayoutByNW4R::onCommand(INPUT_COMMAND command, void* data) {
         u32 start, end;
         mpString->getCursorPos(&start, &end);
         if (start > limit || end > limit) {
-            onSE(static_cast<sound::SE>(8));
+            onSE(sound::SE_CHAR_DELETE_ERROR);
             Base::onCommand(static_cast<INPUT_COMMAND>(36), &limit);
         }
     }
@@ -1327,7 +1327,7 @@ void LayoutByNW4R::onCommand(INPUT_COMMAND command, void* data) {
                 mpString->setLength(static_cast<u16>(trimLimit));
                 mpEventObserver->onOutOfLength();
                 if (command == 6 || command == 5 || command == 0 || command == 38 || command == 21 || command == 7) {
-                    onSE(static_cast<sound::SE>(8));
+                    onSE(sound::SE_CHAR_DELETE_ERROR);
                 }
             }
             break;
@@ -1339,7 +1339,7 @@ void LayoutByNW4R::onCommand(INPUT_COMMAND command, void* data) {
         if (mpString->getLength() > excessPos) mpString->getLength();
         mpString->setLength(static_cast<u16>(excessPos));
         mpEventObserver->onOutOfLength();
-        onSE(static_cast<sound::SE>(8));
+        onSE(sound::SE_CHAR_DELETE_ERROR);
         Base::onCommand(static_cast<INPUT_COMMAND>(36), &rowLimit);
         if (meLanguage == KR && !mpString->isKanaFix()) {
             rowLimit = isOverRowLimit(muLimitRowNum, mpString->getWCString());
@@ -1359,7 +1359,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
     cursor.y = -input->y;
     if (name[0] == 'B') {
         util::replaceChar(animationName, 17, name, 0, 'P');
-        if (event == 4 && (input->trigger & 0x800) && !mpInputForm->isInScroll()) {
+        if (event == gui::EventHandler::ON_TRIG && (input->trigger & WPAD_BUTTON_A) && !mpInputForm->isInScroll()) {
             if (mpInputForm->isAbleToUp() && util::strcmp("P_txtScrll_UP", animationName)) {
                 textdrawer::Base::CursorPos movement = {0, 0.0f, 0.0f};
                 movement.fCursorY = mpInputForm->getLineHeight();
@@ -1372,7 +1372,7 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
                 mpInputForm->searchAnmPane(animationName)->onAnmEvent(nw4rmanager::AnmPane::PE_0);
             }
         }
-        if (event == 2 && (input->hold & 0x800) && !(input->trigger & 0x800)) {
+        if (event == gui::EventHandler::ON_MOVE && (input->hold & WPAD_BUTTON_A) && !(input->trigger & WPAD_BUTTON_A)) {
             if (mpInputForm->isAbleToUp() && util::strcmp("P_txtScrll_UP", animationName)) {
                 if (component->isDragging(input->controller)) {
                     u32 duration = mpInputForm->getFlightDuration(input->controller, name);
@@ -1398,10 +1398,10 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
         AnmPane* animation = static_cast<AnmPane*>(mpInputForm->searchAnmPane(animationName));
         if (animation) {
             switch (event) {
-            case 1: animation->onAnmEvent(nw4rmanager::AnmPane::PE_2); break;
-            case 0:
+            case gui::EventHandler::ON_LEFT: animation->onAnmEvent(nw4rmanager::AnmPane::PE_2); break;
+            case gui::EventHandler::ON_POINT:
                 if (animation->getState() != ANM_Off) {
-                    mpEventObserver->onSE(static_cast<sound::SE>(4));
+                    mpEventObserver->onSE(sound::SE_SELECT);
                     animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
                 }
                 break;
@@ -1411,15 +1411,15 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
         AnmPane* animation = static_cast<AnmPane*>(mpInputForm->searchAnmPane(name));
         if (animation) {
             switch (event) {
-            case 0:
+            case gui::EventHandler::ON_POINT:
                 if (animation->getState() != ANM_Off) {
-                    mpEventObserver->onSE(static_cast<sound::SE>(4));
+                    mpEventObserver->onSE(sound::SE_SELECT);
                     animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
                 }
                 break;
-            case 1:
+            case gui::EventHandler::ON_LEFT:
                 if (animation->getState() != ANM_Off) {
-                    mpEventObserver->onSE(static_cast<sound::SE>(4));
+                    mpEventObserver->onSE(sound::SE_SELECT);
                     animation->onAnmEvent(nw4rmanager::AnmPane::PE_2);
                 }
                 break;
@@ -1432,9 +1432,9 @@ void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* in
         if (layout.getPane(static_cast<const LanguagePaneData*>(form->mpLanguageData)->textBox)) textPane = static_cast<const LanguagePaneData*>(form->mpLanguageData)->textBox;
         else textPane = "T_2l_TextBox";
         if (util::strcmp(name, textPane)) {
-            if (event == 4 && (input->trigger & 0x800)) mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(14), &cursor);
-            if (event == 5 && (input->release & 0x800)) mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(15), &cursor);
-            if (event == 2 && (input->hold & 0x800)) mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(16), &cursor);
+            if (event == gui::EventHandler::ON_TRIG && (input->trigger & WPAD_BUTTON_A)) mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(14), &cursor);
+            if (event == gui::EventHandler::ON_RELEASE && (input->release & WPAD_BUTTON_A)) mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(15), &cursor);
+            if (event == gui::EventHandler::ON_MOVE && (input->hold & WPAD_BUTTON_A)) mpInputForm->onCommand(static_cast<CommandReceiver::INPUT_COMMAND>(16), &cursor);
         }
     }
 }
@@ -1534,12 +1534,12 @@ void Base::autoScroll() {
     if (cursorY < 0.0f) {
         s32 lines = s32(cursorY / getLineHeight() - 1.0f);
         mScrollAnm.startAnm(mfScrollY, mfScrollY - lines * getLineHeight(), 15.0f, NULL, NULL);
-        onSE(static_cast<sound::SE>(11));
+        onSE(sound::SE_LINE_SCROLL);
     }
     if (cursorY >= (mRect.top - mRect.bottom) * getScale().y) {
         s32 lines = s32((cursorY - (mRect.top - mRect.bottom) * getScale().y) / getLineHeight()) + 1;
         mScrollAnm.startAnm(mfScrollY, mfScrollY - lines * getLineHeight(), 15.0f, NULL, NULL);
-        onSE(static_cast<sound::SE>(11));
+        onSE(sound::SE_LINE_SCROLL);
     }
     meScrollFlag = SF_NoScroll;
 }
@@ -1704,7 +1704,7 @@ void Base::updateCandidateState_() {
             mpString->confirm(confirmed);
             mpString->getCursorPos();
             mpUnfixString->enableConfirmedString(false);
-            onSE(static_cast<sound::SE>(9));
+            onSE(sound::SE_CHAR_DECIDE);
         }
         bool suppress = false;
         CommandReceiver::onCommand(static_cast<INPUT_COMMAND>(35), &suppress);
@@ -1733,8 +1733,8 @@ void Base::moveCursorUp() {
     if (-(mfCursorY - mfScrollY) >= 0.0f) {
         u32 start, end;
         mpString->getCursorPos(&start, &end);
-        if (start == 0 && end == 0) onSE(static_cast<sound::SE>(6));
-        else onSE(static_cast<sound::SE>(5));
+        if (start == 0 && end == 0) onSE(sound::SE_CHAR_CURSOR_FIX);
+        else onSE(sound::SE_CHAR_CURSOR);
         mpString->setCursorPos(0);
     } else {
         y = mfCursorY >= 0.0f ? mfCursorY : 0.0f;
@@ -1742,7 +1742,7 @@ void Base::moveCursorUp() {
         f32 targetY = 1.0f + (y - lineHeight);
         u32 position = calcCursorPos(mfCursorX, targetY);
         mpString->setCursorPos(position);
-        onSE(static_cast<sound::SE>(5));
+        onSE(sound::SE_CHAR_CURSOR);
     }
     meScrollFlag = SF_ScrollOn;
 }
@@ -1751,14 +1751,14 @@ void Base::moveCursorDown() {
     if (-(mfCursorY - mfScrollY) < mfMinScrollY) {
         u32 start, end;
         mpString->getCursorPos(&start, &end);
-        if (start == mpString->getLength() && end == mpString->getLength()) onSE(static_cast<sound::SE>(6));
-        else onSE(static_cast<sound::SE>(5));
+        if (start == mpString->getLength() && end == mpString->getLength()) onSE(sound::SE_CHAR_CURSOR_FIX);
+        else onSE(sound::SE_CHAR_CURSOR);
         mpString->setCursorPos(mpString->getLength());
     } else {
         f32 lineHeight = getLineHeight();
         f32 y = mfCursorY + lineHeight;
         mpString->setCursorPos(calcCursorPos(mfCursorX, 1.0f + y));
-        onSE(static_cast<sound::SE>(5));
+        onSE(sound::SE_CHAR_CURSOR);
     }
     meScrollFlag = SF_ScrollOn;
 }
@@ -1813,7 +1813,7 @@ void Base::confirmInputting_(wchar_t character, bool direct, u16 letterMode, boo
                 onCommand(static_cast<INPUT_COMMAND>(6), NULL);
                 mpZiString->changeLetterMode(static_cast<tistring::WithZi::LetterMode>(letterMode));
                 mpZiString->inputChar(character);
-                onSE(static_cast<sound::SE>(9));
+                onSE(sound::SE_CHAR_DECIDE);
                 updateCandidateState_();
                 return;
             }
@@ -1851,7 +1851,7 @@ void Base::confirmInputting_(wchar_t character, bool direct, u16 letterMode, boo
                 }
             }
         }
-        onSE(static_cast<sound::SE>(10));
+        onSE(sound::SE_CHAR_INPUT);
     }
 }
 
@@ -1884,7 +1884,7 @@ void Base::inputCharZi_(wchar_t character, u32 modifiers) {
                 mpZiString->update();
             }
         }
-        onSE(static_cast<sound::SE>(9));
+        onSE(sound::SE_CHAR_DECIDE);
     } else {
         u16 letterMode;
         switch (modifiers & 3) {
@@ -1993,7 +1993,7 @@ void Base::onSpaceKeyHWKB(u32 modifiers) {
                             mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
                         }
                     }
-                    onSE(static_cast<sound::SE>(6));
+                    onSE(sound::SE_CHAR_CURSOR_FIX);
                     mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
                 }
             } else {
@@ -2048,7 +2048,7 @@ void Base::onPressUp() {
                     moveCandidateToIdx(selected);
                     mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
                 }
-                onSE(static_cast<sound::SE>(6));
+                onSE(sound::SE_CHAR_CURSOR_FIX);
             }
         } else if (mpUnfixString->getInputStringLength()) {
             mpUnfixString->startConverting();
@@ -2099,7 +2099,7 @@ void Base::onPressDown() {
                     moveCandidateToIdx(selected);
                     mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
                 }
-                onSE(static_cast<sound::SE>(6));
+                onSE(sound::SE_CHAR_CURSOR_FIX);
             }
         } else if (mpUnfixString->getInputStringLength()) {
             mpUnfixString->startConverting();
@@ -2179,7 +2179,7 @@ void Base::onPressDownHWKB() {
                         moveCandidateToIdx(selected);
                         mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
                     }
-                    onSE(static_cast<sound::SE>(6));
+                    onSE(sound::SE_CHAR_CURSOR_FIX);
                 }
             }
         } else {
@@ -2224,8 +2224,8 @@ void Base::onPressLeftHWKB() {
         mpManager->getHWKeyboard()->resetQuoteState();
         mpUnfixString->resetRelation();
         updateCandidateState_();
-        if (current->moveCursorLeft()) onSE(static_cast<sound::SE>(5));
-        else onSE(static_cast<sound::SE>(6));
+        if (current->moveCursorLeft()) onSE(sound::SE_CHAR_CURSOR);
+        else onSE(sound::SE_CHAR_CURSOR_FIX);
     } else if (current == mpUnfixString) {
         if (mpManager->getCandidateBox()->isInScroll()) return;
         if (mpUnfixString->getCurrentNumPredicted() <= 0) return;
@@ -2238,7 +2238,7 @@ void Base::onPressLeftHWKB() {
         else if (selected < 0) selected = static_cast<s16>(mpUnfixString->getCurrentNumPredicted() - 1);
         moveCandidateToIdx(selected);
         mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
-        onSE(static_cast<sound::SE>(6));
+        onSE(sound::SE_CHAR_CURSOR_FIX);
     } else if (current == mpZiString) {
         if (mpManager->getCandidateBox()->isInScroll()) return;
         bool selectedAlready = mbZuSelected;
@@ -2249,7 +2249,7 @@ void Base::onPressLeftHWKB() {
         if (selected < 0) selected = mpZiString->getCurrentNumPredicted() - 1;
         moveCandidateToIdx(selected);
         mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
-        onSE(static_cast<sound::SE>(6));
+        onSE(sound::SE_CHAR_CURSOR_FIX);
     }
     meScrollFlag = SF_ScrollOn;
 }
@@ -2281,21 +2281,21 @@ void Base::onPressRightHWKB() {
         mpManager->getHWKeyboard()->resetQuoteState();
         mpUnfixString->resetRelation();
         updateCandidateState_();
-        if (current->moveCursorRight()) onSE(static_cast<sound::SE>(6));
-        else onSE(static_cast<sound::SE>(5));
+        if (current->moveCursorRight()) onSE(sound::SE_CHAR_CURSOR_FIX);
+        else onSE(sound::SE_CHAR_CURSOR);
     } else if (current == mpUnfixString) {
         if (mpManager->getCandidateBox()->isInScroll()) return;
         if (mpUnfixString->getCurrentNumPredicted() <= 0) return;
         if (mpUnfixString->isConverting()) {
             current->moveCursorRight();
-            onSE(static_cast<sound::SE>(6));
+            onSE(sound::SE_CHAR_CURSOR_FIX);
             updateCandidateState_();
         } else {
             s32 selected = static_cast<s16>(mpUnfixString->getSelectedCandidate() + 1);
             if (selected >= mpUnfixString->getCurrentNumPredicted()) selected = 0;
             moveCandidateToIdx(selected);
             mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
-            onSE(static_cast<sound::SE>(6));
+            onSE(sound::SE_CHAR_CURSOR_FIX);
         }
     } else if (current == mpZiString) {
         if (mpManager->getCandidateBox()->isInScroll()) return;
@@ -2308,7 +2308,7 @@ void Base::onPressRightHWKB() {
         if (selected < 0) selected = 0;
         moveCandidateToIdx(selected);
         mpManager->getCandidateBox()->getTextArea().ScrollToSelectedText();
-        onSE(static_cast<sound::SE>(6));
+        onSE(sound::SE_CHAR_CURSOR_FIX);
     }
     meScrollFlag = SF_ScrollOn;
 }
@@ -2339,8 +2339,8 @@ void Base::onPressLeft() {
         resetInputRelation();
         if (mpUnfixString->getCandidate() == L' ') return;
     }
-    if (current->moveCursorLeft()) onSE(static_cast<sound::SE>(5));
-    else onSE(static_cast<sound::SE>(6));
+    if (current->moveCursorLeft()) onSE(sound::SE_CHAR_CURSOR);
+    else onSE(sound::SE_CHAR_CURSOR_FIX);
     if (current == mpUnfixString) updateCandidateState_();
     meScrollFlag = SF_ScrollOn;
 }
@@ -2374,10 +2374,10 @@ void Base::onPressRight() {
     if (current->moveCursorRight() && mbRightWithSpace) {
         CharacterInput space = {L' ', 0, false, false, 0};
         onCommand(static_cast<INPUT_COMMAND>(0), &space);
-        onSE(static_cast<sound::SE>(5));
+        onSE(sound::SE_CHAR_CURSOR);
     }
-    if (current == mpZiString || current == mpUnfixString) onSE(static_cast<sound::SE>(6));
-    else onSE(static_cast<sound::SE>(5));
+    if (current == mpZiString || current == mpUnfixString) onSE(sound::SE_CHAR_CURSOR_FIX);
+    else onSE(sound::SE_CHAR_CURSOR);
     if (current == mpUnfixString) updateCandidateState_();
     meScrollFlag = SF_ScrollOn;
 }
@@ -2728,42 +2728,42 @@ EditBuffer::~EditBuffer() {
 }
 void LayoutByNW4R::updateInputCommon(int chan, u32 trig, u32 hold, u32 release, void* data) {
     updateRepeatInput(trig, hold);
-    if (mRepeatButtons & 0x1000) onCommand(static_cast<INPUT_COMMAND>(1), NULL);
+    if (mRepeatButtons & WPAD_BUTTON_MINUS) onCommand(static_cast<INPUT_COMMAND>(1), NULL);
 }
 void LayoutByNW4R::updateRepeatInput(u32 trig, u32 hold) {
     mRepeatButtons = trig;
-    if (hold & 1) {
+    if (hold & WPAD_BUTTON_LEFT) {
         if (--mLeftRepeat == 0) {
-            mRepeatButtons |= 1;
+            mRepeatButtons |= WPAD_BUTTON_LEFT;
             mLeftRepeat = 9;
         }
     } else mLeftRepeat = 30;
-    if (hold & 2) {
+    if (hold & WPAD_BUTTON_RIGHT) {
         if (--mRightRepeat == 0) {
             trig = mRepeatButtons;
             mRightRepeat = 9;
-            mRepeatButtons = trig | 2;
+            mRepeatButtons = trig | WPAD_BUTTON_RIGHT;
         }
     } else mRightRepeat = 30;
-    if (hold & 8) {
+    if (hold & WPAD_BUTTON_UP) {
         if (--mUpRepeat == 0) {
             trig = mRepeatButtons;
             mUpRepeat = 9;
-            mRepeatButtons = trig | 8;
+            mRepeatButtons = trig | WPAD_BUTTON_UP;
         }
     } else mUpRepeat = 30;
-    if (hold & 4) {
+    if (hold & WPAD_BUTTON_DOWN) {
         if (--mDownRepeat == 0) {
             trig = mRepeatButtons;
             mDownRepeat = 9;
-            mRepeatButtons = trig | 4;
+            mRepeatButtons = trig | WPAD_BUTTON_DOWN;
         }
     } else mDownRepeat = 30;
-    if (hold & 0x1000) {
+    if (hold & WPAD_BUTTON_MINUS) {
         if (--mDeleteRepeat == 0) {
             trig = mRepeatButtons;
             mDeleteRepeat = 9;
-            mRepeatButtons = trig | 0x1000;
+            mRepeatButtons = trig | WPAD_BUTTON_MINUS;
         }
     } else mDeleteRepeat = 30;
 }
@@ -3370,7 +3370,7 @@ void Base::doScroll(Scroll* scroll) {
         mfScrollX += scroll->x;
         mScrollAnm.startAnm(mfScrollY, mfScrollY + scroll->y, 15.0f, NULL, NULL);
     }
-    onSE(static_cast<sound::SE>(11));
+    onSE(sound::SE_LINE_SCROLL);
 }
 
 void Base::doBeforeDrawProcess(const wchar_t* string, u32 position, const DrawInfo& info) {
@@ -3544,15 +3544,15 @@ bool LayoutByNW4R::isAbleToDown() {
 
 bool LayoutByNW4R::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
     u32 buttons = mRepeatButtons;
-    if (buttons & 1) onCommand(static_cast<INPUT_COMMAND>(8), NULL);
-    if (buttons & 2) onCommand(static_cast<INPUT_COMMAND>(9), NULL);
-    if (buttons & 8) onCommand(static_cast<INPUT_COMMAND>(10), NULL);
-    if (buttons & 4) onCommand(static_cast<INPUT_COMMAND>(11), NULL);
+    if (buttons & WPAD_BUTTON_LEFT) onCommand(static_cast<INPUT_COMMAND>(8), NULL);
+    if (buttons & WPAD_BUTTON_RIGHT) onCommand(static_cast<INPUT_COMMAND>(9), NULL);
+    if (buttons & WPAD_BUTTON_UP) onCommand(static_cast<INPUT_COMMAND>(10), NULL);
+    if (buttons & WPAD_BUTTON_DOWN) onCommand(static_cast<INPUT_COMMAND>(11), NULL);
     bool handled = nw4rmanager::Layout::updateInput(chan, x, y, trig, hold, release, data);
-    if ((release & 0x800) && mpString->isOnSustain()) {
+    if ((release & WPAD_BUTTON_A) && mpString->isOnSustain()) {
         onCommand(static_cast<INPUT_COMMAND>(13), NULL);
     }
-    if (!handled && (hold & 0x800) && mpString->isOnSustain()) {
+    if (!handled && (hold & WPAD_BUTTON_A) && mpString->isOnSustain()) {
         nw4r::math::VEC2 point;
         point.x = x;
         point.y = y;
