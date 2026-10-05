@@ -1089,7 +1089,7 @@ config.libs = [
             Object(Matching,    "nwc24/NWC24UserId.c"),
             Object(Matching,    "nwc24/NWC24Time.c"),
             Object(Matching,    "nwc24/NWC24Ipc.c"),
-            Object(Equivalent,   "nwc24/NWC24Download.c"),
+            Object(Matching,     "nwc24/NWC24Download.c"),
             Object(Matching,    "nwc24/NWC24CHJump.c"),
             Object(Matching,    "nwc24/NWC24System.c"),
         ]
@@ -1559,7 +1559,7 @@ config.libs = [
         ]
     ),
     RVLSDKLib("kpad", [
-            Object(NonMatching, "kpad/KPAD.c"),
+            Object(Matching,    "kpad/KPAD.c"),
         ]
     ),
     RVLSDKLib("euart", [

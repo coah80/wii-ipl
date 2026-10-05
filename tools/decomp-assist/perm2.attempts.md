@@ -1188,3 +1188,403 @@ Baseline -> retained leaf: NWC24Download 26/30 -> 27/30, code 8456 -> 9304 / 124
 | NHTTPi_compareToken | 98.844444 | 45/45 | 10 | 20 | ten register/scheduling differences; closer readable hint still has two differences |
 
 All eleven open functions have at least three distinct successful source compilations logged, excluding compiler failures. No original function, configuration flag, shared header, protected total-sector function, or other worktree was changed during recovery. The final branch remains based on 674722c1; parent integration must perform its own current-main validation. All permutation processes have exited and saved directories remain intact.
+
+# perm2 campaign attempts
+
+Base: 5bdfe797a9136815a89f849f0c00dc7624068d12 (origin/main, #1186), branch agent/w1005/perm2, worktree sol-med. Fetched under /tmp/wii-git.lock; clean before restoring the authorized adapter/settings from agent/w1005/perm. Owned functions: KPADInit, NWC24InitDlTask, Window::DrawFrame, SOGetSockName, Setting::scanAP, BS2Update UpdateThread. No CDB or ESMisc edits.
+
+Read common.md, levers.md including semantic/readability rules20/21 and mwdbg22, AGENTS.md and unslop. Prior campaign evidence stays in build/perm. Added separate --campaign build/perm2 support; dependency symlinks remain inside this worktree.
+
+KPAD seed is the reviewed 98.89189 source from old branch9340119e. BS2 requested95.30 is raw output-2955-1: filename getter, data9160/10488 versus original10488/10488. It is a rejected diagnostic seed, not an accepted starting source. Source remains current main until a natural rewrite passes review and gates.
+
+Baseline {"job": "kpad", "normal_instructions": 185, "seed_instructions": 185, "identical_to_normal": false, "main_fuzzy": 97.810814, "main_measures": {"fuzzy_match_percent": 99.875916, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "seed_fuzzy": 98.89189, "seed_measures": {"fuzzy_match_percent": 99.937195, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}}
+
+Baseline {"job": "nwc24", "normal_instructions": 144, "seed_instructions": 144, "identical_to_normal": true, "main_fuzzy": 99.201385, "main_measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "seed_fuzzy": 99.201385, "seed_measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}}
+
+Baseline {"job": "window", "normal_instructions": 376, "seed_instructions": 376, "identical_to_normal": true, "main_fuzzy": 98.17819, "main_measures": {"fuzzy_match_percent": 99.75864, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "seed_fuzzy": 98.17819, "seed_measures": {"fuzzy_match_percent": 99.75864, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}}
+
+Baseline {"job": "so", "normal_instructions": 63, "seed_instructions": 63, "identical_to_normal": true, "main_fuzzy": 96.666664, "main_measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "seed_fuzzy": 96.666664, "seed_measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}}
+
+Baseline {"job": "scan", "normal_instructions": 272, "seed_instructions": 272, "identical_to_normal": true, "main_fuzzy": 99.20221, "main_measures": {"fuzzy_match_percent": 99.97709, "total_code": "37884", "matched_code": "36796", "matched_code_percent": 97.128075, "total_data": "5696", "matched_data": "5696", "matched_data_percent": 100.0, "total_functions": 112, "matched_functions": 111, "matched_functions_percent": 99.10714, "total_units": 1}, "seed_fuzzy": 99.20221, "seed_measures": {"fuzzy_match_percent": 99.97709, "total_code": "37884", "matched_code": "36796", "matched_code_percent": 97.128075, "total_data": "5696", "matched_data": "5696", "matched_data_percent": 100.0, "total_functions": 112, "matched_functions": 111, "matched_functions_percent": 99.10714, "total_units": 1}}
+
+Baseline {"job": "bs2", "normal_instructions": 911, "seed_instructions": 913, "identical_to_normal": false, "main_fuzzy": 94.83023, "main_measures": {"fuzzy_match_percent": 95.340576, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "seed_fuzzy": 95.30011, "seed_measures": {"fuzzy_match_percent": 95.76407, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "9160", "matched_data_percent": 87.33791, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}}
+
+Started KPADInit, PID 439912, 7200 seconds, 2026-10-05 07:06:20 UTC.
+
+Started NWC24InitDlTask, PID 439985, 7200 seconds, 2026-10-05 07:06:20 UTC.
+
+Started DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc, PID 440055, 7200 seconds, 2026-10-05 07:06:20 UTC.
+
+Started SOGetSockName, PID 440057, 7200 seconds, 2026-10-05 07:06:20 UTC.
+
+Started scanAP__Q33ipl5scene7SettingFv, PID 440128, 7200 seconds, 2026-10-05 07:06:20 UTC.
+
+Started UpdateThread, PID 440136, 7200 seconds, 2026-10-05 07:06:20 UTC.
+
+Source trial {"job": "scan", "label": "playing-query-index-first", "build": 0, "sha256": "9210454e5e3fdf4d493648c28668d830fe517846537db7e69fc594eab22aa7b2", "pool": "POOL IDENTICAL up to 108 (mine=108 base=108)", "fuzzy": 99.20221, "measures": {"fuzzy_match_percent": 99.97709, "total_code": "37884", "matched_code": "36796", "matched_code_percent": 97.128075, "total_data": "5696", "matched_data": "5696", "matched_data_percent": 100.0, "total_functions": 112, "matched_functions": 111, "matched_functions_percent": 99.10714, "total_units": 1}, "drops": [], "instructions": [272, 272], "diffs": 4}
+
+Source trial {"job": "scan", "label": "playing-query-const-index", "build": 0, "sha256": "708920a9123bd8bd8baedc1b7a055c81c2279b720fe9c8528225f8e7c48f1987", "pool": "POOL IDENTICAL up to 108 (mine=108 base=108)", "fuzzy": 99.20221, "measures": {"fuzzy_match_percent": 99.97709, "total_code": "37884", "matched_code": "36796", "matched_code_percent": 97.128075, "total_data": "5696", "matched_data": "5696", "matched_data_percent": 100.0, "total_functions": 112, "matched_functions": 111, "matched_functions_percent": 99.10714, "total_units": 1}, "drops": [], "instructions": [272, 272], "diffs": 4}
+
+Source trial {"job": "scan", "label": "playing-query-explicit-u16", "build": 0, "sha256": "5cd4771b9510a71898dea7e4e255d57e6d2090d79f9848d2fec42d4c25a9eb5f", "pool": "POOL IDENTICAL up to 108 (mine=108 base=108)", "fuzzy": 99.20221, "measures": {"fuzzy_match_percent": 99.97709, "total_code": "37884", "matched_code": "36796", "matched_code_percent": 97.128075, "total_data": "5696", "matched_data": "5696", "matched_data_percent": 100.0, "total_functions": 112, "matched_functions": 111, "matched_functions_percent": 99.10714, "total_units": 1}, "drops": [], "instructions": [272, 272], "diffs": 4}
+
+Source trial {"job": "bs2", "label": "current-import-path-local", "build": 0, "sha256": "b6e7a8d5017f93eb0bedd03d943d3bc200291f86351e5def8e8e2c313ddc9022", "pool": "POOL IDENTICAL up to 55 (mine=55 base=55)", "fuzzy": 95.16539, "measures": {"fuzzy_match_percent": 95.64265, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "drops": [], "instructions": [911, 913], "diffs": null}
+
+Source trial {"job": "bs2", "label": "current-import-index-reuse", "build": 0, "sha256": "7c476ab28d5235a56a26ed78baf33374fbc597cf95a548508b5c456ce88e9422", "pool": "POOL IDENTICAL up to 55 (mine=55 base=55)", "fuzzy": 94.83023, "measures": {"fuzzy_match_percent": 95.340576, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "drops": [], "instructions": [911, 913], "diffs": null}
+
+Source trial {"job": "bs2", "label": "current-import-entry-local", "build": 0, "sha256": "d8a5a524cdd8d5f7096d7af50479ded7ba5007444b7a544f4bf17c31253cc619", "pool": "POOL IDENTICAL up to 55 (mine=55 base=55)", "fuzzy": 95.16539, "measures": {"fuzzy_match_percent": 95.64265, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "drops": [], "instructions": [911, 913], "diffs": null}
+
+Source trial {"job": "bs2", "label": "current-import-path-outer", "build": 0, "sha256": "e7e1f0612f2cd8630a68302e8e957d9fce6d80da0824c3743933bab431567c4b", "pool": "POOL IDENTICAL up to 55 (mine=55 base=55)", "fuzzy": 95.16539, "measures": {"fuzzy_match_percent": 95.64265, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "drops": [], "instructions": [911, 913], "diffs": null}
+
+Source trial {"job": "window", "label": "frame-geometry-local", "build": 0, "sha256": "9fe3ea29a4c572a96f4609dfb7cb7536535a8909e5a04ac53cd3d3ef5fc0c749", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 97.89893, "measures": {"fuzzy_match_percent": 99.721634, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "drops": [], "instructions": [376, 376], "diffs": 144}
+
+Source trial {"job": "window", "label": "first-texture-coordinates-local", "build": 0, "sha256": "c0085997f9e7d9960374f2244d6a1bd4e2825dfb9da51a76f41d430746fe681d", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.606384, "measures": {"fuzzy_match_percent": 99.550385, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "drops": [], "instructions": [376, 376], "diffs": 135}
+
+Source trial {"job": "window", "label": "texture-coordinates-local", "build": 0, "sha256": "9a849604954005d9ffc9eef51c122c790d4b41842a9dbc356707ddc450d99722", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 88.93351, "measures": {"fuzzy_match_percent": 98.53383, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "drops": [], "instructions": [376, 376], "diffs": 203}
+
+Source trial {"job": "nwc24", "label": "combined-title-id", "build": 0, "sha256": "a8ec7f7d8ebd6c738e53238c529128906b4d09425af79f9228930c59ef3355ca", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 99.201385, "measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [144, 144], "diffs": 23}
+
+Source trial {"job": "nwc24", "label": "scoped-const-title-high", "build": 0, "sha256": "df7278351ec18f496c3827b48c44fb02f9cd1482155751939858a30c8ea9152c", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 99.201385, "measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [144, 144], "diffs": 23}
+
+Source trial {"job": "nwc24", "label": "scoped-const-title-words", "build": 0, "sha256": "f54ecae0bcf18b93346dfa9c4b55771ae66b3eb01d8c60a913852d01199fed23", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 99.201385, "measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [144, 144], "diffs": 23}
+
+Source trial {"job": "so", "label": "copy-length-baseline-confirm", "build": 0, "sha256": "65114df36514e49587c6e74fa0bcc9f1ae45ba80331527b42c531c5bc93b3b41", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 98.01588, "measures": {"fuzzy_match_percent": 99.87769, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "copy-length-request-first", "build": 0, "sha256": "422df7cace1852c71164dd37dcd34b4ade2fac0a390474972aca77c7899f7608", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.349205, "measures": {"fuzzy_match_percent": 99.77495, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 24}
+
+Source trial {"job": "so", "label": "copy-length-address-first", "build": 0, "sha256": "fffcf9f92495a6589af193bf3348fc0650a370d291ee92afcd2d3e6b00c607de", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.42857, "measures": {"fuzzy_match_percent": 99.77985, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 23}
+
+Source trial {"job": "so", "label": "copy-length-integers-grouped", "build": 0, "sha256": "0f0462bad5e30c43cc668f80954f2f764d9c4989d4df0104668dfc0cd9ecea43", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.74603, "measures": {"fuzzy_match_percent": 99.799416, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 19}
+
+Source trial {"job": "so", "label": "copy-length-socket-first", "build": 0, "sha256": "ce38210f40003234364df1c3f663ba28f5503bd61d02ad4cc9ad754e9b0758bb", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 98.01588, "measures": {"fuzzy_match_percent": 99.87769, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "copy-length-socket-last", "build": 0, "sha256": "19e702d0d7d86311f04acd53cc15d8a2b934ccad8f6131ad24db2c6af138f369", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 98.01588, "measures": {"fuzzy_match_percent": 99.87769, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "kpad", "label": "reuse-enable-flag", "build": 0, "sha256": "1f9a8430173b5aa4b4013d97b481c3f90684f983791aec2bc2fd713385610628", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 98.89189, "measures": {"fuzzy_match_percent": 99.937195, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 34}
+
+Source trial {"job": "kpad", "label": "matrix-after-repeat", "build": 0, "sha256": "526ec45957463a7449ac11d51e0b74285df40c03b16ff6f20a521f07a89812e1", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 99.86487, "measures": {"fuzzy_match_percent": 99.99234, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 5}
+
+Source trial {"job": "kpad", "label": "matrix-after-scale", "build": 0, "sha256": "47747c34140d1a6c012dc5cdcca8ebd1087f25efb7c7feca08b92799d7e46b20", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 98.89189, "measures": {"fuzzy_match_percent": 99.937195, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 34}
+
+Source trial {"job": "kpad", "label": "repeat-before-matrix", "build": 0, "sha256": "1794520981a9c610c96d5c63ce45603d94503fc9ab02edf6f4b20311cbffdeba", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 88.48649, "measures": {"fuzzy_match_percent": 99.34743, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 30}
+
+Source trial {"job": "kpad", "label": "interval-between-extents", "build": 0, "sha256": "7bdab1314d515fc57a3f5a8aea1feb1f566c6c5164eabe1bc7c0c6f902d58ff2", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 99.945946, "measures": {"fuzzy_match_percent": 99.99693, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 2}
+
+Source trial {"job": "kpad", "label": "interval-before-extents", "build": 0, "sha256": "07b199b1193b0d92b7c17d4e5deddbf687a6b513450ccf7e59743910a4139fae", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 99.86487, "measures": {"fuzzy_match_percent": 99.99234, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 5}
+
+Source trial {"job": "kpad", "label": "interval-before-sine", "build": 0, "sha256": "b8b076d5973809b6ae01f4a3dc02723010a88b806db11033b0a2ec2e801e8351", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 99.86487, "measures": {"fuzzy_match_percent": 99.99234, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 5}
+
+Source trial {"job": "kpad", "label": "round-sine-on-store", "build": 0, "sha256": "7aa933ced118f437e258ef06f8ba17d7c6f08e8b0c4e7b8fbc5644a782ae2d44", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 99.21622, "measures": {"fuzzy_match_percent": 99.955574, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 29}
+
+Source trial {"job": "kpad", "label": "interval-between-extents-round-on-store", "build": 0, "sha256": "23ac2f7a9a363782c59b174b54ead22c2db84de10aa323d8de77af9853e703c9", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 99.297295, "measures": {"fuzzy_match_percent": 99.960175, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 26}
+
+Source trial {"job": "kpad", "label": "round-existing-rotation-before-zero", "build": 0, "sha256": "979d72c86af8fc4199414129735558e6d4ad69966b0d62749f2d13d0d652d230", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 99.297295, "measures": {"fuzzy_match_percent": 99.960175, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 26}
+
+Source trial {"job": "kpad", "label": "round-existing-rotation-at-store", "build": 0, "sha256": "c819888b64fa1a5df471691f8d7afe631ea7274ffdf6bdd4b9b54842e5f00a22", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 99.297295, "measures": {"fuzzy_match_percent": 99.960175, "total_code": "13056", "matched_code": "12316", "matched_code_percent": 94.33211, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 28, "matched_functions_percent": 96.55172, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 26}
+
+Source trial {"job": "kpad", "label": "round-sine-element-before-zero", "build": 0, "sha256": "24355d4796fb6d2615c7679c7f105cd37c8d64acc68107b25af0fb31a5bc116f", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 100.0, "measures": {"fuzzy_match_percent": 100.0, "total_code": "13056", "matched_code": "13056", "matched_code_percent": 100.0, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 29, "matched_functions_percent": 100.0, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 0}
+
+Source trial {"job": "kpad", "label": "round-sine-element-at-store", "build": 0, "sha256": "c832154b3059b7478dc6097730ba6083772a2a1f1ba02de23ce8598d6e03809a", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 100.0, "measures": {"fuzzy_match_percent": 100.0, "total_code": "13056", "matched_code": "13056", "matched_code_percent": 100.0, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 29, "matched_functions_percent": 100.0, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 0}
+
+Source trial {"job": "nwc24", "label": "explicit-home-clear", "build": 0, "sha256": "a9b4781b7c33fd9b5eafff6ea28702ab50d146bfd38b847f899376d9504b8d7c", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 86.21528, "measures": {"fuzzy_match_percent": 99.36459, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [132, 144], "diffs": null}
+
+Source trial {"job": "nwc24", "label": "empty-home-string", "build": 0, "sha256": "dcc8ee2dd4efbd306fdd98df6f88af24708e00c04281144c5a18b06c1c375e17", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 99.201385, "measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [144, 144], "diffs": 23}
+
+Source trial {"job": "nwc24", "label": "word-home-clear", "build": 0, "sha256": "2c53e329703bbbd9a848007890b05284fdde80b7b8bb57ef605969f68c86cbe2", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 74.611115, "measures": {"fuzzy_match_percent": 98.829704, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [166, 144], "diffs": null}
+
+Source trial {"job": "kpad", "label": "clean-match", "build": 0, "sha256": "49365c515b07e3eecff80b0b891457cc6e1362a9a2b52bc5653df9c35745e958", "pool": "POOL IDENTICAL up to 0 (mine=0 base=0)", "fuzzy": 100.0, "measures": {"fuzzy_match_percent": 100.0, "total_code": "13056", "matched_code": "13056", "matched_code_percent": 100.0, "total_data": "8032", "matched_data": "8032", "matched_data_percent": 100.0, "total_functions": 29, "matched_functions": 29, "matched_functions_percent": 100.0, "total_units": 1}, "drops": [], "instructions": [185, 185], "diffs": 0}
+
+KPAD lever22: original capture assigned matrix-base temps r55/r56 before repeat constants r57/r59/r66, causing saved r26/r27 instead of target r29/r30. Grouping the four first-row stores with the remaining matrix stores after repeat defaults creates those address temps later; compiler scheduling still emits the retail order. Result99.86487,5 differences. Moving objectInterval between referenceHeight and referenceWidth in declaration order lets its disjoint lifetime reuse f28 before f27 is allocated, giving99.945946,2 differences. A double negative-sine result and separate f32 sineElement retain the target fneg f2 then frsp f0. Clean source100.0,185/185,0 differences, all8032data and other28 functions unchanged. Stores moved only across independent channel-field stores, with no intervening call; all trig calls and rounding remain in their original order. Applied this minimal source; mwdbg confirmation queued.
+
+Source trial {"job": "window", "label": "named-flip-table-before-setup", "build": 0, "sha256": "ad5b16901a8a7a631f633a50c64d51e58971e070558705e3f0e20b939e6216b3", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 84.09309, "measures": {"fuzzy_match_percent": 97.89253, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "drops": [], "instructions": [376, 376], "diffs": 220}
+
+Source trial {"job": "window", "label": "named-flip-table-after-texture", "build": 0, "sha256": "81ab48d7a3ba48bae0bf0d95802ea206804693ff0c6b94a07d3f4420edb1d11a", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 88.93351, "measures": {"fuzzy_match_percent": 98.53383, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "drops": [], "instructions": [376, 376], "diffs": 203}
+
+Source trial {"job": "window", "label": "named-flip-table-before-geometry", "build": 0, "sha256": "32a6cc3aea3157260a467e5b3049d5d1e1e21e806f30e9f6bc31bb7302cd50f1", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 88.93351, "measures": {"fuzzy_match_percent": 98.53383, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "drops": [], "instructions": [376, 376], "diffs": 203}
+
+Source trial {"job": "window", "label": "lt-corner-references-before-flip", "build": 0, "sha256": "46973be1c4da17811a938aa67c641a8c431c536998795fa9a97e37d47947993f", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 98.17819, "measures": {"fuzzy_match_percent": 96.47991, "total_code": "11352", "matched_code": "3420", "matched_code_percent": 30.126848, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 18, "matched_functions_percent": 85.71429, "total_units": 1}, "drops": [["DrawFrame4__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2PCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc", 100.0, 94.37708], ["DrawFrame8__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2PCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc", 100.0, 94.12476]], "instructions": [376, 376], "diffs": 119}
+
+Source trial {"job": "window", "label": "lt-corner-references-after-flip", "build": 0, "sha256": "e2e1d7a5a24c26b9e69438fd995fa8602bed26c5851737a703647370cd4495d0", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 98.17819, "measures": {"fuzzy_match_percent": 99.65292, "total_code": "11352", "matched_code": "3420", "matched_code_percent": 30.126848, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 18, "matched_functions_percent": 85.71429, "total_units": 1}, "drops": [["DrawFrame4__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2PCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc", 100.0, 99.815155], ["DrawFrame8__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2PCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc", 100.0, 99.812386]], "instructions": [376, 376], "diffs": 119}
+
+Source trial {"job": "window", "label": "all-corner-references-before-flip", "build": 0, "sha256": "1b116eddddedfbab03429a1e8ad7d3177d6daeb1a79fb03fc27f3607799e8ab2", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 98.17819, "measures": {"fuzzy_match_percent": 88.27519, "total_code": "11352", "matched_code": "3420", "matched_code_percent": 30.126848, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 18, "matched_functions_percent": 85.71429, "total_units": 1}, "drops": [["DrawFrame4__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2PCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc", 100.0, 81.33641], ["DrawFrame8__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2PCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc", 100.0, 78.89963]], "instructions": [376, 376], "diffs": 119}
+
+Source trial {"job": "bs2", "label": "skipped-import-path-local", "build": 0, "sha256": "379bd68783deed7eda4279e6ad6f4565321ef33a94f510da1769ee141acf2135", "pool": "POOL IDENTICAL up to 55 (mine=55 base=55)", "fuzzy": 95.16539, "measures": {"fuzzy_match_percent": 95.64265, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "drops": [], "instructions": [911, 913], "diffs": null}
+
+Source trial {"job": "bs2", "label": "import-and-skipped-path-locals", "build": 0, "sha256": "64eb10eaced267e23151c3f40587d0fde3b65f1a1609fdefeaa4524edf42d7f5", "pool": "POOL IDENTICAL up to 55 (mine=55 base=55)", "fuzzy": 95.23877, "measures": {"fuzzy_match_percent": 95.708786, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "drops": [], "instructions": [911, 913], "diffs": null}
+
+Source trial {"job": "bs2", "label": "saved-path-for-imports", "build": 0, "sha256": "46137b606b9690514313d3eaa7e19eed2657971bc3073e5ef9e555acbe365379", "pool": "POOL IDENTICAL up to 55 (mine=55 base=55)", "fuzzy": 94.092, "measures": {"fuzzy_match_percent": 94.675224, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "drops": [], "instructions": [909, 913], "diffs": null}
+
+Source trial {"job": "bs2", "label": "one-import-path-variable", "build": 0, "sha256": "7bce69737a8562daf138e615efdb227c83f632a940cbbf8afbda13af5693619d", "pool": "POOL IDENTICAL up to 55 (mine=55 base=55)", "fuzzy": 94.73932, "measures": {"fuzzy_match_percent": 95.25864, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "drops": [], "instructions": [909, 913], "diffs": null}
+
+Source trial {"job": "so", "label": "query-request-first", "build": 0, "sha256": "54e2e31081208b2b803f98a2acb88fdc53650d045db5830b5771e8befd35adb8", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 91.111115, "measures": {"fuzzy_match_percent": 99.45206, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [64, 63], "diffs": null}
+
+Source trial {"job": "so", "label": "query-resource-first", "build": 0, "sha256": "660c2843634eb288b9bb2642baeaf53e0440b803f99c729242f0616638951e2b", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 91.111115, "measures": {"fuzzy_match_percent": 99.45206, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [64, 63], "diffs": null}
+
+Source trial {"job": "so", "label": "query-const-socket", "build": 0, "sha256": "16b852490b589d9811e5368a230d59f3cc74f1b6f052abbde23276d0e44edb9d", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 91.111115, "measures": {"fuzzy_match_percent": 99.45206, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [64, 63], "diffs": null}
+
+MWDBG compatibility bs2 import-and-skipped-path-locals: compiler fault at0x46da46 is the runtime case-fold table while comparing Shift-JIS/system encoding names. Debug-only omission of -enc SJIS produces a byte-identical whole object under normal wibo; original matching compile flags remain unchanged. Object SHA256 bc85e28c6062f492655611588cc84f13cda31714da1d10578f13c28b4ad18d6e.
+
+MWDBG local driver: copied shared gc3.py into build/perm2/gc3_cached.py and cached 4KiB memory pages only while stopped. Cache is cleared before every continue and after any compiler function call. This reduces remote memory reads for large allocator graphs; shared tools are unchanged. Future captures record the local driver hash and still require normal-compiler byte identity plus graph/rewrite/machine-register validation.
+
+BS2 compatibility replay: uninstrumented retrowin32 completed with the debug-only encoding omission, exit0, byte-identical to the complete production object for import-and-skipped-path-locals. Original debug failure did not reach UpdateThread.
+
+MWDBG compatibility bs2 output-2810-1: compiler fault at0x46da46 is the runtime case-fold table while comparing Shift-JIS/system encoding names. Debug-only omission of -enc SJIS produces a byte-identical whole object under normal wibo; original matching compile flags remain unchanged. Object SHA256 b107ee9fcb22dda59ce837e984a3cd7b94c479e3bea6a4a35cad5fb622eb9950.
+
+Source trial {"job": "window", "label": "single-texture-coordinate-set", "build": 0, "sha256": "e7a9e3513db9cdad149171300a7acb5813e8640d69e367537bb4f61858ad9d3f", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 98.17819, "measures": {"fuzzy_match_percent": 99.75864, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "drops": [], "instructions": [376, 376], "diffs": 119}
+
+Source trial {"job": "window", "label": "mutable-vertex-color-usage", "build": 0, "sha256": "e4d4a68bdadd2d202df08f73855f28c9529e5770c23cd6eba6b27ab037490b1f", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 98.17819, "measures": {"fuzzy_match_percent": 99.75864, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "drops": [], "instructions": [376, 376], "diffs": 119}
+
+Source trial {"job": "window", "label": "single-set-mutable-usage", "build": 0, "sha256": "1ac60c78a0c396391d7bca1519175a535e2e9c7626cf70f2ce653c0e59b4c3ea", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 98.17819, "measures": {"fuzzy_match_percent": 99.75864, "total_code": "11352", "matched_code": "9848", "matched_code_percent": 86.751236, "total_data": "316", "matched_data": "316", "matched_data_percent": 100.0, "total_functions": 21, "matched_functions": 20, "matched_functions_percent": 95.2381, "total_units": 1}, "drops": [], "instructions": [376, 376], "diffs": 119}
+
+Source trial {"job": "so", "label": "address-copy-source-first", "build": 0, "sha256": "bea47613c814986e2565252c5e47653dd32bbef039c0768340266d5116df67fa", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "address-copy-source-first-both", "build": 0, "sha256": "3430d65df93a1be296cad122d4cd5c21d90800f327b55a0a7645e8f405923592", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "address-copy-length-first", "build": 0, "sha256": "e5b4eb2471b836f02e1f6e0d671f424fd772cc7c0307aca02ab2c8b89643c453", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "address-copy-source-length-first", "build": 0, "sha256": "500b42cc5c5a69aa748fe352e6ddb47c18f02a036b25392adda9eb582716d686", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Private debugger transport: the shared GDB queue has exceeded thirty minutes. A worktree-local copy of retrowin32 changes only the two-byte TCP port immediate in debugger::run, corresponding to wait_for_gdb_connection(9001) in the shared source. Compiler binary, emulation and codegen are unchanged. Local driver uses port49051 and its own lock; proof {"port": 49051, "instruction_address": "0x3cd400", "file_offset": "0x3cc400", "original_instruction": "66c78424a00200002923", "patched_instruction": "66c78424a00200009bbf", "original_sha256": "60ff93660b62ad09e683c3e54a5498bb2f6a67ee41b6656ded90a92ef0165bb5", "private_sha256": "9c85df235aa8a07b48560146abca2ccaea1dfbb0cf81ecc360b494ca46005268"}. Every capture still requires whole-object wibo identity.
+
+MWDBG capture validation kpad-matrix-after-repeat: exit0; build/perm2/mwdbg/kpad-matrix-after-repeat/validation-run.log.
+
+MWDBG capture validation kpad-clean-match: exit0; build/perm2/mwdbg/kpad-clean-match/validation-run.log.
+
+MWDBG capture validation so-copy-length-baseline-confirm: exit0; build/perm2/mwdbg/so-copy-length-baseline-confirm/validation-run.log.
+
+Private mwdbg kpad/clean-match: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/kpad-clean-match-private, SHA256 69e39fb39346edf3ee86c5d94804ee3e1f26c96e1c98925b16241b2985dfcbce.
+
+Private mwdbg so/copy-length-baseline-confirm: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/so-copy-length-baseline-confirm-private, SHA256 668c1f17393ffd1f4ca5260e1bf05dcd3b717ce3d51436613252ec0277436233.
+
+MWDBG driver cross-check kpad-clean-match: cached private-port capture matches the original shared driver in every final node color, name, cost, flags, degree, neighbor list, representative, priority, rewrite count, and whole object.
+
+MWDBG driver cross-check so-copy-length-baseline-confirm: cached private-port capture matches the original shared driver in every final node color, name, cost, flags, degree, neighbor list, representative, priority, rewrite count, and whole object.
+
+BS2 private trace reached UpdateThread and allocator simplify, then exceeded180 seconds. Unlike the encoding failure, this is trace volume. Retrying the clean candidate with900 seconds on the private port; other workers are unaffected.
+
+Source trial {"job": "bs2", "label": "main-baseline-for-trace", "build": 0, "sha256": "c603e82cfb6d417fa8973eaa364811af93a08661052d62298c62da67673f395a", "pool": "POOL IDENTICAL up to 55 (mine=55 base=55)", "fuzzy": 94.83023, "measures": {"fuzzy_match_percent": 95.340576, "total_code": "4052", "matched_code": "400", "matched_code_percent": 9.871669, "total_data": "10488", "matched_data": "10488", "matched_data_percent": 100.0, "total_functions": 10, "matched_functions": 9, "matched_functions_percent": 90.0, "total_units": 1}, "drops": [], "instructions": [911, 913], "diffs": null}
+
+Private mwdbg kpad/output-210-1: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/kpad-output-210-1-private, SHA256 e4e31e3d07177175449be07cad5b4405ac1f68cb777dfb625765583786b418c1.
+
+Raw private mwdbg kpad/output-210-1 exit0.
+
+Raw trace attempt kpad/output-210-1: exit0, build/perm2/mwdbg/kpad-output-210-1.
+
+MWDBG capture validation kpad-output-210-1: exit0; build/perm2/mwdbg/kpad-output-210-1/validation-run.log.
+
+Raw BS2 debugger reviews use allocator snapshots to avoid repeating thousands of per-node breakpoint stops for candidates already rejected for pool/readability. This mode retains pre-coalescing and pre-simplify graphs, actual color priority, final node colors, all PCode stages, register rewrite checks and production-object identity. Individual simplify/assign-event checks are explicitly marked uncollected. Retained-source baseline and clean candidate still use the full trace.
+
+Private mwdbg bs2/import-and-skipped-path-locals: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/bs2-import-and-skipped-path-locals-long-private, SHA256 bc85e28c6062f492655611588cc84f13cda31714da1d10578f13c28b4ad18d6e.
+
+Private debugger transport optimization: local accept/accept4 shim enables TCP_NODELAY on accepted debugger sockets and preserves errno. Retrowin32 leaves Nagle enabled by default; thousands of small GDB packets make full BS2 traces slow. Only the private emulator process is preloaded; compiler and project code are unchanged. Private emulator binary retained at build/perm2/retrowin32-private.bin with SHA256 9c85df235aa8a07b48560146abca2ccaea1dfbb0cf81ecc360b494ca46005268. Subsequent traces still require independent whole-object and register validation.
+
+Source trial {"job": "so", "label": "const-input-pointee-before-socket", "build": 0, "sha256": "a68764b8e71b2372fa10d974f791131e7896748ed82b97a664855aed6cbbd731", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "const-input-pointee-before-reply", "build": 2, "sha256": "7d452f8c5fcc896b4c5270211dba3ea770428f530dea2ea9e8b4c9305802c764"}
+
+Source trial {"job": "so", "label": "const-input-pointer-before-socket", "build": 0, "sha256": "21bfe2d10cde21de588878277712725da7899fe07267caec6bf0cfbd28b0ddbd", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "const-input-pointer-before-reply", "build": 2, "sha256": "75414761c9f1fabb00ee895df0ebd0b7ad6c0d030a55752ca7be6f3a9bede771"}
+
+Source trial {"job": "so", "label": "const-input-both-before-socket", "build": 0, "sha256": "c543adba81760d25d9da6c132a6f392a47b4dbc4215311204c1be4837983dfc2", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "const-input-both-before-reply", "build": 2, "sha256": "39355ddda97be6f63e5c14cd89dc68f6cdc479588963c33bf7eb7fdba6a67ee0"}
+
+BS2 readable candidate changes exactly four instructions relative to current main: the addi r4,r4,0x10 and crclr pair swaps at instruction734/735 and870/871. Full mwdbg identifies the two branch-local path values as r32/r33, both allocated directly to argument register r4. The helper hint therefore becomes two ordinary const char* locals evaluated immediately before their report calls; every other instruction is unchanged. This preserves all55 pool strings and10488 data bytes. It fixes argument-preparation scheduling, not the two missing retail base reloads, and remains partial at95.23877.
+
+SO const-length capture explains its98.01588 partial score: preloading length moves the socket store past reply-address construction, so socket and reply interfere and socket changes from target r28 to r30. The same three differing instructions remain, moved to positions5/30/33. No source retained from that trial.
+
+Source trial {"job": "so", "label": "const-input-pointee-copy-block", "build": 0, "sha256": "4585396203a9cd975fc729e0a622b97b3f1a3640513b8c44442dc97838fbd99c", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "const-input-pointer-copy-block", "build": 0, "sha256": "f1db807e5746135d98e2e75a4f193c58fa1d234473a753fe712b8d9189244092", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "const-input-both-copy-block", "build": 0, "sha256": "b9b91c251e95070b6c863c16a645c1aafee34e6d141ca62db8e812744f79d49b", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+BS2 raw mwdbg retry output-2810-1: exit1; debug-only ASCII path, build/perm2/mwdbg/bs2-output-2810-1-ascii.
+
+MWDBG compatibility bs2 output-2835-1: compiler fault at0x46da46 is the runtime case-fold table while comparing Shift-JIS/system encoding names. Debug-only omission of -enc SJIS produces a byte-identical whole object under normal wibo; original matching compile flags remain unchanged. Object SHA256 9346b83ea0c2a0b53f7a2dcbf9d12a1aa1522d464a1992608c163d121f9edf77.
+
+Private mwdbg bs2/main-baseline-for-trace: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/bs2-main-baseline-for-trace-private, SHA256 5d6b3ace4896b2cadb13ae9a10c130fd8e0143d3c4782fc9e5767998f8f9cd33.
+
+Source trial {"job": "nwc24", "label": "home-title-id-return", "build": 0, "sha256": "428efcb03d99c2ee7a7fcf7df6d86ec153fb36da74b61e1358e64f0befc2f75d", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 100.0, "measures": {"fuzzy_match_percent": 100.0, "total_code": "12496", "matched_code": "12496", "matched_code_percent": 100.0, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 30, "matched_functions_percent": 100.0, "total_units": 1}, "drops": [], "instructions": [144, 144], "diffs": 0}
+
+Source trial {"job": "nwc24", "label": "home-title-id-accumulated", "build": 0, "sha256": "72d7051a89131b6ff64b8bfaa74a796de130d4b63836801f38d7ff2108acc67b", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 99.201385, "measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [144, 144], "diffs": 23}
+
+Source trial {"job": "nwc24", "label": "reuse-word-value-first", "build": 0, "sha256": "b6951f8b55686b1577e9b846a4eeee61ec5e8a804af16ad4cd9cc908608a6c25", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 99.201385, "measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [144, 144], "diffs": 23}
+
+Source trial {"job": "nwc24", "label": "reuse-word-value-last", "build": 0, "sha256": "c890fbdb889f6710e869b64d97fc42ac4c9c2df531ed23d80318fd5dc1ef195e", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 99.201385, "measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [144, 144], "diffs": 23}
+
+Source trial {"job": "nwc24", "label": "reuse-word-value-with-results", "build": 0, "sha256": "c17ee22b3caf47f501bfb8ba1e053da4cc8b97b7de00c32eddc202792127779a", "pool": "POOL IDENTICAL up to 3 (mine=3 base=3)", "fuzzy": 99.201385, "measures": {"fuzzy_match_percent": 99.96319, "total_code": "12496", "matched_code": "11920", "matched_code_percent": 95.390526, "total_data": "80", "matched_data": "80", "matched_data_percent": 100.0, "total_functions": 30, "matched_functions": 29, "matched_functions_percent": 96.666664, "total_units": 1}, "drops": [], "instructions": [144, 144], "diffs": 23}
+
+Raw trace attempt bs2/output-2810-1: exit1, build/perm2/mwdbg/bs2-output-2810-1.
+
+Source trial {"job": "so", "label": "allocate-name-request", "build": 0, "sha256": "2ee1b26a620492e80cf29848ecd272d8d641080d51f61cbf926eb340eb06dd51", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 80.15873, "measures": {"fuzzy_match_percent": 98.77691, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [65, 63], "diffs": null}
+
+Source trial {"job": "so", "label": "allocate-name-request-const-size", "build": 0, "sha256": "9875bec28df4d1a89f8485fff7a37782c74fd82d0307411605998d73fd06ea02", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 80.15873, "measures": {"fuzzy_match_percent": 98.77691, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [65, 63], "diffs": null}
+
+Source trial {"job": "so", "label": "allocate-name-request-address-first", "build": 0, "sha256": "792e0072128fd94eb21e0be21f832f59a0c2047012f658b94df2e5fcdf22216c", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 80.15873, "measures": {"fuzzy_match_percent": 98.77691, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [65, 63], "diffs": null}
+
+NWC24 raw output40:99.72222,144/144,8 differences. It reuses BOOL useContentFile for a parsed32-bit identifier; that mixed meaning is unsuitable to retain. Natural rewrite factors NAND directory parsing into GetHomeTitleId, returns a real u64 assembled from high/low words, and stores its two halves into the task. This reaches100.0,144/144,0 differences, all80data bytes and other29 functions unchanged. A compound u64 accumulation and three generic scratch-value reuse forms remain99.201385 and were discarded. The accepted helper preserves the64-byte zero initialization, NAND call, both terminator stores and strtoul order, including error paths. Raw and exact mwdbg captures are queued.
+
+Private mwdbg bs2/output-2810-1: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/bs2-output-2810-1-private, SHA256 b107ee9fcb22dda59ce837e984a3cd7b94c479e3bea6a4a35cad5fb622eb9950.
+
+Raw private mwdbg bs2/output-2810-1 exit0.
+
+Source trial {"job": "so", "label": "address-after-prepare", "build": 0, "sha256": "e729cce44267424d9b9b6b3c0e743672e0a95d7ec132ff96736f8d3f0623f9e3", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "address-scoped-after-prepare", "build": 0, "sha256": "bd7b9d669acef0a288ab288290b84167511905295c4476d9a64fa5131842b441", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "direct-address-parameter", "build": 0, "sha256": "05a3d68270ae5e5e6e9067385a0506e368677482ea1af1bbd72e92eb4f924005", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "address-length-accessor", "build": 0, "sha256": "d4ff950835b1e550698ed00cce24b7294b0583bd56576b278d341fa38109cf20", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Source trial {"job": "so", "label": "const-address-parameter", "build": 0, "sha256": "82b1bc92370da1845975f4b6d80230aa7e3909a66f6c5cf3360a7320d4b58955", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 96.666664, "measures": {"fuzzy_match_percent": 99.79452, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 3}
+
+Private mwdbg nwc24/output-40-1: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/nwc24-output-40-1-private, SHA256 96b269bede5dfde0952084b607f46dd2289a0b2434c00a3071e588b097c7f408.
+
+Private mwdbg nwc24/home-title-id-return: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/nwc24-home-title-id-return-private, SHA256 ca377dae7b8b20529018ce37f56d942aa82f016cd9a55df0e7bd9bd51622f7b5.
+
+Source trial {"job": "so", "label": "initialize-name-request", "build": 0, "sha256": "b098c29e2a76d19c92f31feafefe95f79dd20dfc109e86b2e494100379e30b8e", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 90.2381, "measures": {"fuzzy_match_percent": 99.39824, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 6}
+
+Source trial {"job": "so", "label": "initialize-name-request-address-first", "build": 0, "sha256": "5a58ebf9ebf3d2b9c77f9354824c3f5381485d0c692bd0a63219739b75c74f1a", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 90.2381, "measures": {"fuzzy_match_percent": 99.39824, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 6}
+
+Source trial {"job": "so", "label": "address-validation-boundary", "build": 0, "sha256": "7f9beb593aa99f4d27ae942aefd54f1a0317aa717f0f95db6bb2e2590e297652", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 86.25397, "measures": {"fuzzy_match_percent": 99.15264, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [68, 63], "diffs": null}
+
+Private mwdbg so/output-50-1: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/so-output-50-1-private, SHA256 89c044705045714fa4ef36ade493ccf03d58c46451b92b4fa7ce095a6ba11ded.
+
+Source trial {"job": "so", "label": "validated-address-return", "build": 0, "sha256": "76423616a75433298a7ae91a528bd93cf6521cef78b2e3e29fcebcb596d9eee9", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 88.07937, "measures": {"fuzzy_match_percent": 99.26517, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [67, 63], "diffs": null}
+
+Source trial {"job": "so", "label": "validated-address-const-parameter", "build": 0, "sha256": "3b805d2fc797d004689e493e74b12aef2a89d8f112edae3caf9b0c77602b1f08", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 88.07937, "measures": {"fuzzy_match_percent": 99.26517, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [67, 63], "diffs": null}
+
+Private mwdbg bs2/output-2835-1: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/bs2-output-2835-1-private, SHA256 9346b83ea0c2a0b53f7a2dcbf9d12a1aa1522d464a1992608c163d121f9edf77.
+
+Raw private mwdbg bs2/output-2835-1 exit0.
+
+NWC24 lever22 proof: baseline parsed-high temp r51 received physical r29 after low r53 took r30, leaving zero/header temp r48 on r28. The raw reuse puts the early values right but keeps its mixed-purpose useContentFile node live into validation, swapping the later header and owner/group registers. GetHomeTitleId instead creates parsed-high temp r48 before zero temp r50; allocator priority assigns zero r29 and high r28, while low r55 stays r30. The later header/owner/group allocation stays at target r29/r28. Full trace passes all graph/event/rewrite/emitted-register checks and is byte-identical to production MWCC. Both KPAD and NWC24 quick gates pass; final clean gate is pending search completion.
+
+BS2 raw mwdbg retry output-2835-1: exit1; debug-only ASCII path, build/perm2/mwdbg/bs2-output-2835-1-ascii.
+
+MWDBG compatibility bs2 output-2895-1: compiler fault at0x46da46 is the runtime case-fold table while comparing Shift-JIS/system encoding names. Debug-only omission of -enc SJIS produces a byte-identical whole object under normal wibo; original matching compile flags remain unchanged. Object SHA256 1e88f849066cbde4f66a368a9cffd165c20d8c9708a9492d902fe2f57ab50ab1.
+
+Private mwdbg bs2/output-2895-1: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/bs2-output-2895-1-private, SHA256 1e88f849066cbde4f66a368a9cffd165c20d8c9708a9492d902fe2f57ab50ab1.
+
+Raw private mwdbg bs2/output-2895-1 exit0.
+
+Private mwdbg bs2/output-2895-2: validated whole-object production identity, graph/color/rewrite and emitted-register checks. Capture build/perm2/mwdbg/bs2-output-2895-2-private, SHA256 4513a598cba9682ea21812cc1d625e654e6d32c71276fe6e3bad48d7cd4085d6.
+
+Raw private mwdbg bs2/output-2895-2 exit0.
+
+Raw private mwdbg nwc24/output-40-1 exit0.
+
+Raw private mwdbg so/output-50-1 exit0.
+
+Source trial {"job": "so", "label": "immutable-address-local", "build": 0, "sha256": "7154b8a07ff9f9e981c45f50fa909fe4626792684f5af6a1232ff04915354d0e", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 95.79365, "measures": {"fuzzy_match_percent": 99.74071, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 14}
+
+Source trial {"job": "so", "label": "immutable-address-local-first", "build": 0, "sha256": "084cc02b4206b58493a1382e021b1157fd1980ceda9aa8965f41a3c2f88455c7", "pool": "POOL IDENTICAL up to 1 (mine=1 base=1)", "fuzzy": 95.0, "measures": {"fuzzy_match_percent": 99.69178, "total_code": "4088", "matched_code": "3836", "matched_code_percent": 93.83562, "total_data": "144", "matched_data": "144", "matched_data_percent": 100.0, "total_functions": 22, "matched_functions": 21, "matched_functions_percent": 95.454544, "total_units": 1}, "drops": [], "instructions": [63, 63], "diffs": 24}
+
+Stopped redundant shared-port debugger retries after private captures completed. Selection required this worktree cwd and exact local debugger/trace entrypoints; descendants were stopped while launcher locks remained held. No other worker process or shared tool file was changed. PIDs [2291939, 2292601, 2441536, 3006324, 3006869, 3867110].
+
+SO output50 semantic review: address-of-local indirection is equivalent on all paths, but is unnecessary source scaffolding and rejected under lever21. The debugger shows it replacing named addr with anonymous temp r55 and moving memcpy destination setup after source/length. The raw candidate is99.20635 with10 register differences (address/size swap). Natural parameter, scope, const-pointer, length accessor, allocation/initialization and validation boundaries did not reproduce the scheduling gain; all are discarded. SO source remains96.666664.
+
+BS2 raw outputs2810/2835/2895-1/2895-2 all received debugger verification. The three latter runs use complete allocator/PCode snapshots;2810 uses full events. All retain the rejected filename-wrapper pool regression (9160/10488 matched data), and2810 also invents a persistent zero-return temporary. No raw BS2 candidate is retained. The reviewed two-path-local rewrite preserves10488/10488 data and improves94.83023 to95.23877.
+
+## Final perm2 campaign validation
+
+All six searches ran7201.6-7201.8 seconds, with at most six permuter processes. Total iterations 59693; seven saved candidates, all reviewed for semantics/readability and verified with mwdbg.
+
+- kpad: current-main 97.810814 -> retained 100.0; exact functions 28 -> 29; instructions [185, 185]; differences 0; data 8032/8032.
+- nwc24: current-main 99.201385 -> retained 100.0; exact functions 29 -> 30; instructions [144, 144]; differences 0; data 80/80.
+- window: current-main 98.17819 -> retained 98.17819; exact functions 20 -> 20; instructions [376, 376]; differences 119; data 316/316.
+- so: current-main 96.666664 -> retained 96.666664; exact functions 21 -> 21; instructions [63, 63]; differences 3; data 144/144.
+- scan: current-main 99.20221 -> retained 99.20221; exact functions 111 -> 111; instructions [272, 272]; differences 4; data 5696/5696.
+- bs2: current-main 94.83023 -> retained 95.23877; exact functions 9 -> 9; instructions [911, 913]; differences None; data 10488/10488.
+
+KPAD search seed98.89189 continued from agent/w1005/perm; fresh-main baseline97.810814. BS2 rejected seed95.30011 and raw best95.75903 both regress data to9160/10488; retained source starts from main94.83023 and reaches95.23877 with all data preserved. SO best raw99.20635 rejected for unnecessary double-pointer scaffolding; retained96.666664. Window and scan had no saved improvement.
+
+Exact gain:2 functions,1316 code bytes. Owned exact total218 ->220/224. KPAD is29/29 and NWC24Download30/30, with every code/data section100%; no linking configuration changed.
+
+Final clean gate command: `PYTHONDONTWRITEBYTECODE=1 python3 /mnt/drive2/projects/wii-ipl-workers/_restore0928-tools/gate.py libs/RVL_SDK/src/kpad/KPAD libs/RevoEX/src/nwc24/NWC24Download libs/NW4R/src/lyt/lyt_window libs/RevoEX/src/so/SOBasic src/scene/setting/iplSetting src/BS2/BS2Update --base 5bdfe797a9136815a89f849f0c00dc7624068d12`. No --quick.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/kpad/KPAD] pool: IDENTICAL
+[libs/RVL_SDK/src/kpad/KPAD] objdiff: code 13056/13056 data 8032/8032 functions 29/29 fuzzy 100.0000 linked code 0
+[libs/RVL_SDK/src/kpad/KPAD] instruction-exact functions: 29/29
+[libs/RVL_SDK/src/kpad/KPAD]   section .bss size 7680 match 100.0
+[libs/RVL_SDK/src/kpad/KPAD]   section .data size 88 match 100.0
+[libs/RVL_SDK/src/kpad/KPAD]   section .sbss size 32 match 100.0
+[libs/RVL_SDK/src/kpad/KPAD]   section .sdata size 112 match 100.0
+[libs/RVL_SDK/src/kpad/KPAD]   section .sdata2 size 120 match 100.0
+[libs/RVL_SDK/src/kpad/KPAD]   section .text size 13056 match 100.0
+[libs/RVL_SDK/src/kpad/KPAD] baseline: code 12316/13056 data 8032 functions 28 fuzzy 99.8759
+[libs/RevoEX/src/nwc24/NWC24Download] pool: IDENTICAL
+[libs/RevoEX/src/nwc24/NWC24Download] objdiff: code 12496/12496 data 80/80 functions 30/30 fuzzy 100.0000 linked code 0
+[libs/RevoEX/src/nwc24/NWC24Download] instruction-exact functions: 30/30
+[libs/RevoEX/src/nwc24/NWC24Download]   section .data size 56 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Download]   section .sbss size 8 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Download]   section .sdata size 16 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Download]   section .text size 12496 match 100.0
+[libs/RevoEX/src/nwc24/NWC24Download] baseline: code 11920/12496 data 80 functions 29 fuzzy 99.9632
+[libs/NW4R/src/lyt/lyt_window] pool: IDENTICAL
+[libs/NW4R/src/lyt/lyt_window] objdiff: code 9848/11352 data 316/316 functions 20/21 fuzzy 99.7586 linked code 0
+[libs/NW4R/src/lyt/lyt_window] instruction-exact functions: 20/21
+[libs/NW4R/src/lyt/lyt_window]   section .ctors size 4 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .data size 256 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .sbss size 8 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .sdata2 size 48 match 100.0
+[libs/NW4R/src/lyt/lyt_window]   section .text size 11352 match 99.75864
+[libs/NW4R/src/lyt/lyt_window]   below 100: DrawFrame__Q34nw4r3lyt6WindowFRCQ34nw4r4math4VEC2RCQ44nw4r3lyt6Window5FrameRCQ34nw4r3lyt15WindowFrameSizeUc 98.17819
+[libs/NW4R/src/lyt/lyt_window] baseline: code 9848/11352 data 316 functions 20 fuzzy 99.7586
+[libs/RevoEX/src/so/SOBasic] pool: IDENTICAL
+[libs/RevoEX/src/so/SOBasic] objdiff: code 3836/4088 data 144/144 functions 21/22 fuzzy 99.7945 linked code 0
+[libs/RevoEX/src/so/SOBasic] instruction-exact functions: 21/22
+[libs/RevoEX/src/so/SOBasic]   section .bss size 40 match 100.0
+[libs/RevoEX/src/so/SOBasic]   section .data size 88 match 100.0
+[libs/RevoEX/src/so/SOBasic]   section .sbss size 8 match 100.0
+[libs/RevoEX/src/so/SOBasic]   section .sdata size 8 match 100.0
+[libs/RevoEX/src/so/SOBasic]   section .text size 4088 match 99.79452
+[libs/RevoEX/src/so/SOBasic]   below 100: SOGetSockName 96.666664
+[libs/RevoEX/src/so/SOBasic] baseline: code 3836/4088 data 144 functions 21 fuzzy 99.7945
+[src/scene/setting/iplSetting] pool: IDENTICAL
+[src/scene/setting/iplSetting] objdiff: code 36796/37884 data 5696/5696 functions 111/112 fuzzy 99.9771 linked code 0
+[src/scene/setting/iplSetting] instruction-exact functions: 111/112
+[src/scene/setting/iplSetting]   section .bss size 456 match 100.0
+[src/scene/setting/iplSetting]   section .data size 4016 match 100.0
+[src/scene/setting/iplSetting]   section .rodata size 640 match 100.0
+[src/scene/setting/iplSetting]   section .sbss size 16 match 100.0
+[src/scene/setting/iplSetting]   section .sdata size 504 match 100.0
+[src/scene/setting/iplSetting]   section .sdata2 size 64 match 100.0
+[src/scene/setting/iplSetting]   section .text size 37884 match 99.97709
+[src/scene/setting/iplSetting]   below 100: scanAP__Q33ipl5scene7SettingFv 99.20221
+[src/scene/setting/iplSetting] baseline: code 36796/37884 data 5696 functions 111 fuzzy 99.9771
+[src/BS2/BS2Update] pool: IDENTICAL
+[src/BS2/BS2Update] objdiff: code 400/4052 data 10488/10488 functions 9/10 fuzzy 95.7088 linked code 0
+[src/BS2/BS2Update] instruction-exact functions: 9/10
+[src/BS2/BS2Update]   section .bss size 9056 match 100.0
+[src/BS2/BS2Update]   section .data size 1328 match 100.0
+[src/BS2/BS2Update]   section .sbss size 80 match 100.0
+[src/BS2/BS2Update]   section .sdata size 24 match 100.0
+[src/BS2/BS2Update]   section .text size 4052 match 95.708786
+[src/BS2/BS2Update]   below 100: UpdateThread 95.23877
+[src/BS2/BS2Update] baseline: code 400/4052 data 10488 functions 9 fuzzy 95.3406
+regressions vs baseline: 0
+global matched_code_percent: 93.01130 -> 93.05523
+global fuzzy_match_percent: 99.78460 -> 99.78580
+global complete_code_percent: 77.53828 -> 77.53828
+global matched_data_percent: 99.99410 -> 99.99410
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+Fresh `ninja -C . progress build/43U/report.json build/43U/ok` passed. All six pools are identical; KPAD ctxdiff185/185,0 differences; NWC24InitDlTask144/144,0 differences. DOL SHA1 26116613f624061ba99c8d1a299aaa6efa85670d. Final report/ctx/pool artifacts: build/perm2/final-audit/.
+
+Remaining Window allocator evidence: its common flip-table base is simplified after the other persistent pointers because its degree is still above the available-color count on the earlier ascending visit. That assigns r31 instead of target r21. Tested direct geometry/texture expressions, real corner references, coordinate-array shape and scalar scope forms did not solve it without regressions. Scan retains four independent index/layout load-order differences; no evidence justifies volatile.
+
+## Retained source commits
+
+- cc0c835a Match KPADInit matrix initialization and rounding
+- daf83ea9 Match NWC24InitDlTask with home title parsing helper
+- 114c5292 Improve UpdateThread log argument scheduling
+
+All three contain the source validated by the final clean gate above. The separate support commit restores the adapter/settings and preserves this attempts log. No push, PR, merge, rebase, or linking change was made.
