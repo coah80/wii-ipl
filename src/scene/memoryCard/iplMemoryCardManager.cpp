@@ -382,20 +382,22 @@ GXTexObj* MemoryCardManager::_create_icon(u8 slot, s16 file, long start) {
     return &mFileCell[slot][file].icon;
 }
 
+static inline const u8* trimCardComment(char* comment) {
+    const u8* encoded = reinterpret_cast<const u8*>(comment);
+    for (int position = 0x1f;
+         comment[position] == ' ' || comment[position] == '\n' || comment[position] == 0;) {
+        comment[position--] = 0;
+    }
+    return encoded;
+}
+
 const wchar_t* MemoryCardManager::getComment(u8 slot, s16 index, int which) {
     u32 file = mFile[slot][index].fileNo;
     wmemset(mFileCell[slot][file].comment[which], 0, 0x40);
     char comment[33] = {0};
     const char* comments = memorycard::getIconComment(slot, file);
     memcpy(comment, comments + which * 0x20, 0x20);
-    const u8* encoded = reinterpret_cast<const u8*>(comment);
-    char* tail = comment + 0x1f;
-    char* end = tail;
-    for (; *end == ' ' || *end == '\n' || *end == 0;) {
-        *tail = 0;
-        end--;
-        tail--;
-    }
+    const u8* encoded = trimCardComment(comment);
     if (SCGetLanguage() == 0) {
         utility::CharacterCode::shiftJISToUTF16(mFileCell[slot][file].comment[which], encoded, 0x20);
         for (int pos = 0x1f;
