@@ -1588,7 +1588,7 @@ s32 ATERMRunConfigProtocol(void) {
                         SONtoHs(option->length);
                         optionValue = option->value;
                     }
-                    if (optionType != 0x101) {
+                    if (optionValue == NULL || optionType != 0x101) {
                         break;
                     }
                     {
