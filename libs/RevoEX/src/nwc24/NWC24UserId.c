@@ -8,73 +8,34 @@ extern void __shr2u(void);
 extern void __shl2i(void);
 
 static NWC24UserId getUnScrambleId(NWC24UserId id);
-asm NWC24Err NWC24CheckUserId(register NWC24UserId id) {
-    stwu r1,-0x30(r1)
-    mfspr r0,LR
-    stw r0,0x34(r1)
-    addi r11,r1,0x30
-    bl _savegpr_27
-    or r28,r3,r3
-    or r27,r4,r4
-    addi r3,r1,0x8
-    bl NWC24GetMyUserId
-    lwz r3,0x8(r1)
-    lwz r4,0xc(r1)
-    xor r0,r3,r28
-    xor r5,r4,r27
-    or. r0,r5,r0
-    bne NWC24CheckUserId_not_same
-    li r3,-0x23
-    b NWC24CheckUserId_return
-NWC24CheckUserId_not_same:
-    bl getUnScrambleId
-    or r4,r27,r27
-    rlwinm r27,r3,0x11,0x1d,0x1f
-    or r3,r28,r28
-    bl getUnScrambleId
-    or r30,r4,r4
-    or r31,r3,r3
-    rlwinm r28,r3,0x11,0x1d,0x1f
-    li r29,0
-NWC24CheckUserId_crc_loop:
-    addi r0,r29,1
-    or r3,r31,r31
-    or r4,r30,r30
-    subfic r5,r0,0x35
-    bl __shr2u
-    rlwinm. r0,r4,0,0x1f,0x1f
-    beq NWC24CheckUserId_crc_next
-    subfic r5,r29,0x2a
-    li r4,0x635
-    li r3,0
-    bl __shl2i
-    xor r30,r30,r4
-    xor r31,r31,r3
-NWC24CheckUserId_crc_next:
-    addi r29,r29,1
-    cmpwi r29,0x2b
-    blt NWC24CheckUserId_crc_loop
-    or. r0,r30,r31
-    beq NWC24CheckUserId_crc_ok
-    li r3,-0x25
-    b NWC24CheckUserId_return
-NWC24CheckUserId_crc_ok:
-    cmpwi r27,0
-    bne NWC24CheckUserId_return_ok
-    cmpwi r28,0
-    beq NWC24CheckUserId_return_ok
-    li r3,-0x7
-    b NWC24CheckUserId_return
-NWC24CheckUserId_return_ok:
-    li r3,0
-NWC24CheckUserId_return:
-    addi r11,r1,0x30
-    bl _restgpr_27
-    lwz r0,0x34(r1)
-    mtspr LR,r0
-    addi r1,r1,0x30
-    blr
+NWC24Err NWC24CheckUserId(NWC24UserId id) {
+    NWC24UserId myId;
+    u64 value;
+    int i;
+    u32 area;
+    u32 myArea;
+
+    NWC24GetMyUserId(&myId);
+    if (myId == id) {
+        return NWC24_ERR_ID_GENERATED;
+    }
+    myArea = (getUnScrambleId(myId) >> 47) & 7;
+    value = getUnScrambleId(id);
+    area = (value >> 47) & 7;
+    for (i = 0; i < 0x2B; i++) {
+        if ((value >> (0x35 - (i + 1))) & 1) {
+            value ^= (u64)0x635 << (0x2A - i);
+        }
+    }
+    if (value != 0) {
+        return NWC24_ERR_ID_CRC;
+    }
+    if (myArea == 0 && area != 0) {
+        return NWC24_ERR_PROTECTED;
+    }
+    return NWC24_OK;
 }
+
 
 NWC24Err NWC24iCheckUserIdCRC(NWC24UserId id) {
     u64 value = getUnScrambleId(id);
