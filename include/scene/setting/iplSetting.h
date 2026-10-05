@@ -44,7 +44,7 @@ namespace ipl {
 #endif
 
         struct SettingAPScanList {
-            u8 unknown[0x14];
+            u8 reservedHeader[0x14];
             union {
                 struct {
                     u16 count;
@@ -180,33 +180,33 @@ namespace ipl {
                 ARG_SETUP,
                 ARG_UPDATE,
                 ARG_INTERNET_PAGE,
-                ARG_UNK_5,
-                ARG_UNK_6,
+                ARG_RESUME_SETUP,
+                ARG_DIRECT_PAGE,
             };
 
         private:
 #ifdef IPL_SETTING_IMPLEMENTATION
             int mUpdateTiming;
-            u8 unk_0x5C;
-            u8 unk_0x5D[3];
+            u8 mBrowserStopRequested;
+            u8 reservedAfterBrowserStop[3];
             nand::Base* mpWWWLibraryFile;
             nand::Base* mpSettingHTMLFile;
             nand::Base* mpWWWArchiveFile;
             nand::Base* mpFontFile;
             nand::Base* mpBackgroundTPLFile;
-            int unk_0x74;
-            int unk_0x78;
-            int unk_0x7C;
+            int mDialogState;
+            int mAPScanState;
+            int mEULAState;
             int mProfileIDMode;
-            int unk_0x84;
+            int mUSBAPState;
             int mAOSSState;
             int mRakuState;
             int mFuncMsgPending;
-            int unk_0x94;
+            int mSafeModeDialogState;
             ESTitleId mUpdateTitleId;
             u32 mPrepareTick;
             u8 mSettingData[0x16];
-            u8 unk_0xBA[2];
+            u8 reservedAfterSettingData[2];
             nand::LayoutFile* mpSettingLayoutFile;
             layout::Object* mpChangeLayout;
             layout::Object* mpMainLayout;
@@ -221,25 +221,25 @@ namespace ipl {
             APScanThread* mpAPScanThread;
             SettingAPScanList mAPScanList;
             void* mpMem1BrowserBuffer;
-            u32 unk_0x908;
+            u32 reservedBrowserWord;
             void* mpMem2BrowserBuffer;
             void* mpBrowserStringBuffer;
-            int unk_0x914;
-            int unk_0x918;
-            u8 unk_0x91C[4];
+            int mAPScrollOffset;
+            int mAPAnimationIndex;
+            u8 mUiStatus[4];
             ext_ead::www::ImeData* mpBrowserData;
             www::wiisetting::WiiData* mpWiiSettingData;
             www::wiisetting::WiiFlag* mpWiiSettingFlag;
-            u8 unk_0x92C;
-            u8 unk_0x92D[3];
-            int unk_0x930;
+            u8 mActionFrame;
+            u8 reservedAfterActionFrame[3];
+            int mSupportCode;
             www::wiisetting::SetStringBuf* mpStringBuffer;
 #ifdef IPL_SETTING_IMPLEMENTATION
-            wchar_t unk_0x938[0x101];
+            wchar_t mInputText[0x101];
 #else
-            u8 unk_0x938[0x202];
+            u8 mInputText[0x202];
 #endif
-            u8 unk_0xB3A;
+            u8 reservedAfterInputText;
             u8 mBrowserCreated;
             keyboard::Manager::State mKeyboardState;
             int mInitialArgument;
@@ -247,21 +247,21 @@ namespace ipl {
             int mProgressiveMode;
             int mEuRgb60Mode;
             u8 mIsResetAcceptable;
-            u8 unk_0xB5D[3];
+            u8 reservedAfterResetFlag[3];
             OSMessageQueue mFuncMessageQueue;
             OSMessage mFuncMessages[5];
-            int unk_0xB94;
+            int mScreenModeChangeState;
             int mState;
-            int unk_0xB9C;
+            int mInputDelayFrame;
             OSTime mCreatePageTime;
-            u32 unk_0xBA8;
-            u8 unk_0xBAC;
-            u8 unk_0xBAD[3];
-            u8 unk_0xBB0[0x10];
+            u32 mConnectedControllerMask;
+            u8 mNetSettingResultSent;
+            u8 reservedAfterNetSettingResult[3];
+            u8 reservedTail[0x10];
             static void* mem1Buffer_;
             static void* mem2Buffer_;
 #else
-            u8 unk_0x58[0xB68];
+            u8 mSettingStorage[0xB68];
 #endif
 
         };

@@ -239,31 +239,31 @@ namespace ipl {
             mState = STATE_INIT;
             mChanSceneID = 0;
             mParentalState = PARENTAL_STATE_NONE;
-            unk_0x88 = 0;
-            unk_0x8C = 0;
-            unk_0x90 = false;
+            mBootWaitFrame = 0;
+            mStartButtonState = 0;
+            mbBannerStartPending = false;
             mpChanSelScn = chanSel;
             mLoadedIndex = 0;
             mpChanBannerLyt = NULL;
             mpDiskBnrSound = NULL;
-            unk_0x324 = 0;
+            mWiiDiskReady = 0;
             mpGCBannerFile = NULL;
             mpGCBannerLyt = NULL;
             mbDisplayLockedDialog = false;
             mFadeoutTick = 0;
             mpButtonEvent = new CsChanTtlButtonEventHandler(this);
             mpCurTicket = NULL;
-            unk_0x360 = false;
+            mbTmdReady = false;
             mTmpTitleID = 0;
-            unk_0x370 = false;
-            unk_0x371 = false;
+            mbTmpTitleCleanupDone = false;
+            mbTicketLimitReady = false;
             mLimitType = LIMIT_TYPE_COUNT;
-            unk_0x37C = false;
+            mbStartButtonFocusPlayed = false;
             mModuleState = MODULE_STATE_INIT;
             mModuleType = MODULE_TYPE_NONE;
             mbModuleSceneChange = false;
             mbRSODoneCalc = false;
-            unk_0x38C = 0;
+            mModuleFrame = 0;
             mpModuleFile = NULL;
             mCurRsoExpHeap = 0;
             mpRSOHeader = NULL;
@@ -293,7 +293,7 @@ namespace ipl {
 
             if (mpChanSelScn->mDiskState == ChannelSelect::DISK_STATE_PLAY_THUMB || mpChanSelScn->mDiskState == ChannelSelect::DISK_STATE_RVL_GAME) {
                 mDiskState = DISK_STATE_WII_DISK_IDLE;
-                unk_0x324 = 1;
+                mWiiDiskReady = 1;
             } else if (mpChanSelScn->mDiskState == ChannelSelect::DISK_STATE_GC_GAME_WAIT ||
                        mpChanSelScn->mDiskState == ChannelSelect::DISK_STATE_GC_GAME) {
                 mDiskState = DISK_STATE_GC_DISK_IDLE;
@@ -350,7 +350,7 @@ namespace ipl {
             }
 
             if (isEnableToExecute(mChanPage, mChanIndex)) {
-                unk_0x8C = 1;
+                mStartButtonState = 1;
             }
 
             mpGrpAnims[ANIM_GRP_FOCUS_BTN_A][ANIM_BTM_FOCUS_IN] =
@@ -440,8 +440,8 @@ namespace ipl {
             mpCapture = new (System::getTreasureHeap(), 32) utility::Capture(System::getTreasureHeap(), 0, 0, System::getRenderModeObj()->fbWidth,
                                                                              System::getRenderModeObj()->efbHeight, GX_TF_RGB565);
 
-            unk_0x390 = 36000;
-            unk_0x38C = 36000;
+            mModuleInterval = 36000;
+            mModuleFrame = 36000;
 
             mState = STATE_START_ZOOM_IN;
 
@@ -470,7 +470,7 @@ namespace ipl {
                 System::getChannelManager()->setDiskChannelReady(false);
             }
 
-            if ((mState == STATE_NORMAL || mState == STATE_WAIT_TMD || mState == STATE_PREPARE_BOOT || mState == STATE_BOOT_SCENE) && !unk_0x90 &&
+            if ((mState == STATE_NORMAL || mState == STATE_WAIT_TMD || mState == STATE_PREPARE_BOOT || mState == STATE_BOOT_SCENE) && !mbBannerStartPending &&
                 mpChanBannerAnims[BANNER_ANIM_START] && !mpChanBannerAnims[BANNER_ANIM_START]->isPlaying()) {
                 if (mpChanBannerAnims[BANNER_ANIM_LOOP_AFTER_START] != NULL) {
                     mpChanBannerAnims[BANNER_ANIM_LOOP_AFTER_START]->play();
@@ -480,9 +480,9 @@ namespace ipl {
                 mpChanBannerAnims[BANNER_ANIM_START] = NULL;
             }
 
-            if (mState == STATE_BOOT_SCENE && !unk_0x37C && !mpGrpAnims[ANIM_GRP_SELECT_BTN_B][ANIM_SELECT_BTN]->isPlaying()) {
+            if (mState == STATE_BOOT_SCENE && !mbStartButtonFocusPlayed && !mpGrpAnims[ANIM_GRP_SELECT_BTN_B][ANIM_SELECT_BTN]->isPlaying()) {
                 mpGrpAnims[ANIM_GRP_FOCUS_BTN_B][ANIM_BTM_FOCUS_IN]->play();
-                unk_0x37C = true;
+                mbStartButtonFocusPlayed = true;
             }
 
             if (mpChanBannerLyt != NULL) {
@@ -605,15 +605,15 @@ namespace ipl {
 
             if (mState == STATE_BOOT_SCENE) {
                 mbModuleSceneChange = true;
-                unk_0x88++;
+                mBootWaitFrame++;
                 System::getPointer()->setVisible(false);
 
-                if (mTmpTitleID && unk_0x370) {
+                if (mTmpTitleID && mbTmpTitleCleanupDone) {
                     mTmpTitleID = 0;
                     SCFlushAsync(NULL);
                 }
 
-                if (isEnableAppStart() && unk_0x370) {
+                if (isEnableAppStart() && mbTmpTitleCleanupDone) {
                     result = FADER_SCN_NEXT;
                 } else {
                     result = FADER_SCN_CONTINUE;
@@ -1050,7 +1050,7 @@ namespace ipl {
                     ChannelObj::setLangPane(mpChanBannerLyt);
                     bindChanAnms();
                     mpChanBannerLyt->finishBinding();
-                    unk_0x90 = true;
+                    mbBannerStartPending = true;
                 } else {
                     mpChanBannerLyt = NULL;
 
@@ -1078,7 +1078,7 @@ namespace ipl {
         void ChannelTitle::calcModuleChannel() {
             if (mState == STATE_NORMAL) {
                 if (System::getChannelManager()->getUnlockChannelState(mChanPage, mChanIndex)) {
-                    if ((unk_0x8C == 0 && isEnableToExecute(mChanPage, mChanIndex)) || (unk_0x8C != 0 && !isEnableToExecute(mChanPage, mChanIndex))) {
+                    if ((mStartButtonState == 0 && isEnableToExecute(mChanPage, mChanIndex)) || (mStartButtonState != 0 && !isEnableToExecute(mChanPage, mChanIndex))) {
                         updateLockedMsg(LOCKED_MSG_AUTO);
                         changeStartButton();
                     }
@@ -1120,10 +1120,10 @@ namespace ipl {
                     } else {
                         mpGui->update();
                         if (isEnableToExecute(mChanPage, mChanIndex)) {
-                            if (unk_0x8C == 0) {
-                                unk_0x8C = 1;
-                            } else if (unk_0x8C == 1) {
-                                unk_0x8C = 2;
+                            if (mStartButtonState == 0) {
+                                mStartButtonState = 1;
+                            } else if (mStartButtonState == 1) {
+                                mStartButtonState = 2;
                             }
                         }
                     }
@@ -1139,7 +1139,7 @@ namespace ipl {
             if ((mpLoadedLytFile[PREV_LOADED_INDEX] == NULL || mpLoadedLytFile[PREV_LOADED_INDEX]->isFinished()) &&
                 (mpLoadedBnrSound[PREV_LOADED_INDEX] == NULL || mpLoadedBnrSound[PREV_LOADED_INDEX]->isFinished()) &&
                 (!mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_IN]->isPlaying() &&
-                 !mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_OUT]->isPlaying() && unk_0x371) &&
+                 !mpGrpAnims[ANIM_GRP_CHANGE_BTN_B][ANIM_CHANGE_TEXT_OUT]->isPlaying() && mbTicketLimitReady) &&
                 (System::getChannelManager()->isLoadedLockedMsg() && !mpLockedDialogAnim[LOCKED_DIALOG_ANIM_DISAPPEAR]->isPlaying()) &&
                 (mModuleType == MODULE_TYPE_NONE || mModuleState == MODULE_STATE_4)) {
                 if (mpChangeAnims[ANIM_CHANGE_LOOP]->isPlaying()) {
@@ -1320,7 +1320,7 @@ namespace ipl {
 #pragma push
 #pragma ppc_iro_level 0
         void ChannelTitle::calcNormalWaitTmd() {
-            if (!unk_0x360) {
+            if (!mbTmdReady) {
                 return;
             }
 
@@ -1365,11 +1365,11 @@ namespace ipl {
 #pragma pop
 
         void ChannelTitle::calcNormalWaitLockedTitle() {
-            if (!unk_0x37C) {
+            if (!mbStartButtonFocusPlayed) {
                 if (getParentalDialog() == NULL && System::getReservedScene() == NULL &&
                     !mpGrpAnims[ANIM_GRP_SELECT_BTN_B][ANIM_SELECT_BTN]->isPlaying()) {
                     mpGrpAnims[ANIM_GRP_FOCUS_BTN_B][ANIM_BTM_FOCUS_IN]->play();
-                    unk_0x37C = true;
+                    mbStartButtonFocusPlayed = true;
                 }
             } else {
                 if (System::getChannelManager()->getUnlockChannelState(mChanPage, mChanIndex) == channel::UNLOCK_STATE_4) {
@@ -1595,7 +1595,7 @@ namespace ipl {
                 case MODULE_STATE_CALC: {
                     System::getCSManager()->calc();
                     if (mpModuleThread->IsThreadTerminated()) {
-                        if (System::getCSManager()->getAltSoundState() == channel::CHANS_VM_ALT_SND_STATE_UNK1) {
+                        if (System::getCSManager()->getAltSoundState() == channel::CHANS_VM_ALT_SND_STATE_FALLBACK) {
                             startChanSound();
                             System::getCSManager()->setAltSoundState(channel::CHANS_VM_ALT_SND_STATE_UNAVAILABLE);
                         }
@@ -1630,7 +1630,7 @@ namespace ipl {
                         // Check if we properly read the module file
                         if (mpModuleFile->isFinished()) {
                             if (mpModuleFile->checkData() != nand::RESULT_SUCCESS && mpModuleFile->checkData() != nand::RESULT_NONE) {
-                                unk_0x38C = 0;
+                                mModuleFrame = 0;
                                 mbModuleTerminated = true;
                                 mModuleState = MODULE_STATE_INIT;
                                 break;
@@ -1692,7 +1692,7 @@ namespace ipl {
                         }
 
                         if (mbRSOThreadExit && mbRSODoneCalc) {
-                            unk_0x38C = 0;
+                            mModuleFrame = 0;
                             mbModuleTerminated = true;
 
                             ((void (*)())mpRSOHeader->epilog)();
@@ -1722,17 +1722,17 @@ namespace ipl {
         void ChannelTitle::calcModuleInit() {
             if (mbModuleSceneChange) {
                 mbModuleSceneChange = false;
-                unk_0x38C = 0;
+                mModuleFrame = 0;
                 mModuleState = MODULE_STATE_4;
                 return;
             }
 
-            if ((unk_0x38C += 1) > unk_0x390) {
+            if ((mModuleFrame += 1) > mModuleInterval) {
                 mCurRsoExpHeap ^= 1;
                 mModuleState = MODULE_STATE_WAIT;
             }
 
-            if (System::getChannelManager()->checkUseAltSound(mChanPage, mChanIndex) && unk_0x38C == (unk_0x390 - 240)) {
+            if (System::getChannelManager()->checkUseAltSound(mChanPage, mChanIndex) && mModuleFrame == (mModuleInterval - 240)) {
                 snd::getSystem()->stopBannerSound(180);
             }
         }
@@ -1743,7 +1743,7 @@ namespace ipl {
             }
 
             if (mpModuleFile->checkData() != nand::RESULT_SUCCESS && mpModuleFile->checkData() != nand::RESULT_NONE) {
-                unk_0x38C = 0;
+                mModuleFrame = 0;
                 mbModuleTerminated = true;
                 mModuleState = MODULE_STATE_INIT;
                 return;
@@ -1782,7 +1782,7 @@ namespace ipl {
 
             System::getCSManager()->destroy();
 
-            unk_0x38C = 0;
+            mModuleFrame = 0;
 
             mpRsoExpHeaps[1 - mCurRsoExpHeap]->freeAll();
             mpCSHeap->destroy();
@@ -1800,7 +1800,7 @@ namespace ipl {
 
             if (mpChanBannerAnims[BANNER_ANIM_START] != NULL) {
                 mpChanBannerAnims[BANNER_ANIM_START]->play();
-                unk_0x90 = false;
+                mbBannerStartPending = false;
             } else if (mpChanBannerAnims[BANNER_ANIM_LOOP_AFTER_START] != NULL) {
                 mpChanBannerAnims[BANNER_ANIM_LOOP_AFTER_START]->play();
             } else if (mpChanBannerAnims[BANNER_ANIM_LOOP] != NULL) {
@@ -2278,7 +2278,7 @@ namespace ipl {
             int sceneID = System::getChannelManager()->getSceneID(mChanPage, mChanIndex);
 
             mParentalState = PARENTAL_STATE_NONE;
-            unk_0x37C = false;
+            mbStartButtonFocusPlayed = false;
 
             BOOL flag = System::getChannelManager()->getSceneID(mChanPage, mChanIndex) == SCENE_DISK_CHANNEL;
             if (flag) {
@@ -2287,7 +2287,7 @@ namespace ipl {
                         prepareForBoot1(SCENE_DISK_CHANNEL);
                         System::getBS2Manager()->reserveRVLGame();
 
-                        unk_0x360 = false;
+                        mbTmdReady = false;
 
                         System::getTask1()->request(markTmdReadyTask, this, NULL);
 
@@ -2299,7 +2299,7 @@ namespace ipl {
                     prepareForBoot1(SCENE_DISK_CHANNEL);
                     System::getBS2Manager()->reserveGCGame();
 
-                    unk_0x360 = false;
+                    mbTmdReady = false;
 
                     System::getTask1()->request(markTmdReadyTask, this, NULL);
 
@@ -2322,7 +2322,7 @@ namespace ipl {
                             mChanSceneID = SCENE_SETTING;
                         } else {
                             System::getHomeButtonMenu()->disable();
-                            unk_0x360 = false;
+                            mbTmdReady = false;
                             mCurGameCode = 0;
                             System::getTask1()->request(getTmdTask, this, NULL);
 
@@ -2353,14 +2353,14 @@ namespace ipl {
             }
         }
 
-        void ChannelTitle::reserveSettingScene(bool unk) {
+        void ChannelTitle::reserveSettingScene(bool skipConfirmation) {
             if (System::getChannelManager()->checkNeedUpdate(mChanPage, mChanIndex)) {
                 reserveAllSceneDestruction(SCENE_SETTING, (void*)3);
                 mState = STATE_GOTO_SETTING;
                 return;
             }
 
-            if (unk) {
+            if (skipConfirmation) {
                 reserveAllSceneDestruction(SCENE_SETTING, (void*)1);
                 mState = STATE_GOTO_SETTING;
                 return;
@@ -2410,7 +2410,7 @@ namespace ipl {
                 SCSetTmpTitleID(0);
                 System::getTask1()->request(deleteTmpTitleContentTask, this, NULL);
             } else {
-                unk_0x370 = true;
+                mbTmpTitleCleanupDone = true;
             }
         }
 
@@ -2449,25 +2449,25 @@ namespace ipl {
         }
 
         bool ChannelTitle::isEnableAppStart() {
-            return (u32)(100.0f / System::getAnimDelta()) < unk_0x88;
+            return (u32)(100.0f / System::getAnimDelta()) < mBootWaitFrame;
         }
 
         void ChannelTitle::changeStartButton() {
             if (!isEnableToExecute(mChanPage, mChanIndex)) {
-                if (unk_0x8C != 0) {
+                if (mStartButtonState != 0) {
                     mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_ON_BTN]->stop();
                     mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_OFF_BTN]->play();
-                    unk_0x8C = 0;
+                    mStartButtonState = 0;
                 }
                 mbHovered[BTN_B] = FALSE;
             } else {
-                if (unk_0x8C == 0) {
+                if (mStartButtonState == 0) {
                     mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_OFF_BTN]->stop();
                     mpGrpAnims[ANIM_GRP_ONOFF_BTN_B][ANIM_ON_BTN]->play();
                     mpGui->initPane(mpLayout->FindPaneByName(scPaneNames_B_Btn[BTN_B]));
                     mbHovered[BTN_B] = FALSE;
                 }
-                unk_0x8C = 1;
+                mStartButtonState = 1;
             }
         }
 
@@ -2670,12 +2670,12 @@ namespace ipl {
                 IPLErrorLogAndDisplay(MESG_ERR_FILE, "ES", err, 4748);
             }
 
-            chanTtl->unk_0x360 = true;
+            chanTtl->mbTmdReady = true;
         }
 
         void ChannelTitle::markTmdReadyTask(void* work) {
             ChannelTitle* chanTtl = static_cast<ChannelTitle*>(work);
-            chanTtl->unk_0x360 = true;
+            chanTtl->mbTmdReady = true;
         }
 
 #pragma push
@@ -2695,7 +2695,7 @@ namespace ipl {
             } else {
                 chanTtl->mLimitType = LIMIT_TYPE_COUNT;
             }
-            chanTtl->unk_0x371 = true;
+            chanTtl->mbTicketLimitReady = true;
         }
 #pragma pop
 
@@ -2713,7 +2713,7 @@ namespace ipl {
                 }
             }
 
-            chanTtl->unk_0x370 = true;
+            chanTtl->mbTmpTitleCleanupDone = true;
         }
 
         BOOL ChannelTitle::isTimeLimitedTicket(ESTicketView* ticket, u32* remainTime) {
@@ -2744,9 +2744,9 @@ namespace ipl {
 
             BOOL flag = System::getChannelManager()->getSceneID(mChanPage, mChanIndex) == SCENE_DISK_CHANNEL;
             if (flag) {
-                unk_0x371 = true;
+                mbTicketLimitReady = true;
             } else {
-                unk_0x371 = false;
+                mbTicketLimitReady = false;
                 System::getNandManager()->getTask()->request(getTicketLimitTask, this, NULL);
             }
         }
@@ -2828,7 +2828,7 @@ namespace ipl {
                             mpInstance->mState = ChannelTitle::STATE_START_ZOOM_OUT;
                             mpInstance->tryToGoBackward();
                         } else if (strcmp(paneName, scPaneNames_B_Btn[ChannelTitle::BTN_B]) == 0) {
-                            if (mpInstance->unk_0x8C != 2) {
+                            if (mpInstance->mStartButtonState != 2) {
                                 snd::getSystem()->startSE("WIPL_SE_GRAY_BUTTON");
                             } else {
                                 mpInstance->reserveNextScene();
@@ -2842,7 +2842,7 @@ namespace ipl {
                 case ::gui::EventHandler::ON_POINT: {
                     for (int i = 0; i < ChannelTitle::BTN_MAX; i++) {
                         if (strcmp(paneName, scPaneNames_B_Btn[i]) == 0) {
-                            if (i == 0 || mpInstance->unk_0x8C > 0) {
+                            if (i == 0 || mpInstance->mStartButtonState > 0) {
                                 mpInstance->mbHovered[i]++;
                                 if (mpInstance->mbHovered[i] <= TRUE) {
                                     mpInstance->mpGrpAnims[i][ChannelTitle::ANIM_BTM_FOCUS_OUT]->play();
@@ -2858,7 +2858,7 @@ namespace ipl {
                 case ::gui::EventHandler::ON_LEFT: {
                     for (int i = 0; i < ChannelTitle::BTN_MAX; i++) {
                         if (strcmp(paneName, scPaneNames_B_Btn[i]) == 0) {
-                            if (i == 0 || mpInstance->unk_0x8C > 0) {
+                            if (i == 0 || mpInstance->mStartButtonState > 0) {
                                 mpInstance->mbHovered[i]--;
                                 if (mpInstance->mbHovered[i] <= FALSE) {
                                     mpInstance->mpGrpAnims[i][ChannelTitle::ANIM_BTM_FOCUS_IN]->play();

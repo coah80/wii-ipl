@@ -55,21 +55,21 @@ namespace ipl {
             }
 
             T get() const {
-                f32 var_f27 = mFrame;
-                f32 var_f28 = 1.0f / mMaxFrame;
+                f32 frame = mFrame;
+                f32 inverseDuration = 1.0f / mMaxFrame;
                 T r =
                     (mStart *
-                     (1.0f + ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))))) -
-                    (mEnd * ((var_f28 * (var_f28 * (var_f28 * (var_f27 * (2.0f * var_f27 * var_f27))))) -
-                              (var_f28 * (var_f28 * (3.0f * var_f27 * var_f27)))));
+                     (1.0f + ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                              (inverseDuration * (inverseDuration * (3.0f * frame * frame)))))) -
+                    (mEnd * ((inverseDuration * (inverseDuration * (inverseDuration * (frame * (2.0f * frame * frame))))) -
+                              (inverseDuration * (inverseDuration * (3.0f * frame * frame)))));
                 r +=
                     (mStartTangent *
-                     (var_f27 +
-                      ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
-                       (var_f28 * (2.0f * var_f27 * var_f27))))) +
-                    (mEndTangent * ((var_f28 * (var_f28 * (var_f27 * (var_f27 * var_f27)))) -
-                                (var_f28 * (var_f27 * var_f27))));
+                     (frame +
+                      ((inverseDuration * (inverseDuration * (frame * (frame * frame)))) -
+                       (inverseDuration * (2.0f * frame * frame))))) +
+                    (mEndTangent * ((inverseDuration * (inverseDuration * (frame * (frame * frame)))) -
+                                (inverseDuration * (frame * frame))));
 
                 return r;
             }
@@ -141,10 +141,10 @@ namespace ipl {
 
         void BScroller::init() {
             mState = -1;
-            unk_0x08.x = 0.0f;
-            unk_0x08.y = 0.0f;
-            unk_0x10.x = 0.0f;
-            unk_0x10.y = 0.0f;
+            mPointerPosition.x = 0.0f;
+            mPointerPosition.y = 0.0f;
+            mScrollOrigin.x = 0.0f;
+            mScrollOrigin.y = 0.0f;
             mSpeed = 0.0f;
             mSoundFreq = 0.0f;
         }
@@ -178,10 +178,10 @@ namespace ipl {
 
                     mState = chan;
 
-                    unk_0x08.x = math::abs_clamp<float>(ctrl->getDpdPos().x, 1.f);
-                    unk_0x08.y = math::abs_clamp<float>(ctrl->getDpdPos().y, 1.f);
+                    mPointerPosition.x = math::abs_clamp<float>(ctrl->getDpdPos().x, 1.f);
+                    mPointerPosition.y = math::abs_clamp<float>(ctrl->getDpdPos().y, 1.f);
 
-                    unk_0x10 = unk_0x08;
+                    mScrollOrigin = mPointerPosition;
 
                     System::getPointer()->setState(mState, Pointer::STATE_SCROLL);
                     System::getPointer()->setScrollState(mState);
@@ -199,20 +199,20 @@ namespace ipl {
                     System::getPointer()->setScrollState(Pointer::NO_SCROLL);
                     init();
                 } else if (ctrl->isValidDpd()) {
-                    unk_0x08.x = math::abs_clamp<float>(ctrl->getDpdPos().x, 1.f);
-                    unk_0x08.y = math::abs_clamp<float>(ctrl->getDpdPos().y, 1.f);
+                    mPointerPosition.x = math::abs_clamp<float>(ctrl->getDpdPos().x, 1.f);
+                    mPointerPosition.y = math::abs_clamp<float>(ctrl->getDpdPos().y, 1.f);
 
                     mSpeed = _get();
                     set_arw_param();
                 } else {
-                    if (math::abs<float>(unk_0x08.x) < math::abs<float>(unk_0x08.y)) {
+                    if (math::abs<float>(mPointerPosition.x) < math::abs<float>(mPointerPosition.y)) {
                         f32 newVal;
-                        if (unk_0x08.y < 0.0f) {
+                        if (mPointerPosition.y < 0.0f) {
                             newVal = -1.0f;
                         } else {
                             newVal = 1.0f;
                         }
-                        unk_0x08.y = newVal;
+                        mPointerPosition.y = newVal;
                         mSpeed = _get();
                         set_arw_param();
                     }
@@ -234,7 +234,7 @@ namespace ipl {
         }
 
         f32 BScroller::_get() {
-            f32 diff = unk_0x08.y - unk_0x10.y;
+            f32 diff = mPointerPosition.y - mScrollOrigin.y;
             f32 result = 0.f;
             if (diff < -0.01f) {
                 result = -10.0f * (diff * diff);
@@ -259,7 +259,7 @@ namespace ipl {
             nw4r::ut::Rect rect;
             System::getProjectionRect(&rect);
 
-            f32 arrowLen = math::abs<float>(unk_0x10.y - unk_0x08.y) * rect.GetHeight();
+            f32 arrowLen = math::abs<float>(mScrollOrigin.y - mPointerPosition.y) * rect.GetHeight();
             System::getPointer()->setArrowLength(arrowLen);
 
             System::getPointer()->setCursorScrolling(math::abs<float>(mSpeed) > 0.0f);
@@ -293,9 +293,9 @@ namespace ipl {
             mUpLimit = 0.0f;
             unk_0x3C = 0.0f;
             mScroll = 0.0f;
-            unk_0x44 = 0.0f;
-            unk_0x48 = 0.6f;
-            unk_0x4C = 1.5f;
+            mButtonScrollOrigin = 0.0f;
+            mVelocityDecay = 0.6f;
+            mScrollAcceleration = 1.5f;
 
             anim.init(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0, 1.0f);
         }
@@ -319,7 +319,7 @@ namespace ipl {
 
             switch (mState) {
                 case Pointer::SCROLL_CON_UP: {
-                    unk_0x3C = unk_0x3C * unk_0x48 - unk_0x4C;
+                    unk_0x3C = unk_0x3C * mVelocityDecay - mScrollAcceleration;
                     if (unk_0x3C > 0.0f) {
                         unk_0x3C = 0.0f;
                     }
@@ -328,8 +328,8 @@ namespace ipl {
                     break;
                 }
                 case Pointer::SCROLL_CON_DOWN: {
-                    unk_0x3C = unk_0x3C * unk_0x48;
-                    unk_0x3C += unk_0x4C;
+                    unk_0x3C = unk_0x3C * mVelocityDecay;
+                    unk_0x3C += mScrollAcceleration;
                     if (unk_0x3C < 0.0f) {
                         unk_0x3C = 0.0f;
                     }
@@ -338,7 +338,7 @@ namespace ipl {
                     break;
                 }
                 case Pointer::SCROLL_BTN_UP: {
-                    unk_0x44 = oldScroll;
+                    mButtonScrollOrigin = oldScroll;
                     anim.init(0.0f, -300.0f, 20.0f, 0.0f, 0.0f, 0, 1.0f);
                     anim.initFrame();
                     anim.restart();
@@ -346,7 +346,7 @@ namespace ipl {
                     break;
                 }
                 case Pointer::SCROLL_BTN_DOWN: {
-                    unk_0x44 = oldScroll;
+                    mButtonScrollOrigin = oldScroll;
                     anim.init(0.0f, 300.0f, 20.0f, 0.0f, 0.0f, 0, 1.0f);
                     anim.initFrame();
                     anim.restart();
@@ -355,7 +355,7 @@ namespace ipl {
                 }
                 case Pointer::SCROLLING_BY_BTN: {
                     anim.calc();
-                    mScroll = unk_0x44 + anim.get();
+                    mScroll = mButtonScrollOrigin + anim.get();
 
                     if (!anim.isPlaying()) {
                         unk_0x3C = 0.0f;

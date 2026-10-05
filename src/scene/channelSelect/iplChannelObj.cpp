@@ -185,11 +185,11 @@ namespace ipl {
         ChannelObj::ChannelObj(EGG::Heap* heap, int page, int index)
             : mpMainHeap(heap), mpCursorHeap(NULL), mpBalloonHeap(NULL), mpDiskHeap(NULL), mState(STATE_LOAD_THUMBNAIL), mChanPage(page),
               mChanIndex(index), mpBasePane(NULL), mpNoDiskLayout(NULL), mpNoDiskAnim(NULL), mpDiskLayout(NULL), mpDiskAnim(NULL),
-              mpCursorLayout(NULL), unk_0x58(0), unk_0x5C(0), mpBalloonLayout(NULL), unk_0x68(0), unk_0x6C(0), unk_0x70(0), unk_0x74(0),
-              mpNwc24NewGroup(NULL), mpNwc24NewAnim(NULL), mpNwc24NewPlayAnim(false), unk_0x84(0), unk_0x88(0),
+              mpCursorLayout(NULL), mCursorState(0), mPendingCursorState(0), mpBalloonLayout(NULL), mBalloonState(0), mPendingBalloonState(0), mBalloonWaitFrame(0), mPointCount(0),
+              mpNwc24NewGroup(NULL), mpNwc24NewAnim(NULL), mpNwc24NewPlayAnim(false), mNewMessageState(0), mNewMessageFrame(0),
               mThumbWidth(cfChanThumbOfss[SCGetAspectRatio()][0]), mThumbHeight(cfChanThumbOfss[SCGetAspectRatio()][1]), mpExtModuleWorkHeap(NULL),
               mpModuleHeap(NULL), mpPrevModuleHeap(NULL), mbModuleTerminated(false), mpModuleThread(NULL),
-              mExtModuleState(EXT_MODULE_STATE_UNAVAILABLE), unk_0xF4(false), mModuleCount(MAX_MODULE_COUNT), mMaxModuleCount(MAX_MODULE_COUNT),
+              mExtModuleState(EXT_MODULE_STATE_UNAVAILABLE), mbModuleFlag(false), mModuleCount(MAX_MODULE_COUNT), mMaxModuleCount(MAX_MODULE_COUNT),
               mpRSOHeader(NULL), mpRSOBss(NULL), mpCSHeap(NULL) {
             if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
                 nw4r::ut::Rect projRect4x3;
@@ -294,7 +294,7 @@ namespace ipl {
             }
         }
 
-        int ChannelObj::calcExtModule(EGG::ExpHeap* expHeap, bool unk0, bool onSceneChange) {
+        int ChannelObj::calcExtModule(EGG::ExpHeap* expHeap, bool canStartModule, bool onSceneChange) {
             int result = EXT_MODULE_RESULT_WAIT;
             const char* dataBase = scCursur_a;
 
@@ -306,7 +306,7 @@ namespace ipl {
                 case EXT_MODULE_STATE_BEGIN: {
                     if (System::getFader()->getStatus() == EGG::Fader::PREPARE_OUT) {
                         mModuleCount++;
-                        if (unk0 && mModuleCount > mMaxModuleCount) {
+                        if (canStartModule && mModuleCount > mMaxModuleCount) {
                             mpPrevModuleHeap = mpModuleHeap;
                             mpModuleHeap = expHeap;
 
@@ -435,7 +435,7 @@ namespace ipl {
                         data.anims = mpModuleAnims;
                         data.titleId = System::getChannelManager()->getTitleID(mChanPage, mChanIndex);
                         data.threadTerminated = mbModuleTerminated;
-                        data.unk_0x19 = true;
+                        data.isThumbnail = true;
                         data.mbHasNewMessage = true;
 
                         if (!(System::getNwc24Manager() != NULL && System::getNwc24Manager()->isNewMessageThere(ES_TITLE_CODE(data.titleId)))) {
@@ -517,7 +517,7 @@ namespace ipl {
 
             bindNewAnm(mpDiskLayout);
 
-            unk_0x84 = 1;
+            mNewMessageState = 1;
 
             mpDiskLayout->finishBinding();
         }
@@ -530,12 +530,12 @@ namespace ipl {
                 mpDiskAnim = NULL;
 
                 mpNwc24NewPlayAnim = false;
-                unk_0x84 = 0;
+                mNewMessageState = 0;
             }
         }
 
         void ChannelObj::changeDisk() {
-            if (isDiskChannel() && (unk_0x68 == 1 || unk_0x68 == 2 || unk_0x68 == 3)) {
+            if (isDiskChannel() && (mBalloonState == 1 || mBalloonState == 2 || mBalloonState == 3)) {
                 setBalloonAnim(4);
                 setBalloonAnim(1);
             }
@@ -567,47 +567,47 @@ namespace ipl {
             return System::getChannelManager()->hasLoadedBnr(mChanPage, mChanIndex);
         }
 
-        void ChannelObj::onPoint(int unk) {
-            if (unk & 0x10000U) {
-                unk_0x74 = 0;
-            } else if (unk & 0x20000U) {
-                unk_0x74 = 1;
-            } else if ((unk_0x74 += 1) > 1) {
+        void ChannelObj::onPoint(int eventFlags) {
+            if (eventFlags & 0x10000U) {
+                mPointCount = 0;
+            } else if (eventFlags & 0x20000U) {
+                mPointCount = 1;
+            } else if ((mPointCount += 1) > 1) {
                 return;
             }
 
-            if (!(unk & 1)) {
+            if (!(eventFlags & 1)) {
                 setCursorAnim(1);
             }
-            if (!(unk & 2)) {
+            if (!(eventFlags & 2)) {
                 setBalloonAnim(1);
             }
         }
 
-        void ChannelObj::onLeft(int unk) {
-            if (unk & 0x10000U) {
-                unk_0x74 = 0;
-            } else if (unk & 0x20000U) {
-                unk_0x74 = 1;
-            } else if ((unk_0x74 -= 1) > 0) {
+        void ChannelObj::onLeft(int eventFlags) {
+            if (eventFlags & 0x10000U) {
+                mPointCount = 0;
+            } else if (eventFlags & 0x20000U) {
+                mPointCount = 1;
+            } else if ((mPointCount -= 1) > 0) {
                 return;
             }
 
-            if (!(unk & 1)) {
+            if (!(eventFlags & 1)) {
                 setCursorAnim(3);
             }
-            if (!(unk & 2)) {
+            if (!(eventFlags & 2)) {
                 setBalloonAnim(4);
             }
         }
 
-        void ChannelObj::onPinch(bool unk) {
-            if (unk) {
+        void ChannelObj::onPinch(bool pinched) {
+            if (pinched) {
                 setCursorAnim(1);
-                unk_0x74 = 1;
+                mPointCount = 1;
             } else {
                 setCursorAnim(0);
-                unk_0x74 = 0;
+                mPointCount = 0;
             }
 
             setBalloonAnim(0);
@@ -617,17 +617,17 @@ namespace ipl {
             setCursorAnim(4);
         }
 
-        void ChannelObj::initCursorAnim(bool unk) {
+        void ChannelObj::initCursorAnim(bool resetPointCount) {
             setCursorAnim(0);
-            if (unk) {
-                unk_0x74 = 0;
+            if (resetPointCount) {
+                mPointCount = 0;
             }
         }
 
-        void ChannelObj::initBalloonAnim(bool unk) {
+        void ChannelObj::initBalloonAnim(bool resetPointCount) {
             setBalloonAnim(0);
-            if (unk) {
-                unk_0x74 = 0;
+            if (resetPointCount) {
+                mPointCount = 0;
             }
         }
 
@@ -822,7 +822,7 @@ namespace ipl {
 
             bindNewAnm(mpThumbLayout);
 
-            unk_0x84 = 1;
+            mNewMessageState = 1;
 
             return frame;
         }
@@ -893,10 +893,10 @@ namespace ipl {
             mpCursorLayout->calc();
         }
 
-        void ChannelObj::setCursorAnim(int unk) {
-            if (unk == 0) {
-                unk_0x58 = 0;
-                unk_0x5C = 0;
+        void ChannelObj::setCursorAnim(int state) {
+            if (state == 0) {
+                mCursorState = 0;
+                mPendingCursorState = 0;
 
                 for (int i = 0; i < ANIM_CURSOR_MAX; i++) {
                     mpCursorAnims[i]->initFrame();
@@ -904,43 +904,43 @@ namespace ipl {
 
                 mpCursorLayout->getAnim(1)->initAnmFrame();
                 mpCursorLayout->GetRootPane()->SetVisible(false);
-            } else if (unk == 4) {
-                unk_0x58 = 4;
-                unk_0x5C = 0;
+            } else if (state == 4) {
+                mCursorState = 4;
+                mPendingCursorState = 0;
                 mpCursorLayout->GetRootPane()->SetVisible(true);
                 startCursorAnim(2);
             } else {
-                switch (unk_0x58) {
+                switch (mCursorState) {
                     case 0: {
-                        if (unk == 1) {
-                            unk_0x58 = 1;
+                        if (state == 1) {
+                            mCursorState = 1;
                             mpCursorLayout->GetRootPane()->SetVisible(true);
                             startCursorAnim(1);
                         }
                         break;
                     }
                     case 1: {
-                        if (unk == 2) {
-                            unk_0x58 = 2;
-                        } else if (unk == 3) {
-                            unk_0x5C = 3;
-                        } else if (unk == 1) {
-                            unk_0x5C = 0;
+                        if (state == 2) {
+                            mCursorState = 2;
+                        } else if (state == 3) {
+                            mPendingCursorState = 3;
+                        } else if (state == 1) {
+                            mPendingCursorState = 0;
                         }
                         break;
                     }
                     case 2: {
-                        if (unk == 3) {
-                            unk_0x58 = 3;
+                        if (state == 3) {
+                            mCursorState = 3;
                             startCursorAnim(0);
                         }
                         break;
                     }
                     case 3: {
-                        if (unk == 1) {
-                            unk_0x5C = 1;
-                        } else if (unk == 3) {
-                            unk_0x5C = 0;
+                        if (state == 1) {
+                            mPendingCursorState = 1;
+                        } else if (state == 3) {
+                            mPendingCursorState = 0;
                         }
                         break;
                     }
@@ -949,15 +949,15 @@ namespace ipl {
         }
 
         void ChannelObj::calcCursorAnim() {
-            switch (unk_0x58) {
+            switch (mCursorState) {
                 case 1: {
                     if (!mpCursorAnims[ANIM_CURSOR_FOCUS_ON]->isPlaying()) {
-                        int prev = unk_0x5C;
-                        switch (unk_0x58) {
+                        int prev = mPendingCursorState;
+                        switch (mCursorState) {
                             case 0:
                                 break;
                             case 1:
-                                unk_0x58 = 2;
+                                mCursorState = 2;
                                 break;
                             case 2:
                                 break;
@@ -968,14 +968,14 @@ namespace ipl {
                         }
                         if (prev == 3) {
                             setCursorAnim(3);
-                            unk_0x5C = 0;
+                            mPendingCursorState = 0;
                         }
                     }
                     break;
                 }
                 case 3: {
                     if (!mpCursorAnims[ANIM_CURSOR_FOCUS_OFF]->isPlaying()) {
-                        int prev = unk_0x5C;
+                        int prev = mPendingCursorState;
                         setCursorAnim(0);
                         if (prev == 1) {
                             setCursorAnim(1);
@@ -992,9 +992,9 @@ namespace ipl {
             }
         }
 
-        void ChannelObj::startCursorAnim(int unk) {
-            mpCursorAnims[unk]->setAnmType(ANIM_TYPE_FORWARD);
-            mpCursorAnims[unk]->play();
+        void ChannelObj::startCursorAnim(int animationIndex) {
+            mpCursorAnims[animationIndex]->setAnmType(ANIM_TYPE_FORWARD);
+            mpCursorAnims[animationIndex]->play();
         }
 
         void ChannelObj::initBalloon() {
@@ -1076,18 +1076,18 @@ namespace ipl {
                 nw4r::ut::Rect projRect;
                 System::getProjectionRect(&projRect);
 
-                f32 temp_f2 = vec.x;
-                f32 temp_f5 = size.width / 2;
-                f32 val2 = 0.0f;
-                f32 val3 = (temp_f2 - temp_f5) - projRect.left;
-                f32 val1 = projRect.right - (temp_f2 + temp_f5);
-                if (val3 < 60.0f) {
-                    val2 = 60.0f - val3;
-                } else if (val1 < 60.0f) {
-                    val2 = val1 - 60.0f;
+                f32 anchorX = vec.x;
+                f32 halfWidth = size.width / 2;
+                f32 horizontalOffset = 0.0f;
+                f32 leftMargin = (anchorX - halfWidth) - projRect.left;
+                f32 rightMargin = projRect.right - (anchorX + halfWidth);
+                if (leftMargin < 60.0f) {
+                    horizontalOffset = 60.0f - leftMargin;
+                } else if (rightMargin < 60.0f) {
+                    horizontalOffset = rightMargin - 60.0f;
                 }
 
-                const nw4r::math::VEC3 pos(vec.x + val2, vec.y + val, 0.0f);
+                const nw4r::math::VEC3 pos(vec.x + horizontalOffset, vec.y + val, 0.0f);
                 mpBalloonLayout->GetRootPane()->SetTranslate(pos);
 
                 calcBalloonAnim();
@@ -1095,58 +1095,58 @@ namespace ipl {
             }
         }
 
-        void ChannelObj::setBalloonAnim(int unk) {
+        void ChannelObj::setBalloonAnim(int state) {
             if (mpBalloonLayout != NULL) {
-                if (unk == 0) {
-                    unk_0x68 = 0;
-                    unk_0x6C = 0;
+                if (state == 0) {
+                    mBalloonState = 0;
+                    mPendingBalloonState = 0;
 
                     mpBalloonLayout->setMinFrame(0.0f);
                     mpBalloonLayout->GetRootPane()->SetVisible(false);
                 } else {
-                    switch (unk_0x68) {
+                    switch (mBalloonState) {
                         case 0: {
-                            if (unk == 1) {
-                                unk_0x70 = 0;
-                                unk_0x68 = 1;
+                            if (state == 1) {
+                                mBalloonWaitFrame = 0;
+                                mBalloonState = 1;
                             }
                             break;
                         }
                         case 1: {
-                            if (unk == 2) {
-                                unk_0x68 = 2;
+                            if (state == 2) {
+                                mBalloonState = 2;
                                 mpBalloonLayout->GetRootPane()->SetVisible(true);
                                 mpBalloonLayout->setAnmType(ANIM_TYPE_FORWARD);
                                 mpBalloonLayout->start();
                                 snd::getSystem()->startSE(scSE_BALLOON);
-                            } else if (unk == 4) {
-                                unk_0x68 = 0;
+                            } else if (state == 4) {
+                                mBalloonState = 0;
                             }
                             break;
                         }
                         case 2: {
-                            if (unk == 3) {
-                                unk_0x68 = 3;
-                            } else if (unk == 4) {
-                                unk_0x6C = 4;
-                            } else if (unk == 1) {
-                                unk_0x6C = 0;
+                            if (state == 3) {
+                                mBalloonState = 3;
+                            } else if (state == 4) {
+                                mPendingBalloonState = 4;
+                            } else if (state == 1) {
+                                mPendingBalloonState = 0;
                             }
                             break;
                         }
                         case 3: {
-                            if (unk == 4) {
-                                unk_0x68 = 4;
+                            if (state == 4) {
+                                mBalloonState = 4;
                                 mpBalloonLayout->setAnmType(ANIM_TYPE_BACKWARD);
                                 mpBalloonLayout->start();
                             }
                             break;
                         }
                         case 4: {
-                            if (unk == 1) {
-                                unk_0x6C = 1;
-                            } else if (unk == 4) {
-                                unk_0x6C = 0;
+                            if (state == 1) {
+                                mPendingBalloonState = 1;
+                            } else if (state == 4) {
+                                mPendingBalloonState = 0;
                             }
                             break;
                         }
@@ -1156,9 +1156,9 @@ namespace ipl {
         }
 
         void ChannelObj::calcBalloonAnim() {
-            switch (unk_0x68) {
+            switch (mBalloonState) {
                 case 1: {
-                    if ((reinterpret_cast<u32&>(unk_0x70) += 1) >= 20.0f) {
+                    if ((reinterpret_cast<u32&>(mBalloonWaitFrame) += 1) >= 20.0f) {
                         setBalloonAnim(2);
                         break;
                     }
@@ -1168,18 +1168,18 @@ namespace ipl {
                 }
                 case 2: {
                     if (!mpBalloonLayout->isPlaying(0)) {
-                        int prev = unk_0x6C;
+                        int prev = mPendingBalloonState;
                         setBalloonAnim(3);
                         if (prev == 4) {
                             setBalloonAnim(4);
-                            unk_0x6C = 0;
+                            mPendingBalloonState = 0;
                         }
                     }
                     break;
                 }
                 case 4: {
                     if (!mpBalloonLayout->isPlaying(0)) {
-                        int prev = unk_0x6C;
+                        int prev = mPendingBalloonState;
                         setBalloonAnim(0);
                         if (prev == 1) {
                             setBalloonAnim(1);
@@ -1257,17 +1257,17 @@ namespace ipl {
 
         void ChannelObj::updateNew() {
             if (System::getNwc24Manager() != NULL) {
-                switch (unk_0x84) {
+                switch (mNewMessageState) {
                     case 1: {
                         if (setupNew()) {
-                            unk_0x84 = 2;
-                            unk_0x88 = 0;
+                            mNewMessageState = 2;
+                            mNewMessageFrame = 0;
                         }
                         break;
                     }
                     case 2: {
-                        if (++unk_0x88 >= 4200) {
-                            unk_0x84 = 1;
+                        if (++mNewMessageFrame >= 4200) {
+                            mNewMessageState = 1;
                         }
                         break;
                     }

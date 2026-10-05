@@ -30,7 +30,7 @@ namespace ipl {
                     *initialSubScene = Setting::ARG_SETUP;
                 } else {
                     *initialScene = SCENE_SETTING;
-                    *initialSubScene = Setting::ARG_UNK_5;
+                    *initialSubScene = Setting::ARG_RESUME_SETUP;
                 }
             } else {
                 // If the last play title had it's ticket expired, show the channel limit

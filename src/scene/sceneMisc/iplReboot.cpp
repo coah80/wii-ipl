@@ -21,7 +21,7 @@ namespace ipl {
                         break;
                     }
                     case REBOOT_SETTINGS: {
-                        reserveSceneChange(SCENE_SETTING, (void*)Setting::ARG_UNK_6);
+                        reserveSceneChange(SCENE_SETTING, (void*)Setting::ARG_DIRECT_PAGE);
                         break;
                     }
                 }

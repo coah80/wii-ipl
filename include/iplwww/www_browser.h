@@ -139,7 +139,7 @@ namespace www {
 namespace ext_ead {
     namespace www {
         typedef struct ImeData {
-            u32 unk_0x00;   // 0x00
+            u32 eventType;   // 0x00
             u32 imeID;      // 0x04
             char* text;     // 0x08
             u32 unk_0x0C;   // 0x0c
