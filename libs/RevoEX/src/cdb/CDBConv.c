@@ -326,7 +326,8 @@ CDBErr CDBConvKeyToFullPath(CDBRecordKey* recordKey, char* fullPath) {
 }
 
 void CDBConvKeyStrToFullPath_(char* keyString, char* fullPath, CDBLocation location, u64* wiiId) {
-    char fileNameStr[8];
+    char epochString[CDB_KEYSTR_EPOCH_SIZE + 1];
+    char fileNameStr[sizeof("00000000.000")];
     char yearStr[8];
     char monthStr[8];
     char dayStr[8];
@@ -345,18 +346,9 @@ void CDBConvKeyStrToFullPath_(char* keyString, char* fullPath, CDBLocation locat
     CDBDate fileEpoch;
     char fileEpochStr[40];
 
-    {
-        union {
-            char storage[20];
-            struct {
-                char prefix[8];
-                char value[12];
-            } epoch;
-        } epochBuffer;
-        strncpy(epochBuffer.epoch.value, CDBKeyStrEpoch(keyString), CDB_KEYSTR_EPOCH_SIZE);
-        epochBuffer.epoch.value[CDB_KEYSTR_EPOCH_SIZE] = 0;
-        sscanf(epochBuffer.epoch.value, "%ul", &epoch);
-    }
+    strncpy(epochString, CDBKeyStrEpoch(keyString), CDB_KEYSTR_EPOCH_SIZE);
+    epochString[CDB_KEYSTR_EPOCH_SIZE] = 0;
+    sscanf(epochString, "%ul", &epoch);
     CDBConvEpochValueToDate(epoch, &year, &month, &day, &hour, &min, NULL);
 
     CDBConvYearValueToYearStr(yearStr, year);

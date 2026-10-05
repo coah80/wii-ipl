@@ -350,25 +350,23 @@ CDBErr CDBDatabaseFindByKey(CDBDatabase* database, CDBRecord* record, CDBRecordK
 }
 
 CDBErr CDBDatabaseSearchConditionsIsMatch(CDBSearchConditions* conditions, char* key) {
-    struct {
-        u16 makerCode;
-        u32 gameCode;
-        CDBDate date;
-        char type[8];
-    } decoded;
-    CDBConvKeyStrToEpochValue(key, &decoded.date);
-    if (conditions->beginDate > decoded.date || decoded.date > conditions->endDate) return CDB_ERROR_OK;
+    char type[CDB_RECORD_KEY_STRING_LEN - offsetof(CDBRecordKey, keyStrStruct.type)];
+    CDBDate date;
+    u32 gameCode;
+    u16 makerCode;
+    CDBConvKeyStrToEpochValue(key, &date);
+    if (conditions->beginDate > date || date > conditions->endDate) return CDB_ERROR_OK;
     if (conditions->makerCode != 0xFFFF) {
-        CDBConvKeyStrToMakerCode(key, (u32*)&decoded.makerCode);
-        if (conditions->makerCode != decoded.makerCode) return CDB_ERROR_OK;
+        CDBConvKeyStrToMakerCode(key, (u32*)&makerCode);
+        if (conditions->makerCode != makerCode) return CDB_ERROR_OK;
     }
     if (conditions->gameCode != 0xFFFFFFFF) {
-        CDBConvKeyStrToGameCode(key, &decoded.gameCode);
-        if (conditions->gameCode != decoded.gameCode) return CDB_ERROR_OK;
+        CDBConvKeyStrToGameCode(key, &gameCode);
+        if (conditions->gameCode != gameCode) return CDB_ERROR_OK;
     }
     if (conditions->type != NULL) {
-        CDBConvKeyStrToType(key, decoded.type);
-        if (CDBCompareTypeStr(conditions->type, decoded.type)) return CDB_ERROR_OK;
+        CDBConvKeyStrToType(key, type);
+        if (CDBCompareTypeStr(conditions->type, type)) return CDB_ERROR_OK;
     }
     return CDB_ERROR_1;
 }

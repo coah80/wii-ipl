@@ -202,40 +202,41 @@ static inline NWC24Err WriteMBNoReplyField(NWC24MsgObjPrivate* msg) {
     return err;
 }
 
-typedef struct {
-    u32 flags;
-    char* buffer;
-} MBFieldWork;
+static inline u32 GetMBFlags(const NWC24MsgObjPrivate* msg, u32 mask) {
+    return msg->msgBoardFlags.raw & mask;
+}
 
 static inline NWC24Err WriteMBRegDateField(NWC24MsgObjPrivate* msg) {
-    MBFieldWork field;
+    u32 flags;
+    char* buffer;
     NWC24Err err;
     s32 length;
-    field.flags = msg->msgBoardFlags.raw & 0xFFFF;
-    if (!field.flags)
+    flags = GetMBFlags(msg, 0xFFFF);
+    if (!flags)
         return NWC24_OK;
-    field.buffer = NWC24WorkP->stringWork;
-    Mail_memset(field.buffer, 0, 1024);
-    Mail_sprintf(field.buffer, "X-Wii-MB-RegDate: %04X\r\n", field.flags);
-    length = STD_strnlen(field.buffer, 1024);
-    err = NWC24FWrite(field.buffer, length, m_pFile);
+    buffer = NWC24WorkP->stringWork;
+    Mail_memset(buffer, 0, 1024);
+    Mail_sprintf(buffer, "X-Wii-MB-RegDate: %04X\r\n", flags);
+    length = STD_strnlen(buffer, 1024);
+    err = NWC24FWrite(buffer, length, m_pFile);
     if (err == NWC24_OK)
         msg->length += length;
     return err;
 }
 
 static inline NWC24Err WriteMBDelayField(NWC24MsgObjPrivate* msg) {
-    MBFieldWork field;
+    u32 flags;
+    char* buffer;
     NWC24Err err;
     s32 length;
-    field.flags = msg->msgBoardFlags.raw & 0xFF0000;
-    if (!field.flags)
+    flags = GetMBFlags(msg, 0xFF0000);
+    if (!flags)
         return NWC24_OK;
-    field.buffer = NWC24WorkP->stringWork;
-    Mail_memset(field.buffer, 0, 1024);
-    Mail_sprintf(field.buffer, "X-Wii-MB-Delay: %02X\r\n", field.flags >> 16);
-    length = STD_strnlen(field.buffer, 1024);
-    err = NWC24FWrite(field.buffer, length, m_pFile);
+    buffer = NWC24WorkP->stringWork;
+    Mail_memset(buffer, 0, 1024);
+    Mail_sprintf(buffer, "X-Wii-MB-Delay: %02X\r\n", flags >> 16);
+    length = STD_strnlen(buffer, 1024);
+    err = NWC24FWrite(buffer, length, m_pFile);
     if (err == NWC24_OK)
         msg->length += length;
     return err;
