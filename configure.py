@@ -1218,7 +1218,7 @@ config.libs = [
             Object(NonMatching, "texturecvtr/Texture_MCUtoRGB565.c"),
             Object(NonMatching, "texturecvtr/Texture_MCUtoRGBA8.c"),
 
-            Object(NonMatching, "b65/iqdec_b65_frv32.c"),
+            Object(Matching,    "b65/iqdec_b65_frv32.c"),
         ]
     ),
     # NW4R
