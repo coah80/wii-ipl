@@ -385,7 +385,7 @@ u32 AnmPane::getKeyType() const {
 
 void LayoutByNW4R::resetAnmSignWindow() {
     for (u16 i = 0; i < 25; i++) {
-        searchAnmPane(csPaneToAnimationInSign[i].paneName)->init();
+        static_cast<AnmPane*>(searchAnmPane(csPaneToAnimationInSign[i].paneName))->init();
     }
 }
 

@@ -18,6 +18,7 @@ struct LanguageDependency {
 
 class Base : public KeyboardBase {
 public:
+    Base(Manager* manager) : mpAllocator(NULL), mpManager(manager) {}
     virtual ~Base();
     virtual void create(MEMAllocator*) override;
     virtual void init() override;
@@ -45,6 +46,8 @@ class EventHandler;
 
 class LayoutByNW4R : public Base, public nw4rmanager::Layout, public nw4rmanager::AnmObserver {
 public:
+    LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
+        : Base(manager), nw4rmanager::Layout(accessor, layoutName, observer), mbActive(false), mbInput(false), mpEventHandler(NULL), mpKeyboard(NULL) {}
     virtual ~LayoutByNW4R();
     virtual void create(MEMAllocator*) override;
     virtual void init() override;
@@ -75,7 +78,9 @@ public:
 
 class Sample : public LayoutByNW4R {
 public:
-    virtual ~Sample();
+    Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
+        : LayoutByNW4R(manager, accessor, observer, layoutName) {}
+    virtual ~Sample() {}
 };
 
 class EventHandler : public nw4rmanager::TiEventHandler {

@@ -909,12 +909,12 @@ config.libs = [
     # it decides to do fast optimization for this one
     IPLSection("keyboard", [
             Object(Matching, "keyboard/tiPcKeyboard.cpp", extra_cflags=["-O4,p"]),
-            Object(NonMatching, "keyboard/tiCellPhone.cpp", extra_cflags=["-O4,p"]),
+            Object(Matching, "keyboard/tiCellPhone.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiInputForm.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiCandidateBox.cpp", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/tiToolBar.cpp", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/tiPredictLang.cpp", extra_cflags=["-O4,p"]),
-            Object(NonMatching, "keyboard/tiSignWindow.cpp", extra_cflags=["-O4,p"]),
+            Object(Matching, "keyboard/tiSignWindow.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiString.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiAtokString.cpp", extra_cflags=["-O4,p"]),  # for 4.3J
             Object(NonMatching, "keyboard/tiZiString.cpp", extra_cflags=["-O4,p"]),    # for 4.3U and 4.3E
