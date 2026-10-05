@@ -213,190 +213,28 @@ s32 TMCJPEGDEC_scanstart(TMCCJPEGDecWork* work) {
     return 0;
 }
 
-#ifdef __MWERKS__
-asm s32 TMCJPEGDEC_scan_varinit(register TMCCJPEGDecWork* work) {
-    nofralloc
-
-    lbz r4, 0x17fc(r3)
-    addi r5, r3, 0x17f0
-    lbz r0, 0x180b(r3)
-    ori r4, r4, 0x100
-    cmplwi r0, 1
-    stb r4, 0x17fc(r3)
-    bne _scan_varinit_multi
-
-    lbz r0, 0x2c(r3)
-    lbz r6, 0x28(r5)
-    add r8, r5, r0
-    lbz r0, 0x29(r5)
-    lbz r4, 0x20(r8)
-    slwi r9, r6, 3
-    slwi r7, r0, 3
-    lhz r6, 0(r5)
-    divw r0, r9, r4
-    lhz r4, 2(r5)
-    stb r0, 0xd(r5)
-    clrlwi r0, r0, 0x18
-    divw r0, r6, r0
-    lbz r6, 0x24(r8)
-    divw r6, r7, r6
-    sth r0, 0x10(r5)
-    clrlwi r0, r6, 0x18
-    stb r6, 0xe(r5)
-    divw r0, r4, r0
-    sth r0, 0x12(r5)
-    b _scan_varinit_after_mcu
-
-_scan_varinit_multi:
-    lbz r4, 0x28(r5)
-    lbz r0, 0x29(r5)
-    rlwinm r7, r4, 3, 0x18, 0x1c
-    lhz r4, 0(r5)
-    rlwinm r6, r0, 3, 0x18, 0x1c
-    lhz r0, 2(r5)
-    divw r4, r4, r7
-    stb r7, 0xd(r5)
-    stb r6, 0xe(r5)
-    divw r0, r0, r6
-    sth r4, 0x10(r5)
-    sth r0, 0x12(r5)
-
-_scan_varinit_after_mcu:
-    lhz r12, 0(r5)
-    li r4, 0
-    lbz r11, 0xd(r5)
-    lhz r10, 2(r5)
-    divw r8, r12, r11
-    lbz r6, 0xe(r5)
-    lhz r9, 0x10(r5)
-    lhz r7, 0x12(r5)
-    mullw r8, r8, r11
-    subf r11, r8, r12
-    divw r0, r10, r6
-    stb r11, 0x18(r5)
-    mullw r8, r0, r6
-    clrlwi r6, r11, 0x18
-    neg r0, r6
-    subf r10, r8, r10
-    or r8, r0, r6
-    stb r10, 0x19(r5)
-    clrlwi r6, r10, 0x18
-    neg r0, r6
-    srwi r8, r8, 0x1f
-    or r0, r0, r6
-    add r8, r9, r8
-    srwi r0, r0, 0x1f
-    sth r8, 0x10(r5)
-    add r7, r7, r0
-    clrlwi r6, r8, 0x10
-    clrlwi r0, r7, 0x10
-    sth r7, 0x12(r5)
-    mullw r0, r6, r0
-    stw r0, 0x14(r5)
-    b _scan_varinit_condition
-
-_scan_varinit_component:
-    add r6, r3, r4
-    cmplwi r0, 1
-    lbz r0, 0x2c(r6)
-    bne _scan_varinit_component_multi
-    li r0, 1
-    b _scan_varinit_store_component
-
-_scan_varinit_component_multi:
-    add r7, r5, r0
-    lbz r6, 0x20(r7)
-    lbz r0, 0x24(r7)
-    mullw r0, r6, r0
-
-_scan_varinit_store_component:
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r0, 0x1c(r6)
-_scan_varinit_condition:
-    lbz r0, 0x1b(r5)
-    cmpw r4, r0
-    blt _scan_varinit_component
-
-    cmpwi r4, 4
-    subfic r3, r4, 4
-    li r7, 0
-    bge _scan_varinit_return
-    rlwinm. r0, r3, 0x1d, 3, 0x1f
-    mtctr r0
-    beq _scan_varinit_tail_setup
-
-_scan_varinit_unrolled:
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r7, 0x1c(r6)
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r7, 0x1c(r6)
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r7, 0x1c(r6)
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r7, 0x1c(r6)
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r7, 0x1c(r6)
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r7, 0x1c(r6)
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r7, 0x1c(r6)
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r7, 0x1c(r6)
-    bdnz _scan_varinit_unrolled
-    andi. r3, r3, 7
-    beq _scan_varinit_return
-
-_scan_varinit_tail_setup:
-    mtctr r3
-
-_scan_varinit_tail:
-    add r6, r5, r4
-    addi r4, r4, 1
-    stb r7, 0x1c(r6)
-    bdnz _scan_varinit_tail
-
-_scan_varinit_return:
-    li r3, 0
-    blr
-}
-#else
 s32 TMCJPEGDEC_scan_varinit(TMCCJPEGDecWork* work) {
     s32 idx;
     TMCJpegFrameInfo* p;
     u16 remX;
     u16 remY;
 
-    p = (TMCJpegFrameInfo*)((u8*)work + 0x17f0);
+    p = (TMCJpegFrameInfo*)&work->frameWidth;
     work->componentCount = work->componentCount | 0x100;
 
     if (work->scanCompCount == 1) {
         u8 hSamp;
-        u8 vSamp;
         int hMul8;
-        int vMul8;
         u8 qTblH;
-        u8 qTblV;
-        TMCJpegFrameInfo* compPtr;
+        u8 component;
 
         hSamp = p->maxHSamp;
-        compPtr = (TMCJpegFrameInfo*)((u8*)p + work->compMap[0]);
-        vSamp = p->maxVSamp;
-        qTblH = compPtr->hSampFactor[0];
+        component = work->compMap[0];
+        qTblH = p->hSampFactor[component];
         hMul8 = hSamp * 8;
-        vMul8 = vSamp * 8;
         p->mcuXCount = (u8)(hMul8 / qTblH);
-        qTblV = compPtr->vSampFactor[0];
+        p->mcuXRem = (u8)(p->maxVSamp * 8 / p->vSampFactor[component]);
         p->mcuYCount = p->frameWidth / p->mcuXCount;
-        p->mcuXRem = (u8)(vMul8 / qTblV);
         p->mcuXCount2 = p->frameHeight / p->mcuXRem;
     } else {
         u8 vSamp;
@@ -439,200 +277,76 @@ s32 TMCJPEGDEC_scan_varinit(TMCCJPEGDecWork* work) {
 
     return 0;
 }
-#endif
 
-#ifdef __MWERKS__
-asm s32 TMCJPEGDEC_restart_interval(register TMCCJPEGDecWork* work, register u32 maxMCU, register u32 mcuCount) {
-    nofralloc
+static inline void restartMcuPosition(TMCCJPEGDecWork* work, TMCCJPEGDecState* state, u32 maxMCU, u32 mcuCount) {
+    u16 blockCount;
+    u16 column;
+    u16 position;
+    s32 row;
+    s32 remainder;
+    u8 stepY;
+    u8 stepX;
+    u16 pitch;
 
-    stwu r1, -0x20(r1)
-    mflr r0
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    stw r30, 0x18(r1)
-    mr r30, r4
-    stw r29, 0x14(r1)
-    mr r29, r3
-    stw r28, 0x10(r1)
-    mr r28, r5
-    lhz r6, 0x50(r3)
-    lhz r0, 0x181a(r3)
-    addi r6, r6, 1
-    lwz r31, 0x19e4(r3)
-    clrlwi r4, r6, 0x10
-    sth r6, 0x50(r3)
-    cmplw r4, r0
-    li r0, 0
-    bne _restart_interval_result
-    bl TMCJPEGDEC_rewind_ptr
-    cmpwi r3, 0
-    bge _restart_interval_read_marker
-    b _restart_interval_epilogue
-
-_restart_interval_read_marker:
-    mr r4, r29
-    addi r3, r1, 8
-    bl TMCJPEGDEC_get_wbyte
-    lhz r0, 8(r1)
-    cmplwi r0, 0xffd9
-    bne _restart_interval_check_read
-    li r0, 1
-    stb r0, 0x181c(r29)
-
-_restart_interval_check_read:
-    cmpwi r3, 0
-    bge _restart_interval_check_marker
-    b _restart_interval_epilogue
-
-_restart_interval_check_marker:
-    lhz r4, 8(r1)
-    cmplwi r4, 0xffc0
-    blt _restart_interval_restart_marker
-    cmplwi r4, 0xffd0
-    blt _restart_interval_move_back
-    cmplwi r4, 0xffd7
-    ble _restart_interval_restart_marker
-
-_restart_interval_move_back:
-    mr r4, r29
-    li r3, -2
-    bl TMCJPEGDEC_move_ptr
-    cmpwi r3, 0
-    bge _restart_interval_update
-    b _restart_interval_epilogue
-
-_restart_interval_restart_marker:
-    lhz r3, 0x52(r29)
-    addis r3, r3, 1
-    addi r0, r3, -0x30
-    cmpw r4, r0
-    beq _restart_interval_update
-    li r3, -0x23
-    b _restart_interval_epilogue
-
-_restart_interval_update:
-    lhz r4, 0x52(r29)
-    li r0, 0
-    mr r3, r29
-    addi r4, r4, 1
-    clrlwi r4, r4, 0x1d
-    sth r4, 0x52(r29)
-    lbz r5, 0x15(r31)
-    lbz r4, 0x14(r31)
-    divwu r5, r28, r5
-    lhz r6, 0x10(r31)
-    stw r0, 0x30(r29)
-    stw r0, 0x34(r29)
-    stw r0, 0x38(r29)
-    stw r0, 0x3c(r29)
-    clrlwi r5, r5, 0x10
-    sth r0, 0x50(r29)
-    divwu r4, r30, r4
-    mullw r5, r5, r6
-    clrlwi r0, r4, 0x10
-    add r4, r0, r5
-    addi r0, r4, 1
-    clrlwi r5, r0, 0x10
-    divw r4, r5, r6
-    mullw r0, r4, r6
-    subf r0, r0, r5
-    slwi r0, r0, 0x10
-    add r0, r0, r4
-    stw r0, 0x54(r29)
-    bl TMCJPEGDEC_init_buff
-    mr r0, r3
-
-_restart_interval_result:
-    mr r3, r0
-
-_restart_interval_epilogue:
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    lwz r28, 0x10(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+    stepY = state->stepY;
+    stepX = state->stepX;
+    pitch = state->maxX;
+    blockCount = mcuCount / stepY;
+    column = maxMCU / stepX;
+    position = blockCount * pitch + column + 1;
+    work->dcPredict[0] = 0;
+    work->dcPredict[1] = 0;
+    work->dcPredict[2] = 0;
+    work->dcPredict[3] = 0;
+    work->restartCnt = 0;
+    row = position / pitch;
+    remainder = position - row * pitch;
+    work->mcuPos = ((u32)remainder << 16) + row;
 }
-#else
+
 s32 TMCJPEGDEC_restart_interval(TMCCJPEGDecWork* work, u32 maxMCU, u32 mcuCount) {
     u16 restartCount;
-    u16 interval;
     TMCCJPEGDecState* state;
+    s32 result = 0;
 
     restartCount = work->restartCnt;
-    interval = work->restartInterval;
     restartCount++;
     state = work->pState;
     work->restartCnt = restartCount;
 
-    if (restartCount == interval) {
-        s32 result;
+    if (restartCount == work->restartInterval) {
         u16 marker;
 
         result = TMCJPEGDEC_rewind_ptr(work);
-        if (result >= 0) {
-            result = TMCJPEGDEC_get_wbyte(&marker, work);
-            if (marker == 0xFFD9) {
-                work->scanCount = 1;
+        if (result < 0) {
+            return result;
+        }
+        result = TMCJPEGDEC_get_wbyte(&marker, work);
+        if (marker == 0xFFD9) {
+            work->scanCount = 1;
+        }
+        if (result < 0) {
+            return result;
+        }
+        if (marker >= 0xFFC0 && (marker < 0xFFD0 || marker > 0xFFD7)) {
+            result = TMCJPEGDEC_move_ptr(-2, work);
+            if (result < 0) {
+                return result;
             }
-            if (result >= 0) {
-                if (marker >= 0xFFC0 && (marker < 0xFFD0 || marker > 0xFFD7)) {
-                    result = TMCJPEGDEC_move_ptr(-2, work);
-                    if (result < 0) {
-                        return result;
-                    }
-                } else {
-                    s32 expected = work->rstMarkerIdx + 0xFFD0;
-                    if (marker != expected) {
-                        return -0x23;
-                    }
-                }
-
-                {
-                    u16 idx;
-                    u8 stepY;
-                    u8 stepX;
-                    u16 pitch;
-
-                    idx = work->rstMarkerIdx;
-                    idx++;
-                    idx &= 7;
-                    work->rstMarkerIdx = idx;
-                    stepY = state->stepY;
-                    stepX = state->stepX;
-                    pitch = state->maxX;
-                    work->dcPredict[0] = 0;
-                    work->dcPredict[1] = 0;
-                    work->dcPredict[2] = 0;
-                    work->dcPredict[3] = 0;
-                    work->restartCnt = 0;
-
-                    {
-                        u16 blockCount;
-                        u16 mcux;
-                        u16 temp;
-                        u16 div;
-                        u16 rem;
-
-                        blockCount = (u16)(mcuCount / stepY);
-                        mcux = (u16)(blockCount * pitch);
-                        temp = (u16)(mcux + maxMCU / stepX + 1);
-                        div = (u16)(temp / pitch);
-                        rem = (u16)(temp - div * pitch);
-                        work->mcuPos = ((u32)rem << 16) + div;
-                    }
-                }
-
-                result = TMCJPEGDEC_init_buff(work);
+        } else {
+            s32 expected = work->rstMarkerIdx + 0xFFD0;
+            if (marker != expected) {
+                return -0x23;
             }
         }
-        return result;
+
+        work->rstMarkerIdx = (work->rstMarkerIdx + 1) & 7;
+        restartMcuPosition(work, state, maxMCU, mcuCount);
+        result = TMCJPEGDEC_init_buff(work);
     }
-    return 0;
+    return result;
 }
-#endif
+
 
 static inline s32 skipSegmentData(u16 length, TMCCJPEGDecWork* work) {
     s32 result = TMCJPEGDEC_move_ptr(length, work);
@@ -793,155 +507,6 @@ static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
     return result;
 }
 
-#ifdef __MWERKS__
-static asm s32 TMCJPEGDEC_parse_dht(register s32 first, register TMCCJPEGDecWork* work) {
-    nofralloc
-
-    stwu r1, -0x160(r1)
-    mflr r0
-    li r5, 0x11
-    stw r0, 0x164(r1)
-    addi r3, r1, 0x20
-    stmw r25, 0x144(r1)
-    mr r30, r4
-    addi r31, r4, 0x58
-    li r4, 0
-    bl memset
-    mr r4, r30
-    addi r3, r1, 0xa
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _parse_dht_have_length
-    b _parse_dht_return
-
-_parse_dht_have_length:
-    lhz r3, 0xa(r1)
-    li r29, 0
-    addi r0, r3, -2
-    sth r0, 0xa(r1)
-
-_parse_dht_table:
-    lhz r5, 0xa(r1)
-    mr r4, r30
-    addi r3, r1, 8
-    addi r0, r5, -0x11
-    sth r0, 0xa(r1)
-    bl TMCJPEGDEC_get_byte
-    cmpwi r3, 0
-    bge _parse_dht_have_info
-    b _parse_dht_return
-
-_parse_dht_have_info:
-    lbz r0, 8(r1)
-    srawi r27, r0, 4
-    clrlwi r26, r0, 0x1c
-    cmpwi r27, 2
-    bge _parse_dht_bad_table
-    cmpwi r26, 2
-    blt _parse_dht_valid_table
-
-_parse_dht_bad_table:
-    li r3, -0x40
-    b _parse_dht_return
-
-_parse_dht_valid_table:
-    stb r29, 0x20(r1)
-    addi r28, r1, 0x21
-    li r25, 1
-
-_parse_dht_count_loop:
-    mr r4, r30
-    addi r3, r1, 8
-    bl TMCJPEGDEC_get_byte
-    cmpwi r3, 0
-    bge _parse_dht_have_count
-    b _parse_dht_return
-
-_parse_dht_have_count:
-    lbz r3, 8(r1)
-    addi r25, r25, 1
-    lhz r0, 0xa(r1)
-    cmpwi r25, 0x10
-    stb r3, 0(r28)
-    addi r28, r28, 1
-    subf r0, r3, r0
-    sth r0, 0xa(r1)
-    ble _parse_dht_count_loop
-
-    lbz r4, 0x21(r1)
-    lbz r0, 0x22(r1)
-    lbz r3, 0x23(r1)
-    add r25, r4, r0
-    lbz r0, 0x24(r1)
-    add r25, r25, r3
-    lbz r3, 0x25(r1)
-    add r25, r25, r0
-    lbz r0, 0x26(r1)
-    add r25, r25, r3
-    lbz r3, 0x27(r1)
-    add r25, r25, r0
-    lbz r0, 0x28(r1)
-    add r25, r25, r3
-    lbz r4, 0x29(r1)
-    add r25, r25, r0
-    lbz r0, 0x2a(r1)
-    add r25, r25, r4
-    lbz r3, 0x2b(r1)
-    add r25, r25, r0
-    lbz r0, 0x2c(r1)
-    add r25, r25, r3
-    lbz r3, 0x2d(r1)
-    add r25, r25, r0
-    lbz r0, 0x2e(r1)
-    add r25, r25, r3
-    lbz r3, 0x2f(r1)
-    add r25, r25, r0
-    lbz r0, 0x30(r1)
-    add r25, r25, r3
-    add r25, r25, r0
-    cmpwi r25, 0xb0
-    ble _parse_dht_valid_count
-    li r3, -0x40
-    b _parse_dht_return
-
-_parse_dht_valid_count:
-    mr r5, r30
-    addi r3, r1, 0x38
-    clrlwi r4, r25, 0x18
-    bl TMCJPEGDEC_get_sbyte
-    cmpwi r3, 0
-    bge _parse_dht_have_symbols
-    b _parse_dht_return
-
-_parse_dht_have_symbols:
-    stb r25, 0x1c(r1)
-    mr r4, r27
-    mr r5, r26
-    mr r6, r31
-    addi r3, r1, 0x10
-    bl TMCJPEGDEC_set_HuffmanTable
-    addi r3, r1, 0x20
-    addi r4, r1, 0x38
-    addi r5, r1, 0x10
-    bl TMCJPEGDEC_make_huffdec
-    cmpwi r3, 0
-    bge _parse_dht_check_length
-    b _parse_dht_return
-
-_parse_dht_check_length:
-    lhz r0, 0xa(r1)
-    cmpwi r0, 0
-    bne _parse_dht_table
-    li r3, 0
-
-_parse_dht_return:
-    lmw r25, 0x144(r1)
-    lwz r0, 0x164(r1)
-    mtlr r0
-    addi r1, r1, 0x160
-    blr
-}
-#else
 static s32 TMCJPEGDEC_parse_dht(s32 first, TMCCJPEGDecWork* work) {
     TMCUnknownInfo* scaleInfo;
     u16 len;
@@ -963,11 +528,10 @@ static s32 TMCJPEGDEC_parse_dht(s32 first, TMCCJPEGDecWork* work) {
     do {
         u8 htByte;
         u8* pCount;
+        s32 tblClass;
+        s32 tblID;
         s32 idx;
         s32 totalCodes;
-
-        s32 tblID;
-        s32 tblClass;
 
         len -= 0x11;
         r = TMCJPEGDEC_get_byte(&htByte, work);
@@ -975,8 +539,8 @@ static s32 TMCJPEGDEC_parse_dht(s32 first, TMCCJPEGDecWork* work) {
             return r;
         }
 
-        tblClass = htByte >> 4;
-        tblID = htByte & 0xF;
+        tblID = (htByte & 0xF);
+        tblClass = (htByte >> 4);
 
         if (tblClass >= 2 || tblID >= 2) {
             return -0x40;
@@ -996,22 +560,10 @@ static s32 TMCJPEGDEC_parse_dht(s32 first, TMCCJPEGDecWork* work) {
             idx++;
         }
 
-        totalCodes = countBuf[1];
-        totalCodes += countBuf[2];
-        totalCodes += countBuf[3];
-        totalCodes += countBuf[4];
-        totalCodes += countBuf[5];
-        totalCodes += countBuf[6];
-        totalCodes += countBuf[7];
-        totalCodes += countBuf[8];
-        totalCodes += countBuf[9];
-        totalCodes += countBuf[10];
-        totalCodes += countBuf[11];
-        totalCodes += countBuf[12];
-        totalCodes += countBuf[13];
-        totalCodes += countBuf[14];
-        totalCodes += countBuf[15];
-        totalCodes += countBuf[16];
+        totalCodes = 0;
+        for (idx = 1; idx <= 16; idx++) {
+            totalCodes += countBuf[idx];
+        }
 
         if (totalCodes > 0xB0) {
             return -0x40;
@@ -1033,7 +585,6 @@ static s32 TMCJPEGDEC_parse_dht(s32 first, TMCCJPEGDecWork* work) {
 
     return 0;
 }
-#endif
 
 static s32 TMCJPEGDEC_parse_dqt(TMCCJPEGDecWork* work) {
     typedef struct {

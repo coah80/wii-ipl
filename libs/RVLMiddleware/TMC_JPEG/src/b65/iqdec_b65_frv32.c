@@ -120,6 +120,8 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     TMCHuffmanEntry dcLimit;
     TMCHuffmanEntry acDecoded;
     TMCHuffmanEntry acLimit;
+    s32 zz;
+    const u8* zztbl;
     u8* huff_sym;
     u16* ac_fast;
     s32 idx;
@@ -132,10 +134,8 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     TMCHuffmanEntry acEntry;
     s32 extra;
     s32 t;
-    s32 zz;
     s32 q;
     u16* dc_fast;
-    const u8* zztbl;
     s32* conv_row;
 
     conv_row = (s32*)conv_row_ptr;
@@ -192,9 +192,12 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
     *block = dc_predict_row_ptr[0] * blk0;
 
     {
+        u32* ac_huff_tbl;
+        u8* ac_huff_sym;
+
         ac_fast = work->pACFast;
-        huff_tbl = work->pACHuffTbl;
-        huff_sym = work->pACHuffSym;
+        ac_huff_tbl = work->pACHuffTbl;
+        ac_huff_sym = work->pACHuffSym;
 
         memset(block + 1, 0, 0xFC);
 
@@ -221,7 +224,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
                 r = acEntry.symbol;
             } else {
                 bit_pos = work->bitCount;
-                r = decodeACHuffman(bit_pos, huff_tbl, huff_sym, work, &acLimit, &acDecoded);
+                r = decodeACHuffman(bit_pos, ac_huff_tbl, ac_huff_sym, work, &acLimit, &acDecoded);
                 if (r < 0) {
                     return r;
                 }
@@ -249,8 +252,7 @@ s32 TMCJPEGDEC_decode_iquant(s32* block, u8* conv_row_ptr, u32* dc_predict_row_p
                 bit_pos = work->bitCount - t;
                 work->bitCount = bit_pos;
                 bit_data = work->bitBuf;
-                extra = tmp - 1;
-                extra = extra & (bit_data >> bit_pos);
+                extra = (tmp - 1) & (bit_data >> bit_pos);
                 t = bit_pos - 8;
                 q = conv_row[(u8)zz];
                 acEntry = readHuffmanEntry((const TMCHuffmanEntry*)ac_fast, (bit_data >> t) & 0xFF);

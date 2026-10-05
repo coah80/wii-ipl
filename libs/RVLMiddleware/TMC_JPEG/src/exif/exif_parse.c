@@ -241,14 +241,20 @@ _error:
     return -2;
 }
 
-static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* pInfo) {
+static s32 TMCJPEGDEC_exif_parse(const u8* entries, u32 size, TMCCJPEGDecExifData* pInfo) {
     u16 byteOrder;
     u32 ifdOffset;
-    const u8* entries;
+    const u8* data = entries;
+    const u8* exifEntries;
+    u32 exifCount;
+    u16 exifIndex;
+    const u8* ifd1Entries;
+    u32 ifd1Count;
+    u16 ifd1Index;
     u16 remaining;
     u16 index;
-    s32 entriesSize;
-    u16 count;
+    u32 count;
+
     pInfo->thumbnailData = (u8*)data;
     pInfo->dataEnd = (u8*)data + size;
     pInfo->nextIfdOffset = 0;
@@ -273,17 +279,16 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
             return -161;
         }
         count = readExifU16(entries, byteOrder);
-        entriesSize = count * 12;
         entries += 2;
         remaining -= 2;
-        if (remaining < entriesSize) {
+        if (remaining < (s32)count * 12) {
             return -161;
         }
         for (index = 0; index < count; index++) {
             TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, (u8*)entries);
             entries += 12;
         }
-        remaining -= entriesSize;
+        remaining -= (s32)count * 12;
         if (remaining < 4) {
             return -161;
         }
@@ -296,21 +301,20 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
         return -161;
     }
     {
-        entries = data + ifdOffset;
+        ifd1Entries = data + ifdOffset;
         remaining = size - (u16)ifdOffset;
         if (remaining < 2) {
             return -161;
         }
-        count = readExifU16(entries, byteOrder);
-        entriesSize = count * 12;
-        entries += 2;
+        ifd1Count = readExifU16(ifd1Entries, byteOrder);
+        ifd1Entries += 2;
         remaining -= 2;
-        if (remaining < entriesSize) {
+        if (remaining < (s32)ifd1Count * 12) {
             return -161;
         }
-        for (index = 0; index < count; index++) {
-            TMCJPEGDEC_IFD1_tag_parse(pInfo, byteOrder, entries);
-            entries += 12;
+        for (ifd1Index = 0; ifd1Index < ifd1Count; ifd1Index++) {
+            TMCJPEGDEC_IFD1_tag_parse(pInfo, byteOrder, ifd1Entries);
+            ifd1Entries += 12;
         }
     }
     ifdOffset = pInfo->nextIfdOffset;
@@ -318,21 +322,20 @@ static s32 TMCJPEGDEC_exif_parse(const u8* data, u32 size, TMCCJPEGDecExifData* 
         return -161;
     }
     {
-        entries = data + ifdOffset;
+        exifEntries = data + ifdOffset;
         remaining = size - (u16)ifdOffset;
         if (remaining < 2) {
             return -161;
         }
-        count = readExifU16(entries, byteOrder);
-        entriesSize = count * 12;
-        entries += 2;
+        exifCount = readExifU16(exifEntries, byteOrder);
+        exifEntries += 2;
         remaining -= 2;
-        if (remaining < entriesSize) {
+        if (remaining < (s32)exifCount * 12) {
             return -161;
         }
-        for (index = 0; index < count; index++) {
-            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, (u8*)entries);
-            entries += 12;
+        for (exifIndex = 0; exifIndex < exifCount; exifIndex++) {
+            TMCJPEGDEC_IFD0_tag_parse(pInfo, byteOrder, (u8*)exifEntries);
+            exifEntries += 12;
         }
     }
     return 0;
