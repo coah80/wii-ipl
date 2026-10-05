@@ -34,7 +34,11 @@ void CDBConvTypeStrToFullPath(char* fullPath, char* yearStr, char* monthStr, cha
 void CDBConvFileNameStrToFullPath(char* fullPath, char* yearStr, char* monthStr, char* dayStr, char* hourStr, char* minuteStr, char* codeStr,
                                   char* typeStr, char* fileStr, CDBLocation location, u64* wiiId);
 
+#ifdef CDB_DATABASE_IMPLEMENTATION
+CDBDate CDBConvDirStrToCDBDate(char* yearStr, char* monthStr, char* dayStr, char* hourStr, char* minuteStr);
+#else
 CDBDate CDBConvDirStrToCDBDate(char* yearStr, char* monthStr, char* dayStr, char* hourStr, char* minuteStr, CDBLocation location, u64* wiiId);
+#endif
 
 void CDBConvGCStrToGCValue(char* gcStr, u32* gcValue);
 void CDBConvGCValueToGCStr(u32 gcValue, char* gcStr);

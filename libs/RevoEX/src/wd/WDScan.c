@@ -40,8 +40,6 @@ const u8 scWpaFindOuiPad4 = 0;
 #define scWpaFindOui0 (*((volatile const u8*)&scWpaFindOui0))
 #define scWpaFindOui1 (*((volatile const u8*)&scWpaFindOui1))
 #define scWpaFindOui2 (*((volatile const u8*)&scWpaFindOui2))
-extern void _savegpr_21();
-extern void _restgpr_21();
 
 #define WAIT_FOR_OPERATION(...)                                                                                                                      \
     do {                                                                                                                                             \
@@ -310,80 +308,45 @@ BOOL WDFindInformationElement(WDInfoElement** outIE, u32* outIELength, WDBssDesc
     return found;
 }
 
-asm BOOL WDiFindVendorSpecificIE(WDVendorInfoElement** outIE, u32* outIELength, WDBssDesc* bssDesc, int id, u8* data, u8 mode) {
-    nofralloc
-    stwu r1, -0x40(r1)
-    mflr r0
-    stw r0, 0x44(r1)
-    addi r11, r1, 0x40
-    bl _savegpr_21
-    cmpwi r5, 0
-    mr r30, r3
-    mr r31, r4
-    mr r21, r6
-    mr r22, r7
-    mr r23, r8
-    li r28, 0
-    beq WDiFindVendorSpecificIE_done
-    addi r26, r5, 0x3e
-    lhz r29, 0x3c(r5)
-    mr r25, r26
-    li r27, 0
-    b WDiFindVendorSpecificIE_loop_check
-WDiFindVendorSpecificIE_loop:
-    lbzx r0, r26, r27
-    add r25, r26, r27
-    cmplw r0, r21
-    bne WDiFindVendorSpecificIE_next
-    lbz r24, 5(r25)
-    mr r4, r22
-    addi r3, r25, 2
-    li r5, 3
-    bl memcmp
-    cmpwi r3, 0
-    bne WDiFindVendorSpecificIE_next
-    cmplw r24, r23
-    beq WDiFindVendorSpecificIE_found
-WDiFindVendorSpecificIE_next:
-    lbz r0, 1(r25)
-    add r3, r0, r27
-    addi r27, r3, 2
-WDiFindVendorSpecificIE_loop_check:
-    cmpw r27, r29
-    blt WDiFindVendorSpecificIE_loop
-WDiFindVendorSpecificIE_found:
-    cmpw r27, r29
-    bge WDiFindVendorSpecificIE_done
-    cmpwi r30, 0
-    beq WDiFindVendorSpecificIE_no_out
-    addi r0, r25, 6
-    stw r0, 0(r30)
-WDiFindVendorSpecificIE_no_out:
-    cmpwi r31, 0
-    beq WDiFindVendorSpecificIE_set_found
-    lbz r3, 1(r25)
-    addi r0, r3, -4
-    stw r0, 0(r31)
-WDiFindVendorSpecificIE_set_found:
-    li r28, 1
-WDiFindVendorSpecificIE_done:
-    cmpwi r28, 0
-    bne WDiFindVendorSpecificIE_return
-    cmpwi r30, 0
-    beq WDiFindVendorSpecificIE_no_out_null
-    li r0, 0
-    stw r0, 0(r30)
-WDiFindVendorSpecificIE_no_out_null:
-    cmpwi r31, 0
-    beq WDiFindVendorSpecificIE_return
-    li r0, 0
-    stw r0, 0(r31)
-WDiFindVendorSpecificIE_return:
-    addi r11, r1, 0x40
-    mr r3, r28
-    bl _restgpr_21
-    lwz r0, 0x44(r1)
-    mtlr r0
-    addi r1, r1, 0x40
-    blr
+BOOL WDiFindVendorSpecificIE(WDVendorInfoElement** outIE, u32* outIELength, WDBssDesc* bssDesc, int id, u8* data, u8 mode) {
+    u32* lengthResult = outIELength;
+    WDVendorInfoElement** elementResult = outIE;
+    int length;
+    BOOL found = FALSE;
+
+    if (bssDesc != NULL) {
+        s32 offset;
+        u8* ptr = (u8*)(bssDesc + 1);
+        WDVendorInfoElement* infoElement = (WDVendorInfoElement*)ptr;
+
+        length = bssDesc->ieLength;
+
+        for (offset = 0; offset < length; offset += infoElement->length + 2) {
+            infoElement = (WDVendorInfoElement*)(ptr + offset);
+            if (infoElement->id == (u32)id) {
+                u8 elementMode = infoElement->mode;
+                if (memcmp(infoElement->data, data, WD_VENDOR_LENGTH) == 0 && elementMode == mode) {
+                    break;
+                }
+            }
+        }
+        if (offset < length) {
+            if (elementResult != NULL) {
+                *elementResult = infoElement + 1;
+            }
+            if (lengthResult != NULL) {
+                *lengthResult = infoElement->length - (sizeof(WDVendorInfoElement) - sizeof(WDInfoElement));
+            }
+            found = TRUE;
+        }
+    }
+    if (!found) {
+        if (elementResult != NULL) {
+            *elementResult = NULL;
+        }
+        if (lengthResult != NULL) {
+            *lengthResult = 0;
+        }
+    }
+    return found;
 }

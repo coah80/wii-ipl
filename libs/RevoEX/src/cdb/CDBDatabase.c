@@ -1,3 +1,4 @@
+#define CDB_DATABASE_IMPLEMENTATION
 #include <private/cdb.h>
 #include <revolution/cdb.h>
 #include <stdlib.h>
@@ -13,15 +14,25 @@ extern CDBErr CDBRecordCreateAtOnce(CDBRecord* record, CDBDatabase* database, co
 extern void CDBRecordInitDescriptor(CDBRecord* record, CDBDatabase* database, CDBRecordKey* key);
 extern BOOL CDBRecordIsExistFile(CDBRecord* record);
 extern CDBErr CDBRecordOpenReadOnly(CDBRecord* record);
-extern void CDBRecordKeyArrayInit();
-extern void CDBRecordKeyArraySetReverse();
-extern void CDBRecordKeyArraySize();
-extern void CDBRecordKeyArrayAt();
-extern void CDBRecordKeyArrayEmpty();
-extern void CDBRecordKeyArrayFull();
-extern void CDBRecordKeyArrayEnd();
-extern void CDBRecordKeyArrayDicFind();
-extern void CDBRecordKeyArrayDicInsert();
+typedef struct {
+    CDBRecordKey* records;
+    int capacity;
+    int size;
+    int reverse;
+} CDBRecordKeyArray;
+typedef struct {
+    u32 used;
+    CDBRecordKey records[0x400];
+} CDBDatabaseSearchBuffer;
+extern void CDBRecordKeyArrayInit(CDBRecordKeyArray* array, CDBRecordKey* records, int capacity);
+extern void CDBRecordKeyArraySetReverse(CDBRecordKeyArray* array);
+extern int CDBRecordKeyArraySize(CDBRecordKeyArray* array);
+extern CDBRecordKey* CDBRecordKeyArrayAt(CDBRecordKeyArray* array, int index);
+extern BOOL CDBRecordKeyArrayEmpty(CDBRecordKeyArray* array);
+extern BOOL CDBRecordKeyArrayFull(CDBRecordKeyArray* array);
+extern CDBRecordKey* CDBRecordKeyArrayEnd(CDBRecordKeyArray* array);
+extern CDBRecordKey* CDBRecordKeyArrayDicFind(CDBRecordKeyArray* array, CDBRecordKey* key);
+extern CDBRecordKey* CDBRecordKeyArrayDicInsert(CDBRecordKeyArray* array, CDBRecordKey* key);
 extern void CDBFSFindFirstRoot();
 extern CDBErr CDBFSDeleteDir();
 extern void CDBFSFindNext();
@@ -29,17 +40,23 @@ extern void CDBFSFindClose();
 extern BOOL CDBFindDataIsDirectory();
 extern char* CDBFindDataGetName();
 extern BOOL CDBFindDataIsEnd();
-extern void CDBIntArrayInit();
-extern void CDBIntArraySetReverse();
-extern void CDBIntArrayFull();
-extern void CDBIntArrayDicInsert();
-extern void CDBIntArrayDicFind();
-extern void CDBIntArrayEnd();
-extern void CDBIntArrayEmpty();
-extern void CDBIntArrayAt();
-extern void CDBIntArraySize();
-extern void CDBIntCompare();
-extern void CDBIntCopy();
+typedef struct {
+    int* values;
+    int capacity;
+    int size;
+    int direction;
+} CDBIntArray;
+extern void CDBIntArrayInit(CDBIntArray* array, int* values, int capacity);
+extern void CDBIntArraySetReverse(CDBIntArray* array);
+extern BOOL CDBIntArrayFull(CDBIntArray* array);
+extern int* CDBIntArrayDicInsert(CDBIntArray* array, int* value);
+extern int* CDBIntArrayDicFind(CDBIntArray* array, int* value);
+extern int* CDBIntArrayEnd(CDBIntArray* array);
+extern BOOL CDBIntArrayEmpty(CDBIntArray* array);
+extern int* CDBIntArrayAt(CDBIntArray* array, int index);
+extern int CDBIntArraySize(CDBIntArray* array);
+extern int CDBIntCompare(const int* left, const int* right);
+extern void CDBIntCopy(int* destination, const int* value);
 extern void __div2i();
 extern void _savegpr_14();
 extern void _savegpr_17();
@@ -396,1822 +413,662 @@ CDBErr CDBDatabaseSearchCallCallback(CDBDatabase* database, CDBSearchConditions*
     return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseSearchRecordLayer() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x120(r1)
-    mflr r0
-    stw r0, 0x124(r1)
-    addi r11, r1, 0x120
-    bl _savegpr_14
-    lwz r11, CDBDatabaseWorkBuf(r0)
-    mr r20, r5
-    mr r22, r7
-    mr r24, r9
-    mr r21, r6
-    mr r23, r8
-    mr r19, r4
-    lwz r14, 0x8(r3)
-    stw r3, 0x10(r1)
-    mr r15, r10
-    mr r3, r20
-    mr r4, r21
-    mr r5, r22
-    mr r6, r23
-    mr r7, r24
-    addi r30, r11, 0x100
-    addi r29, r11, 0xa94
-    addi r28, r11, 0x1428
-    bl CDBConvDirStrToCDBDate
-    lwz r0, 0x18(r19)
-    mr r31, r3
-    lwz r25, CDBDatabaseWorkBuf(r0)
-    addi r26, r3, 0x3b
-    cmpwi r0, 0x0
-    addi r0, r25, 0x994
-    stw r0, 0xcc(r1)
-    addi r0, r25, 0x1328
-    stw r0, 0xc8(r1)
-    bne CDBDatabaseSearchRecordLayer_L_81487DBC
-    li r3, 0x1
-    b CDBDatabaseSearchRecordLayer_L_81488410
-    CDBDatabaseSearchRecordLayer_L_81487DBC:
-    addi r3, r1, 0x68
-    li r4, 0x0
-    bl CDBRecordKeyInitByOnlyDate
-    addi r3, r1, 0x18
-    addi r4, r14, 0x8
-    li r5, 0x400
-    bl CDBRecordKeyArrayInit
-    lwz r0, 0x14(r19)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchRecordLayer_L_81487DF8
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArraySetReverse
-    addi r3, r1, 0x68
-    li r4, -0x1
-    bl CDBRecordKeyInitByOnlyDate
-    CDBDatabaseSearchRecordLayer_L_81487DF8:
-    bl CDBLock
-    lwz r3, 0x10(r1)
-    lwz r3, 0x8(r3)
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81487E18
-    addis r3, r3, 0x1
-    lwz r14, -0x3ff0(r3)
-    b CDBDatabaseSearchRecordLayer_L_81487E1C
-    CDBDatabaseSearchRecordLayer_L_81487E18:
-    li r14, 0x0
-    CDBDatabaseSearchRecordLayer_L_81487E1C:
-    bl CDBUnlock
-    cmpwi r14, 0x0
-    bne CDBDatabaseSearchRecordLayer_L_81487E30
-    li r3, 0x1b
-    b CDBDatabaseSearchRecordLayer_L_81488410
-    CDBDatabaseSearchRecordLayer_L_81487E30:
-    clrlwi r0, r15, 31
-    li r27, 0x0
-    stw r0, 0xd4(r1)
-    rlwinm r0, r15, 0, 30, 30
-    li r18, 0x2
-    li r15, 0x1
-    stw r0, 0xd0(r1)
-    li r14, 0x0
-    b CDBDatabaseSearchRecordLayer_L_81488404
-    CDBDatabaseSearchRecordLayer_L_81487E54:
-    lwz r0, 0xd4(r1)
-    li r27, 0x1
-    stw r14, 0x20(r1)
-    cmpwi r0, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488094
-    lwz r3, 0xcc(r1)
-    mr r4, r20
-    mr r5, r21
-    mr r6, r22
-    mr r7, r23
-    mr r8, r24
-    li r9, 0x1
-    li r10, 0x0
-    bl CDBConvMinuteStrToFullPath
-    lwz r4, 0xcc(r1)
-    mr r3, r29
-    li r5, 0x1
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchRecordLayer_L_8148807C
-    CDBDatabaseSearchRecordLayer_L_81487EA0:
-    mr r3, r29
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488074
-    mr r3, r29
-    bl CDBFindDataGetName
-    bl CDBFSIsMCGCDirNameOnSD
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488074
-    mr r3, r29
-    bl CDBFindDataGetName
-    mr r9, r3
-    stw r14, 0x8(r1)
-    lwz r3, 0xc8(r1)
-    mr r4, r20
-    mr r5, r21
-    mr r6, r22
-    mr r7, r23
-    mr r8, r24
-    li r10, 0x1
-    bl CDBConvCodeStrToFullPath
-    lwz r4, 0xc8(r1)
-    mr r3, r28
-    li r5, 0x1
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchRecordLayer_L_8148805C
-    CDBDatabaseSearchRecordLayer_L_81487F08:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488054
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsTypeDirNameOnSD
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488054
-    mr r3, r28
-    bl CDBFindDataGetName
-    mr r16, r3
-    mr r3, r29
-    bl CDBFindDataGetName
-    stw r15, 0x8(r1)
-    mr r9, r3
-    mr r3, r25
-    mr r4, r20
-    stw r14, 0xc(r1)
-    mr r5, r21
-    mr r6, r22
-    mr r7, r23
-    mr r8, r24
-    mr r10, r16
-    bl CDBConvTypeStrToFullPath
-    mr r3, r30
-    mr r4, r25
-    li r5, 0x1
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchRecordLayer_L_8148803C
-    CDBDatabaseSearchRecordLayer_L_81487F80:
-    mr r3, r30
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    bne CDBDatabaseSearchRecordLayer_L_81488034
-    mr r3, r30
-    bl CDBFindDataGetName
-    bl CDBFSIsCDBFileOnSD
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488034
-    mr r3, r28
-    bl CDBFindDataGetName
-    mr r17, r3
-    mr r3, r29
-    bl CDBFindDataGetName
-    mr r16, r3
-    mr r3, r30
-    bl CDBFindDataGetName
-    mr r4, r3
-    mr r5, r16
-    mr r6, r17
-    addi r3, r1, 0x98
-    bl CDBRecordKeyInitFromFileName2
-    addi r3, r1, 0x98
-    addi r4, r1, 0x68
-    bl CDBRecordKeyCompare
-    lwz r0, 0x24(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchRecordLayer_L_81488034
-    addi r3, r1, 0x18
-    addi r4, r1, 0x98
-    bl CDBRecordKeyArrayDicFind
-    mr r16, r3
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArrayEnd
-    cmplw r16, r3
-    bne CDBDatabaseSearchRecordLayer_L_81488034
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488024
-    li r27, 0x0
-    CDBDatabaseSearchRecordLayer_L_81488024:
-    stw r15, 0xc0(r1)
-    addi r3, r1, 0x18
-    addi r4, r1, 0x98
-    bl CDBRecordKeyArrayDicInsert
-    CDBDatabaseSearchRecordLayer_L_81488034:
-    mr r3, r30
-    bl CDBFSFindNext
-    CDBDatabaseSearchRecordLayer_L_8148803C:
-    mr r3, r30
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81487F80
-    mr r3, r30
-    bl CDBFSFindClose
-    CDBDatabaseSearchRecordLayer_L_81488054:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchRecordLayer_L_8148805C:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81487F08
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchRecordLayer_L_81488074:
-    mr r3, r29
-    bl CDBFSFindNext
-    CDBDatabaseSearchRecordLayer_L_8148807C:
-    mr r3, r29
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81487EA0
-    mr r3, r29
-    bl CDBFSFindClose
-    CDBDatabaseSearchRecordLayer_L_81488094:
-    lwz r0, 0xd0(r1)
-    cmpwi r0, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_814882F4
-    lwz r3, 0xcc(r1)
-    mr r4, r20
-    mr r5, r21
-    mr r6, r22
-    mr r7, r23
-    mr r8, r24
-    addi r10, r19, 0x28
-    li r9, 0x2
-    bl CDBConvMinuteStrToFullPath
-    lwz r4, 0xcc(r1)
-    mr r3, r29
-    li r5, 0x2
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchRecordLayer_L_814882DC
-    CDBDatabaseSearchRecordLayer_L_814880D8:
-    mr r3, r29
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_814882D4
-    mr r3, r29
-    bl CDBFindDataGetName
-    bl CDBFSIsMCGCDirNameOnSD
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_814882D4
-    mr r3, r29
-    bl CDBFindDataGetName
-    addi r0, r19, 0x28
-    mr r9, r3
-    stw r0, 0x8(r1)
-    mr r4, r20
-    lwz r3, 0xc8(r1)
-    mr r5, r21
-    mr r6, r22
-    mr r7, r23
-    mr r8, r24
-    li r10, 0x2
-    bl CDBConvCodeStrToFullPath
-    lwz r4, 0xc8(r1)
-    mr r3, r28
-    li r5, 0x2
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchRecordLayer_L_814882BC
-    CDBDatabaseSearchRecordLayer_L_81488144:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_814882B4
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsTypeDirNameOnSD
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_814882B4
-    mr r3, r28
-    bl CDBFindDataGetName
-    mr r16, r3
-    mr r3, r29
-    bl CDBFindDataGetName
-    stw r18, 0x8(r1)
-    addi r0, r19, 0x28
-    mr r9, r3
-    mr r3, r25
-    stw r0, 0xc(r1)
-    mr r4, r20
-    mr r5, r21
-    mr r6, r22
-    mr r7, r23
-    mr r8, r24
-    mr r10, r16
-    bl CDBConvTypeStrToFullPath
-    mr r3, r30
-    mr r4, r25
-    li r5, 0x2
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchRecordLayer_L_8148829C
-    CDBDatabaseSearchRecordLayer_L_814881C0:
-    mr r3, r30
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    bne CDBDatabaseSearchRecordLayer_L_81488294
-    mr r3, r30
-    bl CDBFindDataGetName
-    bl CDBFSIsCDBFileOnSD
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488294
-    mr r3, r28
-    bl CDBFindDataGetName
-    mr r16, r3
-    mr r3, r29
-    bl CDBFindDataGetName
-    mr r17, r3
-    mr r3, r30
-    bl CDBFindDataGetName
-    mr r4, r3
-    mr r5, r17
-    mr r6, r16
-    addi r3, r1, 0x98
-    bl CDBRecordKeyInitFromFileName2
-    addi r3, r1, 0x98
-    addi r4, r1, 0x14
-    bl CDBConvKeyStrToEpochValue
-    lwz r0, 0x14(r1)
-    cmplw r31, r0
-    bgt CDBDatabaseSearchRecordLayer_L_81488294
-    cmplw r0, r26
-    bgt CDBDatabaseSearchRecordLayer_L_81488294
-    addi r3, r1, 0x98
-    addi r4, r1, 0x68
-    bl CDBRecordKeyCompare
-    lwz r0, 0x24(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchRecordLayer_L_81488294
-    addi r3, r1, 0x18
-    addi r4, r1, 0x98
-    bl CDBRecordKeyArrayDicFind
-    mr r16, r3
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArrayEnd
-    cmplw r16, r3
-    bne CDBDatabaseSearchRecordLayer_L_81488294
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488284
-    li r27, 0x0
-    CDBDatabaseSearchRecordLayer_L_81488284:
-    stw r18, 0xc0(r1)
-    addi r3, r1, 0x18
-    addi r4, r1, 0x98
-    bl CDBRecordKeyArrayDicInsert
-    CDBDatabaseSearchRecordLayer_L_81488294:
-    mr r3, r30
-    bl CDBFSFindNext
-    CDBDatabaseSearchRecordLayer_L_8148829C:
-    mr r3, r30
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_814881C0
-    mr r3, r30
-    bl CDBFSFindClose
-    CDBDatabaseSearchRecordLayer_L_814882B4:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchRecordLayer_L_814882BC:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488144
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchRecordLayer_L_814882D4:
-    mr r3, r29
-    bl CDBFSFindNext
-    CDBDatabaseSearchRecordLayer_L_814882DC:
-    mr r3, r29
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_814880D8
-    mr r3, r29
-    bl CDBFSFindClose
-    CDBDatabaseSearchRecordLayer_L_814882F4:
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArrayEmpty
-    cmpwi r3, 0x0
-    bne CDBDatabaseSearchRecordLayer_L_8148840C
-    lwz r0, 0x14(r19)
-    cmpwi r0, 0x1
-    bne CDBDatabaseSearchRecordLayer_L_8148838C
-    li r16, 0x0
-    b CDBDatabaseSearchRecordLayer_L_81488378
-    CDBDatabaseSearchRecordLayer_L_81488318:
-    mr r4, r16
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArrayAt
-    mr r17, r3
-    lwz r4, 0x10(r1)
-    mr r5, r17
-    addi r3, r1, 0x28
-    bl CDBRecordInitDescriptor
-    lwz r3, 0x10(r1)
-    mr r4, r19
-    addi r5, r1, 0x28
-    bl CDBDatabaseSearchCallCallback
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81488354
-    b CDBDatabaseSearchRecordLayer_L_81488410
-    CDBDatabaseSearchRecordLayer_L_81488354:
-    mr r4, r17
-    addi r3, r1, 0x68
-    bl CDBRecordKeyCopy
-    lwz r0, 0x20(r19)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchRecordLayer_L_81488374
-    li r3, 0x0
-    b CDBDatabaseSearchRecordLayer_L_81488410
-    CDBDatabaseSearchRecordLayer_L_81488374:
-    addi r16, r16, 0x1
-    CDBDatabaseSearchRecordLayer_L_81488378:
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArraySize
-    cmpw r16, r3
-    blt CDBDatabaseSearchRecordLayer_L_81488318
-    b CDBDatabaseSearchRecordLayer_L_81488404
-    CDBDatabaseSearchRecordLayer_L_8148838C:
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArraySize
-    subi r16, r3, 0x1
-    b CDBDatabaseSearchRecordLayer_L_814883FC
-    CDBDatabaseSearchRecordLayer_L_8148839C:
-    mr r4, r16
-    addi r3, r1, 0x18
-    bl CDBRecordKeyArrayAt
-    mr r17, r3
-    lwz r4, 0x10(r1)
-    mr r5, r17
-    addi r3, r1, 0x28
-    bl CDBRecordInitDescriptor
-    lwz r3, 0x10(r1)
-    mr r4, r19
-    addi r5, r1, 0x28
-    bl CDBDatabaseSearchCallCallback
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_814883D8
-    b CDBDatabaseSearchRecordLayer_L_81488410
-    CDBDatabaseSearchRecordLayer_L_814883D8:
-    mr r4, r17
-    addi r3, r1, 0x68
-    bl CDBRecordKeyCopy
-    lwz r0, 0x20(r19)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchRecordLayer_L_814883F8
-    li r3, 0x0
-    b CDBDatabaseSearchRecordLayer_L_81488410
-    CDBDatabaseSearchRecordLayer_L_814883F8:
-    subi r16, r16, 0x1
-    CDBDatabaseSearchRecordLayer_L_814883FC:
-    cmpwi r16, 0x0
-    bge CDBDatabaseSearchRecordLayer_L_8148839C
-    CDBDatabaseSearchRecordLayer_L_81488404:
-    cmpwi r27, 0x0
-    beq CDBDatabaseSearchRecordLayer_L_81487E54
-    CDBDatabaseSearchRecordLayer_L_8148840C:
-    li r3, 0x0
-    CDBDatabaseSearchRecordLayer_L_81488410:
-    addi r11, r1, 0x120
-    bl _restgpr_14
-    lwz r0, 0x124(r1)
-    mtlr r0
-    addi r1, r1, 0x120
-    blr
-#endif
+CDBErr CDBDatabaseSearchRecordLayer(CDBDatabase* database, CDBSearchConditions* conditions, char* year, char* month, char* day, char* hour, char* minute, CDBRecordLocation recordLocation) {
+    CDBDatabaseSearchBuffer* instance = database->instance;
+    CDBFindData* recordFind = &CDBDatabaseWorkBuf->record.find;
+    CDBFindData* codeFind = &CDBDatabaseWorkBuf->code.find;
+    CDBFindData* typeFind = &CDBDatabaseWorkBuf->type.find;
+    CDBDate begin = CDBConvDirStrToCDBDate(year, month, day, hour, minute);
+    BOOL finished;
+    CDBDate end = begin + 59;
+    char* recordPath = CDBDatabaseWorkBuf->record.path;
+    char* codePath = CDBDatabaseWorkBuf->code.path;
+    char* typePath = CDBDatabaseWorkBuf->type.path;
+    CDBRecordKey key;
+    CDBRecordKey lastKey;
+    CDBRecord record;
+    CDBRecordKeyArray keys;
+    CDBDate date;
+    u32 flags;
+    int i;
+    CDBErr result;
+
+    if (conditions->callback == NULL) {
+        return CDB_ERROR_1;
+    }
+    CDBRecordKeyInitByOnlyDate(&lastKey, 0);
+    CDBRecordKeyArrayInit(&keys, instance->records, 0x400);
+    if (conditions->direction == CDB_SEARCH_DIRECTION_LEFT) {
+        CDBRecordKeyArraySetReverse(&keys);
+        CDBRecordKeyInitByOnlyDate(&lastKey, -1);
+    }
+    CDBLock();
+    if (database->instance != NULL) {
+        flags = ((CDBDatabaseState*)database->instance)->flags;
+    } else {
+        flags = 0;
+    }
+    CDBUnlock();
+    if (flags == 0) {
+        return CDB_ERROR_27;
+    }
+    finished = FALSE;
+    while (!finished) {
+        finished = TRUE;
+        keys.size = 0;
+        if (recordLocation & CDB_RECORD_LOCATION_NAND) {
+            CDBConvMinuteStrToFullPath(codePath, year, month, day, hour, minute, CDB_FS_LOCATION_NAND, NULL);
+            CDBFSFindFirst(codeFind, codePath, CDB_FS_LOCATION_NAND);
+            while (!CDBFindDataIsEnd(codeFind)) {
+                if (CDBFindDataIsDirectory(codeFind) && CDBFSIsMCGCDirNameOnSD(CDBFindDataGetName(codeFind))) {
+                    CDBConvCodeStrToFullPath(typePath, year, month, day, hour, minute, CDBFindDataGetName(codeFind), CDB_FS_LOCATION_NAND, NULL);
+                    CDBFSFindFirst(typeFind, typePath, CDB_FS_LOCATION_NAND);
+                    while (!CDBFindDataIsEnd(typeFind)) {
+                        if (CDBFindDataIsDirectory(typeFind) && CDBFSIsTypeDirNameOnSD(CDBFindDataGetName(typeFind))) {
+                            CDBConvTypeStrToFullPath(recordPath, year, month, day, hour, minute, CDBFindDataGetName(codeFind), CDBFindDataGetName(typeFind), CDB_FS_LOCATION_NAND, NULL);
+                            CDBFSFindFirst(recordFind, recordPath, CDB_FS_LOCATION_NAND);
+                            while (!CDBFindDataIsEnd(recordFind)) {
+                                if (!CDBFindDataIsDirectory(recordFind) && CDBFSIsCDBFileOnSD(CDBFindDataGetName(recordFind))) {
+                                    CDBRecordKeyInitFromFileName2(&key, CDBFindDataGetName(recordFind), CDBFindDataGetName(codeFind), CDBFindDataGetName(typeFind));
+                                    if (keys.reverse * CDBRecordKeyCompare(&key, &lastKey) > 0) {
+                                        CDBRecordKey* found = CDBRecordKeyArrayDicFind(&keys, &key);
+                                        if (found == CDBRecordKeyArrayEnd(&keys)) {
+                                            if (CDBRecordKeyArrayFull(&keys)) {
+                                                finished = FALSE;
+                                            }
+                                            key.location = CDB_FS_LOCATION_NAND;
+                                            CDBRecordKeyArrayDicInsert(&keys, &key);
+                                        }
+                                    }
+                                }
+                                CDBFSFindNext(recordFind);
+                            }
+                            CDBFSFindClose(recordFind);
+                        }
+                        CDBFSFindNext(typeFind);
+                    }
+                    CDBFSFindClose(typeFind);
+                }
+                CDBFSFindNext(codeFind);
+            }
+            CDBFSFindClose(codeFind);
+        }
+        if (recordLocation & CDB_RECORD_LOCATION_SD) {
+            CDBConvMinuteStrToFullPath(codePath, year, month, day, hour, minute, CDB_FS_LOCATION_SD, &conditions->wiiId);
+            CDBFSFindFirst(codeFind, codePath, CDB_FS_LOCATION_SD);
+            while (!CDBFindDataIsEnd(codeFind)) {
+                if (CDBFindDataIsDirectory(codeFind) && CDBFSIsMCGCDirNameOnSD(CDBFindDataGetName(codeFind))) {
+                    CDBConvCodeStrToFullPath(typePath, year, month, day, hour, minute, CDBFindDataGetName(codeFind), CDB_FS_LOCATION_SD, &conditions->wiiId);
+                    CDBFSFindFirst(typeFind, typePath, CDB_FS_LOCATION_SD);
+                    while (!CDBFindDataIsEnd(typeFind)) {
+                        if (CDBFindDataIsDirectory(typeFind) && CDBFSIsTypeDirNameOnSD(CDBFindDataGetName(typeFind))) {
+                            CDBConvTypeStrToFullPath(recordPath, year, month, day, hour, minute, CDBFindDataGetName(codeFind), CDBFindDataGetName(typeFind), CDB_FS_LOCATION_SD, &conditions->wiiId);
+                            CDBFSFindFirst(recordFind, recordPath, CDB_FS_LOCATION_SD);
+                            while (!CDBFindDataIsEnd(recordFind)) {
+                                if (!CDBFindDataIsDirectory(recordFind) && CDBFSIsCDBFileOnSD(CDBFindDataGetName(recordFind))) {
+                                    CDBRecordKeyInitFromFileName2(&key, CDBFindDataGetName(recordFind), CDBFindDataGetName(codeFind), CDBFindDataGetName(typeFind));
+                                    CDBConvKeyStrToEpochValue(key.keyString, &date);
+                                    if (begin <= date && date <= end && keys.reverse * CDBRecordKeyCompare(&key, &lastKey) > 0) {
+                                        CDBRecordKey* found = CDBRecordKeyArrayDicFind(&keys, &key);
+                                        if (found == CDBRecordKeyArrayEnd(&keys)) {
+                                            if (CDBRecordKeyArrayFull(&keys)) {
+                                                finished = FALSE;
+                                            }
+                                            key.location = CDB_FS_LOCATION_SD;
+                                            CDBRecordKeyArrayDicInsert(&keys, &key);
+                                        }
+                                    }
+                                }
+                                CDBFSFindNext(recordFind);
+                            }
+                            CDBFSFindClose(recordFind);
+                        }
+                        CDBFSFindNext(typeFind);
+                    }
+                    CDBFSFindClose(typeFind);
+                }
+                CDBFSFindNext(codeFind);
+            }
+            CDBFSFindClose(codeFind);
+        }
+        if (CDBRecordKeyArrayEmpty(&keys)) {
+            break;
+        }
+        if (conditions->direction == CDB_SEARCH_DIRECTION_RIGHT) {
+            for (i = 0; i < CDBRecordKeyArraySize(&keys); i++) {
+                CDBRecordKey* current = CDBRecordKeyArrayAt(&keys, i);
+                CDBRecordInitDescriptor(&record, database, current);
+                result = CDBDatabaseSearchCallCallback(database, conditions, &record);
+                if (result != CDB_ERROR_OK) {
+                    return result;
+                }
+                CDBRecordKeyCopy(&lastKey, current);
+                if (!conditions->keepSearching) {
+                    return CDB_ERROR_OK;
+                }
+            }
+        } else {
+            for (i = CDBRecordKeyArraySize(&keys) - 1; i >= 0; i--) {
+                CDBRecordKey* current = CDBRecordKeyArrayAt(&keys, i);
+                CDBRecordInitDescriptor(&record, database, current);
+                result = CDBDatabaseSearchCallCallback(database, conditions, &record);
+                if (result != CDB_ERROR_OK) {
+                    return result;
+                }
+                CDBRecordKeyCopy(&lastKey, current);
+                if (!conditions->keepSearching) {
+                    return CDB_ERROR_OK;
+                }
+            }
+        }
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseSearchMinuteLayer() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x170(r1)
-    mflr r0
-    stw r0, 0x174(r1)
-    addi r11, r1, 0x170
-    bl _savegpr_17
-    lwz r10, CDBDatabaseWorkBuf(r0)
-    mr r21, r5
-    mr r19, r3
-    mr r20, r4
-    mr r22, r6
-    mr r23, r7
-    mr r24, r8
-    mr r25, r9
-    mr r3, r21
-    addi r28, r10, 0x1dbc
-    addi r27, r10, 0x1cbc
-    bl atoi
-    mr r3, r22
-    bl atoi
-    li r0, -0x1
-    addi r3, r1, 0x10
-    stw r0, 0x8(r1)
-    addi r4, r1, 0x40
-    li r5, 0x3c
-    bl CDBIntArrayInit
-    lwz r0, 0x14(r20)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchMinuteLayer_L_814884A8
-    addi r3, r1, 0x10
-    bl CDBIntArraySetReverse
-    li r0, 0x3c
-    stw r0, 0x8(r1)
-    CDBDatabaseSearchMinuteLayer_L_814884A8:
-    clrlwi r30, r25, 31
-    rlwinm r29, r25, 0, 30, 30
-    li r26, 0x0
-    li r31, 0x0
-    b CDBDatabaseSearchMinuteLayer_L_814887A4
-    CDBDatabaseSearchMinuteLayer_L_814884BC:
-    cmpwi r30, 0x0
-    stw r31, 0x18(r1)
-    li r26, 0x1
-    beq CDBDatabaseSearchMinuteLayer_L_8148858C
-    mr r3, r27
-    mr r4, r21
-    mr r5, r22
-    mr r6, r23
-    mr r7, r24
-    li r8, 0x1
-    li r9, 0x0
-    bl CDBConvHourStrToFullPath
-    mr r3, r28
-    mr r4, r27
-    li r5, 0x1
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchMinuteLayer_L_81488574
-    CDBDatabaseSearchMinuteLayer_L_81488500:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_8148856C
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsMinuteDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_8148856C
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchMinuteLayer_L_8148856C
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_81488560
-    li r26, 0x0
-    CDBDatabaseSearchMinuteLayer_L_81488560:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchMinuteLayer_L_8148856C:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchMinuteLayer_L_81488574:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_81488500
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchMinuteLayer_L_8148858C:
-    cmpwi r29, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_81488674
-    mr r3, r27
-    mr r4, r21
-    mr r5, r22
-    mr r6, r23
-    mr r7, r24
-    addi r9, r20, 0x28
-    li r8, 0x2
-    bl CDBConvHourStrToFullPath
-    mr r3, r28
-    mr r4, r27
-    li r5, 0x2
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchMinuteLayer_L_8148865C
-    CDBDatabaseSearchMinuteLayer_L_814885C8:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_81488654
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsMinuteDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_81488654
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchMinuteLayer_L_81488654
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicFind
-    mr r18, r3
-    addi r3, r1, 0x10
-    bl CDBIntArrayEnd
-    cmplw r18, r3
-    bne CDBDatabaseSearchMinuteLayer_L_81488654
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_81488648
-    li r26, 0x0
-    CDBDatabaseSearchMinuteLayer_L_81488648:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchMinuteLayer_L_81488654:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchMinuteLayer_L_8148865C:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_814885C8
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchMinuteLayer_L_81488674:
-    addi r3, r1, 0x10
-    bl CDBIntArrayEmpty
-    cmpwi r3, 0x0
-    bne CDBDatabaseSearchMinuteLayer_L_814887AC
-    lwz r0, 0x14(r20)
-    cmpwi r0, 0x1
-    bne CDBDatabaseSearchMinuteLayer_L_8148871C
-    li r17, 0x0
-    b CDBDatabaseSearchMinuteLayer_L_81488708
-    CDBDatabaseSearchMinuteLayer_L_81488698:
-    mr r4, r17
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r18, r3
-    addi r3, r1, 0x20
-    lwz r4, 0x0(r18)
-    bl CDBConvMinuteValueToMinuteStr
-    mr r3, r19
-    mr r4, r20
-    mr r5, r21
-    mr r6, r22
-    mr r7, r23
-    mr r8, r24
-    mr r10, r25
-    addi r9, r1, 0x20
-    bl CDBDatabaseSearchRecordLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_814886E4
-    b CDBDatabaseSearchMinuteLayer_L_814887B0
-    CDBDatabaseSearchMinuteLayer_L_814886E4:
-    lwz r0, 0x20(r20)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchMinuteLayer_L_814886F8
-    li r3, 0x0
-    b CDBDatabaseSearchMinuteLayer_L_814887B0
-    CDBDatabaseSearchMinuteLayer_L_814886F8:
-    mr r4, r18
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    addi r17, r17, 0x1
-    CDBDatabaseSearchMinuteLayer_L_81488708:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    cmpw r17, r3
-    blt CDBDatabaseSearchMinuteLayer_L_81488698
-    b CDBDatabaseSearchMinuteLayer_L_814887A4
-    CDBDatabaseSearchMinuteLayer_L_8148871C:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    subi r18, r3, 0x1
-    b CDBDatabaseSearchMinuteLayer_L_8148879C
-    CDBDatabaseSearchMinuteLayer_L_8148872C:
-    mr r4, r18
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r17, r3
-    addi r3, r1, 0x20
-    lwz r4, 0x0(r17)
-    bl CDBConvMinuteValueToMinuteStr
-    mr r3, r19
-    mr r4, r20
-    mr r5, r21
-    mr r6, r22
-    mr r7, r23
-    mr r8, r24
-    mr r10, r25
-    addi r9, r1, 0x20
-    bl CDBDatabaseSearchRecordLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_81488778
-    b CDBDatabaseSearchMinuteLayer_L_814887B0
-    CDBDatabaseSearchMinuteLayer_L_81488778:
-    lwz r0, 0x20(r20)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchMinuteLayer_L_8148878C
-    li r3, 0x0
-    b CDBDatabaseSearchMinuteLayer_L_814887B0
-    CDBDatabaseSearchMinuteLayer_L_8148878C:
-    mr r4, r17
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    subi r18, r18, 0x1
-    CDBDatabaseSearchMinuteLayer_L_8148879C:
-    cmpwi r18, 0x0
-    bge CDBDatabaseSearchMinuteLayer_L_8148872C
-    CDBDatabaseSearchMinuteLayer_L_814887A4:
-    cmpwi r26, 0x0
-    beq CDBDatabaseSearchMinuteLayer_L_814884BC
-    CDBDatabaseSearchMinuteLayer_L_814887AC:
-    li r3, 0x0
-    CDBDatabaseSearchMinuteLayer_L_814887B0:
-    addi r11, r1, 0x170
-    bl _restgpr_17
-    lwz r0, 0x174(r1)
-    mtlr r0
-    addi r1, r1, 0x170
-    blr
-#endif
+CDBErr CDBDatabaseSearchMinuteLayer(CDBDatabase* database, CDBSearchConditions* conditions, char* year, char* month, char* day, char* hour, CDBRecordLocation recordLocation) {
+    CDBFindData* find = &CDBDatabaseWorkBuf->minute.find;
+    char* path = CDBDatabaseWorkBuf->minute.path;
+    BOOL finished;
+    int yearValue = atoi(year);
+    int monthValue = atoi(month);
+    int values[60];
+    char name[32];
+    CDBIntArray array;
+    int value;
+    int last;
+    int index;
+    CDBErr result;
+
+    last = -1;
+    CDBIntArrayInit(&array, values, 60);
+    if (conditions->direction == CDB_SEARCH_DIRECTION_LEFT) {
+        CDBIntArraySetReverse(&array);
+        last = 60;
+    }
+    finished = FALSE;
+    while (!finished) {
+        array.size = 0;
+        finished = TRUE;
+        if (recordLocation & CDB_RECORD_LOCATION_NAND) {
+            CDBConvHourStrToFullPath(path, year, month, day, hour, CDB_FS_LOCATION_NAND, NULL);
+            CDBFSFindFirst(find, path, CDB_FS_LOCATION_NAND);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsMinuteDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        if (CDBIntArrayFull(&array)) {
+                            finished = FALSE;
+                        }
+                        CDBIntArrayDicInsert(&array, &value);
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (recordLocation & CDB_RECORD_LOCATION_SD) {
+            CDBConvHourStrToFullPath(path, year, month, day, hour, CDB_FS_LOCATION_SD, &conditions->wiiId);
+            CDBFSFindFirst(find, path, CDB_FS_LOCATION_SD);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsMinuteDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        int* found = CDBIntArrayDicFind(&array, &value);
+                        if (found == CDBIntArrayEnd(&array)) {
+                            if (CDBIntArrayFull(&array)) {
+                                finished = FALSE;
+                            }
+                            CDBIntArrayDicInsert(&array, &value);
+                        }
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (CDBIntArrayEmpty(&array)) {
+            break;
+        }
+        if (conditions->direction == CDB_SEARCH_DIRECTION_RIGHT) {
+            int* current;
+            int index;
+            for (index = 0; index < CDBIntArraySize(&array); index++) {
+                current = CDBIntArrayAt(&array, index);
+                CDBConvMinuteValueToMinuteStr(name, *current);
+                result = CDBDatabaseSearchRecordLayer(database, conditions, year, month, day, hour, name, recordLocation);
+                if (result != CDB_ERROR_OK) {
+                    return result;
+                }
+                if (!conditions->keepSearching) {
+                    return CDB_ERROR_OK;
+                }
+                CDBIntCopy(&last, current);
+            }
+        } else {
+            for (index = CDBIntArraySize(&array) - 1; index >= 0; index--) {
+                int* current = CDBIntArrayAt(&array, index);
+                CDBConvMinuteValueToMinuteStr(name, *current);
+                result = CDBDatabaseSearchRecordLayer(database, conditions, year, month, day, hour, name, recordLocation);
+                if (result != CDB_ERROR_OK) {
+                    return result;
+                }
+                if (!conditions->keepSearching) {
+                    return CDB_ERROR_OK;
+                }
+                CDBIntCopy(&last, current);
+            }
+        }
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseSearchHourLayer() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0xb0(r1)
-    mflr r0
-    stw r0, 0xb4(r1)
-    addi r11, r1, 0xb0
-    bl _savegpr_18
-    lwz r9, CDBDatabaseWorkBuf(r0)
-    mr r22, r5
-    mr r20, r3
-    mr r21, r4
-    mr r23, r6
-    mr r24, r7
-    mr r25, r8
-    mr r3, r22
-    addi r28, r9, 0x2750
-    addi r27, r9, 0x2650
-    bl atoi
-    mr r3, r23
-    bl atoi
-    li r0, -0x1
-    addi r3, r1, 0x10
-    stw r0, 0x8(r1)
-    addi r4, r1, 0x40
-    li r5, 0xc
-    bl CDBIntArrayInit
-    lwz r0, 0x14(r21)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchHourLayer_L_81488844
-    addi r3, r1, 0x10
-    bl CDBIntArraySetReverse
-    li r0, 0x18
-    stw r0, 0x8(r1)
-    CDBDatabaseSearchHourLayer_L_81488844:
-    clrlwi r30, r25, 31
-    rlwinm r29, r25, 0, 30, 30
-    li r26, 0x0
-    li r31, 0x0
-    b CDBDatabaseSearchHourLayer_L_81488B30
-    CDBDatabaseSearchHourLayer_L_81488858:
-    cmpwi r30, 0x0
-    stw r31, 0x18(r1)
-    li r26, 0x1
-    beq CDBDatabaseSearchHourLayer_L_81488924
-    mr r3, r27
-    mr r4, r22
-    mr r5, r23
-    mr r6, r24
-    li r7, 0x1
-    li r8, 0x0
-    bl CDBConvDayStrToFullPath
-    mr r3, r28
-    mr r4, r27
-    li r5, 0x1
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchHourLayer_L_8148890C
-    CDBDatabaseSearchHourLayer_L_81488898:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_81488904
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsHourDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_81488904
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchHourLayer_L_81488904
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_814888F8
-    li r26, 0x0
-    CDBDatabaseSearchHourLayer_L_814888F8:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchHourLayer_L_81488904:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchHourLayer_L_8148890C:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_81488898
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchHourLayer_L_81488924:
-    cmpwi r29, 0x0
-    beq CDBDatabaseSearchHourLayer_L_81488A08
-    mr r3, r27
-    mr r4, r22
-    mr r5, r23
-    mr r6, r24
-    addi r8, r21, 0x28
-    li r7, 0x2
-    bl CDBConvDayStrToFullPath
-    mr r3, r28
-    mr r4, r27
-    li r5, 0x2
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchHourLayer_L_814889F0
-    CDBDatabaseSearchHourLayer_L_8148895C:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_814889E8
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsHourDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_814889E8
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchHourLayer_L_814889E8
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicFind
-    mr r19, r3
-    addi r3, r1, 0x10
-    bl CDBIntArrayEnd
-    cmplw r19, r3
-    bne CDBDatabaseSearchHourLayer_L_814889E8
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_814889DC
-    li r26, 0x0
-    CDBDatabaseSearchHourLayer_L_814889DC:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchHourLayer_L_814889E8:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchHourLayer_L_814889F0:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_8148895C
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchHourLayer_L_81488A08:
-    addi r3, r1, 0x10
-    bl CDBIntArrayEmpty
-    cmpwi r3, 0x0
-    bne CDBDatabaseSearchHourLayer_L_81488B38
-    lwz r0, 0x14(r21)
-    cmpwi r0, 0x1
-    bne CDBDatabaseSearchHourLayer_L_81488AAC
-    li r18, 0x0
-    b CDBDatabaseSearchHourLayer_L_81488A98
-    CDBDatabaseSearchHourLayer_L_81488A2C:
-    mr r4, r18
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r19, r3
-    addi r3, r1, 0x20
-    lwz r4, 0x0(r19)
-    bl CDBConvHourValueToHourStr
-    mr r3, r20
-    mr r4, r21
-    mr r5, r22
-    mr r6, r23
-    mr r7, r24
-    mr r9, r25
-    addi r8, r1, 0x20
-    bl CDBDatabaseSearchMinuteLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_81488A74
-    b CDBDatabaseSearchHourLayer_L_81488B3C
-    CDBDatabaseSearchHourLayer_L_81488A74:
-    lwz r0, 0x20(r21)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchHourLayer_L_81488A88
-    li r3, 0x0
-    b CDBDatabaseSearchHourLayer_L_81488B3C
-    CDBDatabaseSearchHourLayer_L_81488A88:
-    mr r4, r19
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    addi r18, r18, 0x1
-    CDBDatabaseSearchHourLayer_L_81488A98:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    cmpw r18, r3
-    blt CDBDatabaseSearchHourLayer_L_81488A2C
-    b CDBDatabaseSearchHourLayer_L_81488B30
-    CDBDatabaseSearchHourLayer_L_81488AAC:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    subi r19, r3, 0x1
-    b CDBDatabaseSearchHourLayer_L_81488B28
-    CDBDatabaseSearchHourLayer_L_81488ABC:
-    mr r4, r19
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r18, r3
-    addi r3, r1, 0x20
-    lwz r4, 0x0(r18)
-    bl CDBConvHourValueToHourStr
-    mr r3, r20
-    mr r4, r21
-    mr r5, r22
-    mr r6, r23
-    mr r7, r24
-    mr r9, r25
-    addi r8, r1, 0x20
-    bl CDBDatabaseSearchMinuteLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchHourLayer_L_81488B04
-    b CDBDatabaseSearchHourLayer_L_81488B3C
-    CDBDatabaseSearchHourLayer_L_81488B04:
-    lwz r0, 0x20(r21)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchHourLayer_L_81488B18
-    li r3, 0x0
-    b CDBDatabaseSearchHourLayer_L_81488B3C
-    CDBDatabaseSearchHourLayer_L_81488B18:
-    mr r4, r18
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    subi r19, r19, 0x1
-    CDBDatabaseSearchHourLayer_L_81488B28:
-    cmpwi r19, 0x0
-    bge CDBDatabaseSearchHourLayer_L_81488ABC
-    CDBDatabaseSearchHourLayer_L_81488B30:
-    cmpwi r26, 0x0
-    beq CDBDatabaseSearchHourLayer_L_81488858
-    CDBDatabaseSearchHourLayer_L_81488B38:
-    li r3, 0x0
-    CDBDatabaseSearchHourLayer_L_81488B3C:
-    addi r11, r1, 0xb0
-    bl _restgpr_18
-    lwz r0, 0xb4(r1)
-    mtlr r0
-    addi r1, r1, 0xb0
-    blr
-#endif
+
+CDBErr CDBDatabaseSearchHourLayer(CDBDatabase* database, CDBSearchConditions* conditions, char* year, char* month, char* day, CDBRecordLocation recordLocation) {
+    CDBFindData* find = &CDBDatabaseWorkBuf->hour.find;
+    char* path = CDBDatabaseWorkBuf->hour.path;
+    BOOL finished;
+    int yearValue = atoi(year);
+    int monthValue = atoi(month);
+    int values[12];
+    char name[32];
+    CDBIntArray array;
+    int value;
+    int last;
+    int index;
+    CDBErr result;
+
+    last = -1;
+    CDBIntArrayInit(&array, values, 12);
+    if (conditions->direction == CDB_SEARCH_DIRECTION_LEFT) {
+        CDBIntArraySetReverse(&array);
+        last = 24;
+    }
+    finished = FALSE;
+    while (!finished) {
+        array.size = 0;
+        finished = TRUE;
+        if (recordLocation & CDB_RECORD_LOCATION_NAND) {
+            CDBConvDayStrToFullPath(path, year, month, day, CDB_FS_LOCATION_NAND, NULL);
+            CDBFSFindFirst(find, path, CDB_FS_LOCATION_NAND);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsHourDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        if (CDBIntArrayFull(&array)) {
+                            finished = FALSE;
+                        }
+                        CDBIntArrayDicInsert(&array, &value);
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (recordLocation & CDB_RECORD_LOCATION_SD) {
+            CDBConvDayStrToFullPath(path, year, month, day, CDB_FS_LOCATION_SD, &conditions->wiiId);
+            CDBFSFindFirst(find, path, CDB_FS_LOCATION_SD);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsHourDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        int* found = CDBIntArrayDicFind(&array, &value);
+                        if (found == CDBIntArrayEnd(&array)) {
+                            if (CDBIntArrayFull(&array)) {
+                                finished = FALSE;
+                            }
+                            CDBIntArrayDicInsert(&array, &value);
+                        }
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (CDBIntArrayEmpty(&array)) {
+            break;
+        }
+        if (conditions->direction == CDB_SEARCH_DIRECTION_RIGHT) {
+            int* current;
+            int index;
+            for (index = 0; index < CDBIntArraySize(&array); index++) {
+                current = CDBIntArrayAt(&array, index);
+                CDBConvHourValueToHourStr(name, *current);
+                result = CDBDatabaseSearchMinuteLayer(database, conditions, year, month, day, name, recordLocation);
+                if (result != CDB_ERROR_OK) {
+                    return result;
+                }
+                if (!conditions->keepSearching) {
+                    return CDB_ERROR_OK;
+                }
+                CDBIntCopy(&last, current);
+            }
+        } else {
+            for (index = CDBIntArraySize(&array) - 1; index >= 0; index--) {
+                int* current = CDBIntArrayAt(&array, index);
+                CDBConvHourValueToHourStr(name, *current);
+                result = CDBDatabaseSearchMinuteLayer(database, conditions, year, month, day, name, recordLocation);
+                if (result != CDB_ERROR_OK) {
+                    return result;
+                }
+                if (!conditions->keepSearching) {
+                    return CDB_ERROR_OK;
+                }
+                CDBIntCopy(&last, current);
+            }
+        }
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseSearchDayLayer() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x100(r1)
-    mflr r0
-    stw r0, 0x104(r1)
-    addi r11, r1, 0x100
-    bl _savegpr_17
-    lwz r8, CDBDatabaseWorkBuf(r0)
-    mr r19, r5
-    mr r17, r3
-    mr r18, r4
-    mr r20, r6
-    mr r21, r7
-    mr r3, r19
-    addi r26, r8, 0x30e4
-    addi r25, r8, 0x2fe4
-    bl atoi
-    mr r23, r3
-    mr r3, r20
-    bl atoi
-    li r0, 0x0
-    mr r22, r3
-    stw r0, 0x8(r1)
-    addi r3, r1, 0x10
-    addi r4, r1, 0x40
-    li r5, 0x1f
-    bl CDBIntArrayInit
-    lwz r0, 0x14(r18)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchDayLayer_L_81488BD4
-    addi r3, r1, 0x10
-    bl CDBIntArraySetReverse
-    li r0, 0x20
-    stw r0, 0x8(r1)
-    CDBDatabaseSearchDayLayer_L_81488BD4:
-    clrlwi r30, r21, 31
-    rlwinm r29, r21, 0, 30, 30
-    li r24, 0x0
-    li r31, 0x0
-    b CDBDatabaseSearchDayLayer_L_81488F20
-    CDBDatabaseSearchDayLayer_L_81488BE8:
-    cmpwi r30, 0x0
-    stw r31, 0x18(r1)
-    li r24, 0x1
-    beq CDBDatabaseSearchDayLayer_L_81488CB0
-    mr r3, r25
-    mr r4, r19
-    mr r5, r20
-    li r6, 0x1
-    li r7, 0x0
-    bl CDBConvMonthStrToFullPath
-    mr r3, r26
-    mr r4, r25
-    li r5, 0x1
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchDayLayer_L_81488C98
-    CDBDatabaseSearchDayLayer_L_81488C24:
-    mr r3, r26
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488C90
-    mr r3, r26
-    bl CDBFindDataGetName
-    bl CDBFSIsDayDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488C90
-    mr r3, r26
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchDayLayer_L_81488C90
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488C84
-    li r24, 0x0
-    CDBDatabaseSearchDayLayer_L_81488C84:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchDayLayer_L_81488C90:
-    mr r3, r26
-    bl CDBFSFindNext
-    CDBDatabaseSearchDayLayer_L_81488C98:
-    mr r3, r26
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488C24
-    mr r3, r26
-    bl CDBFSFindClose
-    CDBDatabaseSearchDayLayer_L_81488CB0:
-    cmpwi r29, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488D90
-    mr r3, r25
-    mr r4, r19
-    mr r5, r20
-    addi r7, r18, 0x28
-    li r6, 0x2
-    bl CDBConvMonthStrToFullPath
-    mr r3, r26
-    mr r4, r25
-    li r5, 0x2
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchDayLayer_L_81488D78
-    CDBDatabaseSearchDayLayer_L_81488CE4:
-    mr r3, r26
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488D70
-    mr r3, r26
-    bl CDBFindDataGetName
-    bl CDBFSIsDayDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488D70
-    mr r3, r26
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchDayLayer_L_81488D70
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicFind
-    mr r27, r3
-    addi r3, r1, 0x10
-    bl CDBIntArrayEnd
-    cmplw r27, r3
-    bne CDBDatabaseSearchDayLayer_L_81488D70
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488D64
-    li r24, 0x0
-    CDBDatabaseSearchDayLayer_L_81488D64:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchDayLayer_L_81488D70:
-    mr r3, r26
-    bl CDBFSFindNext
-    CDBDatabaseSearchDayLayer_L_81488D78:
-    mr r3, r26
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488CE4
-    mr r3, r26
-    bl CDBFSFindClose
-    CDBDatabaseSearchDayLayer_L_81488D90:
-    addi r3, r1, 0x10
-    bl CDBIntArrayEmpty
-    cmpwi r3, 0x0
-    bne CDBDatabaseSearchDayLayer_L_81488F28
-    lwz r0, 0x14(r18)
-    cmpwi r0, 0x1
-    bne CDBDatabaseSearchDayLayer_L_81488E68
-    li r27, 0x0
-    b CDBDatabaseSearchDayLayer_L_81488E54
-    CDBDatabaseSearchDayLayer_L_81488DB4:
-    mr r4, r27
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r28, r3
-    mr r3, r23
-    lwz r5, 0x0(r28)
-    mr r4, r22
-    bl CDBMakeCDBDateDayEnd
-    lwz r0, 0x0(r18)
-    cmplw r3, r0
-    blt CDBDatabaseSearchDayLayer_L_81488E44
-    lwz r5, 0x0(r28)
-    mr r3, r23
-    mr r4, r22
-    bl CDBMakeCDBDateDayBegin
-    lwz r0, 0x4(r18)
-    cmplw r0, r3
-    blt CDBDatabaseSearchDayLayer_L_81488E44
-    lwz r4, 0x0(r28)
-    addi r3, r1, 0x20
-    bl CDBConvDayValueToDayStr
-    mr r3, r17
-    mr r4, r18
-    mr r5, r19
-    mr r6, r20
-    mr r8, r21
-    addi r7, r1, 0x20
-    bl CDBDatabaseSearchHourLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488E30
-    b CDBDatabaseSearchDayLayer_L_81488F2C
-    CDBDatabaseSearchDayLayer_L_81488E30:
-    lwz r0, 0x20(r18)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchDayLayer_L_81488E44
-    li r3, 0x0
-    b CDBDatabaseSearchDayLayer_L_81488F2C
-    CDBDatabaseSearchDayLayer_L_81488E44:
-    mr r4, r28
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    addi r27, r27, 0x1
-    CDBDatabaseSearchDayLayer_L_81488E54:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    cmpw r27, r3
-    blt CDBDatabaseSearchDayLayer_L_81488DB4
-    b CDBDatabaseSearchDayLayer_L_81488F20
-    CDBDatabaseSearchDayLayer_L_81488E68:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    subi r28, r3, 0x1
-    b CDBDatabaseSearchDayLayer_L_81488F18
-    CDBDatabaseSearchDayLayer_L_81488E78:
-    mr r4, r28
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r27, r3
-    mr r3, r23
-    lwz r5, 0x0(r27)
-    mr r4, r22
-    bl CDBMakeCDBDateDayEnd
-    lwz r0, 0x0(r18)
-    cmplw r3, r0
-    blt CDBDatabaseSearchDayLayer_L_81488F08
-    lwz r5, 0x0(r27)
-    mr r3, r23
-    mr r4, r22
-    bl CDBMakeCDBDateDayBegin
-    lwz r0, 0x4(r18)
-    cmplw r0, r3
-    blt CDBDatabaseSearchDayLayer_L_81488F08
-    lwz r4, 0x0(r27)
-    addi r3, r1, 0x20
-    bl CDBConvDayValueToDayStr
-    mr r3, r17
-    mr r4, r18
-    mr r5, r19
-    mr r6, r20
-    mr r8, r21
-    addi r7, r1, 0x20
-    bl CDBDatabaseSearchHourLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488EF4
-    b CDBDatabaseSearchDayLayer_L_81488F2C
-    CDBDatabaseSearchDayLayer_L_81488EF4:
-    lwz r0, 0x20(r18)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchDayLayer_L_81488F08
-    li r3, 0x0
-    b CDBDatabaseSearchDayLayer_L_81488F2C
-    CDBDatabaseSearchDayLayer_L_81488F08:
-    mr r4, r27
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    subi r28, r28, 0x1
-    CDBDatabaseSearchDayLayer_L_81488F18:
-    cmpwi r28, 0x0
-    bge CDBDatabaseSearchDayLayer_L_81488E78
-    CDBDatabaseSearchDayLayer_L_81488F20:
-    cmpwi r24, 0x0
-    beq CDBDatabaseSearchDayLayer_L_81488BE8
-    CDBDatabaseSearchDayLayer_L_81488F28:
-    li r3, 0x0
-    CDBDatabaseSearchDayLayer_L_81488F2C:
-    addi r11, r1, 0x100
-    bl _restgpr_17
-    lwz r0, 0x104(r1)
-    mtlr r0
-    addi r1, r1, 0x100
-    blr
-#endif
+
+CDBErr CDBDatabaseSearchDayLayer(CDBDatabase* database, CDBSearchConditions* conditions, char* year, char* month, CDBRecordLocation recordLocation) {
+    int index;
+    int* current;
+    int* found;
+    CDBFindData* find = &CDBDatabaseWorkBuf->day.find;
+    char* path = CDBDatabaseWorkBuf->day.path;
+    BOOL finished;
+    int yearValue = atoi(year);
+    int monthValue = atoi(month);
+    int values[31];
+    char name[32];
+    CDBIntArray array;
+    int value;
+    int last;
+    CDBErr result;
+
+    last = 0;
+    CDBIntArrayInit(&array, values, 31);
+    if (conditions->direction == CDB_SEARCH_DIRECTION_LEFT) {
+        CDBIntArraySetReverse(&array);
+        last = 32;
+    }
+    finished = FALSE;
+    while (!finished) {
+        array.size = 0;
+        finished = TRUE;
+        if (recordLocation & CDB_RECORD_LOCATION_NAND) {
+            CDBConvMonthStrToFullPath(path, year, month, CDB_FS_LOCATION_NAND, NULL);
+            CDBFSFindFirst(find, path, CDB_FS_LOCATION_NAND);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsDayDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        if (CDBIntArrayFull(&array)) {
+                            finished = FALSE;
+                        }
+                        CDBIntArrayDicInsert(&array, &value);
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (recordLocation & CDB_RECORD_LOCATION_SD) {
+            CDBConvMonthStrToFullPath(path, year, month, CDB_FS_LOCATION_SD, &conditions->wiiId);
+            CDBFSFindFirst(find, path, CDB_FS_LOCATION_SD);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsDayDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        found = CDBIntArrayDicFind(&array, &value);
+                        if (found == CDBIntArrayEnd(&array)) {
+                            if (CDBIntArrayFull(&array)) {
+                                finished = FALSE;
+                            }
+                            CDBIntArrayDicInsert(&array, &value);
+                        }
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (CDBIntArrayEmpty(&array)) {
+            break;
+        }
+        if (conditions->direction == CDB_SEARCH_DIRECTION_RIGHT) {
+            int index;
+            int* current;
+            for (index = 0; index < CDBIntArraySize(&array); index++) {
+                current = CDBIntArrayAt(&array, index);
+                if (CDBMakeCDBDateDayEnd(yearValue, monthValue, *current) >= conditions->beginDate && conditions->endDate >= CDBMakeCDBDateDayBegin(yearValue, monthValue, *current)) {
+                    CDBConvDayValueToDayStr(name, *current);
+                    result = CDBDatabaseSearchHourLayer(database, conditions, year, month, name, recordLocation);
+                    if (result != CDB_ERROR_OK) {
+                        return result;
+                    }
+                    if (!conditions->keepSearching) {
+                        return CDB_ERROR_OK;
+                    }
+                }
+                CDBIntCopy(&last, current);
+            }
+        } else {
+            for (index = CDBIntArraySize(&array) - 1; index >= 0; index--) {
+                current = CDBIntArrayAt(&array, index);
+                if (CDBMakeCDBDateDayEnd(yearValue, monthValue, *current) >= conditions->beginDate && conditions->endDate >= CDBMakeCDBDateDayBegin(yearValue, monthValue, *current)) {
+                    CDBConvDayValueToDayStr(name, *current);
+                    result = CDBDatabaseSearchHourLayer(database, conditions, year, month, name, recordLocation);
+                    if (result != CDB_ERROR_OK) {
+                        return result;
+                    }
+                    if (!conditions->keepSearching) {
+                        return CDB_ERROR_OK;
+                    }
+                }
+                CDBIntCopy(&last, current);
+            }
+        }
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseSearchMonthLayer() {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0xb0(r1)
-    mflr r0
-    stw r0, 0xb4(r1)
-    addi r11, r1, 0xb0
-    bl _savegpr_19
-    lwz r7, CDBDatabaseWorkBuf(r0)
-    mr r23, r5
-    mr r21, r3
-    mr r22, r4
-    mr r24, r6
-    mr r3, r23
-    addi r28, r7, 0x3a78
-    addi r27, r7, 0x3978
-    bl atoi
-    li r0, -0x1
-    mr r25, r3
-    stw r0, 0x8(r1)
-    addi r3, r1, 0x10
-    addi r4, r1, 0x40
-    li r5, 0xc
-    bl CDBIntArrayInit
-    lwz r0, 0x14(r22)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchMonthLayer_L_81488FB4
-    addi r3, r1, 0x10
-    bl CDBIntArraySetReverse
-    li r0, 0xc
-    stw r0, 0x8(r1)
-    CDBDatabaseSearchMonthLayer_L_81488FB4:
-    clrlwi r30, r24, 31
-    rlwinm r29, r24, 0, 30, 30
-    li r26, 0x0
-    li r31, 0x0
-    b CDBDatabaseSearchMonthLayer_L_814892E0
-    CDBDatabaseSearchMonthLayer_L_81488FC8:
-    cmpwi r30, 0x0
-    stw r31, 0x18(r1)
-    li r26, 0x1
-    beq CDBDatabaseSearchMonthLayer_L_8148908C
-    mr r3, r27
-    mr r4, r23
-    li r5, 0x1
-    li r6, 0x0
-    bl CDBConvYearStrToFullPath
-    mr r3, r28
-    mr r4, r27
-    li r5, 0x1
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchMonthLayer_L_81489074
-    CDBDatabaseSearchMonthLayer_L_81489000:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_8148906C
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsMonthDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_8148906C
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchMonthLayer_L_8148906C
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_81489060
-    li r26, 0x0
-    CDBDatabaseSearchMonthLayer_L_81489060:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchMonthLayer_L_8148906C:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchMonthLayer_L_81489074:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_81489000
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchMonthLayer_L_8148908C:
-    cmpwi r29, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_81489168
-    mr r3, r27
-    mr r4, r23
-    addi r6, r22, 0x28
-    li r5, 0x2
-    bl CDBConvYearStrToFullPath
-    mr r3, r28
-    mr r4, r27
-    li r5, 0x2
-    bl CDBFSFindFirst
-    b CDBDatabaseSearchMonthLayer_L_81489150
-    CDBDatabaseSearchMonthLayer_L_814890BC:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_81489148
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsMonthDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_81489148
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchMonthLayer_L_81489148
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicFind
-    mr r20, r3
-    addi r3, r1, 0x10
-    bl CDBIntArrayEnd
-    cmplw r20, r3
-    bne CDBDatabaseSearchMonthLayer_L_81489148
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_8148913C
-    li r26, 0x0
-    CDBDatabaseSearchMonthLayer_L_8148913C:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchMonthLayer_L_81489148:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchMonthLayer_L_81489150:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_814890BC
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchMonthLayer_L_81489168:
-    addi r3, r1, 0x10
-    bl CDBIntArrayEmpty
-    cmpwi r3, 0x0
-    bne CDBDatabaseSearchMonthLayer_L_814892E8
-    lwz r0, 0x14(r22)
-    cmpwi r0, 0x1
-    bne CDBDatabaseSearchMonthLayer_L_81489234
-    li r19, 0x0
-    b CDBDatabaseSearchMonthLayer_L_81489220
-    CDBDatabaseSearchMonthLayer_L_8148918C:
-    mr r4, r19
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r20, r3
-    mr r3, r25
-    lwz r4, 0x0(r20)
-    bl CDBMakeCDBDateMonthEnd
-    lwz r0, 0x0(r22)
-    cmplw r3, r0
-    blt CDBDatabaseSearchMonthLayer_L_81489210
-    lwz r4, 0x0(r20)
-    mr r3, r25
-    bl CDBMakeCDBDateMonthBegin
-    lwz r0, 0x4(r22)
-    cmplw r0, r3
-    blt CDBDatabaseSearchMonthLayer_L_81489210
-    lwz r4, 0x0(r20)
-    addi r3, r1, 0x20
-    bl CDBConvMonthValueToMonthStr
-    mr r3, r21
-    mr r4, r22
-    mr r5, r23
-    mr r7, r24
-    addi r6, r1, 0x20
-    bl CDBDatabaseSearchDayLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_814891FC
-    b CDBDatabaseSearchMonthLayer_L_814892EC
-    CDBDatabaseSearchMonthLayer_L_814891FC:
-    lwz r0, 0x20(r22)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchMonthLayer_L_81489210
-    li r3, 0x0
-    b CDBDatabaseSearchMonthLayer_L_814892EC
-    CDBDatabaseSearchMonthLayer_L_81489210:
-    mr r4, r20
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    addi r19, r19, 0x1
-    CDBDatabaseSearchMonthLayer_L_81489220:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    cmpw r19, r3
-    blt CDBDatabaseSearchMonthLayer_L_8148918C
-    b CDBDatabaseSearchMonthLayer_L_814892E0
-    CDBDatabaseSearchMonthLayer_L_81489234:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    subi r20, r3, 0x1
-    b CDBDatabaseSearchMonthLayer_L_814892D8
-    CDBDatabaseSearchMonthLayer_L_81489244:
-    mr r4, r20
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r19, r3
-    mr r3, r25
-    lwz r4, 0x0(r19)
-    bl CDBMakeCDBDateMonthEnd
-    lwz r0, 0x0(r22)
-    cmplw r3, r0
-    blt CDBDatabaseSearchMonthLayer_L_814892C8
-    lwz r4, 0x0(r19)
-    mr r3, r25
-    bl CDBMakeCDBDateMonthBegin
-    lwz r0, 0x4(r22)
-    cmplw r0, r3
-    blt CDBDatabaseSearchMonthLayer_L_814892C8
-    lwz r4, 0x0(r19)
-    addi r3, r1, 0x20
-    bl CDBConvMonthValueToMonthStr
-    mr r3, r21
-    mr r4, r22
-    mr r5, r23
-    mr r7, r24
-    addi r6, r1, 0x20
-    bl CDBDatabaseSearchDayLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_814892B4
-    b CDBDatabaseSearchMonthLayer_L_814892EC
-    CDBDatabaseSearchMonthLayer_L_814892B4:
-    lwz r0, 0x20(r22)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchMonthLayer_L_814892C8
-    li r3, 0x0
-    b CDBDatabaseSearchMonthLayer_L_814892EC
-    CDBDatabaseSearchMonthLayer_L_814892C8:
-    mr r4, r19
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    subi r20, r20, 0x1
-    CDBDatabaseSearchMonthLayer_L_814892D8:
-    cmpwi r20, 0x0
-    bge CDBDatabaseSearchMonthLayer_L_81489244
-    CDBDatabaseSearchMonthLayer_L_814892E0:
-    cmpwi r26, 0x0
-    beq CDBDatabaseSearchMonthLayer_L_81488FC8
-    CDBDatabaseSearchMonthLayer_L_814892E8:
-    li r3, 0x0
-    CDBDatabaseSearchMonthLayer_L_814892EC:
-    addi r11, r1, 0xb0
-    bl _restgpr_19
-    lwz r0, 0xb4(r1)
-    mtlr r0
-    addi r1, r1, 0xb0
-    blr
-#endif
+
+CDBErr CDBDatabaseSearchMonthLayer(CDBDatabase* database, CDBSearchConditions* conditions, char* year, CDBRecordLocation recordLocation) {
+    int index;
+    int* current;
+    int* found;
+    CDBFindData* find = &CDBDatabaseWorkBuf->month.find;
+    char* path = CDBDatabaseWorkBuf->month.path;
+    BOOL finished;
+    int yearValue = atoi(year);
+    int values[12];
+    char name[32];
+    CDBIntArray array;
+    int value;
+    int last;
+    CDBErr result;
+
+    last = -1;
+    CDBIntArrayInit(&array, values, 12);
+    if (conditions->direction == CDB_SEARCH_DIRECTION_LEFT) {
+        CDBIntArraySetReverse(&array);
+        last = 12;
+    }
+    finished = FALSE;
+    while (!finished) {
+        array.size = 0;
+        finished = TRUE;
+        if (recordLocation & CDB_RECORD_LOCATION_NAND) {
+            CDBConvYearStrToFullPath(path, year, CDB_FS_LOCATION_NAND, NULL);
+            CDBFSFindFirst(find, path, CDB_FS_LOCATION_NAND);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsMonthDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        if (CDBIntArrayFull(&array)) {
+                            finished = FALSE;
+                        }
+                        CDBIntArrayDicInsert(&array, &value);
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (recordLocation & CDB_RECORD_LOCATION_SD) {
+            CDBConvYearStrToFullPath(path, year, CDB_FS_LOCATION_SD, &conditions->wiiId);
+            CDBFSFindFirst(find, path, CDB_FS_LOCATION_SD);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsMonthDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        found = CDBIntArrayDicFind(&array, &value);
+                        if (found == CDBIntArrayEnd(&array)) {
+                            if (CDBIntArrayFull(&array)) {
+                                finished = FALSE;
+                            }
+                            CDBIntArrayDicInsert(&array, &value);
+                        }
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (CDBIntArrayEmpty(&array)) {
+            break;
+        }
+        if (conditions->direction == CDB_SEARCH_DIRECTION_RIGHT) {
+            int index;
+            int* current;
+            for (index = 0; index < CDBIntArraySize(&array); index++) {
+                current = CDBIntArrayAt(&array, index);
+                if (CDBMakeCDBDateMonthEnd(yearValue, *current) >= conditions->beginDate && conditions->endDate >= CDBMakeCDBDateMonthBegin(yearValue, *current)) {
+                    CDBConvMonthValueToMonthStr(name, *current);
+                    result = CDBDatabaseSearchDayLayer(database, conditions, year, name, recordLocation);
+                    if (result != CDB_ERROR_OK) {
+                        return result;
+                    }
+                    if (!conditions->keepSearching) {
+                        return CDB_ERROR_OK;
+                    }
+                }
+                CDBIntCopy(&last, current);
+            }
+        } else {
+            for (index = CDBIntArraySize(&array) - 1; index >= 0; index--) {
+                current = CDBIntArrayAt(&array, index);
+                if (CDBMakeCDBDateMonthEnd(yearValue, *current) >= conditions->beginDate && conditions->endDate >= CDBMakeCDBDateMonthBegin(yearValue, *current)) {
+                    CDBConvMonthValueToMonthStr(name, *current);
+                    result = CDBDatabaseSearchDayLayer(database, conditions, year, name, recordLocation);
+                    if (result != CDB_ERROR_OK) {
+                        return result;
+                    }
+                    if (!conditions->keepSearching) {
+                        return CDB_ERROR_OK;
+                    }
+                }
+                CDBIntCopy(&last, current);
+            }
+        }
+    }
+    return CDB_ERROR_OK;
 }
 
-asm CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions* conditions, CDBRecordLocation recordLocation) {
-#ifdef __MWERKS__
-    nofralloc
-    stwu r1, -0x90(r1)
-    mflr r0
-    stw r0, 0x94(r1)
-    addi r11, r1, 0x90
-    bl _savegpr_22
-    lwz r6, CDBDatabaseWorkBuf(r0)
-    and. r0, r3, r4
-    mr r24, r3
-    mr r25, r4
-    mr r26, r5
-    addi r28, r6, 0x430c
-    bne CDBDatabaseSearchYearLayer_L_8148933C
-    li r3, 0x1
-    b CDBDatabaseSearchYearLayer_L_81489664
-    CDBDatabaseSearchYearLayer_L_8148933C:
-    li r0, 0x0
-    addi r3, r1, 0x10
-    stw r0, 0x8(r1)
-    addi r4, r1, 0x20
-    li r5, 0x8
-    bl CDBIntArrayInit
-    lwz r0, 0x14(r25)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchYearLayer_L_81489370
-    addi r3, r1, 0x10
-    bl CDBIntArraySetReverse
-    li r0, 0x270f
-    stw r0, 0x8(r1)
-    CDBDatabaseSearchYearLayer_L_81489370:
-    clrlwi r30, r26, 31
-    rlwinm r29, r26, 0, 30, 30
-    li r27, 0x0
-    li r31, 0x0
-    b CDBDatabaseSearchYearLayer_L_81489658
-    CDBDatabaseSearchYearLayer_L_81489384:
-    cmpwi r30, 0x0
-    stw r31, 0x18(r1)
-    li r27, 0x1
-    beq CDBDatabaseSearchYearLayer_L_81489430
-    mr r3, r28
-    li r4, 0x1
-    bl CDBFSFindFirstRoot
-    b CDBDatabaseSearchYearLayer_L_81489418
-    CDBDatabaseSearchYearLayer_L_814893A4:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_81489410
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsYearDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_81489410
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchYearLayer_L_81489410
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_81489404
-    li r27, 0x0
-    CDBDatabaseSearchYearLayer_L_81489404:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchYearLayer_L_81489410:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchYearLayer_L_81489418:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_814893A4
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchYearLayer_L_81489430:
-    cmpwi r29, 0x0
-    beq CDBDatabaseSearchYearLayer_L_814894F8
-    mr r3, r28
-    addi r5, r25, 0x28
-    li r4, 0x2
-    bl CDBFSFindFirstRootEx
-    b CDBDatabaseSearchYearLayer_L_814894E0
-    CDBDatabaseSearchYearLayer_L_8148944C:
-    mr r3, r28
-    bl CDBFindDataIsDirectory
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_814894D8
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl CDBFSIsYearDirName
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_814894D8
-    mr r3, r28
-    bl CDBFindDataGetName
-    bl atoi
-    stw r3, 0xc(r1)
-    addi r3, r1, 0xc
-    addi r4, r1, 0x8
-    bl CDBIntCompare
-    lwz r0, 0x1c(r1)
-    mullw. r0, r0, r3
-    ble CDBDatabaseSearchYearLayer_L_814894D8
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicFind
-    mr r23, r3
-    addi r3, r1, 0x10
-    bl CDBIntArrayEnd
-    cmplw r23, r3
-    bne CDBDatabaseSearchYearLayer_L_814894D8
-    addi r3, r1, 0x10
-    bl CDBIntArrayFull
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_814894CC
-    li r27, 0x0
-    CDBDatabaseSearchYearLayer_L_814894CC:
-    addi r3, r1, 0x10
-    addi r4, r1, 0xc
-    bl CDBIntArrayDicInsert
-    CDBDatabaseSearchYearLayer_L_814894D8:
-    mr r3, r28
-    bl CDBFSFindNext
-    CDBDatabaseSearchYearLayer_L_814894E0:
-    mr r3, r28
-    bl CDBFindDataIsEnd
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_8148944C
-    mr r3, r28
-    bl CDBFSFindClose
-    CDBDatabaseSearchYearLayer_L_814894F8:
-    addi r3, r1, 0x10
-    bl CDBIntArrayEmpty
-    cmpwi r3, 0x0
-    bne CDBDatabaseSearchYearLayer_L_81489660
-    lwz r0, 0x14(r25)
-    cmpwi r0, 0x1
-    bne CDBDatabaseSearchYearLayer_L_814895B8
-    li r22, 0x0
-    b CDBDatabaseSearchYearLayer_L_814895A4
-    CDBDatabaseSearchYearLayer_L_8148951C:
-    mr r4, r22
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r23, r3
-    lwz r3, 0x0(r3)
-    bl CDBMakeCDBDateYearEnd
-    lwz r0, 0x0(r25)
-    cmplw r3, r0
-    blt CDBDatabaseSearchYearLayer_L_81489594
-    lwz r3, 0x0(r23)
-    bl CDBMakeCDBDateYearBegin
-    lwz r0, 0x4(r25)
-    cmplw r0, r3
-    blt CDBDatabaseSearchYearLayer_L_81489594
-    lwz r4, 0x0(r23)
-    addi r3, r1, 0x40
-    bl CDBConvYearValueToYearStr
-    mr r3, r24
-    mr r4, r25
-    mr r6, r26
-    addi r5, r1, 0x40
-    bl CDBDatabaseSearchMonthLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_81489580
-    b CDBDatabaseSearchYearLayer_L_81489664
-    CDBDatabaseSearchYearLayer_L_81489580:
-    lwz r0, 0x20(r25)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchYearLayer_L_81489594
-    li r3, 0x0
-    b CDBDatabaseSearchYearLayer_L_81489664
-    CDBDatabaseSearchYearLayer_L_81489594:
-    mr r4, r23
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    addi r22, r22, 0x1
-    CDBDatabaseSearchYearLayer_L_814895A4:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    cmpw r22, r3
-    blt CDBDatabaseSearchYearLayer_L_8148951C
-    b CDBDatabaseSearchYearLayer_L_81489658
-    CDBDatabaseSearchYearLayer_L_814895B8:
-    addi r3, r1, 0x10
-    bl CDBIntArraySize
-    subi r23, r3, 0x1
-    b CDBDatabaseSearchYearLayer_L_81489650
-    CDBDatabaseSearchYearLayer_L_814895C8:
-    mr r4, r23
-    addi r3, r1, 0x10
-    bl CDBIntArrayAt
-    mr r22, r3
-    lwz r3, 0x0(r3)
-    bl CDBMakeCDBDateYearEnd
-    lwz r0, 0x0(r25)
-    cmplw r3, r0
-    blt CDBDatabaseSearchYearLayer_L_81489640
-    lwz r3, 0x0(r22)
-    bl CDBMakeCDBDateYearBegin
-    lwz r0, 0x4(r25)
-    cmplw r0, r3
-    blt CDBDatabaseSearchYearLayer_L_81489640
-    lwz r4, 0x0(r22)
-    addi r3, r1, 0x40
-    bl CDBConvYearValueToYearStr
-    mr r3, r24
-    mr r4, r25
-    mr r6, r26
-    addi r5, r1, 0x40
-    bl CDBDatabaseSearchMonthLayer
-    cmpwi r3, 0x0
-    beq CDBDatabaseSearchYearLayer_L_8148962C
-    b CDBDatabaseSearchYearLayer_L_81489664
-    CDBDatabaseSearchYearLayer_L_8148962C:
-    lwz r0, 0x20(r25)
-    cmpwi r0, 0x0
-    bne CDBDatabaseSearchYearLayer_L_81489640
-    li r3, 0x0
-    b CDBDatabaseSearchYearLayer_L_81489664
-    CDBDatabaseSearchYearLayer_L_81489640:
-    mr r4, r22
-    addi r3, r1, 0x8
-    bl CDBIntCopy
-    subi r23, r23, 0x1
-    CDBDatabaseSearchYearLayer_L_81489650:
-    cmpwi r23, 0x0
-    bge CDBDatabaseSearchYearLayer_L_814895C8
-    CDBDatabaseSearchYearLayer_L_81489658:
-    cmpwi r27, 0x0
-    beq CDBDatabaseSearchYearLayer_L_81489384
-    CDBDatabaseSearchYearLayer_L_81489660:
-    li r3, 0x0
-    CDBDatabaseSearchYearLayer_L_81489664:
-    addi r11, r1, 0x90
-    bl _restgpr_22
-    lwz r0, 0x94(r1)
-    mtlr r0
-    addi r1, r1, 0x90
-    blr
-#endif
+
+CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions* conditions, CDBRecordLocation recordLocation) {
+    int index;
+    int* current;
+    int* found;
+    CDBFindData* find = &CDBDatabaseWorkBuf->year;
+    BOOL finished;
+    char name[32];
+    int values[8];
+    CDBIntArray array;
+    int value;
+    int last;
+    CDBErr result;
+
+    if (((u32)database & (u32)conditions) == 0) {
+        return CDB_ERROR_1;
+    }
+    last = 0;
+    CDBIntArrayInit(&array, values, 8);
+    if (conditions->direction == CDB_SEARCH_DIRECTION_LEFT) {
+        CDBIntArraySetReverse(&array);
+        last = 9999;
+    }
+    finished = FALSE;
+    while (!finished) {
+        array.size = 0;
+        finished = TRUE;
+        if (recordLocation & CDB_RECORD_LOCATION_NAND) {
+            CDBFSFindFirstRoot(find, CDB_FS_LOCATION_NAND);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsYearDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        if (CDBIntArrayFull(&array)) {
+                            finished = FALSE;
+                        }
+                        CDBIntArrayDicInsert(&array, &value);
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (recordLocation & CDB_RECORD_LOCATION_SD) {
+            CDBFSFindFirstRootEx(find, CDB_FS_LOCATION_SD, &conditions->wiiId);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find) && CDBFSIsYearDirName(CDBFindDataGetName(find))) {
+                    value = atoi(CDBFindDataGetName(find));
+                    if (array.direction * CDBIntCompare(&value, &last) > 0) {
+                        found = CDBIntArrayDicFind(&array, &value);
+                        if (found == CDBIntArrayEnd(&array)) {
+                            if (CDBIntArrayFull(&array)) {
+                                finished = FALSE;
+                            }
+                            CDBIntArrayDicInsert(&array, &value);
+                        }
+                    }
+                }
+                CDBFSFindNext(find);
+            }
+            CDBFSFindClose(find);
+        }
+        if (CDBIntArrayEmpty(&array)) {
+            break;
+        }
+        if (conditions->direction == CDB_SEARCH_DIRECTION_RIGHT) {
+            int index;
+            int* current;
+            for (index = 0; index < CDBIntArraySize(&array); index++) {
+                current = CDBIntArrayAt(&array, index);
+                if (CDBMakeCDBDateYearEnd(*current) >= conditions->beginDate && conditions->endDate >= CDBMakeCDBDateYearBegin(*current)) {
+                    CDBConvYearValueToYearStr(name, *current);
+                    result = CDBDatabaseSearchMonthLayer(database, conditions, name, recordLocation);
+                    if (result != CDB_ERROR_OK) {
+                        return result;
+                    }
+                    if (!conditions->keepSearching) {
+                        return CDB_ERROR_OK;
+                    }
+                }
+                CDBIntCopy(&last, current);
+            }
+        } else {
+            for (index = CDBIntArraySize(&array) - 1; index >= 0; index--) {
+                current = CDBIntArrayAt(&array, index);
+                if (CDBMakeCDBDateYearEnd(*current) >= conditions->beginDate && conditions->endDate >= CDBMakeCDBDateYearBegin(*current)) {
+                    CDBConvYearValueToYearStr(name, *current);
+                    result = CDBDatabaseSearchMonthLayer(database, conditions, name, recordLocation);
+                    if (result != CDB_ERROR_OK) {
+                        return result;
+                    }
+                    if (!conditions->keepSearching) {
+                        return CDB_ERROR_OK;
+                    }
+                }
+                CDBIntCopy(&last, current);
+            }
+        }
+    }
+    return CDB_ERROR_OK;
 }
+
 
 CDBErr CDBDatabaseSearch(CDBDatabase* database, CDBDate beginDate, CDBDate endDate, CDBSearchDirection searchDirection, char* makerCode, char* gameCode, int unk7, CDBRecordLocation recordLocation, int unk9, CDBSearchRecordCB searchRecordCB, void* searchRecordArg) {
     CDBErr result;
