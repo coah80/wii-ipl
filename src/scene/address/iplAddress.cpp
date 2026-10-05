@@ -413,6 +413,15 @@ namespace ipl {
             }
         }
 
+    }
+}
+
+inline void nw4r::lyt::Pane::SetTranslate(const nw4r::math::VEC3& translate) {
+    mTranslate = translate;
+}
+
+namespace ipl {
+    namespace scene {
         void Address::destroy() {
             mpFriendCache->fin();
         }
