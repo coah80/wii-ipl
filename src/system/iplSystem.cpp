@@ -1482,12 +1482,10 @@ namespace ipl {
 }  // namespace ipl
 
 #ifdef __MWERKS__
-#pragma force_active on
 extern "C" const f32 scOrthoLeft = -304.0f;
 extern "C" const f32 scOrthoRight = 304.0f;
 extern "C" const f32 scOrthoBottom = 228.0f;
 extern "C" const f32 scOrthoTop = -228.0f;
 extern "C" const f32 scWideOrthoLeft = -416.0f;
 extern "C" const f32 scWideOrthoRight = 416.0f;
-#pragma force_active off
 #endif

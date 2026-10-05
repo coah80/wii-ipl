@@ -368,7 +368,6 @@ namespace ipl {
         DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_ListSharedContents2 err %d\n");
         DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_ListTitlesOnCard1 err %d\n");
         DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: MEMAllocate for Title List err\n");
-        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: MEMAllocate for Title List err\n");
         DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_ListTitlesOnCard2 err %d\n");
         DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_GetTmd1 err %d\n");
         DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_GetTmd2 err %d\n");

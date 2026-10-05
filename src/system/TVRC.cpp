@@ -11,10 +11,7 @@
 
 #pragma sym on
 
-#pragma push
-#pragma section data_type ".sdata"
 extern "C" char scTvrcFileHeader[5] = {'T', 'V', 'R', '0', '\0'};
-#pragma pop
 
 namespace LibTVRC {
     const char* TVRC_FILE_HEADER = scTvrcFileHeader;

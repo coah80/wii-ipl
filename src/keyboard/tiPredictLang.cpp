@@ -514,8 +514,11 @@ namespace textinput {
             }
         }
 
-        // HACK: weak function order
-        DECOMP_FORCE_ACTIVE(tiPredictLang_cpp, (((CommandSender*)(NULL))->updateFromReceiver(0, NULL), 0))
+    }
+
+    void CommandSender::updateFromReceiver(u32, void*) {}
+
+    namespace predictlang {
 
         void LayoutByNW4R::draw() {
             nw4rmanager::Layout::draw();

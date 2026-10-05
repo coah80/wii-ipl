@@ -96,7 +96,11 @@ namespace textinput {
 #else
             virtual void    sendCommand(u32, void*);
 #endif
+#ifdef TI_PREDICTLANG_SAMPLE_CLASS
+            virtual void    updateFromReceiver(u32, void*);
+#else
             virtual void    updateFromReceiver(u32, void*) {}
+#endif
 
             nw4r::ut::Link      mLink;              // 0x00
 
