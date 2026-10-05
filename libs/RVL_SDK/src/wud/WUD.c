@@ -1050,7 +1050,7 @@ static BOOL WUDiDeviceExists(u8* addr) {
     return FALSE;
 }
 
-DECOMP_FORCE_ACTIVE(WUD_c, "name : %s\n")
+static char deviceNameFormat[] = "name : %s\n";
 
 static WUDInitState WUDiGetRegisteredDevice() {
     int i, j;
@@ -1110,7 +1110,7 @@ static WUDInitState WUDiGetRegisteredDevice() {
 
         DEBUGPrint("addr : %02x:%02x:%02x:%02x:%02x:%02x\n", pInfo->devAddr[0], pInfo->devAddr[1], pInfo->devAddr[2], pInfo->devAddr[3],
                    pInfo->devAddr[4], pInfo->devAddr[5]);
-        DEBUGPrint("name : %s\n", pInfo->conf.devName);
+        DEBUGPrint(deviceNameFormat, pInfo->conf.devName);
 
         a++;
         arrayNum--;
@@ -1156,7 +1156,7 @@ static WUDInitState WUDiGetRegisteredDevice() {
 
         WUD_DEBUGPrint("addr : %02x:%02x:%02x:%02x:%02x:%02x\n", pInfo->devAddr[0], pInfo->devAddr[1], pInfo->devAddr[2], pInfo->devAddr[3],
                        pInfo->devAddr[4], pInfo->devAddr[5]);
-        WUD_DEBUGPrint("name : %s\n", pInfo->conf.devName);
+        WUD_DEBUGPrint(deviceNameFormat, pInfo->conf.devName);
 
         WUDiMoveTopSmpDevInfoPtr(pInfo);
 

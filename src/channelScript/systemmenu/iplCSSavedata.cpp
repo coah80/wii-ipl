@@ -618,10 +618,13 @@ namespace ipl {
                 return result;
             }
 
-            // Force get_int<N> specializations to be emitted here
-            DECOMP_FORCE_LITERAL(iplCSSavedata_cpp, util::get_int<COMPRESSION_LZ>)
-            DECOMP_FORCE_LITERAL(iplCSSavedata_cpp, util::get_int<COMPRESSION_HUFFMAN>)
-            DECOMP_FORCE_LITERAL(iplCSSavedata_cpp, util::get_int<COMPRESSION_RL>)
+        }
+        namespace util {
+            template BOOL get_int<savedata::COMPRESSION_LZ>(CHANSVm*, CHANSVmObjHdr*, CHANSVmObjHdr*);
+            template BOOL get_int<savedata::COMPRESSION_HUFFMAN>(CHANSVm*, CHANSVmObjHdr*, CHANSVmObjHdr*);
+            template BOOL get_int<savedata::COMPRESSION_RL>(CHANSVm*, CHANSVmObjHdr*, CHANSVmObjHdr*);
+        }
+        namespace savedata {
 
             template <>
             BOOL get<s8>(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj);

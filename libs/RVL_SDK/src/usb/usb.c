@@ -215,14 +215,14 @@ end:
 
 DECOMP_FORCE_ACTIVE(usb_c, "OpenDevice\n");
 DECOMP_FORCE_ACTIVE(usb_c, "OpenDeviceIdsAsync: Not enough memory\n");
-DECOMP_FORCE_ACTIVE(usb_c, "CloseDevice\n");
-DECOMP_FORCE_ACTIVE(usb_c, "CloseDevice returned: %d\n");
+static char closeDeviceMessage[] = "CloseDevice\n";
+static char closeDeviceResult[] = "CloseDevice returned: %d\n";
 
 IOSError IUSB_CloseDeviceAsync(s32 fd, USBCallback callback, void* callbackArg) {
     IOSError result;
     USBCommandBlock* block;
 
-    USB_LOG("CloseDevice\n");
+    USB_LOG(closeDeviceMessage);
 
     block = IOSAlloc(sizeof(USBCommandBlock));
     if (block == NULL) {
@@ -238,7 +238,7 @@ IOSError IUSB_CloseDeviceAsync(s32 fd, USBCallback callback, void* callbackArg) 
     block->nclean = USB_NCLEAN_CLOSEDEVICE;
 
     result = IOS_CloseAsync(fd, _intrBlkCtrlIsoCb, block);
-    USB_LOG("CloseDevice returned: %d\n", result);
+    USB_LOG(closeDeviceResult, result);
 
     if (result < 0) {
         IOSFree(block);
@@ -486,19 +486,9 @@ IOSError IUSB_WriteCtrlMsgAsync(s32 fd, u8 requestType, u8 request, u16 value, u
 }
 
 // oh my
-DECOMP_FORCE_ACTIVE(usb_c, "CloseDeviceAsync: Not enough memory\n");
 DECOMP_FORCE_ACTIVE(usb_c, "openDevice: Not enough memory\n");
 DECOMP_FORCE_ACTIVE(usb_c, "getDeviceList: Not enough memory\n");
 DECOMP_FORCE_ACTIVE(usb_c, "getDeviceList: Not enough memory\n");
-DECOMP_FORCE_ACTIVE(usb_c, "__IntrBlkMsgInt: Not enough memory\n");
-DECOMP_FORCE_ACTIVE(usb_c, "intr/blk ioctl returned: %d\n");
-DECOMP_FORCE_ACTIVE(usb_c, "IntBlkMsgInt (async): Not enough memory\n");
-DECOMP_FORCE_ACTIVE(usb_c, "intrblkmsg: cb = 0x%x cbArg = 0x%x\n");
-DECOMP_FORCE_ACTIVE(usb_c, "ctrlmsg: bad data buffer\n");
-DECOMP_FORCE_ACTIVE(usb_c, "Ctrl Msg: Not enough memory\n");
-DECOMP_FORCE_ACTIVE(usb_c, "CtrlMsgInt (async): Not enough memory\n");
-DECOMP_FORCE_ACTIVE(usb_c, "ctrlmsgint: cb = 0x%x cbArg = 0x%x\n");
-DECOMP_FORCE_ACTIVE(usb_c, "Ctrl Msg async returned: %d\n");
 DECOMP_FORCE_ACTIVE(usb_c, "GetStrCb returned: %d\n");
 DECOMP_FORCE_ACTIVE(usb_c, "GetStrCb: buf = 0x%x buflen = %u\n");
 DECOMP_FORCE_ACTIVE(usb_c, "Failed to convert buffer from unicode 2 ascii\n");

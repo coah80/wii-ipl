@@ -74,7 +74,7 @@ static u32 statusRegister[8] ALIGN32;
 static u32 coverStatus[8] ALIGN32;
 static u32 statusRegister[8] ALIGN32;
 
-static DVDLowContext dvdContexts[4] ALIGN32;
+static DVDLowContext dvdContexts[4] ALIGN32 = {0};
 static DVDLowRegValues diRegValCache ALIGN32;
 static u32 registerBuf[8] ALIGN32;
 static IOSIoVector ioVec[10] ALIGN32;
@@ -98,8 +98,6 @@ static bool callbackInProgress;
 static bool requestInProgress;
 
 #define IS_ALIGNED(addr) (((u32)(addr) & 0x1F) == 0)
-
-DECOMP_FORCE_ACTIVE(dvd_broadway_c, dvdContexts);
 
 IOSError doTransactionCallback(IOSError ret, void* context) {
     DVDLowContext* dvdContext = context;
@@ -407,8 +405,8 @@ DECOMP_FORCE_ACTIVE(dvd_broadway_c, coverRegister);
 
 DECOMP_FORCE_ACTIVE(dvd_broadway_c, "DVDLowOpenPartitionWithTmdAndTicket");
 DECOMP_FORCE_ACTIVE(dvd_broadway_c, "(%s) eTicket memory is unaligned\n");
-DECOMP_FORCE_ACTIVE(dvd_broadway_c, "(%s) tmd parameter cannot be NULL\n");
-DECOMP_FORCE_ACTIVE(dvd_broadway_c, "(%s) tmd memory is unaligned\n");
+static char tmdNullMessage[] = "(%s) tmd parameter cannot be NULL\n";
+static char tmdAlignmentMessage[] = "(%s) tmd memory is unaligned\n";
 DECOMP_FORCE_ACTIVE(dvd_broadway_c, "(%s) eTicket parameter cannot be NULL\n");
 
 bool DVDLowOpenPartitionWithTmdAndTicketView(u32 partitionWordOffset, ESTicketView* eTicketView, u32 numTmdBytes, ESTitleMeta* tmd, u32 numCertBytes,
@@ -421,10 +419,10 @@ bool DVDLowOpenPartitionWithTmdAndTicketView(u32 partitionWordOffset, ESTicketVi
     }
 
     if (tmd == 0) {
-        OSReport("(%s) tmd parameter cannot be NULL\n", __FUNCTION__);
+        OSReport(tmdNullMessage, __FUNCTION__);
         return false;
     } else if (!IS_ALIGNED(tmd)) {
-        OSReport("(%s) tmd memory is unaligned\n", __FUNCTION__);
+        OSReport(tmdAlignmentMessage, __FUNCTION__);
         return false;
     }
 
@@ -653,11 +651,11 @@ bool DVDLowStopMotor(bool eject, bool saving, DVDLowCallback callback) {
 }
 
 DECOMP_FORCE_ACTIVE(dvd_broadway_c, "@@@ (DVDLowWaitForCoverClose) IOS_IoctlAsync returned error: %d\n");
-DECOMP_FORCE_ACTIVE(dvd_broadway_c, "@@@ (DVDLowInquiry) IOS_IoctlAsync returned error: %d\n");
-DECOMP_FORCE_ACTIVE(dvd_broadway_c, "@@@ (DVDLowRequestError) IOS_IoctlAsync returned error: %d\n");
+static char inquiryErrorMessage[] = "@@@ (DVDLowInquiry) IOS_IoctlAsync returned error: %d\n";
+static char requestErrorMessage[] = "@@@ (DVDLowRequestError) IOS_IoctlAsync returned error: %d\n";
 DECOMP_FORCE_ACTIVE(dvd_broadway_c, "(DVDLowSetSpinupFlag): Synch functions can't be called in callbacks\n");
 DECOMP_FORCE_ACTIVE(dvd_broadway_c, "@@@ (DVDLowNotifyReset) IOS_IoctlAsync returned error: %d\n");
-DECOMP_FORCE_ACTIVE(dvd_broadway_c, "@@@ (DVDLowReset) IOS_IoctlAsync returned error: %d\n");
+static char resetErrorMessage[] = "@@@ (DVDLowReset) IOS_IoctlAsync returned error: %d\n";
 
 bool DVDLowInquiry(DVDDriveInfo* info, DVDLowCallback callback) {
     DVDLowContext* dvdContext;
@@ -673,7 +671,7 @@ bool DVDLowInquiry(DVDDriveInfo* info, DVDLowCallback callback) {
     ret = IOS_IoctlAsync(DiFD, DVD_IOCTL_INQUIRY, &diCommand[freeCommandBuf], sizeof(DVDLowCommand), info, sizeof(DVDDriveInfo),
                          doTransactionCallback, dvdContext);
     if (ret != IPC_RESULT_OK) {
-        OSReport("@@@ (DVDLowInquiry) IOS_IoctlAsync returned error: %d\n", ret);
+        OSReport(inquiryErrorMessage, ret);
         dvdContext->inUse = false;
         return false;
     }
@@ -695,7 +693,7 @@ bool DVDLowRequestError(DVDLowCallback callback) {
     ret = IOS_IoctlAsync(DiFD, DVD_IOCTL_REQUEST_ERROR, &diCommand[freeCommandBuf], sizeof(DVDLowCommand), &diRegValCache, sizeof(DVDLowRegValues),
                          doTransactionCallback, dvdContext);
     if (ret != IPC_RESULT_OK) {
-        OSReport("@@@ (DVDLowRequestError) IOS_IoctlAsync returned error: %d\n", ret);
+        OSReport(requestErrorMessage, ret);
         dvdContext->inUse = false;
         return false;
     }
@@ -722,7 +720,7 @@ bool DVDLowReset(DVDLowCallback callback) {
 
     ret = IOS_IoctlAsync(DiFD, DVD_IOCTL_RESET, &diCommand[freeCommandBuf], sizeof(DVDLowCommand), 0, 0, doTransactionCallback, dvdContext);
     if (ret != IPC_RESULT_OK) {
-        OSReport("@@@ (DVDLowReset) IOS_IoctlAsync returned error: %d\n", ret);
+        OSReport(resetErrorMessage, ret);
         dvdContext->inUse = false;
         return false;
     }

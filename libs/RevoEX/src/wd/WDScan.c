@@ -8,8 +8,6 @@
 
 #include <string.h>
 
-#pragma push
-#pragma section sconst_type ".sdata2"
 const u8 scRsnOui0 = 0;
 const u8 scRsnOui1 = 0x0F;
 const u8 scRsnOui2 = 0xAC;
@@ -18,7 +16,6 @@ const u8 scWpaOui0 = 0;
 const u8 scWpaOui1 = 0x50;
 const u8 scWpaOui2 = 0xF2;
 const u8 scWpaOuiPad = 0;
-#pragma pop
 #pragma push
 #pragma section sconst_type ".sdata"
 const u8 scWpaFindOui0 = 0;

@@ -63,8 +63,8 @@ vBOOL __OSIsReturnToIdle;
     }
 
 // They're used but pooled first.
-DECOMP_FORCE_ACTIVE(OSReset_c, "OSReset.c");
-DECOMP_FORCE_ACTIVE(OSReset_c, "__OSHotReset(): Falied to reset system.\n");
+static char resetSource[] = "OSReset.c";
+static char hotResetFailure[] = "__OSHotReset(): Falied to reset system.\n";
 
 DECOMP_FORCE_ACTIVE(OSReset_c, "OSReturnToMenu(): Falied to boot system menu.\n");
 DECOMP_FORCE_ACTIVE(OSReset_c, "OSReturnToDataManager(): Falied to boot system menu.\n");
@@ -212,7 +212,7 @@ void OSReturnToSetting(u8 setting) {
         }
         default: {
             OSReport("OSReturnToSetting(): You can't specify %d.  \n", setting);
-            OSHalt("", 910);
+            OSPanic(resetSource, 910, "");
         }
     }
 
@@ -234,7 +234,7 @@ void __OSReturnToMenuForError() {
     __VISetRGBModeImm();
     __OSHotResetForError();
 
-    OSHalt("__OSReturnToMenu(): Falied to boot system menu.\n", 949);
+    OSPanic(resetSource, 949, "__OSReturnToMenu(): Falied to boot system menu.\n");
 }
 
 void __OSHotResetForError() {
@@ -242,7 +242,7 @@ void __OSHotResetForError() {
         __OSInitSTM();
     }
     __OSHotReset();
-    OSHalt("__OSHotReset(): Falied to reset system.\n", 973);
+    OSPanic(resetSource, 973, hotResetFailure);
 }
 
 u32 OSGetResetCode() {

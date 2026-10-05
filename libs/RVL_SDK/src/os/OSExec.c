@@ -19,7 +19,7 @@
 
 
 /* some string pooling (the first one is used but is just pooled first...)*/
-DECOMP_FORCE_ACTIVE(OSExec_c, "\nOSExec(): Failed to exec %d in %d\n");
+static char execFailure[] = "\nOSExec(): Failed to exec %d in %d\n";
 DECOMP_FORCE_ACTIVE(OSExec_c, "\nOSExec(): The specified game doesn't exist in the disc\n");
 
 extern BOOL __OSInIPL;
@@ -384,13 +384,13 @@ void LaunchCommon(ESTitleId titleId, u32 launchArg, const char** argv, BOOL laun
         } else {
             ret = ESP_InitLib();
             if (ret != ES_ERR_OK) {
-                OSReport("\nOSExec(): Failed to exec %d in %d\n", ret, 1712);
+                OSReport(execFailure, ret, 1712);
                 __OSHotResetForError();
             }
 
             ret = ESP_GetTitleId(&title);
             if (ret != ES_ERR_OK) {
-                OSReport("\nOSExec(): Failed to exec %d in %d\n", ret, 1720);
+                OSReport(execFailure, ret, 1720);
                 __OSHotResetForError();
             }
         }

@@ -7,13 +7,11 @@
 static u32 IpcNumPendingReqs = 0;
 static u32 IpcNumUnIssuedReqs = 0;
 
-static s32 IpcFdArray[MAX_REQUEST];
+static s32 IpcFdArray[MAX_REQUEST] = {0};
 static u32 IpcReqPtrArray[MAX_REQUEST];
 
 static void AddReqInfo(void* ptr, s32 fd);
 static void DelReqInfo(void* ptr, s32 fd);
-
-DECOMP_FORCE_ACTIVE(ipcProfile_c, IpcFdArray);  // Force `IpcFdArray` to be first
 
 void IPCiProfInit() {
     u32 i;

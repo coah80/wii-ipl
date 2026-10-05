@@ -12,23 +12,16 @@ extern "C" void GetFont__Q34nw4r3lyt8TextBoxCFv();
 namespace textinput {
     namespace candidatebox {
 
-        #pragma push
-        #pragma section const_type ".data"
-        extern "C" const char scT_prdc_Text_00[15] = "T_prdc_Text_00";
-        extern "C" const char scP_prdc_scrl_Left[17] = "P_prdc_scrl_Left";
-        #pragma pop
+        extern "C" char scT_prdc_Text_00[15] = "T_prdc_Text_00";
+        extern "C" char scP_prdc_scrl_Left[17] = "P_prdc_scrl_Left";
 
-        #pragma push
-        #pragma section sconst_type ".sdata"
         extern "C" const char* scCommonTextAnimName = scT_prdc_Text_00;
         extern "C" const char* scCommonScrollAnimName = scP_prdc_scrl_Left;
         #pragma explicit_zero_data on
-        extern "C" const wchar_t scEmptyWChars[4] = {0, 0, 0, 0};
+        extern "C" wchar_t scEmptyWChars[4] = {0, 0, 0, 0};
         #pragma explicit_zero_data reset
-        extern "C" const char scP_OnBtn[8] = "P_OnBtn";
-        extern "C" const char scB_OnBtn[8] = "B_OnBtn";
-        #pragma pop
-
+        extern "C" char scP_OnBtn[8] = "P_OnBtn";
+        extern "C" char scB_OnBtn[8] = "B_OnBtn";
 
         #define COMMON_TEXT_ANIM scCommonTextAnimName
         #define COMMON_SCROLL_ANIM scCommonScrollAnimName
@@ -205,9 +198,7 @@ namespace textinput {
              {&csAninationFile[0], &csAninationFile[8], &csAninationFile[9], &csAninationFile[10], &csAninationFile[11], &csAninationFile[12]}},
         }, {"P_OffBtn"}};
 
-        #pragma push
-        #pragma section const_type ".data"
-        extern "C" const char scPaneNameTable[132] =
+        extern "C" char scPaneNameTable[132] =
             "B_OffBtn\0\0\0\0"
             "P_JPOffBtn\0\0"
             "P_CNOffBtn\0\0"
@@ -218,10 +209,9 @@ namespace textinput {
             "P_prdc_scrl_Rght\0\0\0\0"
             "\0\0\0";
         extern "C" char scW_predictWindow[16] = "W_predictWindow";
-        extern "C" const char scN_predictInput[15] = "N_predictInput";
-        extern "C" const char scW_OnOff_Area[13] = "W_OnOff_Area";
-        extern "C" const char scN_prdc_Texts[13] = "N_prdc_Texts";
-        #pragma pop
+        extern "C" char scN_predictInput[15] = "N_predictInput";
+        extern "C" char scW_OnOff_Area[13] = "W_OnOff_Area";
+        extern "C" char scN_prdc_Texts[13] = "N_prdc_Texts";
 
         void CandidateBoxCaller::Candidates::addCandidate(const wchar_t* wcString) {
             wcsncpy(szwcPredicted[mNumCandidate], wcString, ARRAY_LENGTH(szwcPredicted[0]));

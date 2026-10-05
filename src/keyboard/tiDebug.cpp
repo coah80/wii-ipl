@@ -3,16 +3,16 @@
 namespace textinput {
     namespace debug {
         struct iVertex {
-            iVertex(f32 posX, f32 posY, f32 posZ, u32 red, u32 green, u32 blue, u32 alpha)
-                : x(posX), y(posY), z(posZ), r(red), g(green), b(blue), a(alpha) {
-            }
+            iVertex(f32 posX, f32 posY, u32 red, u32 green, u32 blue, u32 alpha);
 
             f32 x, y, z;  // 0x00
 
             u32 r, g, b, a;  // 0x0C
         };
 
-        DECOMP_FORCE_LITERAL(tiDebug_cpp, 0.0f);
+        iVertex::iVertex(f32 posX, f32 posY, u32 red, u32 green, u32 blue, u32 alpha)
+            : x(posX), y(posY), z(0.0f), r(red), g(green), b(blue), a(alpha) {
+        }
 
         static void draw_rect(const iVertex& v0, const iVertex& v1, const iVertex& v2, const iVertex& v3) {
             GXBegin(GX_QUADS, GX_VTXFMT0, 4);
@@ -59,10 +59,10 @@ namespace textinput {
             MTXConcat(mtx, mtxScale, mtx);
             GXLoadPosMtxImm(mtx, GX_PNMTX0);
 
-            draw_rect(iVertex(left - centerX, top - centerY, 0, color.r, color.g, color.b, color.a),
-                      iVertex(right - centerX, top - centerY, 0, color.r, color.g, color.b, color.a),
-                      iVertex(left - centerX, bottom - centerY, 0, color.r, color.g, color.b, color.a),
-                      iVertex(right - centerX, bottom - centerY, 0, color.r, color.g, color.b, color.a));
+            draw_rect(iVertex(left - centerX, top - centerY, color.r, color.g, color.b, color.a),
+                      iVertex(right - centerX, top - centerY, color.r, color.g, color.b, color.a),
+                      iVertex(left - centerX, bottom - centerY, color.r, color.g, color.b, color.a),
+                      iVertex(right - centerX, bottom - centerY, color.r, color.g, color.b, color.a));
 
             Mtx mtx2;
             MTXIdentity(mtx2);
