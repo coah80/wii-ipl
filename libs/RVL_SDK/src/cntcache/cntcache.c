@@ -242,61 +242,25 @@ L_2b0:
     blr
 }
 
-asm void _CNTCACHEDeleteTitle() {
-    stwu r1, -0x20(r1)
-    mflr r0
-    li r3, 0
-    la r4, scCntCacheSpaceNl
-    stw r0, 0x24(r1)
-    stw r31, 0x1c(r1)
-    stw r30, 0x18(r1)
-    stw r29, 0x14(r1)
-    stw r28, 0x10(r1)
-    bl strtok
-    li r30, 0
-    li r31, -1
-    b L_370
-L_304:
-    stw r30, errno(r0)
-    li r4, 0
-    li r5, 0x10
-    bl strtoull
-    lwz r0, errno(r0)
-    mr r28, r4
-    mr r29, r3
-    cmpwi r0, 0
-    bne L_364
-    and r0, r3, r31
-    cmplwi r0, 1
-    beq L_364
-    bl _CNTCACHEIsTitleRemovable
-    cmpwi r3, 1
-    bne L_350
-    mr r4, r28
-    mr r3, r29
-    bl ES_DeleteTitle
-    b L_364
-L_350:
-    cmpwi r3, 0
-    bne L_364
-    mr r4, r28
-    mr r3, r29
-    bl ES_DeleteTitleContent
-L_364:
-    li r3, 0
-    la r4, scCntCacheSpaceNl
-    bl strtok
-L_370:
-    cmpwi r3, 0
-    bne L_304
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    lwz r30, 0x18(r1)
-    lwz r29, 0x14(r1)
-    lwz r28, 0x10(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
+void _CNTCACHEDeleteTitle() {
+    char* token = strtok(NULL, scCntCacheSpaceNl);
+
+    while (token != NULL) {
+        ESTitleId titleId;
+        int removable;
+
+        errno = 0;
+        titleId = strtoull(token, NULL, 16);
+        if (errno == 0 && (u32)ES_TITLE_TYPE(titleId) != 1) {
+            removable = _CNTCACHEIsTitleRemovable(titleId);
+            if (removable == 1) {
+                ES_DeleteTitle(titleId);
+            } else if (removable == 0) {
+                ES_DeleteTitleContent(titleId);
+            }
+        }
+        token = strtok(NULL, scCntCacheSpaceNl);
+    }
 }
 
 asm int _CNTCACHEIsTitleRemovable(ESTitleId titleId) {
