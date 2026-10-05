@@ -34,7 +34,7 @@ namespace textinput {
         void    replaceChar(char* dest, u32 destLen, const char* src, int replaceIdx, char newCh);
         bool    isAlphabet(wchar_t ch);
 
-        f32     hermiteInterporation(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6);
+        f32     hermiteInterporation(f32 time, f32 startTime, f32 startValue, f32 startTangent, f32 endTime, f32 endValue, f32 endTangent);
     
         void    getProjectionRect4x3(nw4r::ut::Rect* rect);
         void    getProjectionRect16x9(nw4r::ut::Rect* rect);

@@ -28,10 +28,10 @@ namespace ipl {
         mModelMakerID = TVRC_MAKER_SHARP;
         mModelType = 2;
 
-        unk_0x30 = OSGetTime();
-        unk_0x40 = OSGetTime();
-        unk_0x48 = 0;
-        unk_0x04 = 0;
+        mCommandTransitionTime = OSGetTime();
+        mSoundShutupTime = OSGetTime();
+        mLastCommandTime = 0;
+        mbDisabledTriggerEnabled = 0;
 
         m_handle = this;
 
@@ -45,7 +45,7 @@ namespace ipl {
         loadResources_(heap);
 
         mbDisabled = FALSE;
-        unk_0x7C = FALSE;
+        mbDisabledTriggerPending = FALSE;
 
         TVRCSetRepeatTimeout(3000);
     }
@@ -85,8 +85,8 @@ namespace ipl {
         }
 
         if (result > 0 && settings != NULL && fileSize != 0) {
-            BOOL checkFile = settings->magic != TVRC_SETTINGS_MAGIC || settings->unk_0x04 < 1;
-            if (checkFile || settings->unk_0x08 == 0) {
+            BOOL checkFile = settings->magic != TVRC_SETTINGS_MAGIC || settings->formatVersion < 1;
+            if (checkFile || settings->configurationValid == 0) {
                 goto fail;
             }
 
@@ -177,7 +177,7 @@ namespace ipl {
             } else if (pressLeft) {
                 trigger = TVRC_COMMAND_MAP_LEFT;
             }
-            unk_0x1C = 0;
+            mbRepeatCommand = 0;
         } else if (hold1 && mCurrentCommand == TVRC_COMMAND_MAP_POWER_OFF) {
             trigger = mCurrentCommand;
         } else if (hold2 && mCurrentCommand == TVRC_COMMAND_MAP_CHANGE_INPUT) {
@@ -191,7 +191,7 @@ namespace ipl {
         } else if (holdLeft && mCurrentCommand == TVRC_COMMAND_MAP_LEFT) {
             trigger = mCurrentCommand;
         } else {
-            unk_0x1C = 0;
+            mbRepeatCommand = 0;
         }
         return trigger;
     }
@@ -199,10 +199,10 @@ namespace ipl {
     BOOL TVRCManager::snd_shutup(BOOL stopDma) {
         if (stopDma) {
             snd::getSystem()->shutup(TRUE);
-            unk_0x40 = OSGetTime();
+            mSoundShutupTime = OSGetTime();
             return TRUE;
         } else {
-            OSTick ticks = OSTicksToMilliseconds(OSDiffTick(OSGetTime(), unk_0x40));
+            OSTick ticks = OSTicksToMilliseconds(OSDiffTick(OSGetTime(), mSoundShutupTime));
             BOOL result = ticks >= 3;
             if (result) {
                 snd::getSystem()->shutup(FALSE);
@@ -236,11 +236,11 @@ namespace ipl {
 
         s32 trigger = getTrigger();
 
-        if (IS_DISABLED && trans_cmd(trigger) != TVRC_COMMAND_MAP_NONE && !unk_0x7C) {
-            if (unk_0x04 && HBM_DISABLED) {
-                unk_0x7C = TRUE;
-                unk_0x80 = 0;
-                unk_0x74 = OSGetTick();
+        if (IS_DISABLED && trans_cmd(trigger) != TVRC_COMMAND_MAP_NONE && !mbDisabledTriggerPending) {
+            if (mbDisabledTriggerEnabled && HBM_DISABLED) {
+                mbDisabledTriggerPending = TRUE;
+                mDisabledTriggerState = 0;
+                mDisabledTriggerTick = OSGetTick();
             }
             goto ret;
         }
@@ -258,14 +258,14 @@ namespace ipl {
                 }
                 if (trans_cmd(trigger) != TVRC_COMMAND_MAP_NONE && !TVRCIsActive() && HBM_DISABLED) {
                     mCurrentCommand = trigger;
-                    unk_0x18 = 0;
-                    unk_0x1C = 1;
+                    mRepeatCount = 0;
+                    mbRepeatCommand = 1;
                     mState = STATE_2;
-                    unk_0x48 = OSGetTime();
+                    mLastCommandTime = OSGetTime();
                     goto fallthrough;
                 }
-                if (unk_0x48 != 0 && OSTicksToMilliseconds(OSDiffTick(OSGetTime(), unk_0x48)) >= 5000) {
-                    unk_0x48 = 0;
+                if (mLastCommandTime != 0 && OSTicksToMilliseconds(OSDiffTick(OSGetTime(), mLastCommandTime)) >= 5000) {
+                    mLastCommandTime = 0;
                 }
                 break;
             }
@@ -273,7 +273,7 @@ namespace ipl {
             fallthrough:
                 snd::getSystem()->muteOnBGM(10);
                 System::getMasterController()->setForceInvalid(TRUE);
-                unk_0x38 = OSGetTime();
+                mMuteStartTime = OSGetTime();
                 mState = STATE_3;
                 break;
             }
@@ -295,19 +295,19 @@ namespace ipl {
                     if (IS_ENABLED && !TVRCIsActive()) {
                         TVRCSendStartAsync(trans_cmd(mCurrentCommand));
                     }
-                    unk_0x30 = OSGetTime();
+                    mCommandTransitionTime = OSGetTime();
                     mState = STATE_5;
                 }
                 break;
             }
             case STATE_5: {
-                if (mbResetting || !TVRCIsActive() || OSTicksToMilliseconds(OSDiffTick(OSGetTime(), unk_0x30)) >= 30) {
-                    if (!mbResetting && unk_0x1C) {
+                if (mbResetting || !TVRCIsActive() || OSTicksToMilliseconds(OSDiffTick(OSGetTime(), mCommandTransitionTime)) >= 30) {
+                    if (!mbResetting && mbRepeatCommand) {
                         mState = STATE_4;
-                        unk_0x18++;
+                        mRepeatCount++;
                     } else {
                         TVRCSendStopAsync();
-                        unk_0x30 = OSGetTime();
+                        mCommandTransitionTime = OSGetTime();
                         mState = STATE_12;
                     }
                 }
@@ -316,11 +316,11 @@ namespace ipl {
             case STATE_12: {
                 if (!mbResetting && trans_cmd(trigger) != TVRC_COMMAND_MAP_NONE && !TVRCIsActive()) {
                     mCurrentCommand = trigger;
-                    unk_0x18 = 0;
-                    unk_0x1C = 1;
+                    mRepeatCount = 0;
+                    mbRepeatCommand = 1;
                     mState = STATE_2;
                     snd_shutup(FALSE);
-                } else if (OSTicksToMilliseconds(OSDiffTick(OSGetTime(), unk_0x30)) >= 1000) {
+                } else if (OSTicksToMilliseconds(OSDiffTick(OSGetTime(), mCommandTransitionTime)) >= 1000) {
                     snd::getSystem()->pauseOffBGM();
                     snd::getSystem()->muteOffBGM(180);
                     snd_shutup(FALSE);

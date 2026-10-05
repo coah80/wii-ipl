@@ -95,7 +95,7 @@ static s32 NHTTPi_PostSendCallbackWrap(void* mutexInfo_p,
             NHTTPi_Connection2Request(mutexInfo_p, connection_p);
         if (req_p != NULL)
         {
-            NHTTPPostSend postSend = (NHTTPPostSend)req_p->_unk250;
+            NHTTPPostSend postSend = (NHTTPPostSend)req_p->postSendCallback;
             if (postSend != NULL)
             {
                 NHTTPPostSendArg* postSendArg_p = arg_p;

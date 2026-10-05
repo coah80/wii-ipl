@@ -130,11 +130,11 @@ typedef struct WWWProtocolData {
 typedef struct WWWIMEData {
     u32 imeID;         // 0x00
     const char* text;  // 0x04
-    u32 unk_0x08;
-    u32 unk_0x0C;
-    u32 unk_0x10;
-    u32 unk_0x14;
-    u32 unk_0x18;
+    u32 creationDataA;
+    u32 creationDataB;
+    u32 creationDataC;
+    u32 creationDataD;
+    u32 creationDataE;
     u32 maxLength;  // 0x1C
 } WWWIMEData;
 
@@ -153,7 +153,7 @@ typedef union {
 
 typedef struct WWWJSPluginValue {
     s32 ty;
-    u8 unk_0x04[4];
+    u8 reserved[4];
     WWWJSPluginValueData data;
 } WWWJSPluginValue;
 
@@ -171,12 +171,12 @@ typedef struct JSCallbackSet {
 
 typedef struct WWWJSCap {
     const char** name;
-    int unk_0x04;
+    int capabilityWord;
     JSGetterSetter getter;
-    void* unk_0x0C;
-    void* unk_0x10;
-    void* unk_0x14;
-    void* unk_0x18;
+    void* capabilityDataA;
+    void* capabilityDataB;
+    void* capabilityDataC;
+    void* capabilityDataD;
     JSAllowAccess allowAccess;
 } WWWJSCap;
 

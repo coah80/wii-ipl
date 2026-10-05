@@ -49,7 +49,7 @@ static BOOL addHdrList(NHTTPHeader** list, NHTTPBgnEndInfo* info, char* name,
         header->name = name;
         header->value = value;
         header->length = 0;
-        header->_unk14 = 0;
+        header->isBinary = 0;
 
         if (*list != NULL)
         {

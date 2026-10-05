@@ -12,12 +12,12 @@ namespace www {
 
         void AddJsPlugin() {
             cap.name = globalNames;
-            cap.unk_0x04 = NULL;
+            cap.capabilityWord = NULL;
             cap.getter = &globalGetter_;
-            cap.unk_0x0C = NULL;
-            cap.unk_0x10 = NULL;
-            cap.unk_0x14 = NULL;
-            cap.unk_0x18 = NULL;
+            cap.capabilityDataA = NULL;
+            cap.capabilityDataB = NULL;
+            cap.capabilityDataC = NULL;
+            cap.capabilityDataD = NULL;
             cap.allowAccess = allow_access;
             WWWAddJSPlugin("wiiTrasition.dll", &cap, &opera_callbacks);
             ScrollState_ = SCROLL_RESET;

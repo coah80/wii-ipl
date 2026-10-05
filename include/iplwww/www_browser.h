@@ -142,10 +142,10 @@ namespace ext_ead {
             u32 eventType;   // 0x00
             u32 imeID;      // 0x04
             char* text;     // 0x08
-            u32 unk_0x0C;   // 0x0c
-            u32 unk_0x10;   // 0x10
-            u32 unk_0x14;   // 0x14
-            u32 unk_0x18;   // 0x18
+            u32 creationDataA;   // 0x0c
+            u32 creationDataB;   // 0x10
+            u32 creationDataC;   // 0x14
+            u32 creationDataD;   // 0x18
             u32 maxLength;  // 0x1c
 
             ImeData& operator=(const ImeData&);
@@ -177,7 +177,7 @@ namespace ext_ead {
                     struct {
                         u32 imeID;
                         char* str;
-                        u32 unk_0x0C;
+                        u32 updateData;
                     } updateIme;  // ID 4
                     u32 raw[6];
                 } data;
@@ -203,12 +203,12 @@ namespace ext_ead {
 
             void CreateImeData(ImeData* data, const WWWIMEData* wwwData);
             void DisposeImeData(ImeData* data);
-            void CommitIme(ImeData* data, const char* something);
+            void CommitIme(ImeData* data, const char* text);
 
             void CommitImeCmdPacket(const CmdPacket* data);
             void UpdateImeCmdPacket(const CmdPacket* data);
 
-            static void FlushCallback(WWWRect* rect, int unk);
+            static void FlushCallback(WWWRect* rect, int callbackData);
 
             u32* GetRaster() { return mpRaster; }
             WWWHandle* GetHandle() { return mpBrowserHandle; }
@@ -222,7 +222,7 @@ namespace ext_ead {
 
             bool CheckThreadExit_();
             void InitSurface_();
-            void InitFonts_(const char* unk);
+            void InitFonts_(const char* fontDirectory);
 
             void SendKeyboardEvent_(u32 btnMask, u32 triggerFlag, u32 releaseFlag, WWWKeySym sym);
             WWWKeySym GetKeyboardSym_(u32 input);

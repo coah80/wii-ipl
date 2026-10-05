@@ -37,7 +37,7 @@ s32 NHTTPi_setReqQueue(NHTTPListInfo* info, NHTTPRequestInfo* request)
 
         queue->requestId = info->nextRequestId++;
         queue->request = request;
-        queue->_unk10 = -1;
+        queue->socket = -1;
         requestId = queue->requestId;
 
         if (info->nextRequestId < 0)

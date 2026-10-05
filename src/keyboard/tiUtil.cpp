@@ -236,29 +236,29 @@ namespace textinput {
             return ch;
         }
 
-        f32 hermiteInterporation(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
-            f32 var_f26;
-            f32 var_f25;
-            f32 var_f27;
-            f32 var_f28;
-            f32 var_f29;
-            f32 var_f30;
+        f32 hermiteInterporation(f32 time, f32 startTime, f32 startValue, f32 startTangent, f32 endTime, f32 endValue, f32 endTangent) {
+            f32 timeOffset;
+            f32 normalizedTimeSquared;
+            f32 valueBlend;
+            f32 tangentBlend;
+            f32 intervalDelta;
+            f32 normalizedTime;
 
             f32 result;
 
-            var_f26 = arg0 - arg1;
-            var_f29 = arg4 - arg1;
-            var_f30 = var_f26 / var_f29;
-            var_f25 = var_f30 * var_f30;
-            result = var_f30 + var_f30;
-            var_f28 = var_f25 - var_f30;
-            var_f29 = arg2 - arg5;
-            var_f27 = (result * var_f28) - var_f25;
-            result = arg3 + (arg3 * var_f28);
-            var_f27 = arg2 + (var_f27 * var_f29);
-            result += arg6 * var_f28;
-            result = (var_f30 * arg3) - result;
-            result = var_f27 - (var_f26 * result);
+            timeOffset = time - startTime;
+            intervalDelta = endTime - startTime;
+            normalizedTime = timeOffset / intervalDelta;
+            normalizedTimeSquared = normalizedTime * normalizedTime;
+            result = normalizedTime + normalizedTime;
+            tangentBlend = normalizedTimeSquared - normalizedTime;
+            intervalDelta = startValue - endValue;
+            valueBlend = (result * tangentBlend) - normalizedTimeSquared;
+            result = startTangent + (startTangent * tangentBlend);
+            valueBlend = startValue + (valueBlend * intervalDelta);
+            result += endTangent * tangentBlend;
+            result = (normalizedTime * startTangent) - result;
+            result = valueBlend - (timeOffset * result);
 
             return result;
         }

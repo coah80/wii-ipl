@@ -55,27 +55,27 @@ namespace ipl {
             STATE_12,
         };
 
-        u32 unk_0x04;
+        u32 mbDisabledTriggerEnabled;
         BOOL mbInitialized;          // 0x08
         nand::SharedFile* mpDBFile;  // 0x0C
         BOOL mbResetting;            // 0x10
         s32 mCurrentCommand;         // 0x14
-        u32 unk_0x18;
-        u32 unk_0x1C;
+        u32 mRepeatCount;
+        u32 mbRepeatCommand;
         u32 mModelMakerID;    // 0x20
         u32 mModelType;       // 0x24
         BOOL mbPrepTVRC;      // 0x28
         void* mpDatabaseArc;  // 0x2C
-        OSTime unk_0x30;
-        OSTime unk_0x38;
-        OSTime unk_0x40;
-        OSTime unk_0x48;
+        OSTime mCommandTransitionTime;
+        OSTime mMuteStartTime;
+        OSTime mSoundShutupTime;
+        OSTime mLastCommandTime;
         int mCmdMaps[TVRC_COMMAND_MAP_MAX];  // 0x50
         u32 mState;                          // 0x70
-        OSTick unk_0x74;
+        OSTick mDisabledTriggerTick;
         BOOL mbDisabled;  // 0x78
-        BOOL unk_0x7C;
-        u8 unk_0x80;
+        BOOL mbDisabledTriggerPending;
+        u8 mDisabledTriggerState;
         undefined unused_0x81[7];
     };
 }  // namespace ipl
