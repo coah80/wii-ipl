@@ -351,7 +351,6 @@ int Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr optionData, ziPtr workDa
   int candidateCount;
   ziU8 *keyLayout;
   ziU8 *keyLayoutCursor;
-  ziPtr workspace;
   ziU16 prefixTableFlags;
   ziU16 prefixVowelFlags;
   ziU8 prefixMode;
@@ -407,7 +406,6 @@ int Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr optionData, ziPtr workDa
   contextEnabled = 0;
   keyLayoutCount = 0;
   keyLayout = 0;
-  workspace = workData;
   phoneticInput = 0;
   phoneticSeparator = 0;
   if ((((((language == 0x7c) || (language == 0x7d)) || (language == 0x7b)) ||

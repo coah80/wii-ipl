@@ -21,7 +21,6 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
   ziWChar bestFinal;
   ziWChar previousInitial;
   ziWChar previousFinal;
-  ziBool hasComponent;
   ziU8 elementCount;
   ziU8 elementIndex;
   ziU8 stroke;
@@ -44,7 +43,6 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
   stroke = 0;
   contextMask = 0x20;
   Zi8Memset(match,0,0x1ee);
-  hasComponent = 0;
   nibbles = 0;
   elementIndex = 0;
   elementCount = request->elementCount;
@@ -64,7 +62,6 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
     match->comp = element;
     if (Zi8IsComponent(element,__zi8_work_data) != 0) {
       elementIndex++;
-      hasComponent = 1;
       buffers.component = (ziU8*)Zi8GetTableAddress(1,2,__zi8_work_data);
       buffers.componentIndex = (ziU8*)Zi8GetTableAddress(1,6,__zi8_work_data);
       buffers.componentIndex += (element - 0xef10) * 2;
