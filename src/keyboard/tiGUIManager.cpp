@@ -13,13 +13,13 @@ namespace textinput {
             GXClearVtxDesc();
             GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
             GXSetVtxDesc(GX_VA_CLR0, GX_DIRECT);
-            GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_CLR_RGBA, GX_F32, 0);
+            GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
             GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_CLR0, GX_CLR_RGBA, GX_RGBA8, 0);
 
             GXSetCullMode(GX_CULL_NONE);
 
             GXSetNumChans(1);
-            GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_VTX, GX_SRC_VTX, 0, GX_DF_NONE, GX_AF_NONE);
+            GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_VTX, GX_SRC_VTX, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
 
             GXSetNumTexGens(0);
             GXSetNumTevStages(1);
@@ -31,7 +31,7 @@ namespace textinput {
 
             Mtx mtx;
             MTXTrans(mtx, 0.0f, 0.0f, 0.0f);
-            GXLoadPosMtxImm(mtx, 0);
+            GXLoadPosMtxImm(mtx, GX_PNMTX0);
 
             GXSetLineWidth(width, GX_TO_ZERO);
 

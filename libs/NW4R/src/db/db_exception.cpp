@@ -79,7 +79,7 @@ namespace nw4r {
             sException.frameMemory = NULL;
             sException.exceptionRenderObj = NULL;
 
-            OSCreateThread(&sException.thread, RunThread_, NULL, sThreadBuffer + 0x4000, 0x4000, 0, 1);
+            OSCreateThread(&sException.thread, RunThread_, NULL, sThreadBuffer + 0x4000, 0x4000, 0, OS_THREAD_ATTR_DETACH);
             OSInitMessageQueue(&sException.queue, sMessageBuffer, 1);
             OSResumeThread(&sException.thread);
 
@@ -98,7 +98,7 @@ namespace nw4r {
             sException.FPCSR_COPY = context->fpscr;
             OSFillFPUContext(context);
             OSSetErrorHandler(error, NULL);
-            if (error == 0xf) {
+            if (error == OS_EXCEPTION_MEMORY_PROTECTION) {
                 OSProtectRange(0, 0, 0, 3);
                 OSProtectRange(1, 0, 0, 3);
                 OSProtectRange(2, 0, 0, 3);
@@ -111,7 +111,7 @@ namespace nw4r {
             param.dsisr = dsisr;
             param.dar = dar;
 
-            OSSendMessage(&sException.queue, &param, 1);
+            OSSendMessage(&sException.queue, &param, OS_MESSAGE_BLOCK);
 
             OSEnableScheduler();
             OSYieldThread();
@@ -138,7 +138,7 @@ namespace nw4r {
 
             u32 msr = PPCMfmsr();
             PPCMtmsr(msr & ~(MSR_FE0 | MSR_FE1));
-            OSReceiveMessage(&sException.queue, &message, 1);
+            OSReceiveMessage(&sException.queue, &message, OS_MESSAGE_BLOCK);
             OSDisableInterrupts();
 
             VISetPreRetraceCallback(NULL);
@@ -303,46 +303,46 @@ namespace nw4r {
             if (error == OS_EXCEPTION_FLOATING_POINT_EXCEPTION) {
                 u32 fpcsr = sException.FPCSR_COPY;
                 fpcsr &= (((fpcsr & 0xf8) << 0x16) | 0x01f80700);
-                if ((fpcsr & 0x20000000) != 0) {
+                if ((fpcsr & FPSCR_VX) != 0) {
                     Exception_Printf_(" FPE: Invalid operation\n");
-                    if ((sException.FPCSR_COPY & 0x1000000) != 0) {
+                    if ((sException.FPCSR_COPY & FPSCR_VXSNAN) != 0) {
                         Exception_Printf_(" SNaN\n");
                     }
-                    if ((sException.FPCSR_COPY & 0x800000) != 0) {
+                    if ((sException.FPCSR_COPY & FPSCR_VXISI) != 0) {
                         Exception_Printf_(" Infinity - Infinity\n");
                     }
-                    if ((sException.FPCSR_COPY & 0x400000) != 0) {
+                    if ((sException.FPCSR_COPY & FPSCR_VXIDI) != 0) {
                         Exception_Printf_(" Infinity / Infinity\n");
                     }
-                    if ((sException.FPCSR_COPY & 0x200000) != 0) {
+                    if ((sException.FPCSR_COPY & FPSCR_VXZDZ) != 0) {
                         Exception_Printf_(" 0 / 0\n");
                     }
-                    if ((sException.FPCSR_COPY & 0x100000) != 0) {
+                    if ((sException.FPCSR_COPY & FPSCR_VXIMZ) != 0) {
                         Exception_Printf_(" Infinity * 0\n");
                     }
-                    if ((sException.FPCSR_COPY & 0x80000) != 0) {
+                    if ((sException.FPCSR_COPY & FPSCR_VXVC) != 0) {
                         Exception_Printf_(" Invalid compare\n");
                     }
-                    if ((sException.FPCSR_COPY & 0x400) != 0) {
+                    if ((sException.FPCSR_COPY & FPSCR_VXSOFT) != 0) {
                         Exception_Printf_(" Software request\n");
                     }
-                    if ((sException.FPCSR_COPY & 0x200) != 0) {
+                    if ((sException.FPCSR_COPY & FPSCR_VXSQRT) != 0) {
                         Exception_Printf_(" Invalid square root\n");
                     }
-                    if ((sException.FPCSR_COPY & 0x100) != 0) {
+                    if ((sException.FPCSR_COPY & FPSCR_VXCVI) != 0) {
                         Exception_Printf_(" Invalid integer convert\n");
                     }
                 }
-                if ((fpcsr & 0x10000000) != 0) {
+                if ((fpcsr & FPSCR_OX) != 0) {
                     Exception_Printf_(" FPE: Overflow\n");
                 }
-                if ((fpcsr & 0x8000000) != 0) {
+                if ((fpcsr & FPSCR_UX) != 0) {
                     Exception_Printf_(" FPE: Underflow\n");
                 }
-                if ((fpcsr & 0x4000000) != 0) {
+                if ((fpcsr & FPSCR_ZX) != 0) {
                     Exception_Printf_(" FPE: Zero division\n");
                 }
-                if ((fpcsr & 0x2000000) != 0) {
+                if ((fpcsr & FPSCR_XX) != 0) {
                     Exception_Printf_(" FPE: Inexact result\n");
                 }
             }

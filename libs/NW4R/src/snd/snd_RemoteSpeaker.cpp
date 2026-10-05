@@ -61,9 +61,9 @@ namespace nw4r {
 
             if (mPlayFlag) {
                 if (playFlag) {
-                    wencMode = 1;
+                    wencMode = WENC_FLAG_USER_INFO;
                 } else {
-                    wencMode = 1;
+                    wencMode = WENC_FLAG_USER_INFO;
                     lastFlag = true;
                 }
             } else {
@@ -71,7 +71,7 @@ namespace nw4r {
                     if (mFirstEncodeFlag) {
                         wencMode = 0;
                     } else {
-                        wencMode = 1;
+                        wencMode = WENC_FLAG_USER_INFO;
                     }
 
                     mFirstEncodeFlag = false;

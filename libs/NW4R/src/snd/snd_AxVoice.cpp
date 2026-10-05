@@ -808,7 +808,7 @@ namespace nw4r {
                     } else {
                         u16 a0, b0;
 
-                        if (mVpb[0][0]->pb.lpf.on == TRUE) {
+                        if (mVpb[0][0]->pb.lpf.on == AX_PB_LPF_ON) {
                             AXGetLpfCoefs(freq, &a0, &b0);
 
                             for (int j = 0; j < mChannelCount; j++) {
@@ -817,7 +817,7 @@ namespace nw4r {
                         } else {
                             AXPBLPF lpf;
 
-                            lpf.on = TRUE;
+                            lpf.on = AX_PB_LPF_ON;
                             lpf.yn1 = 0;
 
                             AXGetLpfCoefs(freq, &lpf.a0, &lpf.b0);

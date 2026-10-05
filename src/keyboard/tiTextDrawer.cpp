@@ -293,7 +293,7 @@ namespace textinput {
             }
             GXSetScissor(x, y, viewportWidth, viewportHeight);
             PSMTXIdentity(matrix);
-            GXLoadPosMtxImm(matrix, 0);
+            GXLoadPosMtxImm(matrix, GX_PNMTX0);
             mfMinScrollY = GetCursorY();
             muLine = 0;
         }

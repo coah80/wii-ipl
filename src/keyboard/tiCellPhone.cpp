@@ -111,33 +111,33 @@ namespace textinput {
             };
 
             static const PaneNameToControlKey csPaneNameToControlKey[] = {
-                {"B_CPkey_LF", 0},
-                {"B_CPkey_DELETE", 1},
-                {"B_othersBT_JP", 9},
-                {"B_ChngTag_00", 0x12},
-                {"B_ChngTag_01", 0x13},
-                {"B_ChngTag_02", 0x0B},
-                {"B_ChngTag_03", 0x0D},
-                {"B_othersBT_EU", 9},
-                {"B_CPkey_Prdc_JP", 0x0A},
-                {"B_prdcModeBT_EU", 0x0A},
-                {"B_smlCptChngeBT", 0x17},
+                {"B_CPkey_LF", VK_LINE_FEED},
+                {"B_CPkey_DELETE", VK_DELETE},
+                {"B_othersBT_JP", VK_SIGN_INPUT},
+                {"B_ChngTag_00", VK_INPUT_MODE_00},
+                {"B_ChngTag_01", VK_INPUT_MODE_01},
+                {"B_ChngTag_02", VK_INPUT_MODE_02},
+                {"B_ChngTag_03", VK_INPUT_MODE_03},
+                {"B_othersBT_EU", VK_SIGN_INPUT},
+                {"B_CPkey_Prdc_JP", VK_PREDICT_LANGUAGE},
+                {"B_prdcModeBT_EU", VK_PREDICT_LANGUAGE},
+                {"B_smlCptChngeBT", VK_TOGGLE_ABC_MODE},
                 {"B_spaceBT_JP", 2},
             };
 
             static const AnimationFileForControlKey csAninationFileForControlKey[] = {
-                {0, "fs_VK_cellPhone_a_normal.brlan"},
-                {1, "fs_VK_cellPhone_a_Focus-IN.brlan"},
-                {2, "fs_VK_cellPhone_a_Focus-OUT.brlan"},
-                {4, "fs_VK_cellPhone_a_Pushed.brlan"},
-                {3, "fs_VK_cellPhone_a_Roll_over.brlan"},
+                {ANM_Normal, "fs_VK_cellPhone_a_normal.brlan"},
+                {ANM_FocusIn, "fs_VK_cellPhone_a_Focus-IN.brlan"},
+                {ANM_FocusOut, "fs_VK_cellPhone_a_Focus-OUT.brlan"},
+                {ANM_Pushed, "fs_VK_cellPhone_a_Pushed.brlan"},
+                {ANM_RollOver, "fs_VK_cellPhone_a_Roll_over.brlan"},
             };
 
             static const AnimationFileForControlKey csAnimationFileForToggleKey[] = {
-                {0, "fs_VK_cellPhone_a_normal.brlan"},
-                {1, "fs_VK_cellPhone_a_Focus-IN.brlan"},
-                {2, "fs_VK_cellPhone_a_Focus-OUT.brlan"},
-                {4, "fs_VK_cellPhone_a_Pushed.brlan"},
+                {ANM_Normal, "fs_VK_cellPhone_a_normal.brlan"},
+                {ANM_FocusIn, "fs_VK_cellPhone_a_Focus-IN.brlan"},
+                {ANM_FocusOut, "fs_VK_cellPhone_a_Focus-OUT.brlan"},
+                {ANM_Pushed, "fs_VK_cellPhone_a_Pushed.brlan"},
                 {5, "fs_VK_cellPhone_a_toggle-ON.brlan"},
                 {6, "fs_VK_cellPhone_a_toggle-OFF.brlan"},
             };
@@ -1339,8 +1339,8 @@ namespace textinput {
                     if (animation) {
                         switch (static_cast<s32>(event)) {
                         case gui::EventHandler::ON_TRIG:
-                            if ((input->trigger & 0x800) ||
-                                ((input->trigger & 0x400) && isNormalCellPhoneKey(paneName))) {
+                            if ((input->trigger & WPAD_BUTTON_A) ||
+                                ((input->trigger & WPAD_BUTTON_B) && isNormalCellPhoneKey(paneName))) {
                                 if (animation->getKeyType() == KT_ControlButton) {
                                     nw4r::ut::List& panes = mpLayoutByNW4R->getAnmPaneList();
                                     CellPhoneAnmPane* other = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&panes, NULL));
@@ -1358,7 +1358,7 @@ namespace textinput {
                             animation->onAnmEvent(nw4rmanager::AnmPane::PE_2);
                             break;
                         case gui::EventHandler::ON_POINT:
-                            mpEventObserver->onSE(static_cast<sound::SE>(4));
+                            mpEventObserver->onSE(sound::SE_SELECT);
                             mpLayoutByNW4R->setPaneLastDrawReceived(animation->getPane());
                             animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
                             break;
@@ -1373,10 +1373,10 @@ namespace textinput {
                     u8 repeat;
                 } keyEvent = {paneName, 0, 0};
                 if (event == gui::EventHandler::ON_TRIG) {
-                    if (input->trigger & 0x800) {
+                    if (input->trigger & WPAD_BUTTON_A) {
                         keyEvent.state = 0;
                         mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
-                    } else if ((input->trigger & 0x400) && isNormalCellPhoneKey(paneName)) {
+                    } else if ((input->trigger & WPAD_BUTTON_B) && isNormalCellPhoneKey(paneName)) {
                         keyEvent.state = 1;
                         mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
                         paneComponent->setFlightDuration(input->controller, 0);
@@ -1385,8 +1385,8 @@ namespace textinput {
                 if (event == gui::EventHandler::ON_LEFT) {
                     mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
                 }
-                if (event == gui::EventHandler::ON_MOVE && (input->hold & 0x800) &&
-                    !(input->trigger & 0x800) &&
+                if (event == gui::EventHandler::ON_MOVE && (input->hold & WPAD_BUTTON_A) &&
+                    !(input->trigger & WPAD_BUTTON_A) &&
                     (util::strcmp(csPaneNameNormalKey[13], paneName) || util::strcmp(csPaneNameNormalKey[16], paneName)) &&
                     paneComponent->isDragging(input->controller)) {
                     u32 duration = mpLayoutByNW4R->getFlightDuration(input->controller, paneName);

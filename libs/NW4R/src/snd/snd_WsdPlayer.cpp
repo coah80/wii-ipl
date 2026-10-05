@@ -250,7 +250,7 @@ namespace nw4r {
                 }
                 if (!mPauseFlag && !mSkipFlag) {
                     if (mHomeButtonMenuFlag || !AxManager::GetInstance().IsHomeButtonMenu()) {
-                        if (ParseNextTick(true) != 0) {
+                        if (ParseNextTick(true)) {
                             FinishPlayer();
                             return;
                         }

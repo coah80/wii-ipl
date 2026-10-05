@@ -77,7 +77,7 @@ namespace www {
             for (i = 0; i < ARRAY_LENGTH(mFlags); i++) {
                 if (mFlags[i])
                     continue;
-                if (ARCInitHandle((void*)data, mHandles + i) != 0) {
+                if (ARCInitHandle((void*)data, mHandles + i)) {
                     mFlags[i] = true;
                 }
                 break;

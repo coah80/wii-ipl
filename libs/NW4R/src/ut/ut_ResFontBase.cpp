@@ -200,10 +200,10 @@ namespace nw4r {
 
                 glyph->pTexture = pSheet;
                 glyph->widths = GetCharWidthsFromIndex(index);
-                glyph->height = static_cast<u8>(tg.cellHeight);
+                glyph->height = tg.cellHeight;
                 glyph->texFormat = static_cast<GXTexFmt>(tg.sheetFormat);
-                glyph->texWidth = static_cast<u16>(tg.sheetWidth);
-                glyph->texHeight = static_cast<u16>(tg.sheetHeight);
+                glyph->texWidth = tg.sheetWidth;
+                glyph->texHeight = tg.sheetHeight;
                 glyph->cellX = cellPixelX + 1;
                 glyph->cellY = cellPixelY + 1;
             }

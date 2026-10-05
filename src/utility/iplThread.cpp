@@ -5,7 +5,7 @@ namespace ipl {
         void* ut_thread::ThreadMain_(void* param) {
             OSInitFastCast();
 
-            ut_thread* thread = reinterpret_cast<ut_thread*>(param);
+            ut_thread* thread = static_cast<ut_thread*>(param);
             return thread->Run();
         }
 

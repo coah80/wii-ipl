@@ -105,13 +105,13 @@ void Manager::create(MEMAllocator*) {
     mpPredictLanguageDialog->create(mpAllocator);
     mpSignWindow = static_cast<keyboard::signwindow::LayoutByNW4R*>(createSignWindow());
     mpSignWindow->create(mpAllocator);
-    if (SCGetAspectRatio() == 1) { setLayoutScaleFor16x9(); mbAspectRatio4x3 = false; }
+    if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) { setLayoutScaleFor16x9(); mbAspectRatio4x3 = false; }
     else { setLayoutScaleFor4x3(); mbAspectRatio4x3 = true; }
     init();
 }
 
 void Manager::initAspect() {
-    if (SCGetAspectRatio() == 1) { setLayoutScaleFor16x9(); mbAspectRatio4x3 = false; }
+    if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) { setLayoutScaleFor16x9(); mbAspectRatio4x3 = false; }
     else { setLayoutScaleFor4x3(); mbAspectRatio4x3 = true; }
 }
 

@@ -58,7 +58,7 @@ namespace nw4r {
                 OSMessage message;
 
                 while (true) {
-                    OSReceiveMessage(&mMsgQueue, &message, 1);
+                    OSReceiveMessage(&mMsgQueue, &message, OS_MESSAGE_BLOCK);
 
                     if (reinterpret_cast<u32>(message) == MSG_AX_CALLBACK) {
                         ut::AutoMutexLock autoMutex(mMutex);

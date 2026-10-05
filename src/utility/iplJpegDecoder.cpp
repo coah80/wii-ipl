@@ -125,7 +125,7 @@ namespace ipl {
             GXSetProjection(projMtx, GX_ORTHOGRAPHIC);
 
             Graphics::calcOrthoCamera();
-            Graphics::setCamera(0);
+            Graphics::setCamera(GX_PNMTX0);
 
             GXTexObj texObj;
             GXInitTexObj(&texObj, mpTextureBuffer, mTMCState.jpegWidth, mTMCState.jpegHeight, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
@@ -135,7 +135,7 @@ namespace ipl {
             GXColor col = {255, 255, 255, 255};
             nw4r::ut::Rect destRect(0.0f, 0.0f, mCaptureWidth, mCaptureHeight);
 
-            int orient = (int)mOrientation + col.a - col.a;
+            int orient = (int)mOrientation;
 
             switch (orient) {
                 case 1: {
