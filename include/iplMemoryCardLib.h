@@ -7,7 +7,7 @@ namespace ipl {
     namespace memorycard {
         typedef struct FileInfo {
             u16 fileNo;    // 0x00
-            u16 size;      // 0x02
+            volatile u16 size; // 0x02
             u8  canCopy;   // 0x04
             u8  canMove;   // 0x05
             u16 unk_0x06;  // 0x06
@@ -28,7 +28,7 @@ namespace ipl {
         } CardState;              // 0x14
 
         typedef struct IconState {
-            u8  bannerEnable;      // 0x00
+            volatile u8 bannerEnable; // 0x00
             u8  unk_0x01;          // 0x01
             u8  unk_0x02;          // 0x02
             u8  bannerType;        // 0x03
