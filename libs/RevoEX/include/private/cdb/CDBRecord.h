@@ -4,7 +4,7 @@
 #include <private/cdb/CDBAttr.h>
 #include <private/cdb/CDBBridge.h>
 #include <revolution/types.h>
-#ifdef CDB_RECORD_IMPLEMENTATION
+#if defined(CDB_RECORD_IMPLEMENTATION) || defined(CDB_SYSTEM_IMPLEMENTATION)
 #include <revolution/os.h>
 #endif
 
@@ -13,7 +13,7 @@ extern "C" {
 #endif  // __cplusplus
 
 typedef struct _CDBRecordFile {
-#ifdef CDB_RECORD_IMPLEMENTATION
+#if defined(CDB_RECORD_IMPLEMENTATION) || defined(CDB_SYSTEM_IMPLEMENTATION)
     OSMutex mutex;
     BOOL used;
 #else
@@ -24,7 +24,7 @@ typedef struct _CDBRecordFile {
     CDBBridgeFile bridgeFile;  // 0x42C
     u8 unk_0x434[0x438 - 0x434];
     CDBRecordKey key;  // 0x438
-#ifdef CDB_RECORD_IMPLEMENTATION
+#if defined(CDB_RECORD_IMPLEMENTATION) || defined(CDB_SYSTEM_IMPLEMENTATION)
     u32 database;
     u8 reserved[0x480 - 0x46C];
 #else

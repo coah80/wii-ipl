@@ -1,3 +1,4 @@
+#define CDB_SYSTEM_IMPLEMENTATION
 #include <private/cdb.h>
 #include <revolution/cdb.h>
 
@@ -11,9 +12,9 @@
 
 typedef struct {
     u32 used;
-    u8 padding[0xC00C];
+    u8 state[0xC00C];
     u32 flags;
-    u32 unk;
+    u32 database;
 } CDBDatabaseInstanceWork;
 
 static OSMutex s_mutex;
@@ -69,9 +70,9 @@ void CDBRecordPoolInit(void* work) {
 
     s_recordPool = (u8*)work + 0x18030;
     for (i = 0; i < 5; i++) {
-        *(u32*)(s_recordPool + i * 0x470 + 0x18) = 0;
+        ((CDBRecordFile*)(s_recordPool + i * 0x470))->used = 0;
         if (!s_mutexInitialized) {
-            OSInitMutex((OSMutex*)(s_recordPool + i * 0x470));
+            OSInitMutex(&((CDBRecordFile*)(s_recordPool + i * 0x470))->mutex);
         }
     }
 }
@@ -150,8 +151,8 @@ CDBErr CDBDatabaseFree(CDBDatabase* database) {
     OSLockMutex(&s_mutex);
     for (i = 0, offset = 0; i < 5; i++, offset += 0x470) {
         if (CDBRecordInstanceIsUsed(s_recordPool + offset) &&
-            *(CDBDatabase**)(s_recordPool + offset + 0x468) == database) {
-            CDBReportError("can't close database; record %s is opened\n", s_recordPool + offset + 0x438);
+            (CDBDatabase*)((CDBRecordFile*)(s_recordPool + offset))->database == database) {
+            CDBReportError("can't close database; record %s is opened\n", ((CDBRecordFile*)(s_recordPool + offset))->key.keyString);
             hasOpenRecord = TRUE;
         }
     }
@@ -193,7 +194,7 @@ CDBErr CDBDatabaseCheckOpenRecord() {
     OSLockMutex(&s_mutex);
     for (i = 0, offset = 0; i < 5; i++, offset += 0x470) {
         if (CDBRecordInstanceIsUsed(s_recordPool + offset)) {
-            CDBReportError("record %s is opened\n", s_recordPool + offset + 0x438);
+            CDBReportError("record %s is opened\n", ((CDBRecordFile*)(s_recordPool + offset))->key.keyString);
             hasOpenRecord = TRUE;
         }
     }
@@ -210,7 +211,7 @@ CDBErr CDBRecordAllocate(CDBRecord* record, int flag) {
     int writeFlag;
     int offset;
     int i;
-    CDBDatabaseInstanceWork* databaseInstance = ((CDBDatabase*)*(CDBDatabase**)record)->instance;
+    CDBDatabaseInstanceWork* databaseInstance = ((CDBDatabase*)record->database)->instance;
 
     OSLockMutex(&s_mutex);
     if (databaseInstance == NULL) {
@@ -228,9 +229,9 @@ CDBErr CDBRecordAllocate(CDBRecord* record, int flag) {
     writeFlag = flag & CDB_RECORD_ALLOC_WRITE;
     for (i = 0, offset = 0; i < 5; i++, offset += 0x470) {
         if (CDBRecordInstanceIsUsed(s_recordPool + offset) &&
-            CDBRecordKeyCompare(&record->key, (CDBRecordKey*)(s_recordPool + offset + 0x438)) == FALSE &&
-            *(s32*)((u8*)record + 0x30) == *(s32*)(s_recordPool + offset + 0x460)) {
-            if ((*(u32*)(s_recordPool + offset + 0x1c) & CDB_RECORD_ALLOC_WRITE) != 0) {
+            CDBRecordKeyCompare(&record->key, &((CDBRecordFile*)(s_recordPool + offset))->key) == FALSE &&
+            record->key.location == ((CDBRecordFile*)(s_recordPool + offset))->key.location) {
+            if ((((CDBRecordFile*)(s_recordPool + offset))->allocFlag & CDB_RECORD_ALLOC_WRITE) != 0) {
                 CDBReportError("can't open the record as WRITE mode; another record discripter opened the record as WRITE mode\n");
                 OSUnlockMutex(&s_mutex);
                 return 0x19;
@@ -262,9 +263,9 @@ CDBErr CDBRecordFree(CDBRecord* record) {
     CDBRecordFile* recordFile = record->file;
 
     OSLockMutex(&s_mutex);
-    OSLockMutex((OSMutex*)recordFile);
-    *(u32*)&recordFile->unk_0x00[0x18] = 0;
-    OSUnlockMutex((OSMutex*)recordFile);
+    OSLockMutex(&recordFile->mutex);
+    recordFile->used = 0;
+    OSUnlockMutex(&recordFile->mutex);
     recordFile->allocFlag = 0;
     record->file = NULL;
     OSUnlockMutex(&s_mutex);

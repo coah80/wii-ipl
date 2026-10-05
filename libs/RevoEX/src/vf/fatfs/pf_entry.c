@@ -182,9 +182,9 @@ pf_s32 VFiPFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf, p
     pf_u8 check_sum;
     pf_u32 is_first;
     pf_u32 is_last_LFN_ent;
-    pf_u8* p;
-    pf_u16* q;
-    pf_u16* q_after;
+    pf_u8* nameSegment;
+    pf_u16* nameChar;
+    pf_u16* nameEnd;
 
     is_first = 1;
     is_last_LFN_ent = 0;
@@ -224,27 +224,27 @@ pf_s32 VFiPFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent, const pf_u8* buf, p
     }
     p_ent->ordinal = ordinal;
     p_ent->check_sum = check_sum;
-    p = (pf_u8*)p_ent->long_name;
-    p += (ordinal - 1) * 0x1A;
-    VFipf_memcpy(&p[0x0], (pf_s8*)&buf[0x1], 10);
-    VFipf_memcpy(&p[10], (pf_s8*)&buf[0xE], 0xC);
-    VFipf_memcpy(&p[0x16], (pf_s8*)&buf[0x1C], 4U);
-    VFiPF_LE16_TO_U16_STR(&p[0x0], 10);
-    VFiPF_LE16_TO_U16_STR(&p[10], 0xC);
-    VFiPF_LE16_TO_U16_STR(&p[0x16], 4U);
+    nameSegment = (pf_u8*)p_ent->long_name;
+    nameSegment += (ordinal - 1) * 0x1A;
+    VFipf_memcpy(&nameSegment[0x0], (pf_s8*)&buf[0x1], 10);
+    VFipf_memcpy(&nameSegment[10], (pf_s8*)&buf[0xE], 0xC);
+    VFipf_memcpy(&nameSegment[0x16], (pf_s8*)&buf[0x1C], 4U);
+    VFiPF_LE16_TO_U16_STR(&nameSegment[0x0], 10);
+    VFiPF_LE16_TO_U16_STR(&nameSegment[10], 0xC);
+    VFiPF_LE16_TO_U16_STR(&nameSegment[0x16], 4U);
     if (is_last_LFN_ent != 0) {
-        *(pf_u16*)(p + 0x1A) = 0;
-        q = (pf_u16*)p;
-        q_after = (pf_u16*)&p[0x1A];
-        for (; q < q_after; q++) {
-            if (*q == 0) {
-                q++;
+        ((pf_u16*)nameSegment)[13] = 0;
+        nameChar = (pf_u16*)nameSegment;
+        nameEnd = (pf_u16*)&nameSegment[0x1A];
+        for (; nameChar < nameEnd; nameChar++) {
+            if (*nameChar == 0) {
+                nameChar++;
                 break;
             }
         }
 
-        for (; q < q_after; q++) {
-            if (*q != 0xFFFF) {
+        for (; nameChar < nameEnd; nameChar++) {
+            if (*nameChar != 0xFFFF) {
                 p_ent->num_entry_LFNs = 0;
                 return 33;
             }
