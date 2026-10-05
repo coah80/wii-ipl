@@ -64,7 +64,7 @@ struct NUPTitleInfo {
     u32 ticketCertificateSize;
     void* tmdCertificate;
     u32 tmdCertificateSize;
-    void* tmdView;
+    ESTmdView* tmdView;
     u32 tmdViewSize;
     u8 hasTicket;
     u8 hasTmd;
@@ -165,7 +165,7 @@ static ESError __nupHttpBufferFlushES(u8* buffer, unsigned long size, unsigned l
     return result;
 }
 
-static inline char* __nupFindTag(char* response, const char* endTag, const char* startTag,
+static inline char* __nupFindTag(char* response, const char* startTag, const char* endTag,
                                 char** value, size_t* length) {
     char* start;
     char* end;
@@ -188,10 +188,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     size_t titleCount;
 
     {
-        const char* versionEndTag = "</Version>";
-        const char* versionStartTag = "<Version>";
-        afterEnd = __nupFindTag(response, versionEndTag, versionStartTag,
-                                &start, &valueLength);
+        afterEnd = __nupFindTag(response, "<Version>", "</Version>", &start, &valueLength);
         if (afterEnd == 0 || valueLength != strlen("1.0") || strncmp(start, "1.0", valueLength) != 0) {
             result = -5004;
             goto done;
@@ -199,10 +196,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     }
 
     {
-        const char* deviceIdEndTag = "</DeviceId>";
-        const char* deviceIdStartTag = "<DeviceId>";
-        afterEnd = __nupFindTag(response, deviceIdEndTag, deviceIdStartTag,
-                                &start, &valueLength);
+        afterEnd = __nupFindTag(response, "<DeviceId>", "</DeviceId>", &start, &valueLength);
         if (afterEnd == 0 || strtoull(start, 0, 10) != deviceId) {
             result = -5004;
             goto done;
@@ -210,10 +204,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     }
 
     {
-        const char* messageIdEndTag = "</MessageId>";
-        const char* messageIdStartTag = "<MessageId>";
-        afterEnd = __nupFindTag(response, messageIdEndTag, messageIdStartTag,
-                                &start, &valueLength);
+        afterEnd = __nupFindTag(response, "<MessageId>", "</MessageId>", &start, &valueLength);
         if (afterEnd == 0 || valueLength != strlen(messageId) || strncmp(start, messageId, valueLength) != 0) {
             result = -5004;
             goto done;
@@ -221,10 +212,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     }
 
     {
-        const char* errorCodeEndTag = "</ErrorCode>";
-        const char* errorCodeStartTag = "<ErrorCode>";
-        afterEnd = __nupFindTag(response, errorCodeEndTag, errorCodeStartTag,
-                                &start, &valueLength);
+        afterEnd = __nupFindTag(response, "<ErrorCode>", "</ErrorCode>", &start, &valueLength);
         if (afterEnd == 0 || valueLength != strlen("0") || strncmp(start, "0", valueLength) != 0) {
             result = -5004;
             goto done;
@@ -232,10 +220,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     }
 
     {
-        const char* uploadAuditEndTag = "</UploadAuditData>";
-        const char* uploadAuditStartTag = "<UploadAuditData>";
-        afterEnd = __nupFindTag(response, uploadAuditEndTag, uploadAuditStartTag,
-                                &start, &valueLength);
+        afterEnd = __nupFindTag(response, "<UploadAuditData>", "</UploadAuditData>", &start, &valueLength);
         if (afterEnd == 0 || valueLength != strlen("0") || (*start != '0' && *start != '1')) {
             result = -5004;
             goto done;
@@ -248,10 +233,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     }
 
     {
-        const char* contentPrefixEndTag = "</ContentPrefixURL>";
-        const char* contentPrefixStartTag = "<ContentPrefixURL>";
-        afterEnd = __nupFindTag(response, contentPrefixEndTag, contentPrefixStartTag,
-                                &start, &valueLength);
+        afterEnd = __nupFindTag(response, "<ContentPrefixURL>", "</ContentPrefixURL>", &start, &valueLength);
         if (afterEnd == 0 || valueLength == 0) {
             result = -5004;
             goto done;
@@ -266,10 +248,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     }
 
     {
-        const char* uncachedPrefixEndTag = "</UncachedContentPrefixURL>";
-        const char* uncachedPrefixStartTag = "<UncachedContentPrefixURL>";
-        afterEnd = __nupFindTag(response, uncachedPrefixEndTag, uncachedPrefixStartTag,
-                                &start, &valueLength);
+        afterEnd = __nupFindTag(response, "<UncachedContentPrefixURL>", "</UncachedContentPrefixURL>", &start, &valueLength);
         if (afterEnd == 0 || valueLength == 0) {
             result = -5004;
             goto done;
@@ -286,14 +265,8 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     titleCount = 0;
     cursor = response;
     {
-        const char* versionEndTag = "</Version>";
-        const char* versionStartTag = "<Version>";
-        const char* titleIdEndTag = "</TitleId>";
-        const char* titleIdStartTag = "<TitleId>";
-        while ((cursor = __nupFindTag(cursor, titleIdEndTag, titleIdStartTag,
-                                     &start, &valueLength)) != 0 &&
-               (cursor = __nupFindTag(cursor, versionEndTag, versionStartTag,
-                                     &start, &valueLength)) != 0) {
+        while ((cursor = __nupFindTag(cursor, "<TitleId>", "</TitleId>", &start, &valueLength)) != 0 &&
+               (cursor = __nupFindTag(cursor, "<Version>", "</Version>", &start, &valueLength)) != 0) {
             titleCount++;
         }
     }
@@ -306,19 +279,13 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     memset(context->titles, 0, titleCount * sizeof(NUPTitleInfo));
     cursor = response;
     {
-        const char* versionEndTag = "</Version>";
-        const char* versionStartTag = "<Version>";
-        const char* titleIdEndTag = "</TitleId>";
-        const char* titleIdStartTag = "<TitleId>";
         char* titleStart;
         char* versionStart;
         size_t titleLength;
         size_t versionLength;
         char* parsedEnd;
-        while ((cursor = __nupFindTag(cursor, titleIdEndTag, titleIdStartTag,
-                                     &titleStart, &titleLength)) != 0 &&
-               (cursor = __nupFindTag(cursor, versionEndTag, versionStartTag,
-                                     &versionStart, &versionLength)) != 0) {
+        while ((cursor = __nupFindTag(cursor, "<TitleId>", "</TitleId>", &titleStart, &titleLength)) != 0 &&
+               (cursor = __nupFindTag(cursor, "<Version>", "</Version>", &versionStart, &versionLength)) != 0) {
             unsigned long long titleId = strtoull(titleStart, &parsedEnd, 16);
             if (parsedEnd != titleStart + titleLength) {
                 result = -5004;
@@ -727,7 +694,7 @@ static s32 __nupGetBootVersion(NUPContextInfo* context, ESTitleVersion* title) {
         title->hasContent = 1;
         result = __nupSetBootTitleVersion(title);
     } else {
-        u32 i;
+        s32 i;
         for (i = 0; i < context->ownedTitleCount; i++) {
             if (context->ownedTitleIds[i] == title->titleId) {
                 break;
@@ -764,18 +731,16 @@ static s32 __nupGetBootVersion(NUPContextInfo* context, ESTitleVersion* title) {
                         goto done;
                     }
                 }
-                u32 installedContentCount = title->contentCount;
-                if (installedContentCount < tmdView->head.numContents) {
+                if (title->contentCount < tmdView->head.numContents) {
                     goto done;
                 }
-                s32 contentIndex;
-                for (contentIndex = 0; contentIndex < tmdView->head.numContents; contentIndex++) {
-                    if (!__nupHasInstalledContent(title, tmdView->contents[contentIndex].cid,
-                                                  installedContentCount)) {
+                for (i = 0; i < tmdView->head.numContents; i++) {
+                    ESContentId contentId = tmdView->contents[i].cid;
+                    if (!__nupHasInstalledContent(title, contentId, title->contentCount)) {
                         break;
                     }
                 }
-                if (contentIndex < tmdView->head.numContents) {
+                if (i < tmdView->head.numContents) {
                     goto done;
                 }
                 title->hasContent = 1;
@@ -870,7 +835,7 @@ static s32 __nupGetTmd(NUPTitleInfo* title, char* contentPrefixUrl) {
                             result = ES_DiGetTmdView((ESTitleMeta*)title->tmd, title->tmdSize, 0,
                                                      &title->tmdViewSize);
                             if (result == 0) {
-                                title->tmdView = nup::__nupMalloc(title->tmdViewSize);
+                                title->tmdView = (ESTmdView*)nup::__nupMalloc(title->tmdViewSize);
                                 if (title->tmdView == 0) {
                                     result = -5000;
                                 } else {
@@ -907,23 +872,26 @@ static s32 __nupGetTitleSize(NUPTitleInfo* title) {
     if (title->hasTmd == 0 && title->contentCount == 0) {
         title->progressStep += 4;
     }
-    title->progressStep += 5;
     title->installedContentSize += 0x4000;
+    title->progressStep++;
     title->installedContentSize += (title->tmdSize + 0x3fff) & 0xffffc000;
+    title->progressStep++;
     title->installedContentSize += 0x8000;
+    title->progressStep++;
     title->installedContentSize += 0x4000;
+    title->progressStep++;
     title->installedContentSize += 0x4000;
-    for (contentIndex = 0; contentIndex < ((ESTmdView*)title->tmdView)->head.numContents; contentIndex++) {
-        ESCmdView* content = &((ESTmdView*)title->tmdView)->contents[contentIndex];
-        ESContentId contentId = content->cid;
+    title->progressStep++;
+    for (contentIndex = 0; contentIndex < title->tmdView->head.numContents; contentIndex++) {
+        ESContentId contentId = title->tmdView->contents[contentIndex].cid;
         if (!__nupHasContent(title, contentId) ||
             title->titleId == 0x0000000100000001ULL) {
-            if (content->size > 0xffffffefULL) {
+            if (title->tmdView->contents[contentIndex].size > 0xffffffefULL) {
                 result = -0x1394;
                 break;
             }
-            title->updateContentSize += (content->size + 0xf) & 0xfffffffffffffff0ULL;
-            title->installedContentSize += (((ESTmdView*)title->tmdView)->contents[contentIndex].size + 0x3fff) & 0xffffffffffffc000ULL;
+            title->updateContentSize += (title->tmdView->contents[contentIndex].size + 0xf) & 0xfffffffffffffff0ULL;
+            title->installedContentSize += (title->tmdView->contents[contentIndex].size + 0x3fff) & 0xffffffffffffc000ULL;
             title->progressStep++;
         }
     }
