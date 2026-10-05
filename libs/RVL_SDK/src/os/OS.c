@@ -577,15 +577,7 @@ void OSInit() {
         arenaAddr = RAMReadPtr(OSPhysicalToCached(OS_ADDR_AVAILABLE_MEM1_START));
 
         if (arenaAddr == NULL) {
-            register void* arenaLo;
-#ifdef __MWERKS__
-            asm {
-                lis arenaLo, -0x7E95
-                addi arenaLo, arenaLo, -0x6800
-            }
-#else
-            arenaLo = __ArenaLo;
-#endif
+            void* arenaLo = __ArenaLo;
             if (OSIsMEM1Region(arenaLo)) {
                 void* tmp = BootInfo->arenaLo;
                 arenaAddr = tmp == NULL ? arenaLo : tmp;
@@ -612,15 +604,7 @@ void OSInit() {
         arenaAddr = RAMReadPtr(OSPhysicalToCached(OS_ADDR_AVAILABLE_MEM2_START));
 
         if (arenaAddr != NULL) {
-            register void* arenaLo;
-#ifdef __MWERKS__
-            asm {
-                lis arenaLo, -0x7E95
-                addi arenaLo, arenaLo, -0x6800
-            }
-#else
-            arenaLo = __ArenaLo;
-#endif
+            void* arenaLo = __ArenaLo;
             if (OSIsMEM2Region(arenaLo)) {
                 arenaAddr = arenaLo;
 

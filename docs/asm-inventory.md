@@ -1,7 +1,7 @@
 # Assembly inventory
 
-Audit of `ad5100a5`, 4.3U, 2026-10-05. 175 functions contain 178 assembly
-bodies/blocks: 162 ORIGINAL functions and 13 PLACEHOLDER functions.
+4.3U, 2026-10-05. 173 functions contain 175 assembly
+bodies/blocks: 162 ORIGINAL functions and 11 PLACEHOLDER functions.
 
 Run `python3 tools/check_asm_inventory.py`. Completion requires exit 0, complete
 coverage and zero placeholders. The checker also rejects stale/duplicate rows,
@@ -37,7 +37,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `libs/NW4R/include/nw4r/math/types.h` | `VEC3Scale` | ORIGINAL | psq_l/ps_muls0/psq_st implements paired-single vector/matrix operations. |
 | `libs/NW4R/src/math/math_arithmetic.cpp` | `FrSqrt` | ORIGINAL | frsqrte plus fixed refinement matches the public [NW4R arithmetic assembly][arithmetic-cpp]. |
 | `libs/NW4R/src/math/math_types.cpp` | `MTX44Identity` | ORIGINAL | psq_st/ps_merge01/ps_merge10 implements paired-single vector/matrix operations. |
-| `libs/RVLMiddleware/TMC_JPEG/src/jpegdec/jdec_main.c` | `TMCJPEGDEC_parse_sof` | PLACEHOLDER | JPEG frame parsing; diagnostic C 98.05381%, 223/223 instructions, 34 differences, temporary incomplete extern, [rx19](../tools/decomp-assist/rx19.attempts.md). |
 | `libs/RVLMiddleware/TMC_JPEG/src/jpegdec/jdec_main.c` | `TMCJPEGDEC_err_restart` | PLACEHOLDER | JPEG marker scan; best C 95.73913%, 114/115 instructions, folded exit branch, [rx19](../tools/decomp-assist/rx19.attempts.md), [rx24][rx24]. |
 | `libs/RVL_SDK/include/revolution/os/OSFastCast.h` | `OSInitFastCast` | ORIGINAL | mtspr programs the GQR quantization registers. |
 | `libs/RVL_SDK/include/revolution/os/OSFastCast.h` | `__OSu16tof32` | ORIGINAL | psq_l uses a GQR integer conversion format for the fast cast. |
@@ -113,7 +112,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `libs/RVL_SDK/src/mtx/vec.c` | `PSVECNormalize` | ORIGINAL | psq_l/ps_mul/ps_madd/ps_sum0 implements paired-single vector/matrix operations. |
 | `libs/RVL_SDK/src/mtx/vec.c` | `PSVECCrossProduct` | ORIGINAL | psq_l/ps_merge10/ps_mul/ps_muls0 implements paired-single vector/matrix operations. |
 | `libs/RVL_SDK/src/os/OS.c` | `__OSFPRInit` | ORIGINAL | mfmsr/mtmsr enable the FPU; psq_l initializes paired registers and mtfsf initializes FPSCR. |
-| `libs/RVL_SDK/src/os/OS.c` | `OSInit` | PLACEHOLDER | Two lis/addi blocks pin __ArenaLo to 0x816a9800; C score unrecorded, [rx36 audit][rx36-osinit]. |
 | `libs/RVL_SDK/src/os/OS.c` | `__OSDBIntegrator` | ORIGINAL | nofralloc debug-vector fragment changes MSR and transfers through the saved hook LR. |
 | `libs/RVL_SDK/src/os/OS.c` | `__OSDBJump` | ORIGINAL | Single absolute bla __OSDBJumpTarget between entry labels copied into exception vectors. |
 | `libs/RVL_SDK/src/os/OS.c` | `OSExceptionVector` | ORIGINAL | Saves interrupted state, sets SRR0/SRR1 and executes rfi into the exception handler. |
