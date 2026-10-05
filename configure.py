@@ -1006,7 +1006,7 @@ config.libs = [
             Object(Matching,    "clib/zidawg1.c"),
             Object(Matching,    "clib/zikorean.c"),
             Object(Matching,    "clib/ziswordw.c"),
-            Object(NonMatching, "clib/zkokeyp.c"),
+            Object(Matching,    "clib/zkokeyp.c"),
             Object(Matching,    "clib/zierror.c"),
             Object(Matching,    "clib/zmtkey.c"),
             Object(Matching,    "clib/zoemdata.c"),
