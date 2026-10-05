@@ -13,21 +13,12 @@ void CDBClampCDBDate(CDBDate* cdbDate);
 
 CDBDate CDBMakeCDBDate(int year, int month, int day, int hour, int min, int sec);
 
-#ifdef CDB_DATABASE_IMPLEMENTATION
 CDBDate CDBMakeCDBDateDayBegin(int year, int month, int day);
 CDBDate CDBMakeCDBDateDayEnd(int year, int month, int day);
 CDBDate CDBMakeCDBDateMonthBegin(int year, int month);
 CDBDate CDBMakeCDBDateMonthEnd(int year, int month);
 CDBDate CDBMakeCDBDateYearBegin(int year);
 CDBDate CDBMakeCDBDateYearEnd(int year);
-#else
-CDBDate CDBMakeCDBDateDayBegin(int year, int month, int day, int hour, int min, int sec);
-CDBDate CDBMakeCDBDateDayEnd(int year, int month, int day, int hour, int min, int sec);
-CDBDate CDBMakeCDBDateMonthBegin(int year, int month, int day, int hour, int min, int sec);
-CDBDate CDBMakeCDBDateMonthEnd(int year, int month, int day, int hour, int min, int sec);
-CDBDate CDBMakeCDBDateYearBegin(int year, int month, int day, int hour, int min, int sec);
-CDBDate CDBMakeCDBDateYearEnd(int year, int month, int day, int hour, int min, int sec);
-#endif
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,3 @@
-#define CDB_DATABASE_IMPLEMENTATION
 #include <private/cdb.h>
 #include <revolution/cdb.h>
 #include <stdlib.h>
