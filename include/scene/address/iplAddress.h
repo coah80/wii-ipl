@@ -141,6 +141,9 @@ namespace ipl {
                 void init(nw4r::lyt::Pane* pane);
                 void set(u64 fdId);
                 void reset();
+#ifdef IPL_ADDRESS_MATCHING
+                nigaoe::Object* getPortrait() const { return mpNigaoe; }
+#endif
 
                 static void create_callback(nigaoe::Object* object, void* work);
 
