@@ -155,41 +155,6 @@ namespace textinput {
                 {0x00040000, {&csKeySetHangul, &csKeySetUSabc, &csKeySetUSABC, &csKeySetNumber, NULL}},
             };
 
-            void Base::create(MEMAllocator* allocator) {
-                mpAllocator = allocator;
-                mPreviousInputMode = 0;
-                mCurrentInputMode = 0;
-                mHoldingButton = 0;
-                mbInputModeLocked = false;
-                mbNumericWithDotMode = false;
-                mbNumericMode = false;
-                mbUpperCaseMode = true;
-                mbAbcMode = true;
-                mbLanguageKeyMode = false;
-                mpInputModeTable = const_cast<LanguageDependencyData*>(&csLanguageDependencyData[getLanguage()]);
-
-                u32 inputData[3] = {0, 0, 0};
-                sendCommand(3, inputData);
-            }
-
-            void Base::init() {
-                mPreviousInputMode = 0;
-                mCurrentInputMode = 0;
-                mHoldingButton = 0;
-                mbInputModeLocked = false;
-                mbNumericWithDotMode = false;
-                mbNumericMode = false;
-                mbUpperCaseMode = true;
-                mbAbcMode = true;
-                mbLanguageKeyMode = false;
-                mpInputModeTable = const_cast<LanguageDependencyData*>(&csLanguageDependencyData[getLanguage()]);
-
-                u32 inputData[3] = {0, 0, 0};
-                sendCommand(3, inputData);
-            }
-
-            void Base::calc() {}
-
             static inline const PaneNameToCharCode* findKeyForPane(const PaneNameToCharCode* keys, const char* paneName) {
                 for (u16 index = 0; index < 12; index++) {
                     if (util::strcmp(keys[index].szPaneName, paneName)) { return &keys[index]; }
@@ -233,6 +198,66 @@ namespace textinput {
                 }
                 return NULL;
             }
+
+            static inline void initializeTogglePane(nw4rmanager::Layout& layout, void* const& inputModeTable,
+                                                   int inputMode, const char* paneName) {
+                char textPaneName[17];
+                memset(textPaneName, 0, sizeof(textPaneName));
+                strncpy(textPaneName, paneName, strlen(paneName));
+                textPaneName[0] = 'T';
+
+                nw4r::lyt::TextBox* textPane = static_cast<nw4r::lyt::TextBox*>(layout.getPane(textPaneName));
+                nw4r::lyt::Pane* buttonPane = layout.getPane(paneName);
+                const KeySet* keySet = static_cast<const LanguageDependencyData*>(inputModeTable)->keySets[inputMode];
+                if (keySet == NULL) {
+                    buttonPane->SetVisible(false);
+                } else {
+                    buttonPane->SetVisible(true);
+                    textPane->SetString(static_cast<const LanguageDependencyData*>(inputModeTable)->keySets[inputMode]->szKeySetName, 0);
+                }
+            }
+
+            static inline bool isNormalCellPhoneKey(const char* paneName) {
+                for (int index = 0; index < 12; ++index) {
+                    if (util::strcmp(paneName, csPaneNameNormalKey[index])) { return true; }
+                }
+                return false;
+            }
+
+            void Base::create(MEMAllocator* allocator) {
+                mpAllocator = allocator;
+                mPreviousInputMode = 0;
+                mCurrentInputMode = 0;
+                mHoldingButton = 0;
+                mbInputModeLocked = false;
+                mbNumericWithDotMode = false;
+                mbNumericMode = false;
+                mbUpperCaseMode = true;
+                mbAbcMode = true;
+                mbLanguageKeyMode = false;
+                mpInputModeTable = const_cast<LanguageDependencyData*>(&csLanguageDependencyData[getLanguage()]);
+
+                u32 inputData[3] = {0, 0, 0};
+                sendCommand(3, inputData);
+            }
+
+            void Base::init() {
+                mPreviousInputMode = 0;
+                mCurrentInputMode = 0;
+                mHoldingButton = 0;
+                mbInputModeLocked = false;
+                mbNumericWithDotMode = false;
+                mbNumericMode = false;
+                mbUpperCaseMode = true;
+                mbAbcMode = true;
+                mbLanguageKeyMode = false;
+                mpInputModeTable = const_cast<LanguageDependencyData*>(&csLanguageDependencyData[getLanguage()]);
+
+                u32 inputData[3] = {0, 0, 0};
+                sendCommand(3, inputData);
+            }
+
+            void Base::calc() {}
 
             void Base::onKey(u32 event, void* data) {
                 struct KeyEvent { const char* paneName; u8 state; };
@@ -350,8 +375,6 @@ namespace textinput {
                 }
             }
 
-            Base::~Base() {}
-
             Base::InputMode Base::getInputMode() const {
                 return static_cast<InputMode>(mCurrentInputMode);
             }
@@ -410,6 +433,28 @@ namespace textinput {
                 }
             }
 
+            void Base::onActive() {
+                u32 commandData = 0;
+                sendCommand(0x12, &commandData);
+
+                if (mCurrentInputMode == IM_00) {
+                    InputModeEnabled activeData = {true};
+                    sendCommand(0x13, &activeData);
+                }
+
+                if (static_cast<s32>(mCurrentInputMode) == IM_01) {
+                    struct InactiveMode { bool enabled; } inactiveData = {false};
+                    sendCommand(0x13, &inactiveData);
+                }
+
+                if (mCurrentInputMode == IM_00) {
+                    sendCommand(6, NULL);
+                    changeInputMode(static_cast<InputMode>(mCurrentInputMode));
+                }
+
+                updateFixMode();
+            }
+
             bool Base::onClose() {}
 
             void Base::changeInputMode(InputMode mode) {
@@ -434,38 +479,6 @@ namespace textinput {
 
                 updateFixMode();
                 sendCommand(0x29, NULL);
-            }
-
-            void Base::setInputMode(InputMode) {}
-
-            void Base::setUpperCaseJP(bool) {}
-
-            void Base::draw() {}
-
-            void Base::doInput() {}
-
-            bool Base::isUpperCase() {
-                return mbUpperCaseMode;
-            }
-
-            bool Base::isHoldingButton() const {
-                return mHoldingButton != 0;
-            }
-
-            bool Base::isNumericWithDot() const {
-                return mbNumericWithDotMode;
-            }
-
-            bool Base::isNumeric() const {
-                return mbNumericMode;
-            }
-
-            bool Base::isLocked() const {
-                return mbInputModeLocked;
-            }
-
-            u32 Base::getType() {
-                return 1;
             }
 
             bool Base::isZiActive() {
@@ -501,28 +514,6 @@ namespace textinput {
                 if (enabled) {
                     mbAbcMode = true;
                 }
-            }
-
-            void Base::onActive() {
-                u32 commandData = 0;
-                sendCommand(0x12, &commandData);
-
-                if (mCurrentInputMode == IM_00) {
-                    InputModeEnabled activeData = {true};
-                    sendCommand(0x13, &activeData);
-                }
-
-                if (static_cast<s32>(mCurrentInputMode) == IM_01) {
-                    struct InactiveMode { bool enabled; } inactiveData = {false};
-                    sendCommand(0x13, &inactiveData);
-                }
-
-                if (mCurrentInputMode == IM_00) {
-                    sendCommand(6, NULL);
-                    changeInputMode(static_cast<InputMode>(mCurrentInputMode));
-                }
-
-                updateFixMode();
             }
 
             void Base::doNumericMode(bool enabled) {
@@ -603,6 +594,8 @@ namespace textinput {
                 }
             }
 
+            void Base::setInputMode(InputMode) {}
+
             LayoutByNW4R::~LayoutByNW4R() {
                 mpEventHandler->~EventHandler();
                 MEMFreeToAllocator(mpAllocator, mpEventHandler);
@@ -616,6 +609,8 @@ namespace textinput {
                         nw4r::ut::List_GetNext(&nw4rmanager::Layout::getAnmPaneList(), NULL));
                 }
             }
+
+            Base::~Base() {}
 
             EventHandler::~EventHandler() {}
 
@@ -670,23 +665,11 @@ namespace textinput {
                 setLanguage(getLanguage());
             }
 
-            static inline void initializeTogglePane(nw4rmanager::Layout& layout, void* const& inputModeTable,
-                                                   int inputMode, const char* paneName) {
-                char textPaneName[17];
-                memset(textPaneName, 0, sizeof(textPaneName));
-                strncpy(textPaneName, paneName, strlen(paneName));
-                textPaneName[0] = 'T';
-
-                nw4r::lyt::TextBox* textPane = static_cast<nw4r::lyt::TextBox*>(layout.getPane(textPaneName));
-                nw4r::lyt::Pane* buttonPane = layout.getPane(paneName);
-                const KeySet* keySet = static_cast<const LanguageDependencyData*>(inputModeTable)->keySets[inputMode];
-                if (keySet == NULL) {
-                    buttonPane->SetVisible(false);
-                } else {
-                    buttonPane->SetVisible(true);
-                    textPane->SetString(static_cast<const LanguageDependencyData*>(inputModeTable)->keySets[inputMode]->szKeySetName, 0);
-                }
+            void CellPhoneAnmPane::init() {
+                meState = ANM_Normal;
             }
+
+            CellPhoneAnmPane::~CellPhoneAnmPane() {}
 
             void LayoutByNW4R::init() {
                 Base::init();
@@ -767,20 +750,26 @@ namespace textinput {
                 henkanPane->SetVisible(false);
             }
 
-            void LayoutByNW4R::setSignWindow(signwindow::LayoutByNW4R* signWindow) {
-                mpSignWindow = signWindow;
+            void LayoutByNW4R::draw() {
+                nw4rmanager::Layout::draw();
             }
 
-            void LayoutByNW4R::setPredictLanguageDialog(predictlang::LayoutByNW4R* dialog) {
-                mpPredictLanguageDialog = dialog;
-            }
+            void LayoutByNW4R::calc() {
+                nw4rmanager::Layout::calc();
 
-            bool LayoutByNW4R::updateInput(int channel, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
-                return nw4rmanager::Layout::updateInput(channel, x, y, trig, hold, release, data);
+                nw4r::lyt::Pane* spacePane = mpLayout->GetRootPane()->FindPaneByName("P_spaceBT_JP");
+                nw4r::lyt::Pane* henkanPane = mpLayout->GetRootPane()->FindPaneByName("P_HENKAN_JP");
+                bool canConvert = mpManager->getInputForm()->canConvert();
+                if (canConvert) {
+                    spacePane->SetVisible(false);
+                    henkanPane->SetVisible(true);
+                } else {
+                    spacePane->SetVisible(true);
+                    henkanPane->SetVisible(false);
+                }
             }
 
             void LayoutByNW4R::update() {}
-
 
             void LayoutByNW4R::onKey(u32 event, void* data) {
                 Base::onKey(event, data);
@@ -821,209 +810,10 @@ namespace textinput {
                     }
                 }
             }
+
             void LayoutByNW4R::onActive() {
                 Base::onActive();
                 nw4rmanager::Layout::init();
-            }
-
-            void LayoutByNW4R::draw() {
-                nw4rmanager::Layout::draw();
-            }
-
-            void LayoutByNW4R::calc() {
-                nw4rmanager::Layout::calc();
-
-                nw4r::lyt::Pane* spacePane = mpLayout->GetRootPane()->FindPaneByName("P_spaceBT_JP");
-                nw4r::lyt::Pane* henkanPane = mpLayout->GetRootPane()->FindPaneByName("P_HENKAN_JP");
-                bool canConvert = mpManager->getInputForm()->canConvert();
-                if (canConvert) {
-                    spacePane->SetVisible(false);
-                    henkanPane->SetVisible(true);
-                } else {
-                    spacePane->SetVisible(true);
-                    henkanPane->SetVisible(false);
-                }
-            }
-
-            void LayoutByNW4R::doNumericMode(bool enabled) {
-                mbNumericMode = enabled;
-                if (enabled) {
-                    input::HKBManager::getInstance().SetModifierState(0x100, 0x100);
-                    getLanguage();
-                    changeInputMode(IM_03);
-
-                    if (mpManager->getToolBar()) {
-                        mpManager->getToolBar()->setQwerty(false);
-                    }
-                }
-
-                if (!enabled) { return; }
-                {
-                    setVisible("W_smlCptChngeBT", !enabled);
-                    setVisible("W_CPkey_09", !enabled);
-                    setVisible("P_CPkey_dakuten", !enabled);
-                    setVisible("W_smlCptChngeBT", !enabled);
-                    setVisible("W_prdcModeBT_EU", !enabled);
-                    setVisible("W_othersBT_EU", !enabled);
-                    setVisible("W_spaceBT_JP", !enabled);
-                    setVisible("W_smlCptChngeBT", !enabled);
-                    setVisible("W_othersBT_JP", !enabled);
-                    setVisible("W_CPkey_Prdc_JP", !enabled);
-                    setVisible("W_CPkey_09", !enabled);
-                    setVisible("W_CPkey_11", !enabled);
-                    setVisible("W_ChngTag_00", !enabled);
-                    setVisible("W_ChngTag_01", !enabled);
-                    setVisible("W_ChngTag_02", !enabled);
-                    setVisible("W_ChngTag_03", !enabled);
-                }
-            }
-
-            void LayoutByNW4R::updatePredictLanguage(CommandReceiver::ChangePredictMode* mode) {
-                if (!getLanguage()) {
-                    return;
-                }
-
-                if (!mode->enabled) {
-                    setVisible("N_prdc_EU_ON", false);
-                    setVisible("N_prdc_EU_OFF", true);
-                    mbLanguageKeyMode = false;
-                } else {
-                    setVisible("N_prdc_EU_ON", true);
-                    setVisible("N_prdc_EU_OFF", false);
-                    mbLanguageKeyMode = true;
-                }
-
-                nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(getPane("N_prdc_EU_lang"));
-                textBox->SetString(csszPredictLanguage[mode->predictMode], 0);
-
-                const LanguageDependencyData* inputModeTable = static_cast<const LanguageDependencyData*>(mpInputModeTable);
-                const KeySet* keySet = inputModeTable->keySets[mCurrentInputMode];
-                changeSpaceKeyTop(keySet->pPaneNameToCharCode);
-            }
-
-            void LayoutByNW4R::doNumericWithDotMode(bool enabled) {
-                doNumericMode(enabled);
-                setString("T_CPkey_11", L".");
-                setVisible("W_CPkey_11", enabled);
-                mbNumericWithDotMode = true;
-            }
-
-            void LayoutByNW4R::setLineFeedButton(bool enabled) {
-                mbLineFeedButton = enabled;
-                setVisible("W_CPkey_LF", mbLineFeedButton);
-            }
-            bool LayoutByNW4R::updateInput(input::HKBManager& hkbManager) {
-                if (mpManager->getToolBar()->isEnableKeytopChange()) {
-                    const input::HKBManager::KeySet& triggeredKey = hkbManager.GetTriggeredKeySet();
-                    if (triggeredKey.IsValid()) {
-                        if (mHoldingButton) {
-                            struct KeyEvent { const char* paneName; u32 state; } keyEvent = {NULL, 0};
-                            keyEvent.paneName = mHoldingButton->szPaneName;
-                            onKey(gui::EventHandler::ON_LEFT, &keyEvent);
-                        }
-                        changeAnimationAllToNormal();
-                        mpManager->getToolBar()->setQwertyWithSE(true);
-                        if (!mpManager->getPCKeyboard()->isABC()) { mpManager->getPCKeyboard()->setABC(true); }
-                    }
-                } else {
-                    input::HKBManager::KeySet keySet(hkbManager.GetTriggeredKeySet());
-                    while (keySet.IsValid()) {
-                        nw4rmanager::AnmPane* pane = NULL;
-                        u8 key = keySet.GetKey();
-                        u32 character = keySet.GetWChar();
-                        switch (key) {
-                        case 0x58:
-                        case 0x28:
-                            if (!(hkbManager.GetModifierState() & 4)) { pane = searchAnmPane("W_CPkey_LF"); }
-                            break;
-                        default:
-                            pane = searchAnmPane(static_cast<wchar_t>(character));
-                            break;
-                        }
-                        if (pane) { pane->onAnmEvent(nw4rmanager::AnmPane::PE_0); }
-                        keySet = keySet.GetNext();
-                    }
-                    keySet = hkbManager.GetRepeatedKeySet();
-                    while (keySet.IsValid()) {
-                        nw4rmanager::AnmPane* pane = NULL;
-                        u8 key = keySet.GetKey();
-                        keySet.GetWChar();
-                        switch (key) {
-                        case 0x2A:
-                            if (hkbManager.GetModifierState() & 4) { break; }
-                        case 0x4C:
-                            pane = searchAnmPane("W_CPkey_DELETE");
-                            break;
-                        default:
-                            break;
-                        }
-                        if (pane) { pane->onAnmEvent(nw4rmanager::AnmPane::PE_0); }
-                        keySet = keySet.GetNext();
-                    }
-                }
-                return false;
-            }
-
-
-            void LayoutByNW4R::setPredictLanguageButton(bool enabled) {
-                setVisible("W_prdcModeBT_EU", enabled);
-            }
-
-            void LayoutByNW4R::setSignWindowButton(bool enabled) {
-                if (!enabled) {
-                    setVisible("W_othersBT_EU", enabled);
-                    setVisible("W_othersBT_JP", enabled);
-                    return;
-                }
-                {
-                    setVisible("W_othersBT_EU", false);
-                    setVisible("W_othersBT_JP", false);
-                    if (getLanguage() == JP) {
-                        setVisible("W_othersBT_JP", true);
-                    } else {
-                        setVisible("W_othersBT_EU", true);
-                    }
-                }
-            }
-
-            void LayoutByNW4R::setLangKeyActive(bool enabled) {
-                Base::setLangKeyActive(enabled);
-                if (getLanguage() == KR || getLanguage() == CN) {
-                    setVisible("W_ChngTag_00", enabled);
-                    setVisible("T_ChngTag_00", enabled);
-                }
-            }
-
-            void LayoutByNW4R::setInputMode(InputMode mode) {
-                const LanguageDependencyData* inputModeTable = static_cast<const LanguageDependencyData*>(mpInputModeTable);
-                if (!inputModeTable->keySets[mCurrentInputMode]) {
-                    mode = IM_03;
-                }
-
-                changeInputMode(mode);
-                getAnmPane(IM_00)->changeAnimation(ANM_Normal);
-                getAnmPane(IM_01)->changeAnimation(ANM_Normal);
-                getAnmPane(IM_02)->changeAnimation(ANM_Normal);
-                getAnmPane(IM_03)->changeAnimation(ANM_Normal);
-                getAnmPane(static_cast<InputMode>(mCurrentInputMode))->changeAnimation(ANM_05);
-                mpLayout->Animate();
-                mpLayout->CalculateMtx(mDrawInfo);
-            }
-
-            void LayoutByNW4R::setUpperCaseJP(bool enabled) {
-                if (getLanguage() == JP) {
-                    mbUpperCaseMode = enabled;
-                }
-            }
-
-            void LayoutByNW4R::resetHoldingButton() {
-                mHoldingButton = 0;
-                mPreviousInputMode = 0;
-            }
-
-            void LayoutByNW4R::setCommandReceiver(CommandReceiver* receiver) {
-                KeyboardBase::setCommandReceiver(receiver);
-                init();
             }
 
             bool LayoutByNW4R::onClose() {
@@ -1047,21 +837,6 @@ namespace textinput {
                     break;
                 default:
                     break;
-                }
-            }
-
-            CellPhoneAnmPane* LayoutByNW4R::getAnmPane(InputMode mode) {
-                switch (mode) {
-                case IM_02:
-                    return static_cast<CellPhoneAnmPane*>(searchAnmPane(csPaneNameToggleAnimationKey[2].name));
-                case IM_03:
-                    return static_cast<CellPhoneAnmPane*>(searchAnmPane(csPaneNameToggleAnimationKey[3].name));
-                case IM_00:
-                    return static_cast<CellPhoneAnmPane*>(searchAnmPane(csPaneNameToggleAnimationKey[0].name));
-                case IM_01:
-                    return static_cast<CellPhoneAnmPane*>(searchAnmPane(csPaneNameToggleAnimationKey[1].name));
-                default:
-                    return NULL;
                 }
             }
 
@@ -1136,6 +911,21 @@ namespace textinput {
                 }
             }
 
+            CellPhoneAnmPane* LayoutByNW4R::getAnmPane(InputMode mode) {
+                switch (mode) {
+                case IM_02:
+                    return static_cast<CellPhoneAnmPane*>(searchAnmPane(csPaneNameToggleAnimationKey[2].name));
+                case IM_03:
+                    return static_cast<CellPhoneAnmPane*>(searchAnmPane(csPaneNameToggleAnimationKey[3].name));
+                case IM_00:
+                    return static_cast<CellPhoneAnmPane*>(searchAnmPane(csPaneNameToggleAnimationKey[0].name));
+                case IM_01:
+                    return static_cast<CellPhoneAnmPane*>(searchAnmPane(csPaneNameToggleAnimationKey[1].name));
+                default:
+                    return NULL;
+                }
+            }
+
             void LayoutByNW4R::throwReleaseForAll() {
                 CellPhoneAnmPane* pane = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&nw4rmanager::Layout::getAnmPaneList(), NULL));
                 while (pane) {
@@ -1144,6 +934,10 @@ namespace textinput {
                     }
                     pane = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&nw4rmanager::Layout::getAnmPaneList(), pane));
                 }
+            }
+
+            KeyType CellPhoneAnmPane::getKeyType() const {
+                return meKeyType;
             }
 
             void LayoutByNW4R::changeAnimationAllToNormal() {
@@ -1179,6 +973,29 @@ namespace textinput {
                 sendCommand(0x1F, commandData);
                 mpPredictLanguageDialog->open(
                     static_cast<inputform::Base::PredictMode>(commandData[0]), this);
+            }
+
+            void LayoutByNW4R::updatePredictLanguage(CommandReceiver::ChangePredictMode* mode) {
+                if (!getLanguage()) {
+                    return;
+                }
+
+                if (!mode->enabled) {
+                    setVisible("N_prdc_EU_ON", false);
+                    setVisible("N_prdc_EU_OFF", true);
+                    mbLanguageKeyMode = false;
+                } else {
+                    setVisible("N_prdc_EU_ON", true);
+                    setVisible("N_prdc_EU_OFF", false);
+                    mbLanguageKeyMode = true;
+                }
+
+                nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(getPane("N_prdc_EU_lang"));
+                textBox->SetString(csszPredictLanguage[mode->predictMode], 0);
+
+                const LanguageDependencyData* inputModeTable = static_cast<const LanguageDependencyData*>(mpInputModeTable);
+                const KeySet* keySet = inputModeTable->keySets[mCurrentInputMode];
+                changeSpaceKeyTop(keySet->pPaneNameToCharCode);
             }
 
             void LayoutByNW4R::setAbcMode(bool enabled) {
@@ -1218,96 +1035,158 @@ namespace textinput {
                 mpSignWindow->open(static_cast<KeyboardBase*>(this), isNumericMode);
                 throwReleaseForAll();
             }
-            static inline bool isNormalCellPhoneKey(const char* paneName) {
-                for (int index = 0; index < 12; ++index) {
-                    if (util::strcmp(paneName, csPaneNameNormalKey[index])) { return true; }
+
+            void LayoutByNW4R::doNumericMode(bool enabled) {
+                mbNumericMode = enabled;
+                if (enabled) {
+                    input::HKBManager::getInstance().SetModifierState(0x100, 0x100);
+                    getLanguage();
+                    changeInputMode(IM_03);
+
+                    if (mpManager->getToolBar()) {
+                        mpManager->getToolBar()->setQwerty(false);
+                    }
                 }
-                return false;
+
+                if (!enabled) { return; }
+                {
+                    setVisible("W_smlCptChngeBT", !enabled);
+                    setVisible("W_CPkey_09", !enabled);
+                    setVisible("P_CPkey_dakuten", !enabled);
+                    setVisible("W_smlCptChngeBT", !enabled);
+                    setVisible("W_prdcModeBT_EU", !enabled);
+                    setVisible("W_othersBT_EU", !enabled);
+                    setVisible("W_spaceBT_JP", !enabled);
+                    setVisible("W_smlCptChngeBT", !enabled);
+                    setVisible("W_othersBT_JP", !enabled);
+                    setVisible("W_CPkey_Prdc_JP", !enabled);
+                    setVisible("W_CPkey_09", !enabled);
+                    setVisible("W_CPkey_11", !enabled);
+                    setVisible("W_ChngTag_00", !enabled);
+                    setVisible("W_ChngTag_01", !enabled);
+                    setVisible("W_ChngTag_02", !enabled);
+                    setVisible("W_ChngTag_03", !enabled);
+                }
             }
-            void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) {
-                const char* paneName = paneComponent->getPane()->GetName();
-                if (paneName[0] == 'B') {
-                    char animationName[17];
-                    util::replaceChar(animationName, sizeof(animationName), paneName, 0, 'W');
-                    CellPhoneAnmPane* animation = static_cast<CellPhoneAnmPane*>(mpLayoutByNW4R->searchAnmPane(animationName));
-                    if (animation) {
-                        switch (static_cast<s32>(event)) {
-                        case gui::EventHandler::ON_TRIG:
-                            if ((input->field_0x0C & 0x800) ||
-                                ((input->field_0x0C & 0x400) && isNormalCellPhoneKey(paneName))) {
-                                if (animation->getKeyType() == KT_ControlButton) {
-                                    nw4r::ut::List& panes = mpLayoutByNW4R->getAnmPaneList();
-                                    CellPhoneAnmPane* other = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&panes, NULL));
-                                    while (other) {
-                                        if (other != animation && other->getKeyType() == KT_ControlButton) {
-                                            other->onAnmEvent(nw4rmanager::AnmPane::PE_5);
-                                        }
-                                        other = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&panes, other));
-                                    }
-                                }
-                                animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                            }
+
+            void LayoutByNW4R::doNumericWithDotMode(bool enabled) {
+                doNumericMode(enabled);
+                setString("T_CPkey_11", L".");
+                setVisible("W_CPkey_11", enabled);
+                mbNumericWithDotMode = true;
+            }
+
+            void LayoutByNW4R::setLineFeedButton(bool enabled) {
+                mbLineFeedButton = enabled;
+                setVisible("W_CPkey_LF", mbLineFeedButton);
+            }
+
+            void LayoutByNW4R::setPredictLanguageButton(bool enabled) {
+                setVisible("W_prdcModeBT_EU", enabled);
+            }
+
+            void LayoutByNW4R::setSignWindowButton(bool enabled) {
+                if (!enabled) {
+                    setVisible("W_othersBT_EU", enabled);
+                    setVisible("W_othersBT_JP", enabled);
+                    return;
+                }
+                {
+                    setVisible("W_othersBT_EU", false);
+                    setVisible("W_othersBT_JP", false);
+                    if (getLanguage() == JP) {
+                        setVisible("W_othersBT_JP", true);
+                    } else {
+                        setVisible("W_othersBT_EU", true);
+                    }
+                }
+            }
+
+            void LayoutByNW4R::setInputMode(InputMode mode) {
+                const LanguageDependencyData* inputModeTable = static_cast<const LanguageDependencyData*>(mpInputModeTable);
+                if (!inputModeTable->keySets[mCurrentInputMode]) {
+                    mode = IM_03;
+                }
+
+                changeInputMode(mode);
+                getAnmPane(IM_00)->changeAnimation(ANM_Normal);
+                getAnmPane(IM_01)->changeAnimation(ANM_Normal);
+                getAnmPane(IM_02)->changeAnimation(ANM_Normal);
+                getAnmPane(IM_03)->changeAnimation(ANM_Normal);
+                getAnmPane(static_cast<InputMode>(mCurrentInputMode))->changeAnimation(ANM_05);
+                mpLayout->Animate();
+                mpLayout->CalculateMtx(mDrawInfo);
+            }
+
+            void LayoutByNW4R::setUpperCaseJP(bool enabled) {
+                if (getLanguage() == JP) {
+                    mbUpperCaseMode = enabled;
+                }
+            }
+
+            bool LayoutByNW4R::updateInput(input::HKBManager& hkbManager) {
+                if (mpManager->getToolBar()->isEnableKeytopChange()) {
+                    const input::HKBManager::KeySet& triggeredKey = hkbManager.GetTriggeredKeySet();
+                    if (triggeredKey.IsValid()) {
+                        if (mHoldingButton) {
+                            struct KeyEvent { const char* paneName; u32 state; } keyEvent = {NULL, 0};
+                            keyEvent.paneName = mHoldingButton->szPaneName;
+                            onKey(gui::EventHandler::ON_LEFT, &keyEvent);
+                        }
+                        changeAnimationAllToNormal();
+                        mpManager->getToolBar()->setQwertyWithSE(true);
+                        if (!mpManager->getPCKeyboard()->isABC()) { mpManager->getPCKeyboard()->setABC(true); }
+                    }
+                } else {
+                    input::HKBManager::KeySet keySet(hkbManager.GetTriggeredKeySet());
+                    while (keySet.IsValid()) {
+                        nw4rmanager::AnmPane* pane = NULL;
+                        u8 key = keySet.GetKey();
+                        u32 character = keySet.GetWChar();
+                        switch (key) {
+                        case 0x58:
+                        case 0x28:
+                            if (!(hkbManager.GetModifierState() & 4)) { pane = searchAnmPane("W_CPkey_LF"); }
                             break;
-                        case gui::EventHandler::ON_LEFT:
-                            animation->onAnmEvent(nw4rmanager::AnmPane::PE_2);
+                        default:
+                            pane = searchAnmPane(static_cast<wchar_t>(character));
                             break;
-                        case gui::EventHandler::ON_POINT:
-                            mpEventObserver->onSE(static_cast<sound::SE>(4));
-                            mpLayoutByNW4R->setPaneLastDrawReceived(animation->getPane());
-                            animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
+                        }
+                        if (pane) { pane->onAnmEvent(nw4rmanager::AnmPane::PE_0); }
+                        keySet = keySet.GetNext();
+                    }
+                    keySet = hkbManager.GetRepeatedKeySet();
+                    while (keySet.IsValid()) {
+                        nw4rmanager::AnmPane* pane = NULL;
+                        u8 key = keySet.GetKey();
+                        keySet.GetWChar();
+                        switch (key) {
+                        case 0x2A:
+                            if (hkbManager.GetModifierState() & 4) { break; }
+                        case 0x4C:
+                            pane = searchAnmPane("W_CPkey_DELETE");
                             break;
                         default:
                             break;
                         }
+                        if (pane) { pane->onAnmEvent(nw4rmanager::AnmPane::PE_0); }
+                        keySet = keySet.GetNext();
                     }
                 }
-                struct KeyEvent {
-                    const char* paneName;
-                    u8 state;
-                    u8 repeat;
-                } keyEvent = {paneName, 0, 0};
-                if (event == gui::EventHandler::ON_TRIG) {
-                    if (input->field_0x0C & 0x800) {
-                        keyEvent.state = 0;
-                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
-                    } else if ((input->field_0x0C & 0x400) && isNormalCellPhoneKey(paneName)) {
-                        keyEvent.state = 1;
-                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
-                        paneComponent->setFlightDuration(input->field_0x00, 0);
-                    }
-                }
-                if (event == gui::EventHandler::ON_LEFT) {
-                    mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
-                }
-                if (event == gui::EventHandler::ON_MOVE && (input->field_0x10 & 0x800) &&
-                    !(input->field_0x0C & 0x800) &&
-                    (util::strcmp(csPaneNameNormalKey[13], paneName) || util::strcmp(csPaneNameNormalKey[16], paneName)) &&
-                    paneComponent->isDragging(input->field_0x00)) {
-                    u32 duration = mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName);
-                    if (duration >= 30 && duration % 9 == 0) {
-                        char animationName[17];
-                        util::replaceChar(animationName, sizeof(animationName), paneName, 0, 'W');
-                        CellPhoneAnmPane* animation = static_cast<CellPhoneAnmPane*>(mpLayoutByNW4R->searchAnmPane(animationName));
-                        animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
-                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
-                    }
-                }
-                if (event == gui::EventHandler::ON_MOVE && mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName) == 90) {
-                    keyEvent.repeat = 1;
-                    mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
+                return false;
+            }
+
+            void LayoutByNW4R::setLangKeyActive(bool enabled) {
+                Base::setLangKeyActive(enabled);
+                if (getLanguage() == KR || getLanguage() == CN) {
+                    setVisible("W_ChngTag_00", enabled);
+                    setVisible("T_ChngTag_00", enabled);
                 }
             }
 
-
-
-
-
-            void CellPhoneAnmPane::init() {
-                meState = ANM_Normal;
-            }
-
-            KeyType CellPhoneAnmPane::getKeyType() const {
-                return meKeyType;
+            void LayoutByNW4R::resetHoldingButton() {
+                mHoldingButton = 0;
+                mPreviousInputMode = 0;
             }
 
             void CellPhoneAnmPane::changeAnimation(u32 id) {
@@ -1451,7 +1330,126 @@ namespace textinput {
                 }
             }
 
-            CellPhoneAnmPane::~CellPhoneAnmPane() {}
+            void EventHandler::onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) {
+                const char* paneName = paneComponent->getPane()->GetName();
+                if (paneName[0] == 'B') {
+                    char animationName[17];
+                    util::replaceChar(animationName, sizeof(animationName), paneName, 0, 'W');
+                    CellPhoneAnmPane* animation = static_cast<CellPhoneAnmPane*>(mpLayoutByNW4R->searchAnmPane(animationName));
+                    if (animation) {
+                        switch (static_cast<s32>(event)) {
+                        case gui::EventHandler::ON_TRIG:
+                            if ((input->field_0x0C & 0x800) ||
+                                ((input->field_0x0C & 0x400) && isNormalCellPhoneKey(paneName))) {
+                                if (animation->getKeyType() == KT_ControlButton) {
+                                    nw4r::ut::List& panes = mpLayoutByNW4R->getAnmPaneList();
+                                    CellPhoneAnmPane* other = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&panes, NULL));
+                                    while (other) {
+                                        if (other != animation && other->getKeyType() == KT_ControlButton) {
+                                            other->onAnmEvent(nw4rmanager::AnmPane::PE_5);
+                                        }
+                                        other = static_cast<CellPhoneAnmPane*>(nw4r::ut::List_GetNext(&panes, other));
+                                    }
+                                }
+                                animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                            }
+                            break;
+                        case gui::EventHandler::ON_LEFT:
+                            animation->onAnmEvent(nw4rmanager::AnmPane::PE_2);
+                            break;
+                        case gui::EventHandler::ON_POINT:
+                            mpEventObserver->onSE(static_cast<sound::SE>(4));
+                            mpLayoutByNW4R->setPaneLastDrawReceived(animation->getPane());
+                            animation->onAnmEvent(nw4rmanager::AnmPane::PE_1);
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+                struct KeyEvent {
+                    const char* paneName;
+                    u8 state;
+                    u8 repeat;
+                } keyEvent = {paneName, 0, 0};
+                if (event == gui::EventHandler::ON_TRIG) {
+                    if (input->field_0x0C & 0x800) {
+                        keyEvent.state = 0;
+                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
+                    } else if ((input->field_0x0C & 0x400) && isNormalCellPhoneKey(paneName)) {
+                        keyEvent.state = 1;
+                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
+                        paneComponent->setFlightDuration(input->field_0x00, 0);
+                    }
+                }
+                if (event == gui::EventHandler::ON_LEFT) {
+                    mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
+                }
+                if (event == gui::EventHandler::ON_MOVE && (input->field_0x10 & 0x800) &&
+                    !(input->field_0x0C & 0x800) &&
+                    (util::strcmp(csPaneNameNormalKey[13], paneName) || util::strcmp(csPaneNameNormalKey[16], paneName)) &&
+                    paneComponent->isDragging(input->field_0x00)) {
+                    u32 duration = mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName);
+                    if (duration >= 30 && duration % 9 == 0) {
+                        char animationName[17];
+                        util::replaceChar(animationName, sizeof(animationName), paneName, 0, 'W');
+                        CellPhoneAnmPane* animation = static_cast<CellPhoneAnmPane*>(mpLayoutByNW4R->searchAnmPane(animationName));
+                        animation->onAnmEvent(nw4rmanager::AnmPane::PE_0);
+                        mpLayoutByNW4R->onKey(gui::EventHandler::ON_TRIG, &keyEvent);
+                    }
+                }
+                if (event == gui::EventHandler::ON_MOVE && mpLayoutByNW4R->getFlightDuration(input->field_0x00, paneName) == 90) {
+                    keyEvent.repeat = 1;
+                    mpLayoutByNW4R->onKey(gui::EventHandler::ON_LEFT, &keyEvent);
+                }
+            }
+
+            bool LayoutByNW4R::updateInput(int channel, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
+                return nw4rmanager::Layout::updateInput(channel, x, y, trig, hold, release, data);
+            }
+
+            void Base::doInput() {}
+
+            bool Base::isUpperCase() {
+                return mbUpperCaseMode;
+            }
+
+            bool Base::isHoldingButton() const {
+                return mHoldingButton != 0;
+            }
+
+            bool Base::isNumericWithDot() const {
+                return mbNumericWithDotMode;
+            }
+
+            bool Base::isNumeric() const {
+                return mbNumericMode;
+            }
+
+            bool Base::isLocked() const {
+                return mbInputModeLocked;
+            }
+
+            u32 Base::getType() {
+                return 1;
+            }
+
+            void LayoutByNW4R::setSignWindow(signwindow::LayoutByNW4R* signWindow) {
+                mpSignWindow = signWindow;
+            }
+
+            void LayoutByNW4R::setPredictLanguageDialog(predictlang::LayoutByNW4R* dialog) {
+                mpPredictLanguageDialog = dialog;
+            }
+
+            void LayoutByNW4R::setCommandReceiver(CommandReceiver* receiver) {
+                KeyboardBase::setCommandReceiver(receiver);
+                init();
+            }
+
+            void Base::setUpperCaseJP(bool) {}
+
+            void Base::draw() {}
 
             CellPhoneControlAnmPane::~CellPhoneControlAnmPane() {}
 
