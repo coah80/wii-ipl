@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <zi8clib/zierror.h>
 
 extern ziU16 Zi8GetTableCount(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK);
@@ -12,8 +13,8 @@ typedef struct {
 } ZiKoreanKeyEntry;
 
 ziU16 Zi8_8148302C(ziU16 key, ziU8* table ZI_NEED_WORK) {
-    ziU32 value;
     ziU16 count;
+    ziU16 value;
     ziU16 i;
 
     count = Zi8GetTableCount(ZI8_LANG_KO, 9, ZI_WORK);
@@ -306,7 +307,7 @@ ziU32 Zi8GetKOcandidates(ziGetParam* param, ZiKoreanCandidateOptions* options ZI
         if (param->wordCharCount == 0) goto scan_key_table;
         {
             if (((search.keyIndex = Zi8_8148302C(param->currentWord[0], keyTable, ZI_WORK)) != 0xFFFF) &&
-                ((((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->keyBytes[4] & 8) != 0)) {
+                ((keyTable[(search.keyIndex << 3) + search.keyIndex + offsetof(ZiKoreanKeyEntry, keyBytes[4])] & 8) != 0)) {
                 search.wordOffset = ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->childLow |
                 ((((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->keyBytes[4] & 3) << 16 |
                     ((ZiKoreanKeyEntry*)(((search.keyIndex << 3) + search.keyIndex) + keyTable))->childHigh << 8);

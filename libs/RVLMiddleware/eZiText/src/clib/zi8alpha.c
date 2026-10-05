@@ -240,14 +240,14 @@ vowel:
 }
 
 ziBool Zi8ITspecialExclusion(ziWChar* ending, ziS32 length, ziU32 candidateLength) {
-    ziPtr beginning;
+    ziWChar* beginning;
     const ZiExclusionPair* pair;
     int index;
     beginning = ending - length--;
     pair = IT_EXCLUDE_PAIRS;
     for (; pair->replacement != 0; ++pair) {
         for (index = 0; index < length; ++index) {
-            if (((ziWChar*)beginning)[index] != pair->prefix[index]) break;
+            if (beginning[index] != pair->prefix[index]) break;
         }
         if (index >= length && pair->prefix[index] == 0) {
             if (!Zi8IsVowel(47, *ending)) return ZI8_TRUE;
@@ -258,14 +258,14 @@ ziBool Zi8ITspecialExclusion(ziWChar* ending, ziS32 length, ziU32 candidateLengt
 }
 
 ziBool Zi8_814659E8(ziWChar* ending, ziS32 length, ziU32 candidateLength) {
-    ziPtr beginning;
+    ziWChar* beginning;
     const ZiExclusionPair* pair;
     int index;
     beginning = ending - length--;
     pair = FrenchExcludePairs;
     for (; pair->replacement != 0; ++pair) {
         for (index = 0; index < length; ++index) {
-            if (((ziWChar*)beginning)[index] != pair->prefix[index]) break;
+            if (beginning[index] != pair->prefix[index]) break;
         }
         if (index >= length && pair->prefix[index] == 0) {
             if (!Zi8IsVowel(88, *ending)) return ZI8_TRUE;

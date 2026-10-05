@@ -18,8 +18,8 @@ ziBool Zi8_81480224(ziUserWord* word ZI_NEED_WORK) {
     ziUwdNode* previous;
     ziUwdNode* current;
     ziUwdNode* added;
-    ziUserWord* candidate;
     ziU8 position;
+    ziUserWord* candidate;
     if (ZI_WORK->uwdCount >= 32) {
         Zi8LogError(0x19D, __zi8_work_data);
         return 0;
@@ -41,7 +41,7 @@ ziBool Zi8_81480224(ziUserWord* word ZI_NEED_WORK) {
     current = ZI_WORK->uwdList;
     while (current != 0) {
         candidate = (ziUserWord*)current->word;
-        if (ZI_WORK->uwdPrioritySort == 1 && candidate->priority < word->priority) break;
+        if (ZI_WORK->uwdPrioritySort == 1 && word->priority > candidate->priority) break;
         if (candidate->length == length) {
             position = 0;
             while (position < length) {
