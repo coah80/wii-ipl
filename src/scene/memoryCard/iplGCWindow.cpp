@@ -80,7 +80,7 @@ GCWindow::GCWindow(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* di
 }
 
 
-MemoryBase::MemoryBase() : mpLayout(NULL), unk_0x08(NULL) {
+MemoryBase::MemoryBase() : mpLayout(NULL), mpLayoutFile(NULL) {
     nw4r::ut::List_Init(&mAnmList, offsetof(Anm, mLink));
     nw4r::ut::List_Init(&mButtonList, offsetof(Button, mLink));
     nw4r::ut::List_Init(&mAnmButtonList, offsetof(AnmButton, mLink));
@@ -143,7 +143,7 @@ void GCWindow::calc() {
     mpPaneManager->calc();
     void* button = NULL;
     while ((button = nw4r::ut::List_GetNext(&mAnmButtonList, button)) != NULL) {
-        ((MemoryBase::AnmButton*)button)->calc();
+        static_cast<MemoryBase::AnmButton*>(button)->calc();
     }
     switch (mState) {
     case 0:
@@ -246,7 +246,7 @@ void GCWindow::draw() {
 }
 
 void GCWindow::destroy() {
-    ((MemoryCard*)System::getScene(0xe))->onRelease();
+    static_cast<MemoryCard*>(System::getScene(SCENE_MEMORY_CARD))->onRelease();
     for (int i = 0; i < 3; i++) {
         clear_button(scButtonName[i]);
     }
@@ -260,24 +260,24 @@ void GCWindow::destroy() {
 void GCWindow::onPoint(const char* name, controller::Interface* controller) {
     MemoryBase::AnmButton* button = get_anmbutton(name);
     if (button != NULL) {
-        if (button->unk_0x04 == 0) {
+        if (button->mHoverCount == 0) {
             button->onCmdRecv(1);
             snd::sSystem.startSE("WIPL_SE_BT_TARGETTING");
             if (controller != NULL) {
                 controller->rumble(0);
             }
         }
-        button->unk_0x04++;
+        button->mHoverCount++;
     }
 }
 
 void GCWindow::onLeft(const char* name) {
     MemoryBase::AnmButton* button = get_anmbutton(name);
     if (button != NULL) {
-        if (button->unk_0x04 == 1) {
+        if (button->mHoverCount == 1) {
             button->onCmdRecv(2);
         }
-        button->unk_0x04--;
+        button->mHoverCount--;
     }
 }
 
@@ -302,7 +302,7 @@ void GCWindow::onTrig(const char* name) {
 void GCWindow::on_wait() {
     for (int i = 0; i < 2; i++) {
         if (mFlags0[i] != 0) {
-            ((MemoryCard*)System::getScene(0xe))->onFocus(NULL);
+            static_cast<MemoryCard*>(System::getScene(SCENE_MEMORY_CARD))->onFocus(NULL);
             System::getDialog()->callBtn2(i == 0 ? 0xec : 0xed, 0x142, 0x141, true);
             mFlags0[i] = 0;
             mCardState = i;
@@ -820,7 +820,7 @@ void SavedataEditWindow::calc() {
     mpPaneManager->calc();
     void* button = NULL;
     while ((button = nw4r::ut::List_GetNext(&mAnmButtonList, button)) != NULL) {
-        ((MemoryBase::AnmButton*)button)->calc();
+        static_cast<MemoryBase::AnmButton*>(button)->calc();
     }
     switch (mState) {
     case 0:

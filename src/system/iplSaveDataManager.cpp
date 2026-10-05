@@ -232,14 +232,14 @@ namespace ipl {
 
         int Manager::getNumValidChannel() const {
             const ChannelSlot* q;
-            int dens = 12;
+            int dens = MAX_CHANNEL_INDEX;
             const ChannelPage* p;
             int slot;
             int count = 0;
             int page;
             u8 flag;
             s32 val;
-            for (page = 0; page < 4; page++) {
+            for (page = 0; page < MAX_CHANNEL_PAGE; page++) {
                 p = (const ChannelPage*)((const u8*)this + page * 0xc0);
                 for (slot = 0; slot < dens; slot++) {
                     q = &p->slots[slot];
@@ -471,14 +471,14 @@ namespace ipl {
             checkSpecialTitles(titleIds, titleCount);
             checkTmpTitle(titleIds, titleCount);
 
-            ESTitleId unk[MAX_CHANNEL_TOTAL] = {0};
+            ESTitleId prioritizedTitleIds[MAX_CHANNEL_TOTAL] = {0};
 
-            makePriorTitleIDList(unk, titleIds, titleCount);
-            integrateTitleIDList(unk, titleIds, titleCount);
+            makePriorTitleIDList(prioritizedTitleIds, titleIds, titleCount);
+            integrateTitleIDList(prioritizedTitleIds, titleIds, titleCount);
 
             delete[] titleIds;
 
-            return doUpdateChanInfos(unk);
+            return doUpdateChanInfos(prioritizedTitleIds);
         }
 
         void Manager::deleteInvalidTitle(ESTitleId* titleIds, u32 titleCount) {
@@ -925,7 +925,7 @@ namespace ipl {
         }
 
         int Manager::getAvailableInList(const ESTitleId* titleIds, u32 titleCount) {
-            int dens = 12;
+            int dens = MAX_CHANNEL_INDEX;
             u32 i;
             for (i = 0; i < titleCount; i++) {
                 if (titleIds[i] == 0) {

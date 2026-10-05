@@ -128,7 +128,7 @@ namespace ipl {
         };
 
         MemoryCard::MemoryCard(EGG::Heap* heap)
-            : Base(heap), MemoryBase(), mState(2), mPrevState(2), mSlot(0), mIconIndex(-15), mIconCount(0),
+            : Base(heap), MemoryBase(), mState(2), mPrevState(2), mSlot(SLOT_A), mIconIndex(-15), mIconCount(0),
               mShowArwR(0), mShowArwL(0), mpEvent(NULL), mpFocusSaveData(NULL) {
             System::getMem2App()->dump();
             nw4r::ut::List_Init(&mSaveDataList, offsetof(GCSaveData, mLink));
@@ -138,7 +138,7 @@ namespace ipl {
 
         void MemoryCard::prepare() {
             System::getBS2Manager()->abort();
-            unk_0x08 = System::getNandManager()->readLayoutAsync(getSceneHeap(), "gcMem.ash");
+            mpLayoutFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), "gcMem.ash");
             mBalloonLayoutFile = System::getNandManager()->readLayoutAsync(getSceneHeap(), "balloon.ash");
         }
 
@@ -153,10 +153,10 @@ namespace ipl {
             OSReport("*** BS2 abort costs: %dms\n", OSTicksToMilliseconds(end - start));
             ES_SetUid((u64(1) << 32) | 2);
 
-            mpLayout = new layout::Object(getSceneHeap(), unk_0x08, "arc", "it_ObjCubeEdit_a.brlyt");
+            mpLayout = new layout::Object(getSceneHeap(), mpLayoutFile, "arc", "it_ObjCubeEdit_a.brlyt");
             add_animation(scAnmName, 0x1B);
-            get_animation(7)->mAnim->setAnmType(1);
-            get_animation(10)->mAnim->setAnmType(1);
+            get_animation(7)->mAnim->setAnmType(ANIM_TYPE_BACKWARD);
+            get_animation(10)->mAnim->setAnmType(ANIM_TYPE_BACKWARD);
             mpLayout->finishBinding();
             do_animation(0);
             do_animation(1);
@@ -187,7 +187,7 @@ namespace ipl {
                 set_textbox(scTextboxToMessageID[i].paneName, scTextboxToMessageID[i].messageId);
             }
 
-            mpGCWindow = new GCWindow(getSceneHeap(), unk_0x08, "arc", "it_CubeDetail_a.brlyt");
+            mpGCWindow = new GCWindow(getSceneHeap(), mpLayoutFile, "arc", "it_CubeDetail_a.brlyt");
             mpGCWindow->do_animation(0);
 
             MemoryCardManager* manager = new MemoryCardManagerImpl();
@@ -198,9 +198,9 @@ namespace ipl {
             for (int i = 0; i < 0x2D; i++) {
                 nw4r::lyt::Pane* pane = mpLayout->FindPaneByName(scSavedataPaneName[i]);
                 nw4r::math::VEC3 position(0.0f, 0.0f, 0.0f);
-                PSMTXMultVec(pane->GetGlobalMtx(), reinterpret_cast<const Vec*>(&position), reinterpret_cast<Vec*>(&position));
+                PSMTXMultVec(pane->GetGlobalMtx(), position, position);
                 GCSaveData* saveData =
-                    new GCSaveData(getSceneHeap(), unk_0x08, "arc", "it_ObjCubeEdit_b.brlyt", position);
+                    new GCSaveData(getSceneHeap(), mpLayoutFile, "arc", "it_ObjCubeEdit_b.brlyt", position);
                 saveData->set_visible("N_Data_00", false);
                 nw4r::ut::List_Append(&mSaveDataList, saveData);
                 if (i >= 0xF && i < 0x1E) {
@@ -345,9 +345,9 @@ namespace ipl {
                 }
                 controller::Interface* controller = System::getYoungController();
                 if (controller != NULL) {
-                    if (controller->down(0x30001000)) {
+                    if (controller->down(controller::BTN_NEXT_LEFT)) {
                         start_scroll_l();
-                    } else if (controller->down(0x06000010)) {
+                    } else if (controller->down(controller::BTN_NEXT_RIGHT)) {
                         start_scroll_r();
                     }
                 }
@@ -466,19 +466,19 @@ namespace ipl {
         }
 
         void MemoryCard::start_errormessage_fadein() {
-            if (mpManager->isSlotWrongDevice(mSlot) != 0) {
+            if (mpManager->isSlotWrongDevice(mSlot)) {
                 mSlotState[mSlot] = 3;
-                set_textbox("T_Error_00", mSlot == 0 ? 0xE8 : 0xE9);
+                set_textbox("T_Error_00", mSlot == SLOT_A ? 0xE8 : 0xE9);
             } else {
                 mSlotState[mSlot] = 2;
-                set_textbox("T_Error_00", mSlot == 0 ? 0xE6 : 0xE7);
+                set_textbox("T_Error_00", mSlot == SLOT_A ? 0xE6 : 0xE7);
             }
             set_visible("T_Error_00", true);
             do_animation(0x19);
         }
 
         int MemoryCard::update_slot() {
-            if (mSlotState[mSlot] != 1 && mpManager->isSlotReady(mSlot) != 0) {
+            if (mSlotState[mSlot] != 1 && mpManager->isSlotReady(mSlot)) {
                 for (u16 i = 0xF; i < 0x1E; i++) {
                     static_cast<GCSaveData*>(nw4r::ut::List_GetNth(&mSaveDataList, i))->init();
                 }
@@ -490,7 +490,7 @@ namespace ipl {
                 mState = 0xB;
                 return true;
             }
-            if (mSlotState[mSlot] != 2 && mpManager->isSlotNoCard(mSlot) != 0) {
+            if (mSlotState[mSlot] != 2 && mpManager->isSlotNoCard(mSlot)) {
                 for (u16 i = 0xF; i < 0x1E; i++) {
                     static_cast<GCSaveData*>(nw4r::ut::List_GetNth(&mSaveDataList, i))->init();
                 }
@@ -501,7 +501,7 @@ namespace ipl {
                 mState = 0xC;
                 return true;
             }
-            if ((mSlotState[mSlot] != 3 && mpManager->isSlotWrongDevice(mSlot) != 0) || mSlotState[mSlot] == 0) {
+            if ((mSlotState[mSlot] != 3 && mpManager->isSlotWrongDevice(mSlot)) || mSlotState[mSlot] == 0) {
                 for (u16 i = 0xF; i < 0x1E; i++) {
                     static_cast<GCSaveData*>(nw4r::ut::List_GetNth(&mSaveDataList, i))->init();
                 }
@@ -579,7 +579,7 @@ namespace ipl {
                 nw4r::lyt::Pane* pane = mpLayout->FindPaneByName(scSavedataPaneName[i]);
                 GCSaveData* saveData = static_cast<GCSaveData*>(nw4r::ut::List_GetNth(&mSaveDataList, i));
                 nw4r::math::VEC3 position(0.0f, 0.0f, 0.0f);
-                PSMTXMultVec(pane->GetGlobalMtx(), reinterpret_cast<const Vec*>(&position), reinterpret_cast<Vec*>(&position));
+                PSMTXMultVec(pane->GetGlobalMtx(), position, position);
                 saveData->setTranslate(position);
                 saveData->init();
             }
@@ -642,28 +642,28 @@ namespace ipl {
         void MemoryCard::onPoint(const char* paneName, controller::Interface* controller) {
             MemoryBase::AnmButton* button = get_anmbutton(paneName);
             if (button != NULL) {
-                if (button->unk_0x04 == 0 &&
-                    (strcmp(paneName, scTriggerPaneName[2]) != 0 || mSlot != 0) &&
-                    (strcmp(paneName, scTriggerPaneName[3]) != 0 || mSlot != 1)) {
+                if (button->mHoverCount == 0 &&
+                    (strcmp(paneName, scTriggerPaneName[2]) != 0 || mSlot != SLOT_A) &&
+                    (strcmp(paneName, scTriggerPaneName[3]) != 0 || mSlot != SLOT_B)) {
                     button->onCmdRecv(1);
                     snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
                     if (controller != NULL) {
                         controller->rumble(0);
                     }
                 }
-                button->unk_0x04++;
+                button->mHoverCount++;
             }
         }
 
         void MemoryCard::onLeft(const char* paneName) {
             MemoryBase::AnmButton* button = get_anmbutton(paneName);
             if (button != NULL) {
-                if (button->unk_0x04 == 1 &&
-                    (strcmp(paneName, scTriggerPaneName[2]) != 0 || mSlot != 0) &&
-                    (strcmp(paneName, scTriggerPaneName[3]) != 0 || mSlot != 1)) {
+                if (button->mHoverCount == 1 &&
+                    (strcmp(paneName, scTriggerPaneName[2]) != 0 || mSlot != SLOT_A) &&
+                    (strcmp(paneName, scTriggerPaneName[3]) != 0 || mSlot != SLOT_B)) {
                     button->onCmdRecv(2);
                 }
-                button->unk_0x04--;
+                button->mHoverCount--;
             }
         }
 
@@ -676,7 +676,7 @@ namespace ipl {
                     do_animation(0xF);
                     start_scroll_l();
                 } else if (strcmp(paneName, scTriggerPaneName[2]) == 0) {
-                    if (mSlot == 1) {
+                    if (mSlot == SLOT_B) {
                         do_animation(0xB);
                         GCSaveData* saveData = NULL;
                         while ((saveData = static_cast<GCSaveData*>(nw4r::ut::List_GetNext(&mSaveDataList, saveData))) != NULL) {
@@ -689,7 +689,7 @@ namespace ipl {
                         mState = 5;
                     }
                 } else if (strcmp(paneName, scTriggerPaneName[3]) == 0) {
-                    if (mSlot == 0) {
+                    if (mSlot == SLOT_A) {
                         do_animation(8);
                         GCSaveData* saveData = NULL;
                         while ((saveData = static_cast<GCSaveData*>(nw4r::ut::List_GetNext(&mSaveDataList, saveData))) != NULL) {

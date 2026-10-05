@@ -34,8 +34,8 @@ extern "C" int compareMemoryCardSortEntries(const void* first, const void* secon
 namespace ipl {
 namespace scene {
 
-typedef memorycard::FileInfo CardDirectory[0x7f];
-typedef memorycard::IconState CardIcons[0x7f];
+typedef memorycard::FileInfo CardDirectory[CARD_MAX_FILE];
+typedef memorycard::IconState CardIcons[CARD_MAX_FILE];
 
 void MemoryCardManager::calc() {
     memorycard::probeCard();
@@ -82,18 +82,18 @@ long MemoryCardManager::isSlotWrongDevice(u8 slot) {
 
 void MemoryCardManager::sort_file_array(u8 slot) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
-    for (long file = 0; file < 0x7f; file++) {
+    for (long file = 0; file < CARD_MAX_FILE; file++) {
         if (dirs[slot][file].fileNo != 0) {
             mFile[slot][file].fileNo = file;
             mFile[slot][file].sortKey = dirs[slot][file].key;
-            mFile[slot][file].unk_0x08 = 0;
+            mFile[slot][file].sortKeyHigh = 0;
         } else {
             mFile[slot][file].fileNo = file;
             mFile[slot][file].sortKey = -1 - file;
-            mFile[slot][file].unk_0x08 = 0;
+            mFile[slot][file].sortKeyHigh = 0;
         }
     }
-    qsort(mFile[slot], 0x7f, sizeof(MCFile), compareMemoryCardSortEntries);
+    qsort(mFile[slot], CARD_MAX_FILE, sizeof(MCFile), compareMemoryCardSortEntries);
 }
 
 void MemoryCardManager::sendCardCmdMove(u8 slot, s16 index) {
@@ -223,11 +223,11 @@ bool MemoryCardManager::isCopyEnable(u8 slot, u32 index, long* code) {
 
 bool MemoryCardManager::isIconValidate(u8 slot, s16 index) {
     u32 cardSlot = slot;
-    if (cardSlot > 1 || index < 0 || index >= 0x7f) {
+    if (cardSlot > 1 || index < 0 || index >= CARD_MAX_FILE) {
         return false;
     }
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
-    if (mFile[cardSlot][index].fileNo >= 0x7f) {
+    if (mFile[cardSlot][index].fileNo >= CARD_MAX_FILE) {
         return false;
     }
     return dirs[cardSlot][mFile[cardSlot][index].fileNo].fileNo != 0;
@@ -244,9 +244,9 @@ void MemoryCardManager::update_icon_anm() {
     int slot = 0;
     do {
         int index = 0;
-        for (int remaining = 0x7f; remaining > 0; remaining--, index++) {
+        for (int remaining = CARD_MAX_FILE; remaining > 0; remaining--, index++) {
             u32 file = mFile[slot][index].fileNo;
-            if (file < 0x7f && dirs[slot][file].fileNo != 0) {
+            if (file < CARD_MAX_FILE && dirs[slot][file].fileNo != 0) {
                 memorycard::IconState* icon = icons[slot] + file;
                 s8 delta = icon->anmDelta;
                 s16 currentFrame = mFileCell[slot][file].iconAnmCounter;
@@ -290,21 +290,21 @@ void MemoryCardManager::update_file_array(u8 slot) {
         }
         if (mLastResult == 0) {
             switch (mLastCmd) {
-            case 3:
+            case Move:
                 mpEventHandler->onMemEvent(2, slot);
-                mLastCmd = 6;
+                mLastCmd = MoveComplete;
                 break;
-            case 2:
+            case Copy:
                 mpEventHandler->onMemEvent(1, slot);
-                mLastCmd = 5;
+                mLastCmd = CopyComplete;
                 break;
-            case 4:
+            case Delete:
                 mpEventHandler->onMemEvent(3, slot);
-                mLastCmd = 7;
+                mLastCmd = DeleteComplete;
                 break;
-            case 1:
+            case Format:
                 mpEventHandler->onMemEvent(4, slot);
-                mLastCmd = 8;
+                mLastCmd = FormatComplete;
                 break;
             }
         }
@@ -327,10 +327,10 @@ void MemoryCardManager::update_change_cardstate(u8 slot) {
             slot == memorycard::getCardLastSrcSlot()) {
             mpEventHandler->onMemEvent(5, slot);
             states[slot].changed = 0;
-            for (int file = 0; file < 0x7f; file++) {
+            for (int file = 0; file < CARD_MAX_FILE; file++) {
                 mFile[slot][file].fileNo = -1;
                 mFile[slot][file].sortKey = -1;
-                mFile[slot][file].unk_0x08 = 0;
+                mFile[slot][file].sortKeyHigh = 0;
                 mFileCell[slot][file].iconAnmCounter = 0;
                 wmemset(mFileCell[slot][file].comment[0], 0, 0x40);
             }
@@ -342,7 +342,7 @@ void MemoryCardManager::update_change_cardstate(u8 slot) {
 }
 
 GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index) {
-    memorycard::IconState (*icons)[0x7f] = reinterpret_cast<memorycard::IconState(*)[0x7f]>(memorycard::getIconStateArray());
+    memorycard::IconState (*icons)[CARD_MAX_FILE] = reinterpret_cast<memorycard::IconState(*)[CARD_MAX_FILE]>(memorycard::getIconStateArray());
     int total = 0;
     s16 frame = 0;
     u32 file = mFile[slot][index].fileNo;
@@ -369,10 +369,10 @@ GXTexObj* MemoryCardManager::_create_icon(u8 slot, s16 file, long start) {
     CardIcons* icons = reinterpret_cast<CardIcons*>(memorycard::getIconStateArray());
     memorycard::IconState* icon = &icons[slot][file];
     if ((int)icon->iconFmt[start] == GX_TF_RGB5A3) {
-        GXInitTexObj(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(icon) + icon->iconOffset[start], 0x20, 0x20, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
+        GXInitTexObj(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(icon) + icon->iconOffset[start], CARD_ICON_WIDTH, CARD_ICON_HEIGHT, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
         GXLoadTexObj(&mFileCell[slot][file].icon, GX_TEXMAP0);
     } else if ((int)icon->iconFmt[start] == GX_TF_C8) {
-        GXInitTexObjCI(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(icon) + icon->iconOffset[start], 0x20, 0x20, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
+        GXInitTexObjCI(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(icon) + icon->iconOffset[start], CARD_ICON_WIDTH, CARD_ICON_HEIGHT, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
         GXInitTlutObj(&mFileCell[slot][file].iconTlut, reinterpret_cast<u8*>(icon) + icons[slot][file].iconTlutOffset, GX_TL_RGB5A3, 0x100);
         GXLoadTlut(&mFileCell[slot][file].iconTlut, GX_TLUT0);
         GXLoadTexObj(&mFileCell[slot][file].icon, GX_TEXMAP0);
@@ -398,7 +398,7 @@ const wchar_t* MemoryCardManager::getComment(u8 slot, s16 index, int which) {
     const char* comments = memorycard::getIconComment(slot, file);
     memcpy(comment, comments + which * 0x20, 0x20);
     const u8* encoded = trimCardComment(comment);
-    if (SCGetLanguage() == 0) {
+    if (SCGetLanguage() == SC_LANG_JAPANESE) {
         utility::CharacterCode::shiftJISToUTF16(mFileCell[slot][file].comment[which], encoded, 0x20);
         for (int pos = 0x1f;
              mFileCell[slot][file].comment[which][pos] == 0x20 ||

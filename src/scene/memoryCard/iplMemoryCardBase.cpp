@@ -25,7 +25,7 @@ void MemoryBaseEvent::onEvent(u32 componentID, u32 event, void* data) {
         mpBase->onMove(name);
         break;
     case ::gui::EventHandler::ON_TRIG:
-        if (static_cast<controller::Interface*>(data)->downTrg(0x100800)) {
+        if (static_cast<controller::Interface*>(data)->downTrg(controller::BTN_INTERACT)) {
             mpBase->onTrig(name);
         }
         break;
@@ -53,10 +53,10 @@ void MemoryBase::clear_button(const char* paneName) {
     AnmButton* button = get_anmbutton(paneName);
     nw4r::lyt::Pane* pane = mpLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(paneName, true);
     mpPaneManager->initPane(pane);
-    if (button->unk_0x04 >= 1) {
+    if (button->mHoverCount >= 1) {
         button->onCmdRecv(2);
     }
-    button->unk_0x04 = 0;
+    button->mHoverCount = 0;
 }
 
 MemoryBase::Button* MemoryBase::get_button(const char* paneName) {
@@ -102,9 +102,9 @@ void MemoryBase::do_animation(int index) {
 void MemoryBase::do_animation(int index, bool flag) {
     Anm* animation = static_cast<Anm*>(nw4r::ut::List_GetNth(&mAnmList, index));
     if (flag) {
-        animation->mAnim->setAnmType(1);
+        animation->mAnim->setAnmType(ANIM_TYPE_BACKWARD);
     } else {
-        animation->mAnim->setAnmType(0);
+        animation->mAnim->setAnmType(ANIM_TYPE_FORWARD);
     }
     animation->mAnim->play();
     mpLayout->calc();
@@ -165,21 +165,21 @@ SettingButton* MemoryBase::get_setting_button() {
 }
 
 void MemoryBase::change_button_text_close() {
-    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(2, 0);
-    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(3, 0xFC);
-    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(1, 0);
+    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(SettingButton::CMD_HIDE_BTN, 0);
+    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(SettingButton::CMD_SET_TEXT, 0xFC);
+    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(SettingButton::CMD_SHOW_BTN, 0);
 }
 
 void MemoryBase::change_button_text_return() {
-    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(2, 0);
-    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(3, 0x13B);
-    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(1, 0);
+    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(SettingButton::CMD_HIDE_BTN, 0);
+    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(SettingButton::CMD_SET_TEXT, 0x13B);
+    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(SettingButton::CMD_SHOW_BTN, 0);
 }
 
 void MemoryBase::change_button_text_ok() {
-    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(2, 0);
-    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(3, 0x2E);
-    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(1, 0);
+    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(SettingButton::CMD_HIDE_BTN, 0);
+    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(SettingButton::CMD_SET_TEXT, 0x2E);
+    static_cast<SettingButton*>(System::getScene(SCENE_SETTING_BUTTON))->reserve(SettingButton::CMD_SHOW_BTN, 0);
 }
 
 void MemoryBase::show_button_return() {
@@ -207,38 +207,38 @@ void MemoryBase::AnmButton::onCmdRecv(int command) {
     if (mLastCmd == 3) {
         mCurrentAnm = mAnm3;
         mCurrentAnm->mAnim->play();
-        unk_0x24 = 3;
+        mAnimationState = 3;
     }
-    switch (unk_0x24) {
+    switch (mAnimationState) {
     case 0:
         if (command == 1) {
             mCurrentAnm = mAnm1;
             mCurrentAnm->mAnim->play();
-            unk_0x24 = 1;
+            mAnimationState = 1;
         } else if (command == 2) {
             mCurrentAnm = mAnm2;
             mCurrentAnm->mAnim->play();
-            unk_0x24 = 2;
+            mAnimationState = 2;
         }
         break;
     case 1:
         if (command == 4) {
             if (mLastCmd == 1) mLastCmd = 0;
             if (mpBalloon != NULL) mpBalloon->fadein();
-            unk_0x24 = 0;
+            mAnimationState = 0;
         }
         break;
     case 2:
         if (command == 4) {
             if (mLastCmd == 2) mLastCmd = 0;
             if (mpBalloon != NULL) mpBalloon->fadeout();
-            unk_0x24 = 0;
+            mAnimationState = 0;
         }
         break;
     case 3:
         if (command == 4) {
             if (mLastCmd == 3) mLastCmd = 0;
-            unk_0x24 = 0;
+            mAnimationState = 0;
         }
         break;
     }

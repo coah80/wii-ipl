@@ -13,7 +13,7 @@ namespace memorycard {
 
 struct CardThreadState {
     CardState slots[2];
-    FileInfo files[2][127];
+    FileInfo files[2][CARD_MAX_FILE];
     void* mountBuffers[2];
     s32 mounted[2];
     OSMessageQueue responses;
@@ -26,9 +26,9 @@ struct CardThreadState {
     CARDFileInfo sourceFile;
     CARDFileInfo destinationFile;
     void* transferBuffer;
-    IconState icons[2][127];
-    u8* images[2][127];
-    char* comments[2][127];
+    IconState icons[2][CARD_MAX_FILE];
+    u8* images[2][CARD_MAX_FILE];
+    char* comments[2][CARD_MAX_FILE];
     u8 commentBuffer[0x400] ATTRIBUTE_ALIGN(32);
     u8* imageReadBuffer;
     s32 lastCommand;
@@ -150,31 +150,31 @@ done:
 
 extern "C" s32 mapCardErrorCode(s32 result) {
     switch (result) {
-    case 0:
+    case CARD_RESULT_READY:
         return 0;
-    case -2:
+    case CARD_RESULT_WRONGDEVICE:
         return -28;
-    case -3:
+    case CARD_RESULT_NOCARD:
         return -28;
-    case -4:
+    case CARD_RESULT_NOFILE:
         return -28;
-    case -5:
+    case CARD_RESULT_IOERROR:
         return -28;
-    case -6:
+    case CARD_RESULT_BROKEN:
         return -28;
-    case -7:
+    case CARD_RESULT_EXIST:
         return -24;
-    case -8:
+    case CARD_RESULT_NOENT:
         return -25;
-    case -9:
+    case CARD_RESULT_INSSPACE:
         return -25;
-    case -10:
+    case CARD_RESULT_NOPERM:
         return -28;
-    case -11:
+    case CARD_RESULT_LIMIT:
         return -28;
-    case -12:
+    case CARD_RESULT_NAMETOOLONG:
         return -28;
-    case -13:
+    case CARD_RESULT_ENCODING:
         return -28;
     case -27:
         return -27;
@@ -212,34 +212,34 @@ checkCommand:
 
             switch ((s8)(((u32)message << 16) >> 24)) {
             case -27:
-            case -7:
-            case 0:
+            case CARD_RESULT_EXIST:
+            case CARD_RESULT_READY:
                 OSReport("ready or exit\n");
 
                 sThread->slots[slot].state = 4;
                 break;
-            case -9:
-            case -8:
+            case CARD_RESULT_INSSPACE:
+            case CARD_RESULT_NOENT:
                 OSReport("Card hasn't enough space\n");
 
                 sThread->slots[slot].state = 4;
                 break;
-            case -2:
+            case CARD_RESULT_WRONGDEVICE:
                 OSReport("Wrong Device\n");
 
                 sThread->slots[slot].state = 5;
                 break;
-            case -6:
+            case CARD_RESULT_BROKEN:
                 OSReport("Broken Card\n");
 
                 sThread->slots[slot].state = 6;
                 break;
-            case -13:
+            case CARD_RESULT_ENCODING:
                 OSReport("Other Language\n");
 
                 sThread->slots[slot].state = 8;
                 break;
-            case -3:
+            case CARD_RESULT_NOCARD:
                 OSReport("Detach Card\n");
 
                 sThread->slots[slot].state = 0;
@@ -281,23 +281,23 @@ void initCardThread() {
         MEMInitAllocatorForExpHeap(&sAllocator_, handle, 32);
         sAllocator_.heapParam2 = (u32)memory;
         OSReport("HEAP CREATE: %p %d\n", memory, size);
-        sThread = (CardThreadState*)MEMAllocFromAllocator(&sAllocator_, sizeof(CardThreadState));
+        sThread = static_cast<CardThreadState*>(MEMAllocFromAllocator(&sAllocator_, sizeof(CardThreadState)));
         memset(sThread, 0, sizeof(CardThreadState));
-        sThread->images[0][0] = (u8*)MEMAllocFromAllocator(&sAllocator_, 0x594C00);
-        sThread->comments[0][0] = (char*)MEMAllocFromAllocator(&sAllocator_, 0x3F80);
-        sThread->imageReadBuffer = (u8*)MEMAllocFromAllocator(&sAllocator_, 0x5A00);
+        sThread->images[0][0] = static_cast<u8*>(MEMAllocFromAllocator(&sAllocator_, 0x594C00));
+        sThread->comments[0][0] = static_cast<char*>(MEMAllocFromAllocator(&sAllocator_, 0x3F80));
+        sThread->imageReadBuffer = static_cast<u8*>(MEMAllocFromAllocator(&sAllocator_, 0x5A00));
         sThread->transferBuffer = MEMAllocFromAllocator(&sAllocator_, 0x40000);
-        sThread->mountBuffers[0] = MEMAllocFromAllocator(&sAllocator_, 0xA000);
-        sThread->mountBuffers[1] = MEMAllocFromAllocator(&sAllocator_, 0xA000);
+        sThread->mountBuffers[0] = MEMAllocFromAllocator(&sAllocator_, CARD_WORKAREA_SIZE);
+        sThread->mountBuffers[1] = MEMAllocFromAllocator(&sAllocator_, CARD_WORKAREA_SIZE);
     }
 
-    for (index = 0; index < 127; index++) {
+    for (index = 0; index < CARD_MAX_FILE; index++) {
         sThread->images[0][index] = sThread->images[0][0] + index * 0x5A00;
-        sThread->comments[0][index] = sThread->comments[0][0] + index * 0x40;
+        sThread->comments[0][index] = sThread->comments[0][0] + index * CARD_COMMENT_SIZE;
     }
-    for (index = 0; index < 127; index++) {
-        sThread->images[1][index] = sThread->images[0][0] + (index + 127) * 0x5A00;
-        sThread->comments[1][index] = sThread->comments[0][0] + (index + 127) * 0x40;
+    for (index = 0; index < CARD_MAX_FILE; index++) {
+        sThread->images[1][index] = sThread->images[0][0] + (index + CARD_MAX_FILE) * 0x5A00;
+        sThread->comments[1][index] = sThread->comments[0][0] + (index + CARD_MAX_FILE) * CARD_COMMENT_SIZE;
     }
 
     OSInitMessageQueue(&sThread->responses, sThread->responseMessages, 0x10);
@@ -329,7 +329,7 @@ BOOL shutdownCardThread() {
             MEMFreeToAllocator(&sAllocator_, sThread->comments[0][0]);
             MEMFreeToAllocator(&sAllocator_, sThread);
             sThread = 0;
-            MEMDestroyExpHeap((MEMHeapHandle)sAllocator_.heap);
+            MEMDestroyExpHeap(static_cast<MEMHeapHandle>(sAllocator_.heap));
             System::createMem1AppHeap()->free((void*)sAllocator_.heapParam2);
             System::destroyMem1AppHeap();
             OSReport("HEAP DESTROY\n");
@@ -366,21 +366,21 @@ extern "C" void refreshCardSlotInfo(s32 slot) {
     s32 freeBytes;
     s32 freeFiles;
     s32 result = CARDGetMemSize(slot, &memSize);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         OSReport("Get Memsize Error-%d: %d: %d\n", slot, result, memSize);
     }
     result = CARDGetSectorSize(slot, &sectorSize);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         OSReport("Get Sector Error- %d: %d\n", result, sectorSize);
     }
     result = CARDFreeBlocks(slot, &freeBytes, &freeFiles);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         OSReport("Get FreeBlocks Error- %d %d\n", result, freeBytes);
     }
-    if (CARDGetResultCode(slot) >= 0) {
+    if (CARDGetResultCode(slot) >= CARD_RESULT_READY) {
         BOOL interrupts = OSDisableInterrupts();
 
-        sThread->slots[slot].unk_0x0C = ((u32)memSize << 17) / sectorSize - 5;
+        sThread->slots[slot].unk_0x0C = ((u32)memSize << 17) / sectorSize - CARD_NUM_SYSTEM_BLOCK;
         sThread->slots[slot].key = sectorSize;
         sThread->slots[slot].unk_0x0E = freeFiles;
         sThread->slots[slot].freeBlocks = freeBytes / sectorSize;
@@ -405,7 +405,7 @@ static inline void sendValidityResponse(u32 command, u32 valid) {
     } reply;
     reply.value = command;
     reply.fields.valid = valid;
-    OSSendMessage(&sThread->responses, (OSMessage)reply.value, 1);
+    OSSendMessage(&sThread->responses, (OSMessage)reply.value, OS_MESSAGE_BLOCK);
 }
 
 extern "C" void* cardThreadMain(void*) {
@@ -434,7 +434,7 @@ extern "C" void* cardThreadMain(void*) {
     sThread->mounted[1] = 0;
     goto loopCheck;
 loopStart:
-        OSReceiveMessage(&sThread->requests, (OSMessage*)&local.message, 1);
+        OSReceiveMessage(&sThread->requests, (OSMessage*)&local.message, OS_MESSAGE_BLOCK);
         OSReport("CARD THREAD: Message received %d\n", (s8)(u8)local.message);
         if (validState != TRUE) {
             goto loopCheck;
@@ -454,25 +454,25 @@ loopStart:
             slot = (local.message >> 16) & 1;
             command = (local.message >> 14) & 4;
             result = CARDMount(slot, sThread->mountBuffers[command / 4], 0);
-            if (result < 0) {
+            if (result < CARD_RESULT_READY) {
                 result = handleCardMountResult(slot, result);
-                if (result != 0) {
+                if (result != CARD_RESULT_READY) {
                     goto mountContinue;
                 }
                 break;
             }
             result = CARDCheck(slot);
-            if (result < 0) {
+            if (result < CARD_RESULT_READY) {
                 goto mountError;
             }
 
         mountContinue:
             clearAllCardFileEntries(slot);
-            for (file = 0; file < 0x7F; ++file) {
+            for (file = 0; file < CARD_MAX_FILE; ++file) {
                 result = __CARDGetStatusEx(slot, (s16)file, &local.mountDir);
-                if (result < 0) {
+                if (result < CARD_RESULT_READY) {
                     result = handleCardMountResult(slot, result);
-                    if (result != 0) {
+                    if (result != CARD_RESULT_READY) {
                         continue;
                     }
                     goto loopCheck;
@@ -492,12 +492,12 @@ loopStart:
                     }
                     if (brokenFile) {
                         result = CARDFastDelete(slot, (s16)file);
-                        if (result < 0) {
+                        if (result < CARD_RESULT_READY) {
                             goto mountError;
                         }
                     } else {
                         result = loadCardFileIcons(slot, (s16)file, &local.mountDir);
-                        if (result < 0) {
+                        if (result < CARD_RESULT_READY) {
                             goto mountError;
                         }
                     }
@@ -507,10 +507,10 @@ loopStart:
             sThread->mounted[command / 4] = 1;
             sendCardSlotState(slot, 0, 0);
             OSReport("Slot %c\n", sCardSlotName[slot]);
-            for (listingFile = 0; listingFile < 0x7F; ++listingFile) {
-                if (__CARDGetStatusEx(slot, (u16)listingFile, &local.listingDir) == 0) {
-                    memcpy(local.fileName, local.listingDir.fileName, 0x20);
-                    local.fileName[0x20] = 0;
+            for (listingFile = 0; listingFile < CARD_MAX_FILE; ++listingFile) {
+                if (__CARDGetStatusEx(slot, (u16)listingFile, &local.listingDir) == CARD_RESULT_READY) {
+                    memcpy(local.fileName, local.listingDir.fileName, CARD_FILENAME_MAX);
+                    local.fileName[CARD_FILENAME_MAX] = 0;
                     OSReport("%d - %s: %d blocks\n", (u16)listingFile, local.fileName,
                              local.listingDir.length);
                 }
@@ -523,12 +523,12 @@ loopStart:
             break;
         }
         case 9:
-            reportCardThreadError((local.message >> 16) & 1, 9, -3);
+            reportCardThreadError((local.message >> 16) & 1, 9, CARD_RESULT_NOCARD);
             break;
         case 1: {
             slot = (local.message >> 16) & 1;
             result = CARDFormat(slot);
-            if (result < 0) {
+            if (result < CARD_RESULT_READY) {
                 reportCardThreadError(slot, 1, result);
             } else {
                 sThread->mounted[slot] = 1;
@@ -549,7 +549,7 @@ loopStart:
             slot = (local.message >> 16) & 1;
             fileNo = (s16)(local.message >> 24);
             result = CARDFastDelete(slot, fileNo);
-            if (result < 0) {
+            if (result < CARD_RESULT_READY) {
                 reportCardThreadError(slot, 4, result);
             } else {
                 clearCardFileEntry(slot, fileNo);
@@ -564,13 +564,13 @@ loopStart:
             do {
                 if (sThread->mounted[outerSlot] != 0) {
                     freeBlocks = 0;
-                    for (freeFile = 0; freeFile < 0x7F; ++freeFile) {
+                    for (freeFile = 0; freeFile < CARD_MAX_FILE; ++freeFile) {
                         result = __CARDGetStatusEx(outerSlot, freeFile, &local.freeDir);
-                        if (result < 0 && result != -4) {
+                        if (result < CARD_RESULT_READY && result != CARD_RESULT_NOFILE) {
                             freeBlocks = -1;
                             break;
                         }
-                        if (result == 0 &&
+                        if (result == CARD_RESULT_READY &&
                             memcmp(local.freeDir.gameName, (void*)0x80000000, 4) == 0 &&
                             memcmp(local.freeDir.company, (void*)0x80000004, 2) == 0) {
                             freeBlocks += local.freeDir.length;
@@ -612,26 +612,26 @@ extern "C" void markAllCardFilesDirty() {
             }
             ++fileNo;
 
-        } while (fileNo < 0x7F);
+        } while (fileNo < CARD_MAX_FILE);
         ++slot;
 
     } while ((s32)slot < 2);
 }
 
 extern "C" s32 handleCardMountResult(s32 slot, s32 result) {
-    if (result == -5) {
+    if (result == CARD_RESULT_IOERROR) {
         goto reportError;
     }
-    if (result >= -5) {
+    if (result >= CARD_RESULT_IOERROR) {
         goto positiveResult;
     }
-    if (result >= -6) {
+    if (result >= CARD_RESULT_BROKEN) {
         goto repairedCard;
     }
     goto reportError;
 
 positiveResult:
-    if (result < -3) {
+    if (result < CARD_RESULT_NOCARD) {
         return 1;
     }
     goto reportError;
@@ -639,7 +639,7 @@ positiveResult:
 repairedCard:
     {
         result = CARDCheck(slot);
-        if (result < 0) {
+        if (result < CARD_RESULT_READY) {
             return reportCardThreadError(slot, 0, result);
         }
         OSReport("CardThread:Broken Card Repaired\n");
@@ -651,8 +651,8 @@ reportError:
 }
 
 extern "C" s32 reportCardThreadError(s32 slot, s32 state, s32 result) {
-    if (result != -7 && result != -27 && result != -8 && result != -9 &&
-        (clearAllCardFileEntries(slot), result != -6) && result != -13) {
+    if (result != CARD_RESULT_EXIST && result != -27 && result != CARD_RESULT_NOENT && result != CARD_RESULT_INSSPACE &&
+        (clearAllCardFileEntries(slot), result != CARD_RESULT_BROKEN) && result != CARD_RESULT_ENCODING) {
         OSReport("DEBUG: UnmountCard %d \n", slot);
         CARDUnmount(slot);
         sThread->mounted[slot & 0xFF] = 0;
@@ -660,7 +660,7 @@ extern "C" s32 reportCardThreadError(s32 slot, s32 state, s32 result) {
     OSReport("DEBUG: CardThread error %d %d\n", state, result);
     markAllCardFilesDirty();
     OSSendMessage(&sThread->responses,
-                  (OSMessage)(((slot & 1) << 16) | ((result & 0xFF) << 8) | (state & 0xFF)), 1);
+                  (OSMessage)(((slot & 1) << 16) | ((result & 0xFF) << 8) | (state & 0xFF)), OS_MESSAGE_BLOCK);
     return 0;
 }
 
@@ -680,7 +680,7 @@ extern "C" void sendCardSlotState(s32 slot, s32 state, s32 fileNo) {
     message.value = (u32)fileNo << 24;
     message.fields.slot = slot;
     message.fields.state = state;
-    OSSendMessage(queue, (OSMessage)message.value, 1);
+    OSSendMessage(queue, (OSMessage)message.value, OS_MESSAGE_BLOCK);
 }
 
 extern "C" void clearAllCardFileEntries(s32 slot) {
@@ -688,7 +688,7 @@ extern "C" void clearAllCardFileEntries(s32 slot) {
     do {
         clearCardFileEntry(slot, (s16)file);
         file = file + 1;
-    } while (file < 0x7F);
+    } while (file < CARD_MAX_FILE);
 }
 
 extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
@@ -701,21 +701,21 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
     u32 iconAddressBase;
     s32 result;
     result = CARDFastOpen(slot, fileNo, &local.fileInfo);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         return result;
     }
 
     s32 bannerImageSize = 0;
-    u8 format = dir->bannerFormat & 3;
+    u8 format = dir->bannerFormat & CARD_STAT_BANNER_MASK;
     u32 iconAddress = dir->iconAddr;
     iconAddressBase = iconAddress & 0xFFFFFE00;
     iconAddressOffset = iconAddress - iconAddressBase;
 
     switch (format) {
-    case 1: {
+    case CARD_STAT_BANNER_C8: {
         bannerImageSize = 0xE00;
         sThread->icons[slot][fileNo].bannerEnable = 1;
-        sThread->icons[slot][fileNo].bannerType = 9;
+        sThread->icons[slot][fileNo].bannerType = GX_TF_C8;
         sThread->icons[slot][fileNo].bannerOffset =
             (s32)sThread->images[slot][fileNo] -
             (s32)&sThread->icons[slot][fileNo];
@@ -725,10 +725,10 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
             sThread->icons[slot][fileNo].bannerTlutOffset + 0x200;
         break;
     }
-    case 2: {
+    case CARD_STAT_BANNER_RGB5A3: {
         bannerImageSize = 0x1800;
         sThread->icons[slot][fileNo].bannerEnable = 1;
-        sThread->icons[slot][fileNo].bannerType = 5;
+        sThread->icons[slot][fileNo].bannerType = GX_TF_RGB5A3;
         sThread->icons[slot][fileNo].bannerOffset =
             (s32)sThread->images[slot][fileNo] -
             (s32)&sThread->icons[slot][fileNo];
@@ -754,9 +754,9 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
     sThread->icons[slot][fileNo].anmMax = 0;
     sThread->icons[slot][fileNo].anmFrameBits = dir->iconSpeed;
     sThread->icons[slot][fileNo].unk_0x06 =
-        (dir->iconSpeed & 3) << 2;
-    for (icon = 0; icon < 8; ++icon) {
-        s32 iconSpeed = (dir->iconSpeed >> shift) & 3;
+        (dir->iconSpeed & CARD_STAT_SPEED_MASK) << 2;
+    for (icon = 0; icon < CARD_ICON_MAX; ++icon) {
+        s32 iconSpeed = (dir->iconSpeed >> shift) & CARD_STAT_SPEED_MASK;
         if (iconSpeed != 0) {
             sThread->icons[slot][fileNo].anmMax =
                 sThread->icons[slot][fileNo].anmMax + (iconSpeed << 2);
@@ -769,31 +769,31 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
         shift = shift + 2;
     }
     sThread->icons[slot][fileNo].unk_0x07 =
-        ((u16)dir->iconSpeed >> 0xC) & 0xC;
+        (dir->iconSpeed >> 0xC) & 0xC;
 
 iconSpeedDone:
-    if ((dir->iconSpeed & 3) == 0 || (dir->iconFormat & 3) == 0) {
+    if ((dir->iconSpeed & CARD_STAT_SPEED_MASK) == 0 || (dir->iconFormat & CARD_STAT_ICON_MASK) == 0) {
         iconImageSize = 0;
         sThread->icons[slot][fileNo].unk_0x01 = 0;
     } else {
         BOOL hasTlut = FALSE;
         iconCount = 0;
         shift = 0;
-        for (icon = 0; icon < 8; ++icon) {
-            if (((dir->iconSpeed >> shift) & 3) != 0) {
-                s32 iconFormat = (dir->iconFormat >> shift) & 3;
+        for (icon = 0; icon < CARD_ICON_MAX; ++icon) {
+            if (((dir->iconSpeed >> shift) & CARD_STAT_SPEED_MASK) != 0) {
+                s32 iconFormat = (dir->iconFormat >> shift) & CARD_STAT_ICON_MASK;
                 s32 paletteSize;
                 switch (iconFormat) {
-                case 1:
+                case CARD_STAT_ICON_C8:
                     paletteSize = 0x400;
                     hasTlut = TRUE;
-                    sThread->icons[slot][fileNo].iconFmt[iconCount] = 9;
+                    sThread->icons[slot][fileNo].iconFmt[iconCount] = GX_TF_C8;
                     break;
-                case 2:
+                case CARD_STAT_ICON_RGB5A3:
                     paletteSize = 0x800;
-                    sThread->icons[slot][fileNo].iconFmt[iconCount] = 5;
+                    sThread->icons[slot][fileNo].iconFmt[iconCount] = GX_TF_RGB5A3;
                     break;
-                case 0: {
+                case CARD_STAT_ICON_NONE: {
                     paletteSize = 0;
                     u8* iconPalette =
                         &sThread->icons[slot][fileNo].iconFmt[iconCount];
@@ -833,7 +833,7 @@ iconSpeedDone:
     s32 totalImageSize = iconImageSize + bannerImageSize;
     u32 transferSize = (totalImageSize + iconAddressOffset + 0x1FF) & 0xFFFFFE00;
     result = CARDGetSectorSize(slot, (u32*)&local.sectorSize);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         result = 0;
         sThread->icons[slot][fileNo].bannerEnable = 0;
         sThread->icons[slot][fileNo].unk_0x01 = 0;
@@ -850,18 +850,18 @@ iconSpeedDone:
         } else if (totalImageSize > 0) {
             result = CARDRead(&local.fileInfo, sThread->imageReadBuffer,
                               transferSize, iconAddressBase);
-            if (result < 0) {
+            if (result < CARD_RESULT_READY) {
                 goto closeFile;
             }
             memcpy(sThread->images[slot][fileNo],
-                   (u8*)sThread->imageReadBuffer + iconAddressOffset,
+                   sThread->imageReadBuffer + iconAddressOffset,
                    totalImageSize);
             DCStoreRange(sThread->images[slot][fileNo], transferSize);
             result = 0;
         }
     }
 
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         goto closeFile;
     }
 
@@ -870,7 +870,7 @@ iconSpeedDone:
     s32 commentDataOffset = iconAddress - iconAddressBase;
     s32 imageSize = ((iconAddress + 0x23F) & 0xFFFFFE00) - iconAddressBase;
     result = CARDGetSectorSize(slot, (u32*)&local.commentSectorSize);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         goto clearComment;
     }
     {
@@ -886,22 +886,22 @@ iconSpeedDone:
             }
             result = CARDRead(&local.fileInfo, sThread->commentBuffer, imageSize,
                               iconAddressBase);
-            if (result < 0) {
+            if (result < CARD_RESULT_READY) {
                 goto clearComment;
             }
-            memset(sThread->comments[slot][fileNo], 0, 0x40);
+            memset(sThread->comments[slot][fileNo], 0, CARD_COMMENT_SIZE);
             memcpy(sThread->comments[slot][fileNo],
-                   sThread->commentBuffer + commentDataOffset, 0x40);
+                   sThread->commentBuffer + commentDataOffset, CARD_COMMENT_SIZE);
             result = 0;
             goto commentDone;
         }
     }
 
 clearComment:
-    memset(sThread->comments[slot][fileNo], 0, 0x40);
+    memset(sThread->comments[slot][fileNo], 0, CARD_COMMENT_SIZE);
 
 commentDone:
-    if (result >= 0) {
+    if (result >= CARD_RESULT_READY) {
         goto closeFileSuccess;
     }
 closeFile:
@@ -909,7 +909,7 @@ closeFile:
 
 closeFileSuccess:
     result = CARDClose(&local.fileInfo);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         return result;
     }
 
@@ -929,23 +929,23 @@ extern "C" s32 checkCardFileDuplicate(s32 slot, s16 fileNo) {
     CARDDir sourceDir;
     CARDDir otherDir;
     s32 result = __CARDGetStatusEx(slot, fileNo, &sourceDir);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         return result;
     }
 
     s32 file = 0;
     do {
         s32 otherResult = __CARDGetStatusEx(slot ^ 1, file, &otherDir);
-        if (otherResult < 0 && otherResult != -4) {
+        if (otherResult < CARD_RESULT_READY && otherResult != CARD_RESULT_NOFILE) {
             return otherResult;
         }
-        if (otherResult == 0 && memcmp(sourceDir.gameName, otherDir.gameName, 4) == 0 &&
+        if (otherResult == CARD_RESULT_READY && memcmp(sourceDir.gameName, otherDir.gameName, 4) == 0 &&
             memcmp(sourceDir.company, otherDir.company, 2) == 0 &&
-            memcmp(sourceDir.fileName, otherDir.fileName, 0x20) == 0) {
-            return -7;
+            memcmp(sourceDir.fileName, otherDir.fileName, CARD_FILENAME_MAX) == 0) {
+            return CARD_RESULT_EXIST;
         }
         file = file + 1;
-    } while (file < 0x7F);
+    } while (file < CARD_MAX_FILE);
     return 0;
 }
 
@@ -962,16 +962,16 @@ static inline s16 createCardTemporaryFile(s32 destinationSlot, const CARDDir& so
         sprintf(sThread->temporaryFileName, "Broken File%03d", attempt);
         result = CARDCreate(destinationSlot, sThread->temporaryFileName,
                             fileSize, &sThread->destinationFile);
-        if (result < 0 && result != -7) {
+        if (result < CARD_RESULT_READY && result != CARD_RESULT_EXIST) {
             OSReport("Can't Create temp File with Error.");
             return (s16)result;
         }
         ++attempt;
-    } while (result != 0 && attempt < 0x80);
+    } while (result != CARD_RESULT_READY && attempt < 0x80);
     if (attempt < 0x80) {
         destinationFileNo = sThread->destinationFile.fileNo;
     } else {
-        destinationFileNo = -0x80;
+        destinationFileNo = CARD_RESULT_FATAL_ERROR;
     }
     return destinationFileNo;
 }
@@ -1008,19 +1008,19 @@ extern "C" void runCardMoveOrCopy(u8 slot, s16 fileNo, s32 command) {
 
     result = checkCardFileDuplicate(slot, fileNo);
 
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         reportCardThreadError(slot, command, result);
         goto finish;
     }
 
     commonSectorSize = 0;
     result = CARDGetSectorSize(0, &sourceSectorSize);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         sectorError = result;
         goto sectorSizeCheck;
     }
     result = CARDGetSectorSize(1, &destinationSectorSize);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         sectorError = result;
         goto sectorSizeCheck;
     }
@@ -1031,7 +1031,7 @@ extern "C" void runCardMoveOrCopy(u8 slot, s16 fileNo, s32 command) {
         sectorError = 0;
     }
 sectorSizeCheck:
-    if (sectorError >= 0) {
+    if (sectorError >= CARD_RESULT_READY) {
         goto sectorSizeDone;
     }
 sectorSizeError:
@@ -1043,30 +1043,30 @@ sectorSizeDone:
     {
         s32 permissionResult = 0;
         statusResult = __CARDGetStatusEx(slot, fileNo, &checkedStatus);
-        if (statusResult >= 0) {
+        if (statusResult >= CARD_RESULT_READY) {
             switch (command) {
             case 2:
-                if (checkedStatus.permission & 8) {
-                    permissionResult = -10;
+                if (checkedStatus.permission & CARD_ATTR_NO_COPY) {
+                    permissionResult = CARD_RESULT_NOPERM;
                 }
                 break;
             case 3:
-                if (checkedStatus.permission & 0x10) {
-                    permissionResult = -10;
+                if (checkedStatus.permission & CARD_ATTR_NO_MOVE) {
+                    permissionResult = CARD_RESULT_NOPERM;
                 }
                 break;
             }
         } else {
             permissionResult = CARDGetResultCode(slot);
         }
-        if (permissionResult < 0) {
+        if (permissionResult < CARD_RESULT_READY) {
             reportCardThreadError(slot, command, permissionResult);
             goto finish;
         }
     }
 
     result = __CARDGetStatusEx(slot, fileNo, &createStatus);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         goto cleanup;
     }
 
@@ -1084,18 +1084,18 @@ sectorSizeDone:
         u32 sectorSize;
 
         ioResult = __CARDGetStatusEx(slot, fileNo, &ioStatus);
-        if (ioResult < 0) {
+        if (ioResult < CARD_RESULT_READY) {
             goto copyIoFailure;
         }
         stage = 1;
         ioResult = CARDGetSectorSize(slot, &sectorSize);
-        if (ioResult < 0) {
+        if (ioResult < CARD_RESULT_READY) {
             goto copyIoFailure;
         }
         maxBlocks = 0x40000 / sectorSize;
         stage = 2;
         ioResult = CARDFastOpen(slot, fileNo, &sThread->sourceFile);
-        if (ioResult < 0) {
+        if (ioResult < CARD_RESULT_READY) {
             goto copyIoFailure;
         }
         block = 0;
@@ -1106,14 +1106,14 @@ sectorSizeDone:
             size = blocks * sectorSize;
             ioResult = CARDRead(&sThread->sourceFile,
                                 sThread->transferBuffer, size, offset);
-            if (ioResult < 0) {
+            if (ioResult < CARD_RESULT_READY) {
                 goto copyIoFailure;
             }
             sThread->writePending = 1;
             ioResult = CARDWriteAsync(&sThread->destinationFile,
                                       sThread->transferBuffer, size, offset,
                                       clearCardWritePending);
-            if (ioResult < 0) {
+            if (ioResult < CARD_RESULT_READY) {
                 goto copyIoFailure;
             }
             while (sThread->writePending != 0) {
@@ -1125,12 +1125,12 @@ sectorSizeDone:
         }
         stage = 4;
         ioResult = CARDClose(&sThread->sourceFile);
-        if (ioResult < 0) {
+        if (ioResult < CARD_RESULT_READY) {
             goto copyIoFailure;
         }
         stage = 5;
         ioResult = CARDClose(&sThread->destinationFile);
-        if (ioResult >= 0) {
+        if (ioResult >= CARD_RESULT_READY) {
             result = 0;
             goto copyIoDone;
         }
@@ -1162,38 +1162,38 @@ copyIoDone:
         ;
     }
 
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         goto cleanup;
     }
     if (command == 2) {
         copyResult = __CARDGetStatusEx(slot, fileNo, &sourceStatus);
-        if (copyResult < 0) {
+        if (copyResult < CARD_RESULT_READY) {
             OSReport("Can't get status for src file\n");
         } else {
             ++sourceStatus.copyTimes;
             copyResult = __CARDSetStatusEx(slot, fileNo, &sourceStatus);
-            if (copyResult < 0) {
+            if (copyResult < CARD_RESULT_READY) {
                 OSReport("Can't set status for src file %d\n", copyResult);
             } else {
                 oldTime = sourceStatus.time;
                 sourceStatus.time = (u32)(OSGetTime() / (*(u32*)0x800000F8 >> 2));
                 copyResult = __CARDSetStatusEx(destinationSlot, destinationFileNo,
                                                     &sourceStatus);
-                if (copyResult < 0) {
+                if (copyResult < CARD_RESULT_READY) {
                     OSReport("Can't set status for dst file (src file copyTimes--)\n");
-                    if (copyResult != -3) {
+                    if (copyResult != CARD_RESULT_NOCARD) {
                         --sourceStatus.copyTimes;
                     }
                     sourceStatus.time = oldTime;
                     s32 restoreResult = __CARDSetStatusEx(slot, fileNo, &sourceStatus);
-                    if (restoreResult < 0) {
+                    if (restoreResult < CARD_RESULT_READY) {
                         OSReport("Can't set status for src file(src file copyTimes--)\n");
                     }
                 } else {
                     metadataCopied = TRUE;
                     copyResult = loadCardFileIcons(destinationSlot, destinationFileNo,
                                                        &sourceStatus);
-                    if (copyResult < 0) {
+                    if (copyResult < CARD_RESULT_READY) {
                         OSReport("Can't read icon for move dstfile\n");
                     } else {
                         copyResult = 0;
@@ -1202,38 +1202,38 @@ copyIoDone:
             }
         }
         result = copyResult;
-        if (result < 0) {
+        if (result < CARD_RESULT_READY) {
             goto cleanup;
         }
     } else if (command == 3) {
         renameAttempt = 0;
         moveStage = 0;
         moveResult = __CARDGetStatusEx(slot, fileNo, &moveStatus);
-        if (moveResult >= 0) {
+        if (moveResult >= CARD_RESULT_READY) {
             ++moveStage;
             renamedStatus = moveStatus;
             memset(renamedStatus.company, 0, 2);
             memset(renamedStatus.gameName, 0, 4);
             do {
-                memset(renamedStatus.fileName, 0, 0x20);
+                memset(renamedStatus.fileName, 0, CARD_FILENAME_MAX);
                 sprintf((char*)renamedStatus.fileName, "Broken File%03d", renameAttempt);
                 moveResult = __CARDSetStatusEx(slot, fileNo, &renamedStatus);
-                if (moveResult < 0 && moveResult != -7) {
+                if (moveResult < CARD_RESULT_READY && moveResult != CARD_RESULT_EXIST) {
                     goto moveStatusError;
                 }
                 ++renameAttempt;
-            } while (moveResult != 0 && renameAttempt < 0x80);
+            } while (moveResult != CARD_RESULT_READY && renameAttempt < 0x80);
             moveStage = 2;
             moveResult = __CARDSetStatusEx(destinationSlot, destinationFileNo,
                                        &moveStatus);
-            if (moveResult < 0) {
+            if (moveResult < CARD_RESULT_READY) {
                 s32 setResult = moveResult;
-                if (moveResult == -3) {
+                if (moveResult == CARD_RESULT_NOCARD) {
                     CARDFastDelete(slot, fileNo);
                     clearCardFileEntry(slot, fileNo);
                 } else {
                     s32 restoreResult = __CARDSetStatusEx(slot, fileNo, &moveStatus);
-                    if (restoreResult < 0) {
+                    if (restoreResult < CARD_RESULT_READY) {
                         OSReport("Can't repair src file - carddir\n");
                     }
                 }
@@ -1242,12 +1242,12 @@ copyIoDone:
                 metadataCopied = TRUE;
                 moveStage = 3;
                 moveResult = CARDFastDelete(slot, fileNo);
-                if (moveResult >= 0) {
+                if (moveResult >= CARD_RESULT_READY) {
                     clearCardFileEntry(slot, fileNo);
                     moveStage = 4;
                     moveResult = __CARDGetStatusEx(destinationSlot,
                                                   destinationFileNo, &moveStatus);
-                    if (moveResult >= 0) {
+                    if (moveResult >= CARD_RESULT_READY) {
                         moveStage = 5;
                         if ((moveResult = loadCardFileIcons(
                                  destinationSlot, destinationFileNo, &moveStatus)) < 0) {
@@ -1281,7 +1281,7 @@ moveStatusError:
             break;
         }
 moveStatusDone:
-        if (moveResult < 0) {
+        if (moveResult < CARD_RESULT_READY) {
             goto cleanup;
         }
     }
@@ -1295,7 +1295,7 @@ moveStatusDone:
 cleanup:
     destinationSlot = slot ^ 1;
     result = CARDGetResultCode(destinationSlot);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         reportCardThreadError(destinationSlot, command, result);
     } else {
         if (temporaryCreated && !metadataCopied) {
@@ -1303,7 +1303,7 @@ cleanup:
         }
         if (metadataCopied) {
             if (__CARDGetStatusEx(destinationSlot, destinationFileNo,
-                                  &createStatus) == 0) {
+                                  &createStatus) == CARD_RESULT_READY) {
                 loadCardFileIcons(destinationSlot, destinationFileNo, &createStatus);
             }
         }
@@ -1311,7 +1311,7 @@ cleanup:
         sendCardSlotState(destinationSlot, 0, fileNo & 0xFF);
     }
     result = CARDGetResultCode(slot);
-    if (result < 0) {
+    if (result < CARD_RESULT_READY) {
         reportCardThreadError(slot, command, result);
     } else {
         refreshCardSlotInfo(slot);

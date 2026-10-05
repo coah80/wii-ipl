@@ -72,7 +72,7 @@ namespace ipl {
         typedef struct MCFile {
             u32 fileNo;    // 0x00
             u32 reserved;  // 0x04
-            u32 unk_0x08;  // 0x08
+            u32 sortKeyHigh;  // 0x08
             s32 sortKey;   // 0x0C
         } MCFile;            // 0x10
 
@@ -99,8 +99,8 @@ namespace ipl {
                 mLastCmd    = 0;
                 __CARDSetDiskID(NULL);
                 memorycard::initCardThread();
-                sort_file_array(0);
-                sort_file_array(1);
+                sort_file_array(CARD_CHAN_0);
+                sort_file_array(CARD_CHAN_1);
             }
             virtual ~MemoryCardManager();
 
@@ -188,13 +188,13 @@ namespace ipl {
 
         private:
             GXTexObj* initBannerTexture(u8 slot, s32 file, void* data) {
-                GXInitTexObj(&mFileCell[slot][file].banner, data, 0x60, 0x20,
+                GXInitTexObj(&mFileCell[slot][file].banner, data, CARD_BANNER_WIDTH, CARD_BANNER_HEIGHT,
                              GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
                 return &mFileCell[slot][file].banner;
             }
 
             void initBannerTextureCI(u8 slot, s32 file, void* data) {
-                GXInitTexObjCI(&mFileCell[slot][file].banner, data, 0x60, 0x20,
+                GXInitTexObjCI(&mFileCell[slot][file].banner, data, CARD_BANNER_WIDTH, CARD_BANNER_HEIGHT,
                                GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
             }
 
@@ -204,8 +204,8 @@ namespace ipl {
             }
 
             u32                  reserved;            // 0x00004
-            MCFile               mFile[2][0x7F];      // 0x00008
-            MCFileCell           mFileCell[2][0x7F];  // 0x00FE8
+            MCFile               mFile[2][CARD_MAX_FILE];      // 0x00008
+            MCFileCell           mFileCell[2][CARD_MAX_FILE];  // 0x00FE8
             s32                  mLastResult;         // 0x16930
             s32                  mLastCmd;            // 0x16934
             u32                  mReservedResult;         // 0x16938

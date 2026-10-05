@@ -109,7 +109,7 @@ namespace ipl {
             System::getProjectionRect(&proj16x9);
             System::getProjectionRect4x3(&proj4x3);
 
-            if (mbUse16x9X == 0) {
+            if (!mbUse16x9X) {
                 mBalloonPos.x *= proj4x3.GetWidth() / proj16x9.GetWidth();
             }
         }
@@ -122,7 +122,7 @@ namespace ipl {
             System::getProjectionRect(&proj16x9);
             System::getProjectionRect4x3(&proj4x3);
 
-            if (mbUse16x9X == 0) {
+            if (!mbUse16x9X) {
                 mBalloonPos.x *= proj4x3.GetWidth() / proj16x9.GetWidth();
             }
 
@@ -192,7 +192,7 @@ namespace ipl {
                 }
             }
 
-            if (mbUse16x9X == 0) {
+            if (!mbUse16x9X) {
                 alignmentOffset *= proj4x3.GetWidth() / proj16x9.GetWidth();
             }
 

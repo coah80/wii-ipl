@@ -12,11 +12,11 @@ enum {
 
 enum {
     ODH_ERROR_SUCCESS = 0,
-    ODH_ERROR_80000001 = 0x80000001,
-    ODH_ERROR_80000002 = 0x80000002,
-    ODH_ERROR_80000003 = 0x80000003,
-    ODH_ERROR_80000004 = 0x80000004,
-    ODH_ERROR_80000005 = 0x80000005,
+    ODH_ERROR_INVALID_DIMENSIONS = 0x80000001,
+    ODH_ERROR_INVALID_QUALITY = 0x80000002,
+    ODH_ERROR_INVALID_BITSTREAM = 0x80000003,
+    ODH_ERROR_OUTPUT_FULL = 0x80000004,
+    ODH_ERROR_INVALID_HEADER = 0x80000005,
 };
 
 struct SArDeconvTbl {
@@ -41,7 +41,7 @@ struct SArCDJ_OdhMaster {
     u16 width;
     u16 height;
     u8 quality;
-    u8 field5;
+    u8 reservedAlignment;
     u16 blocksWide;
     u16 blocksHigh;
     u16 blockX;
@@ -52,9 +52,9 @@ struct SArCDJ_OdhMaster {
     u32 bitCount;
     u32 outputPos;
     u32 remaining;
-    u32 field20;
-    u32 field24;
-    u32 field28;
+    u32 lumaDCPredictor;
+    u32 cbDCPredictor;
+    u32 crDCPredictor;
     u8* workBuffer;
     u32 dcCoefficients[64];
     u32 coefficients[64];
@@ -591,19 +591,19 @@ s32 CArGBAOdh::decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8
     }
 
     s32 result = cdj_d_initializeDecompressOdh(&master, work, src);
-    if (result != 0) {
+    if (result != ODH_ERROR_SUCCESS) {
         OSReport("decompressGbaOdh : INITIALIZE ERROR %08x\n", result);
         return 0;
     }
 
     result = cdj_d_decompressLoop(&master, srcSize, workSize);
-    if (result != 0) {
+    if (result != ODH_ERROR_SUCCESS) {
         OSReport("decompressGbaOdh : DECOMPRESSING ERROR %08x\n", result);
         return 0;
     }
 
     result = cdj_d_colorDeconv(&master, dest, format);
-    if (result != 0) {
+    if (result != ODH_ERROR_SUCCESS) {
         OSReport("decompressGbaOdh : COLOR DECONVERSION ERROR %08x\n", result);
         return 0;
     }
@@ -631,7 +631,7 @@ s32 CArGBAOdh::compressGbaOdh(u8* src, u8* dest, int width, int height, int qual
     }
     result = cdj_c_compressLoop(&master);
     int retry = 1;
-    while (result == ODH_ERROR_80000004) {
+    while (result == ODH_ERROR_OUTPUT_FULL) {
         OSReport("compressGbaOdh : COMPRESS OVER AND RETRY %d q=%d, %08x\n", retry++, master.quality, result);
         quality -= 5;
         if (quality > 0) {
@@ -654,10 +654,10 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimens
     u32 quantizationScale;
     s32 result;
 
-    if ((((*dimensions == 0) || (0x7FF < *dimensions)) || (dimensions[1] == 0)) || (0x7FF < dimensions[1])) {
-        result = ODH_ERROR_80000001;
+    if (*dimensions == 0 || 0x7FF < *dimensions || dimensions[1] == 0 || 0x7FF < dimensions[1]) {
+        result = ODH_ERROR_INVALID_DIMENSIONS;
     } else if (requestedQuality > 0x64) {
-        result = ODH_ERROR_80000002;
+        result = ODH_ERROR_INVALID_QUALITY;
     } else {
         master->workBuffer = workBuffer;
         master->data = outputBuffer;
@@ -668,8 +668,8 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimens
         master->blocksWide = (s32)dimensionMinusOne / 8 + 1;
         dimensionMinusOne = dimensions[1] - 1;
         master->blocksHigh = (s32)dimensionMinusOne / 8 + 1;
-        master->luminanceRequest.predictors[0] = &master->field20;
-        master->luminanceRequest.predictors[1] = &master->field20;
+        master->luminanceRequest.predictors[0] = &master->lumaDCPredictor;
+        master->luminanceRequest.predictors[1] = &master->lumaDCPredictor;
         master->luminanceRequest.dcTable = (u32*)gArDC_L_Table;
         master->luminanceRequest.acTable = (u32*)gArDC_L_Table;
         master->luminanceRequest.bitstream = outputBuffer;
@@ -677,8 +677,8 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimens
         master->luminanceRequest.bitBuffer = &master->bitBuffer;
         master->luminanceRequest.bitCount = &master->bitCount;
         master->luminanceRequest.bytesConsumed = outputCapacity;
-        master->chrominanceRequest.predictors[0] = &master->field24;
-        master->chrominanceRequest.predictors[1] = &master->field28;
+        master->chrominanceRequest.predictors[0] = &master->cbDCPredictor;
+        master->chrominanceRequest.predictors[1] = &master->crDCPredictor;
         master->chrominanceRequest.dcTable = (u32*)gArDC_C_Table;
         master->chrominanceRequest.acTable = (u32*)gArDC_L_Table;
         master->chrominanceRequest.bitstream = outputBuffer;
@@ -691,7 +691,7 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimens
             quality = 1;
         }
         if (quality < 0x32) {
-            quantizationScale = 5000U / (u32)quality;
+            quantizationScale = 5000U / quality;
         } else {
             quantizationScale = 200 - (quality << 1);
         }
@@ -702,9 +702,9 @@ s32 CArGBAOdh::cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimens
         master->bitCount = 0x20;
         master->outputPos = outputCapacity;
         master->remaining = outputCapacity - 0x10;
-        master->field20 = 0;
-        master->field24 = 0;
-        master->field28 = 0;
+        master->lumaDCPredictor = 0;
+        master->cbDCPredictor = 0;
+        master->crDCPredictor = 0;
         result = 0;
     }
 
@@ -720,7 +720,7 @@ s32 CArGBAOdh::cdj_c_compressLoop(SArCDJ_OdhMaster* master) {
         int columnOffset = (u32)master->blockX << 3;
         workOffset = blocksWide * rowOffset + columnOffset;
         u32 stride = (u32)master->blocksWide << 3;
-        fdct_fast(master->coefficients, (u8*)((u32)master->workBuffer + workOffset), stride,
+        fdct_fast(master->coefficients, master->workBuffer + workOffset, stride,
                   master->quantizationTables);
         for (int i = 0; i < 0x40; i++) {
             u8 index = odh_zigzag_order[i];
@@ -728,8 +728,8 @@ s32 CArGBAOdh::cdj_c_compressLoop(SArCDJ_OdhMaster* master) {
         }
         master->coefficients[0] = 0x40004000;
         statusOrOffset = huffmanCoder((u16*)master->dcCoefficients - 1, &master->luminanceRequest);
-        if (statusOrOffset == ODH_ERROR_80000004) {
-            statusOrOffset = ODH_ERROR_80000004;
+        if (statusOrOffset == ODH_ERROR_OUTPUT_FULL) {
+            statusOrOffset = ODH_ERROR_OUTPUT_FULL;
             goto done;
         }
         int nextBlocksWide = master->blocksWide;
@@ -738,14 +738,14 @@ s32 CArGBAOdh::cdj_c_compressLoop(SArCDJ_OdhMaster* master) {
         statusOrOffset = blocksHigh * rowStride;
         workOffset = workOffset + statusOrOffset;
         u32 nextStride = (u32)nextBlocksWide << 3;
-        fdct_fast(master->coefficients, (u8*)((u32)master->workBuffer + workOffset), nextStride,
+        fdct_fast(master->coefficients, master->workBuffer + workOffset, nextStride,
                   master->quantizationTables + 64);
         for (int i = 0; i < 0x40; i++) {
             u8 index = odh_zigzag_order[i];
             master->dcCoefficients[index] = master->coefficients[i] & 0xFFFF;
         }
         workOffset += (u32)master->blocksHigh * ((u32)master->blocksWide << 6);
-        fdct_fast(master->coefficients, (u8*)((u32)master->workBuffer + workOffset),
+        fdct_fast(master->coefficients, master->workBuffer + workOffset,
                   (u32)master->blocksWide << 3, master->quantizationTables + 64);
         for (int i = 0; i < 0x40; i++) {
             u8 index = odh_zigzag_order[i];
@@ -754,8 +754,8 @@ s32 CArGBAOdh::cdj_c_compressLoop(SArCDJ_OdhMaster* master) {
         }
         master->coefficients[0] = 0x40004000;
         statusOrOffset = huffmanCoder((u16*)master->dcCoefficients, &master->chrominanceRequest);
-        if (statusOrOffset == ODH_ERROR_80000004) {
-            statusOrOffset = ODH_ERROR_80000004;
+        if (statusOrOffset == ODH_ERROR_OUTPUT_FULL) {
+            statusOrOffset = ODH_ERROR_OUTPUT_FULL;
             goto done;
         }
         int nextBlockX = master->blockX + 1;
@@ -766,8 +766,8 @@ s32 CArGBAOdh::cdj_c_compressLoop(SArCDJ_OdhMaster* master) {
         }
     } while (master->blockY < master->blocksHigh);
     statusOrOffset = cdj_c_flashBuffer(master);
-    if (statusOrOffset == ODH_ERROR_80000004) {
-        statusOrOffset = ODH_ERROR_80000004;
+    if (statusOrOffset == ODH_ERROR_OUTPUT_FULL) {
+        statusOrOffset = ODH_ERROR_OUTPUT_FULL;
     } else {
         cdj_c_makeHeader(master, master->outputPos - master->remaining);
         statusOrOffset = master->outputPos - master->remaining;
@@ -782,7 +782,7 @@ s32 CArGBAOdh::cdj_c_flashBuffer(SArCDJ_OdhMaster* master) {
 
     while (master->bitCount <= 0x18) {
         if (master->remaining == 0) {
-            return ODH_ERROR_80000004;
+            return ODH_ERROR_OUTPUT_FULL;
         }
 
         master->data[master->outputPos - master->remaining] = master->bitBuffer >> 24;
@@ -869,11 +869,11 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
     workPlane = master->workBuffer;
     cbPlane = workPlane + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
     crPlane = cbPlane + (u32)paddedDimensions[0] * (u32)paddedDimensions[1];
-    if (format == 0) {
+    if (format == ODH_FORMAT_RGB565) {
         sourceStride = (width & 0xFFFC) << 3;
     } else {
         sourceStride = (width & 0xFFF8) << 2;
-        if (format == 1) {
+        if (format == ODH_FORMAT_RGBA8) {
             sourceStride = (width & 0xFFFC) << 4;
         }
     }
@@ -892,7 +892,7 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
 void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutput, u16 width, u16 height,
                            const long* conversionTable, int format) {
     u32 planeSize = (u32)width * (u32)height;
-    const s32* table = (const s32*)conversionTable;
+    const s32* table = conversionTable;
     u32 pixelIndex = 0;
 
     for (int i = 0; i < width; i++) {
@@ -900,14 +900,14 @@ void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutpu
             s32 green;
             s32 blue;
 
-            if (format == 0) {
+            if (format == ODH_FORMAT_RGB565) {
                 u8* pixelSource = source + (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
                 u16 pixel = pixelSource[1];
                 pixel |= (u16)pixelSource[0] << 8;
                 red = (pixel >> 11) & 0x1F;
                 green = (pixel >> 6) & 0x1F;
                 blue = pixel & 0x1F;
-            } else if (format == 1) {
+            } else if (format == ODH_FORMAT_RGBA8) {
                 int blueOrPixelOffset = (pixelIndex & 0xFFFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
                 u8* pixel = source + blueOrPixelOffset;
                 red = pixel[1] >> 3;
@@ -1101,8 +1101,8 @@ s32 CArGBAOdh::huffmanCoder(u16* coefficientInput, SArCDJ_HuffmanRequest* reques
         code = request->dcTable[bitCount];
         magnitude = (difference & ((1 << bitCount) - 1)) | ((code & 0xFFFFFF) << bitCount);
         code = (s32)code >> 24;
-        if (EmitBit(magnitude, code + bitCount, request) == ODH_ERROR_80000004) {
-            return ODH_ERROR_80000004;
+        if (EmitBit(magnitude, code + bitCount, request) == ODH_ERROR_OUTPUT_FULL) {
+            return ODH_ERROR_OUTPUT_FULL;
         }
 
         while (true) {
@@ -1132,8 +1132,8 @@ s32 CArGBAOdh::huffmanCoder(u16* coefficientInput, SArCDJ_HuffmanRequest* reques
             code = request->acTable[bitCount];
             magnitude = (runLength & ((1 << bitCount) - 1)) | ((code & 0xFFFFFF) << bitCount);
             code = (s32)code >> 24;
-            if (EmitBit(magnitude, code + bitCount, request) == ODH_ERROR_80000004) {
-                return ODH_ERROR_80000004;
+            if (EmitBit(magnitude, code + bitCount, request) == ODH_ERROR_OUTPUT_FULL) {
+                return ODH_ERROR_OUTPUT_FULL;
             }
 
             if (value < 0) {
@@ -1153,15 +1153,15 @@ s32 CArGBAOdh::huffmanCoder(u16* coefficientInput, SArCDJ_HuffmanRequest* reques
             code = request->dcTable[bitCount];
             magnitude = (value & ((1 << bitCount) - 1)) | ((code & 0xFFFFFF) << bitCount);
             code = (s32)code >> 24;
-            if (EmitBit(magnitude, code + bitCount, request) == ODH_ERROR_80000004) {
-                return ODH_ERROR_80000004;
+            if (EmitBit(magnitude, code + bitCount, request) == ODH_ERROR_OUTPUT_FULL) {
+                return ODH_ERROR_OUTPUT_FULL;
             }
         }
 
         if (runLength != 0) {
             code = request->acTable[7];
-            if (EmitBit(code & 0xFFFFFF, (s32)code >> 24, request) == ODH_ERROR_80000004) {
-                return ODH_ERROR_80000004;
+            if (EmitBit(code & 0xFFFFFF, (s32)code >> 24, request) == ODH_ERROR_OUTPUT_FULL) {
+                return ODH_ERROR_OUTPUT_FULL;
             }
         }
 
@@ -1181,7 +1181,7 @@ s32 CArGBAOdh::EmitBit(long bits, long bitCount, SArCDJ_HuffmanRequest* request)
 
     while (*request->bitCount <= 0x18) {
         if (*request->remaining == 0) {
-            return ODH_ERROR_80000004;
+            return ODH_ERROR_OUTPUT_FULL;
         }
 
         *this->outputCursor = (u8)(*request->bitBuffer >> 0x18);
@@ -1204,9 +1204,9 @@ s32 CArGBAOdh::cdj_d_initializeDecompressOdh(SArCDJ_OdhMaster* master, u8* workB
     s32 result;
     u32 width;
 
-    if (!(((sourceData[0] == 'A') && (sourceData[1] == 'J')) &&
-          ((sourceData[2] == 'P') && (sourceData[3] == 'G')))) {
-        return ODH_ERROR_80000005;
+    if (sourceData[0] != 'A' || sourceData[1] != 'J' ||
+        sourceData[2] != 'P' || sourceData[3] != 'G') {
+        return ODH_ERROR_INVALID_HEADER;
     }
 
         const u32* headerWords = (const u32*)sourceData;
@@ -1222,11 +1222,11 @@ s32 CArGBAOdh::cdj_d_initializeDecompressOdh(SArCDJ_OdhMaster* master, u8* workB
         headerQuality = headerWords[1];
         master->quality = (u8)(headerQuality >> 0x18);
 
-        if (((width == 0) || (0x7FF < width)) ||
-            ((height == 0) || (0x7FF < height))) {
-            result = ODH_ERROR_80000001;
+        if (width == 0 || 0x7FF < width ||
+            height == 0 || 0x7FF < height) {
+            result = ODH_ERROR_INVALID_DIMENSIONS;
         } else if ((headerQuality >> 0x18) > 0x64) {
-            result = ODH_ERROR_80000002;
+            result = ODH_ERROR_INVALID_QUALITY;
         } else {
             master->workBuffer = workBuffer;
             sourceData += 0x10;
@@ -1237,16 +1237,16 @@ s32 CArGBAOdh::cdj_d_initializeDecompressOdh(SArCDJ_OdhMaster* master, u8* workB
             master->blockX = 0;
             master->blockY = 0;
             master->bitCount = 0;
-            master->field20 = 0;
-            master->field24 = 0;
-            master->field28 = 0;
-            master->luminanceRequest.predictors[0] = &master->field20;
-            master->luminanceRequest.predictors[1] = &master->field20;
+            master->lumaDCPredictor = 0;
+            master->cbDCPredictor = 0;
+            master->crDCPredictor = 0;
+            master->luminanceRequest.predictors[0] = &master->lumaDCPredictor;
+            master->luminanceRequest.predictors[1] = &master->lumaDCPredictor;
             master->luminanceRequest.bitstream = sourceData;
             master->luminanceRequest.bitCount = &master->bitCount;
             master->luminanceRequest.bytesConsumed = 0x10;
-            master->chrominanceRequest.predictors[0] = &master->field24;
-            master->chrominanceRequest.predictors[1] = &master->field28;
+            master->chrominanceRequest.predictors[0] = &master->cbDCPredictor;
+            master->chrominanceRequest.predictors[1] = &master->crDCPredictor;
             master->chrominanceRequest.bitstream = sourceData;
             master->chrominanceRequest.bitCount = &master->bitCount;
             master->chrominanceRequest.bytesConsumed = 0x10;
@@ -1290,7 +1290,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                         (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
       master->chrominanceRequest.bytesConsumed = master->luminanceRequest.bytesConsumed;
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1307,7 +1307,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                  rowStride);
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 1, sourceLimit);
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1327,7 +1327,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                         (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 2, sourceLimit);
       master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
       master->luminanceRequest.bytesConsumed = master->chrominanceRequest.bytesConsumed;
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1347,7 +1347,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
     else if ((xSampling == 2U) && (master->ySampling == 1U)) {
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1366,7 +1366,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1381,7 +1381,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                  (u8*)((u32)planeOffset + (u32)master->workBuffer) + 8, ((u32)blockWidth << 4));
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 1, sourceLimit);
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1400,7 +1400,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 2, sourceLimit);
       master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1420,7 +1420,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
     else if ((xSampling == 1U) && (master->ySampling == 2U)) {
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1438,7 +1438,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1454,7 +1454,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                  ,rowStride);
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 1, sourceLimit);
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1473,7 +1473,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 2, sourceLimit);
       master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1493,7 +1493,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
     else if ((xSampling == 2U) && (master->ySampling == 2U)) {
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1511,7 +1511,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                  , ((u32)blockWidth << 4));
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1528,7 +1528,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                  , ((u32)blockWidth << 4));
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1547,7 +1547,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->luminanceRequest, (u16**)hufftreePtr.tables, 0, sourceLimit);
       master->chrominanceRequest.bitstream = master->luminanceRequest.bitstream;
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1562,7 +1562,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                  (u8*)((u32)requiredBlockEnd + (u32)master->workBuffer) + 8, ((u32)blockWidth << 4));
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 1, sourceLimit);
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1581,7 +1581,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       statusOrOffset = huffmanDecoder
                         (master->dcCoefficients, &master->chrominanceRequest, (u16**)(hufftreePtr.tables + 2), 2, sourceLimit);
       master->luminanceRequest.bitstream = master->chrominanceRequest.bitstream;
-      if (statusOrOffset != 0) return statusOrOffset;
+      if (statusOrOffset != ODH_ERROR_SUCCESS) return statusOrOffset;
       statusOrOffset = 0;
       for (naturalIndex = 0; naturalIndex < 0x40; naturalIndex++) {
         coefficientIndex = odh_natural_order[naturalIndex];
@@ -1646,11 +1646,11 @@ s32 CArGBAOdh::cdj_d_colorDeconv(SArCDJ_OdhMaster* master, u8* destination, int 
         s32 lineStride;
         s32 format = outputFormat;
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             lineStride = (width & 0xFFFC) << 3;
         } else {
             lineStride = (width & 0xFFF8) << 2;
-            if (format == 1) {
+            if (format == ODH_FORMAT_RGBA8) {
                 lineStride = (width & 0xFFFC) << 4;
             }
         }
@@ -1730,12 +1730,12 @@ void CArGBAOdh::LineDeconv11(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             pixelOutput = dest + (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
             *pixelOutput = (u8)(redValue >> 8);
             pixelOutput[1] = (u8)redValue;
-        } else if (format == 1) {
+        } else if (format == ODH_FORMAT_RGBA8) {
             pixelOutput = dest + (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
             *pixelOutput = 0xFF;
             pixelOutput[1] = (u8)redValue;
@@ -1786,13 +1786,13 @@ void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             offset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             dest[offset] = (u8)(redValue >> 8);
             pixelOutput = dest + offset;
             pixelOutput[1] = (u8)redValue;
-        } else if (format == 1) {
+        } else if (format == ODH_FORMAT_RGBA8) {
             offset = (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
             dest[offset] = 0xFF;
             pixelOutput = dest + offset;
@@ -1812,11 +1812,11 @@ void CArGBAOdh::LineDeconv21(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             pixelOutput[2] = (u8)(redValue >> 8);
             pixelOutput[3] = (u8)redValue;
-        } else if (format == 1) {
+        } else if (format == ODH_FORMAT_RGBA8) {
             pixelOutput[2] = 0xFF;
             pixelOutput[3] = (u8)redValue;
             pixelOutput[0x22] = (u8)greenValue;
@@ -1852,12 +1852,12 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             offset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             dest[offset] = (u8)(redValue >> 8);
             dest[offset + 1] = (u8)redValue;
-        } else if (format == 1) {
+        } else if (format == ODH_FORMAT_RGBA8) {
             offset = (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
             dest[offset] = 0xFF;
             dest[offset + 1] = (u8)redValue;
@@ -1875,11 +1875,11 @@ void CArGBAOdh::LineDeconv12(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             dest[offset + 8] = (u8)(redValue >> 8);
             dest[offset + 9] = (u8)redValue;
-        } else if (format == 1) {
+        } else if (format == ODH_FORMAT_RGBA8) {
             dest[offset + 8] = 0xFF;
             dest[offset + 9] = (u8)redValue;
             dest[offset + 0x28] = (u8)greenValue;
@@ -1918,12 +1918,12 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             offset = (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             dest[offset] = (u8)(redValue >> 8);
             dest[offset + 1] = (u8)redValue;
-        } else if (format == 1) {
+        } else if (format == ODH_FORMAT_RGBA8) {
             offset = (pixelIndex & 0x0FFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
             dest[offset] = 0xFF;
             dest[offset + 1] = (u8)redValue;
@@ -1941,11 +1941,11 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             dest[offset + 2] = (u8)(redValue >> 8);
             dest[offset + 3] = (u8)redValue;
-        } else if (format == 1) {
+        } else if (format == ODH_FORMAT_RGBA8) {
             dest[offset + 2] = 0xFF;
             dest[offset + 3] = (u8)redValue;
             dest[offset + 0x22] = (u8)greenValue;
@@ -1964,11 +1964,11 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             dest[offset + 8] = (u8)(redValue >> 8);
             dest[offset + 9] = (u8)redValue;
-        } else if (format == 1) {
+        } else if (format == ODH_FORMAT_RGBA8) {
             dest[offset + 8] = 0xFF;
             dest[offset + 9] = (u8)redValue;
             dest[offset + 0x28] = (u8)greenValue;
@@ -1985,11 +1985,11 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
         greenValue = ScaleLimit((u32)lumaValue + (table->cbGreen[cbValue] + table->crGreen[crValue] >> 16));
         blueValue = ScaleLimit((u32)lumaValue + table->blue[cbValue]);
 
-        if (format == 0) {
+        if (format == ODH_FORMAT_RGB565) {
             redValue = ((redValue & 0xF8) << 8 | (greenValue & 0xFC) << 3) | (blueValue >> 3);
             dest[offset + 10] = (u8)(redValue >> 8);
             dest[offset + 11] = (u8)redValue;
-        } else if (format == 1) {
+        } else if (format == ODH_FORMAT_RGBA8) {
             dest[offset + 10] = 0xFF;
             dest[offset + 11] = (u8)redValue;
             dest[offset + 0x2a] = (u8)greenValue;
@@ -2026,7 +2026,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
     sourceCursor = request->bitstream;
     u32 bitOffset = *request->bitCount;
     if ((u32)(bytesConsumed + 4) > sourceLimit) {
-        decodeResult = 0x80000003;
+        decodeResult = ODH_ERROR_INVALID_BITSTREAM;
     } else {
         maximumBitLength = 0xB;
         bitBuffer = ((u32)*sourceCursor << 0x18) | ((u32)sourceCursor[1] << 0x10) | ((u32)sourceCursor[2] << 8) | sourceCursor[3];
@@ -2056,7 +2056,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                 }
         }
         if (bitIndex > maxHuffmanBits) {
-            decodeResult = 0x80000003;
+            decodeResult = ODH_ERROR_INVALID_BITSTREAM;
         } else {
             if (valueCategory > 0) {
                 bitCountAndMask = (1 << (valueCategory)) - 1;
@@ -2070,7 +2070,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
             u32** predictors = request->predictors;
             u32* predictor = predictors[component >> 1];
             bitCountAndMask = bitOffset + bitIndex + valueCategory;
-            tableIndex = (u32)(bitCountAndMask >> 3);
+            tableIndex = (bitCountAndMask >> 3);
             decodedSymbol = 1;
             bitIndex = (int)bitBuffer + *predictor;
             *coefficientOutput = bitIndex;
@@ -2082,7 +2082,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
             }
             do {
                 if ((u32)(bytesConsumed + 4) > sourceLimit) {
-                    decodeResult = 0x80000003;
+                    decodeResult = ODH_ERROR_INVALID_BITSTREAM;
                     goto finishDecode;
                 }
                 bitIndex = 1;
@@ -2109,12 +2109,12 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                     bitIndex++;
                 }
                 if (bitIndex > 6) {
-                    decodeResult = 0x80000003;
+                    decodeResult = ODH_ERROR_INVALID_BITSTREAM;
                     goto finishDecode;
                 }
                 if (valueCategory == 7) {
                     bitCountAndMask += bitIndex;
-                    tableIndex = (u32)(bitCountAndMask >> 3);
+                    tableIndex = (bitCountAndMask >> 3);
                     while (bitCountAndMask >= 8) {
                         sourceCursor++;
                         bytesConsumed++;
@@ -2123,10 +2123,10 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                     break;
                 }
                 if (valueCategory > 0) {
-                    tableIndex = (u32)(u32)(1 << (valueCategory)) - 1 &
-                             (u32)(bitBuffer >> ((0x20 - bitIndex) - valueCategory));
+                    tableIndex = (u32)(1 << (valueCategory)) - 1 &
+                             (bitBuffer >> ((0x20 - bitIndex) - valueCategory));
                     if ((tableIndex & (u32)(1 << (valueCategory - 1))) == 0) {
-                        decodeResult = 0x80000003;
+                        decodeResult = ODH_ERROR_INVALID_BITSTREAM;
                         goto finishDecode;
                     }
                 } else {
@@ -2137,14 +2137,14 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                     decodedSymbol++;
                 }
                 bitCountAndMask = bitCountAndMask + bitIndex + valueCategory;
-                tableIndex = (u32)(bitCountAndMask >> 3);
+                tableIndex = (bitCountAndMask >> 3);
                 while (bitCountAndMask >= 8) {
                     sourceCursor++;
                     bytesConsumed++;
                     bitCountAndMask -= 8;
                 }
                 if ((u32)(bytesConsumed + 4) > sourceLimit) {
-                    decodeResult = 0x80000003;
+                    decodeResult = ODH_ERROR_INVALID_BITSTREAM;
                     goto finishDecode;
                 }
                 maximumBitLength = 0xB;
@@ -2174,7 +2174,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                         }
                 }
                 if (bitIndex > maxHuffmanBits) {
-                    decodeResult = 0x80000003;
+                    decodeResult = ODH_ERROR_INVALID_BITSTREAM;
                     goto finishDecode;
                 }
                 if (valueCategory > 0) {
@@ -2188,7 +2188,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
                 }
                 bitCountAndMask = bitCountAndMask + bitIndex + valueCategory;
                 coefficientOutput[decodedSymbol] = bitBuffer;
-                tableIndex = (u32)(bitCountAndMask >> 3);
+                tableIndex = (bitCountAndMask >> 3);
                 decodedSymbol = decodedSymbol + 1;
                 while (bitCountAndMask >= 8) {
                     sourceCursor++;

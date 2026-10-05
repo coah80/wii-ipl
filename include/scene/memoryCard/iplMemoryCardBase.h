@@ -52,10 +52,10 @@ namespace ipl {
 
             class Button {
             public:
-                Button(nw4r::lyt::Pane* pane) : unk_0x04(0), mPane(pane) {}
+                Button(nw4r::lyt::Pane* pane) : mHoverCount(0), mPane(pane) {}
                 virtual ~Button();
 
-                u32              unk_0x04;  // 0x04
+                u32              mHoverCount;  // 0x04
                 nw4r::lyt::Pane* mPane;     // 0x08
                 nw4r::ut::Link   mLink;     // 0x0C
             };
@@ -63,8 +63,8 @@ namespace ipl {
             class AnmButton {
             public:
                 AnmButton(const char* name, Anm* anm1, Anm* anm2, Anm* anm3)
-                    : unk_0x04(0), mName(name), mCurrentAnm(NULL), mAnm1(anm1), mAnm2(anm2), mAnm3(anm3),
-                      unk_0x24(0), mLastCmd(0), mpBalloon(NULL) {}
+                    : mHoverCount(0), mName(name), mCurrentAnm(NULL), mAnm1(anm1), mAnm2(anm2), mAnm3(anm3),
+                      mAnimationState(0), mLastCmd(0), mpBalloon(NULL) {}
                 virtual ~AnmButton();
 
                 void calc();
@@ -72,14 +72,14 @@ namespace ipl {
 
                 void setBalloon(TextBalloon* balloon);
 
-                int              unk_0x04;     // 0x04
+                int              mHoverCount;     // 0x04
                 const char*      mName;        // 0x08
                 Anm*             mCurrentAnm;  // 0x0C
                 Anm*             mAnm1;        // 0x10
                 Anm*             mAnm2;        // 0x14
                 Anm*             mAnm3;        // 0x18
                 nw4r::ut::Link   mLink;        // 0x1C
-                u32              unk_0x24;     // 0x24
+                u32              mAnimationState;     // 0x24
                 int              mLastCmd;     // 0x28
                 TextBalloon*     mpBalloon;    // 0x2C
             };
@@ -92,7 +92,7 @@ namespace ipl {
 #ifdef IPL_MEMORYCARD_BASE_CTOR_OUT_OF_LINE
             MemoryBase();
 #else
-            MemoryBase() : mpLayout(NULL), unk_0x08(NULL) {
+            MemoryBase() : mpLayout(NULL), mpLayoutFile(NULL) {
                 nw4r::ut::List_Init(&mAnmList, offsetof(Anm, mLink));
                 nw4r::ut::List_Init(&mButtonList, offsetof(Button, mLink));
                 nw4r::ut::List_Init(&mAnmButtonList, offsetof(AnmButton, mLink));
@@ -136,7 +136,7 @@ namespace ipl {
 
         protected:
             layout::Object*    mpLayout;        // 0x04
-            nand::LayoutFile*  unk_0x08;        // 0x08
+            nand::LayoutFile*  mpLayoutFile;        // 0x08
             gui::PaneManager*  mpPaneManager;   // 0x0C
             nw4r::ut::List     mAnmList;        // 0x10
             nw4r::ut::List     mButtonList;     // 0x1C
