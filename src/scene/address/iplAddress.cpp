@@ -1416,6 +1416,10 @@ namespace ipl {
             return FALSE;
         }
 
+        static inline Button* getEventButton() {
+            return static_cast<Button*>(System::getScene(SCENE_BUTTON));
+        }
+
         void Address::onEventDerived(u32 compId, u32 event, const controller::Interface* con) {
             const char* paneName = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId))->getPane()->GetName();
 
@@ -1426,7 +1430,7 @@ namespace ipl {
                     }
 
                     if (con->downTrg(controller::BTN_INTERACT)) {
-                        Button* button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+                        Button* button = getEventButton();
                         if (mState == STATE_COVER_NORMAL || mState == STATE_NORMAL) {
                         if (Button::cmpButtonName(paneName, Button::BTN_EXIT) == 0) {
                             MailAddressSelect* mailAddrSel = static_cast<MailAddressSelect*>(System::getScene(SCENE_MAIL_ADDRESS_SELECT));
