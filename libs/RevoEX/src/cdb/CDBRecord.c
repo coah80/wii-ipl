@@ -919,14 +919,30 @@ CDBErr CDBCryptBuffer(void* buffer, u32 size, void* iv, u32* processedSize, BOOL
     return CDB_ERROR_OK;
 }
 
+static inline int getRecordFileAllocFlag(const CDBRecordFile* file) {
+    return file->allocFlag;
+}
+
+static inline CDBErr setRecordCurrentWiiId(CDBRecord* record) {
+    CDBRecordFile* file = record->file;
+    if ((s32)file == 0) {
+        return CDB_ERROR_27;
+    } else if (getRecordFileAllocFlag(file) == CDB_RECORD_ALLOC_READ) {
+        return CDB_ERROR_26;
+    } else {
+        CDBAttrSetWiiId(&file->attr, CDBGetWiiId());
+        return CDB_ERROR_OK;
+    }
+}
+
 CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 size, u32* encryptedSize) {
+    int fileOffset;
     CDBRecordFile* recordFile;
     CDBErr err;
     u32 dataSize;
     u32 fileSize;
     u32 cryptSize;
     u32 authenticatedSize;
-    int fileOffset;
     u8 iv[0x10];
     u8 wiiIdKey[0x40] ATTRIBUTE_ALIGN(64);
     u8 digest[0x14] ATTRIBUTE_ALIGN(64);
@@ -940,32 +956,20 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
     if ((s32)recordFile == 0) {
         return CDB_ERROR_27;
     }
-    if (recordFile->allocFlag == 1) {
+    if (getRecordFileAllocFlag(recordFile) == CDB_RECORD_ALLOC_READ) {
         return CDB_ERROR_26;
     }
     if ((s32)buffer == 0) {
         return CDB_ERROR_1;
     }
-    {
-        CDBErr result;
-        CDBRecordFile* tempFile = record->file;
-        if ((s32)tempFile == 0) {
-            result = CDB_ERROR_27;
-        } else if (tempFile->allocFlag == 1) {
-            result = CDB_ERROR_26;
-        } else {
-            CDBAttrSetWiiId(&tempFile->attr, CDBGetWiiId());
-            result = CDB_ERROR_OK;
-        }
-        if (result != CDB_ERROR_OK) {
-            return CDB_ERROR_OK;
-        }
+    if (setRecordCurrentWiiId(record) != CDB_ERROR_OK) {
+        return CDB_ERROR_OK;
     }
     {
         CDBErr result;
         if ((s32)record->file == 0) {
             result = CDB_ERROR_27;
-        } else if (((CDBRecordFile*)record->file)->allocFlag == 1) {
+        } else if (getRecordFileAllocFlag((CDBRecordFile*)record->file) == CDB_RECORD_ALLOC_READ) {
             result = CDB_ERROR_26;
         } else {
             CDBAttrInitIV(&((CDBRecordFile*)record->file)->attr);
@@ -979,7 +983,7 @@ CDBErr CDBRecordEncrypt(CDBRecord* record, void* buffer, CDBRecordKey* key, u32 
         CDBErr result;
         if ((s32)record->file == 0) {
             result = CDB_ERROR_27;
-        } else if (((CDBRecordFile*)record->file)->allocFlag == 1) {
+        } else if (getRecordFileAllocFlag((CDBRecordFile*)record->file) == CDB_RECORD_ALLOC_READ) {
             result = CDB_ERROR_26;
         } else {
             CDBAttrSetKeyStr(&((CDBRecordFile*)record->file)->attr, key);
