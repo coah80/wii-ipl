@@ -742,7 +742,7 @@ int __sformatter(int (*ReadProc)(void*, int, int), void* ReadProcArg, const char
                             *(long*)arg_ptr = chars_read;
                             break;
                         case char_argument:
-                            *(char*)arg_ptr = chars_read;
+                            *arg_ptr = chars_read;
                             break;
                         case long_long_argument:
                             *(long long*)arg_ptr = chars_read;

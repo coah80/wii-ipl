@@ -14,10 +14,10 @@
 namespace ipl {
     namespace utility {
         s32 CSFlags::CreateFlagsFile() {
-            u32 dummy;
+            u8 fileType;
             bool createFile = false;
 
-            s32 result = NANDPrivateGetType(FLAG_FILE_PATH, (u8*)&dummy);
+            s32 result = NANDPrivateGetType(FLAG_FILE_PATH, &fileType);
 
             if (result == NAND_RESULT_NOEXISTS) {
                 createFile = true;

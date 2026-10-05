@@ -352,7 +352,7 @@ pf_s32 VFipdm_disk_format(PDM_DISK* p_disk, const pf_u8* param) {
         return err;
     }
     lp_disk = &VFipdm_disk_set.disk[PDM_DISK_GET_NO(p_disk)];
-    err = lp_disk->disk_tbl.p_func->format(p_disk, (pf_u8*)param);
+    err = lp_disk->disk_tbl.p_func->format(p_disk, param);
     if (err != 0) {
         if (lp_disk->p_cur_part != PF_NULL) {
             VFipdm_part_set_driver_error_code(lp_disk->p_cur_part, err);

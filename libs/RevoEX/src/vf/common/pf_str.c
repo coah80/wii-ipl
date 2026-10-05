@@ -120,7 +120,7 @@ pf_s32 VFiPFSTR_StrCmp(const PF_STR* p_str, const pf_s8* s) {
         wp = (pf_u16*)p_str->p_head;
 
         do {
-            VFipf_vol_set.codeset.oem2unicode((pf_s8*)s, &wc);
+            VFipf_vol_set.codeset.oem2unicode(s, &wc);
             s++;
 
             if (*wp++ != wc) {
@@ -158,7 +158,7 @@ pf_s32 VFiPFSTR_StrNCmp(PF_STR* p_str, const pf_s8* s, pf_u32 target, pf_s16 off
         }
 
         do {
-            VFipf_vol_set.codeset.oem2unicode((pf_s8*)s, &wc);
+            VFipf_vol_set.codeset.oem2unicode(s, &wc);
             s++;
             num--;
 

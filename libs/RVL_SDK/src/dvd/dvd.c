@@ -1894,7 +1894,7 @@ s32 DVDGetCommandBlockStatus(const DVDCommandBlock* block) {
 
     enabled = OSDisableInterrupts();
 
-    if (((volatile DVDCommandBlock*)block)->state == DVD_STATE_COVER_CLOSED) {
+    if (block->state == DVD_STATE_COVER_CLOSED) {
         retVal = DVD_STATE_BUSY;
     } else if (((volatile DVDCommandBlock*)block)->state == DVD_STATE_COVER_OPENED) {
         retVal = DVD_STATE_NO_DISK;
@@ -1904,13 +1904,13 @@ s32 DVDGetCommandBlockStatus(const DVDCommandBlock* block) {
             if (block == next) {
                 retVal = DVD_STATE_BUSY;
             } else {
-                retVal = ((volatile DVDCommandBlock*)block)->state;
+                retVal = block->state;
             }
         } else {
             if (block == &__DVDStopMotorCommandBlock) {
                 retVal = DVD_STATE_IDLE;
             } else {
-                retVal = ((volatile DVDCommandBlock*)block)->state;
+                retVal = block->state;
             }
         }
     } else {
@@ -2177,14 +2177,14 @@ s32 DVDCancel(DVDCommandBlock* block) {
     enabled = OSDisableInterrupts();
 
     while (TRUE) {
-        state = ((volatile DVDCommandBlock*)block)->state;
+        state = block->state;
 
         if (state == DVD_STATE_IDLE || state == DVD_STATE_FATAL || state == DVD_STATE_CANCELED) {
             break;
         }
 
         if (state == DVD_STATE_COVER_CLOSED) {
-            command = ((volatile DVDCommandBlock*)block)->command;
+            command = block->command;
 
             if (command == COMMAND_BSREAD || command == COMMAND_READID || command == COMMAND_AUDIO_BUFFER_CONFIG ||
                 command == COMMAND_READ_UNENCRYPTED || command == COMMAND_OPEN_PARTITION || command == COMMAND_GET_PARTITION_PARAMS ||

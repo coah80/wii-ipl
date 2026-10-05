@@ -537,7 +537,7 @@ BOOL OSJoinThread(OSThread* thread, void* val) {
         }
     }
 
-    if (((volatile OSThread*)thread)->state == OS_THREAD_STATE_DEAD) {
+    if (thread->state == OS_THREAD_STATE_DEAD) {
         if (val != NULL) {
             *(u32*)val = (u32)thread->value;
         }

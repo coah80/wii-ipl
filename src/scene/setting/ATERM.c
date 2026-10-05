@@ -1292,10 +1292,7 @@ int ATERMApplyScanSecuritySettings(void) {
     char* keyString;
     s32 keyIndex;
     size_t keyLength;
-    struct {
-        char text[32];
-        char terminator;
-    } keyText;
+    char keyText[33];
 
     strcpy(gAtermConfigurationResult.ssid, gScanSettings.ssid);
     switch (gScanSettings.selectedSecurity) {
@@ -1308,14 +1305,14 @@ int ATERMApplyScanSecuritySettings(void) {
         } else {
             gAtermConfigurationResult.securityMode = gScanSettings.authAlgorithm;
             sourceKey = gScanSettings.wirelessKeys[0].key;
-            keyString = keyText.text;
+            keyString = keyText;
             outputKey = (char*)gAtermConfigurationResult.reserved028;
             keyIndex = 0;
 
             do {
-                memcpy(keyText.text, sourceKey, 0x20);
-                keyText.terminator = '\0';
-                keyLength = strlen(keyText.text);
+                memcpy(keyText, sourceKey, 0x20);
+                keyText[32] = '\0';
+                keyLength = strlen(keyText);
                 switch (keyLength) {
                 case 0:
                     break;

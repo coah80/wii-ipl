@@ -1,9 +1,7 @@
 #include "system/iplNwc24Manager.h"
 #include "system/iplSystem.h"
 
-#pragma force_active on
 #include "iplMath.h"
-#pragma force_active off
 #include "utility/iplLock.h"
 
 #include "titledb.h"

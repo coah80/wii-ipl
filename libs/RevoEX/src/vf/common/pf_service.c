@@ -11,8 +11,8 @@ void VFiPF_LE16_TO_U16_STR(pf_u8* sSrc, pf_u32 num) {
     for (cnt = 0; cnt < num; cnt += sizeof(pf_u16)) {
         tmp_src = sSrc[cnt];
 #ifdef DEBUG
-        *((pf_u8*)sSrc + cnt) = *((pf_u8*)sSrc + cnt + 1);
-        *((pf_u8*)sSrc + cnt + 1) = tmp_src;
+        *(sSrc + cnt) = *(sSrc + cnt + 1);
+        *(sSrc + cnt + 1) = tmp_src;
 #else
         sSrc[cnt] = sSrc[cnt + 1];
         sSrc[cnt + 1] = tmp_src;

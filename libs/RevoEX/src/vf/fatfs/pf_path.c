@@ -86,7 +86,7 @@ static pf_u32 VFiPFPATH_UNI_ConvertFWchar(pf_u16 src, pf_u16* dst) {
 }
 
 static pf_u32 VFiPFPATH_OEM_ConvertFWchar(const pf_s8* src, pf_u16* dst) {
-    VFipf_vol_set.codeset.oem2unicode((pf_s8*)src, dst);
+    VFipf_vol_set.codeset.oem2unicode(src, dst);
     if (VFiPFPATH_UNI_ConvertFWchar((pf_u16)*dst, dst) == 1) {
         VFipf_vol_set.codeset.unicode2oem(dst, (pf_s8*)dst);
         *dst = (pf_u16)*dst;

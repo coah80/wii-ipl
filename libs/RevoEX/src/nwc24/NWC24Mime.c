@@ -642,11 +642,11 @@ NWC24Err NWC24DecodeMIMEHeaderFieldBody(u8* charsetData, u32 charsetDataSize, u8
     inputSize = encodedSize;
     output = decoded;
     remainingCapacity = decodedCapacity;
-    while ((s32)inputSize > 0 && remainingCapacity > 0 && *input != '\0') {
+    while (inputSize > 0 && remainingCapacity > 0 && *input != '\0') {
         u32 copiedSize = 0;
         u32 consumedSize;
         result =
-            DecodeWord((char*)charsetData, charsetDataSize, (char*)output, remainingCapacity, &copiedSize, (char*)input, inputSize, &consumedSize);
+            DecodeWord((char*)charsetData, charsetDataSize, (char*)output, remainingCapacity, &copiedSize, input, inputSize, &consumedSize);
         if (copiedSize == 0) {
             break;
         }

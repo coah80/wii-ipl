@@ -17,7 +17,7 @@ wchar_t* wmemset(wchar_t* dest, wchar_t ch, size_t num) {
 wchar_t* wmemchr(wchar_t* ptr, wchar_t ch, size_t num) {
     while (num != 0) {
         if (*ptr == ch) {
-            return (wchar_t*)ptr;
+            return ptr;
         }
 
         ptr++;

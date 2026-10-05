@@ -147,8 +147,6 @@ namespace ipl {
         extern "C" char scBrlyt_my_DiskCh_a[] = "my_DiskCh_a.brlyt";
         extern "C" char scBrlan_my_GCTop_a_BackLoop[] = "my_GCTop_a_BackLoop.brlan";
 
-        #pragma push
-        #pragma section data_type ".sdata"
         extern "C" char scPaneName_B_BtnA[] = "B_BtnA";
         extern "C" char scPaneName_B_BtnB[] = "B_BtnB";
         extern "C" const char* scPaneNames_B_Btn[2] = {
@@ -189,7 +187,6 @@ namespace ipl {
             scPaneName_T_BtnA,
             scPaneName_T_BtnB,
         };
-        #pragma pop
 
         const char* scWidePanes[3][4] = {
             {
