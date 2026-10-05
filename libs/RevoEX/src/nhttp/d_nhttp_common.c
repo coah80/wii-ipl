@@ -49,7 +49,7 @@ void NHTTPi_WaitForCompletion(NHTTPConnectionInfo* connection)
         res_p->initialized = TRUE;
     }
     OSLockMutex(&res_p->mutex);
-    while (connection->_unkC != 0)
+    while (connection->completionPending != 0)
     {
         OSWaitCond(&res_p->cond, &res_p->mutex);
     }
@@ -67,7 +67,7 @@ void NHTTPi_NotifyCompletion(NHTTPConnectionInfo* connection)
         res_p->initialized = TRUE;
     }
     OSLockMutex(&res_p->mutex);
-    connection->_unkC = 0;
+    connection->completionPending = 0;
     OSSignalCond(&res_p->cond);
     OSUnlockMutex(&res_p->mutex);
 }
@@ -237,18 +237,18 @@ s32 NHTTPi_PostSendCallback(void* mutexInfo,
         if (response != NULL && connection->callback != NULL)
         {
             param.value = value;
-            param._unk4 = connection->_unk24;
-            param._unk8 = connection->_unk28;
-            param._unkC = arg;
+            param.bufferAddressOrSize = connection->postDataAddress;
+            param.sizeOrBodyOffset = connection->postDataSize;
+            param.postOffset = arg;
             result = connection->callback(connection, 1, &param);
-            callbackArg8 = param._unk8;
-            callbackArg4 = param._unk4;
+            callbackArg8 = param.sizeOrBodyOffset;
+            callbackArg4 = param.bufferAddressOrSize;
 
             connection = NHTTPi_GetConnection(mutexInfo, connection);
             if (connection != NULL)
             {
-                connection->_unk24 = callbackArg4;
-                connection->_unk28 = callbackArg8;
+                connection->postDataAddress = callbackArg4;
+                connection->postDataSize = callbackArg8;
             }
         }
     }
@@ -270,11 +270,11 @@ void NHTTPi_BufferFullCallback(void* mutexInfo,
         if (response != NULL && connection->callback != NULL)
         {
             param.value = response->recvBuf_p;
-            param._unk4 = response->recvBufLen;
-            param._unk8 = response->bodyLen;
+            param.bufferAddressOrSize = response->recvBufLen;
+            param.sizeOrBodyOffset = response->bodyLen;
             connection->callback(connection, 2, &param);
-            responseResult = param._unk8;
-            bufferSize = param._unk4;
+            responseResult = param.sizeOrBodyOffset;
+            bufferSize = param.bufferAddressOrSize;
             buffer = param.value;
 
             connection = NHTTPi_GetConnection(mutexInfo, connection);
@@ -307,11 +307,11 @@ void NHTTPi_ReceivedCallback(void* mutexInfo,
         if (response != NULL && connection->callback != NULL)
         {
             param.value = response->recvBuf_p;
-            param._unk4 = response->recvBufLen;
-            param._unk8 = response->bodyLen;
+            param.bufferAddressOrSize = response->recvBufLen;
+            param.sizeOrBodyOffset = response->bodyLen;
             connection->callback(connection, 3, &param);
-            responseResult = param._unk8;
-            bufferSize = param._unk4;
+            responseResult = param.sizeOrBodyOffset;
+            bufferSize = param.bufferAddressOrSize;
             buffer = param.value;
 
             connection = NHTTPi_GetConnection(mutexInfo, connection);

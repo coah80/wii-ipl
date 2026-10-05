@@ -40,8 +40,8 @@ enum {
 
 typedef struct tagSTVRCSettings {
     u32 magic;  // 0x00
-    u32 unk_0x04;
-    u32 unk_0x08;
+    u32 formatVersion;
+    u32 configurationValid;
     u32 modelMakerID;                     // 0x0C
     u32 modelType;                        // 0x10
     u8 commandMap[TVRC_COMMAND_MAP_MAX];  // 0x14

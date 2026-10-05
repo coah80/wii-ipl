@@ -28,7 +28,7 @@ extern "C" char scWwwNoBrowserWin[] = "INFO: cannot create browser window\n";
 namespace ext_ead {
     namespace www {
         BrowserWindow::BrowserWindow(BrowserThread* thread) : mpWwwWindow(NULL), mpBrowserThread(thread) {
-            unk_0x2B0 = 0;
+            mDisplayPageIndex = 0;
             mRenderingMode = 6;
 
             mPageLoadStatus[0] = 0;
@@ -43,11 +43,11 @@ namespace ext_ead {
                 for (j = 0; j < (int)ARRAY_LENGTH(mTexBufArr[0]); j++) {
                     mTexBufArr[i][j] = NULL;
                 }
-                unk_0x2B4[i] = NULL;
+                mDisplayBufferIndices[i] = NULL;
             }
 
-            unk_0x2BC = 0;
-            unk_0x2C0 = 0;
+            mUpdateBufferIndex = 0;
+            mUpdatePageIndex = 0;
 
             struct {
                 int v0, v1;
@@ -151,8 +151,8 @@ namespace ext_ead {
             switch (eventCode) {
                 case WWW_EVT_URL_CHANGE: {
                     if (mPageLoadStatus[2] == '\0') {
-                        unk_0x2C0 = (unk_0x2B0 + 1) % 2;
-                        unk_0x2BC = unk_0x2B4[unk_0x2C0];
+                        mUpdatePageIndex = (mDisplayPageIndex + 1) % 2;
+                        mUpdateBufferIndex = mDisplayBufferIndices[mUpdatePageIndex];
                     }
                     mPageLoadStatus[4] = 1;
                     mPageLoadStatus[2] = 1;
@@ -162,12 +162,12 @@ namespace ext_ead {
                 case WWW_EVT_LOADING_START: {
                     if (mPageLoadStatus[2] == '\0') {
                         if (mPageLoadStatus[4] == '\0') {
-                            unk_0x2C0 = unk_0x2B0;
-                            unk_0x2BC = (int)(unk_0x2B4[unk_0x2B0] + 1) % 3;
+                            mUpdatePageIndex = mDisplayPageIndex;
+                            mUpdateBufferIndex = (int)(mDisplayBufferIndices[mDisplayPageIndex] + 1) % 3;
                         }
                         mPageLoadStatus[4] = 1;
                         mPageLoadStatus[0] = 1;
-                        print::IPLWWWReport(2, " LoadinStart: %d\n", unk_0x2B4[unk_0x2B0]);
+                        print::IPLWWWReport(2, " LoadinStart: %d\n", mDisplayBufferIndices[mDisplayPageIndex]);
                     }
                     break;
                 }
@@ -273,8 +273,8 @@ namespace ext_ead {
             }
 
             mPageLoadStatus[4] = 0;
-            unk_0x2B0 = unk_0x2C0;
-            unk_0x2B4[unk_0x2C0] = unk_0x2BC;
+            mDisplayPageIndex = mUpdatePageIndex;
+            mDisplayBufferIndices[mUpdatePageIndex] = mUpdateBufferIndex;
             mPageLoadStatus[5] = 1;
 
             OSRestoreInterrupts(level);
@@ -298,7 +298,7 @@ namespace ext_ead {
             return (r << 11) | (g << 5) | b;
         }
 
-        void BrowserWindow::ReportEventId_(int eventCode, void* somePtr) {
+        void BrowserWindow::ReportEventId_(int eventCode, void* eventData) {
             switch (eventCode) {
                 case WWW_EVT_CURSOR_CHANGE: {
                     print::IPLWWWReport(print::WWW_EVENT, "WWW_EVT_CURSOR_CHANGE\n");
@@ -369,7 +369,7 @@ namespace ext_ead {
                     break;
                 }
                 case WWW_EVT_LINK_HOVER: {
-                    print::IPLWWWReport(print::WWW_EVENT, "WWW_EVT_LINK_HOVER %p\n", somePtr);
+                    print::IPLWWWReport(print::WWW_EVENT, "WWW_EVT_LINK_HOVER %p\n", eventData);
                     break;
                 }
                 case WWW_EVT_UNKNOWN_PROTOCOL: {
@@ -442,22 +442,22 @@ namespace ext_ead {
             }
         }
 
-        void* BrowserWindow::GetTextureBuffer(int a, bool b, WWWRect** rectPtrOut) {
-            u32 i;
-            u32 j;
-            if (!b && mPageLoadStatus[5] == 0)
+        void* BrowserWindow::GetTextureBuffer(int pageOffset, bool forUpdate, WWWRect** rectPtrOut) {
+            u32 pageIndex;
+            u32 bufferIndex;
+            if (!forUpdate && mPageLoadStatus[5] == 0)
                 return NULL;
-            if (mPageLoadStatus[4] != 0 && b) {
-                i = unk_0x2C0;
-                j = unk_0x2BC;
+            if (mPageLoadStatus[4] != 0 && forUpdate) {
+                pageIndex = mUpdatePageIndex;
+                bufferIndex = mUpdateBufferIndex;
             } else {
-                i = (unk_0x2B0 + 2 - a) % 2;
-                j = unk_0x2B4[i];
+                pageIndex = (mDisplayPageIndex + 2 - pageOffset) % 2;
+                bufferIndex = mDisplayBufferIndices[pageIndex];
             }
             if (rectPtrOut != NULL) {
-                *rectPtrOut = &mTexDisplayRects[i][j];
+                *rectPtrOut = &mTexDisplayRects[pageIndex][bufferIndex];
             }
-            return mTexBufArr[i][j];
+            return mTexBufArr[pageIndex][bufferIndex];
         }
 
         void BrowserWindow::SetWindowSize(int w, int h) {

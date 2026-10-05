@@ -388,7 +388,7 @@ namespace ext_ead {
         }
 
         int BrowserThread::ExecDpdEvent_(const CmdPacket& cmd) {
-            bool somethingClicked = 0;
+            bool clicked = 0;
 
             int x, y;
             x = cmd.data.controller.irX;
@@ -397,7 +397,7 @@ namespace ext_ead {
                 WWWSurfaceMouseEvt(MOUSE_CMD_MOVE, x, y, MOUSE_ATTRIB_POSITION, 0, 0);
                 WWWSurfaceMouseEvt(MOUSE_CMD_TRIGGER, x, y, MOUSE_ATTRIB_BUTTON, 1, 0);
                 WWWSurfaceMouseEvt(MOUSE_CMD_RELEASE, x, y, MOUSE_ATTRIB_BUTTON, 1, 0);
-                somethingClicked = 1;
+                clicked = 1;
             } else if (cmd.data.controller.btnRelease & ipl::controller::BTN_INTERACT) {
                 WWWSurfaceMouseEvt(MOUSE_CMD_MOVE, x, y, MOUSE_ATTRIB_POSITION, 0, 0);
                 WWWSurfaceMouseEvt(MOUSE_CMD_RELEASE, x, y, MOUSE_ATTRIB_BUTTON, 1, 0);
@@ -416,7 +416,7 @@ namespace ext_ead {
                 gDpdWaitFrm = 4;
             }
 
-            return somethingClicked;
+            return clicked;
         }
 
         void BrowserThread::ExecSpacialEvent_(const CmdPacket& cmd) {
@@ -441,11 +441,11 @@ namespace ext_ead {
             CmdPacket cmd;
             while (mCmdPacketQueue.TryReceiveTypedMessage(&cmd)) {
                 BrowserWindow* pBrowserWindow = (BrowserWindow*)mpBrowserWindows[0];
-                bool something = false;
+                bool inputBlocked = false;
                 if ((pBrowserWindow->mPageLoadStatus[2] != '\0') && (pBrowserWindow->mPageLoadStatus[3] != '\0')) {
-                    something = true;
+                    inputBlocked = true;
                 }
-                if (something || pBrowserWindow->mPageLoadStatus[0] != '\0') {
+                if (inputBlocked || pBrowserWindow->mPageLoadStatus[0] != '\0') {
                     continue;
                 }
 
@@ -486,21 +486,21 @@ namespace ext_ead {
             mCmdPacketQueue.SendTypedMessage(packet);
         }
 
-        void BrowserThread::InitFonts_(const char* unk) {
+        void BrowserThread::InitFonts_(const char* fontDirectory) {
             print::TickTimer tt;
             tt.reset();
             WWWSurfaceAddFont("DirectUniversal");
             tt.report("WWWSurfaceAddFont:font1");
         }
 
-        void* BrowserThread::GetTextureBuffer(int val, WWWRect** rectPtrOut) {
+        void* BrowserThread::GetTextureBuffer(int pageOffset, WWWRect** rectPtrOut) {
             if (mpBrowserWindows[0] == NULL) {
                 return NULL;
             }
-            return ((BrowserWindow*)mpBrowserWindows[0])->GetTextureBuffer(val, false, rectPtrOut);
+            return ((BrowserWindow*)mpBrowserWindows[0])->GetTextureBuffer(pageOffset, false, rectPtrOut);
         }
 
-        void BrowserThread::FlushCallback(WWWRect* rect, int unk) {
+        void BrowserThread::FlushCallback(WWWRect* rect, int callbackData) {
             BOOL level;
             BrowserWindow* pBrowserWindow;
 
@@ -509,8 +509,8 @@ namespace ext_ead {
                 level = OSDisableInterrupts();
                 if (pBrowserWindow->mPageLoadStatus[2] == '\0') {
                     if (pBrowserWindow->mPageLoadStatus[4] == '\0') {
-                        pBrowserWindow->unk_0x2C0 = pBrowserWindow->unk_0x2B0;
-                        pBrowserWindow->unk_0x2BC = (int)(pBrowserWindow->unk_0x2B4[pBrowserWindow->unk_0x2B0] + 1) % 3;
+                        pBrowserWindow->mUpdatePageIndex = pBrowserWindow->mDisplayPageIndex;
+                        pBrowserWindow->mUpdateBufferIndex = (int)(pBrowserWindow->mDisplayBufferIndices[pBrowserWindow->mDisplayPageIndex] + 1) % 3;
                     }
                     pBrowserWindow->mPageLoadStatus[4] = 1;
                 }
@@ -552,10 +552,10 @@ namespace ext_ead {
 
             data->imeID = wwwData->imeID;
             data->eventType = 0;
-            data->unk_0x0C = wwwData->unk_0x08;
-            data->unk_0x10 = wwwData->unk_0x0C;
-            data->unk_0x14 = wwwData->unk_0x10;
-            data->unk_0x18 = wwwData->unk_0x14;
+            data->creationDataA = wwwData->creationDataA;
+            data->creationDataB = wwwData->creationDataB;
+            data->creationDataC = wwwData->creationDataC;
+            data->creationDataD = wwwData->creationDataD;
             data->maxLength = wwwData->maxLength;
         }
 
@@ -563,14 +563,14 @@ namespace ext_ead {
             Heap::freeMem2(data->text);
         }
 
-        void BrowserThread::CommitIme(ImeData* data, const char* something) {
-            char* __dest;
+        void BrowserThread::CommitIme(ImeData* data, const char* text) {
+            char* textCopy;
             CmdPacket packet;
 
-            if (something != NULL) {
-                __dest = (char*)Heap::allocMem1(strlen(something) + 1, 4);
-                strcpy(__dest, something);
-                packet.data.commitIme.str = __dest;
+            if (text != NULL) {
+                textCopy = (char*)Heap::allocMem1(strlen(text) + 1, 4);
+                strcpy(textCopy, text);
+                packet.data.commitIme.str = textCopy;
             } else {
                 packet.data.commitIme.str = NULL;
             }
@@ -589,7 +589,7 @@ namespace ext_ead {
         }
 
         void BrowserThread::UpdateImeCmdPacket(const CmdPacket* packet) {
-            WWWUpdateIme(packet->data.updateIme.imeID, packet->data.updateIme.str, packet->data.updateIme.unk_0x0C);
+            WWWUpdateIme(packet->data.updateIme.imeID, packet->data.updateIme.str, packet->data.updateIme.updateData);
             if (packet->data.updateIme.str != NULL) {
                 Heap::freeMem1(packet->data.updateIme.str);
             }
@@ -605,10 +605,10 @@ namespace ext_ead {
             eventType = other.eventType;
             imeID = other.imeID;
             text = other.text;
-            unk_0x0C = other.unk_0x0C;
-            unk_0x10 = other.unk_0x10;
-            unk_0x14 = other.unk_0x14;
-            unk_0x18 = other.unk_0x18;
+            creationDataA = other.creationDataA;
+            creationDataB = other.creationDataB;
+            creationDataC = other.creationDataC;
+            creationDataD = other.creationDataD;
             maxLength = other.maxLength;
             return *this;
         }

@@ -12,7 +12,7 @@ namespace textinput {
     namespace keyboard {
 
         namespace hwkey {
-            HWKeyboard::HWKeyboard(Manager* manager) : mpManager(manager), field_0x14(0), field_0x15(0), field_0x16(0) {
+            HWKeyboard::HWKeyboard(Manager* manager) : mpManager(manager), mbShiftTapPending(0), mbSingleQuoteClosing(0), mbDoubleQuoteClosing(0) {
             }
 
 struct NavigationCommand { u32 command; u32 modifiers; };
@@ -31,8 +31,8 @@ extern const u8 controlKeys[];
 
                 u32 state = input::HKBManager::getInstance().GetModifierState();
                 input::HKBManager::getInstance().SetModifierState(state | 0x100, 0x700);
-                field_0x15 = 0;
-                field_0x16 = 0;
+                mbSingleQuoteClosing = 0;
+                mbDoubleQuoteClosing = 0;
             }
 
             void HWKeyboard::updateShift(input::HKBManager& hkbManager) {
@@ -294,9 +294,9 @@ extern const u8 controlKeys[];
 
                             if (mgr()->getLanguage() == CN) {
                                 if (static_cast<wchar_t>(character + (0x10000 - 0x201c)) <= 1) {
-                                    field_0x16 = !field_0x16;
+                                    mbDoubleQuoteClosing = !mbDoubleQuoteClosing;
                                 } else if (static_cast<wchar_t>(character + (0x10000 - 0x2018)) <= 1) {
-                                    field_0x15 = !field_0x15;
+                                    mbSingleQuoteClosing = !mbSingleQuoteClosing;
                                 }
 
                             }
@@ -381,16 +381,16 @@ extern const u8 controlKeys[];
                     switch (key) {
                     case 0xe5:
                     case 0xe1:
-                        field_0x14 = 1;
+                        mbShiftTapPending = 1;
                         return false;
                     default:
-                        field_0x14 = 0;
+                        mbShiftTapPending = 0;
                         currentKeySet = currentKeySet.GetNext();
                         break;
                     }
                 }
 
-                if (field_0x14 == 0) {
+                if (mbShiftTapPending == 0) {
                     return false;
                 }
 
@@ -401,7 +401,7 @@ extern const u8 controlKeys[];
                     switch (key) {
                     case 0xe5:
                     case 0xe1:
-                        field_0x14 = 0;
+                        mbShiftTapPending = 0;
                         if (mgr()->getToolBar()->isQwerty() &&
                             mgr()->getPCKeyboard()->hardwareLanguageKeyActive()) {
                             sendCommand(0x2e, NULL);
@@ -418,7 +418,7 @@ extern const u8 controlKeys[];
 
             void HWKeyboard::updateInput(int chan, f32 x, f32 y, u32 trig, u32 hold, u32 release, void* data) {
                 if (trig != 0) {
-                    field_0x14 = 0;
+                    mbShiftTapPending = 0;
                 }
             }
 
@@ -465,8 +465,8 @@ const u8 controlKeys[] = {
                             case 0x2D: { return 0xFF0D; }
                             case 0x5F: { return 0xFF3F; }
                             case 0x5C: { return 0x3001; }
-                            case 0x27: { if (field_0x15) { return 0x2019; } return 0x2018; }
-                            case 0x22: { if (field_0x16) { return 0x201D; } return 0x201C; }
+                            case 0x27: { if (mbSingleQuoteClosing) { return 0x2019; } return 0x2018; }
+                            case 0x22: { if (mbDoubleQuoteClosing) { return 0x201D; } return 0x201C; }
                         }
                     }
                 }

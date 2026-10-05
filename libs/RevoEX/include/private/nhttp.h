@@ -32,9 +32,9 @@ typedef s32 (*NHTTPConnectionCallback)(NHTTPConnectionInfo* connection,
 typedef struct NHTTPConnectionCallbackParam
 {
     void* value;
-    u32 _unk4;
-    u32 _unk8;
-    u32 _unkC;
+    u32 bufferAddressOrSize;
+    u32 sizeOrBodyOffset;
+    u32 postOffset;
 } NHTTPConnectionCallbackParam;
 
 typedef struct NHTTPPostSendArg
@@ -59,7 +59,7 @@ typedef struct NHTTPHeader
     char* name;
     char* value;
     u32 length;
-    u32 _unk14;
+    u32 isBinary;
 } NHTTPHeader;
 
 typedef struct NHTTPReqQueue
@@ -68,7 +68,7 @@ typedef struct NHTTPReqQueue
     struct NHTTPReqQueue* prev;
     s32 requestId;
     NHTTPRequestInfo* volatile request;
-    s32 _unk10;
+    s32 socket;
 } NHTTPReqQueue;
 
 typedef struct NHTTPListInfo
@@ -137,7 +137,7 @@ struct NHTTPRequestInfo
     BOOL clientCertDefault;
     u32 verifyOption;
     NHTTPEncodingType encodingType;
-    void* _unkD4;
+    void* sslInitParam;
     u32 builtinRootCA;
     u32 builtinClientCert;
     char proxyServer[0x100];
@@ -147,7 +147,7 @@ struct NHTTPRequestInfo
     u32 recvBufferSize;
     const void* postBuffer;
     u32 postBufferSize;
-    void* _unk250;
+    void* postSendCallback;
 };
 
 struct NHTTPConnectionInfo
@@ -155,28 +155,28 @@ struct NHTTPConnectionInfo
     BOOL started;
     s32 state;
     s32 sslError;
-    u32 _unkC;
+    u32 completionPending;
     NHTTPRequestInfo* request;
     NHTTPResponseInfo* response;
     s32 requestId;
     NHTTPConnectionCallback callback;
     NHTTPConnectionInfo* next;
-    u32 _unk24;
-    u32 _unk28;
+    u32 postDataAddress;
+    u32 postDataSize;
     u32 virtualContentLength;
     NHTTPReqCallback requestCallback;
-    u32 _unk34;
-    u32 _unk38;
-    u32 _unk3C;
+    u32 reserved0;
+    u32 reserved1;
+    u32 reserved2;
     u8 recvBuf[0x8000];
     u32 recvBufOffset;
     u32 recvBufDataLen;
-    u32 _unk8048;
-    u32 _unk804C;
-    u32 _unk8050;
-    u32 _unk8054;
-    u32 _unk8058;
-    u32 _unk805C;
+    u32 reserved3;
+    u32 reserved4;
+    u32 reserved5;
+    u32 reserved6;
+    u32 reserved7;
+    u32 reserved8;
 };
 
 #endif // PRIVATE_NHTTP_H

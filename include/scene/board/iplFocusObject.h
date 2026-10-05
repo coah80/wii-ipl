@@ -332,12 +332,12 @@ namespace ipl {
             scroller mScroller;  // 0x58
             picture mPicture;    // 0xC8
 
-            int unk_0xF8;
-            u8 unk_0xFC;
+            int mReservedWord;
+            u8 mReservedByte;
 
             EGG::Allocator mGUIAlloc;  // 0x100
 
-            wchar_t unk_0x114[6];
+            wchar_t mUrlTerminators[6];
 
             u8* mpCmpArcData;  // 0x120
             u8* mpArcData;     // 0x124

@@ -181,16 +181,16 @@ static BOOL NHTTPi_GetPostContentlength(void* mutex, NHTTPRequestInfo* request,
     s32 offset = 0;
     NHTTPConnectionInfo* connection = NHTTPi_Request2Connection(mutex, request);
     if (connection == NULL) return FALSE;
-    connection->_unk24 = 0;
+    connection->postDataAddress = 0;
     for (;;)
     {
         s32 size;
         const char* data;
         if (request->cancel) return FALSE;
-        connection->_unk28 = 0;
+        connection->postDataSize = 0;
         if (NHTTPi_PostSendCallback(mutex, connection, label, offset) < 0) return FALSE;
-        size = connection->_unk28;
-        data = (const char*)connection->_unk24;
+        size = connection->postDataSize;
+        data = (const char*)connection->postDataAddress;
         if (size == 0) break;
         if (data == NULL) return FALSE;
         offset += size;
@@ -215,14 +215,14 @@ static s32 NHTTPi_SendPostData(void* mutex, NHTTPRequestInfo* request, char* buf
     s32 result;
     connection = NHTTPi_Request2Connection(mutex, request);
     if (connection == NULL) return 3;
-    connection->_unk24 = 0;
+    connection->postDataAddress = 0;
     for (;;)
     {
         if (request->cancel) return 3;
-        connection->_unk28 = 0;
+        connection->postDataSize = 0;
         if (NHTTPi_PostSendCallback(mutex, connection, label, offset) < 0) return 3;
-        size = connection->_unk28;
-        data = (const char*)connection->_unk24;
+        size = connection->postDataSize;
+        data = (const char*)connection->postDataAddress;
         if (size == 0) break;
         if (data == NULL) return 3;
         offset += size;
@@ -470,7 +470,7 @@ static s32 NHTTPi_SendProcPostDataBinary(NHTTPThreadContext* context)
     {
         length += 22;
         length += NHTTPi_strlen(header->name) + 41;
-        if (header->_unk14 != 0) length += 75;
+        if (header->isBinary != 0) length += 75;
         length += 2;
         if (header->value == NULL)
         {
@@ -508,7 +508,7 @@ static s32 NHTTPi_SendProcPostDataBinary(NHTTPThreadContext* context)
         if (result != 0) return result;
         result = NHTTPi_SendData(context, "\"\r\n", 3);
         if (result != 0) return result;
-        if (header->_unk14 != 0)
+        if (header->isBinary != 0)
         {
             result = NHTTPi_SendData(context, STR_POST_TYPE_BIN, 75);
             if (result != 0) return result;
@@ -718,7 +718,7 @@ static BOOL NHTTPi_ThreadConnectProc(NHTTPThreadContext* context)
             return FALSE;
         }
         NHTTPi_lockReqList(mutex);
-        requests->reqQueue->_unk10 = info->socket;
+        requests->reqQueue->socket = info->socket;
         NHTTPi_unlockReqList(mutex);
         if (request->cancel) return FALSE;
         if (NHTTPi_SocConnect(info, mutex, request, info->socket, context->address, context->port) < 0)
@@ -734,7 +734,7 @@ static BOOL NHTTPi_ThreadConnectProc(NHTTPThreadContext* context)
     else
     {
         NHTTPi_lockReqList(mutex);
-        requests->reqQueue->_unk10 = info->socket;
+        requests->reqQueue->socket = info->socket;
         NHTTPi_unlockReqList(mutex);
     }
     return TRUE;
@@ -855,7 +855,7 @@ static s32 NHTTPi_ThreadSendProc(NHTTPThreadContext* context)
                 binary = FALSE;
                 for (header = request->postData; header != NULL; header = header->prev)
                 {
-                    if (header->_unk14 != 0) { binary = TRUE; break; }
+                    if (header->isBinary != 0) { binary = TRUE; break; }
                     if (header == request->postData->next) break;
                 }
             }

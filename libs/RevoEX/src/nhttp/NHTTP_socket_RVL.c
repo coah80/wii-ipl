@@ -55,7 +55,7 @@ s32 NHTTPi_SocConnect(NHTTPBgnEndInfo* info, void* mutex, NHTTPRequestInfo* requ
 s32 NHTTPi_SocSSLConnect(NHTTPBgnEndInfo* info, void* mutex, NHTTPRequestInfo* request, s32 socket) {
     BOOL complete=FALSE;
     request->sslId=SSLNew(request->verifyOption,request->host);
-    if(info->sslInit && request->_unkD4) info->sslInit(request->sslId,request->_unkD4);
+    if(info->sslInit && request->sslInitParam) info->sslInit(request->sslId,request->sslInitParam);
     if(request->clientCertDefault==1) {
         if(SSLSetBuiltinClientCert(request->sslId,request->builtinClientCert)!=0) return -1005;
     } else if(request->clientCertData && request->privateKeyData) {

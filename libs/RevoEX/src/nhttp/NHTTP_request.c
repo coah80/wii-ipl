@@ -264,7 +264,7 @@ NHTTPRequestInfo* NHTTP_CreateRequest(NHTTPBgnEndInfo* bgnEndInfo_p,
     req_p->rootCASize = 0;
     req_p->clientCertDefault = FALSE;
     req_p->verifyOption = 0;
-    req_p->_unkD4 = NULL;
+    req_p->sslInitParam = NULL;
     req_p->response->param_p = param_p;
     req_p->proxyEnabled = FALSE;
     req_p->recvBufferSize = 0;
@@ -446,7 +446,7 @@ BOOL NHTTP_CancelRequestAsync(void* sysInfo_p, s32 id)
             {
                 reqCurrent_p->request->cancel = TRUE;
                 NHTTPi_SocCancel(mutexInfo_p, reqCurrent_p->request,
-                    reqCurrent_p->_unk10);
+                    reqCurrent_p->socket);
                 rc = TRUE;
             }
         }
@@ -478,7 +478,7 @@ void NHTTPi_cancelAllRequests(void* sysInfo_p)
         {
             reqCurrent_p->request->cancel = TRUE;
             NHTTPi_SocCancel(mutexInfo_p, reqCurrent_p->request,
-                reqCurrent_p->_unk10);
+                reqCurrent_p->socket);
         }
     }
 

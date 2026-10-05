@@ -38,12 +38,12 @@ NHTTPConnectionInfo* NHTTPCreateConnection(const char* url, s32 method, void* bu
     connection->response=connection->request->response;
     connection->started=FALSE;
     connection->callback=callback;
-    connection->_unk24=0; connection->_unk28=0;
+    connection->postDataAddress=0; connection->postDataSize=0;
     connection->requestId=-1;
     NHTTPi_CommitConnectionList(mutex,connection);
     connection->state=15;
     connection->sslError=0;
-    connection->_unkC=1;
+    connection->completionPending=1;
     NHTTPi_SetVirtualContentLength(connection,0);
     connection->requestCallback=NULL;
     connection->recvBufOffset=0; connection->recvBufDataLen=0;

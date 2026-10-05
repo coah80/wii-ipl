@@ -74,14 +74,14 @@ namespace LibTVRC {
     typedef struct {
         u8 magic[4];  // 0x00
         u32 fileSize;
-        char unk_0x08[4];
-        f32 unk_0x0C;
-        f32 unk_0x10;
-        u32 unk_0x14;
+        char reserved[4];
+        f32 carrierFrequencyKHz;
+        f32 onTimeRatio;
+        u32 unitTimeUs;
         struct {
             u32 offset;
-            u32 unk_0x04;
-        } unk_0x18[TVRC_COMMAND_MAP_MAX - 1 /*?*/];
+            u32 repeatOffset;
+        } commands[TVRC_COMMAND_MAP_MAX - 1 /*?*/];
     } _FileData;
     _FileData* _tvrcFile;
     undefined4 _Hz;
@@ -215,7 +215,7 @@ BOOL TVRCIsActive() {
 
 BOOL TVRCIsValidCommand(int cmd) {
     BOOL result = FALSE;
-    if (cmd >= 0 && _isInitialized && _tvrcFile != NULL && _tvrcFile->unk_0x18[cmd].offset != 0) {
+    if (cmd >= 0 && _isInitialized && _tvrcFile != NULL && _tvrcFile->commands[cmd].offset != 0) {
         result = TRUE;
     }
     return result;

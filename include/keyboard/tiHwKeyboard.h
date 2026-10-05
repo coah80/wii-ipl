@@ -52,17 +52,17 @@ namespace textinput {
                     const Manager *mgr() const { return mpManager; }
 
                     Manager*    mpManager;  // 0x10
-                    u8          field_0x14; // 0x14
+                    u8          mbShiftTapPending; // 0x14
 #ifdef TIINPUTFORM_IMPLEMENTATION
                     u8 mbSingleQuoteClosing;
                     u8 mbDoubleQuoteClosing;
 #else
 #ifdef TIHWKEYBOARD_IMPLEMENTATION
-                    bool field_0x15;
-                    bool field_0x16;
+                    bool mbSingleQuoteClosing;
+                    bool mbDoubleQuoteClosing;
 #else
-                    u8          field_0x15; // 0x15
-                    u8          field_0x16; // 0x16
+                    u8          mbSingleQuoteClosing; // 0x15
+                    u8          mbDoubleQuoteClosing; // 0x16
 #endif
 #endif
             };

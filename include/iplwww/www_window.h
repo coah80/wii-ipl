@@ -23,7 +23,7 @@ namespace ext_ead {
             void SendNotifyEvent(WWWEvent event, WWWHandleEventData* dataHandle);
             void ExecuteEvent();
             void UpdateTexture();
-            void* GetTextureBuffer(int a, bool b, WWWRect** rectPtrOut);
+            void* GetTextureBuffer(int pageOffset, bool forUpdate, WWWRect** rectPtrOut);
             void SetWindowSize(int w, int h);
 
             WWWHandlewindow* GetHandleWindow() { return mpWwwWindow; };
@@ -55,10 +55,10 @@ namespace ext_ead {
             u32 mRenderingMode;                                                   // 0x2AC
 
         public:
-            int unk_0x2B0;     // 0x2B0
-            u32 unk_0x2B4[2];  // 0x2B4
-            u32 unk_0x2BC;     // 0x2BC
-            u32 unk_0x2C0;     // 0x2C0
+            int mDisplayPageIndex;     // 0x2B0
+            u32 mDisplayBufferIndices[2];  // 0x2B4
+            u32 mUpdateBufferIndex;     // 0x2BC
+            u32 mUpdatePageIndex;     // 0x2C0
             u8 mPageLoadStatus[6];   // 0x2C4
         };
     }  // namespace www
