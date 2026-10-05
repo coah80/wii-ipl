@@ -718,7 +718,7 @@ namespace ipl {
                     // Create body text (NWC24 subject then NWC24 text)
                     u32 failedToMakeText = FALSE;
                     msgBodyText = make_text(heap, &msgObj, msgType == NWC24_MSGTYPE_PUBLIC, &failedToMakeText);
-                    if (failedToMakeText != FALSE) {
+                    if (failedToMakeText) {
                         goto out;
                     }
 

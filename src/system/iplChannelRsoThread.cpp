@@ -26,7 +26,7 @@ namespace ipl {
             if (!mbStarted) {
                 mbStarted = true;
 
-                memset((void*)mpStack, 0, STACK_SIZE);
+                memset(mpStack, 0, STACK_SIZE);
                 Create(mpStack, STACK_SIZE, 17);
             }
         }

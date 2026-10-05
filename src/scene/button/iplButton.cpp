@@ -404,7 +404,7 @@ namespace ipl {
                 (mbEnabled || btnNo == BTN_ARROW_RIGHT || btnNo == BTN_ARROW_LEFT) &&
                 (btnNo != BTN_ARROW_RIGHT || mbArrowVisible[ARROW_BTN_RIGHT] == true) &&
                 (btnNo != BTN_ARROW_LEFT || mbArrowVisible[ARROW_BTN_LEFT] == true)) {
-                if (mbHovered[btnNo] == FALSE) {
+                if (!mbHovered[btnNo]) {
                     // Play hover in animation
                     layout::Animator* anim = mpLayout->getAnim(btnNo);
                     anim->setMinFrame(scBtnFadeFrame[btnNo].in.start);
@@ -892,7 +892,7 @@ namespace ipl {
 
         void OptOutButton::start_point_event(const char* paneName, controller::Interface* con) {
             if (strcmp(paneName, scPaneName_B_Stop) == 0) {
-                if (mbHovered == FALSE) {
+                if (!mbHovered) {
                     // Play hover in animation
                     mpLayout->getAnim(ANIM_OPT_OUT_FOCUS_IN)->play();
 

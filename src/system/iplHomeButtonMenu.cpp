@@ -152,7 +152,7 @@ namespace ipl {
                         mConData.wiiCon[i].kpad = con->getKPADStatus();
                         mConData.wiiCon[i].pos.x = con->getDpdPos().x;
                         mConData.wiiCon[i].pos.y = con->getDpdPos().y;
-                        if (con->getType() == WPAD_DEV_CLASSIC && reinterpret_cast<controller::Classic*>(con)->isValidDpdClassic()) {
+                        if (con->getType() == WPAD_DEV_CLASSIC && static_cast<controller::Classic*>(con)->isValidDpdClassic()) {
                             mConData.wiiCon[i].use_devtype = WPAD_DEV_CLASSIC;
                         }
                     } else {

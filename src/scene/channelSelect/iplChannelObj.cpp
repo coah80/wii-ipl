@@ -902,20 +902,20 @@ namespace ipl {
                     mpCursorAnims[i]->initFrame();
                 }
 
-                mpCursorLayout->getAnim(1)->initAnmFrame();
+                mpCursorLayout->getAnim(ANIM_CURSOR_FOCUS_ON)->initAnmFrame();
                 mpCursorLayout->GetRootPane()->SetVisible(false);
             } else if (state == 4) {
                 mCursorState = 4;
                 mPendingCursorState = 0;
                 mpCursorLayout->GetRootPane()->SetVisible(true);
-                startCursorAnim(2);
+                startCursorAnim(ANIM_CURSOR_SELECT);
             } else {
                 switch (mCursorState) {
                     case 0: {
                         if (state == 1) {
                             mCursorState = 1;
                             mpCursorLayout->GetRootPane()->SetVisible(true);
-                            startCursorAnim(1);
+                            startCursorAnim(ANIM_CURSOR_FOCUS_ON);
                         }
                         break;
                     }
@@ -932,7 +932,7 @@ namespace ipl {
                     case 2: {
                         if (state == 3) {
                             mCursorState = 3;
-                            startCursorAnim(0);
+                            startCursorAnim(ANIM_CURSOR_FOCUS_OFF);
                         }
                         break;
                     }

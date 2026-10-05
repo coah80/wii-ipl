@@ -201,7 +201,7 @@ namespace ipl {
             if (btnNo != -1 && (mbEnabled || btnNo == BTN_ARROW_RIGHT || btnNo == BTN_ARROW_LEFT) &&
                 (btnNo != BTN_ARROW_RIGHT || mbArrowVisible[ARROW_BTN_RIGHT] == true) &&
                 (btnNo != BTN_ARROW_LEFT || mbArrowVisible[ARROW_BTN_LEFT] == true)) {
-                if (mbHovered[btnNo] == FALSE) {
+                if (!mbHovered[btnNo]) {
                     layout::Animator* anim = NULL;
 
                     switch (btnNo) {

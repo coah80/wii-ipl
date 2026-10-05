@@ -14,7 +14,7 @@ namespace ipl {
     PlayTimeLog PlayTimeLog::smArg;
 
     BOOL search_cb_(void* playTime, CDBRecord* record) {
-        PlayTimeLog* playTimeLog = reinterpret_cast<PlayTimeLog*>(playTime);
+        PlayTimeLog* playTimeLog = static_cast<PlayTimeLog*>(playTime);
         return playTimeLog->check(record);
     }
 

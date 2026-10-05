@@ -127,7 +127,7 @@ namespace ipl {
 
         void SettingButton::start_point_event(const char* paneName, controller::Interface* controller) {
             if (isPane(paneName, "B_Button_00")) {
-                if (mBtnHovered == FALSE) {
+                if (!mBtnHovered) {
                     snd::getSystem()->startSE("WIPL_SE_BT_TARGETTING");
                     if (controller) {
                         controller->rumble();
@@ -164,7 +164,7 @@ namespace ipl {
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
             const char* paneName = component->getPane()->GetName();
 
-            controller::Interface* controller = reinterpret_cast<controller::Interface*>(data);
+            controller::Interface* controller = static_cast<controller::Interface*>(data);
 
             switch (event) {
                 case ::gui::EventHandler::ON_POINT: {

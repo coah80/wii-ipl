@@ -26,7 +26,7 @@ namespace ipl {
 
             if (mpArc) {
                 s32 result = wrapper::PrivateOpen(fileName, &mNandFile, NAND_ACCESS_READ);
-                if (nand_error_handling(result) == FALSE || ARCOpen(mpArc, msFileName, &mArcFile) == FALSE) {
+                if (!nand_error_handling(result) || !ARCOpen(mpArc, msFileName, &mArcFile)) {
                     return FALSE;
                 } else {
                     return TRUE;
@@ -42,10 +42,10 @@ namespace ipl {
 
             // Seek to offset
             if (mpArc) {
-                result = wrapper::Seek(&mNandFile, mFileOffset + ARCGetStartOffset(&mArcFile) + offset, 0);
+                result = wrapper::Seek(&mNandFile, mFileOffset + ARCGetStartOffset(&mArcFile) + offset, NAND_SEEK_BEG);
                 nand_error_handling(result);
             } else {
-                result = wrapper::Seek(&mNandFile, mFileOffset + offset, 0);
+                result = wrapper::Seek(&mNandFile, mFileOffset + offset, NAND_SEEK_BEG);
                 nand_error_handling(result);
             }
 
@@ -115,12 +115,12 @@ namespace ipl {
 
             // Seek to the offset
             if (mpArc) {
-                result = ES_SeekContentFile(mDescriptor, mFileOffset + ARCGetStartOffset(&mArcFile) + offset, 0);
+                result = ES_SeekContentFile(mDescriptor, mFileOffset + ARCGetStartOffset(&mArcFile) + offset, ES_SEEK_BEG);
                 if (result < ES_ERR_OK) {
                     goto failed;
                 }
             } else {
-                result = ES_SeekContentFile(mDescriptor, mFileOffset + offset, 0);
+                result = ES_SeekContentFile(mDescriptor, mFileOffset + offset, ES_SEEK_BEG);
                 if (result < ES_ERR_OK) {
                     goto failed;
                 }

@@ -65,16 +65,16 @@ namespace ipl {
                     u32 time = OSTicksToMilliseconds(OSGetTick() - mLastRumbleTime);
                     f32 f1 = (f32)time / 1000.0f;
                     if (f1 < 0.058333333f) {
-                        WPADControlMotor(mChan, 1);
+                        WPADControlMotor(mChan, WPAD_MOTOR_RUMBLE);
                     } else if (f1 < kRumbleDuration[mRumbleType]) {
-                        WPADControlMotor(mChan, 0);
-                    } else if (getKPADStatus() == NULL || getKPADStatus()->wpad_err == 0) {
+                        WPADControlMotor(mChan, WPAD_MOTOR_STOP);
+                    } else if (getKPADStatus() == NULL || getKPADStatus()->wpad_err == WPAD_ERR_OK) {
                         mLastRumbleTime = 0;
                         mRumbleType = -1;
-                        WPADControlMotor(mChan, 0);
+                        WPADControlMotor(mChan, WPAD_MOTOR_STOP);
                     }
-                    if (downTrg(BTN_INTERACT) != 0 || decide() != 0) {
-                        WPADControlMotor(mChan, 0);
+                    if (downTrg(BTN_INTERACT) || decide() != 0) {
+                        WPADControlMotor(mChan, WPAD_MOTOR_STOP);
                         mRumbleType = 2;
                     }
                     break;
@@ -83,11 +83,11 @@ namespace ipl {
                     u32 time = OSTicksToMilliseconds(OSGetTick() - mLastRumbleTime);
                     f32 f1 = (f32)time / 1000.0f;
                     if (f1 < kRumbleDuration[1]) {
-                        WPADControlMotor(mChan, 0);
-                    } else if (getKPADStatus() == NULL || getKPADStatus()->wpad_err == 0) {
+                        WPADControlMotor(mChan, WPAD_MOTOR_STOP);
+                    } else if (getKPADStatus() == NULL || getKPADStatus()->wpad_err == WPAD_ERR_OK) {
                         mLastRumbleTime = 0;
                         mRumbleType = -1;
-                        WPADControlMotor(mChan, 0);
+                        WPADControlMotor(mChan, WPAD_MOTOR_STOP);
                     }
                     break;
                 }
@@ -123,7 +123,7 @@ namespace ipl {
         }
         void ipl::controller::Base::cancelRumbling() {
             if (mRumbleType != -1) {
-                WPADControlMotor(mChan, 0);
+                WPADControlMotor(mChan, WPAD_MOTOR_STOP);
             }
             mLastRumbleTime = 0;
             mRumbleType = -1;
@@ -140,10 +140,10 @@ namespace ipl {
             mbWasPinching = mbPinching;
             if (isValidBtn()) {
                 if (mbWasPinching == 0) {
-                    if (down(0x800) && down(0x400)) {
+                    if (down(REVO_BTN_A) && down(REVO_BTN_B)) {
                         mbPinching = 1;
                     }
-                } else if (!down(0x800) || !down(0x400)) {
+                } else if (!down(REVO_BTN_A) || !down(REVO_BTN_B)) {
                     mbPinching = 0;
                 }
             } else {
@@ -157,7 +157,7 @@ namespace ipl {
                 return false;
             }
 
-            return (mpKpadStatus->wpad_err == 0 || mpKpadStatus->wpad_err == -7) && mpKpadStatus->dpd_valid_fg != 0;
+            return (mpKpadStatus->wpad_err == WPAD_ERR_OK || mpKpadStatus->wpad_err == WPAD_ERR_CORRUPTED) && mpKpadStatus->dpd_valid_fg != 0;
         }
         bool ipl::controller::Revolution::isValidBtn() const {
             u8 val = mpKpadStatus->wpad_err;
@@ -189,7 +189,7 @@ namespace ipl {
             kpad_rect.bottom = nw4r_rect.bottom;
 
             KPADGetProjectionPos(&dest, &src, &kpad_rect, 1.10132003f);
-            if (SCGetAspectRatio() == 1) {
+            if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
                 dest.x *= 1.15f;
                 dest.y *= 1.15f;
             }
@@ -315,7 +315,7 @@ namespace ipl {
             rect.right = nw4r_rect.right;
             rect.bottom = nw4r_rect.bottom;
             KPADGetProjectionPos(&dest, &src, &rect, 1.10132003f);
-            if (SCGetAspectRatio() == 1) {
+            if (SCGetAspectRatio() == SC_ASPECT_RATIO_16x9) {
                 dest.x *= 1.15f;
                 dest.y *= 1.15f;
             }
@@ -509,7 +509,7 @@ void ipl::controller::Master::setForceInvalid(bool flag) {
               return false;
             }
 
-            return (Revolution::isValidDpd() != 0) || (mClassicCursorTimer != 0);
+            return Revolution::isValidDpd() || (mClassicCursorTimer != 0);
         }
         int ipl::controller::Classic::getClassicReleaseFlag() const {
             return mpKpadStatus->ex_status.cl.release;

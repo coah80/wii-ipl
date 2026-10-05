@@ -88,7 +88,7 @@ namespace ipl {
     void* SDVFWorker::thread_main(void* work) {
         OSInitFastCast();
 
-        SDVFWorker* sdVfWorker = reinterpret_cast<SDVFWorker*>(work);
+        SDVFWorker* sdVfWorker = static_cast<SDVFWorker*>(work);
         return sdVfWorker->run();
     }
 
@@ -343,7 +343,7 @@ namespace ipl {
     SDVFWorker::WorkMessage SDVFWorker::wait_work() {
         SDVFWorker::WorkMessage message = MESSAGE_NONE;
 
-        OSReceiveMessage(&myWork->msgQueue, (OSMessage*)&message, 1);
+        OSReceiveMessage(&myWork->msgQueue, (OSMessage*)&message, OS_MESSAGE_BLOCK);
         OSReport("SDVFWorker: recieve message = %d\n", message);
 
         return message;

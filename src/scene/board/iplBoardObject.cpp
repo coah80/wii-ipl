@@ -281,11 +281,11 @@ namespace ipl {
             wchar_t* thumbText = NULL;
             if (mLetterType == TYPE_MEMO) {
                 if (recordHdr->bodyOffset != 0) {
-                    thumbText = (wchar_t*)((u8*)mpRecordData + recordHdr->bodyOffset);
+                    thumbText = (wchar_t*)(mpRecordData + recordHdr->bodyOffset);
                 }
             } else {
                 if (recordHdr->titleOffset != 0) {
-                    thumbText = (wchar_t*)((u8*)mpRecordData + recordHdr->titleOffset);
+                    thumbText = (wchar_t*)(mpRecordData + recordHdr->titleOffset);
                 }
             }
 
@@ -294,7 +294,7 @@ namespace ipl {
             mpLayout->hide("Nigaoe");
 
             if (recordHdr->faceOffset != 0) {
-                RFLiCharData* charData = (RFLiCharData*)((u8*)mpRecordData + recordHdr->faceOffset);
+                RFLiCharData* charData = (RFLiCharData*)(mpRecordData + recordHdr->faceOffset);
                 if (System::getMiiManager()->isValid(charData)) {
                     mpNigaoe = System::getMiiManager()->create(mpHeap, 76, 76, charData, make_icon_cb_, this);
                 }
@@ -303,7 +303,7 @@ namespace ipl {
             for (int i = 0; i < RBR_ATTACHMENT_MAX; i++) {
                 if (recordHdr->attach[i].type == RBRAttachmentType_MsgBoard) {
                     ARCHandle arc;
-                    u8* off = ((u8*)mpRecordData + recordHdr->attach[i].offset);
+                    u8* off = (mpRecordData + recordHdr->attach[i].offset);
 
                     if (arc_init_handle(off, &arc)) {
                         ARCFileInfo file;
@@ -332,7 +332,7 @@ namespace ipl {
                     }
                 }
                 else if (recordHdr->attach[i].type == RBRAttachmentType_Picture) {
-                    if (create_picture(&mPicture, System::getMem2App(), System::getMem2App(), ((u8*)mpRecordData + recordHdr->attach[i].offset),
+                    if (create_picture(&mPicture, System::getMem2App(), System::getMem2App(), (mpRecordData + recordHdr->attach[i].offset),
                                        4 + recordHdr->attach[i].size)) {
                         mpCapture = new (mpHeap, 4) utility::Capture(mpHeap, 0, 0, PICTURE_THUMB_WIDTH, PICTURE_THUMB_HEIGHT, GX_TF_RGB565);
                         mbCaptured = false;
@@ -587,7 +587,7 @@ namespace ipl {
                 if (picture->mpRGB565 != NULL && picture->mpWork != NULL) {
                     if (ODHDecodeRGB565(src, srcSize, picture->mpRGB565, rgb565Size, picture->mpWork, workSize)) {
                         DCStoreRange(picture->mpRGB565, rgb565Size);
-                        GXInitTexObj(&picture->texObj, picture->mpRGB565, picture->width, picture->height, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, 0);
+                        GXInitTexObj(&picture->texObj, picture->mpRGB565, picture->width, picture->height, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
 
                         result = TRUE;
 
@@ -652,7 +652,7 @@ namespace ipl {
         }
 
         void BoardObject::start_point_event(int index, controller::Interface* con) {
-            if (mbHovered == FALSE) {
+            if (!mbHovered) {
                 mpLayout->getAnim(ANIM_FOCUS_IN)->play();
                 snd::getSystem()->startSE("WIPL_SE_BOARD_FOCUS");
                 if (con != NULL) {
@@ -787,7 +787,7 @@ namespace ipl {
 
             if (recordHdr->faceOffset != 0) {
                 if (mpNigaoe != NULL && mpNigaoe->created()) {
-                    RFLiCharData* charData = (RFLiCharData*)((u8*)mpRecordData + recordHdr->faceOffset);
+                    RFLiCharData* charData = (RFLiCharData*)(mpRecordData + recordHdr->faceOffset);
                     if (System::getMiiManager()->isValid(charData)) {
                         wcsncpy(name, (wchar_t*)charData->name, RFL_NAME_LENGTH);
                         result = TRUE;

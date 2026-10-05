@@ -1116,22 +1116,22 @@ namespace ipl {
             }
 
             // (Fakematch??) Using both 0x20 and sizeof(MD5Head) otherwise it does not match
-            if (NAND_CHECK_MAGIC4((u8*)srcData + 0x20, 'L', 'Z', '7', '7')) {
+            if (NAND_CHECK_MAGIC4(srcData + 0x20, 'L', 'Z', '7', '7')) {
                 if (!mChannels[diskPage][diskIndex].loadedBnrData[index]) {
                     // Uncompress data
-                    CXGetUncompressedSize((u8*)srcData + sizeof(MD5Head) + 4);
-                    CXUncompressLZ((u8*)srcData + 0x20 + 4, *destData);
+                    CXGetUncompressedSize(srcData + sizeof(MD5Head) + 4);
+                    CXUncompressLZ(srcData + 0x20 + 4, *destData);
 
                     mChannels[diskPage][diskIndex].loadedBnrData[index] = true;
 
                     // Verify MD5
-                    if (!calcMD5(md5sum, (u8*)srcData + sizeof(MD5Head), fileLen)) {
+                    if (!calcMD5(md5sum, srcData + sizeof(MD5Head), fileLen)) {
                         return NULL;
                     }
                 }
             } else {
                 if (!mChannels[diskPage][diskIndex].loadedBnrData[index]) {
-                    memcpy(*destData, (u8*)srcData + sizeof(MD5Head), readSize);
+                    memcpy(*destData, srcData + sizeof(MD5Head), readSize);
 
                     mChannels[diskPage][diskIndex].loadedBnrData[index] = true;
 
@@ -1293,7 +1293,7 @@ namespace ipl {
 
         BOOL Manager::isMissingTicket(ESTitleId titleId) {
             SEntry* channel = findEntryByTitleId(titleId);
-            if (channel != NULL && channel->missingTicket != FALSE) {
+            if (channel != NULL && channel->missingTicket) {
                 return TRUE;
             } else {
                 return FALSE;

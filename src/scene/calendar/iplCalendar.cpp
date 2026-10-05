@@ -360,7 +360,7 @@ namespace ipl {
         }
 
         void Calendar::initCalcFadeout() {
-            if (mbBackToBoardAlt == FALSE) {
+            if (!mbBackToBoardAlt) {
                 static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_BACK_TO_BOARD);
             } else {
                 static_cast<Button*>(System::getScene(SCENE_BUTTON))->animation(Button::IDANIM_BACK_TO_BOARD_ALT);
@@ -476,7 +476,7 @@ namespace ipl {
                 mbScrolling = false;
             }
 
-            if (!mpLayout->isPlaying(0)) {
+            if (!mpLayout->isPlaying(IDANIM_0)) {
                 Date* date = NULL;
                 while (date = (Date*)nw4r::ut::List_GetNext(&mDateList, date), date != NULL) {
                     date->initEvent();
@@ -503,7 +503,7 @@ namespace ipl {
         }
 
         void Calendar::on_wait_task() {
-            if (mbSearchTaskRunning == FALSE) {
+            if (!mbSearchTaskRunning) {
                 switch (mPrevState) {
                     case STATE_SCROLL_RIGHT: {
                         do_scroll_r();

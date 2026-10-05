@@ -180,7 +180,7 @@ namespace ipl {
         }
 
         void Manager::doReadTask(void* work) {
-            reinterpret_cast<File*>(work)->read();
+            static_cast<File*>(work)->read();
         }
 
         File* Manager::writeAsync(EGG::Heap* heap, const char* fileName, void* buffer, u32 length, u8 perms) {
@@ -211,7 +211,7 @@ namespace ipl {
         }
 
         void Manager::doWriteTask(void* work) {
-            reinterpret_cast<File*>(work)->write();
+            static_cast<File*>(work)->write();
         }
 
         void Manager::sendToken(int token) {

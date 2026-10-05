@@ -102,7 +102,7 @@ RakuRakuThread::RakuRakuThread(EGG::Heap* heap) : utility::ut_thread() {
 
 RakuRakuThread::~RakuRakuThread() {
     if (mRunning) {
-        OSJamMessage(&sRakuMsgQueue, (OSMessage)2, 1);
+        OSJamMessage(&sRakuMsgQueue, (OSMessage)2, OS_MESSAGE_BLOCK);
         WaitForThreadExit();
     }
     destroy();
@@ -112,7 +112,7 @@ void RakuRakuThread::destroy() {
     if (active) {
         OSSendMessage(&sRakuMsgQueue, (OSMessage)1, 0);
         u32 start = OSGetTick();
-        while ((u32)(OSGetTick() - start) / (OS_TIMER_CLOCK / 1000) < 2000) {
+        while ((OSGetTick() - start) / (OS_TIMER_CLOCK / 1000) < 2000) {
             RakuProgress progress;
             if (ATERMi_ApConfigGetState(&progress) == 1 && progress.state == 7) {
                 break;
@@ -168,7 +168,7 @@ void* RakuRakuThread::Run() {
                 return this;
             }
         }
-        OSReceiveMessage(&sRakuMsgQueue, &message, 1);
+        OSReceiveMessage(&sRakuMsgQueue, &message, OS_MESSAGE_BLOCK);
         if ((s32)message == 2) {
             break;
         }

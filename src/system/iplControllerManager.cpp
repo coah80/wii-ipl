@@ -65,7 +65,7 @@ namespace ipl {
             KPADInit();
 
             u32 sensitivity = SCGetBtDpdSensibility();
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
                 WPADSetDpdSensitivity(sensitivity);
                 KPADSetBtnRepeat(i, 0.5f, 0.1f);
             }
@@ -74,8 +74,8 @@ namespace ipl {
         }
 
         void Manager::read() {
-            for (int chan = 0; chan < 4; chan++) {
-                if (SCGetWpadSensorBarPosition() == 1) {
+            for (int chan = 0; chan < WPAD_MAX_CONTROLLERS; chan++) {
+                if (SCGetWpadSensorBarPosition() == SC_WPAD_SENSOR_BAR_POSITION_TOP) {
                     KPADSetSensorHeight(chan, 0.2f);
                 } else {
                     KPADSetSensorHeight(chan, -0.2f);
@@ -83,11 +83,11 @@ namespace ipl {
 
                 u32 deviceType;
                 s32 probe = WPADProbe(chan, &deviceType);
-                if (probe == -1) {
+                if (probe == WPAD_ERR_NO_CONTROLLER) {
                     goto probe_invalid;
                 }
-                if (probe < -1) {
-                    if (probe >= -3) {
+                if (probe < WPAD_ERR_NO_CONTROLLER) {
+                    if (probe >= WPAD_ERR_TRANSFER) {
                         goto probe_valid;
                     }
                     goto probe_invalid;
@@ -98,19 +98,19 @@ namespace ipl {
             probe_valid:
                 {
                     s32 read = KPADRead(chan, &mKPADStatus[chan], 1);
-                    if (read > 0 && mKPADStatus[chan].wpad_err != -4 && deviceType != 0xfd) {
+                    if (read > 0 && mKPADStatus[chan].wpad_err != WPAD_ERR_INVALID && deviceType != WPAD_DEV_NOT_FOUND) {
                         mInvalidCount[chan] = 0;
-                        if (mKPADStatus[chan].wpad_err == -7 || deviceType == 0 || deviceType == 0xfb ||
-                            deviceType == 0xfc || deviceType == 0xff) {
-                            if (mControllers[chan] == NULL || mControllers[chan]->getType() != 0) {
-                                mControllers[chan] = new (mControllerStorage[chan]) Core(chan, 0, mKPADStatus[chan]);
+                        if (mKPADStatus[chan].wpad_err == WPAD_ERR_CORRUPTED || deviceType == WPAD_DEV_CORE || deviceType == WPAD_DEV_FUTURE ||
+                            deviceType == WPAD_DEV_NOT_SUPPORTED || deviceType == WPAD_DEV_UNKNOWN) {
+                            if (mControllers[chan] == NULL || mControllers[chan]->getType() != WPAD_DEV_CORE) {
+                                mControllers[chan] = new (mControllerStorage[chan]) Core(chan, WPAD_DEV_CORE, mKPADStatus[chan]);
                             }
-                        } else if (deviceType == 1) {
-                            if (mControllers[chan] == NULL || mControllers[chan]->getType() != 1) {
-                                mControllers[chan] = new (mControllerStorage[chan]) FreeStyle(chan, 1, mKPADStatus[chan]);
+                        } else if (deviceType == WPAD_DEV_FREESTYLE) {
+                            if (mControllers[chan] == NULL || mControllers[chan]->getType() != WPAD_DEV_FREESTYLE) {
+                                mControllers[chan] = new (mControllerStorage[chan]) FreeStyle(chan, WPAD_DEV_FREESTYLE, mKPADStatus[chan]);
                             }
-                        } else if (deviceType == 2) {
-                            if (mControllers[chan] == NULL || mControllers[chan]->getType() != 2) {
+                        } else if (deviceType == WPAD_DEV_CLASSIC) {
+                            if (mControllers[chan] == NULL || mControllers[chan]->getType() != WPAD_DEV_CLASSIC) {
                                 mControllers[chan] = new (mControllerStorage[chan]) Classic(chan, mKPADStatus[chan]);
                             }
                         } else {
@@ -124,7 +124,7 @@ namespace ipl {
                         if (mInvalidCount[chan] > 0x3c) {
                             mInvalidCount[chan] = 0x3c;
                             if (mControllers[chan] != NULL) {
-                                WPADControlMotor(chan, 0);
+                                WPADControlMotor(chan, WPAD_MOTOR_STOP);
                             }
                             mControllers[chan] = NULL;
                         }
@@ -144,7 +144,7 @@ namespace ipl {
                 KPADSetPosParam(chan, 0.05f, 1.0f);
             }
 
-            for (int chan = 0; chan < 4; chan++) {
+            for (int chan = 0; chan < WPAD_MAX_CONTROLLERS; chan++) {
                 if (mControllers[chan] != NULL) {
                     mControllers[chan]->read();
                 }
@@ -162,13 +162,13 @@ namespace ipl {
         }
 
         Interface* Manager::getController(int chan) {
-            return ((Interface**)this)[chan];
+            return mControllers[chan];
         }
 
         Interface* Manager::getYoungController() {
             Interface* ret = NULL;
-            for (int i = 0; i < 4; i++) {
-                Interface* controller = ((Interface**)this)[i];
+            for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+                Interface* controller = mControllers[i];
                 if (controller != NULL) {
                     ret = controller;
                     break;

@@ -156,7 +156,7 @@ namespace ipl {
                     mpThreadStack = (void*)allocfunc(0x4000, 0x20);
                     stackEnd = (void*)((int)mpThreadStack + 0x4000);
 
-                    if (OSCreateThread(&mThread, iSOStartupEXThread, (void*)mConnType, stackEnd, 0x4000, 17, 1) == 0) {
+                    if (OSCreateThread(&mThread, iSOStartupEXThread, (void*)mConnType, stackEnd, 0x4000, 17, OS_THREAD_ATTR_DETACH) == 0) {
                         mLastErr = -(-50100 + -mConnType);
                         mState = NET_SETUP_ERROR;
                         OSReport("OSCreateThread failed\n");

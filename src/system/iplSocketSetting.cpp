@@ -126,7 +126,7 @@ namespace ipl {
             u8 macAddr[NCD_MAC_ADDRESS_LENGTH];
 
             memset(macAddr, 0, NCD_MAC_ADDRESS_LENGTH);
-            return !(memcmp(mMacAddr, macAddr, NCD_MAC_ADDRESS_LENGTH) == 0);
+            return memcmp(mMacAddr, macAddr, NCD_MAC_ADDRESS_LENGTH) != 0;
         }
     }  // namespace socket
 }  // namespace ipl

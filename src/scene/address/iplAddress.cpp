@@ -1528,7 +1528,7 @@ namespace ipl {
                         mPage++;
                         mNextPageNum--;
                         add_translate(mpLayout->FindPaneByName("N_note_base"), sPageOffset);
-                        mpLayout->getAnim(5)->setAnmType(0);
+                        mpLayout->getAnim(5)->setAnmType(ANIM_TYPE_FORWARD);
                         mpLayout->getAnim(5)->play();
                         set_page_text("T_nmbr_b", mPage + 1);
                         set_page_text("T_nmbr_c", mPage);
@@ -1544,7 +1544,7 @@ namespace ipl {
                         mPage = 0;
                         mPrevPageNum = 0;
                         mbCover = true;
-                        mpLayout->getAnim(4)->setAnmType(1);
+                        mpLayout->getAnim(4)->setAnmType(ANIM_TYPE_BACKWARD);
                         mpLayout->getAnim(4)->play();
                         reset_gui(true);
                         mState = STATE_LOOP_FORWARD;
@@ -1555,7 +1555,7 @@ namespace ipl {
                 case STATE_COVER_NORMAL: {
                     mNextPageNum--;
                     add_translate(mpLayout->FindPaneByName("N_note_base"), sPageOffset);
-                    mpLayout->getAnim(4)->setAnmType(0);
+                    mpLayout->getAnim(4)->setAnmType(ANIM_TYPE_FORWARD);
                     mpLayout->getAnim(4)->play();
                     reset_gui(true);
 
@@ -1585,7 +1585,7 @@ namespace ipl {
                     if (mPage > 0) {
                         mPage--;
                         mPrevPageNum--;
-                        mpLayout->getAnim(5)->setAnmType(1);
+                        mpLayout->getAnim(5)->setAnmType(ANIM_TYPE_BACKWARD);
                         mpLayout->getAnim(5)->play();
                         set_page_text("T_nmbr_c", mPage + 1);
                         reset_gui(true);
@@ -1596,7 +1596,7 @@ namespace ipl {
 
                         mState = STATE_BACKWARD;
                     } else {
-                        mpLayout->getAnim(4)->setAnmType(1);
+                        mpLayout->getAnim(4)->setAnmType(ANIM_TYPE_BACKWARD);
                         mpLayout->getAnim(4)->play();
                         reset_gui(true);
                         mState = STATE_COVER_BACKWARD;
@@ -1608,7 +1608,7 @@ namespace ipl {
                     mNextPageNum = 0;
                     mbCover = false;
                     add_translate(mpLayout->FindPaneByName("N_note_base"), scaledPageOffset(sPageOffset, PAGE_MAX));
-                    mpLayout->getAnim(4)->setAnmType(0);
+                    mpLayout->getAnim(4)->setAnmType(ANIM_TYPE_FORWARD);
                     mpLayout->getAnim(4)->play();
                     set_page_text("T_nmbr_b", mPage + 1);
                     reset_gui(false);
@@ -1680,7 +1680,7 @@ namespace ipl {
             } else if (!(SCGetWCFlags() & SC_WC_FLAGS_ENABLED)) {
                 System::getDialog()->callBtn2(MESG_NETWORK_NO_WC24_CONFIG, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT);
                 mState = STATE_MSG_WC;
-            } else if (bGotParental && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED) && (SCGetNetContentRestrictions() & 2)) {
+            } else if (bGotParental && (pcInfo.enable & SC_PARENTAL_FLAG_ENABLED) && (SCGetNetContentRestrictions() & SC_NET_RESTRICTIONS_MSG_BOARD)) {
                 System::getDialog()->callBtn1(MESG_NETWORK_PARENTAL_RESTRICT, MESG_CMN_OK);
                 mState = STATE_MSG_PARENTAL;
             } else if (mpFriendCache->check() == NWC24_ERR_NETWORK || mpFriendCache->getLastErr() == NWC24_ERR_SERVER ||

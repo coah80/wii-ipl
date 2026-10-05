@@ -527,7 +527,7 @@ namespace ipl {
             int btnNo = get_button_no(paneName);
             int animIdx = -1;
             if (btnNo != -1) {
-                if ((btnNo == BTN_ARROW_LEFT || btnNo == BTN_ARROW_RIGHT || is_exist(btnNo)) && mbHovered[btnNo] == FALSE) {
+                if ((btnNo == BTN_ARROW_LEFT || btnNo == BTN_ARROW_RIGHT || is_exist(btnNo)) && !mbHovered[btnNo]) {
                     // Decide animation
                     switch (btnNo) {
                         case BTN_ARROW_LEFT: {
@@ -694,7 +694,7 @@ namespace ipl {
             for (int i = 0; i < BTN_MAX_FACE; i++) {
                 mpGui->initPane(mpLayout->FindPaneByName(smButtonName[i]));
 
-                if (mbHovered[i] != FALSE) {
+                if (mbHovered[i]) {
                     if (is_exist(i)) {
                         mpLayout->getAnim(i + ANIM_FOCUS_FACE_OUT)->play();
                     }
@@ -779,7 +779,7 @@ namespace ipl {
             gui::PaneComponent* component = static_cast<gui::PaneComponent*>(mpManager->getComponent(compId));
             const char* paneName = component->getPane()->GetName();
 
-            controller::Interface* con = reinterpret_cast<controller::Interface*>(data);
+            controller::Interface* con = static_cast<controller::Interface*>(data);
 
             switch (event) {
                 // Pointer on button

@@ -126,7 +126,7 @@ namespace ipl {
             wait(50);
 
             for (chan = 0; chan < WPAD_MAX_CONTROLLERS; chan++) {
-                if (cons[chan].wpad_err == 0) {
+                if (cons[chan].wpad_err == WPAD_ERR_OK) {
                     held = cons[chan].hold;
 
                     if ((held & WPAD_BUTTON_UP) && yCur > 0) {

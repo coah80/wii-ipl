@@ -210,7 +210,7 @@ namespace ipl {
                 destroy(0);
             }
             else {
-                if (((u32)OSGetTime() - (u32)sAOSSStartTimeLo)
+                if (((u32)OSGetTime() - sAOSSStartTimeLo)
                         / (OS_TIMER_CLOCK / 1000)
                     >= 90000)
                 {
