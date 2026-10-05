@@ -95,7 +95,7 @@ namespace textinput {
             static const char* csToggleAnimationKey = "W_ChngTag_00";
             static const char* csEuropeanAnimationKey = "W_othersBT_EU";
 
-            static PaneNameToAnimationKey csPaneNameNormalAnimationKey[] = {
+            static const PaneNameToAnimationKey csPaneNameNormalAnimationKey[] = {
                 {"W_CPkey_00", NULL}, {"W_CPkey_01", csNormalAnimationKey}, {"W_CPkey_02", csNormalAnimationKey},
                 {"W_CPkey_03", csNormalAnimationKey}, {"W_CPkey_04", csNormalAnimationKey}, {"W_CPkey_05", csNormalAnimationKey},
                 {"W_CPkey_06", csNormalAnimationKey}, {"W_CPkey_07", csNormalAnimationKey}, {"W_CPkey_08", csNormalAnimationKey},
@@ -105,7 +105,7 @@ namespace textinput {
                 {"W_prdcModeBT_EU", NULL}, {"W_smlCptChngeBT", NULL},
             };
 
-            static PaneNameToAnimationKey csPaneNameToggleAnimationKey[] = {
+            static const PaneNameToAnimationKey csPaneNameToggleAnimationKey[] = {
                 {"W_ChngTag_00", NULL}, {"W_ChngTag_01", csToggleAnimationKey},
                 {"W_ChngTag_02", csToggleAnimationKey}, {"W_ChngTag_03", csToggleAnimationKey},
             };
@@ -630,17 +630,14 @@ namespace textinput {
                     CellPhoneAnmPane* pane = new (MEMAllocFromAllocator(allocator, sizeof(CellPhoneAnmPane)))
                         CellPhoneAnmPane(getPane(csPaneNameNormalAnimationKey[i].name), NULL);
                     nw4r::ut::List_Append(&mAnmPanes, pane);
-                    const char* animationKey;
-                    const PaneNameToAnimationKey& paneName = csPaneNameNormalAnimationKey[i];
-                    animationKey = paneName.animationKey;
 
                     for (u16 j = 0; j < 5; ++j) {
                         void* resource = mpMultiArcResourceAccessor->GetResource(0, csAninationFileForControlKey[j].filename);
                         AnimTransformPane* transform = static_cast<AnimTransformPane*>(
                             getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
-                        if (animationKey) {
+                        if (csPaneNameNormalAnimationKey[i].animationKey) {
                             pane->forceAddAnimation(allocator, csAninationFileForControlKey[j].animation, transform,
-                                                    paneName.animationKey, false, true);
+                                                    csPaneNameNormalAnimationKey[i].animationKey, false, true);
                         } else {
                             pane->addAnimation(allocator, csAninationFileForControlKey[j].animation, transform, false, true);
                         }
@@ -651,16 +648,14 @@ namespace textinput {
                     CellPhoneControlAnmPane* pane = new (MEMAllocFromAllocator(allocator, sizeof(CellPhoneControlAnmPane)))
                         CellPhoneControlAnmPane(getPane(csPaneNameToggleAnimationKey[i].name), NULL);
                     nw4r::ut::List_Append(&mAnmPanes, pane);
-                    const PaneNameToAnimationKey& paneName = csPaneNameToggleAnimationKey[i];
-                    const char* animationKey = paneName.animationKey;
 
                     for (u16 j = 0; j < 6; ++j) {
                         void* resource = mpMultiArcResourceAccessor->GetResource(0, csAnimationFileForToggleKey[j].filename);
                         AnimTransformPane* transform = static_cast<AnimTransformPane*>(
                             getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
-                        if (animationKey) {
+                        if (csPaneNameToggleAnimationKey[i].animationKey) {
                             pane->forceAddAnimation(allocator, csAnimationFileForToggleKey[j].animation, transform,
-                                                    paneName.animationKey, false, true);
+                                                    csPaneNameToggleAnimationKey[i].animationKey, false, true);
                         } else {
                             pane->addAnimation(allocator, csAnimationFileForToggleKey[j].animation, transform, false, true);
                         }

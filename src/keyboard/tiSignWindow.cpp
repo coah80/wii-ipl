@@ -74,7 +74,7 @@ struct InputCharacter {
 };
 static const InputCharacter inputCharacterTemplate = {0, 3, false, 0};
 
-static PaneAnimation csPaneToAnimationInSign[25] = {
+static const PaneAnimation csPaneToAnimationInSign[25] = {
     {0, "N_SGNkeytop_all", 3, 0, {&csAninationFileForSign[0], &csAninationFileForSign[1], &csAninationFileForSign[2]}},
     {1, "N_SGNkeyall", 3, 0, {&csAninationFileForSign[0], &csAninationFileForSign[7], &csAninationFileForSign[8]}},
     {2, "P_SGNkey_00", 7, 0, {&csAninationFileForSign[0], &csAninationFileForSign[1], &csAninationFileForSign[2], &csAninationFileForSign[3], &csAninationFileForSign[4], &csAninationFileForSign[5], &csAninationFileForSign[6]}},
@@ -220,8 +220,6 @@ void LayoutByNW4R::create(MEMAllocator* allocator) {
     mpPaneManager->setAllComponentTriggerTarget(false);
     mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
 
-    const char* forceName;
-    u32 animationCount;
     u32 paneIndex = 0;
     for (; paneIndex < 25; ++paneIndex) {
         AnmPane* pane = NULL;
@@ -245,18 +243,15 @@ void LayoutByNW4R::create(MEMAllocator* allocator) {
         }
 
         nw4r::ut::List_Append(&mAnmPanes, pane);
-        forceName = paneInfo.forceName;
-        animationCount = paneInfo.animationCount;
         u16 animationIndex = 0;
-        while (animationIndex < animationCount) {
-            const AnimationFile* const& animation = paneInfo.animations[animationIndex];
-            void* resource = mpMultiArcResourceAccessor->GetResource(0, animation->name);
+        while (animationIndex < paneInfo.animationCount) {
+            void* resource = mpMultiArcResourceAccessor->GetResource(0, paneInfo.animations[animationIndex]->name);
             AnimTransformPane* transform = static_cast<AnimTransformPane*>(
                 getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
-            if (forceName != NULL) {
-                pane->forceAddAnimation(allocator, animation->id, transform, forceName, false, true);
+            if (paneInfo.forceName != NULL) {
+                pane->forceAddAnimation(allocator, paneInfo.animations[animationIndex]->id, transform, paneInfo.forceName, false, true);
             } else {
-                pane->addAnimation(allocator, animation->id, transform, false, true);
+                pane->addAnimation(allocator, paneInfo.animations[animationIndex]->id, transform, false, true);
             }
             ++animationIndex;
         }
