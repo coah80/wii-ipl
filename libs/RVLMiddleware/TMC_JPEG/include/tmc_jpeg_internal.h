@@ -192,7 +192,7 @@ typedef struct {
     u8 count;        // 0x0C
 } TMCHuffParam;
 
-s32 TMCJPEGDEC_make_huffdec(const u8* dht_spec, const u8* tbl, TMCHuffParam* hp);
+s32 TMCJPEGDEC_make_huffdec(const u8* dht_spec, u8* tbl, TMCHuffParam* hp);
 void TMCJPEGDEC_set_HuffmanTable(TMCHuffParam* tbl, s32 tblType, s32 tblID, TMCUnknownInfo* work);
 
 s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* buf);
