@@ -147,7 +147,7 @@ bool MemoryCardManager::isMoveEnable(u8 slot, u32 index, long* code) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     memorycard::CardState* states = memorycard::getCardSlotState();
     u32 file = mFile[slot][index].fileNo;
-    long result;
+    long result = file;
     bool enabled = false;
     if (isDistSlot(slot, NULL) &&
         dirs[slot][file].canMove != 0 &&
@@ -186,7 +186,7 @@ bool MemoryCardManager::isCopyEnable(u8 slot, u32 index, long* code) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     memorycard::CardState* states = memorycard::getCardSlotState();
     u32 file = mFile[slot][index].fileNo;
-    long result;
+    long result = file;
     bool enabled = false;
     if (isDistSlot(slot, NULL) &&
         dirs[slot][file].canCopy != 0 &&
