@@ -127,22 +127,22 @@ namespace ipl {
                     u32 bannerRSOIdx : 4;  // 0x00:00001111000000000000000000000000
                     u32 iconCSIdx : 4;     // 0x01:00000000111100000000000000000000
                     u32 bannerCSIdx : 4;   // 0x01:00000000000011110000000000000000
-                    u32 unk_15 : 1;        // 0x02:00000000000000001000000000000000
+                    u32 reservedBit15 : 1;        // 0x02:00000000000000001000000000000000
                     u32 useAltSound : 1;   // 0x02:00000000000000000100000000000000
-                    u32 unk_13 : 1;        // 0x02:00000000000000000010000000000000
-                    u32 unk_12 : 1;        // 0x02:00000000000000000001000000000000
-                    u32 unk_11 : 1;        // 0x02:00000000000000000000100000000000
-                    u32 unk_10 : 1;        // 0x02:00000000000000000000010000000000
-                    u32 unk_09 : 1;        // 0x02:00000000000000000000001000000000
+                    u32 reservedBit13 : 1;        // 0x02:00000000000000000010000000000000
+                    u32 reservedBit12 : 1;        // 0x02:00000000000000000001000000000000
+                    u32 reservedBit11 : 1;        // 0x02:00000000000000000000100000000000
+                    u32 reservedBit10 : 1;        // 0x02:00000000000000000000010000000000
+                    u32 reservedBit09 : 1;        // 0x02:00000000000000000000001000000000
                     u32 netSetting : 1;    // 0x02:00000000000000000000000100000000
-                    u32 unk_07 : 1;        // 0x03:00000000000000000000000010000000
-                    u32 unk_06 : 1;        // 0x03:00000000000000000000000001000000
-                    u32 unk_05 : 1;        // 0x03:00000000000000000000000000100000
-                    u32 unk_04 : 1;        // 0x03:00000000000000000000000000010000
-                    u32 unk_03 : 1;        // 0x03:00000000000000000000000000001000
-                    u32 unk_02 : 1;        // 0x03:00000000000000000000000000000100
-                    u32 unk_01 : 1;        // 0x03:00000000000000000000000000000010
-                    u32 unk_00 : 1;        // 0x03:00000000000000000000000000000001
+                    u32 reservedBit07 : 1;        // 0x03:00000000000000000000000010000000
+                    u32 reservedBit06 : 1;        // 0x03:00000000000000000000000001000000
+                    u32 reservedBit05 : 1;        // 0x03:00000000000000000000000000100000
+                    u32 reservedBit04 : 1;        // 0x03:00000000000000000000000000010000
+                    u32 reservedBit03 : 1;        // 0x03:00000000000000000000000000001000
+                    u32 reservedBit02 : 1;        // 0x03:00000000000000000000000000000100
+                    u32 reservedBit01 : 1;        // 0x03:00000000000000000000000000000010
+                    u32 isDisk : 1;        // 0x03:00000000000000000000000000000001
                 };
             };  // 0x18
         } SMetaBlockHeader;
@@ -226,9 +226,9 @@ namespace ipl {
             BOOL setupUrlJump(const char* url);
             BOOL setupChannelJump(ESTitleId titleId, const char* data);
 
-            void* getDiskThumbnail(bool unk);
-            void* getDiskBanner(bool unk);
-            void* getDiskSound(bool unk);
+            void* getDiskThumbnail(bool invalidateReady);
+            void* getDiskBanner(bool invalidateReady);
+            void* getDiskSound(bool invalidateReady);
 
             nand::MetaFile* loadThumbnailAsync(EGG::Heap* heap, int page, int index);
             nand::MetaFile* loadBannerAsync(EGG::Heap* heap, int page, int index);
@@ -322,7 +322,7 @@ namespace ipl {
             int updateWaitSCFlush();
             void updateDiskState();
 
-            void* getDiskBannerData(int index, bool unk);
+            void* getDiskBannerData(int index, bool invalidateReady);
 
             int searchMetaHeader(const u8* buffer);
 

@@ -21,8 +21,8 @@ namespace ipl {
             static bool checkLANMacAddrAvailable();
 
         private:
-            static void* allocfunc(u32 unk, s32 size);
-            static void freefunc(u32 unk, void* buffer, s32 size);
+            static void* allocfunc(u32 allocationName, s32 size);
+            static void freefunc(u32 allocationName, void* buffer, s32 size);
 
             static char mMac[64];
 

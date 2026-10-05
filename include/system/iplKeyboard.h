@@ -144,7 +144,7 @@ namespace ipl {
             u32 mCurrentConChan;                // 0x20
             Vec2 projCenter;                    // 0x24
             bool mbActivated;                   // 0x2C
-            u8 unk_0x2D;
+            u8 mReserved;
             textinput::extend::savedata::MemoSetting mSaveData;  // 0x2E
             nand::File* mpSaveFile;                              // 0x38
         };

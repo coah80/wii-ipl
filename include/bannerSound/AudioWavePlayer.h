@@ -38,7 +38,7 @@ private:
 
 private:
     SetupParam mSetupParam;  // 0x9C
-    bool unk_0xB0;           // 0xB0
+    bool mReserved;           // 0xB0
     bool mIsSetData;         // 0xB1
     bool mIsPlaying;         // 0xB2
     bool mIsSetBuf;          // 0xB3

@@ -39,13 +39,13 @@ namespace ipl {
             int holdSEwithPosDis(const char* sndName, f32 x, f32 y);
 
 #ifdef IPL_SOUND_MATCHING
-            void stopBGM(int unk = 0);
+            void stopBGM(int fadeFrames = 0);
 #else
-            int stopBGM(int unk = 0);
+            int stopBGM(int fadeFrames = 0);
 #endif
-            int stopBGM(nw4r::snd::SoundHandle* handle, int unk = 0);
-            void stopSE(nw4r::snd::SoundHandle* handle, int unk = 0);
-            void stopAllSound(int unk = 0);
+            int stopBGM(nw4r::snd::SoundHandle* handle, int fadeFrames = 0);
+            void stopSE(nw4r::snd::SoundHandle* handle, int fadeFrames = 0);
+            void stopAllSound(int fadeFrames = 0);
 
             int resetAllSound();
 
@@ -92,14 +92,14 @@ namespace ipl {
             tagSSeInfo* getFreeSEBlock(bool force);
 
             BOOL startBannerSound(void*, u32, bool ignoreSize = false);
-            void stopBannerSound(int unk = 0);
+            void stopBannerSound(int fadeFrames = 0);
 
             BOOL checkTmpSoundFile(void*, u32);
 
             long clipGELT_S32(long value, long lo, long hi);
 
         private:
-            u32 unk_0x620[3];
+            u32 mSoundWork[3];
         };
 
         // use getSystem() and getBannerPlayer() instead

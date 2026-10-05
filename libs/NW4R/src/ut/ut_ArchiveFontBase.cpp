@@ -632,7 +632,7 @@ namespace nw4r {
                 pCachedStart = NULL;
                 pCachedEnd = NULL;
 
-                unk_0x18 = 0;
+                cacheWorkspaceOffset = 0;
             }
 
             void ArchiveFontBase::CachedStreamReader::Attach(const void* data, u32 dataLen) {
@@ -653,7 +653,7 @@ namespace nw4r {
                     pCachedBase = NULL;
                     pCachedStart = NULL;
                     pCachedEnd = NULL;
-                    unk_0x18 = 0;
+                    cacheWorkspaceOffset = 0;
                 } else {
                     if (ctx->remWorkSpace() < (offset << 1)) {
                         return false;
@@ -675,7 +675,7 @@ namespace nw4r {
                     pCachedBase = dst;
                     pCachedStart = dst;
                     pCachedEnd = dst + available;
-                    unk_0x18 = offset;
+                    cacheWorkspaceOffset = offset;
                 }
                 return true;
             }

@@ -35,7 +35,7 @@ typedef struct _KBDKeyEvent {
     u8 key;
     u32 flags;
 #else
-    u8 unk_0x00[32];
+    u8 eventData[32];
 #endif
 } KBDKeyEvent;
 
@@ -43,7 +43,7 @@ typedef struct _KBDDevEvent {
 #ifdef TIHKBMANAGER_IMPLEMENTATION
     u8 device;
 #else
-    u8 unk_0x00[32];
+    u8 eventData[32];
 #endif
 } KBDDevEvent;
 

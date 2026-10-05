@@ -23,7 +23,7 @@ namespace ipl {
         NakamuraTest::NakamuraTest(EGG::Heap* heap) : scene::FaderSceneBase(heap), mNetSetup() {
             mpNetSetupHeapBuf = NULL;
             mpNUPHeapBuf = 0;
-            unk_0x2B88 = 0;
+            mReserved2 = 0;
             mState = 0;
 
             mpAppHeapBuf = System::getMem2App()->alloc(0x299999, 4);
@@ -99,7 +99,7 @@ namespace ipl {
                             OSReport("Starting Connecting Test\n");
                             break;
                         }
-                        case NetSetup::NET_SETUP_UNK_4: {
+                        case NetSetup::NET_SETUP_ALTERNATE_ERROR: {
                             mState = 17;
                             mNetSetup.cleanup();
                             mNetSetupLastErr = mNetSetup.getlasterror();

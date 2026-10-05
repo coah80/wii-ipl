@@ -12,7 +12,7 @@ namespace ipl {
     namespace postman {
         class Manager : public utility::ut_thread {
         public:
-            enum { STATE_NONE = 0, STATE_RUN_RECEIVE, STATE_STOP_RUN, STATE_USBETHER_MAC, STATE_DL_TASK, STATE_UNKNOWN };
+            enum { STATE_NONE = 0, STATE_RUN_RECEIVE, STATE_STOP_RUN, STATE_USBETHER_MAC, STATE_DL_TASK, STATE_INITIALIZING };
             Manager(EGG::Heap* heap);
             virtual ~Manager() {}
 
@@ -28,7 +28,7 @@ namespace ipl {
             virtual void* Run();
 
             int Get_CurrentState() const { return mState; }
-            BOOL IsUnknown() { return mState != STATE_UNKNOWN; }
+            BOOL IsUnknown() { return mState != STATE_INITIALIZING; }
             BOOL NotRunning() { return mState == STATE_STOP_RUN; }
 
             void Start_RegistTask(EGG::TaskThread* task) { task->request(register_nwc24, NULL, NULL); }

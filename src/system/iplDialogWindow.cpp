@@ -449,8 +449,8 @@ namespace ipl {
 
                     // unused logic?
                     {
-                        f32 unknown_float = mPageAlpha / 255.f;
-                        math::VEC2 unknown_vec(unknown_float, unknown_float);
+                        f32 normalizedAlpha = mPageAlpha / 255.f;
+                        math::VEC2 alphaScale(normalizedAlpha, normalizedAlpha);
                     }
 
                     if (mPageAlpha != 0) {

@@ -19,7 +19,7 @@ typedef struct NWC24Date {
     u8 hour;   // 0x04
     u8 sec;    // 0x05
     u8 min;    // 0x06
-    u8 unk_0x07;
+    u8 reserved;
 } NWC24Date;
 
 void NWC24Date_Init(NWC24Date* date);

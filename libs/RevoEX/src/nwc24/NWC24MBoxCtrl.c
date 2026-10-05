@@ -782,7 +782,7 @@ static NWC24Err DuplicationCheck(MBCHeader* header, const NWC24MsgObjPrivate* ms
                 duplicateOffset = offset;
                 continue;
             }
-            if (msg->unk_0x1C != 0 && entry->crc == msg->unk_0x1C && entry->type == msg->type && entry->length == msg->length &&
+            if (msg->crc != 0 && entry->crc == msg->crc && entry->type == msg->type && entry->length == msg->length &&
                 entry->flags == msg->headerSize && (s32)entry->date == (s32)msg->date) {
                 duplicateId = entry->msgId;
                 duplicateOffset = offset;
@@ -950,8 +950,8 @@ static NWC24Err CopyMsgObjToMBCFmt(const NWC24MsgObjPrivate* msg, MBCEntry* entr
     u32 field1 = ((u32)msg->fromData.ptr & 0xFFFFF) | (msg->fromData.size << 20);
     u32 field2 = ((u32)msg->toData.ptr & 0xFFFFF) | (msg->toData.size << 20);
     u32 field3 = ((u32)msg->subject.ptr & 0xFFFFF) | (msg->subject.size << 20);
-    u32 field4 = ((u32)msg->unk_0x50.ptr & 0xFFFFF) | (msg->unk_0x50.size << 20);
-    u32 field5 = ((u32)msg->unk_0x58.ptr & 0xFFFFF) | (msg->unk_0x58.size << 20);
+    u32 field4 = ((u32)msg->charsetData.ptr & 0xFFFFF) | (msg->charsetData.size << 20);
+    u32 field5 = ((u32)msg->encodingData.ptr & 0xFFFFF) | (msg->encodingData.size << 20);
     entry->msgId = msg->msgId;
     entry->type = msg->type;
     entry->length = msg->length;
@@ -959,7 +959,7 @@ static NWC24Err CopyMsgObjToMBCFmt(const NWC24MsgObjPrivate* msg, MBCEntry* entr
     entry->flags = msg->headerSize;
     entry->tag = msg->tag;
     entry->ledPattern = msg->ledPattern;
-    entry->crc = msg->unk_0x1C;
+    entry->crc = msg->crc;
     entry->fromIdHigh = msg->fromIdHigh;
     entry->fromIdLow = msg->fromIdLow;
     entry->date = msg->date;
@@ -1006,7 +1006,7 @@ static NWC24Err CopyMsgObjToPrvFmt(const MBCEntry* entry, NWC24MsgObjPrivate* ms
     msg->headerSize = entry->flags;
     msg->tag = entry->tag;
     msg->ledPattern = entry->ledPattern;
-    msg->unk_0x1C = entry->crc;
+    msg->crc = entry->crc;
     msg->fromIdHigh = entry->fromIdHigh;
     msg->fromIdLow = entry->fromIdLow;
     msg->date = entry->date;
@@ -1025,10 +1025,10 @@ static NWC24Err CopyMsgObjToPrvFmt(const MBCEntry* entry, NWC24MsgObjPrivate* ms
     msg->toData.size = size2;
     msg->subject.ptr = (void*)offset3;
     msg->subject.size = size3;
-    msg->unk_0x50.ptr = (void*)offset4;
-    msg->unk_0x50.size = size4;
-    msg->unk_0x58.ptr = (void*)offset5;
-    msg->unk_0x58.size = size5;
+    msg->charsetData.ptr = (void*)offset4;
+    msg->charsetData.size = size4;
+    msg->encodingData.ptr = (void*)offset5;
+    msg->encodingData.size = size5;
     msg->attached[0].ptr = entry->attached[0].ptr;
     msg->attached[0].size = entry->attached[0].size;
     msg->attachedSize[0] = entry->attachedSize[0];

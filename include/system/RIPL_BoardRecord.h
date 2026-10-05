@@ -63,7 +63,7 @@ typedef union RBRRecordFlags {
     u32 data;
     struct {
         u8 optOut;  // 0x00
-        u8 unk_0x01[2];
+        u8 reserved[2];
         u8 type;  // 0x03
     };
 } RBRRecordFlags;

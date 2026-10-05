@@ -20,7 +20,7 @@ namespace ext_ead {
 
 typedef struct FontFileData {
     const char* name;  // 0x00
-    u32 unk_0x04;      // 0x04
+    u32 reserved;      // 0x04
     void* start;       // 0x08
     void* end;         // 0x0C
 } FontFileData;
@@ -173,7 +173,7 @@ namespace ext_ead {
         }
 
         SurfaceManager::SurfaceManager()
-            : mWidth(VI_MAX_WIDTH_FRAMEBUFFER), mHeight(VI_MAX_HEIGHT_FRAMEBUFFER), unk_0x0C(0), mpBrowserThread(NULL), mpOperaThreadStack(NULL),
+            : mWidth(VI_MAX_WIDTH_FRAMEBUFFER), mHeight(VI_MAX_HEIGHT_FRAMEBUFFER), mReserved(0), mpBrowserThread(NULL), mpOperaThreadStack(NULL),
               mpRSOBss(NULL), mpLibBuffer(NULL), mpArcPath(NULL) {
             OSInitMutex(&mMutex);
         }

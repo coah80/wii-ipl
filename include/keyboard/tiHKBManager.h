@@ -241,7 +241,7 @@ namespace textinput {
 #endif
 #endif
         private:
-            u8 unk_0x00[0xFC];
+            u8 mKeyboardStateStorage[0xFC];
 
             static HKBManager sInstance;
         };

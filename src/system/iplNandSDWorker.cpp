@@ -84,7 +84,7 @@ namespace ipl {
         OSInitMutex(&myWork->mutex);
 
         myWork->mainHeap = MEMCreateExpHeapEx(myWork->mHeap19000Buf, sizeof(myWork->mHeap19000Buf), 0);
-        myWork->unkHeap = NULL;
+        myWork->scratchHeap = NULL;
 
         /* Setup Save Data list */
 
@@ -93,9 +93,9 @@ namespace ipl {
             nw4r::ut::List_Init(&myWork->sdSaveList, offsetof(SaveCacheEntry, link));
 
             myWork->saveCacheHeap = MEMCreateUnitHeapEx(savesBuf, saveCacheHeapSize(), sizeof(SaveCacheEntry), 32, 0);
-            myWork->unkHeap = MEMCreateExpHeapEx((u8*)savesBuf + saveCacheHeapSize(), 0x40000, 0);
+            myWork->scratchHeap = MEMCreateExpHeapEx((u8*)savesBuf + saveCacheHeapSize(), 0x40000, 0);
 
-            MEMInitAllocatorForExpHeap(&myWork->unkAllocator, myWork->unkHeap, 64);
+            MEMInitAllocatorForExpHeap(&myWork->scratchAllocator, myWork->scratchHeap, 64);
         } else {
             myWork->saveCacheHeap = NULL;
         }
@@ -108,9 +108,9 @@ namespace ipl {
 
             myWork->appCacheHeap = MEMCreateUnitHeapEx(appsBuf, appCacheHeapSize(), sizeof(AppCacheEntry), 32, 0);
 
-            if (myWork->unkHeap == NULL) {
-                myWork->unkHeap = MEMCreateExpHeapEx((u8*)appsBuf + appCacheHeapSize(), 0x40000, 0);
-                MEMInitAllocatorForExpHeap(&myWork->unkAllocator, myWork->unkHeap, 64);
+            if (myWork->scratchHeap == NULL) {
+                myWork->scratchHeap = MEMCreateExpHeapEx((u8*)appsBuf + appCacheHeapSize(), 0x40000, 0);
+                MEMInitAllocatorForExpHeap(&myWork->scratchAllocator, myWork->scratchHeap, 64);
             }
         } else {
             myWork->appCacheHeap = NULL;
@@ -393,7 +393,7 @@ namespace ipl {
         myWork->paramA = ptrA;
         myWork->paramB = ptrB;
         myWork->paramC = ptrC;
-        send_work(MESSAGE_UNK_49);
+        send_work(MESSAGE_CHECK_SD_APP_TITLES);
     }
 
     void NandSDWorker::get_nand_save_size_async(ESTitleId titleId) {
@@ -584,7 +584,7 @@ namespace ipl {
     bool NandSDWorker::is_user_nand_app(ESTitleId titleId) {
 #define USER_APP_TYPE_MASK                                                                                                                           \
     ((1 << TITLE_TYPE_LO(TITLE_TYPE_DISC)) | (1 << TITLE_TYPE_LO(TITLE_TYPE_CHANNEL)) | (1 << TITLE_TYPE_LO(TITLE_TYPE_DISC_CHANNEL)) |              \
-     (1 << TITLE_TYPE_LO(TITLE_TYPE_UNK6)) | (1 << TITLE_TYPE_LO(TITLE_TYPE_UNK7)))
+     (1 << TITLE_TYPE_LO(TITLE_TYPE_UNK6)) | (1 << TITLE_TYPE_LO(TITLE_TYPE_USER_APP7)))
 
         bool valid = false;
         bool matchUserAppType = false;
@@ -598,7 +598,7 @@ namespace ipl {
           0x00010007
           */
         u32 titleSubtype = (u32)ES_TITLE_TYPE_NOMASK(titleId) - TITLE_TYPE_DISC;
-        if (titleSubtype <= TITLE_TYPE_LO(TITLE_TYPE_UNK7) && ((1 << titleSubtype) & USER_APP_TYPE_MASK)) {
+        if (titleSubtype <= TITLE_TYPE_LO(TITLE_TYPE_USER_APP7) && ((1 << titleSubtype) & USER_APP_TYPE_MASK)) {
             matchUserAppType = true;
         }
 
@@ -726,8 +726,8 @@ namespace ipl {
                     if (myWork->appCacheHeap != NULL) {
                         MEMDestroyUnitHeap(myWork->appCacheHeap);
                     }
-                    if (myWork->unkHeap != NULL) {
-                        MEMDestroyExpHeap(myWork->unkHeap);
+                    if (myWork->scratchHeap != NULL) {
+                        MEMDestroyExpHeap(myWork->scratchHeap);
                     }
 
                     terminated = true;
@@ -796,7 +796,7 @@ namespace ipl {
                     check_backup_fits();
                     break;
                 }
-                case MESSAGE_UNK_49: {
+                case MESSAGE_CHECK_SD_APP_TITLES: {
                     do_check_sd_app_titles();
                     break;
                 }
@@ -1049,8 +1049,8 @@ namespace ipl {
                 myWork->asyncResult = RESULT_NAND_CORRUPT;
                 goto clean_up;
             }
-            if (result == RESULT_UNK_18) {
-                myWork->asyncResult = RESULT_UNK_18;
+            if (result == RESULT_CANCELLED) {
+                myWork->asyncResult = RESULT_CANCELLED;
                 goto clean_up;
             }
             myWork->nandAppNum = numNandApps;
@@ -1236,7 +1236,7 @@ namespace ipl {
         OSReport("NandSDWorker: cleaning partial nand app...\n");
         for (int i = 0; i < titleIdCount; i++) {
             if (mbCancel != false) {
-                return RESULT_UNK_18;
+                return RESULT_CANCELLED;
             }
 
             // The titles that we are going to delete are:
@@ -1641,7 +1641,7 @@ namespace ipl {
     void NandSDWorker::do_get_sd_save_banner() {
         SaveCacheEntry* cacheEntry = find_save_cache(&myWork->sdSaveList, myWork->curTitleId);
         if (cacheEntry == NULL || cacheEntry->banner.signature == 0) {
-            SDSaveBanner* sdSaveBanner = (SDSaveBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDSaveBanner));
+            SDSaveBanner* sdSaveBanner = (SDSaveBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDSaveBanner));
             int result = get_sd_save_banner(myWork->curTitleId, sdSaveBanner);
             if (result == RESULT_OK) {
                 memcpy(myWork->paramA, &sdSaveBanner->banner, sizeof(WIISaveBannerFile));
@@ -1656,7 +1656,7 @@ namespace ipl {
             } else {
                 myWork->asyncResult = result;
             }
-            MEMFreeToAllocator(&myWork->unkAllocator, sdSaveBanner);
+            MEMFreeToAllocator(&myWork->scratchAllocator, sdSaveBanner);
         } else {
             memcpy(myWork->paramA, &cacheEntry->banner, sizeof(WIISaveBannerFile));
             myWork->asyncResult = RESULT_OK;
@@ -1666,7 +1666,7 @@ namespace ipl {
     void NandSDWorker::do_get_sd_app_thumbnail() {
         AppCacheEntry* cacheEntry = find_app_cache(&myWork->sdAppList, myWork->curTitleId);
         if (cacheEntry == NULL || cacheEntry->thumbSize == -1) {
-            SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppBanner));
+            SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppBanner));
             int result = get_sd_app_banner(myWork->curTitleId, sdAppBanner);
             if (result != RESULT_OK) {
                 myWork->asyncResult = result;
@@ -1690,7 +1690,7 @@ namespace ipl {
                 }
             }
             if (sdAppBanner != NULL) {
-                MEMFreeToAllocator(&myWork->unkAllocator, sdAppBanner);
+                MEMFreeToAllocator(&myWork->scratchAllocator, sdAppBanner);
             }
         } else {
             memcpy(myWork->paramA, cacheEntry->thumbnail, cacheEntry->thumbSize);
@@ -1704,7 +1704,7 @@ namespace ipl {
     void NandSDWorker::do_get_sd_app_meta() {
         AppCacheEntry* cacheEntry = find_app_cache(&myWork->sdAppList, myWork->curTitleId);
         if (cacheEntry == NULL || cacheEntry->thumbSize == -1) {
-            SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppBanner));
+            SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppBanner));
             int result = get_sd_app_banner(myWork->curTitleId, sdAppBanner);
             if (result != RESULT_OK) {
                 myWork->asyncResult = result;
@@ -1728,7 +1728,7 @@ namespace ipl {
                 }
             }
             if (sdAppBanner != NULL) {
-                MEMFreeToAllocator(&myWork->unkAllocator, sdAppBanner);
+                MEMFreeToAllocator(&myWork->scratchAllocator, sdAppBanner);
             }
         } else {
             memcpy(myWork->paramA, cacheEntry->thumbnail, cacheEntry->thumbSize);
@@ -1746,8 +1746,8 @@ namespace ipl {
         NETMD5Sum MD5Sum;
 
         const char* c_sd_app_location_paths[2] = {"/private/wii/loc.dat", "/private/wii/loc.bak"};
-        SDAppLocation* sdAppLoc = (SDAppLocation*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppLocation));
-        SDAppLocation* sdAppLocEncrypt = (SDAppLocation*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppLocation));
+        SDAppLocation* sdAppLoc = (SDAppLocation*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppLocation));
+        SDAppLocation* sdAppLocEncrypt = (SDAppLocation*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppLocation));
         // "sdal" (SD App Location?)
         sdAppLoc->signature[0] = 's';
         sdAppLoc->signature[1] = 'd';
@@ -1835,8 +1835,8 @@ namespace ipl {
             }
         }
 
-        MEMFreeToAllocator(&myWork->unkAllocator, sdAppLoc);
-        MEMFreeToAllocator(&myWork->unkAllocator, sdAppLocEncrypt);
+        MEMFreeToAllocator(&myWork->scratchAllocator, sdAppLoc);
+        MEMFreeToAllocator(&myWork->scratchAllocator, sdAppLocEncrypt);
     }
 
     void NandSDWorker::do_read_sd_app_location() {
@@ -1845,8 +1845,8 @@ namespace ipl {
         NETMD5Context md5Ctx;
 
         const char* c_sd_app_location_paths[2] = {"/private/wii/loc.dat", "/private/wii/loc.bak"};
-        SDAppLocation* sdAppLocEncrypt = (SDAppLocation*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppLocation));
-        SDAppLocation* sdAppLoc = (SDAppLocation*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppLocation));
+        SDAppLocation* sdAppLocEncrypt = (SDAppLocation*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppLocation));
+        SDAppLocation* sdAppLoc = (SDAppLocation*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppLocation));
 
         myWork->asyncResult = RESULT_FATAL_SD_ERROR;
         get_sd_free_area();  // why?
@@ -1896,13 +1896,13 @@ namespace ipl {
         if (hadSuccess && errored) {
             myWork->asyncResult = RESULT_SD_APP_LOC_NOT_FOUND;
         }
-        MEMFreeToAllocator(&myWork->unkAllocator, sdAppLocEncrypt);
-        MEMFreeToAllocator(&myWork->unkAllocator, sdAppLoc);
+        MEMFreeToAllocator(&myWork->scratchAllocator, sdAppLocEncrypt);
+        MEMFreeToAllocator(&myWork->scratchAllocator, sdAppLoc);
     }
 
     void NandSDWorker::do_check_for_sd_app_to_nand() {
         // TODO: Clean up paramA and paramB types
-        SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppBanner));
+        SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppBanner));
 
         u16 nandTitleVersion, sdTitleVersion;
         u32 numTicketViews;
@@ -1951,7 +1951,7 @@ namespace ipl {
 
         // Get WAD blocks
         WADBlocks wadBlocks;
-        err = WADImportGetBlocks(appPath, &myWork->unkAllocator, WAD_LOCATION_SD_CARD, ROUNDUP(sdAppBanner->thumbSize, 64) + sizeof(SDAppBanner), 1,
+        err = WADImportGetBlocks(appPath, &myWork->scratchAllocator, WAD_LOCATION_SD_CARD, ROUNDUP(sdAppBanner->thumbSize, 64) + sizeof(SDAppBanner), 1,
                                  &wadBlocks, NULL);
         if (err == WAD_ERROR_INCORRECT_DEVICE) {
             OSReport("NandSDWorker: WADImportGetBlocks failed, not original Wii.[%d]\n", err);
@@ -2010,7 +2010,7 @@ namespace ipl {
             myWork->asyncResult = RESULT_OK;
         }
     clean_up:
-        MEMFreeToAllocator(&myWork->unkAllocator, sdAppBanner);
+        MEMFreeToAllocator(&myWork->scratchAllocator, sdAppBanner);
     }
 
     void NandSDWorker::check_backup_fits() {
@@ -2045,7 +2045,7 @@ namespace ipl {
             u32 backupSize = 0;
             u32 wadOffset = sizeof(SDAppBanner) + ROUNDUP(backupData->head.thumbSize, 64);
 
-            s32 err = WADBackupEx(newTitleIds[i], 1, &myWork->unkAllocator, NULL, &backupSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
+            s32 err = WADBackupEx(newTitleIds[i], 1, &myWork->scratchAllocator, NULL, &backupSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
             if (err != WAD_ERROR_OK) {
                 OSReport("NandSDWorker: WADBackup failed.[%d]\n", err);
                 myWork->asyncResult = RESULT_FATAL_SD_ERROR;
@@ -2070,7 +2070,7 @@ namespace ipl {
             u32 backupSize = 0;
             u32 wadOffset = sizeof(SDAppBanner) + ROUNDUP(backupData->head.thumbSize, 64);
 
-            s32 err = WADBackupEx(replacingTitleIds[i], 1, &myWork->unkAllocator, NULL, &backupSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
+            s32 err = WADBackupEx(replacingTitleIds[i], 1, &myWork->scratchAllocator, NULL, &backupSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
             if (err != WAD_ERROR_OK) {
                 OSReport("NandSDWorker: WADBackup failed.[%d]\n", err);
                 myWork->asyncResult = RESULT_FATAL_SD_ERROR;
@@ -2180,7 +2180,7 @@ namespace ipl {
     }
 
     void NandSDWorker::do_check_sd_app_titles() {
-        SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppBanner));
+        SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppBanner));
 
         /* i guess */
         TitleIdList* titleIdList = (TitleIdList*)myWork->paramA;
@@ -2254,7 +2254,7 @@ namespace ipl {
 
         myWork->asyncResult = RESULT_OK;
 
-        MEMFreeToAllocator(&myWork->unkAllocator, sdAppBanner);
+        MEMFreeToAllocator(&myWork->scratchAllocator, sdAppBanner);
     }
 
     void NandSDWorker::do_get_nand_save_size() {
@@ -2643,7 +2643,7 @@ namespace ipl {
                 ticketView.accessTitleMask = ticketViewList[i].accessTitleMask;
                 ticketView.license = ticketViewList[i].license;
                 ticketView.reserved = ticketViewList[i].reserved;
-                ticketView.unk_0x55 = ticketViewList[i].unk_0x55;
+                ticketView.reservedBeforeContentMask = ticketViewList[i].reservedBeforeContentMask;
                 ticketView.cidxMask = ticketViewList[i].cidxMask;
                 ticketView.limits = ticketViewList[i].limits;
                 esErr = ES_DeleteTicket(&ticketView);
@@ -2722,7 +2722,7 @@ namespace ipl {
                 case TITLE_TYPE_DISC_CHANNEL:
                 case TITLE_TYPE_SHARED:
                 case TITLE_TYPE_UNK6:
-                case TITLE_TYPE_UNK7: {
+                case TITLE_TYPE_USER_APP7: {
                     // Delete user installed titles
                     ret = utility::ESMisc::DeleteTitle(System::getMem2Sys(), titleIds[i]);
                     if (ret != ES_ERR_OK && ret != ES_ERR_DONT_EXISTS) {
@@ -2932,10 +2932,10 @@ namespace ipl {
         // Attempt to backup
         if (isDataOnlyTitle) {
             wadErr =
-                WADBackupEx(myWork->curTitleId, 1, &myWork->unkAllocator, NULL, &backupWadSize, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), NULL);
+                WADBackupEx(myWork->curTitleId, 1, &myWork->scratchAllocator, NULL, &backupWadSize, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), NULL);
         } else {
             wadErr =
-                WADBackupEx(myWork->curTitleId, 14, &myWork->unkAllocator, NULL, &backupWadSize, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), NULL);
+                WADBackupEx(myWork->curTitleId, 14, &myWork->scratchAllocator, NULL, &backupWadSize, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), NULL);
         }
         if (wadErr == WAD_ERROR_NOCOPY) {
             OSReport("NandSDWorker: WADBackup 0x%016llx failed, this save data has nocopy only.[%d]\n", myWork->curTitleId, wadErr);
@@ -2958,7 +2958,7 @@ namespace ipl {
         NETCalcMD5(MD5Sum, sdSaveBnr, sizeof(SDSaveBanner));
 
         memcpy(sdSaveBnr->MD5Sum, MD5Sum, NET_MD5_DIGEST_SIZE);
-        encSaveBnr = MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDSaveBanner));
+        encSaveBnr = MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDSaveBanner));
         if (encrypt(sdSaveBnr, sizeof(SDSaveBanner), encSaveBnr) != RESULT_OK) {
             myWork->asyncResult = RESULT_FATAL_SD_ERROR;
             goto clean_up;
@@ -2966,9 +2966,9 @@ namespace ipl {
 
         backedUp = true;
         if (isDataOnlyTitle) {
-            wadErr = WADBackupEx(myWork->curTitleId, 1, &myWork->unkAllocator, savePath, &backupWadSize, WAD_LOCATION_SD_CARD, 0xf0c0, NULL);
+            wadErr = WADBackupEx(myWork->curTitleId, 1, &myWork->scratchAllocator, savePath, &backupWadSize, WAD_LOCATION_SD_CARD, 0xf0c0, NULL);
         } else {
-            wadErr = WADBackupEx(myWork->curTitleId, 14, &myWork->unkAllocator, savePath, &backupWadSize, WAD_LOCATION_SD_CARD, 0xf0c0, NULL);
+            wadErr = WADBackupEx(myWork->curTitleId, 14, &myWork->scratchAllocator, savePath, &backupWadSize, WAD_LOCATION_SD_CARD, 0xf0c0, NULL);
         }
         if (wadErr == WAD_ERROR_NOCOPY) {
             OSReport("NandSDWorker: WADBackup 0x%016llx failed, this save data has nocopy only.[%d]\n", myWork->curTitleId, wadErr);
@@ -3027,7 +3027,7 @@ namespace ipl {
             MEMFreeToExpHeap(myWork->mainHeap, sdSaveBnr);
         }
         if (encSaveBnr != NULL) {
-            MEMFreeToAllocator(&myWork->unkAllocator, encSaveBnr);
+            MEMFreeToAllocator(&myWork->scratchAllocator, encSaveBnr);
         }
 
         change_uid(SYSMENU_TITLE_ID);
@@ -3108,7 +3108,7 @@ namespace ipl {
             if (result == RESULT_OK) {
                 if ((fileStat.stat & FA_FILE_STAT_DIR) == 0) {
                     OSReport("NandSDWorker: %s is not a dir.[%d]\n", fileName, fileStat.stat);
-                    return RESULT_UNK_N12;
+                    return RESULT_FILENAME_CONFLICT;
                 }
                 break;
             }
@@ -3170,7 +3170,7 @@ namespace ipl {
         bool changedDir = false;
         bool isDataOnlyTitle = false;
         get_sd_save_path(myWork->curTitleId, sdSavePath);
-        saveBanner = (SDSaveBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDSaveBanner));
+        saveBanner = (SDSaveBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDSaveBanner));
         int getSaveBannerRes = get_sd_save_banner(myWork->curTitleId, saveBanner);
         if (getSaveBannerRes != RESULT_OK) {
             myWork->asyncResult = getSaveBannerRes;
@@ -3252,7 +3252,7 @@ namespace ipl {
         }
 
         WADBlocks wadBlocks;
-        wadErr = WADImportGetBlocks(sdSavePath, &myWork->unkAllocator, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), 1, &wadBlocks, NULL);
+        wadErr = WADImportGetBlocks(sdSavePath, &myWork->scratchAllocator, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), 1, &wadBlocks, NULL);
         if (wadErr == WAD_ERROR_INCORRECT_DEVICE) {
             OSReport("NandSDWorker: WADImportGetBlocks failed, not original Wii.[%d]\n", wadErr);
             myWork->asyncResult = RESULT_NOT_TRANSFERRABLE;
@@ -3297,7 +3297,7 @@ namespace ipl {
             }
         }
 
-        wadErr = WADImportEx(sdSavePath, &myWork->unkAllocator, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), 8, NULL);
+        wadErr = WADImportEx(sdSavePath, &myWork->scratchAllocator, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), 8, NULL);
         if (wadErr != WAD_ERROR_OK) {
             OSReport("NandSDWorker: WADRestoreSDEx failed.[%d]\n", wadErr);
             if (isDataOnlyTitle) {
@@ -3387,7 +3387,7 @@ namespace ipl {
             }
         }
         if (saveBanner != NULL) {
-            MEMFreeToAllocator(&myWork->unkAllocator, saveBanner);
+            MEMFreeToAllocator(&myWork->scratchAllocator, saveBanner);
         }
     }
 
@@ -3670,7 +3670,7 @@ namespace ipl {
         wadSize = 0;
         wadOffset = ROUNDUP(sdBanner->head.thumbSize, 64) + sizeof(SDAppBanner);
 
-        result = WADBackupEx(myWork->curTitleId, 1, &myWork->unkAllocator, NULL, &wadSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
+        result = WADBackupEx(myWork->curTitleId, 1, &myWork->scratchAllocator, NULL, &wadSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
         if (result != 0) {
             OSReport("NandSDWorker: WADBackup failed.[%d]\n", result);
             myWork->asyncResult = RESULT_FATAL_SD_ERROR;
@@ -3698,7 +3698,7 @@ namespace ipl {
         NETCalcMD5(MD5Sum, sdBanner, sizeof(SDAppBanner));
         memcpy(sdBanner->head.headerMD5, MD5Sum, NET_MD5_DIGEST_SIZE);
 
-        encBanner = (SDAppBackupData*)MEMAllocFromAllocator(&myWork->unkAllocator, wadOffset);
+        encBanner = (SDAppBackupData*)MEMAllocFromAllocator(&myWork->scratchAllocator, wadOffset);
         if (encrypt(&sdBanner->head, sizeof(SDAppBanner), &encBanner->head) != RESULT_OK) {
             myWork->asyncResult = RESULT_FATAL_SD_ERROR;
             goto clean_up;
@@ -3712,7 +3712,7 @@ namespace ipl {
         backedUp = true;
 
         s32 wadErr;
-        wadErr = WADBackupEx(myWork->curTitleId, 1, &myWork->unkAllocator, sdAppPath, &wadSize, WAD_LOCATION_SD_CARD, wadOffset,
+        wadErr = WADBackupEx(myWork->curTitleId, 1, &myWork->scratchAllocator, sdAppPath, &wadSize, WAD_LOCATION_SD_CARD, wadOffset,
                              wad_backup_progress_callback);
         if (wadErr != WAD_ERROR_OK) {
             OSReport("NandSDWorker: WADBackup failed.[%d]\n", wadErr);
@@ -3755,7 +3755,7 @@ namespace ipl {
     clean_up:
         MEMFreeToExpHeap(myWork->mainHeap, sdBanner);
         if (encBanner != NULL) {
-            MEMFreeToAllocator(&myWork->unkAllocator, encBanner);
+            MEMFreeToAllocator(&myWork->scratchAllocator, encBanner);
         }
         if (myWork->asyncResult < RESULT_OK && backedUp) {
             result = handle_sd_error_for_entry(FARemove(sdAppPath), NULL);
@@ -4142,7 +4142,7 @@ namespace ipl {
     }
 
     void NandSDWorker::do_copy_sd_app_to_nand(bool changeAppCount) {
-        SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppBanner));
+        SDAppBanner* sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppBanner));
         u16 titleVersion = 0;
         u16 wadVersion = 0;
         if (!changeAppCount) {
@@ -4203,7 +4203,7 @@ namespace ipl {
         }
 
         WADBlocks wadBlocks;
-        wadErr = WADImportGetBlocks(sdAppPath, &myWork->unkAllocator, WAD_LOCATION_SD_CARD, ROUNDUP(sdAppBanner->thumbSize, 64) + sizeof(SDAppBanner),
+        wadErr = WADImportGetBlocks(sdAppPath, &myWork->scratchAllocator, WAD_LOCATION_SD_CARD, ROUNDUP(sdAppBanner->thumbSize, 64) + sizeof(SDAppBanner),
                                     1, &wadBlocks, NULL);
         if (wadErr == WAD_ERROR_INCORRECT_DEVICE) {
             OSReport("NandSDWorker: WADImportGetBlocks failed, not original Wii.[%d]\n", wadErr);
@@ -4226,7 +4226,7 @@ namespace ipl {
             goto clean_up;
         }
 
-        wadErr = WADImportEx(sdAppPath, &myWork->unkAllocator, WAD_LOCATION_SD_CARD, ROUNDUP(sdAppBanner->thumbSize, 64) + sizeof(SDAppBanner), 8,
+        wadErr = WADImportEx(sdAppPath, &myWork->scratchAllocator, WAD_LOCATION_SD_CARD, ROUNDUP(sdAppBanner->thumbSize, 64) + sizeof(SDAppBanner), 8,
                              wad_backup_progress_callback);
         if (wadErr == WAD_ERROR_INCORRECT_DEVICE) {
             OSReport("NandSDWorker: WADRestoreSDEx failed, not original Wii.[%d]\n", wadErr);
@@ -4258,7 +4258,7 @@ namespace ipl {
 
     clean_up:
         if (sdAppBanner != NULL) {
-            MEMFreeToAllocator(&myWork->unkAllocator, sdAppBanner);
+            MEMFreeToAllocator(&myWork->scratchAllocator, sdAppBanner);
         }
         return;
     }
@@ -4367,7 +4367,7 @@ namespace ipl {
         }
 
         cmprBuf = (u8*)MEMAllocFromExpHeapEx(myWork->mainHeap, ROUNDUP(appBanner->thumbSize, 64), 32);
-        encBanner = (u8*)MEMAllocFromAllocator(&myWork->unkAllocator, ROUNDUP(appBanner->thumbSize, 64));
+        encBanner = (u8*)MEMAllocFromAllocator(&myWork->scratchAllocator, ROUNDUP(appBanner->thumbSize, 64));
 
         FAFILE* stream;
         stream = FAFopen(appPath, "r");
@@ -4419,7 +4419,7 @@ namespace ipl {
 
     clean_up:
         MEMFreeToExpHeap(myWork->mainHeap, cmprBuf);
-        MEMFreeToAllocator(&myWork->unkAllocator, encBanner);
+        MEMFreeToAllocator(&myWork->scratchAllocator, encBanner);
         return ret;
     }
 
@@ -4878,7 +4878,7 @@ namespace ipl {
 
         while (faErr == FA_ERR_SUCCESS) {
             if (mbCancel != false) {
-                return RESULT_UNK_18;
+                return RESULT_CANCELLED;
             }
 
             if ((fileDta.attribute & 0x10) != 0) {
@@ -5361,7 +5361,7 @@ namespace ipl {
     }
 
     bool NandSDWorker::is_fa_file(u8 stat) {
-        return (stat & FA_FILE_STAT_DIR) == 0 && (stat & FA_FILE_UNK_1) == 0;
+        return (stat & FA_FILE_STAT_DIR) == 0 && (stat & FA_FILE_STAT_HIDDEN) == 0;
     }
 
     int NandSDWorker::get_nand_save_perms(ESTitleId titleId) {
@@ -5512,13 +5512,13 @@ namespace ipl {
 
     bool NandSDWorker::both_app_exist(ESTitleId32 titleId) {
         bool exists = false;
-        SDAppBanner* banner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppBanner));
+        SDAppBanner* banner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppBanner));
         if (get_sd_app_banner(titleId, banner) == RESULT_OK && nand_app_exist_ex(banner->titleId) == EXISTENCE_COMPLETE) {
             exists = true;
         }
 
         if (banner != NULL) {
-            MEMFreeToAllocator(&myWork->unkAllocator, banner);
+            MEMFreeToAllocator(&myWork->scratchAllocator, banner);
         }
 
         return exists;
@@ -5526,7 +5526,7 @@ namespace ipl {
 
     bool NandSDWorker::check_nand_save_exist_lo(ESTitleId32 titleId) {
         bool exists = false;
-        SDSaveBanner* banner = (SDSaveBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDSaveBanner));
+        SDSaveBanner* banner = (SDSaveBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDSaveBanner));
         if (get_sd_save_banner(titleId, banner) == RESULT_OK) {
             if (is_data_only_title(titleId)) {
                 exists = nand_app_exist(banner->curTitleId);
@@ -5536,7 +5536,7 @@ namespace ipl {
         }
 
         if (banner != NULL) {
-            MEMFreeToAllocator(&myWork->unkAllocator, banner);
+            MEMFreeToAllocator(&myWork->scratchAllocator, banner);
         }
 
         return exists;
@@ -5562,10 +5562,10 @@ namespace ipl {
         SDAppBanner* banner;
         int ret;
 
-        banner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppBanner));
+        banner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppBanner));
         ret = get_sd_app_banner(titleId, banner);
         if (ret != RESULT_OK) {
-            MEMFreeToAllocator(&myWork->unkAllocator, banner);
+            MEMFreeToAllocator(&myWork->scratchAllocator, banner);
             return RESULT_FATAL_SD_ERROR;
         } else {
             char path[NAND_MAX_PATH];
@@ -5577,7 +5577,7 @@ namespace ipl {
                 OSReport("NandSDWorker: WADGetTitleVersionEx failed.[%d]\n", wadErr);
                 ret = RESULT_FATAL_SD_ERROR;
             }
-            MEMFreeToAllocator(&myWork->unkAllocator, banner);
+            MEMFreeToAllocator(&myWork->scratchAllocator, banner);
             return ret;
         }
     }
@@ -5587,7 +5587,7 @@ namespace ipl {
         ESTitleId fullTitleId;
         int ret;
 
-        sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->unkAllocator, sizeof(SDAppBanner));
+        sdAppBanner = (SDAppBanner*)MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDAppBanner));
         u16 nandTitleVersion = 0;
         u16 sdTitleVersion = 0;
         ret = get_sd_app_banner(titleId, sdAppBanner);
@@ -5634,7 +5634,7 @@ namespace ipl {
         }
 
     clean_up:
-        MEMFreeToAllocator(&myWork->unkAllocator, sdAppBanner);
+        MEMFreeToAllocator(&myWork->scratchAllocator, sdAppBanner);
         return ret;
     }
 }  // namespace ipl

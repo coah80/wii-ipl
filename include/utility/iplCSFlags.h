@@ -6,9 +6,9 @@
 namespace ipl {
     namespace utility {
         typedef struct CSFlagsData {
-            u8 unk_0x00[0x04 - 0x00];
+            u8 reservedHeader[0x04 - 0x00];
             u32 flags;  // 0x04
-            u8 unk_0x08[0x20 - 0x08];
+            u8 reserved[0x20 - 0x08];
 
             enum {
                 FLAG_SYSCONF_EULA = 0,

@@ -18,7 +18,7 @@ void NWC24Date_Init(NWC24Date* date) {
     date->hour = 12;
     date->min = 0;
     date->sec = 0;
-    date->unk_0x07 = 0;
+    date->reserved = 0;
 }
 
 void NWC24iConvIdToStr(NWC24UserId addr, char* out) {

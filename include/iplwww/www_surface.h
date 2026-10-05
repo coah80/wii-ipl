@@ -70,7 +70,7 @@ namespace ext_ead {
             u32 mWidth;   // 0x04
             u32 mHeight;  // 0x08
 
-            u32 unk_0x0C;  // 0x0C
+            u32 mReserved;  // 0x0C
 
             OSMutex mMutex;                  // 0x10
             BrowserThread* mpBrowserThread;  // 0x28

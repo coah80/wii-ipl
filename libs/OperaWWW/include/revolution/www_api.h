@@ -31,11 +31,11 @@ typedef int (*WWWSurfaceInitFn)(int w, int h, u32 rowSize, int, void* rasterBuf)
 typedef int (*WWWSurfaceSetFlushCallbackFn)(void (*FlushCallback)(WWWRect*, int), int);
 typedef void (*WWWSurfaceAddFontFn)(const char*);
 typedef void (*WWWSurfaceUpdateScreenFn)(u32);
-typedef void (*WWWSurfaceKeyboardEvtFn)(WWWKeyBtnCmd cmd, WWWKeySym sym, u32 unk);
-typedef void (*WWWSurfaceMouseEvtFn)(WWWMouseCmd cmd, int x, int y, WWWMouseAttrib attrib, u32 unkA, u32 unkB);
+typedef void (*WWWSurfaceKeyboardEvtFn)(WWWKeyBtnCmd cmd, WWWKeySym sym, u32 keyboardOptions);
+typedef void (*WWWSurfaceMouseEvtFn)(WWWMouseCmd cmd, int x, int y, WWWMouseAttrib attrib, u32 button, u32 mouseOptions);
 
 typedef void (*WWWCommitImeFn)(int imeID, const char* str);
-typedef void (*WWWUpdateImeFn)(int imeID, const char* str, u32 unk);
+typedef void (*WWWUpdateImeFn)(int imeID, const char* str, u32 updateOptions);
 
 typedef BOOL (*WWWNotifyCallbackFn)(WWWHandle* wwwBrowser, WWWHandlewindow* wwwWindow, WWWEvent event, WWWHandleEventData* eventData);
 typedef void (*WWWCreateBrowserFn)(WWWHandle** browser, WWWNotifyCallbackFn notifyCallback, const char** fonts, const char* arc);

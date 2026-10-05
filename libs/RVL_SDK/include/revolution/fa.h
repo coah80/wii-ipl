@@ -24,11 +24,11 @@ FAError FAUnmount(s8 drive, u32 force);
 
 FAError FAGetdev(s8 drive, FADevInf* data);
 
-FAError FAFormat(s8 drive, u32 unk);
+FAError FAFormat(s8 drive, u32 mode);
 
 FAError FAErrnum();
 
-FAFILE* FACreate(const char* fileName, int unk);
+FAFILE* FACreate(const char* fileName, int mode);
 
 FAFILE* FAFopen(const char* fileName, const char* mode);
 size_t FAFread(void* buffer, size_t size, size_t count, FAFILE* stream);
@@ -45,7 +45,7 @@ FAError FAFclose(FAFILE* stream);
 
 FAError FARemove(const char* fileName);
 
-FAError FACreatedir(const char* dirName, s32 unk, FADta* dta);
+FAError FACreatedir(const char* dirName, s32 mode, FADta* dta);
 
 #ifdef __cplusplus
 }

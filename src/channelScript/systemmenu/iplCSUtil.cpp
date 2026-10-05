@@ -10,8 +10,8 @@ namespace ipl {
                 bool result = false;
 
                 if (object != NULL) {
-                    u32* unk = (u32*)object->value.ptr_v;
-                    if (unk != NULL && unk[0] != 0) {
+                    u32* objectData = (u32*)object->value.ptr_v;
+                    if (objectData != NULL && objectData[0] != 0) {
                         result = true;
                     }
                 }

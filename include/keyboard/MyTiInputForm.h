@@ -38,7 +38,7 @@ namespace textinput {
                     InputForm(textinput::Manager* manager, nw4r::lyt::MultiArcResourceAccessor* multiArc,
                               const char* layoutName, EventObserver* event, const char* fontName)
                         : textinput::InputForm(manager, multiArc, layoutName, event, fontName),
-                          unk_0x308(NULL), unk_0x30C(NULL), unk_0x310(NULL), unk_0x314(NULL),
+                          mpMemoPane(NULL), mpMemoRootPane(NULL), mpBoundPane(NULL), mpDrawPane(NULL),
                           mfScroll(0.0f), mfScrollFrom(0.0f), mfScrollTo(0.0f), mnLine(0),
                           mDrawRect(), mDefaultDrawSize(), mDefaultBoundSize(), mExScrollAnm(),
                           mpNigaoeObserver(NULL), mpDefaultNigaoe(NULL), mpSendString(NULL),
@@ -159,11 +159,11 @@ namespace textinput {
                     nw4r::lyt::Pane* mpDrawPane;
 #else
 #ifdef MYTIMANAGER_IMPLEMENTATION
-                    undefined4*             unk_0x308;
+                    undefined4*             mpMemoPane;
 #endif
-                    undefined4*             unk_0x30C;
-                    undefined4*             unk_0x310;
-                    undefined4*             unk_0x314;
+                    undefined4*             mpMemoRootPane;
+                    undefined4*             mpBoundPane;
+                    undefined4*             mpDrawPane;
 #endif
                     f32                     mfScroll;           // 0x318
                     f32                     mfScrollFrom;       // 0x31C

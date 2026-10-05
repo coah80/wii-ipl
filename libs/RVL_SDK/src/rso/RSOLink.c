@@ -31,11 +31,11 @@ extern char _f_sbss2[];
 #define S_PPC_BSS 7
 #define S_PPC_SDATA 8
 #define S_PPC_SDATA2 9
-#define S_PPC_SDATA_UNK 10
+#define S_PPC_SDATA_ZERO_BASE 10
 #define S_PPC_SBSS 11
 #define S_PPC_SBSS2 12
-#define S_PPC_SBSS_UNK 13
-#define S_PPC_241_UNK 241
+#define S_PPC_SBSS_ZERO_BASE 13
+#define S_PPC_INVALID_SDA21 241
 
 /* Relocation types */
 
@@ -349,11 +349,11 @@ BOOL RSOStaticLocateObject(void* newModule) {
                 si->offset = (u32)_f_sbss2;
                 break;
             }
-            case S_PPC_SDATA_UNK: {
+            case S_PPC_SDATA_ZERO_BASE: {
                 si->offset = 0;
                 break;
             }
-            case S_PPC_SBSS_UNK: {
+            case S_PPC_SBSS_ZERO_BASE: {
                 si->offset = 0;
                 break;
             }
@@ -834,13 +834,13 @@ static void RSORelocateSmallDataSection(RSOObjectHeader* rsoImp, int impIndex, R
                         }
                         break;
                     }
-                    case S_PPC_SDATA_UNK:
-                    case S_PPC_SBSS_UNK: {
+                    case S_PPC_SDATA_ZERO_BASE:
+                    case S_PPC_SBSS_ZERO_BASE: {
                         *p = (u8)(*p & ~31);
                         base = 0;
                         break;
                     }
-                    case S_PPC_241_UNK: {
+                    case S_PPC_INVALID_SDA21: {
                         OSReport("ERROR: incorrect R_PPC_EMB_SDA21 data.\n");
                         break;
                     }

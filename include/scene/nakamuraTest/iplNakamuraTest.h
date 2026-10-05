@@ -54,9 +54,9 @@ namespace ipl {
             u64 mAmtTotal;                // 0x2B70
             u16 mCurrVersion;             // 0x2B78
             void* mpNUPInstance;          // 0x2B7C
-            u32 unk_0x2B80;               // 0x2B80
-            u32 unk_0x2B84;               // 0x2B84
-            u32 unk_0x2B88;               // 0x2B88
+            u32 mReserved0;               // 0x2B80
+            u32 mReserved1;               // 0x2B84
+            u32 mReserved2;               // 0x2B88
 
             static EGG::Heap* spHeap;
             static BOOL sNHTTPFinished;

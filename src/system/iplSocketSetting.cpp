@@ -53,7 +53,7 @@ namespace ipl {
             }
         }
 
-        void* SocketSetting::allocfunc(u32 unk, s32 size) {
+        void* SocketSetting::allocfunc(u32 allocationName, s32 size) {
             void* buf = NULL;
             if (size > 0) {
                 buf = MEMAllocFromExpHeapEx(mpHeap, size, DEFAULT_ALIGN);
@@ -61,7 +61,7 @@ namespace ipl {
             return buf;
         }
 
-        void SocketSetting::freefunc(u32 unk, void* buffer, s32 size) {
+        void SocketSetting::freefunc(u32 allocationName, void* buffer, s32 size) {
             if (buffer != NULL) {
                 MEMFreeToExpHeap(mpHeap, buffer);
             }

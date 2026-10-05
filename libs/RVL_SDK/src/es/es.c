@@ -93,7 +93,7 @@ out:
     return ret;
 }
 
-ESError ES_ImportTicket(ESTicket* ticket, void* certs, u32 certSize, void* crls, u32 crlSize, int unknown) {
+ESError ES_ImportTicket(ESTicket* ticket, void* certs, u32 certSize, void* crls, u32 crlSize, int transferMode) {
     DECLARE_ES_WORK;
 
     IOSIoVector* vec = (IOSIoVector*)AT_ES_WORK(0xD0);
@@ -124,7 +124,7 @@ ESError ES_ImportTicket(ESTicket* ticket, void* certs, u32 certSize, void* crls,
     vec[2].base = (u8*)crls;
     vec[2].length = crlSize;
 
-    if (unknown == 0) {
+    if (transferMode == 0) {
         ret = IOS_Ioctlv(__esFd, ES_IOCTLV_IMPORT_TICKET, 3, 0, vec);
         goto out;
     }
@@ -232,11 +232,11 @@ ESError ES_GetDeviceId(ESDeviceId* deviceId) {
     return ret;
 }
 
-ESError ES_ImportTitleInit(void* tmd, u32 tmdSize, void* certs, u32 certSize, void* crls, u32 crlSize, int unknown0, int unknown1) {
+ESError ES_ImportTitleInit(void* tmd, u32 tmdSize, void* certs, u32 certSize, void* crls, u32 crlSize, int importMode, int importOptions) {
     DECLARE_ES_WORK;
 
     IOSIoVector* vec = (IOSIoVector*)AT_ES_WORK(0xD0);
-    int* pUnknown = (int*)AT_ES_WORK(0x00);
+    int* pImportOptions = (int*)AT_ES_WORK(0x00);
 
     ESError ret;
 
@@ -248,12 +248,12 @@ ESError ES_ImportTitleInit(void* tmd, u32 tmdSize, void* certs, u32 certSize, vo
         return ES_ERR_INVALID;
     }
 
-    switch (unknown0) {
+    switch (importMode) {
         case 0: {
             if (tmd == NULL || tmdSize == 0 || certs == NULL || certSize == 0) {
                 return ES_ERR_INVALID;
             }
-            *pUnknown = unknown1;
+            *pImportOptions = importOptions;
 
             vec[0].base = (u8*)tmd;
             vec[0].length = tmdSize;
@@ -264,8 +264,8 @@ ESError ES_ImportTitleInit(void* tmd, u32 tmdSize, void* certs, u32 certSize, vo
             vec[2].base = (u8*)crls;
             vec[2].length = crlSize;
 
-            vec[3].base = (u8*)pUnknown;
-            vec[3].length = sizeof(*pUnknown);
+            vec[3].base = (u8*)pImportOptions;
+            vec[3].length = sizeof(*pImportOptions);
 
             ret = IOS_Ioctlv(__esFd, ES_IOCTLV_IMPORT_TITLE_0, 4, 0, vec);
             return ret;
@@ -1120,7 +1120,7 @@ ESError ES_DiGetTmdView(ESTitleMeta* tmd, u32 tmdSize, ESTmdView* tmdView, u32* 
 }
 
 ESError ES_ExportTitleInit(ESTitleId titleId, ESDeviceId deviceId, ESTicketId ticketId, void* certs, u32 certSize, void* crls, u32 crlSize,
-                           int unknown, void* ticket, void* tmd, u32 tmdSize) {
+                           int transferMode, void* ticket, void* tmd, u32 tmdSize) {
     DECLARE_ES_WORK;
 
     IOSIoVector* vec = (IOSIoVector*)AT_ES_WORK(0xD0);
@@ -1136,7 +1136,7 @@ ESError ES_ExportTitleInit(ESTitleId titleId, ESDeviceId deviceId, ESTicketId ti
         return ES_ERR_INVALID;
     }
 
-    switch (unknown) {
+    switch (transferMode) {
         case 2: {
             // @bug: Value is not returned.
             if (tmd == NULL || tmdSize == 0) {

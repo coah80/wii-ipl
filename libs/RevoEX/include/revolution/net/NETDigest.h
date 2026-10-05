@@ -48,7 +48,7 @@ static void NETCalcMD5(void* digest, const void* input, u32 length) {
 /* == SHA1 == */
 
 typedef struct NETSHA1Context {
-    u8 unk_0x00[0x60];  // 0x00
+    u8 state[0x60];  // 0x00
 } NETSHA1Context;
 
 #define NET_SHA1_DIGEST_SIZE 20

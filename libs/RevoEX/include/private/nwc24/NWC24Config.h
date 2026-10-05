@@ -41,7 +41,7 @@ typedef struct NWC24ConfigData {
     char mailDelServerURL[128];  // 0x21C
     char mailTrsServerURL[128];  // 0x29C
 
-    char unk_0x31C[0x3F8 - 0x31C];
+    char reserved[0x3F8 - 0x31C];
 
     BOOL allowBootWC24Title;  // 0x3F8
 

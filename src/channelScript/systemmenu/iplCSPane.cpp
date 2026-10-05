@@ -558,11 +558,11 @@ namespace ipl {
                 return out;
             }
 
-            BOOL _ctor(CHANSVm* VmInst, CHANSVmObjHdr* VmObj, u32 unk) {
+            BOOL _ctor(CHANSVm* VmInst, CHANSVmObjHdr* VmObj, u32 paneAddress) {
                 BOOL result = FALSE;
                 u32* data = static_cast<u32*>(CHANSVmNewObjData(VmInst, VmObj, sizeof(u32)));
                 if (data != NULL) {
-                    *data = unk;
+                    *data = paneAddress;
                     VmObj->type = CHANS_VM_TYPE_OBJECT;
                     CHANSVmNativeClass* ncls = CHANSVmFindNativeClass(VmInst, "Pane");
                     VmObj->parentCls = ncls;

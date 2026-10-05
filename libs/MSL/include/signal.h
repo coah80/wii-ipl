@@ -9,12 +9,12 @@ extern "C" {
 #define SIGNAL_ACTION_IGNORE ((__signal_func_ptr)1)
 
 #define SIGNAL_ABORT 1
-#define SIGNAL_UNK2 2
-#define SIGNAL_UNK3 3
-#define SIGNAL_UNK4 4
-#define SIGNAL_UNK5 5
-#define SIGNAL_UNK6 6
-#define SIGNAL_UNK7 7
+#define SIGNAL_HANDLER_2 2
+#define SIGNAL_HANDLER_3 3
+#define SIGNAL_HANDLER_4 4
+#define SIGNAL_HANDLER_5 5
+#define SIGNAL_HANDLER_6 6
+#define SIGNAL_HANDLER_7 7
 
 typedef void (*__signal_func_ptr)(int);
 

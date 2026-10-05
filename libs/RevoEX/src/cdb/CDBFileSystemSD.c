@@ -119,7 +119,7 @@ BOOL CDBFindDataIsEndSD(CDBFindDataSD* findData) {
 
 BOOL CDBFSIsDirNameSD(char* path) {
     u32 i;
-    u32 unk;
+    u32 pathWork;
     char* driveRoots[] = {
         CDB_CFG_SD_VF_DRIVE_ROOT,
     };

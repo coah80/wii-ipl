@@ -1069,10 +1069,10 @@ CDBErr CDBDatabaseSearchYearLayer(CDBDatabase* database, CDBSearchConditions* co
 }
 
 
-CDBErr CDBDatabaseSearch(CDBDatabase* database, CDBDate beginDate, CDBDate endDate, CDBSearchDirection searchDirection, char* makerCode, char* gameCode, int unk7, CDBRecordLocation recordLocation, int unk9, CDBSearchRecordCB searchRecordCB, void* searchRecordArg) {
+CDBErr CDBDatabaseSearch(CDBDatabase* database, CDBDate beginDate, CDBDate endDate, CDBSearchDirection searchDirection, char* makerCode, char* gameCode, int recordType, CDBRecordLocation recordLocation, int openRecord, CDBSearchRecordCB searchRecordCB, void* searchRecordArg) {
     CDBErr result;
     CDBLock();
-    result = CDBDatabaseSearch_(database, beginDate, endDate, searchDirection, makerCode, gameCode, (char*)unk7, recordLocation, unk9, searchRecordCB, searchRecordArg, NULL);
+    result = CDBDatabaseSearch_(database, beginDate, endDate, searchDirection, makerCode, gameCode, (char*)recordType, recordLocation, openRecord, searchRecordCB, searchRecordArg, NULL);
     CDBUnlock();
     return result;
 }

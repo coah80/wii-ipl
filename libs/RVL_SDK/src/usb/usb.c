@@ -354,7 +354,7 @@ static IOSError __CtrlMsgInt(s32 fd, u8 requestType, u8 request, u16 value, u16 
     IOSIoVector* vectors;
     u8* requestTypeWork;
     u8* requestWork;
-    u8* unkWork;
+    u8* controlOptionsWork;
     u16* valueWork;
     u16* indexWork;
     u16* lengthWork;
@@ -369,12 +369,12 @@ static IOSError __CtrlMsgInt(s32 fd, u8 requestType, u8 request, u16 value, u16 
     vectors = (IOSIoVector*)IOSAlloc(0xE0);
     requestTypeWork = (u8*)IOSAlloc(DEFAULT_ALIGN);
     requestWork = (u8*)IOSAlloc(DEFAULT_ALIGN);
-    unkWork = (u8*)IOSAlloc(DEFAULT_ALIGN);
+    controlOptionsWork = (u8*)IOSAlloc(DEFAULT_ALIGN);
     valueWork = (u16*)IOSAlloc(DEFAULT_ALIGN);
     indexWork = (u16*)IOSAlloc(DEFAULT_ALIGN);
     lengthWork = (u16*)IOSAlloc(DEFAULT_ALIGN);
 
-    if (requestTypeWork == NULL || requestWork == NULL || unkWork == NULL || valueWork == NULL || indexWork == NULL || lengthWork == NULL ||
+    if (requestTypeWork == NULL || requestWork == NULL || controlOptionsWork == NULL || valueWork == NULL || indexWork == NULL || lengthWork == NULL ||
         vectors == NULL) {
         USB_ERR("Ctrl Msg: Not enough memory\n");
         result = IPC_RESULT_ALLOC_FAILED;
@@ -386,7 +386,7 @@ static IOSError __CtrlMsgInt(s32 fd, u8 requestType, u8 request, u16 value, u16 
     *valueWork = (value & 0xFF) << 8 | value >> 8 & 0xFF;
     *indexWork = (index & 0xFF) << 8 | index >> 8 & 0xFF;
     *lengthWork = (length & 0xFF) << 8 | length >> 8 & 0xFF;
-    *unkWork = 0;
+    *controlOptionsWork = 0;
 
     // Input vector 1: bmRequestType
     vectors[0].base = requestTypeWork;
@@ -409,7 +409,7 @@ static IOSError __CtrlMsgInt(s32 fd, u8 requestType, u8 request, u16 value, u16 
     vectors[4].length = sizeof(u16);
 
     // Input vector 6: Unknown data
-    vectors[5].base = unkWork;
+    vectors[5].base = controlOptionsWork;
     vectors[5].length = sizeof(u8);
 
     // Output vector 1: Transfer buffer
@@ -418,7 +418,7 @@ static IOSError __CtrlMsgInt(s32 fd, u8 requestType, u8 request, u16 value, u16 
 
     DCFlushRange(requestTypeWork, DEFAULT_ALIGN);
     DCFlushRange(requestWork, DEFAULT_ALIGN);
-    DCFlushRange(unkWork, DEFAULT_ALIGN);
+    DCFlushRange(controlOptionsWork, DEFAULT_ALIGN);
     DCFlushRange(valueWork, DEFAULT_ALIGN);
     DCFlushRange(indexWork, DEFAULT_ALIGN);
     DCFlushRange(lengthWork, DEFAULT_ALIGN);
@@ -449,7 +449,7 @@ static IOSError __CtrlMsgInt(s32 fd, u8 requestType, u8 request, u16 value, u16 
     block->clean[2] = valueWork;
     block->clean[3] = indexWork;
     block->clean[4] = lengthWork;
-    block->clean[5] = unkWork;
+    block->clean[5] = controlOptionsWork;
     block->clean[6] = vectors;
 
     block->msg.buffer = buffer;
@@ -471,7 +471,7 @@ end:
     IOSFree(valueWork);
     IOSFree(indexWork);
     IOSFree(lengthWork);
-    IOSFree(unkWork);
+    IOSFree(controlOptionsWork);
     IOSFree(vectors);
 
 // Async callback automatically freed the memory marked in block->clean

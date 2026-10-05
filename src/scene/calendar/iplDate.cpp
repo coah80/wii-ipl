@@ -106,8 +106,8 @@ namespace ipl {
             onCmdRecv(mPendingFocusCmd);
         }
 
-        void Date::draw(bool unk) {
-            if (unk) {
+        void Date::draw(bool focusedPass) {
+            if (focusedPass) {
                 if (mPointCount != 0) {
                     mpLayout->draw();
                 }

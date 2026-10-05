@@ -133,7 +133,7 @@ namespace ipl {
             void addDlTask();
 
             BOOL getNewTitleTbl(u32* titleTbl) const;
-            BOOL isNewMessageThere(u32 unk) const;
+            BOOL isNewMessageThere(u32 appId) const;
 
             int getErrCode();
 

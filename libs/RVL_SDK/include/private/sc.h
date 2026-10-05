@@ -109,7 +109,7 @@ typedef struct SCControl {
 } SCControl;
 
 typedef struct SCItem {
-    char unk_0x00[0x8];
+    char reserved[0x8];
 
     u8 primType;   // 0x08
     u8 arrayType;  // 0x09

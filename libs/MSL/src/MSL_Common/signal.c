@@ -7,7 +7,7 @@ __signal_func_ptr signal_funcs[8];
 int raise(int sig) {
     __signal_func_ptr signal_func;
 
-    if (sig < SIGNAL_ABORT || sig > SIGNAL_UNK7) {
+    if (sig < SIGNAL_ABORT || sig > SIGNAL_HANDLER_7) {
         return -1;
     }
 

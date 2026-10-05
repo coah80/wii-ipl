@@ -16,9 +16,9 @@ typedef struct NHTTPBgnEndInfo
     s32 socket;
     s32 sslError;
     NHTTPErr error;
-    u32 _unk7DC;
+    u32 stopping;
     void* threadStack;
-    u32 _unk7E4;
+    u32 reserved;
 } NHTTPBgnEndInfo;
 
 NHTTPBgnEndInfo* NHTTPi_GetSystemInfoP(void);
@@ -47,9 +47,9 @@ void NHTTPi_InitBgnEndInfo(NHTTPBgnEndInfo* info)
     info->free = NULL;
     info->started = FALSE;
     info->socket = -1;
-    info->_unk7DC = 0;
+    info->stopping = 0;
     info->threadStack = NULL;
-    info->_unk7E4 = 0;
+    info->reserved = 0;
 }
 
 void* NHTTPi_alloc(u32 size, int align)
@@ -103,7 +103,7 @@ BOOL NHTTPi_Startup(void* systemInfo, NHTTPAlloc alloc, NHTTPFree free,
     bgnEndInfo->free = free;
     bgnEndInfo->error = NHTTP_ERROR_NONE;
     bgnEndInfo->sslError = 0;
-    bgnEndInfo->_unk7DC = 0;
+    bgnEndInfo->stopping = 0;
 
     NHTTPi_InitListInfo(listInfo);
     NHTTPi_InitRequestInfo(reqInfo);

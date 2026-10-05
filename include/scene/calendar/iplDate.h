@@ -35,7 +35,7 @@ namespace ipl {
             Date(EGG::Heap* heap, nand::LayoutFile* file, const char* layoutFolder, const char* layoutFileName);
 
             void calc();
-            void draw(bool unk);
+            void draw(bool focusedPass);
 
             layout::PaneAnimator* doAnim(int animId);
 

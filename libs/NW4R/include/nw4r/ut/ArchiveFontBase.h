@@ -100,7 +100,7 @@ namespace nw4r {
                     u8* pCachedBase;   // 0x0C
                     u8* pCachedStart;  // 0x10
                     u8* pCachedEnd;    // 0x14
-                    u32 unk_0x18;      // 0x18
+                    u32 cacheWorkspaceOffset;      // 0x18
                 };
 
                 class ConstructContext {

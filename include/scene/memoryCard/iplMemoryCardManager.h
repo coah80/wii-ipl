@@ -71,7 +71,7 @@ namespace ipl {
 
         typedef struct MCFile {
             u32 fileNo;    // 0x00
-            u32 unk_0x04;  // 0x04
+            u32 reserved;  // 0x04
             u32 unk_0x08;  // 0x08
             s32 sortKey;   // 0x0C
         } MCFile;            // 0x10
@@ -79,7 +79,7 @@ namespace ipl {
         typedef struct MCFileCell {
             wchar_t   comment[2][0x40];  // 0x000
             s16       iconAnmCounter;    // 0x100
-            u16       unk_0x102;         // 0x102
+            u16       reserved;         // 0x102
             GXTexObj  icon;              // 0x104
             GXTexObj  banner;            // 0x124
             GXTlutObj iconTlut;          // 0x144
@@ -203,12 +203,12 @@ namespace ipl {
                 return &mFileCell[slot][file].bannerTlut;
             }
 
-            u32                  unk_0x04;            // 0x00004
+            u32                  reserved;            // 0x00004
             MCFile               mFile[2][0x7F];      // 0x00008
             MCFileCell           mFileCell[2][0x7F];  // 0x00FE8
             s32                  mLastResult;         // 0x16930
             s32                  mLastCmd;            // 0x16934
-            u32                  unk_0x16938;         // 0x16938
+            u32                  mReservedResult;         // 0x16938
             MemCardEventListener* mpEventHandler;      // 0x1693C
         };
     }  // namespace scene

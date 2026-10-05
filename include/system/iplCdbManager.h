@@ -52,7 +52,7 @@ namespace ipl {
             BOOL isUnderFlow() const;
 
             BOOL findByKey(CDBRecord* record, CDBRecordKey* recordKey);
-            BOOL search(const CDBDate& begin, const CDBDate& end, CDBSearchDirection searchDirection, CDBRecordLocation recordLocation, int unk2,
+            BOOL search(const CDBDate& begin, const CDBDate& end, CDBSearchDirection searchDirection, CDBRecordLocation recordLocation, int openRecord,
                         CDBSearchRecordCB searchRecordCB, void* searchRecordWork);
 
             BOOL getDataSize(CDBRecord* record, u32* recordDataSize);
@@ -113,8 +113,8 @@ namespace ipl {
             u8* mpSDVFWork;          // 0x1C
             OSMutex mMutex;          // 0x20
 
-            u8 unk_0x38;
-            u8 unk_0x39;
+            u8 mReserved0;
+            u8 mReserved1;
         };
 
         class auto_closer {

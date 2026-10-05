@@ -84,7 +84,7 @@ typedef struct WD_Info_ {
     u8 channel;             // 0x0E
     u8 initialized;         // 0x0F
     u8 version[80];         // 0x10
-    u8 unk_0x60[0x30];      // 0x60 (is it padding???)
+    u8 extendedInfo[0x30];      // 0x60 (is it padding???)
 } PACKED WD_Info;
 
 #ifdef __cplusplus

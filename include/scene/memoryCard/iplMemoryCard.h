@@ -74,13 +74,13 @@ namespace ipl {
             s32                mState;             // 0x88
             s32                mPrevState;         // 0x8C
             u8                 mSlot;              // 0x90
-            u8                 unk_0x91[3];        // 0x91
+            u8                 mReservedSlot[3];        // 0x91
             s32                mSlotState[2];      // 0x94
             s16                mIconIndex;         // 0x9C
             s16                mIconCount;         // 0x9E
             u8                 mShowArwR;          // 0xA0
             u8                 mShowArwL;          // 0xA1
-            u8                 unk_0xA2[2];        // 0xA2
+            u8                 mReservedArrows[2];        // 0xA2
             MemoryCardManager* mpManager;          // 0xA4
             MemoryBaseEvent*   mpEvent;            // 0xA8
             nw4r::ut::List     mSaveDataList;      // 0xAC

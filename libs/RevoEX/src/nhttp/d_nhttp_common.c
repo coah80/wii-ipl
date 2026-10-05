@@ -16,8 +16,8 @@ typedef struct NHTTPStaticResource
     BOOL initialized;
     OSMutex mutex;
     OSCond cond;
-    u32 _unk24;
-    u8 _unk28[0x18];
+    u32 reservedWord;
+    u8 reserved[0x18];
 } NHTTPStaticResource;
 
 static NHTTPSysInfo sysInfo;

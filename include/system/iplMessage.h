@@ -45,7 +45,7 @@ namespace ipl {
             typedef struct MESGInfoBlock {
                 u32 offset;    // 0x00
                 u32 flags;     // 0x04
-                u32 unk_0x08;  // 0x08
+                u32 reserved;  // 0x08
             } MESGInfoBlock;
 
             typedef struct MESGDataHeader {

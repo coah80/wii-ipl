@@ -24,10 +24,10 @@ namespace textinput {
                     u8 remaining[8];
 #else
                     // todo
-                    u32 field_0x00; // 0x00
+                    u32 controller; // 0x00
                     u8  dummy[8];
-                    u32 field_0x0C; // 0x0C
-                    u32 field_0x10; // 0x10
+                    u32 trigger; // 0x0C
+                    u32 hold; // 0x10
                     u8  dummy2[12];
 #endif
                 } Input;

@@ -13,7 +13,7 @@ namespace EGG {
     public:
         struct Arg {
             Heap* pHeap;  // 0x00
-            undefined4 unk_0x04;
+            undefined4 reserved;
             s32 soundThreadPrio;  // 0x08
             s32 dvdThreadPrio;    // 0x0C
 
@@ -31,7 +31,7 @@ namespace EGG {
             static const u32 DEFAULT_SOUND_HEAP_SIZE = 0x8CA000;
 
             u32 soundHeapSize;  // 0x10
-            u32 unk_0x14;
+            u32 reservedSoundHeap;
 
             SimpleAudioMgrArg();
         };

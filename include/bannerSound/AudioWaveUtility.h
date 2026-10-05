@@ -24,7 +24,7 @@ public:
     virtual void setDataCur(u32 sampleOffset) = 0;
 
 private:
-    undefined4 unk_0x04;  // 0x04
+    undefined4 mReserved;  // 0x04
 };
 
 class WaveFileAiff : public WaveFile {

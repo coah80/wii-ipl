@@ -404,7 +404,7 @@ namespace ipl {
             int blockOpenOffset = 0;
 
             const wchar_t* blockOpenMsg = System::getMessage(MESG_CHAN_EDIT_BLOCKS_OPEN);
-            const wchar_t* unkMsg = System::getMessage(MESG_CHAN_EDIT_BLANK);
+            const wchar_t* blankMessage = System::getMessage(MESG_CHAN_EDIT_BLANK);
 
             while (true) {
                 wchar_t chr = *blockOpenMsg++;
@@ -416,7 +416,7 @@ namespace ipl {
             blocksFreeMsg[--blockOpenOffset] = L' ';
             wcscpy(blocksFreeMsg + blockOpenOffset, digits + zeroOffset);
 
-            wcscat(blocksFreeMsg, unkMsg);
+            wcscat(blocksFreeMsg, blankMessage);
 
             mpChanAppBase->set_visible("T_Capa_00", true);
             mpChanAppBase->set_visible("N_Capa_00", true);
@@ -458,7 +458,7 @@ namespace ipl {
             int blockOpenOffset = 0;
 
             const wchar_t* blockOpenMsg = System::getMessage(MESG_CHAN_EDIT_BLOCKS_OPEN);
-            const wchar_t* unkMsg = System::getMessage(MESG_CHAN_EDIT_BLANK);
+            const wchar_t* blankMessage = System::getMessage(MESG_CHAN_EDIT_BLANK);
 
             while (true) {
                 wchar_t chr = *blockOpenMsg++;
@@ -470,7 +470,7 @@ namespace ipl {
             blocksFreeMsg[--blockOpenOffset] = L' ';
             wcscpy(blocksFreeMsg + blockOpenOffset, digits + zeroOffset);
 
-            wcscat(blocksFreeMsg, unkMsg);
+            wcscat(blocksFreeMsg, blankMessage);
 
             mpChanAppBase->set_visible("T_Capa_00", true);
             mpChanAppBase->set_visible("N_Capa_00", true);
@@ -1267,7 +1267,7 @@ namespace ipl {
                     mpChanAppEdit->anmTextFadein(mPage == PAGE_WII ? MESG_DATA_ALREADY_EXISTS_SD : MESG_DATA_ALREADY_EXISTS_WII);
                 } else if (result == NandSDWorker::RESULT_OUT_OF_SPACE) {
                     mpChanAppEdit->anmTextFadein(mPage == PAGE_WII ? MESG_DATA_NOT_ENOUGH_FREE_SD : MESG_DATA_TOO_FEW_RESOURCES);
-                } else if (result == NandSDWorker::RESULT_UNK_N12) {
+                } else if (result == NandSDWorker::RESULT_FILENAME_CONFLICT) {
                     mpChanAppEdit->anmTextFadein(MESG_DATA_FILENAME_CONFLICT);
                 } else if (result == NandSDWorker::RESULT_NOT_TRANSFERRABLE) {
                     mpChanAppEdit->anmTextFadein(mProcessType == PROC_MOV ? MESG_DATA_CANT_MOVE_TO_DEVICE : MESG_DATA_CANT_COPY_TO_DEVICE);
@@ -1277,11 +1277,11 @@ namespace ipl {
                     OSReport("fail:  async result = %d\n", result);
                     switch (mProcessType) {
                         case PROC_CPY: {
-                            mpChanAppEdit->anmTextFadein(MESG_DATA_COPY_UNK_ERROR);
+                            mpChanAppEdit->anmTextFadein(MESG_DATA_COPY_FAILED);
                             break;
                         }
                         case PROC_DEL: {
-                            mpChanAppEdit->anmTextFadein(MESG_DATA_DEL_UNK_ERROR);
+                            mpChanAppEdit->anmTextFadein(MESG_DATA_DELETE_FAILED);
                             break;
                         }
                         case PROC_FMT: {
@@ -1289,7 +1289,7 @@ namespace ipl {
                             break;
                         }
                         case PROC_MOV: {
-                            mpChanAppEdit->anmTextFadein(MESG_DATA_MOVE_UNK_ERROR);
+                            mpChanAppEdit->anmTextFadein(MESG_DATA_MOVE_FAILED);
                             break;
                         }
                     }

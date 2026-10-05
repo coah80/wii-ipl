@@ -89,8 +89,8 @@ namespace ipl {
         }
 
         void System::initOnMemory(const void* data, EGG::Heap* heap, u32 soundSize) {
-            unk_0x620[0] = 0;
-            unk_0x620[1] = 0;
+            mSoundWork[0] = 0;
+            mSoundWork[1] = 0;
             _mainBGMHandle = NULL;
             EGG::SimpleAudioMgrWithFx::ArgWithFx arg;
             int i;
@@ -101,7 +101,7 @@ namespace ipl {
             arg.fxArg.heapSize[1] = 0;
             arg.fxArg.heapSize[2] = 0;
             initialize(&arg);
-            unk_0x620[2] = reinterpret_cast<u32>(setupMemoryArchive(data, &getSoundHeap()));
+            mSoundWork[2] = reinterpret_cast<u32>(setupMemoryArchive(data, &getSoundHeap()));
             initFx();
             sBannerSoundPlayer.init(5);
             for (i = 0; i < 16; i++) {
@@ -315,24 +315,24 @@ namespace ipl {
             }
         }
 
-        void System::stopAllSound(int unk) {
+        void System::stopAllSound(int fadeFrames) {
             int frame;
             tagSSeInfo* block;
             int i = 0;
 
             for (; i < 16; i++) {
                 block = &_seBlk[i];
-                block->handle.Stop(unk);
+                block->handle.Stop(fadeFrames);
                 block->name = NULL;
                 block->id = 0xffff;
             }
 
             if (_mainBGMHandle != NULL) {
-                _mainBGMHandle->Stop(unk);
+                _mainBGMHandle->Stop(fadeFrames);
             }
 
-            sBannerSoundPlayer.stop(unk);
-            frame = unk * 1000 / 60;
+            sBannerSoundPlayer.stop(fadeFrames);
+            frame = fadeFrames * 1000 / 60;
             nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_A, frame);
             nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_B, frame);
             nw4r::snd::detail::AxManager::GetInstance().ClearEffect(nw4r::snd::AUX_C, frame);
@@ -469,20 +469,20 @@ namespace snd {
         }
 
         tagSSeInfo* System::getFreeSEBlock(bool force) {
-            int index = clipGELT_S32(unk_0x620[0] + 1, 0, 16);
-            unk_0x620[0] = index;
+            int index = clipGELT_S32(mSoundWork[0] + 1, 0, 16);
+            mSoundWork[0] = index;
             int i = 0;
             for (; i < 16; i++) {
-                index = clipGELT_S32(unk_0x620[0] + i, 0, 16);
+                index = clipGELT_S32(mSoundWork[0] + i, 0, 16);
                 if (_seBlk[index].handle.IsAttachedSound()) {
                     continue;
                 }
-                unk_0x620[0] = index;
-                return &_seBlk[unk_0x620[0]];
+                mSoundWork[0] = index;
+                return &_seBlk[mSoundWork[0]];
             }
 
             if (force) {
-                return &_seBlk[unk_0x620[0]];
+                return &_seBlk[mSoundWork[0]];
             }
 
             return NULL;
@@ -495,8 +495,8 @@ namespace snd {
             return sBannerSoundPlayer.start(data, size);
         }
 
-        void System::stopBannerSound(int unk) {
-            sBannerSoundPlayer.stop(unk);
+        void System::stopBannerSound(int fadeFrames) {
+            sBannerSoundPlayer.stop(fadeFrames);
         }
 
         BOOL System::checkTmpSoundFile(void* data, u32 size) {

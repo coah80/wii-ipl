@@ -71,7 +71,7 @@ void SimpleWavePlayer::wavePacketCallback(WavePacketCallbackStatus status, WaveP
 
 SimpleWavePlayer::SimpleWavePlayer() : mSetupParam(1, nw4r::snd::SAMPLE_FORMAT_PCM_S16, 32000, 1.0f, 1) {
     mbFillInCallback = true;
-    unk_0xB0 = false;
+    mReserved = false;
     mIsSetData = false;
     mIsPlaying = false;
     mIsSetBuf = false;

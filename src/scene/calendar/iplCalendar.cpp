@@ -704,7 +704,7 @@ namespace ipl {
             pane->SetString(fullStr);
         }
 
-        void Calendar::set_textbox_date(int unk, const utility::Date& date) {
+        void Calendar::set_textbox_date(int calendarIndex, const utility::Date& date) {
             s32 lang = System::getLanguage();
             int val;
             int maxDays;
@@ -736,7 +736,7 @@ namespace ipl {
                 }
             }
 
-            dateIndex = unk == 1 ? 0 : DATE_COUNT;
+            dateIndex = calendarIndex == 1 ? 0 : DATE_COUNT;
 
             utility::Date cellDate;
 
@@ -797,11 +797,11 @@ namespace ipl {
             }
         }
 
-        void Calendar::set_date_pos(int unk) {
-            nw4r::lyt::Pane* pane1 = mpLayout->FindPaneByName(scPaneName_N_Cal[unk]);
-            nw4r::lyt::Pane* pane2 = mpLayout->FindPaneByName(scPaneName_N_CalPos[unk]);
+        void Calendar::set_date_pos(int calendarIndex) {
+            nw4r::lyt::Pane* pane1 = mpLayout->FindPaneByName(scPaneName_N_Cal[calendarIndex]);
+            nw4r::lyt::Pane* pane2 = mpLayout->FindPaneByName(scPaneName_N_CalPos[calendarIndex]);
 
-            int dateIndex = unk == 1 ? 0 : DATE_COUNT;
+            int dateIndex = calendarIndex == 1 ? 0 : DATE_COUNT;
 
             for (int i = 0; (u32)i < DATE_COUNT; i++) {
                 Date* dateScn = ((Date*)nw4r::ut::List_GetNth(&mDateList, dateIndex));

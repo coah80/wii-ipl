@@ -59,7 +59,7 @@ namespace ipl {
 
         void* Manager::Run() {
             if (!System::getResetHandler()->isResetting()) {
-                mState = STATE_UNKNOWN;
+                mState = STATE_INITIALIZING;
 
                 update_playlog_();
                 add_dl_task_();

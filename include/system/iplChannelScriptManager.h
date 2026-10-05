@@ -64,19 +64,19 @@ namespace ipl {
 
         private:
             enum {
-                CHANS_VM_STATE_UNK0 = 0,
-                CHANS_VM_STATE_UNK1,
-                CHANS_VM_STATE_UNK2,
-                CHANS_VM_STATE_UNK3,
-                CHANS_VM_STATE_UNK4,
+                CHANS_VM_STATE_IDLE = 0,
+                CHANS_VM_STATE_STARTING,
+                CHANS_VM_STATE_WAIT_BEGIN_RENDER,
+                CHANS_VM_STATE_RUNNING,
+                CHANS_VM_STATE_EXITING,
             };
 
             enum {
-                CHANS_VM_MSG_STATE_UNK0 = 0,
-                CHANS_VM_MSG_STATE_UNK1,
-                CHANS_VM_MSG_STATE_UNK2,
-                CHANS_VM_MSG_STATE_UNK3,
-                CHANS_VM_MSG_STATE_UNK4,
+                CHANS_VM_MSG_STATE_NONE = 0,
+                CHANS_VM_MSG_STATE_BEGIN_RENDER,
+                CHANS_VM_MSG_STATE_WAIT_RETRACE,
+                CHANS_VM_MSG_STATE_RESERVED,
+                CHANS_VM_MSG_STATE_EXIT,
             };
 
             u8* mpChansWork;  // 0x00

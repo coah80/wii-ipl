@@ -489,7 +489,7 @@ HufftreeData hufftreePtr = {
 class CArGBAOdh {
   public:
     u8* outputCursor;
-    s32 decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk, int format);
+    s32 decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8* work, int workSize, int format);
     s32 compressGbaOdh(u8* src, u8* dest, int width, int height, int quality, u32 sizeLimit, u8* work, int format);
     s32 cdj_c_initializeCompressOdh(SArCDJ_OdhMaster* master, u16* dimensions, u8 quality, u8* work, u8* dest, u32 sizeLimit);
     s32 cdj_c_compressLoop(SArCDJ_OdhMaster* master);
@@ -531,21 +531,21 @@ int ODHEncodeY8U8V8(u8* src, u8* dest, int width, int height, u32 sizeLimit, int
     return odh.compressGbaOdh(src, dest, width, height, quality, sizeLimit, work, ODH_FORMAT_Y8U8V8);
 }
 
-int ODHDecodeRGB565(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk) {
+int ODHDecodeRGB565(u8* src, int srcSize, u8* dest, int destSize, u8* work, int workSize) {
     CArGBAOdh odh;
-    int result = odh.decompressGbaOdh(src, srcSize, dest, destSize, work, unk, ODH_FORMAT_RGB565);
+    int result = odh.decompressGbaOdh(src, srcSize, dest, destSize, work, workSize, ODH_FORMAT_RGB565);
     return result;
 }
 
-int ODHDecodeRGBA8(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk) {
+int ODHDecodeRGBA8(u8* src, int srcSize, u8* dest, int destSize, u8* work, int workSize) {
     CArGBAOdh odh;
-    int result = odh.decompressGbaOdh(src, srcSize, dest, destSize, work, unk, ODH_FORMAT_RGBA8);
+    int result = odh.decompressGbaOdh(src, srcSize, dest, destSize, work, workSize, ODH_FORMAT_RGBA8);
     return result;
 }
 
-int ODHDecodeY8U8V8(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk) {
+int ODHDecodeY8U8V8(u8* src, int srcSize, u8* dest, int destSize, u8* work, int workSize) {
     CArGBAOdh odh;
-    int result = odh.decompressGbaOdh(src, srcSize, dest, destSize, work, unk, ODH_FORMAT_Y8U8V8);
+    int result = odh.decompressGbaOdh(src, srcSize, dest, destSize, work, workSize, ODH_FORMAT_Y8U8V8);
     return result;
 }
 
@@ -557,7 +557,7 @@ int ODHGetHeight(u8* data) {
     return (((u32*)data)[1] >> 11 & 0x7FF) + 7 & 0x7F8;
 }
 
-s32 CArGBAOdh::decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8* work, int unk, int format) {
+s32 CArGBAOdh::decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8* work, int workSize, int format) {
     SArCDJ_OdhMaster master;
     int width;
     int height;
@@ -582,8 +582,8 @@ s32 CArGBAOdh::decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8
     if (destSize == 0) {
         destSize = outputSize;
     }
-    if (unk == 0) {
-        unk = width * height * 3;
+    if (workSize == 0) {
+        workSize = width * height * 3;
     }
     if (outputSize > destSize) {
         OSReport("decompressGbaOdh : destination buffer over\n");
@@ -596,7 +596,7 @@ s32 CArGBAOdh::decompressGbaOdh(u8* src, int srcSize, u8* dest, int destSize, u8
         return 0;
     }
 
-    result = cdj_d_decompressLoop(&master, srcSize, unk);
+    result = cdj_d_decompressLoop(&master, srcSize, workSize);
     if (result != 0) {
         OSReport("decompressGbaOdh : DECOMPRESSING ERROR %08x\n", result);
         return 0;

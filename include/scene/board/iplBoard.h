@@ -369,8 +369,8 @@ namespace ipl {
             BoardSD mBoardSD;  // 0xFAC
 
             bool mbExitRequest;  // 0xFB4
-            int unk_0xFB8;
-            u8 unk_0xFBC[4];
+            int mNewMailAnimationPending;
+            u8 mReserved[4];
         };
     }  // namespace scene
 }  // namespace ipl

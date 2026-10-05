@@ -75,9 +75,9 @@ namespace ipl {
             void set_textbox_day();
             void set_textbox_month();
             void set_textbox_month(const char* paneName, const utility::Date& date);
-            void set_textbox_date(int unk, const utility::Date& date);
+            void set_textbox_date(int calendarIndex, const utility::Date& date);
 
-            void set_date_pos(int unk);
+            void set_date_pos(int calendarIndex);
 
             void exec_search_task();
 

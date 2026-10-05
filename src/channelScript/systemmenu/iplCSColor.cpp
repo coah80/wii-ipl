@@ -19,9 +19,9 @@ namespace ipl {
             } CS_Color;
 
             typedef struct _CS_Struct {
-                CS_Color unk_0x00;
-                CS_Color unk_0x04;
-                CS_Color unk_0x08;
+                CS_Color color;
+                CS_Color argumentColor;
+                CS_Color reserved;
             } CS_Struct;
 
             CHANSVmDefineMethod(ctor) {
@@ -33,7 +33,7 @@ namespace ipl {
                     if (CHANSVmGetArgc(VmInst) == 1) {
                         CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
                         if (arg != NULL) {
-                            *data = reinterpret_cast<CS_Struct*>(&arg->value.ptr_v)->unk_0x04.gxColor;
+                            *data = reinterpret_cast<CS_Struct*>(&arg->value.ptr_v)->argumentColor.gxColor;
                         }
                     }
                     // new Color(u8 r, u8 g, u8 b, u8 a)
@@ -87,9 +87,9 @@ namespace ipl {
                     CS_Struct* data = static_cast<CS_Struct*>(*VmParentObj->value.ptr_v);
                     if (data != NULL) {
                         result = TRUE;
-                        CS_Color newVal = data->unk_0x00;
+                        CS_Color newVal = data->color;
                         newVal.arr[I] = arg->value.int_v;
-                        data->unk_0x00 = newVal;
+                        data->color = newVal;
                     }
                 }
                 return result;
@@ -101,7 +101,7 @@ namespace ipl {
                 if (util::is_valid_datap(VmParentObj)) {
                     CS_Struct* data = static_cast<CS_Struct*>(*VmParentObj->value.ptr_v);
                     if (data != NULL) {
-                        CS_Color val = data->unk_0x00;
+                        CS_Color val = data->color;
                         result = CHANSVmSetInteger(VmInst, VmReturnObj, val.arr[I]) == CHANS_VM_OK;
                     }
                 }

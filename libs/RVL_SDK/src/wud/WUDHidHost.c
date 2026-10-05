@@ -60,7 +60,7 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
                 _dev_handle_queue_size[pConn->handle] = 0;
                 _dev_handle_notack_num[pConn->handle] = 0;
 
-                if (pInfo->UNK_0x5B == 3 || pInfo->UNK_0x5B == 1) {
+                if (pInfo->syncMode == 3 || pInfo->syncMode == 1) {
                     WUDiMoveTopSmpDevInfoPtr(pInfo);
                 } else {
                     WUDiMoveTopStdDevInfoPtr(pInfo);
@@ -88,7 +88,7 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
                     if (WUDiGetDevInfo(pConn->bda) && pConn->status == BTA_HH_ERR_AUTH_FAILED) {
                         pInfo = WUDiGetDevInfo(pConn->bda);
                         if (pInfo) {
-                            if (pInfo->UNK_0x5B == 3 || pInfo->UNK_0x5B == 1) {
+                            if (pInfo->syncMode == 3 || pInfo->syncMode == 1) {
                                 WUDiMoveBottomSmpDevInfoPtr(pInfo);
                             } else {
                                 WUDiMoveBottomStdDevInfoPtr(pInfo);
@@ -114,7 +114,7 @@ void WUDHidHostCallback(tBTA_HH_EVT event, tBTA_HH* pData) {
 
             pInfo = WUDiGetDevInfo(_dev_handle_to_bda[pCbData->handle]);
             if (pInfo != NULL) {
-                if (pInfo->UNK_0x5B == 3 || pInfo->UNK_0x5B == 1) {
+                if (pInfo->syncMode == 3 || pInfo->syncMode == 1) {
                     WUDiMoveTopOfDisconnectedSmpDevice(pInfo);
                 } else {
                     WUDiMoveTopOfDisconnectedStdDevice(pInfo);

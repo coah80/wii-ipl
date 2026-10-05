@@ -13,7 +13,7 @@ namespace EGG {
         soundThreadPrio = nw4r::snd::SoundSystem::DEFAULT_SOUND_THREAD_PRIORITY;
         dvdThreadPrio = nw4r::snd::SoundSystem::DEFAULT_DVD_THREAD_PRIORITY;
 
-        unk_0x04 = 0;
+        reserved = 0;
     }
 
     SimpleAudioMgr::SimpleAudioMgrArg::SimpleAudioMgrArg() {

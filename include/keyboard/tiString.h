@@ -72,7 +72,7 @@ namespace textinput {
             wchar_t mOutput[5];
 #else
         private:
-            u8 field_0x00[0x24];
+            u8 mKanaStateStorage[0x24];
 #endif
         };
 
@@ -81,7 +81,7 @@ namespace textinput {
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
             Decolated(u16 maxLen) : StringBase(maxLen), mCursorStart(0), mCursorEnd(0), mbSustain(false), mTranslateMode(0) { initKanaConverter(); }
 #else
-            Decolated(u16 maxLen) : StringBase(maxLen), field_0x18(0), field_0x1C(0), field_0x20(0), field_0x24(0) { initKanaConverter(); }
+            Decolated(u16 maxLen) : StringBase(maxLen), mCursorStart(0), mCursorEnd(0), mbSustain(0), mTranslateMode(0) { initKanaConverter(); }
 #endif
 
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
@@ -181,10 +181,10 @@ namespace textinput {
             u32 mTranslateMode;
 #endif
 #else
-            u32 field_0x18;          // 0x18
-            u32 field_0x1C;          // 0x1C
-            u8 field_0x20;           // 0x20
-            u32 field_0x24;          // 0x24
+            u32 mCursorStart;          // 0x18
+            u32 mCursorEnd;          // 0x1C
+            u8 mbSustain;           // 0x20
+            u32 mTranslateMode;          // 0x24
 #endif
             KanaStream mKanaStream;  // 0x28
         };

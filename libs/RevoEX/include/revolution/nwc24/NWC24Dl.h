@@ -78,12 +78,12 @@ typedef struct NWC24DlTask {
 } NWC24DlTask;
 
 typedef struct NWC24DlIterateWork {
-    int unk_0x00;
-    int unk_0x04;
-    int unk_0x08;
-    int unk_0x0C;
-    int unk_0x10;
-    int unk_0x14;
+    int sortMode;
+    int comparisonValue;
+    int selectedValue;
+    int comparisonId;
+    int initialized;
+    int valid;
 } NWC24DlIterateWork;
 
 NWC24Err NWC24InitDlTask(NWC24DlTask* dlTask, NWC24DLType dlType);
