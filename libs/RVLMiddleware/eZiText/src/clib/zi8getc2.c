@@ -27,7 +27,7 @@ ziU16 Zi8GetTableCount(ziU8 language, ziU8 table, ziPtr work);
 ziU16 Zi8GetVersion(ziPtr work);
 ziU16 Zi8GetOEMID(ziPtr work);
 ziU16 Zi8GetBuildID(ziPtr work);
-void Zi8Memcpy(ziU8* destination, ziU8* source, ziS32 count);
+ziPtr Zi8Memcpy(ziPtr destination, ziPtr source, ziS32 count);
 ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* options, ziPtr work);
 
 ziBool Zi8ZHsetPYfuzzyPairs(ziFuzzyPYPairs pairs ZI_NEED_WORK) {
@@ -700,14 +700,16 @@ ziBool Zi8IsDupWordW(ziWChar* word, ziU8 length ZI_NEED_WORK) {
     return duplicate;
 }
 
-void Zi8Memset(ziU8* destination, ziU32 value, ziS32 count) {
+ziPtr Zi8Memset(ziPtr destination, ziU32 value, ziS32 count) {
     ziS32 index;
-    for (index = 0; index < count; index++) destination[index] = (ziU8)value;
+    for (index = 0; index < count; index++) ((ziU8*)destination)[index] = (ziU8)value;
+    return destination;
 }
 
-void Zi8Memcpy(ziU8* destination, ziU8* source, ziS32 count) {
+ziPtr Zi8Memcpy(ziPtr destination, ziPtr source, ziS32 count) {
     ziS32 index;
-    for (index = 0; index < count; index++) destination[index] = source[index];
+    for (index = 0; index < count; index++) ((ziU8*)destination)[index] = ((ziU8*)source)[index];
+    return destination;
 }
 
 ziBool Zi8SetMaxWordLength(ziU8 length ZI_NEED_WORK) {

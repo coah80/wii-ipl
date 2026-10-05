@@ -983,10 +983,10 @@ config.libs = [
     ZI8Lib("zi8clib", [
             Object(Matching,    "clib/zaddress.c"),
             Object(Matching,    "clib/zconvert.c"),
-            Object(NonMatching, "clib/zi81key.c"),
+            Object(Matching,    "clib/zi81key.c"),
             Object(NonMatching, "clib/zi8alpha.c"),
             Object(Matching,    "clib/zi8alts.c"),
-            Object(NonMatching, "clib/zi8cgetc.c"),
+            Object(Matching,    "clib/zi8cgetc.c"),
             Object(Matching,    "clib/zi8cinfo.c"),
             Object(Matching,    "clib/zi8copy.c"),
             Object(Matching,    "clib/zi8dawg.c"),
@@ -1010,7 +1010,7 @@ config.libs = [
             Object(Matching,    "clib/zierror.c"),
             Object(Matching,    "clib/zmtkey.c"),
             Object(Matching,    "clib/zoemdata.c"),
-            Object(NonMatching, "clib/zprepare.c"),
+            Object(Matching,    "clib/zprepare.c"),
         ]
     ),
     # RevoEX
