@@ -37,14 +37,14 @@ inline DSIOResult __access_file(unsigned int handle, unsigned char* buffer, int*
 }
 
 DSIOResult __read_console(unsigned int handle, unsigned char* buffer, int* count, void* ref_con) {
-    if (GetUseSerialIO() == FALSE) {
+    if (!GetUseSerialIO()) {
         return DS_IOError;
     }
     return __read_file(DS_Stdin, buffer, count, ref_con);
 }
 
 DSIOResult __TRK_write_console(unsigned int handle, unsigned char* buffer, int* count, void* ref_con) {
-    if (GetUseSerialIO() == 0) {
+    if (!GetUseSerialIO()) {
         return DS_IOError;
     }
     return __write_file(DS_Stdout, buffer, count, ref_con);

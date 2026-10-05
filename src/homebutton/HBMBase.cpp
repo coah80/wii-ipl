@@ -1319,7 +1319,7 @@ namespace homebutton {
     }
 
     static void MotorCallback(OSAlarm* pAlarm, OSContext* pContext) {
-        Controller* pController = reinterpret_cast<Controller*>(OSGetAlarmUserData(pAlarm));
+        Controller* pController = static_cast<Controller*>(OSGetAlarmUserData(pAlarm));
 
         pController->stopMotor();
     }
@@ -1444,7 +1444,7 @@ namespace homebutton {
                     getController(i)->connect();
                     getController(i)->startMotor();
 
-                    OSSetAlarmUserData(&mAlarm[i], reinterpret_cast<void*>(getController(i)));
+                    OSSetAlarmUserData(&mAlarm[i], getController(i));
 
                     OSCancelAlarm(&mAlarm[i]);
                     OSSetAlarm(&mAlarm[i], OSMillisecondsToTicks(300), &MotorCallback);
@@ -2582,7 +2582,7 @@ namespace homebutton {
 
         GXClearVtxDesc();
         GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-        GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_CLR_RGB, GX_F32, 0);
+        GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XY, GX_F32, 0);
 
         GXSetNumChans(1);
         GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);

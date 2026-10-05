@@ -59,7 +59,7 @@ void SimpleWavePlayer::wavePacketCallback(WavePacketCallbackStatus status, WaveP
         return;
     }
 
-    if (self->mThreadRunning != false) {
+    if (self->mThreadRunning) {
         OSSendMessage(&self->mQueue, packet, 0);
         return;
     }
@@ -213,11 +213,11 @@ void SimpleWavePlayer::update() {
     }
 }
 
-void* SimpleWavePlayer::makeWaveProc(void* arg) {
+void* SimpleWavePlayer::makeWaveProc(void* context) {
     OSMessage msg;
-    SimpleWavePlayer* self = (SimpleWavePlayer*)arg;
+    SimpleWavePlayer* self = (SimpleWavePlayer*)context;
     while (true) {
-        OSReceiveMessage(&self->mQueue, &msg, 1);
+        OSReceiveMessage(&self->mQueue, &msg, OS_MESSAGE_BLOCK);
         if (msg == NULL) {
             break;
         }
@@ -239,15 +239,15 @@ bool SimpleWavePlayer::makeThread(s32 prio, void* stack, u32 stackSize) {
 void* SimpleWavePlayer::convertDSPAddr(void* addr, u32 offset, int mode) {
     void* out = 0;
     switch (mode) {
-        case 0: {
+        case AX_SAMPLE_FORMAT_DSP_ADPCM: {
             out = (void*)((u32)addr * 2 + offset % 14 + offset / 14 * 16 + 2);
             break;
         }
-        case 25: {
+        case AX_SAMPLE_FORMAT_PCM_S8: {
             out = (void*)((u32)addr + offset);
             break;
         }
-        case 10: {
+        case AX_SAMPLE_FORMAT_PCM_S16: {
             out = (void*)((u32)addr / 2 + offset);
             break;
         }

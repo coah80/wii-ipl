@@ -98,7 +98,7 @@ void loadopencallback_() {
     }
 }
 
-RFLErrcode RFLiLoadHiddenDataAsync(RFLiHiddenCharData* data, u16 index, RFLSimpleCBArg cb, u32 arg) {
+RFLErrcode RFLiLoadHiddenDataAsync(RFLiHiddenCharData* data, u16 index, RFLSimpleCBArg cb, u32 callbackArg) {
     RFLiHiddenDBManager* manager = NULL;
 
     RFLi_ASSERTLINE_RANGE(index, 0, RFL_MAX_HIDDEN_DB, 203);
@@ -126,7 +126,7 @@ RFLErrcode RFLiLoadHiddenDataAsync(RFLiHiddenCharData* data, u16 index, RFLSimpl
     manager->loadDst = data;
     manager->loadIndex = index;
     manager->loadCallback = cb;
-    manager->loadArg = arg;
+    manager->loadArg = callbackArg;
 
     return RFLiOpenAsync(RFLiFileType_Database, NAND_ACCESS_READ, loadopencallback_);
 }

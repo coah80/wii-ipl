@@ -15,14 +15,14 @@ namespace EGG {
         AudioFxMgr::AudioFxMgrArg unused1;
     }
 
-    void SimpleAudioMgrWithFx::initialize(IAudioMgr::Arg* arg) {
-        SimpleAudioMgr::initialize(arg);
+    void SimpleAudioMgrWithFx::initialize(IAudioMgr::Arg* audioArgs) {
+        SimpleAudioMgr::initialize(audioArgs);
 
-        if (arg != NULL) {
-            arg = (IAudioMgr::Arg*)&((ArgWithFx*)arg)->fxArg;
+        if (audioArgs != NULL) {
+            audioArgs = (IAudioMgr::Arg*)&((ArgWithFx*)audioArgs)->fxArg;
         }
 
-        initializeFx(&mHeap, (AudioFxMgrArg*)arg);
+        initializeFx(&mHeap, (AudioFxMgrArg*)audioArgs);
 
         setFxReverbHi(nw4r::snd::AUX_A, AudioFxMgr::getDefaultFxReverbHi());
         setFxChorus(nw4r::snd::AUX_B, AudioFxMgr::getDefaultFxChorus());

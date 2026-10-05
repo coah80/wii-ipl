@@ -54,7 +54,7 @@ typedef struct {
     int precision;
 } print_format;
 
-static const char* parse_format(const char* format_string, va_list* arg, print_format* format) {
+static const char* parse_format(const char* format_string, va_list* args, print_format* format) {
     print_format f;
     const char* s = format_string;
     int c;
@@ -109,7 +109,7 @@ static const char* parse_format(const char* format_string, va_list* arg, print_f
     }
 
     if (c == '*') {
-        if ((f.field_width = va_arg(*arg, int)) < 0) {
+        if ((f.field_width = va_arg(*args, int)) < 0) {
             f.justification_options = left_justification;
             f.field_width = -f.field_width;
         }
@@ -132,7 +132,7 @@ static const char* parse_format(const char* format_string, va_list* arg, print_f
         f.precision_specified = 1;
 
         if ((c = *++s) == '*') {
-            if ((f.precision = va_arg(*arg, int)) < 0) {
+            if ((f.precision = va_arg(*args, int)) < 0) {
                 f.precision_specified = 0;
             }
 
@@ -960,7 +960,7 @@ static char* float2str(long double num, char* buff, print_format format) {
 }
 
 int __pformatter(void* (*WriteProc)(void*, const char*, size_t), void* WriteProcArg,
-                        const char* format_str, va_list arg
+                        const char* format_str, va_list args
                         
                        )
 {
@@ -1000,27 +1000,27 @@ int __pformatter(void* (*WriteProc)(void*, const char*, size_t), void* WriteProc
         }
 
         format_ptr = curr_format;
-        format_ptr = parse_format(format_ptr, (va_list*)arg, &format);
+        format_ptr = parse_format(format_ptr, (va_list*)args, &format);
 
         switch (format.conversion_char) {
         case 'd':
         case 'i':
             if (format.argument_options == long_argument) {
-                long_num = va_arg(arg, signed long);
+                long_num = va_arg(args, signed long);
             } else if (format.argument_options == long_long_argument) {
-                long_long_num = va_arg(arg, signed long long);
+                long_long_num = va_arg(args, signed long long);
             }
             else if (format.argument_options == intmax_argument) {
-                long_long_num = va_arg(arg, intmax_t);
+                long_long_num = va_arg(args, intmax_t);
             }
             else if (format.argument_options == size_t_argument) {
-                long_num = va_arg(arg, size_t);
+                long_num = va_arg(args, size_t);
             }
             else if (format.argument_options == ptrdiff_argument) {
-                long_num = va_arg(arg, ptrdiff_t);
+                long_num = va_arg(args, ptrdiff_t);
             }
             else {
-                long_num = va_arg(arg, int);
+                long_num = va_arg(args, int);
             }
 
             if (format.argument_options == short_argument) {
@@ -1052,21 +1052,21 @@ int __pformatter(void* (*WriteProc)(void*, const char*, size_t), void* WriteProc
         case 'x':
         case 'X':
             if (format.argument_options == long_argument) {
-                long_num = va_arg(arg, unsigned long);
+                long_num = va_arg(args, unsigned long);
             } else if (format.argument_options == long_long_argument) {
-                long_long_num = va_arg(arg, signed long long);
+                long_long_num = va_arg(args, signed long long);
             }
             else if (format.argument_options == intmax_argument) {
-                long_long_num = va_arg(arg, intmax_t);
+                long_long_num = va_arg(args, intmax_t);
             }
             else if (format.argument_options == size_t_argument) {
-                long_num = va_arg(arg, size_t);
+                long_num = va_arg(args, size_t);
             }
             else if (format.argument_options == ptrdiff_argument) {
-                long_num = va_arg(arg, ptrdiff_t);
+                long_num = va_arg(args, ptrdiff_t);
             }
             else {
-                long_num = va_arg(arg, unsigned int);
+                long_num = va_arg(args, unsigned int);
             }
 
             if (format.argument_options == short_argument) {
@@ -1100,9 +1100,9 @@ int __pformatter(void* (*WriteProc)(void*, const char*, size_t), void* WriteProc
         case 'g':
         case 'G':
             if (format.argument_options == long_double_argument) {
-                long_double_num = va_arg(arg, long double);
+                long_double_num = va_arg(args, long double);
             } else {
-                long_double_num = va_arg(arg, double);
+                long_double_num = va_arg(args, double);
             }
 
             if (!(buff_ptr = float2str(long_double_num, buff + 512, *fmt_ptr))) {
@@ -1115,9 +1115,9 @@ int __pformatter(void* (*WriteProc)(void*, const char*, size_t), void* WriteProc
         case 'a':
         case 'A':
             if (format.argument_options == long_double_argument) {
-                long_double_num = va_arg(arg, long double);
+                long_double_num = va_arg(args, long double);
             } else {
-                long_double_num = va_arg(arg, double);
+                long_double_num = va_arg(args, double);
             }
 
             if (!(buff_ptr = double2hex(long_double_num, buff + 512, *fmt_ptr))) {
@@ -1129,7 +1129,7 @@ int __pformatter(void* (*WriteProc)(void*, const char*, size_t), void* WriteProc
 
         case 's':
             if (format.argument_options == wchar_argument) {
-                wchar_t* wcs_ptr = va_arg(arg, wchar_t*);
+                wchar_t* wcs_ptr = va_arg(args, wchar_t*);
 
                 if (wcs_ptr == NULL) {
                     wcs_ptr = L"";
@@ -1141,7 +1141,7 @@ int __pformatter(void* (*WriteProc)(void*, const char*, size_t), void* WriteProc
 
                 buff_ptr = &buff[0];
             } else {
-                buff_ptr = va_arg(arg, char*);
+                buff_ptr = va_arg(args, char*);
             }
 
             if (buff_ptr == NULL) {
@@ -1167,7 +1167,7 @@ int __pformatter(void* (*WriteProc)(void*, const char*, size_t), void* WriteProc
             break;
 
         case 'n':
-            buff_ptr = va_arg(arg, char*);
+            buff_ptr = va_arg(args, char*);
 
             switch (format.argument_options) {
             case normal_argument:
@@ -1197,7 +1197,7 @@ int __pformatter(void* (*WriteProc)(void*, const char*, size_t), void* WriteProc
 
         case 'c':
             buff_ptr = buff;
-            *buff_ptr = va_arg(arg, int);
+            *buff_ptr = va_arg(args, int);
             num_chars = 1;
             break;
 
@@ -1294,7 +1294,7 @@ int printf(const char* format, ...) {
     {
         va_list args;
         va_start(args, format);
-        res = __pformatter(&__FileWrite, (void*)stdout, format, args);
+        res = __pformatter(&__FileWrite, stdout, format, args);
     }
     return res;
 }
@@ -1308,18 +1308,18 @@ int fprintf(FILE* file, const char* format, ...) {
     {
         va_list args;
         va_start(args, format);
-        res = __pformatter(&__FileWrite, (void*)file, format, args);
+        res = __pformatter(&__FileWrite, file, format, args);
     }
     return res;
 }
 
-int vprintf(const char* format, va_list arg) {
+int vprintf(const char* format, va_list args) {
     int ret;
 
     if (fwide(stdout, -1) >= 0) {
         return -1;
     }
-    ret = __pformatter(&__FileWrite, (void*)stdout, format, arg);
+    ret = __pformatter(&__FileWrite, stdout, format, args);
     return ret;
 }
 
@@ -1345,8 +1345,8 @@ int vsnprintf(char* s, size_t n, const char* fmt, va_list args) {
     return end;
 }
 
-int vsprintf(char *s, const char *format, va_list arg) {
-    return vsnprintf(s, 0xFFFFFFFF, format, arg);
+int vsprintf(char *s, const char *format, va_list args) {
+    return vsnprintf(s, 0xFFFFFFFF, format, args);
 }
 
 int snprintf(char* s, size_t n, const char* format, ...) {

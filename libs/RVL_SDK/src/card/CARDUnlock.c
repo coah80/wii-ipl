@@ -104,7 +104,7 @@ static s32 ReadArrayUnlock(s32 chan, u32 data, void* rbuf, s32 rlen, int mode) {
     u8 cmd[5];
 
     card = &__CARDBlock[chan];
-    if (!EXISelect(chan, 0, CARDFreq)) {
+    if (!EXISelect(chan, EXI_DEV_EXT, CARDFreq)) {
         return CARD_RESULT_NOCARD;
     }
 
@@ -122,9 +122,9 @@ static s32 ReadArrayUnlock(s32 chan, u32 data, void* rbuf, s32 rlen, int mode) {
     }
 
     err = FALSE;
-    err |= !EXIImmEx(chan, cmd, 5, 1);
-    err |= !EXIImmEx(chan, (u8*)card->workArea + (u32)sizeof(CARDID), card->latency, 1);
-    err |= !EXIImmEx(chan, rbuf, rlen, 0);
+    err |= !EXIImmEx(chan, cmd, 5, EXI_WRITE);
+    err |= !EXIImmEx(chan, (u8*)card->workArea + (u32)sizeof(CARDID), card->latency, EXI_WRITE);
+    err |= !EXIImmEx(chan, rbuf, rlen, EXI_READ);
     err |= !EXIDeselect(chan);
 
     return err ? CARD_RESULT_NOCARD : CARD_RESULT_READY;

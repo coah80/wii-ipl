@@ -55,7 +55,7 @@ typedef struct {
 
 
 
-static const wchar_t* parse_format(const wchar_t* format_string, va_list* arg, print_format* format) {
+static const wchar_t* parse_format(const wchar_t* format_string, va_list* args, print_format* format) {
     print_format f;
     const wchar_t* s = format_string;
     wchar_t c;
@@ -110,14 +110,14 @@ static const wchar_t* parse_format(const wchar_t* format_string, va_list* arg, p
     }
 
     if (c == '*') {
-        if ((f.field_width = va_arg(*arg, int)) < 0) {
+        if ((f.field_width = va_arg(*args, int)) < 0) {
             f.justification_options = left_justification;
             f.field_width = -f.field_width;
         }
 
         c = *++s;
     } else {
-        while ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & 0x8) != 0) {
+        while ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & __MSL_ISDIGIT_MAP) != 0) {
             f.field_width = f.field_width * 10 + (c - '0');
             c = *++s;
         }
@@ -133,13 +133,13 @@ static const wchar_t* parse_format(const wchar_t* format_string, va_list* arg, p
         f.precision_specified = 1;
 
         if ((c = *++s) == '*') {
-            if ((f.precision = va_arg(*arg, int)) < 0) {
+            if ((f.precision = va_arg(*args, int)) < 0) {
                 f.precision_specified = 0;
             }
 
             c = *++s;
         } else {
-            while ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & 0x8) != 0)
+            while ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & __MSL_ISDIGIT_MAP) != 0)
             {
                 f.precision = f.precision * 10 + (c - '0');
                 c = *++s;
@@ -769,7 +769,7 @@ static wchar_t* float2str(double num, wchar_t* buff, print_format format) {
             c = format.conversion_char;
             p = buff - 5;
 
-            if ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & 0x200) != 0) {
+            if ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & __MSL_ISUPPER_MAP) != 0) {
                 wcscpy(p, L"-INF");
             } else {
                 wcscpy(p, L"-inf");
@@ -777,7 +777,7 @@ static wchar_t* float2str(double num, wchar_t* buff, print_format format) {
         } else {
             c = format.conversion_char;
             p = buff - 4;
-            if ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & 0x200) != 0) {
+            if ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & __MSL_ISUPPER_MAP) != 0) {
                 wcscpy(p, L"INF");
             } else {
                 wcscpy(p, L"inf");
@@ -790,7 +790,7 @@ static wchar_t* float2str(double num, wchar_t* buff, print_format format) {
         if (dec.sign) {
             c = format.conversion_char;
             p = buff - 5;
-            if ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & 0x200) != 0) {
+            if ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & __MSL_ISUPPER_MAP) != 0) {
                 wcscpy(p, L"-NAN");
             } else {
                 wcscpy(p, L"-nan");
@@ -798,7 +798,7 @@ static wchar_t* float2str(double num, wchar_t* buff, print_format format) {
         } else {
             c = format.conversion_char;
             p = buff - 4;
-            if ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & 0x200) != 0) {
+            if ((c >= 0x100 ? 0 : _current_locale.ctype_cmpt_ptr->wctype_map_ptr[c] & __MSL_ISUPPER_MAP) != 0) {
                 wcscpy(p, L"NAN");
             } else {
                 wcscpy(p, L"nan");
@@ -958,8 +958,8 @@ static wchar_t* float2str(double num, wchar_t* buff, print_format format) {
         break;
     }
 
-    p = buff - strlen((char*)p2) - 1;
-    mbstowcs(p, p2, strlen((char*)p2));
+    p = buff - strlen(p2) - 1;
+    mbstowcs(p, p2, strlen(p2));
 
     return p;
 }
@@ -1290,7 +1290,7 @@ void* __wStringWrite(void* wosc, const wchar_t* buffer, size_t numchars) {
     void* res;
     __wOutStrCtrl* wOscp = (__wOutStrCtrl*)wosc;
     tobewritten = ((wOscp->CharsWritten + numchars) <= wOscp->MaxCharCount) ? numchars : wOscp->MaxCharCount - wOscp->CharsWritten;
-    res = (void*)wmemcpy(wOscp->wCharStr + wOscp->CharsWritten, buffer, tobewritten);
+    res = wmemcpy(wOscp->wCharStr + wOscp->CharsWritten, buffer, tobewritten);
     wOscp->CharsWritten += tobewritten;
     return res;
 }

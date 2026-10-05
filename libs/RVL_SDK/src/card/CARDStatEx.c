@@ -62,27 +62,27 @@ s32 __CARDSetStatusExAsync(s32 chan, s32 fileNo, CARDDir* dirent, CARDCallback c
         break;
     }
 
-    if (dirent->permission & 0x20) {
+    if (dirent->permission & CARD_ATTR_GLOBAL) {
         memset(dirent->gameName, 0, sizeof(dirent->gameName));
         memset(dirent->company, 0, sizeof(dirent->company));
     }
 
-    if (dirent->permission & 0x40) {
+    if (dirent->permission & CARD_ATTR_COMPANY) {
         memset(dirent->gameName, 0, sizeof(dirent->gameName));
     }
 
-    if ((memcmp(&ent->fileName, &dirent->fileName, 32) != 0) || (memcmp(ent->gameName, dirent->gameName, 4) != 0) ||
+    if ((memcmp(&ent->fileName, &dirent->fileName, CARD_FILENAME_MAX) != 0) || (memcmp(ent->gameName, dirent->gameName, 4) != 0) ||
         (memcmp(ent->company, dirent->company, 2) != 0)) {
         for (i = 0; i < CARD_MAX_FILE; i++) {
             if (i != fileNo) {
                 CARDDir* ent = &dir[i];
                 if (((u8)ent->gameName[0] != 0xFF) && (memcmp(&ent->gameName, &dirent->gameName, 4) == 0) &&
-                    (memcmp(&ent->company, &dirent->company, 2) == 0) && (memcmp(&ent->fileName, &dirent->fileName, 0x20) == 0)) {
-                    return __CARDPutControlBlock(card, -7);
+                    (memcmp(&ent->company, &dirent->company, 2) == 0) && (memcmp(&ent->fileName, &dirent->fileName, CARD_FILENAME_MAX) == 0)) {
+                    return __CARDPutControlBlock(card, CARD_RESULT_EXIST);
                 }
             }
         }
-        memcpy(&ent->fileName, &dirent->fileName, 0x20);
+        memcpy(&ent->fileName, &dirent->fileName, CARD_FILENAME_MAX);
         memcpy(&ent->gameName, &dirent->gameName, 4);
         memcpy(&ent->company, &dirent->company, 2);
     }

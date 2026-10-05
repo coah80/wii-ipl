@@ -5,11 +5,11 @@
         char* p;                                                                                                                                     \
         char* q;                                                                                                                                     \
         size_t n = cnt;                                                                                                                              \
-        unsigned long tmp;                                                                                                                           \
+        unsigned long savedWord;                                                                                                                           \
         for (p = (char*)src - 1, q = (char*)dst - 1, n++; --n;) {                                                                                    \
-            tmp = *++q;                                                                                                                              \
+            savedWord = *++q;                                                                                                                              \
             *q = *++p;                                                                                                                               \
-            *p = tmp;                                                                                                                                \
+            *p = savedWord;                                                                                                                                \
         }                                                                                                                                            \
     } while (0)
 

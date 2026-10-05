@@ -1,3 +1,3 @@
 #include <math.h>
 
-double nan(const char* arg) {}
+double nan(const char* tag) {}

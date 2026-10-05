@@ -37,7 +37,7 @@ namespace EGG {
 
         mpOSThread = static_cast<OSThread*>(Heap::alloc(sizeof(OSThread), 32, mpContainHeap));
 
-        OSCreateThread(mpOSThread, Thread::start, this, reinterpret_cast<u8*>(mpStackMemory) + mStackSize, mStackSize, priority,
+        OSCreateThread(mpOSThread, Thread::start, this, static_cast<u8*>(mpStackMemory) + mStackSize, mStackSize, priority,
                        OS_THREAD_ATTR_DETACH);
 
         setCommonMesgQueue(capacity, mpContainHeap);

@@ -257,7 +257,7 @@ static const char* parse_format(const char* format_string, scan_format* format) 
     return s + 1;
 }
 
-int __sformatter(int (*ReadProc)(void*, int, int), void* ReadProcArg, const char* format_str, va_list arg,
+int __sformatter(int (*ReadProc)(void*, int, int), void* ReadProcArg, const char* format_str, va_list args,
                         int is_secure) {
     int num_chars, chars_read, items_assigned, conversions;
     int base, negative, overflow;
@@ -319,7 +319,7 @@ int __sformatter(int (*ReadProc)(void*, int, int), void* ReadProcArg, const char
         format_ptr = parse_format(format_ptr, &format);
 
         if (!format.suppress_assignment && format.conversion_char != '%') {
-            arg_ptr = va_arg(arg, char*);
+            arg_ptr = va_arg(args, char*);
         } else {
             arg_ptr = 0;
         }
@@ -552,7 +552,7 @@ int __sformatter(int (*ReadProc)(void*, int, int), void* ReadProcArg, const char
                 if (arg_ptr) {
                     if (is_secure) {
                         elem_valid = 1;
-                        elem_maxsize = va_arg(arg, size_t);
+                        elem_maxsize = va_arg(args, size_t);
                     }
 
                     num_chars = 0;
@@ -648,7 +648,7 @@ int __sformatter(int (*ReadProc)(void*, int, int), void* ReadProcArg, const char
                 if (arg_ptr) {
                     if (is_secure) {
                         elem_valid = 1;
-                        elem_maxsize = va_arg(arg, size_t) - 1;
+                        elem_maxsize = va_arg(args, size_t) - 1;
                     }
 
                     num_chars = 0;
@@ -797,7 +797,7 @@ int __StringRead(void* pPtr, int ch, int act) {
     return 0;
 }
 
-inline int vsscanf(const char* s, const char* format, va_list arg) {
+inline int vsscanf(const char* s, const char* format, va_list args) {
     __InStrCtrl isc;
     isc.NextChar = (char*)s;
 
@@ -806,7 +806,7 @@ inline int vsscanf(const char* s, const char* format, va_list arg) {
     }
 
     isc.NullCharDetected = 0;
-    return __sformatter(&__StringRead, (void*)&isc, format, arg, 0);
+    return __sformatter(&__StringRead, (void*)&isc, format, args, 0);
 }
 
 int sscanf(const char* s, const char* pFormat, ...) {
