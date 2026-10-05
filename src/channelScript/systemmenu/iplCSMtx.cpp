@@ -95,11 +95,11 @@ namespace ipl {
 
             BOOL set(CHANSVm* vm, CHANSVmObjHdr* parentObj, int dimension0, int dimension1) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(vm, 0);
-                if (util::is_valid_datap(parentObj) && arg != NULL) {
+                CHANSVmObjHdr* elementArg = CHANSVmGetArgFloat(vm, 0);
+                if (util::is_valid_datap(parentObj) && elementArg != NULL) {
                     CHANSVmObjHdr* elem = CHANSVmGetArrayElement2D(vm, *parentObj->value.ptr_v, dimension0, dimension1);
                     if (elem != NULL) {
-                        if (CHANSVmCopyObject(vm, elem, arg) != NULL) {
+                        if (CHANSVmCopyObject(vm, elem, elementArg) != NULL) {
                             result = TRUE;
                         }
                     }

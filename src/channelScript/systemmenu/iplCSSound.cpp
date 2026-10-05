@@ -7,11 +7,11 @@ namespace ipl {
         namespace sound {
             CHANSVmDefineMethod(start) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg0 = CHANSVmGetArgInteger(VmInst, 0);
-                CHANSVmObjHdr* arg1 = CHANSVmGetArgInteger(VmInst, 1);
+                CHANSVmObjHdr* soundDataArg = CHANSVmGetArgInteger(VmInst, 0);
+                CHANSVmObjHdr* soundSizeArg = CHANSVmGetArgInteger(VmInst, 1);
 
-                void* data = arg0 != NULL ? (void*)arg0->value.data.len : NULL;
-                u32 size = arg1 != NULL ? arg1->value.data.len : 0;
+                void* data = soundDataArg != NULL ? (void*)soundDataArg->value.data.len : NULL;
+                u32 size = soundSizeArg != NULL ? soundSizeArg->value.data.len : 0;
 
                 if (System::getCSManager()->isValidAddr(data) && size != 0) {
                     if (snd::sSystem.checkTmpSoundFile(data, size)) {

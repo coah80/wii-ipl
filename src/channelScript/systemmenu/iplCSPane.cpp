@@ -207,8 +207,8 @@ namespace ipl {
                 if (util::is_valid_datap(VmParentObj)) {
                     nw4r::lyt::Pane* pane = *static_cast<nw4r::lyt::Pane**>(*VmParentObj->value.ptr_v);
                     if (pane != NULL) {
-                        nw4r::lyt::Size temp = pane->GetSize();
-                        result = size::_ctor(VmInst, VmReturnObj, temp.width, temp.height) == TRUE;
+                        nw4r::lyt::Size paneSize = pane->GetSize();
+                        result = size::_ctor(VmInst, VmReturnObj, paneSize.width, paneSize.height) == TRUE;
                     }
                 }
                 return result;
@@ -242,14 +242,14 @@ namespace ipl {
 
             CHANSVmDefineMethod(set_alpha) {
                 nw4r::lyt::Pane* pane;
-                CHANSVmObjHdr* arg;
+                CHANSVmObjHdr* alphaArg;
                 BOOL result = FALSE;
                 if (util::is_valid_datap(VmParentObj)) {
                     pane = *static_cast<nw4r::lyt::Pane**>(*VmParentObj->value.ptr_v);
-                    arg = CHANSVmGetArgInteger(VmInst, 0);
-                    if (pane != NULL && arg != NULL) {
+                    alphaArg = CHANSVmGetArgInteger(VmInst, 0);
+                    if (pane != NULL && alphaArg != NULL) {
                         result = TRUE;
-                        pane->SetAlpha(arg->value.int_v);
+                        pane->SetAlpha(alphaArg->value.int_v);
                     }
                 }
                 return result;
@@ -321,16 +321,16 @@ namespace ipl {
 
             CHANSVmDefineMethod(set_line_space) {
                 nw4r::lyt::Pane* pane;
-                CHANSVmObjHdr* arg;
+                CHANSVmObjHdr* lineSpaceArg;
                 BOOL result = FALSE;
                 if (util::is_valid_datap(VmParentObj)) {
                     pane = *static_cast<nw4r::lyt::Pane**>(*VmParentObj->value.ptr_v);
-                    arg = CHANSVmGetArgFloat(VmInst, 0);
+                    lineSpaceArg = CHANSVmGetArgFloat(VmInst, 0);
                     if (pane != NULL) {
                         nw4r::lyt::TextBox* box = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
-                        if (box != NULL && arg != NULL) {
+                        if (box != NULL && lineSpaceArg != NULL) {
                             result = TRUE;
-                            box->SetLineSpace(arg->value.float_v);
+                            box->SetLineSpace(lineSpaceArg->value.float_v);
                         }
                     }
                 }
@@ -356,12 +356,12 @@ namespace ipl {
                 BOOL result = FALSE;
                 if (util::is_valid_datap(VmParentObj)) {
                     pane = *static_cast<nw4r::lyt::Pane**>(*VmParentObj->value.ptr_v);
-                    CHANSVmObjHdr* arg = CHANSVmGetArgFloat(VmInst, 0);
+                    CHANSVmObjHdr* charSpaceArg = CHANSVmGetArgFloat(VmInst, 0);
                     if (pane != NULL) {
                         nw4r::lyt::TextBox* box = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
-                        if (box != NULL && arg != NULL) {
+                        if (box != NULL && charSpaceArg != NULL) {
                             result = TRUE;
-                            box->SetCharSpace(arg->value.float_v);
+                            box->SetCharSpace(charSpaceArg->value.float_v);
                         }
                     }
                 }
@@ -374,10 +374,10 @@ namespace ipl {
                 if (util::is_valid_datap(VmParentObj)) {
                     pane = *static_cast<nw4r::lyt::Pane**>(*VmParentObj->value.ptr_v);
                     u32 argc = CHANSVmGetArgc(VmInst);
-                    CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
-                    if (pane != NULL && argc == 1 && arg != NULL) {
-                        if (arg->value.int_v < 4ULL) {
-                            result = color::_ctor(VmInst, VmReturnObj, (nw4r::ut::Color) static_cast<u32>(pane->GetVtxColor(arg->value.int_v))) == TRUE;
+                    CHANSVmObjHdr* vertexIndexArg = CHANSVmGetArgInteger(VmInst, 0);
+                    if (pane != NULL && argc == 1 && vertexIndexArg != NULL) {
+                        if (vertexIndexArg->value.int_v < 4ULL) {
+                            result = color::_ctor(VmInst, VmReturnObj, (nw4r::ut::Color) static_cast<u32>(pane->GetVtxColor(vertexIndexArg->value.int_v))) == TRUE;
                         }
                     }
                 }
@@ -390,13 +390,13 @@ namespace ipl {
                 if (util::is_valid_datap(VmParentObj)) {
                     pane = *static_cast<nw4r::lyt::Pane**>(*VmParentObj->value.ptr_v);
                     u32 argc = CHANSVmGetArgc(VmInst);
-                    CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
+                    CHANSVmObjHdr* vertexIndexArg = CHANSVmGetArgInteger(VmInst, 0);
                     CHANSVmObjHdr* colorArg = CHANSVmGetArg(VmInst, 1);
-                    if (pane != NULL && argc == 2 && arg != NULL && util::is_valid_class(colorArg, "Color")) {
-                        u64 v = arg->value.int_v;
-                        if (v < 4) {
+                    if (pane != NULL && argc == 2 && vertexIndexArg != NULL && util::is_valid_class(colorArg, "Color")) {
+                        u64 vertexIndex = vertexIndexArg->value.int_v;
+                        if (vertexIndex < 4) {
                             u8* src = static_cast<u8*>(*colorArg->value.ptr_v);
-                            pane->SetVtxColor(arg->value.int_v, *(nw4r::ut::Color*)src);
+                            pane->SetVtxColor(vertexIndexArg->value.int_v, *(nw4r::ut::Color*)src);
                             result = TRUE;
                         }
                     }
@@ -411,10 +411,10 @@ namespace ipl {
                     if (pane != NULL) {
                         nw4r::lyt::TextBox* box = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
                         u32 argc = CHANSVmGetArgc(VmInst);
-                        CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
-                        if (box != NULL && argc == 1 && arg != NULL) {
-                            if (arg->value.int_v < 4ULL) {
-                                result = color::_ctor(VmInst, VmReturnObj, (nw4r::ut::Color) static_cast<u32>(GetTextColor__Q34nw4r3lyt7TextBoxCFUl(box, arg->value.int_v))) == TRUE;
+                        CHANSVmObjHdr* colorIndexArg = CHANSVmGetArgInteger(VmInst, 0);
+                        if (box != NULL && argc == 1 && colorIndexArg != NULL) {
+                            if (colorIndexArg->value.int_v < 4ULL) {
+                                result = color::_ctor(VmInst, VmReturnObj, (nw4r::ut::Color) static_cast<u32>(GetTextColor__Q34nw4r3lyt7TextBoxCFUl(box, colorIndexArg->value.int_v))) == TRUE;
                             }
                         }
                     }
@@ -429,12 +429,12 @@ namespace ipl {
                     if (pane != NULL) {
                         nw4r::lyt::TextBox* box = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
                         u32 argc = CHANSVmGetArgc(VmInst);
-                        CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
+                        CHANSVmObjHdr* colorIndexArg = CHANSVmGetArgInteger(VmInst, 0);
                         CHANSVmObjHdr* colorArg = CHANSVmGetArg(VmInst, 1);
-                        if (box != NULL && argc == 2 && arg != NULL && util::is_valid_class(colorArg, "Color")) {
-                            if (arg->value.int_v < 2ULL) {
+                        if (box != NULL && argc == 2 && colorIndexArg != NULL && util::is_valid_class(colorArg, "Color")) {
+                            if (colorIndexArg->value.int_v < 2ULL) {
                                 u8* src = static_cast<u8*>(*colorArg->value.ptr_v);
-                                box->SetTextColor(static_cast<s32>(arg->value.int_v), *(nw4r::ut::Color*)src);
+                                box->SetTextColor(static_cast<s32>(colorIndexArg->value.int_v), *(nw4r::ut::Color*)src);
                                 result = TRUE;
                             }
                         }
@@ -496,11 +496,11 @@ namespace ipl {
                 BOOL result = FALSE;
                 if (util::is_valid_datap(VmParentObj)) {
                     pane = *static_cast<nw4r::lyt::Pane**>(*VmParentObj->value.ptr_v);
-                    CHANSVmObjHdr* arg = CHANSVmGetArg(VmInst, 0);
+                    CHANSVmObjHdr* fontArg = CHANSVmGetArg(VmInst, 0);
                     if (pane != NULL) {
                         nw4r::lyt::TextBox* box = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
-                        if (box != NULL && util::is_valid_class(arg, "Font")) {
-                            const nw4r::ut::Font* font = *static_cast<const nw4r::ut::Font**>(*arg->value.ptr_v);
+                        if (box != NULL && util::is_valid_class(fontArg, "Font")) {
+                            const nw4r::ut::Font* font = *static_cast<const nw4r::ut::Font**>(*fontArg->value.ptr_v);
                             if (font != NULL) {
                                 box->SetFont(font);
                                 result = TRUE;
@@ -513,25 +513,25 @@ namespace ipl {
 
             nw4r::math::VEC3 get_vec_(CHANSVm* vm) {
                 u32 argc = CHANSVmGetArgc(vm);
-                CHANSVmObjHdr* arg = CHANSVmGetArg(vm, 0);
+                CHANSVmObjHdr* vectorArg = CHANSVmGetArg(vm, 0);
                 nw4r::math::VEC3 out(scCsZeroF, scCsZeroF, scCsZeroF);
-                if (argc == 1 && util::is_valid_class(arg, "VEC3")) {
-                    f32* src = static_cast<f32*>(*arg->value.ptr_v);
+                if (argc == 1 && util::is_valid_class(vectorArg, "VEC3")) {
+                    f32* src = static_cast<f32*>(*vectorArg->value.ptr_v);
                     out.x = src[0];
                     out.y = src[1];
                     out.z = src[2];
                 } else {
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgFloat(vm, 0);
-                    CHANSVmObjHdr* arg1 = CHANSVmGetArgFloat(vm, 1);
-                    CHANSVmObjHdr* arg2 = CHANSVmGetArgFloat(vm, 2);
-                    if (arg0 != NULL) {
-                        out.x = (f32)arg0->value.float_v;
+                    CHANSVmObjHdr* xArg = CHANSVmGetArgFloat(vm, 0);
+                    CHANSVmObjHdr* yArg = CHANSVmGetArgFloat(vm, 1);
+                    CHANSVmObjHdr* zArg = CHANSVmGetArgFloat(vm, 2);
+                    if (xArg != NULL) {
+                        out.x = (f32)xArg->value.float_v;
                     }
-                    if (arg1 != NULL) {
-                        out.y = (f32)arg1->value.float_v;
+                    if (yArg != NULL) {
+                        out.y = (f32)yArg->value.float_v;
                     }
-                    if (arg2 != NULL) {
-                        out.z = (f32)arg2->value.float_v;
+                    if (zArg != NULL) {
+                        out.z = (f32)zArg->value.float_v;
                     }
                 }
                 return out;
@@ -539,20 +539,20 @@ namespace ipl {
 
             nw4r::lyt::Size get_size_(CHANSVm* vm) {
                 u32 argc = CHANSVmGetArgc(vm);
-                CHANSVmObjHdr* arg = CHANSVmGetArg(vm, 0);
+                CHANSVmObjHdr* sizeArg = CHANSVmGetArg(vm, 0);
                 nw4r::lyt::Size out(scCsZeroF, scCsZeroF);
-                if (argc == 1 && util::is_valid_class(arg, "Size")) {
-                    f32* src = static_cast<f32*>(*arg->value.ptr_v);
+                if (argc == 1 && util::is_valid_class(sizeArg, "Size")) {
+                    f32* src = static_cast<f32*>(*sizeArg->value.ptr_v);
                     out.width = src[0];
                     out.height = src[1];
                 } else {
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgFloat(vm, 0);
-                    CHANSVmObjHdr* arg1 = CHANSVmGetArgFloat(vm, 1);
-                    if (arg0 != NULL) {
-                        out.width = static_cast<f32>(arg0->value.float_v);
+                    CHANSVmObjHdr* widthArg = CHANSVmGetArgFloat(vm, 0);
+                    CHANSVmObjHdr* heightArg = CHANSVmGetArgFloat(vm, 1);
+                    if (widthArg != NULL) {
+                        out.width = static_cast<f32>(widthArg->value.float_v);
                     }
-                    if (arg1 != NULL) {
-                        out.height = static_cast<f32>(arg1->value.float_v);
+                    if (heightArg != NULL) {
+                        out.height = static_cast<f32>(heightArg->value.float_v);
                     }
                 }
                 return out;

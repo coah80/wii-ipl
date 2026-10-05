@@ -27,26 +27,26 @@ namespace ipl {
 
                 math::VEC3* data = (math::VEC3*)CHANSVmNewObjData(VmInst, VmReturnObj, sizeof(*data));
                 if (data != NULL) {
-                    CHANSVmObjHdr* arg0 = CHANSVmGetArgFloat(VmInst, 0);
-                    CHANSVmObjHdr* arg1 = CHANSVmGetArgFloat(VmInst, 1);
-                    CHANSVmObjHdr* arg2 = CHANSVmGetArgFloat(VmInst, 2);
+                    CHANSVmObjHdr* xArg = CHANSVmGetArgFloat(VmInst, 0);
+                    CHANSVmObjHdr* yArg = CHANSVmGetArgFloat(VmInst, 1);
+                    CHANSVmObjHdr* zArg = CHANSVmGetArgFloat(VmInst, 2);
 
                     f32 x, y, z;
 
-                    if (arg0 != NULL) {
-                        x = arg0->value.float_v;
+                    if (xArg != NULL) {
+                        x = xArg->value.float_v;
                     } else {
                         x = 0.0;
                     }
 
-                    if (arg1 != NULL) {
-                        y = arg1->value.float_v;
+                    if (yArg != NULL) {
+                        y = yArg->value.float_v;
                     } else {
                         y = 0.0;
                     }
 
-                    if (arg2 != NULL) {
-                        z = arg2->value.float_v;
+                    if (zArg != NULL) {
+                        z = zArg->value.float_v;
                     } else {
                         z = 0.0;
                     }
@@ -75,12 +75,12 @@ namespace ipl {
             template <int I>
             CHANSVmDefineMethod(set) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(VmInst, 0);
-                if (util::is_valid_datap(VmParentObj) && arg != NULL) {
+                CHANSVmObjHdr* componentArg = CHANSVmGetArgFloat(VmInst, 0);
+                if (util::is_valid_datap(VmParentObj) && componentArg != NULL) {
                     f32* data = (f32*)*VmParentObj->value.ptr_v;
 
                     result = TRUE;
-                    data[I] = arg->value.float_v;
+                    data[I] = componentArg->value.float_v;
                 }
                 return result;
             }

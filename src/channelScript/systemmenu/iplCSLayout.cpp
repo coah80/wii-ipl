@@ -11,13 +11,13 @@ namespace ipl {
                 BOOL ok;
                 BOOL result = FALSE;
 
-                CHANSVmObjHdr* arg = CHANSVmGetArgString(VmInst, 0);
-                if (util::is_valid_datap(arg)) {
+                CHANSVmObjHdr* paneNameArg = CHANSVmGetArgString(VmInst, 0);
+                if (util::is_valid_datap(paneNameArg)) {
                     char name[18];
                     wchar_t wide[18];
                     memset(name, 0, sizeof(name));
                     memset(wide, 0, sizeof(wide));
-                    util::utf16_to_ascii(name, wide, 16, arg);
+                    util::utf16_to_ascii(name, wide, 16, paneNameArg);
 
                     ok = FALSE;
                     name[16] = '\0';
@@ -36,10 +36,10 @@ namespace ipl {
             CHANSVmDefineMethod(start_anm) {
                 ipl::layout::Animator** anims = System::getCSManager()->getData().anims;
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
-                if (arg != NULL && arg->value.int_v < 16ULL) {
+                CHANSVmObjHdr* animationIndexArg = CHANSVmGetArgInteger(VmInst, 0);
+                if (animationIndexArg != NULL && animationIndexArg->value.int_v < 16ULL) {
                     if (anims != NULL) {
-                        ipl::layout::Animator* anim = anims[arg->value.data.len];
+                        ipl::layout::Animator* anim = anims[animationIndexArg->value.data.len];
                         if (anim != NULL) {
                             anim->initFrame();
                             anim->restart();
@@ -53,11 +53,11 @@ namespace ipl {
             CHANSVmDefineMethod(get_anm) {
                 ipl::layout::Animator** anims = System::getCSManager()->getData().anims;
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgInteger(VmInst, 0);
-                if (arg != NULL && arg->value.int_v < 16ULL) {
+                CHANSVmObjHdr* animationIndexArg = CHANSVmGetArgInteger(VmInst, 0);
+                if (animationIndexArg != NULL && animationIndexArg->value.int_v < 16ULL) {
                     if (anims != NULL) {
                         result = TRUE;
-                        ipl::layout::Animator* anim = anims[arg->value.int_v];
+                        ipl::layout::Animator* anim = anims[animationIndexArg->value.int_v];
                         if (anim != NULL) {
                             if (!anim::_ctor(VmInst, VmReturnObj, (u32)anim)) {
                                 result = FALSE;

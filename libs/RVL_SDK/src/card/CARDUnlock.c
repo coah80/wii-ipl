@@ -131,50 +131,50 @@ static s32 ReadArrayUnlock(s32 chan, u32 data, void* rbuf, s32 rlen, int mode) {
 }
 
 static u32 GetInitVal(void) {
-    u32 tmp;
+    u32 unlockAddress;
     u32 tick;
 
     tick = OSGetTick();
     CARDSrand(tick);
-    tmp = 0x7fec8000;
-    tmp |= CARDRand();
-    tmp &= 0xfffff000;
-    return tmp;
+    unlockAddress = 0x7fec8000;
+    unlockAddress |= CARDRand();
+    unlockAddress &= 0xfffff000;
+    return unlockAddress;
 }
 
 static s32 DummyLen(void) {
     u32 tick;
-    u32 wk;
-    s32 tmp;
-    u32 max;
+    u32 seedShift;
+    s32 extraReadLength;
+    u32 retryCount;
 
-    wk = 1;
-    max = 0;
+    seedShift = 1;
+    retryCount = 0;
     tick = OSGetTick();
     CARDSrand(tick);
 
-    tmp = CARDRand();
-    tmp &= 0x0000001f;
-    tmp += 1;
-    while ((tmp < 4) && (max < 10)) {
+    extraReadLength = CARDRand();
+    extraReadLength &= 0x0000001f;
+    extraReadLength += 1;
+    while ((extraReadLength < 4) && (retryCount < 10)) {
         tick = OSGetTick();
-        tmp = (s32)(tick << wk);
-        wk++;
-        if (wk > 16) {
-            wk = 1;
+        extraReadLength = (s32)(tick << seedShift);
+        seedShift++;
+        if (seedShift > 16) {
+            seedShift = 1;
         }
-        CARDSrand((u32)tmp);
-        tmp = CARDRand();
-        tmp &= 0x0000001f;
-        tmp += 1;
-        max++;
+        CARDSrand((u32)extraReadLength);
+        extraReadLength = CARDRand();
+        extraReadLength &= 0x0000001f;
+        extraReadLength += 1;
+        retryCount++;
     }
 
-    if (tmp < 4) {
-        tmp = 4;
+    if (extraReadLength < 4) {
+        extraReadLength = 4;
     }
 
-    return tmp;
+    return extraReadLength;
 }
 
 s32 __CARDUnlock(s32 chan, u8 flashID[12]) {

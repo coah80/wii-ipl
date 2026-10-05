@@ -148,21 +148,21 @@ SSLResult SSLRead(SSLId i_sslId, char* o_buf, u32 i_bufSize) {
         return SSL_RESULT_INVALID;
     } else {
         u32 bufSize = i_bufSize > SSL_BUFFER_MAX_LENGTH ? SSL_BUFFER_MAX_LENGTH : i_bufSize;
-        char tmp[32] ALIGN32;
+        char alignedBuffer[32] ALIGN32;
         u32 align = (u32)o_buf & 31;
         u32 front_bytes = align != 0 ? (32 - align) : 0;
         u32 rest = bufSize;
         int total_read = 0;
 
-        memset(tmp, 0, sizeof(tmp));
+        memset(alignedBuffer, 0, sizeof(alignedBuffer));
         if (front_bytes != 0) {
             if (front_bytes > bufSize) {
                 front_bytes = bufSize;
             }
-            ret = SSL_read(fd, i_sslId, tmp, front_bytes);
+            ret = SSL_read(fd, i_sslId, alignedBuffer, front_bytes);
             if (ret > 0) {
                 total_read += ret;
-                memcpy(o_buf, tmp, ret);
+                memcpy(o_buf, alignedBuffer, ret);
                 if (ret < front_bytes) {
                     IOS_Close(fd);
                     return total_read;
@@ -202,11 +202,11 @@ SSLResult SSLRead(SSLId i_sslId, char* o_buf, u32 i_bufSize) {
         if (rest != 0) {
             u32 back_bytes = (rest & 31);
             if (back_bytes != 0) {
-                memset(tmp, 0, sizeof(tmp));
-                ret = SSL_read(fd, i_sslId, tmp, back_bytes);
+                memset(alignedBuffer, 0, sizeof(alignedBuffer));
+                ret = SSL_read(fd, i_sslId, alignedBuffer, back_bytes);
                 if (ret > 0) {
                     total_read += ret;
-                    memcpy((s8*)o_buf, tmp, ret);
+                    memcpy((s8*)o_buf, alignedBuffer, ret);
                 } else {
                     IOS_Close(fd);
                     if (total_read > 0) {
@@ -235,7 +235,7 @@ SSLResult SSLWrite(SSLId i_sslId, const char* i_buf, u32 i_bufSize) {
     if (fd < 0) {
         return SSL_RESULT_INVALID;
     } else {
-        char tmp[32] ALIGN32;
+        char alignedBuffer[32] ALIGN32;
         u32 align;
         u32 front_bytes;
         u32 rest;
@@ -245,13 +245,13 @@ SSLResult SSLWrite(SSLId i_sslId, const char* i_buf, u32 i_bufSize) {
         front_bytes = align != 0 ? (32 - align) : 0;
         rest = i_bufSize;
         total_write = 0;
-        memset(tmp, 0, sizeof(tmp));
+        memset(alignedBuffer, 0, sizeof(alignedBuffer));
         if (front_bytes != 0) {
             if (front_bytes > i_bufSize) {
                 front_bytes = i_bufSize;
             }
-            memcpy(tmp, i_buf, front_bytes);
-            ret = SSL_write(fd, i_sslId, tmp, front_bytes);
+            memcpy(alignedBuffer, i_buf, front_bytes);
+            ret = SSL_write(fd, i_sslId, alignedBuffer, front_bytes);
             if (ret > 0) {
                 total_write += ret;
                 if (ret < front_bytes) {
@@ -292,9 +292,9 @@ SSLResult SSLWrite(SSLId i_sslId, const char* i_buf, u32 i_bufSize) {
         if (rest != 0) {
             u32 back_bytes = (rest & 31);
             if (back_bytes != 0) {
-                memset(tmp, 0, sizeof(tmp));
-                memcpy(tmp, i_buf, back_bytes);
-                ret = SSL_write(fd, i_sslId, tmp, back_bytes);
+                memset(alignedBuffer, 0, sizeof(alignedBuffer));
+                memcpy(alignedBuffer, i_buf, back_bytes);
+                ret = SSL_write(fd, i_sslId, alignedBuffer, back_bytes);
                 if (ret > 0) {
                     total_write += ret;
                 } else {

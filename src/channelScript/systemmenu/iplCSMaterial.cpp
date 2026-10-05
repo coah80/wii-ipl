@@ -20,14 +20,14 @@ struct CSMatTexData {
 namespace ipl {
     namespace cs {
         namespace material {
-            BOOL set_texture(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL set_texture(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg0 = CHANSVmGetArgInteger(vm, 0);
+                CHANSVmObjHdr* textureIndexArg = CHANSVmGetArgInteger(vm, 0);
                 CHANSVmObjHdr* texArg = CHANSVmGetArg(vm, 1);
-                if (util::is_valid_datap(hdr) && arg0 != NULL && util::is_valid_class(texArg, "Texture")) {
+                if (util::is_valid_datap(parentObj) && textureIndexArg != NULL && util::is_valid_class(texArg, "Texture")) {
                     CSMatTexData* texData = static_cast<CSMatTexData*>(*texArg->value.ptr_v);
-                    nw4r::lyt::Material* mat = *static_cast<nw4r::lyt::Material**>(*hdr->value.ptr_v);
-                    u32 idx = arg0->value.int_v;
+                    nw4r::lyt::Material* mat = *static_cast<nw4r::lyt::Material**>(*parentObj->value.ptr_v);
+                    u32 idx = textureIndexArg->value.int_v;
                     if (mat != NULL) {
                         u32 texMapCount = mat->GetTextureNum();
                         if ((u8)idx < texMapCount) {
@@ -44,38 +44,38 @@ namespace ipl {
                 return result;
             }
 
-            BOOL get_tev_color(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_tev_color(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 nw4r::lyt::Material* mat;
-                CHANSVmObjHdr* arg;
+                CHANSVmObjHdr* colorIndexArg;
                 BOOL result = FALSE;
 
-                if (util::is_valid_datap(hdr)) {
-                    mat = *static_cast<nw4r::lyt::Material**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    mat = *static_cast<nw4r::lyt::Material**>(*parentObj->value.ptr_v);
                     u32 argc = CHANSVmGetArgc(vm);
-                    arg = CHANSVmGetArgInteger(vm, 0);
-                    if (mat != NULL && argc == 1 && arg != NULL) {
-                        if (arg->value.int_v < 3ULL) {
-                            result = color_s10::_ctor(vm, hdr2, mat->GetTevColor(arg->value.int_v)) == TRUE;
+                    colorIndexArg = CHANSVmGetArgInteger(vm, 0);
+                    if (mat != NULL && argc == 1 && colorIndexArg != NULL) {
+                        if (colorIndexArg->value.int_v < 3ULL) {
+                            result = color_s10::_ctor(vm, returnObj, mat->GetTevColor(colorIndexArg->value.int_v)) == TRUE;
                         }
                     }
                 }
                 return result;
             }
 
-            BOOL set_tev_color(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL set_tev_color(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 nw4r::lyt::Material* mat;
-                CHANSVmObjHdr* arg0;
-                CHANSVmObjHdr* arg1;
+                CHANSVmObjHdr* colorIndexArg;
+                CHANSVmObjHdr* colorArg;
                 BOOL result = FALSE;
 
-                if (util::is_valid_datap(hdr)) {
-                    mat = *static_cast<nw4r::lyt::Material**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    mat = *static_cast<nw4r::lyt::Material**>(*parentObj->value.ptr_v);
                     u32 argc = CHANSVmGetArgc(vm);
-                    arg0 = CHANSVmGetArgInteger(vm, 0);
-                    arg1 = CHANSVmGetArg(vm, 1);
-                    if (mat != NULL && argc == 2 && arg0 != NULL && util::is_valid_class(arg1, "GXColorS10")) {
-                        if (arg0->value.int_v < 3ULL) {
-                            mat->SetTevColor(arg0->value.int_v, *static_cast<GXColorS10*>(*arg1->value.ptr_v));
+                    colorIndexArg = CHANSVmGetArgInteger(vm, 0);
+                    colorArg = CHANSVmGetArg(vm, 1);
+                    if (mat != NULL && argc == 2 && colorIndexArg != NULL && util::is_valid_class(colorArg, "GXColorS10")) {
+                        if (colorIndexArg->value.int_v < 3ULL) {
+                            mat->SetTevColor(colorIndexArg->value.int_v, *static_cast<GXColorS10*>(*colorArg->value.ptr_v));
                             result = TRUE;
                         }
                     }
@@ -83,38 +83,38 @@ namespace ipl {
                 return result;
             }
 
-            BOOL get_tev_kcolor(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_tev_kcolor(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 nw4r::lyt::Material* mat;
-                CHANSVmObjHdr* arg;
+                CHANSVmObjHdr* colorIndexArg;
                 BOOL result = FALSE;
 
-                if (util::is_valid_datap(hdr)) {
-                    mat = *static_cast<nw4r::lyt::Material**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    mat = *static_cast<nw4r::lyt::Material**>(*parentObj->value.ptr_v);
                     u32 argc = CHANSVmGetArgc(vm);
-                    arg = CHANSVmGetArgInteger(vm, 0);
-                    if (mat != NULL && argc == 1 && arg != NULL) {
-                        if (arg->value.int_v < 4ULL) {
-                            result = color::_ctor(vm, hdr2, mat->GetTevKColor(arg->value.int_v).ToU32()) == TRUE;
+                    colorIndexArg = CHANSVmGetArgInteger(vm, 0);
+                    if (mat != NULL && argc == 1 && colorIndexArg != NULL) {
+                        if (colorIndexArg->value.int_v < 4ULL) {
+                            result = color::_ctor(vm, returnObj, mat->GetTevKColor(colorIndexArg->value.int_v).ToU32()) == TRUE;
                         }
                     }
                 }
                 return result;
             }
 
-            BOOL set_tev_kcolor(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL set_tev_kcolor(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 nw4r::lyt::Material* mat;
-                CHANSVmObjHdr* arg0;
+                CHANSVmObjHdr* colorIndexArg;
                 BOOL result = FALSE;
-                CHANSVmObjHdr* arg1;
+                CHANSVmObjHdr* colorArg;
 
-                if (util::is_valid_datap(hdr)) {
-                    mat = *static_cast<nw4r::lyt::Material**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    mat = *static_cast<nw4r::lyt::Material**>(*parentObj->value.ptr_v);
                     u32 argc = CHANSVmGetArgc(vm);
-                    arg0 = CHANSVmGetArgInteger(vm, 0);
-                    arg1 = CHANSVmGetArg(vm, 1);
-                    if (mat != NULL && argc == 2 && arg0 != NULL && util::is_valid_class(arg1, "Color")) {
-                        if (arg0->value.int_v < 4ULL) {
-                            mat->SetTevKColor(arg0->value.int_v, *static_cast<nw4r::ut::Color*>(*arg1->value.ptr_v));
+                    colorIndexArg = CHANSVmGetArgInteger(vm, 0);
+                    colorArg = CHANSVmGetArg(vm, 1);
+                    if (mat != NULL && argc == 2 && colorIndexArg != NULL && util::is_valid_class(colorArg, "Color")) {
+                        if (colorIndexArg->value.int_v < 4ULL) {
+                            mat->SetTevKColor(colorIndexArg->value.int_v, *static_cast<nw4r::ut::Color*>(*colorArg->value.ptr_v));
                             result = TRUE;
                         }
                     }
@@ -122,26 +122,26 @@ namespace ipl {
                 return result;
             }
 
-            BOOL get_mat_color(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_mat_color(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL result = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    nw4r::lyt::Material* mat = *static_cast<nw4r::lyt::Material**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    nw4r::lyt::Material* mat = *static_cast<nw4r::lyt::Material**>(*parentObj->value.ptr_v);
                     if (mat != NULL && mat->IsMatColorCap()) {
-                        result = color::_ctor(vm, hdr2, mat->GetMatColor().ToU32()) == TRUE;
+                        result = color::_ctor(vm, returnObj, mat->GetMatColor().ToU32()) == TRUE;
                     }
                 }
                 return result;
             }
 
-            BOOL set_mat_color(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL set_mat_color(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 nw4r::lyt::Material* mat;
                 BOOL result = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    mat = *static_cast<nw4r::lyt::Material**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    mat = *static_cast<nw4r::lyt::Material**>(*parentObj->value.ptr_v);
                     u32 argc = CHANSVmGetArgc(vm);
-                    CHANSVmObjHdr* arg = CHANSVmGetArg(vm, 0);
-                    if (mat != NULL && mat->IsMatColorCap() && argc == 1 && util::is_valid_class(arg, "Color")) {
-                        mat->SetMatColor(*static_cast<nw4r::ut::Color*>(*arg->value.ptr_v));
+                    CHANSVmObjHdr* colorArg = CHANSVmGetArg(vm, 0);
+                    if (mat != NULL && mat->IsMatColorCap() && argc == 1 && util::is_valid_class(colorArg, "Color")) {
+                        mat->SetMatColor(*static_cast<nw4r::ut::Color*>(*colorArg->value.ptr_v));
                         result = TRUE;
                     }
                 }

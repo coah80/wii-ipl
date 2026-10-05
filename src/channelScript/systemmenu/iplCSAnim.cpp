@@ -5,11 +5,11 @@
 namespace ipl {
     namespace cs {
         namespace anim {
-            BOOL start(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL start(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 ipl::layout::Animator* anim;
                 BOOL ret = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
                         anim->initFrame();
                         anim->restart();
@@ -19,10 +19,10 @@ namespace ipl {
                 return ret;
             }
 
-            BOOL restart(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL restart(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
                         anim->restart();
                         ret = TRUE;
@@ -31,10 +31,10 @@ namespace ipl {
                 return ret;
             }
 
-            BOOL stop(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL stop(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
                         anim->stop();
                         ret = TRUE;
@@ -43,23 +43,23 @@ namespace ipl {
                 return ret;
             }
 
-            BOOL is_playing(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL is_playing(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        ret = CHANSVmSetInteger(vm, hdr2, anim->isPlaying()) == CHANS_VM_OK;
+                        ret = CHANSVmSetInteger(vm, returnObj, anim->isPlaying()) == CHANS_VM_OK;
                     }
                 }
                 return ret;
             }
 
-            BOOL init_frame(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL init_frame(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(vm, 0);
-                if (util::is_valid_datap(hdr) && arg != NULL) {
-                    f32 frame = static_cast<f32>(arg->value.float_v);
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                CHANSVmObjHdr* frameArg = CHANSVmGetArgFloat(vm, 0);
+                if (util::is_valid_datap(parentObj) && frameArg != NULL) {
+                    f32 frame = static_cast<f32>(frameArg->value.float_v);
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
                         if (frame >= 0.0f) {
                             anim->initAnmFrame(frame);
@@ -70,16 +70,16 @@ namespace ipl {
                 return ret;
             }
 
-            BOOL set_max_frame(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL set_max_frame(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(vm, 0);
-                if (util::is_valid_datap(hdr) && arg != NULL) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                CHANSVmObjHdr* maxFrameArg = CHANSVmGetArgFloat(vm, 0);
+                if (util::is_valid_datap(parentObj) && maxFrameArg != NULL) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        f32 val = static_cast<f32>(arg->value.float_v);
+                        f32 maxFrame = static_cast<f32>(maxFrameArg->value.float_v);
                         f32 minFrame = anim->getMinFrame();
-                        if (val >= 0.0f && minFrame < val) {
-                            anim->setMaxFrame(val);
+                        if (maxFrame >= 0.0f && minFrame < maxFrame) {
+                            anim->setMaxFrame(maxFrame);
                             ret = TRUE;
                         }
                     }
@@ -87,16 +87,16 @@ namespace ipl {
                 return ret;
             }
 
-            BOOL set_min_frame(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL set_min_frame(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(vm, 0);
-                if (util::is_valid_datap(hdr) && arg != NULL) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                CHANSVmObjHdr* minFrameArg = CHANSVmGetArgFloat(vm, 0);
+                if (util::is_valid_datap(parentObj) && minFrameArg != NULL) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        f32 val = static_cast<f32>(arg->value.float_v);
+                        f32 minFrame = static_cast<f32>(minFrameArg->value.float_v);
                         f32 maxFrame = anim->getMaxFrame();
-                        if (val >= 0.0f && val < maxFrame) {
-                            anim->setMinFrame(val);
+                        if (minFrame >= 0.0f && minFrame < maxFrame) {
+                            anim->setMinFrame(minFrame);
                             ret = TRUE;
                         }
                     }
@@ -104,26 +104,26 @@ namespace ipl {
                 return ret;
             }
 
-            BOOL set_current_frame(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL set_current_frame(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(vm, 0);
-                if (util::is_valid_datap(hdr) && arg != NULL) {
-                    f32 val = static_cast<f32>(arg->value.float_v);
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                CHANSVmObjHdr* currentFrameArg = CHANSVmGetArgFloat(vm, 0);
+                if (util::is_valid_datap(parentObj) && currentFrameArg != NULL) {
+                    f32 currentFrame = static_cast<f32>(currentFrameArg->value.float_v);
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        anim->setCurrentFrame(val);
+                        anim->setCurrentFrame(currentFrame);
                         ret = TRUE;
                     }
                 }
                 return ret;
             }
 
-            BOOL set_type(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL set_type(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgInteger(vm, 0);
-                if (util::is_valid_datap(hdr) && arg != NULL) {
-                    s32 type = arg->value.int_v;
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                CHANSVmObjHdr* typeArg = CHANSVmGetArgInteger(vm, 0);
+                if (util::is_valid_datap(parentObj) && typeArg != NULL) {
+                    s32 type = typeArg->value.int_v;
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
                         if (type >= 0 && type < 4) {
                             anim->setAnmType(type);
@@ -134,70 +134,70 @@ namespace ipl {
                 return ret;
             }
 
-            BOOL set_delta(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL set_delta(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                CHANSVmObjHdr* arg = CHANSVmGetArgFloat(vm, 0);
-                if (util::is_valid_datap(hdr) && arg != NULL) {
-                    f32 val = static_cast<f32>(arg->value.float_v);
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                CHANSVmObjHdr* speedArg = CHANSVmGetArgFloat(vm, 0);
+                if (util::is_valid_datap(parentObj) && speedArg != NULL) {
+                    f32 speed = static_cast<f32>(speedArg->value.float_v);
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        anim->setSpeed(val);
+                        anim->setSpeed(speed);
                         ret = TRUE;
                     }
                 }
                 return ret;
             }
 
-            BOOL get_max_frame(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_max_frame(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        ret = CHANSVmSetFloat(vm, hdr2, anim->getMaxFrame()) == CHANS_VM_OK;
+                        ret = CHANSVmSetFloat(vm, returnObj, anim->getMaxFrame()) == CHANS_VM_OK;
                     }
                 }
                 return ret;
             }
 
-            BOOL get_min_frame(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_min_frame(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        ret = CHANSVmSetFloat(vm, hdr2, anim->getMinFrame()) == CHANS_VM_OK;
+                        ret = CHANSVmSetFloat(vm, returnObj, anim->getMinFrame()) == CHANS_VM_OK;
                     }
                 }
                 return ret;
             }
 
-            BOOL get_current_frame(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_current_frame(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        ret = CHANSVmSetFloat(vm, hdr2, anim->getCurrentFrame()) == CHANS_VM_OK;
+                        ret = CHANSVmSetFloat(vm, returnObj, anim->getCurrentFrame()) == CHANS_VM_OK;
                     }
                 }
                 return ret;
             }
 
-            BOOL get_type(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_type(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        ret = CHANSVmSetInteger(vm, hdr2, anim->getAnmType()) == CHANS_VM_OK;
+                        ret = CHANSVmSetInteger(vm, returnObj, anim->getAnmType()) == CHANS_VM_OK;
                     }
                 }
                 return ret;
             }
 
-            BOOL get_delta(CHANSVm* vm, CHANSVmObjHdr* hdr, CHANSVmObjHdr* hdr2) {
+            BOOL get_delta(CHANSVm* vm, CHANSVmObjHdr* parentObj, CHANSVmObjHdr* returnObj) {
                 BOOL ret = FALSE;
-                if (util::is_valid_datap(hdr)) {
-                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*hdr->value.ptr_v);
+                if (util::is_valid_datap(parentObj)) {
+                    ipl::layout::Animator* anim = *static_cast<ipl::layout::Animator**>(*parentObj->value.ptr_v);
                     if (anim != NULL) {
-                        ret = CHANSVmSetFloat(vm, hdr2, anim->getSpeed()) == CHANS_VM_OK;
+                        ret = CHANSVmSetFloat(vm, returnObj, anim->getSpeed()) == CHANS_VM_OK;
                     }
                 }
                 return ret;
