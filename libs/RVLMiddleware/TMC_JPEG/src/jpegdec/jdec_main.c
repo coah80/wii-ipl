@@ -106,192 +106,43 @@ s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* 
     return 0;
 }
 
-#ifdef __MWERKS__
-asm s32 TMCJPEGDEC_imagestart(register TMCCJPEGDecWork* work) {
-    nofralloc
+static inline void initZigzag(TMCCJPEGDecWork* work) {
+    const u8* zigzag = TMCJPEGDEC_Zigzag_data;
+    s32 i;
+    work->restartInterval = 0;
+    work->scanCount = 0;
+    for (i = 0; i < 64; i++) {
+        work->zigzagData[i] = *zigzag++ << 2;
+    }
 
-    stwu r1, -0x20(r1)
-    mflr r0
-    lis r8, TMCJPEGDEC_Zigzag_data@ha
-    li r4, 0
-    stw r0, 0x24(r1)
-    li r0, 4
-    addi r8, r8, TMCJPEGDEC_Zigzag_data@l
-    li r7, 0
-    stw r31, 0x1c(r1)
-    mr r31, r3
-    sth r4, 0x181a(r3)
-    stb r4, 0x181c(r3)
-    mtctr r0
-
-_imagestart_loop:
-    lbz r6, 0(r8)
-    add r9, r3, r7
-    lbz r5, 1(r8)
-    addi r7, r7, 8
-    rlwinm r6, r6, 2, 0x18, 0x1d
-    lbz r4, 2(r8)
-    stb r6, 0x458(r9)
-    rlwinm r5, r5, 2, 0x18, 0x1d
-    rlwinm r6, r4, 2, 0x18, 0x1d
-    lbz r0, 3(r8)
-    stb r5, 0x459(r9)
-    rlwinm r5, r0, 2, 0x18, 0x1d
-    lbz r4, 4(r8)
-    stb r6, 0x45a(r9)
-    rlwinm r6, r4, 2, 0x18, 0x1d
-    lbz r4, 6(r8)
-    stb r5, 0x45b(r9)
-    lbz r0, 5(r8)
-    rlwinm r4, r4, 2, 0x18, 0x1d
-    stb r6, 0x45c(r9)
-    rlwinm r5, r0, 2, 0x18, 0x1d
-    lbz r0, 7(r8)
-    stb r5, 0x45d(r9)
-    lbz r6, 8(r8)
-    rlwinm r0, r0, 2, 0x18, 0x1d
-    stb r4, 0x45e(r9)
-    lbz r5, 9(r8)
-    rlwinm r6, r6, 2, 0x18, 0x1d
-    stb r0, 0x45f(r9)
-    add r9, r3, r7
-    lbz r4, 0xa(r8)
-    rlwinm r5, r5, 2, 0x18, 0x1d
-    stb r6, 0x458(r9)
-    addi r7, r7, 8
-    rlwinm r6, r4, 2, 0x18, 0x1d
-    lbz r0, 0xb(r8)
-    stb r5, 0x459(r9)
-    rlwinm r5, r0, 2, 0x18, 0x1d
-    lbz r4, 0xc(r8)
-    stb r6, 0x45a(r9)
-    rlwinm r6, r4, 2, 0x18, 0x1d
-    lbz r4, 0xe(r8)
-    stb r5, 0x45b(r9)
-    lbz r0, 0xd(r8)
-    rlwinm r4, r4, 2, 0x18, 0x1d
-    stb r6, 0x45c(r9)
-    rlwinm r5, r0, 2, 0x18, 0x1d
-    lbz r0, 0xf(r8)
-    stb r5, 0x45d(r9)
-    addi r8, r8, 0x10
-    rlwinm r0, r0, 2, 0x18, 0x1d
-    stb r4, 0x45e(r9)
-    stb r0, 0x45f(r9)
-    bdnz _imagestart_loop
-
-    mr r4, r31
-    addi r3, r1, 8
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _imagestart_have_marker
-    b _imagestart_return
-
-_imagestart_have_marker:
-    lhz r0, 8(r1)
-    cmplwi r0, 0xffd8
-    beq _imagestart_parse
-    li r3, -0x20
-    b _imagestart_return
-
-_imagestart_parse:
-    li r0, 0
-    mr r4, r31
-    sth r0, 8(r1)
-    addi r3, r1, 8
-    bl TMCJPEGDEC_parse_para
-    cmpwi r3, 0
-    bge _imagestart_check_sof
-    b _imagestart_return
-
-_imagestart_check_sof:
-    lhz r0, 8(r1)
-    cmplwi r0, 0xffc0
-    beq _imagestart_parse_sof
-    li r3, -0x10
-    b _imagestart_return
-
-_imagestart_parse_sof:
-    mr r3, r31
-    bl TMCJPEGDEC_parse_sof
-    srawi r0, r3, 0x1f
-    and r3, r3, r0
-
-_imagestart_return:
-    lwz r0, 0x24(r1)
-    lwz r31, 0x1c(r1)
-    mtlr r0
-    addi r1, r1, 0x20
-    blr
 }
-#else
+
 s32 TMCJPEGDEC_imagestart(TMCCJPEGDecWork* work) {
     u16 marker;
     s32 r;
-    u32 off;
-    u8* p;
-    int i;
-    const u8* zigzag;
-
-    zigzag = TMCJPEGDEC_Zigzag_data;
-    work->restartInterval = 0;
-    work->scanCount = 0;
-    off = 0;
-    i = 4;
-
-    do {
-        p = (u8*)work + off;
-        off += 8;
-        p[0x458] = (zigzag[0] & 0x3F) << 2;
-        p[0x459] = (zigzag[1] & 0x3F) << 2;
-        p[0x45a] = (zigzag[2] & 0x3F) << 2;
-        p[0x45b] = (zigzag[3] & 0x3F) << 2;
-        p[0x45c] = (zigzag[4] & 0x3F) << 2;
-        p[0x45e] = (zigzag[6] & 0x3F) << 2;
-        p[0x45d] = (zigzag[5] & 0x3F) << 2;
-        p[0x45f] = (zigzag[7] & 0x3F) << 2;
-
-        p = (u8*)work + off;
-        off += 8;
-        p[0x458] = (zigzag[8] & 0x3F) << 2;
-        p[0x459] = (zigzag[9] & 0x3F) << 2;
-        p[0x45a] = (zigzag[10] & 0x3F) << 2;
-        p[0x45b] = (zigzag[11] & 0x3F) << 2;
-        p[0x45c] = (zigzag[12] & 0x3F) << 2;
-        p[0x45d] = (zigzag[13] & 0x3F) << 2;
-        p[0x45e] = (zigzag[14] & 0x3F) << 2;
-        p[0x45f] = (zigzag[15] & 0x3F) << 2;
-
-        zigzag += 16;
-    } while (--i != 0);
+    initZigzag(work);
 
     r = TMCJPEGDEC_get_wbyte(&marker, work);
     if (r < 0) {
         return r;
     }
-
     if (marker != 0xFFD8) {
         return -0x20;
     }
-
     marker = 0;
     r = TMCJPEGDEC_parse_para(&marker, work);
     if (r < 0) {
         return r;
     }
-
     if (marker != 0xFFC0) {
         return -0x10;
     }
-
     r = TMCJPEGDEC_parse_sof(work);
     if (r < 0) {
         return r;
     }
-
     return 0;
 }
-#endif
 
 s32 TMCJPEGDEC_imageend(TMCCJPEGDecWork* work) {
     if (work->pState->unk_0x21 == 1)
@@ -783,266 +634,85 @@ s32 TMCJPEGDEC_restart_interval(TMCCJPEGDecWork* work, u32 maxMCU, u32 mcuCount)
 }
 #endif
 
-#ifdef __MWERKS__
-static asm s32 TMCJPEGDEC_parse_para(register u16* marker, register TMCCJPEGDecWork* work) {
-    nofralloc
-
-    stwu r1, -0x30(r1)
-    mflr r0
-    stw r0, 0x34(r1)
-    stmw r26, 0x18(r1)
-    mr r28, r3
-    mr r29, r4
-    li r31, 0
-    lis r26, 1
-    li r27, 1
-    lhz r30, 0(r3)
-
-_parse_para_loop:
-    mr r4, r29
-    addi r3, r1, 0x12
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _parse_para_marker_loaded
-    cmpwi r3, -0x90
-    bne _parse_para_return
-    lhz r0, 0x12(r1)
-    cmplwi r0, 0xffd9
-    bne _parse_para_return
-    li r3, 0
-    b _parse_para_marker_loaded
-    b _parse_para_return
-
-_parse_para_marker_loaded:
-    lhz r0, 0x12(r1)
-    b _parse_para_marker_condition
-
-_parse_para_marker_byte:
-    mr r4, r29
-    addi r3, r1, 8
-    bl TMCJPEGDEC_get_byte
-    cmpwi r3, 0
-    bge _parse_para_marker_byte_loaded
-    b _parse_para_return
-
-_parse_para_marker_byte_loaded:
-    lbz r0, 8(r1)
-    ori r0, r0, 0xff00
-    sth r0, 0x12(r1)
-
-_parse_para_marker_condition:
-    clrlwi r4, r0, 0x10
-    cmplwi r4, 0xffff
-    beq _parse_para_marker_byte
-    cmplwi r4, 0xffe0
-    blt _parse_para_switch
-    cmplwi r4, 0xffef
-    bgt _parse_para_switch
-    mr r4, r29
-    addi r3, r1, 0x10
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _parse_para_app_length
-    b _parse_para_check_result
-
-_parse_para_app_length:
-    lhz r3, 0x10(r1)
-    cmplwi r3, 2
-    bge _parse_para_app_move
-    li r3, -0x45
-    b _parse_para_check_result
-
-_parse_para_app_move:
-    addi r0, r3, -2
-    mr r4, r29
-    sth r0, 0x10(r1)
-    clrlwi r3, r0, 0x10
-    bl TMCJPEGDEC_move_ptr
-    srawi r0, r3, 0x1f
-    and r3, r3, r0
-    srawi r0, r3, 0x1f
-    and r3, r3, r0
-    b _parse_para_check_result
-
-_parse_para_switch:
-    addi r0, r26, -0x27
-    cmpw r4, r0
-    beq _parse_para_eoi
-    bge _parse_para_switch_ge_ffc2
-    addi r0, r26, -0x3e
-    cmpw r4, r0
-    beq _parse_para_sos
-    bge _parse_para_switch_ge_ffc4
-    addi r0, r26, -0x40
-    cmpw r4, r0
-    beq _parse_para_sof
-    b _parse_para_unknown
-
-_parse_para_switch_ge_ffc4:
-    addi r0, r26, -0x3c
-    cmpw r4, r0
-    beq _parse_para_dht
-    b _parse_para_unknown
-
-_parse_para_switch_ge_ffc2:
-    addi r0, r26, -0x23
-    cmpw r4, r0
-    beq _parse_para_dri
-    bge _parse_para_switch_ge_ffdc
-    addi r0, r26, -0x25
-    cmpw r4, r0
-    beq _parse_para_dqt
-    bge _parse_para_dnl
-    b _parse_para_com_marker
-
-_parse_para_switch_ge_ffdc:
-    addi r0, r26, -2
-    cmpw r4, r0
-    beq _parse_para_com
-    b _parse_para_unknown
-
-_parse_para_dht:
-    mr r3, r30
-    mr r4, r29
-    bl TMCJPEGDEC_parse_dht
-    b _parse_para_check_result
-
-_parse_para_dqt:
-    mr r3, r29
-    bl TMCJPEGDEC_parse_dqt
-    b _parse_para_check_result
-
-_parse_para_dri:
-    mr r4, r29
-    addi r3, r1, 0xe
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _parse_para_dri_length
-    b _parse_para_check_result
-
-_parse_para_dri_length:
-    lhz r0, 0xe(r1)
-    cmplwi r0, 4
-    beq _parse_para_dri_value
-    li r3, -0x42
-    b _parse_para_check_result
-
-_parse_para_dri_value:
-    mr r4, r29
-    addi r3, r1, 0xe
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _parse_para_dri_store
-    b _parse_para_check_result
-
-_parse_para_dri_store:
-    lhz r0, 0xe(r1)
-    li r3, 0
-    sth r0, 0x181a(r29)
-    b _parse_para_check_result
-
-_parse_para_dnl:
-    mr r4, r29
-    addi r3, r1, 0xc
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _parse_para_dnl_length
-    b _parse_para_check_result
-
-_parse_para_dnl_length:
-    lhz r0, 0xc(r1)
-    cmplwi r0, 4
-    beq _parse_para_dnl_value
-    li r3, -0x43
-    b _parse_para_check_result
-
-_parse_para_dnl_value:
-    mr r4, r29
-    addi r3, r1, 0xc
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _parse_para_dnl_store
-    b _parse_para_check_result
-
-_parse_para_dnl_store:
-    lhz r0, 0xc(r1)
-    li r3, 0
-    sth r0, 0x17f2(r29)
-    b _parse_para_check_result
-
-_parse_para_com:
-    mr r4, r29
-    addi r3, r1, 0xa
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _parse_para_com_length
-    b _parse_para_check_result
-
-_parse_para_com_length:
-    lhz r3, 0xa(r1)
-    cmplwi r3, 2
-    bge _parse_para_com_move
-    li r3, -0x44
-    b _parse_para_check_result
-
-_parse_para_com_move:
-    addi r0, r3, -2
-    mr r4, r29
-    sth r0, 0xa(r1)
-    clrlwi r3, r0, 0x10
-    bl TMCJPEGDEC_move_ptr
-    srawi r0, r3, 0x1f
-    and r3, r3, r0
-    srawi r0, r3, 0x1f
-    and r3, r3, r0
-    b _parse_para_check_result
-
-_parse_para_sof:
-    li r31, 1
-    b _parse_para_check_result
-
-_parse_para_sos:
-    li r31, 1
-    b _parse_para_check_result
-
-_parse_para_com_marker:
-    li r31, 1
-    b _parse_para_check_result
-
-_parse_para_eoi:
-    stb r27, 0x181c(r29)
-    li r31, 1
-    b _parse_para_check_result
-
-_parse_para_unknown:
-    li r3, -0x2f
-
-_parse_para_check_result:
-    cmpwi r3, 0
-    bge _parse_para_keep_going
-    li r31, 1
-
-_parse_para_keep_going:
-    cmpwi r31, 0
-    beq _parse_para_loop
-    lhz r0, 0x12(r1)
-    sth r0, 0(r28)
-
-_parse_para_return:
-    lmw r26, 0x18(r1)
-    lwz r0, 0x34(r1)
-    mtlr r0
-    addi r1, r1, 0x30
-    blr
+static inline s32 skipSegmentData(u16 length, TMCCJPEGDecWork* work) {
+    s32 result = TMCJPEGDEC_move_ptr(length, work);
+    if (result < 0) {
+        return result;
+    }
+    return 0;
 }
-#else
+
+static inline s32 parseApplication(TMCCJPEGDecWork* work) {
+    u16 length;
+    s32 result = TMCJPEGDEC_get_wbyte(&length, work);
+    if (result < 0) {
+        return result;
+    }
+    if (length < 2) {
+        return -0x45;
+    }
+    length -= 2;
+    result = skipSegmentData(length, work);
+    if (result < 0) {
+        return result;
+    }
+    return 0;
+}
+
+static inline s32 parseRestartInterval(TMCCJPEGDecWork* work) {
+    u16 length;
+    s32 result = TMCJPEGDEC_get_wbyte(&length, work);
+    if (result < 0) {
+        return result;
+    }
+    if (length != 4) {
+        return -0x42;
+    }
+    result = TMCJPEGDEC_get_wbyte(&length, work);
+    if (result < 0) {
+        return result;
+    }
+    work->restartInterval = length;
+    return 0;
+}
+
+static inline s32 parseNumberOfLines(TMCCJPEGDecWork* work) {
+    u16 length;
+    s32 result = TMCJPEGDEC_get_wbyte(&length, work);
+    if (result < 0) {
+        return result;
+    }
+    if (length != 4) {
+        return -0x43;
+    }
+    result = TMCJPEGDEC_get_wbyte(&length, work);
+    if (result < 0) {
+        return result;
+    }
+    work->frameHeight = length;
+    return 0;
+}
+
+static inline s32 parseComment(TMCCJPEGDecWork* work) {
+    u16 length;
+    s32 result = TMCJPEGDEC_get_wbyte(&length, work);
+    if (result < 0) {
+        return result;
+    }
+    if (length < 2) {
+        return -0x44;
+    }
+    length -= 2;
+    result = skipSegmentData(length, work);
+    if (result < 0) {
+        return result;
+    }
+    return 0;
+}
+
 static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
     u8 byte;
     u16 local;
-    u16 appSize;
-    u16 driSize;
-    u16 dnlSize;
-    u16 comSize;
     s32 result;
 
     u32 keepGoing = 0;
@@ -1067,18 +737,7 @@ static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
         }
 
         if (local >= 0xFFE0 && local <= 0xFFEF) {
-            result = TMCJPEGDEC_get_wbyte(&appSize, work);
-            if (result < 0) {
-                goto _check;
-            }
-            if (appSize < 2) {
-                result = -0x45;
-                goto _check;
-            }
-            appSize -= 2;
-            result = TMCJPEGDEC_move_ptr(appSize, work);
-            result = result & (result >> 31);
-            result = result & (result >> 31);
+            result = parseApplication(work);
         } else {
             switch ((s32)local) {
                 case 0xFFC4: {
@@ -1090,48 +749,15 @@ static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
                     break;
                 }
                 case 0xFFDD: {
-                    result = TMCJPEGDEC_get_wbyte(&driSize, work);
-                    if (result >= 0) {
-                        if (driSize != 4) {
-                            result = -0x42;
-                        } else {
-                            result = TMCJPEGDEC_get_wbyte(&driSize, work);
-                            if (result < 0) {
-                                goto _check;
-                            }
-                            work->restartInterval = driSize;
-                            result = 0;
-                        }
-                    }
+                    result = parseRestartInterval(work);
                     break;
                 }
                 case 0xFFDC: {
-                    result = TMCJPEGDEC_get_wbyte(&dnlSize, work);
-                    if (result >= 0) {
-                        if (dnlSize != 4) {
-                            result = -0x43;
-                        } else {
-                            result = TMCJPEGDEC_get_wbyte(&dnlSize, work);
-                            if (result >= 0) {
-                                work->frameHeight = dnlSize;
-                                result = 0;
-                            }
-                        }
-                    }
+                    result = parseNumberOfLines(work);
                     break;
                 }
                 case 0xFFFE: {
-                    result = TMCJPEGDEC_get_wbyte(&comSize, work);
-                    if (result >= 0) {
-                        if (comSize < 2) {
-                            result = -0x44;
-                        } else {
-                            comSize -= 2;
-                            result = TMCJPEGDEC_move_ptr(comSize, work);
-                            result = result & result >> 31;
-                            result = result & result >> 31;
-                        }
-                    }
+                    result = parseComment(work);
                     break;
                 }
                 case 0xFFC0: {
@@ -1158,7 +784,6 @@ static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
             }
         }
 
-    _check:
         if (result < 0) {
             keepGoing = 1;
         }
@@ -1167,7 +792,6 @@ static s32 TMCJPEGDEC_parse_para(u16* marker, TMCCJPEGDecWork* work) {
     *marker = local;
     return result;
 }
-#endif
 
 #ifdef __MWERKS__
 static asm s32 TMCJPEGDEC_parse_dht(register s32 first, register TMCCJPEGDecWork* work) {
@@ -1959,167 +1583,19 @@ static s32 TMCJPEGDEC_parse_sof(TMCCJPEGDecWork* work) {
 }
 #endif
 
-#ifdef __MWERKS__
-static asm s32 TMCJPEGDEC_parse_sos(register TMCCJPEGDecWork* work) {
-    nofralloc
-
-    stwu r1, -0x30(r1)
-    mflr r0
-    stw r0, 0x34(r1)
-    stmw r27, 0x1c(r1)
-    mr r28, r3
-    addi r30, r3, 0x2c
-    addi r29, r3, 0x58
-    addi r3, r1, 0xa
-    mr r4, r28
-    bl TMCJPEGDEC_get_wbyte
-    cmpwi r3, 0
-    bge _parse_sos_have_length
-    b _parse_sos_return
-
-_parse_sos_have_length:
-    lhz r0, 0xa(r1)
-    cmplwi r0, 2
-    bge _parse_sos_have_count
-    li r3, -0x51
-    b _parse_sos_return
-
-_parse_sos_have_count:
-    mr r4, r28
-    addi r3, r1, 8
-    bl TMCJPEGDEC_get_byte
-    cmpwi r3, 0
-    bge _parse_sos_store_count
-    b _parse_sos_return
-
-_parse_sos_store_count:
-    lbz r3, 8(r1)
-    cmplwi r3, 4
-    stb r3, 0x180b(r28)
-    bgt _parse_sos_bad_count
-    lbz r0, 0x180a(r28)
-    cmplw r3, r0
-    beq _parse_sos_count_valid
-
-_parse_sos_bad_count:
-    li r3, -0x51
-    b _parse_sos_return
-
-_parse_sos_count_valid:
-    li r31, 0
-    b _parse_sos_loop_condition
-
-_parse_sos_loop:
-    mr r4, r28
-    addi r3, r1, 8
-    bl TMCJPEGDEC_get_byte
-    cmpwi r3, 0
-    bge _parse_sos_have_component
-    b _parse_sos_return
-
-_parse_sos_have_component:
-    lbz r0, 0x180a(r28)
-    li r5, 0
-    lbz r4, 8(r1)
-    mtctr r0
-    cmpwi r0, 0
-    ble _parse_sos_bad_component
-
-_parse_sos_find_component:
-    add r3, r30, r5
-    lbz r0, 0x14(r3)
-    cmpw r4, r0
-    bne _parse_sos_next_component
-    stbx r5, r30, r31
-    add r27, r30, r31
-    b _parse_sos_found_component
-
-_parse_sos_next_component:
-    addi r5, r5, 1
-    bdnz _parse_sos_find_component
-
-_parse_sos_bad_component:
-    li r3, -0x51
-    b _parse_sos_return
-
-_parse_sos_found_component:
-    mr r4, r28
-    addi r3, r1, 8
-    bl TMCJPEGDEC_get_byte
-    cmpwi r3, 0
-    bge _parse_sos_have_tables
-    b _parse_sos_return
-
-_parse_sos_have_tables:
-    lbz r0, 8(r1)
-    srawi r5, r0, 4
-    clrlwi r6, r0, 0x1c
-    cmpwi r5, 1
-    bgt _parse_sos_bad_tables
-    cmpwi r6, 1
-    ble _parse_sos_tables_valid
-
-_parse_sos_bad_tables:
-    li r3, -0x51
-    b _parse_sos_return
-
-_parse_sos_tables_valid:
-    lbz r0, 0(r27)
-    add r3, r29, r5
-    add r4, r30, r0
-    stb r5, 0x1c(r4)
-    lbz r0, 0(r27)
-    add r4, r30, r0
-    stb r6, 0x20(r4)
-    lbz r0, 0x1794(r3)
-    cmplwi r0, 1
-    beq _parse_sos_ac_valid
-    li r3, -0x40
-    b _parse_sos_return
-
-_parse_sos_ac_valid:
-    add r3, r29, r6
-    lbz r0, 0x1796(r3)
-    cmplwi r0, 1
-    beq _parse_sos_quant_valid
-    li r3, -0x40
-    b _parse_sos_return
-
-_parse_sos_quant_valid:
-    lbz r0, 0x18(r27)
-    add r3, r29, r0
-    lbz r0, 0x1790(r3)
-    cmplwi r0, 1
-    beq _parse_sos_next
-    li r3, -0x41
-    b _parse_sos_return
-
-_parse_sos_next:
-    addi r31, r31, 1
-
-_parse_sos_loop_condition:
-    lbz r0, 0x180b(r28)
-    cmpw r31, r0
-    blt _parse_sos_loop
-    mr r4, r28
-    li r3, 3
-    bl TMCJPEGDEC_move_ptr
-    srawi r0, r3, 0x1f
-    and r3, r3, r0
-
-_parse_sos_return:
-    lmw r27, 0x1c(r1)
-    lwz r0, 0x34(r1)
-    mtlr r0
-    addi r1, r1, 0x30
-    blr
-}
-#else
 static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
+    typedef struct {
+        u8 map[4];
+        u32 dcPredict[4];
+        u8 id[4];
+        u8 quantTable[4];
+        u8 dcTable[4];
+        u8 acTable[4];
+    } TMCComponentInfo;
     s32 idx;
-    u8* compPtr;
+    TMCComponentInfo* components;
     TMCUnknownInfo* scalePtr;
-    u8* mapPtr;
+    TMCComponentInfo* mapPtr;
 
     s32 dcTbl;
     s32 acTbl;
@@ -2130,7 +1606,7 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
     s32 ci;
     u8 scanByte;
 
-    compPtr = (u8*)work->compMap;
+    components = (TMCComponentInfo*)work->compMap;
     scalePtr = (TMCUnknownInfo*)&work->scaleFlag;
 
     r = TMCJPEGDEC_get_wbyte(&len, work);
@@ -2146,11 +1622,11 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
         return r;
     }
 
-    if (scanByte > 4 || scanByte != work->compCount) {
+    work->scanCompCount = scanByte;
+
+    if (work->scanCompCount > 4 || work->scanCompCount != work->compCount) {
         return -0x51;
     }
-
-    work->scanCompCount = scanByte;
 
     for (idx = 0; idx < (s32)work->scanCompCount; idx++) {
         r = TMCJPEGDEC_get_byte(&scanByte, work);
@@ -2159,18 +1635,15 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
         }
 
         for (ci = 0; ci < (s32)work->compCount; ci++) {
-            if ((s32)compPtr[ci + 0x14] == (s32)scanByte) {
-                compPtr[idx] = ci;
-                mapPtr = compPtr + idx;
-                break;
+            if ((s32)scanByte == (s32)components->id[ci]) {
+                components->map[idx] = ci;
+                mapPtr = (TMCComponentInfo*)&components->map[idx];
+                goto componentFound;
             }
         }
+        return -0x51;
 
-        // TODO: This isn't right...
-        if (ci >= (s32)work->compCount) {
-            return -0x51;
-        }
-
+componentFound:
         r = TMCJPEGDEC_get_byte(&scanByte, work);
         if (r < 0) {
             return r;
@@ -2183,8 +1656,8 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
             return -0x51;
         }
 
-        compPtr[*mapPtr + 0x1c] = dcTbl;
-        compPtr[*mapPtr + 0x20] = acTbl;
+        components->dcTable[mapPtr->map[0]] = dcTbl;
+        components->acTable[mapPtr->map[0]] = acTbl;
 
         if (scalePtr->dcTblFlag[dcTbl] != 1) {
             return -0x40;
@@ -2194,15 +1667,17 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
             return -0x40;
         }
 
-        if (scalePtr->quantTblFlag[mapPtr[0x18]] != 1) {
+        if (scalePtr->quantTblFlag[mapPtr->quantTable[0]] != 1) {
             return -0x41;
         }
     }
 
     moveResult = TMCJPEGDEC_move_ptr(3, work);
-    return moveResult & (moveResult >> 31);
+    if (moveResult < 0) {
+        return moveResult;
+    }
+    return 0;
 }
-#endif
 
 #ifdef __MWERKS__
 asm s32 TMCJPEGDEC_err_restart(register TMCCJPEGDecWork* work) {
