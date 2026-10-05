@@ -1674,7 +1674,7 @@ config.libs = [
     ),
     RVLSDKLib("wad", [
             Object(Matching,    "wad/certs.c"),
-            Object(NonMatching, "wad/wad.c"),
+            Object(Matching,    "wad/wad.c"),
         ]
     ),
     RVLSDKLib("cnt", [
