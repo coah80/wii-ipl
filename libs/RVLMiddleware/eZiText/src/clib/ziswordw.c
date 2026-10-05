@@ -74,17 +74,17 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
         request.maxCandidates = 1;
         request.firstCandidate = 0;
         ZI_WORK->formats = (ziU32)formats;
-        if (ZI_WORK->unk_0x1C[0] == 2) {
+        if (ZI_WORK->searchModes[0] == 2) {
             ZI_WORK->formatCount = 0;
-            if (ZI_WORK->unk_0x09 & 1) formats[ZI_WORK->formatCount++] = 1;
-            if (ZI_WORK->unk_0x09 & 4) formats[ZI_WORK->formatCount++] = 2;
-            if (ZI_WORK->unk_0x09 & 2) formats[ZI_WORK->formatCount++] = 3;
-            if (ZI_WORK->unk_0x09 & 8) formats[ZI_WORK->formatCount++] = 4;
-            if (ZI_WORK->unk_0x09 & 1) formats[ZI_WORK->formatCount++] = 5;
-            if (ZI_WORK->unk_0x09 & 4) formats[ZI_WORK->formatCount++] = 6;
-            if (ZI_WORK->unk_0x09 & 2) formats[ZI_WORK->formatCount++] = 7;
-            if (ZI_WORK->unk_0x09 & 8) formats[ZI_WORK->formatCount++] = 8;
-        } else if (ZI_WORK->unk_0x1C[0] != 0) ZI_WORK->formatCount = 2;
+            if (ZI_WORK->dictionaryFlags & 1) formats[ZI_WORK->formatCount++] = 1;
+            if (ZI_WORK->dictionaryFlags & 4) formats[ZI_WORK->formatCount++] = 2;
+            if (ZI_WORK->dictionaryFlags & 2) formats[ZI_WORK->formatCount++] = 3;
+            if (ZI_WORK->dictionaryFlags & 8) formats[ZI_WORK->formatCount++] = 4;
+            if (ZI_WORK->dictionaryFlags & 1) formats[ZI_WORK->formatCount++] = 5;
+            if (ZI_WORK->dictionaryFlags & 4) formats[ZI_WORK->formatCount++] = 6;
+            if (ZI_WORK->dictionaryFlags & 2) formats[ZI_WORK->formatCount++] = 7;
+            if (ZI_WORK->dictionaryFlags & 8) formats[ZI_WORK->formatCount++] = 8;
+        } else if (ZI_WORK->searchModes[0] != 0) ZI_WORK->formatCount = 2;
         else ZI_WORK->formatCount = 1;
         count = Zi8GetCandidatesOrCount(&request, &search, __zi8_work_data);
         ZI_WORK->formats = savedFormats;

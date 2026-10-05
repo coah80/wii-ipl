@@ -127,8 +127,8 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
     }
     {
         Zi8_8148047C(__zi8_work_data);
-        ZI_WORK->unk_0x13C = 0;
-        if (currentWord == 0 || currentLength == 0 || currentWord[currentLength - 1] != 0x20) ZI_WORK->unk_0x140 = 0;
+        ZI_WORK->uwdSkipCount = 0;
+        if (currentWord == 0 || currentLength == 0 || currentWord[currentLength - 1] != 0x20) ZI_WORK->uwdContextEnabled = 0;
         else {
             prefixLength = 0;
             for (position = currentLength - 2; position >= 0;) {
@@ -137,23 +137,23 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
                 prefixLength++;
             }
             position++;
-            if (prefixLength == 0 || prefixLength > 63) ZI_WORK->unk_0x140 = 0;
+            if (prefixLength == 0 || prefixLength > 63) ZI_WORK->uwdContextEnabled = 0;
             else {
-                ZI_WORK->unk_0x140 = 1;
-                ZI_WORK->unk_0x141[prefixLength + 4] = ZI_WORK->unk_0x141[0] = prefixLength + 5;
-                ZI_WORK->unk_0x141[1] = language;
-                ZI_WORK->unk_0x141[2] = prefixLength;
+                ZI_WORK->uwdContextEnabled = 1;
+                ZI_WORK->uwdContextRecord[prefixLength + 4] = ZI_WORK->uwdContextRecord[0] = prefixLength + 5;
+                ZI_WORK->uwdContextRecord[1] = language;
+                ZI_WORK->uwdContextRecord[2] = prefixLength;
                 previousOffset = 4;
                 while (prefixLength > 0) {
                     folded = currentWord[position];
-                    ZI_WORK->unk_0x141[previousOffset] = Zi8ConvertWC2UC(folded, language, __zi8_work_data);
-                    ZI_WORK->unk_0x184[previousOffset] = 0;
+                    ZI_WORK->uwdContextRecord[previousOffset] = Zi8ConvertWC2UC(folded, language, __zi8_work_data);
+                    ZI_WORK->uwdContextAlternateCase[previousOffset] = 0;
                     if (ZI_WORK->ignoreCase != 0) {
                         if (!Zi8ChangeCharCase(1, &folded, language, __zi8_work_data)) Zi8ChangeCharCase(0, &folded, language, __zi8_work_data);
-                        ZI_WORK->unk_0x184[previousOffset] = Zi8ConvertWC2UC(folded, language, __zi8_work_data);
+                        ZI_WORK->uwdContextAlternateCase[previousOffset] = Zi8ConvertWC2UC(folded, language, __zi8_work_data);
                     }
-                    if (ZI_WORK->unk_0x141[previousOffset++] == 0) {
-                        ZI_WORK->unk_0x140 = 0;
+                    if (ZI_WORK->uwdContextRecord[previousOffset++] == 0) {
+                        ZI_WORK->uwdContextEnabled = 0;
                         break;
                     }
                     prefixLength--;
@@ -161,7 +161,7 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
                 }
             }
         }
-        if (ZI_WORK->unk_0x140 == 0 && length == 0) return 0;
+        if (ZI_WORK->uwdContextEnabled == 0 && length == 0) return 0;
 rescan:
         cursor = begin = dictionary->entries + dictionary->current;
         boundary = (ziU8*)dictionary + dictionary->boundary + 7;
@@ -170,7 +170,7 @@ rescan:
         else firstSegment = 0;
         while ((cursor < boundary && firstSegment) || (cursor < end && !firstSegment)) {
             size = *cursor;
-            if ((ziS32)ZI_WORK->unk_0x13C > visited++ || (((ziUserWord*)cursor)->size & 0xC0) != 0) {
+            if ((ziS32)ZI_WORK->uwdSkipCount > visited++ || (((ziUserWord*)cursor)->size & 0xC0) != 0) {
 next:
                 if ((cursor += size) > end) {
                     if (firstSegment) break;
@@ -195,12 +195,12 @@ next:
                             if (folded != pattern[position] && (!ZI_WORK->ignoreCase || !Zi8ChangeCharCase(0, &folded, language, __zi8_work_data) || folded != pattern[position])) goto next;
                         }
                     }
-                    if (ZI_WORK->unk_0x140 != 0) {
-                        if (ZI_WORK->unk_0x141[0] != previous->size || ZI_WORK->unk_0x141[1] != previous->language || ZI_WORK->unk_0x141[2] != previous->length) goto next;
+                    if (ZI_WORK->uwdContextEnabled != 0) {
+                        if (ZI_WORK->uwdContextRecord[0] != previous->size || ZI_WORK->uwdContextRecord[1] != previous->language || ZI_WORK->uwdContextRecord[2] != previous->length) goto next;
                         prefixLength = 4;
-                        position = ZI_WORK->unk_0x141[2] + 4;
+                        position = ZI_WORK->uwdContextRecord[2] + 4;
                         for (; prefixLength < position; prefixLength++) {
-                            if (ZI_WORK->unk_0x141[prefixLength] != ((ziU8*)previous)[prefixLength] && ZI_WORK->unk_0x184[prefixLength] != ((ziU8*)previous)[prefixLength]) goto next;
+                            if (ZI_WORK->uwdContextRecord[prefixLength] != ((ziU8*)previous)[prefixLength] && ZI_WORK->uwdContextAlternateCase[prefixLength] != ((ziU8*)previous)[prefixLength]) goto next;
                         }
                     }
                     Zi8_81480224((ziUserWord*)cursor, __zi8_work_data);
@@ -208,8 +208,8 @@ next:
                 goto next;
             }
         }
-        if (ZI_WORK->unk_0x140 != 0 && length != 0) {
-            ZI_WORK->unk_0x140 = 0;
+        if (ZI_WORK->uwdContextEnabled != 0 && length != 0) {
+            ZI_WORK->uwdContextEnabled = 0;
             visited = 0;
             goto rescan;
         }

@@ -7,7 +7,7 @@ typedef unsigned int Zi8UInt;
 
 typedef struct {
     ziU8 keys[4];
-    ziU8 unknown_04[4];
+    ziU8 recordData[4];
     ziU8 phoneticIndexLow;
     ziU8 flags;
     ziU16 phraseOffset;
@@ -18,27 +18,27 @@ typedef struct { ziU8 keyLow; ziU8 keyHigh; ziU8 code; ziU8 flags; } Zi8AltSound
 typedef struct {
     ziU8 countOnly;
     ziU8 maxSpellingLength;
-    ziU8 unknown_02[10];
+    ziU8 dictionaryOptions[10];
     ziS32 maxCount;
     ziU16 candidateBufferSize;
 } Zi8OneKeyOptions;
 
 typedef struct {
-    ziU8 unknown_00[0x16];
+    ziU8 engineSettings[0x16];
     ziU8 phraseEnabled;
-    ziU8 unknown_17[6];
+    ziU8 inputSettings[6];
     ziU8 spellingSearch;
-    ziU8 unknown_1e;
+    ziU8 caseMode;
     ziU8 searchFlags;
-    ziU8 unknown_20[0xfda];
+    ziU8 candidateWorkspace[0xfda];
     ziU8 phoneticEnabled[512];
     ziU8 phoneticFilter;
-    ziU8 unknown_11fb[0x211];
+    ziU8 keyTableStorage[0x211];
     ziU8 maxWordLength;
     ziU8* searchOrder;
-    ziU8 unknown_1414[4];
+    ziU8 dictionaryCountStorage[4];
     ziU8 searchOrderCount;
-    ziU8 unknown_1419[0x6fd];
+    ziU8 wordSearchWorkspace[0x6fd];
     ziU8 spellingOnly;
 } Zi8OneKeyWork;
 

@@ -93,17 +93,17 @@ ziU8 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* 
             Zi8LogError(0x4F6, __zi8_work_data);
             return 0;
         }
-        ZI_WORK->unk_0x314 = ((ziU16)section->count[0] << 8) + (ziU16)section->count[1];
-        ZI_WORK->unk_0x310 = (ziU32)table + (((ziU16)section->offset[0] << 8) + (ziU16)section->offset[1]);
-        ZI_WORK->unk_0x318 = 0;
+        ZI_WORK->pudWordCount = ((ziU16)section->count[0] << 8) + (ziU16)section->count[1];
+        ZI_WORK->pudWordAddress = (ziU32)table + (((ziU16)section->offset[0] << 8) + (ziU16)section->offset[1]);
+        ZI_WORK->pudWordIndex = 0;
     }
     for (;;) {
-        word = (ziU8*)ZI_WORK->unk_0x310;
+        word = (ziU8*)ZI_WORK->pudWordAddress;
         if (word == 0) {
             Zi8LogError(0x4B3, __zi8_work_data);
             return 0;
         }
-        while ((ziS32)ZI_WORK->unk_0x318 < (ziS32)ZI_WORK->unk_0x314) {
+        while ((ziS32)ZI_WORK->pudWordIndex < (ziS32)ZI_WORK->pudWordCount) {
             wordSize = *word++;
             entrySize = wordSize;
             if (language == 1) {
@@ -112,10 +112,10 @@ ziU8 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* 
                 entrySize--;
                 word++;
                 wordSize = ZiGetZHWordSize((ziWChar*)word, entrySize);
-            } else if (ZI_WORK->unk_0x31E != 0 && complete != 0 && length < wordSize && word[length] == 0x20) goto matchText;
+            } else if (ZI_WORK->pudStopAtSpace != 0 && complete != 0 && length < wordSize && word[length] == 0x20) goto matchText;
             if ((ziS32)length > (ziS32)wordSize || (complete != 0 && wordSize != length) || (complete == 0 && wordSize == length)) {
 next:
-                ZI_WORK->unk_0x318++;
+                ZI_WORK->pudWordIndex++;
                 word += entrySize;
             } else {
                 if (language == 1) {
@@ -136,9 +136,9 @@ matchText:
                 }
 matched:
                 if (match.fallback) {
-                    ZI_WORK->unk_0x310 = 0;
-                    ZI_WORK->unk_0x318 = 0;
-                    ZI_WORK->unk_0x314 = 0;
+                    ZI_WORK->pudWordAddress = 0;
+                    ZI_WORK->pudWordIndex = 0;
+                    ZI_WORK->pudWordCount = 0;
                     if (*pattern >= 0xEFF1) *output = *pattern;
                     else *output = Zi8ConvertWC2Key(*pattern, language, __zi8_work_data);
                     return 1;
@@ -155,14 +155,14 @@ matched:
                 } else {
                     for (copied = 0; copied < wordSize && copied < capacity; copied++) {
                         output[copied] = Zi8ConvertUC2WC(word[copied], language, __zi8_work_data);
-                        if (ZI_WORK->unk_0x31E != 0 && copied >= length && output[copied] == 0x20) {
+                        if (ZI_WORK->pudStopAtSpace != 0 && copied >= length && output[copied] == 0x20) {
                             if (complete != 0 || copied >= length) break;
                             goto next;
                         }
                     }
                 }
-                ZI_WORK->unk_0x318++;
-                ZI_WORK->unk_0x310 = (ziU32)(word + entrySize);
+                ZI_WORK->pudWordIndex++;
+                ZI_WORK->pudWordAddress = (ziU32)(word + entrySize);
                 Zi8LogError(100, __zi8_work_data);
                 return (ziU8)copied;
             }
@@ -170,11 +170,11 @@ matched:
         if (length == 1 && complete != 0 && continuation == 0) {
             complete = 0;
             match.fallback = 1;
-            ZI_WORK->unk_0x318 = 0;
+            ZI_WORK->pudWordIndex = 0;
         } else {
-            ZI_WORK->unk_0x310 = 0;
-            ZI_WORK->unk_0x318 = 0;
-            ZI_WORK->unk_0x314 = 0;
+            ZI_WORK->pudWordAddress = 0;
+            ZI_WORK->pudWordIndex = 0;
+            ZI_WORK->pudWordCount = 0;
             return 0;
         }
     }

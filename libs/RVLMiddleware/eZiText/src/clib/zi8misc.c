@@ -25,8 +25,8 @@ ziU16 Zi8Uni2Ptr(ziU16 ch, ziE12* buf ZI_NEED_WORK) {
     table2 = Zi8GetTableAddress(1, 1, __zi8_work_data);
     if (buf == ZI8_NULL) {
         for (i = 0; i < 0x40; i++) {
-            if (ch == WORKP->unk_0x20[i]) {
-                i = WORKP->unk_0xA0[i];
+            if (ch == WORKP->duplicateCharacters[i]) {
+                i = WORKP->duplicateOrdinalCache[i];
                 e = (ziU8*)table + i * 0xC;
                 if (i >= count) {
                     break;

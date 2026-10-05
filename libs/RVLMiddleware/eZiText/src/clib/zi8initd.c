@@ -16,22 +16,22 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
     ziU32* ppyFuzzy;
 
     Zi8Memset(__zi8_work_data, 0, 0x1B44);
-    ZI_WORK->unk_0x08 = 1;
-    ZI_WORK->unk_0x09 = 1;
+    ZI_WORK->initializationState = 1;
+    ZI_WORK->dictionaryFlags = 1;
     ZI_WORK->maxWordLength = 0xFF;
-    ZI_WORK->unk_0x10 = 0x64;
+    ZI_WORK->maxCandidateCount = 0x64;
     *(ziU16*)&ZI_WORK->targetCount = 0xFFFF;
     ZI_WORK->separator = 0x20;
-    ZI_WORK->unk_0x1C[2] = 0;
+    ZI_WORK->searchModes[2] = 0;
     ZI_WORK->koAltTables = 0;
-    ZI_WORK->unk_0x1B3A = 0;
-    ZI_WORK->unk_0x1B36 = 0;
-    ZI_WORK->unk_0x1B32 = 0;
-    ZI_WORK->unk_0x1B34 = 0;
-    ZI_WORK->unk_0x1B3B = 0;
-    ZI_WORK->unk_0x1B3C = 0;
-    ZI_WORK->unk_0x1B40 = 0;
-    ZI_WORK->unk_0x1B38 = 0;
+    ZI_WORK->candidateStateByteA = 0;
+    ZI_WORK->candidateStateWordC = 0;
+    ZI_WORK->candidateStateWordA = 0;
+    ZI_WORK->candidateStateWordB = 0;
+    ZI_WORK->candidateStateByteB = 0;
+    ZI_WORK->candidateStateByteC = 0;
+    ZI_WORK->initializationWordB = 0;
+    ZI_WORK->initializationWordA = 0;
     ZI_WORK->langEntries = langEntries;
     if (ZI_WORK->langEntries == ZI8_NULL) {
         Zi8LogError(0x578, ZI_WORK);
@@ -41,17 +41,17 @@ ziU8 Zi8InitializeDynamic(ziLanguageEntry* langEntries ZI_NEED_WORK) {
         Zi8LogError(0x582, ZI_WORK);
         return 0;
     }
-    ZI_WORK->unk_0x1874 = 0x2D;
+    ZI_WORK->letterHyphen = 0x2D;
     ZI_WORK->language = 0;
-    ZI_WORK->unk_0x1C[3] = 0;
+    ZI_WORK->searchModes[3] = 0;
     ZI_WORK->capacity = 0x100;
     Zi8SetLatinSearchOrder(0, 0, ZI_WORK);
     ZADP_Zi8SetPDremoveOpt(1, ZI_WORK);
     ZI_WORK->zhPudMinPrefix = 5;
     ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1, ZI_WORK) & 2;
     ZI_WORK->pyFuzzy.bits.msb = 1;
-    ZI_WORK->unk_0x1B2C.bits.msb = 1;
-    zyFuzzy = ZI_WORK->unk_0x1B2C.word;
+    ZI_WORK->zyFuzzy.bits.msb = 1;
+    zyFuzzy = ZI_WORK->zyFuzzy.word;
     pzyFuzzy = &zyFuzzy;
     Zi8ZHsetZYfuzzyPairs(pzyFuzzy, ZI_WORK);
     pyFuzzy = ZI_WORK->pyFuzzy.word;

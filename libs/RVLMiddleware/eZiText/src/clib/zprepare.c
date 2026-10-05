@@ -68,8 +68,8 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
       buffers.component = (ziU8*)Zi8GetTableAddress(1,2,__zi8_work_data);
       buffers.componentIndex = (ziU8*)Zi8GetTableAddress(1,6,__zi8_work_data);
       buffers.componentIndex += (element - 0xef10) * 2;
-      match->field22 = ((buffers.componentIndex[1] & 0x3f) << 8) + *buffers.componentIndex;
-      buffers.component += (ziU32)match->field22 * 8;
+      match->componentIndex = ((buffers.componentIndex[1] & 0x3f) << 8) + *buffers.componentIndex;
+      buffers.component += (ziU32)match->componentIndex * 8;
       switch(*buffers.component & 0xf) {
       case 0:
       case 9:
@@ -103,14 +103,14 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
       }
       for (index = 0; index < (buffers.component[5] >> 1) + 1; index++) {
         if (index < 4) {
-          match->arrD[index] = buffers.component[index];
-          match->arr1[index] = 0xff;
+          match->recordValues[index] = buffers.component[index];
+          match->recordMasks[index] = 0xff;
         }
       }
       if ((index != 0) && ((buffers.component[5] & 1) == 0)) {
         index--;
-        match->arrD[index] &= 0xf0;
-        match->arr1[index] &= 0xf0;
+        match->recordValues[index] &= 0xf0;
+        match->recordMasks[index] &= 0xf0;
       }
       nibbles = (ziU8)(buffers.component[5] + 1);
       if (8 < nibbles) {
@@ -118,8 +118,8 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
       }
     }
   }
-  match->arr1[0] &= 0xf;
-  match->arrD[0] &= 0xf;
+  match->recordMasks[0] &= 0xf;
+  match->recordValues[0] &= 0xf;
   if (skipMode == '\0') {
     mode = 0;
     if ((request->subLanguage & 0x80) != 0 || (request->subLanguage & 0x40) != 0) {
@@ -136,8 +136,8 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
     case 1:
     case 2:
     case 4:
-      match->arr1[0] |= (ziU8)(mode << 4);
-      match->arrD[0] |= (ziU8)(mode << 4);
+      match->recordMasks[0] |= (ziU8)(mode << 4);
+      match->recordValues[0] |= (ziU8)(mode << 4);
       break;
     }
   }
@@ -146,8 +146,8 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
   }
   if (((request->getMode == '\0') || (request->getMode == '\x10')) ||
     (request->getMode == '\x05')) {
-    Zi8Memcpy(buffers.masks,match->arr1,0xc);
-    Zi8Memcpy(buffers.strokes,match->arrD,0xc);
+    Zi8Memcpy(buffers.masks,match->recordMasks,0xc);
+    Zi8Memcpy(buffers.strokes,match->recordValues,0xc);
     do {
       while (elementIndex < elementCount) {
         element = request->elements[elementIndex++];
@@ -214,20 +214,20 @@ ziBool Zi8PrepareMatch(ziGetParam* request, ziMatchParam* match, ziU8 skipMode Z
         }
       }
       if (match->nSeg == 0) {
-        Zi8Memcpy(match->arr1,buffers.masks,0xc);
-        Zi8Memcpy(match->arrD,buffers.strokes,0xc);
-        Zi8Memcpy(match->arr19,buffers.maskPrefix,4);
-        Zi8Memcpy(match->arr1D,buffers.strokePrefix,4);
+        Zi8Memcpy(match->recordMasks,buffers.masks,0xc);
+        Zi8Memcpy(match->recordValues,buffers.strokes,0xc);
+        Zi8Memcpy(match->prefixMasks,buffers.maskPrefix,4);
+        Zi8Memcpy(match->prefixValues,buffers.strokePrefix,4);
         match->length = savedNibbles;
       }
-      Zi8Memcpy((ziU8 (*)[12])match->segs1 + match->nSeg,buffers.masks,0xc);
-      Zi8Memcpy((ziU8 (*)[12])match->segsD + match->nSeg,buffers.strokes,0xc);
+      Zi8Memcpy((ziU8 (*)[12])match->segmentMasks + match->nSeg,buffers.masks,0xc);
+      Zi8Memcpy((ziU8 (*)[12])match->segmentValues + match->nSeg,buffers.strokes,0xc);
       match->nSeg++;
       if (stroke != 0xff || elementIndex >= elementCount || match->nSeg >= 0x10) break;
       Zi8Memset(buffers.masks,0,0xc);
       Zi8Memset(buffers.strokes,0,0xc);
-      buffers.masks[0] = match->arr1[0] & 0xf0;
-      buffers.strokes[0] = match->arrD[0] & 0xf0;
+      buffers.masks[0] = match->recordMasks[0] & 0xf0;
+      buffers.strokes[0] = match->recordValues[0] & 0xf0;
       nibbles = 1;
     } while (1);
     return 1;
