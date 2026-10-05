@@ -153,7 +153,7 @@ pf_s32 PFFAT12_WriteFATEntryWithBuf(PF_VOLUME* p_vol, pf_s16 cluster, pf_u16 val
             p_page->sector = next_sector;
             p_page->p_buf[0] = value >> 4;
         } else {
-            *(p_page->p_buf + ((pf_u16)offset_in_sector + 1)) = value >> 4;
+            p_page->p_buf[(pf_u16)offset_in_sector + 1] = value >> 4;
         }
     } else {
         p_page->p_buf[(pf_u16)offset_in_sector] = value;
@@ -165,7 +165,7 @@ pf_s32 PFFAT12_WriteFATEntryWithBuf(PF_VOLUME* p_vol, pf_s16 cluster, pf_u16 val
             p_page->sector = next_sector;
             p_page->p_buf[0] = (p_page->p_buf[0] & 0xF0) | ((pf_u8)(value >> 8));
         } else {
-            *(p_page->p_buf + ((pf_u16)offset_in_sector + 1)) = (*(p_page->p_buf + ((pf_u16)offset_in_sector + 1)) & 0xF0) | ((pf_u8)(value >> 8));
+            p_page->p_buf[(pf_u16)offset_in_sector + 1] = (p_page->p_buf[(pf_u16)offset_in_sector + 1] & 0xF0) | ((pf_u8)(value >> 8));
         }
     }
     if (err != 0) { result = err; }
@@ -220,7 +220,7 @@ pf_s32 PFFAT12_ReadFATEntryWithBuf(PF_VOLUME* p_vol , pf_u16 cluster , pf_u32* p
             LOAD_FAT_SECTOR(0);
             state.offset &= p_vol->bpb.bytes_per_sector - 1;
             if (state.offset == (p_vol->bpb.bytes_per_sector - 1)) {
-                *p_value = *(p_page->p_buf + state.offset);
+                *p_value = p_page->p_buf[state.offset];
                 if (p_page->option == 1) {
                     for (state.err = 0; (pf_u16)state.err < p_vol->bpb.num_active_FATs; state.err++) {
                         VFiPFSEC_WriteFAT(p_vol, p_page->p_buf, p_page->sector + (pf_u16)state.err * p_vol->bpb.sectors_per_FAT, 0, p_vol->bpb.bytes_per_sector);
@@ -231,7 +231,7 @@ pf_s32 PFFAT12_ReadFATEntryWithBuf(PF_VOLUME* p_vol , pf_u16 cluster , pf_u32* p
                 p_page->sector = state.sector + 1;
                 *p_value += (pf_u16)(*p_page->p_buf) << 8;
             } else {
-                *p_value = ((pf_u16)p_page->p_buf[state.offset + 1] << 8) + *(p_page->p_buf + state.offset);
+                *p_value = ((pf_u16)p_page->p_buf[state.offset + 1] << 8) + p_page->p_buf[state.offset];
             }
         }
         break;

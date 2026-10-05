@@ -274,7 +274,7 @@ pf_s32 PFENT_ITER_DoFindEntry(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_STR
             goto finish;
         }
     }
-    for (; PFENT_ITER_IsAtLogicalEnd(p_iter) == PF_FALSE; err = AdvanceIterator(p_iter, 0)) {
+    for (; !PFENT_ITER_IsAtLogicalEnd(p_iter); err = AdvanceIterator(p_iter, 0)) {
         pf_s32 attr;
         if (err != 0) return err;
         if (p_iter->buf[0] == 0) break;
@@ -614,7 +614,7 @@ pf_s32 PFENT_ITER_FindDirEntryFromCluster(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p
     p_ent->ordinal = 0;
     p_ent->check_sum = 0;
     if ((p_ent->attr & 0x10) && p_ent->start_cluster == 1) return 2;
-    for (; PFENT_ITER_IsAtLogicalEnd(p_iter) == PF_FALSE; err = AdvanceIterator(p_iter, PF_FALSE)) {
+    for (; !PFENT_ITER_IsAtLogicalEnd(p_iter); err = AdvanceIterator(p_iter, PF_FALSE)) {
         if (err != 0) {
             return err;
         }

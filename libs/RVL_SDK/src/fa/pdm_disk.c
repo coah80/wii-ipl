@@ -1,7 +1,7 @@
 #include <private/fa/pdm.h>
 extern void* pf_memset(void*, pf_u8, pf_u32);
 PDM_DISK_SET pdm_disk_set;
-PDM_DISK_TBL pdm_drv_tbl[26];
+PDM_DISK_TBL pdm_drv_tbl[PDM_DRIVE_COUNT];
 
 pf_s32 pdm_disk_convert_sector_into_block(PDM_DISK* p_disk, pf_u32 start, pf_u32 count, pf_u32 bytes_per_sector, pf_u32* p_start, pf_u32* p_count) {
     pf_u32 ratio;
@@ -44,11 +44,11 @@ pf_s32 pdm_disk_add_disk(PDM_INIT_DISK* p_init_disk_tbl, PDM_DISK** pp_disk) {
     pf_u16 disk_no;
     PDM_DISK* p_disk;
     *pp_disk = PF_NULL;
-    if (pdm_disk_set.num_allocated_disk >= 26) { return 8; }
-    for (disk_no = 0; disk_no < 26; disk_no++) {
+    if (pdm_disk_set.num_allocated_disk >= PDM_DRIVE_COUNT) { return 8; }
+    for (disk_no = 0; disk_no < PDM_DRIVE_COUNT; disk_no++) {
         if (!(pdm_disk_set.disk[disk_no].status & 1)) { break; }
     }
-    if (disk_no >= 26) { return 8; }
+    if (disk_no >= PDM_DRIVE_COUNT) { return 8; }
     p_driver = &pdm_drv_tbl[disk_no];
     p_init_disk_tbl->p_func(p_driver, p_init_disk_tbl->ui_ext);
     p_disk = &pdm_disk_set.disk[disk_no];

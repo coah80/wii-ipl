@@ -46,50 +46,50 @@ FAError FAAttach(u32 device, char* nand_path, u32 nand_size, FADrvTbl* table) {
     if (table == NULL) {
         return -2;
     }
-    if (device == 2 && nand_path == NULL) {
+    if (device == FA_DEVICE_NAND && nand_path == NULL) {
         return -2;
     }
     if (device == 3 && table->pPart == NULL) {
         return -2;
     }
-    if (device <= 2) {
+    if (device <= FA_DEVICE_NAND) {
         if (pdm_open_disk(&drvInitFunc.entries[(u8)device], &disk) != 0) {
-            return -1;
+            return FA_ERR_SYSTEM;
         }
         if (pdm_open_partition(disk, 0, &table->pPart) != 0) {
-            return -1;
+            return FA_ERR_SYSTEM;
         }
     }
     drives[0] = table;
     drives[1] = NULL;
-    if (device == 2) {
+    if (device == FA_DEVICE_NAND) {
         memcpy(nand.path, nand_path, 78);
         nand.size = nand_size;
     }
-    if (device == 2) {
+    if (device == FA_DEVICE_NAND) {
         error = pfstub_attach(drives, &nand);
     } else {
         error = pfstub_attach(drives, NULL);
     }
     if (error != 0) {
-        return -1;
+        return FA_ERR_SYSTEM;
     }
     index = table->drive - 'A';
-    if (device <= 2) {
+    if (device <= FA_DEVICE_NAND) {
         gOpenDisk[index] = disk;
         gOpenPartition[index] = table->pPart;
-        if (device == 0) {
+        if (device == FA_DEVICE_SD) {
             if (pfd_sddrv_is_media_insert()) {
-                drives[0]->stat |= 0x10;
+                drives[0]->stat |= FA_DRV_TBL_STAT_INSERTED;
             }
-        } else if (device == 1) {
+        } else if (device == FA_DEVICE_USB) {
             if (pfd_mscdrv_is_media_insert(disk)) {
-                drives[0]->stat |= 0x10;
+                drives[0]->stat |= FA_DRV_TBL_STAT_INSERTED;
             }
         }
     } else {
         gOpenDisk[index] = NULL;
         gOpenPartition[index] = NULL;
     }
-    return 0;
+    return FA_ERR_SUCCESS;
 }

@@ -1981,11 +1981,11 @@ namespace ipl {
         }
 
         void FriendListCache::swap(u32 index1, u32 index2) {
-            NWC24FriendInfo temp ATTRIBUTE_ALIGN(32);
+            NWC24FriendInfo savedFriend ATTRIBUTE_ALIGN(32);
 
-            memcpy(&temp, &mInfos[index1], sizeof(NWC24FriendInfo));
+            memcpy(&savedFriend, &mInfos[index1], sizeof(NWC24FriendInfo));
             memcpy(&mInfos[index1], &mInfos[index2], sizeof(NWC24FriendInfo));
-            memcpy(&mInfos[index2], &temp, sizeof(NWC24FriendInfo));
+            memcpy(&mInfos[index2], &savedFriend, sizeof(NWC24FriendInfo));
 
             u8 bThere = mbThere[index1];
             mbThere[index1] = mbThere[index2];
@@ -2026,10 +2026,10 @@ namespace ipl {
             manager->initMsgObj(&msgObj, NWC24_MSGTYPE_PUBLIC);
             manager->setMsgToAddr(&msgObj, info.addr.mailAddr, strlen(info.addr.mailAddr));
 
-            const wchar_t* subject = System::getMessage(385);
+            const wchar_t* subject = System::getMessage(MESG_FRIEND_CACHE_EMAIL_TITLE);
 
             wchar_t text[0x400];
-            wcscpy(text, System::getMessage(386));
+            wcscpy(text, System::getMessage(MESG_FRIEND_CACHE_EMAIL_BODY));
 
             if (mMyUserId != 1234567890123456ULL) {
                 wchar_t idStr[17];

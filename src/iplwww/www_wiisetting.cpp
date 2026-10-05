@@ -150,15 +150,15 @@ namespace www {
         extern const char* strProps[FORM_ID_MAX];
         int getStringPropertyIdx(const char* targetStr) {
             const char* names[ARRAY_LENGTH(strProps)];
-            const char** __pDst = names - 1;
-            const char* const* __pSrc = strProps - 1;
+            const char** destinationName = names - 1;
+            const char* const* sourceName = strProps - 1;
             for (int i = 0; i < (ARRAY_LENGTH(names) >> 1); i++) {
-                *(++__pDst) = *(++__pSrc);
-                *(++__pDst) = *(++__pSrc);
+                *(++destinationName) = *(++sourceName);
+                *(++destinationName) = *(++sourceName);
             }
 
             if (ARRAY_LENGTH(names) & 1) {
-                *(++__pDst) = *(++__pSrc);
+                *(++destinationName) = *(++sourceName);
             }
 
             for (int i = 0; i < (int)ARRAY_LENGTH(names) >> 1 << 1; i++) {
@@ -704,7 +704,7 @@ namespace www {
                         break;
                     }
                     case WB_ID_COUNTRY_SAVE: {
-                        sWiiData.data[0x3C] = ipl::parental::Parental::getCountry();
+                        sWiiData.data[WB_ID_COUNTRY] = ipl::parental::Parental::getCountry();
                         break;
                     }
                     case WB_ID_FLUSH: {
@@ -933,11 +933,11 @@ namespace www {
         int getBytePropIndex(const char* targetStr) {
             const char* names[ARRAY_LENGTH(byteProps)];
 
-            const char** __pDst = names - 1;
-            const char* const* __pSrc = byteProps - 1;
+            const char** destinationName = names - 1;
+            const char* const* sourceName = byteProps - 1;
             for (int i = 0; i < (ARRAY_LENGTH(names) >> 1); i++) {
-                *(++__pDst) = *(++__pSrc);
-                *(++__pDst) = *(++__pSrc);
+                *(++destinationName) = *(++sourceName);
+                *(++destinationName) = *(++sourceName);
             }
 
             for (int i = 0; i < (int)ARRAY_LENGTH(names); i++) {

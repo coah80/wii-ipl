@@ -30,7 +30,7 @@ pf_s32 VFiPFSEC_ReadFAT(PF_VOLUME* p_vol, pf_u8* p_buf, pf_u32 sector, pf_u16 of
     PF_CACHE_PAGE* p_page;
     pf_s32 err;
 
-    if ((p_vol->flags & 0x01) == 0 || VFiPFDRV_IsInserted(p_vol) == PF_FALSE) {
+    if ((p_vol->flags & 0x01) == 0 || !VFiPFDRV_IsInserted(p_vol)) {
         return 9;
     }
     if (sector >= p_vol->bpb.total_sectors || offset >= p_vol->bpb.bytes_per_sector || offset + size > p_vol->bpb.bytes_per_sector) {
@@ -53,7 +53,7 @@ pf_s32 VFiPFSEC_ReadData(PF_VOLUME* p_vol, pf_u8* p_buf, pf_u32 sector, pf_u16 o
     pf_s32 err;
 
     *p_success_size = 0;
-    if ((p_vol->flags & 0x01) == 0 || VFiPFDRV_IsInserted(p_vol) == PF_FALSE) {
+    if ((p_vol->flags & 0x01) == 0 || !VFiPFDRV_IsInserted(p_vol)) {
         return 9;
     }
     if ((sector >= p_vol->bpb.total_sectors || offset >= p_vol->bpb.bytes_per_sector || offset + size > p_vol->bpb.bytes_per_sector) && offset != 0) {

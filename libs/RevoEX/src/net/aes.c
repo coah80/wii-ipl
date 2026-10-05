@@ -169,28 +169,28 @@ static const u32 AESiDecryptTable[] = {
 };
 
 #define ROTATE(x,n) (((x) << (n)) | ((x) >> (32 - (n))))
-#define ENCRYPT(a,b,c,d) (((ROTATE(AESiEncryptTable[((b)>>16)&255],16) ^ ROTATE(AESiEncryptTable[(a)>>24],24)) ^ AESiEncryptTable[(d)&255]) ^ ROTATE(AESiEncryptTable[((c)>>8)&255],8))
-#define DECRYPT(a,b,c,d) (((ROTATE(AESiDecryptTable[((b)>>16)&255],16) ^ AESiDecryptTable[(d)&255]) ^ ROTATE(AESiDecryptTable[(a)>>24],24)) ^ ROTATE(AESiDecryptTable[((c)>>8)&255],8))
-#define SUBSTITUTE(table,a,b,c,d) ((((u32)table[(a)>>24]<<24) | table[(d)&255]) | (((u32)table[((b)>>16)&255]<<16) | ((u32)table[((c)>>8)&255]<<8)))
+#define ENCRYPT(state0,state1,state2,state3) (((ROTATE(AESiEncryptTable[((state1)>>16)&255],16) ^ ROTATE(AESiEncryptTable[(state0)>>24],24)) ^ AESiEncryptTable[(state3)&255]) ^ ROTATE(AESiEncryptTable[((state2)>>8)&255],8))
+#define DECRYPT(state0,state1,state2,state3) (((ROTATE(AESiDecryptTable[((state1)>>16)&255],16) ^ AESiDecryptTable[(state3)&255]) ^ ROTATE(AESiDecryptTable[(state0)>>24],24)) ^ ROTATE(AESiDecryptTable[((state2)>>8)&255],8))
+#define SUBSTITUTE(table,state0,state1,state2,state3) ((((u32)table[(state0)>>24]<<24) | table[(state3)&255]) | (((u32)table[((state1)>>16)&255]<<16) | ((u32)table[((state2)>>8)&255]<<8)))
 
-#define DECRYPT_FINAL(table,a,b,c,d,key) ((table[(d)&255] ^ ((u32)table[((c)>>8)&255]<<8)) ^ (((u32)table[((b)>>16)&255]<<16) ^ ((key) ^ ((u32)table[(a)>>24]<<24))))
+#define DECRYPT_FINAL(table,state0,state1,state2,state3,key) ((table[(state3)&255] ^ ((u32)table[((state2)>>8)&255]<<8)) ^ (((u32)table[((state1)>>16)&255]<<16) ^ ((key) ^ ((u32)table[(state0)>>24]<<24))))
 
 void AESiEncryptBlock(AESContext* context, u32* output, const u32* input) {
     u32 rounds = context->rounds;
     const u32* key = context->keys + 4;
-    u32 a=input[0]^context->keys[0], b=input[1]^context->keys[1], c=input[2]^context->keys[2], d=input[3]^context->keys[3];
+    u32 state0=input[0]^context->keys[0], state1=input[1]^context->keys[1], state2=input[2]^context->keys[2], state3=input[3]^context->keys[3];
     while (--rounds != 0) {
-        u32 nextA=ENCRYPT(a,b,c,d);
-        u32 nextB=ENCRYPT(b,c,d,a);
-        u32 nextC=ENCRYPT(c,d,a,b);
-        u32 nextD=ENCRYPT(d,a,b,c);
-        a=nextA^key[0]; b=nextB^key[1]; c=nextC^key[2]; d=nextD^key[3];
+        u32 nextState0=ENCRYPT(state0,state1,state2,state3);
+        u32 nextState1=ENCRYPT(state1,state2,state3,state0);
+        u32 nextState2=ENCRYPT(state2,state3,state0,state1);
+        u32 nextState3=ENCRYPT(state3,state0,state1,state2);
+        state0=nextState0^key[0]; state1=nextState1^key[1]; state2=nextState2^key[2]; state3=nextState3^key[3];
         key += 4;
     }
-    output[0] = SUBSTITUTE(AESiSubShiftTable,a,b,c,d)^key[0];
-    output[1] = SUBSTITUTE(AESiSubShiftTable,b,c,d,a)^key[1];
-    output[2] = SUBSTITUTE(AESiSubShiftTable,c,d,a,b)^key[2];
-    output[3] = SUBSTITUTE(AESiSubShiftTable,d,a,b,c)^key[3];
+    output[0] = SUBSTITUTE(AESiSubShiftTable,state0,state1,state2,state3)^key[0];
+    output[1] = SUBSTITUTE(AESiSubShiftTable,state1,state2,state3,state0)^key[1];
+    output[2] = SUBSTITUTE(AESiSubShiftTable,state2,state3,state0,state1)^key[2];
+    output[3] = SUBSTITUTE(AESiSubShiftTable,state3,state0,state1,state2)^key[3];
 }
 
 #define DOUBLE_BYTES(x) ((((x)&0x7f7f7f7f)<<1) ^ ((((x)&0x80808080)>>7)*0x1b))
@@ -198,10 +198,10 @@ void AESiEncryptBlock(AESContext* context, u32* output, const u32* input) {
 void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
     u32 rounds=context->rounds;
     u32* key=context->keys;
-    u32 b;
-    u32 a;
-    u32 c;
-    u32 d;
+    u32 state1;
+    u32 state0;
+    u32 state2;
+    u32 state3;
     key += rounds*4;
     if (context->needsTransform) {
         u32 round;
@@ -209,31 +209,31 @@ void AESiDecryptBlock(AESContext* context, u32* output, const u32* input) {
             u32 word;
             for (word=0; word<4; ++word) {
                 u32 value=context->keys[round*4 + word];
-                u32 twice=DOUBLE_BYTES(value);
-                u32 four=DOUBLE_BYTES(twice);
-                u32 eight=DOUBLE_BYTES(four)^value;
-                u32 mixed=(ROTATE(eight,8) ^ (eight ^ four));
-                mixed=(ROTATE(mixed,8) ^ (mixed ^ twice));
+                u32 timesTwo=DOUBLE_BYTES(value);
+                u32 timesFour=DOUBLE_BYTES(timesTwo);
+                u32 timesNine=DOUBLE_BYTES(timesFour)^value;
+                u32 mixed=(ROTATE(timesNine,8) ^ (timesNine ^ timesFour));
+                mixed=(ROTATE(mixed,8) ^ (mixed ^ timesTwo));
                 mixed=(ROTATE(mixed,8) ^ (mixed ^ value));
                 context->keys[round*4 + word]=mixed;
             }
         }
         context->needsTransform=0;
     }
-    a=input[0]^key[0]; b=input[1]^key[1]; c=input[2]^key[2]; d=input[3]^key[3];
+    state0=input[0]^key[0]; state1=input[1]^key[1]; state2=input[2]^key[2]; state3=input[3]^key[3];
     key-=4;
     while (--rounds != 0) {
-        u32 nextA=DECRYPT(a,d,c,b);
-        u32 nextB=DECRYPT(b,a,d,c);
-        u32 nextC=DECRYPT(c,b,a,d);
-        u32 nextD=DECRYPT(d,c,b,a);
-        a=nextA^key[0]; b=nextB^key[1]; c=nextC^key[2]; d=nextD^key[3];
+        u32 nextState0=DECRYPT(state0,state3,state2,state1);
+        u32 nextState1=DECRYPT(state1,state0,state3,state2);
+        u32 nextState2=DECRYPT(state2,state1,state0,state3);
+        u32 nextState3=DECRYPT(state3,state2,state1,state0);
+        state0=nextState0^key[0]; state1=nextState1^key[1]; state2=nextState2^key[2]; state3=nextState3^key[3];
         key-=4;
     }
-    output[0]=DECRYPT_FINAL(AESiInvSubShiftTable,a,d,c,b,key[0]);
-    output[1]=DECRYPT_FINAL(AESiInvSubShiftTable,b,a,d,c,key[1]);
-    output[2]=DECRYPT_FINAL(AESiInvSubShiftTable,c,b,a,d,key[2]);
-    output[3]=DECRYPT_FINAL(AESiInvSubShiftTable,d,c,b,a,key[3]);
+    output[0]=DECRYPT_FINAL(AESiInvSubShiftTable,state0,state3,state2,state1,key[0]);
+    output[1]=DECRYPT_FINAL(AESiInvSubShiftTable,state1,state0,state3,state2,key[1]);
+    output[2]=DECRYPT_FINAL(AESiInvSubShiftTable,state2,state1,state0,state3,key[2]);
+    output[3]=DECRYPT_FINAL(AESiInvSubShiftTable,state3,state2,state1,state0,key[3]);
 }
 
 BOOL NETAESCreateEx(AESContext* context, const void* key, u32 keyLength, const void* iv, const AESBlockMode* mode) {
@@ -248,7 +248,7 @@ BOOL NETAESCreateEx(AESContext* context, const void* key, u32 keyLength, const v
         context->needsTransform = 1;
         context->rounds = (keyLength * 8) / 32 + 6;
         context->mode = mode;
-        memcpy(context->chain, iv, 16);
+        memcpy(context->chain, iv, sizeof(context->chain));
         schedule = context->keys;
         words = keyLength / 4;
         memcpy(schedule, key, keyLength);
@@ -326,8 +326,8 @@ static void NETiAESEncryptoBlock(AESContext* context, u32* output, const u32* in
 }
 
 static void NETiAESDecryptoBlock(AESContext* context, u32* output, const u32* input) {
-    u32 a=context->chain[0], b=context->chain[1], c=context->chain[2], d=context->chain[3];
+    u32 state0=context->chain[0], state1=context->chain[1], state2=context->chain[2], state3=context->chain[3];
     context->chain[0]=input[0]; context->chain[1]=input[1]; context->chain[2]=input[2]; context->chain[3]=input[3];
     AESiDecryptBlock(context,output,input);
-    output[0]^=a; output[1]^=b; output[2]^=c; output[3]^=d;
+    output[0]^=state0; output[1]^=state1; output[2]^=state2; output[3]^=state3;
 }

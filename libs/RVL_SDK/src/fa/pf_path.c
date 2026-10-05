@@ -149,7 +149,7 @@ static pf_u32 PFPATH_UNI_ConvertFWchar(pf_u16 src, pf_u16* dst) {
 }
 
 static pf_u32 PFPATH_OEM_ConvertFWchar(const pf_s8* src, pf_u16* dst) {
-    pf_vol_set.codeset.oem2unicode((pf_s8*)src, dst);
+    pf_vol_set.codeset.oem2unicode(src, dst);
     if (PFPATH_UNI_ConvertFWchar((pf_u16)*dst, dst) == 1) {
         pf_vol_set.codeset.unicode2oem(dst, (pf_s8*)dst);
         *dst = (pf_u16)*dst;
@@ -201,9 +201,9 @@ static pf_u16 PFPATH_GetNextCharOfFileName(PF_FILE_NAME_ITER* p_name) {
 
 pf_u16 PFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 name_kind) {
     pf_u16 wc;
-    pf_u16 tmp_wc;
+    pf_u16 oem_character;
     pf_s8 pattern[3];
-    pf_u16 twc;
+    pf_u16 fullwidth_character;
 
     if (p_pattern->code_mode == 1) {
         pattern[0] = *p_pattern->p_head++;
@@ -236,12 +236,11 @@ pf_u16 PFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 name_kind) {
         if (name_kind == 0) {
             PF_PATH_VOLUME_SET* volume = &pf_vol_set;
 
-            volume->codeset.unicode2oem(&wc, (pf_s8*)&tmp_wc);
-            tmp_wc = (pf_u16)tmp_wc;
-            if (volume->codeset.is_oem_mb_char((pf_u8)(tmp_wc >> 8), 1) != 0) {
-                wc = tmp_wc;
+            volume->codeset.unicode2oem(&wc, (pf_s8*)&oem_character);
+            if (volume->codeset.is_oem_mb_char((pf_u8)(oem_character >> 8), 1) != 0) {
+                wc = oem_character;
             } else {
-                pattern[0] = (pf_u8)(tmp_wc >> 8);
+                pattern[0] = (pf_u8)(oem_character >> 8);
                 if ((volume->config & 0x10000) != 0 || VALID_PATH_CHAR(pattern[0], 0x02)) {
                     wc = (pf_u8)pattern[0];
                 } else {
@@ -252,8 +251,8 @@ pf_u16 PFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 name_kind) {
     }
     wc = (wc >= 'a') && (wc <= 'z') ? wc - ' ' : wc;
     if (name_kind != 0) {
-        if (PFPATH_UNI_ConvertFWchar((pf_u16)wc, &twc) == 1) {
-            wc = twc;
+        if (PFPATH_UNI_ConvertFWchar((pf_u16)wc, &fullwidth_character) == 1) {
+            wc = fullwidth_character;
         }
     } else {
         if ((pf_u8)(wc >> 8) == 0) {
@@ -263,8 +262,8 @@ pf_u16 PFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u32 name_kind) {
             pattern[0] = (pf_u8)(wc >> 8);
             pattern[1] = (pf_u8)wc;
         }
-        if (PFPATH_OEM_ConvertFWchar(pattern, &twc) == 1) {
-            wc = twc;
+        if (PFPATH_OEM_ConvertFWchar(pattern, &fullwidth_character) == 1) {
+            wc = fullwidth_character;
         }
     }
     return wc;
@@ -339,13 +338,13 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
         if (pattern_width == 1) {
             read_char = pf_toupper(*pattern);
         } else {
-            read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)pattern);
+            read_char = PF_GET_LE_U16((const pf_u8*)pattern);
         }
         pattern_char = (pf_u16)read_char;
         if (name_width == 1) {
             read_char = pf_toupper(*name);
         } else {
-            read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)name);
+            read_char = PF_GET_LE_U16((const pf_u8*)name);
         }
         name_char = (pf_u16)read_char;
         if (pattern_width == 2 && PFPATH_OEM_ConvertFWchar(pattern, &converted_pattern) == 1) {
@@ -368,7 +367,7 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
                 if (pattern_width == 1) {
                     read_char = pf_toupper(*pattern);
                 } else {
-                    read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)pattern);
+                    read_char = PF_GET_LE_U16((const pf_u8*)pattern);
                 }
                 pattern_char = (pf_u16)read_char;
                 pattern += pattern_width;
@@ -377,7 +376,7 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
                     name += name_width;
                     name_width = pf_vol_set.codeset.oem_char_width(name);
                     if (name_width == 1) { read_char = pf_toupper(*name); }
-                    else { read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)name); }
+                    else { read_char = PF_GET_LE_U16((const pf_u8*)name); }
                     name_char = (pf_u16)read_char;
                 }
             } while (pattern_char == '?' || pattern_char == '*');
@@ -397,7 +396,7 @@ pf_s32 PFPATH_cmpNameImpl(const pf_s8* name, const pf_s8* pattern, pf_u32* match
                 if (name_width == 1) {
                     read_char = pf_toupper(*name);
                 } else {
-                    read_char = (pf_u16)PF_GET_LE_U16((const pf_u8*)name);
+                    read_char = PF_GET_LE_U16((const pf_u8*)name);
                 }
                 name_char = (pf_u16)read_char;
             }

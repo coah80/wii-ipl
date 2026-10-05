@@ -10,15 +10,15 @@ FAError FADetach(s8 drive) {
     FADisk* disk = gOpenDisk[drive - 'A'];
     FAPartition* partition = gOpenPartition[drive - 'A'];
     if (pfstub_detach(drive) != 0) {
-        return -1;
+        return FA_ERR_SYSTEM;
     }
     if (disk != NULL && partition != NULL) {
         if (pdm_close_partition(partition) != 0) {
-            return -1;
+            return FA_ERR_SYSTEM;
         }
         if (pdm_close_disk(disk) != 0) {
-            return -1;
+            return FA_ERR_SYSTEM;
         }
     }
-    return 0;
+    return FA_ERR_SUCCESS;
 }

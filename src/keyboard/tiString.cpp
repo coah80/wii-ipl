@@ -242,16 +242,16 @@ void Decolated::inputString(const wchar_t* string) {
 void Decolated::inputString(const wchar_t* string, TranslateMode mode) {
     TranslateMode oldMode = static_cast<TranslateMode>(mTranslateMode);
     if (oldMode != mode) {
-        if (!isKanaFix() && mode == 0) {
+        if (!isKanaFix() && mode == TM_Direct) {
             confirmKana();
         }
         mTranslateMode = mode;
         switch (mode) {
-        case 1:
-            mKanaStream.mQueue.mode = static_cast<KPRMode>(4);
+        case TM_Kana:
+            mKanaStream.mQueue.mode = KPR_MODE_JP_ROMAJI_HIRAGANA;
             break;
-        case 2:
-            mKanaStream.mQueue.mode = static_cast<KPRMode>(8);
+        case TM_Roman:
+            mKanaStream.mQueue.mode = KPR_MODE_JP_ROMAJI_KATAKANA;
             break;
         default:
             break;
@@ -259,16 +259,16 @@ void Decolated::inputString(const wchar_t* string, TranslateMode mode) {
     }
     inputString(string);
     if (mTranslateMode != oldMode) {
-        if (!isKanaFix() && oldMode == 0) {
+        if (!isKanaFix() && oldMode == TM_Direct) {
             confirmKana();
         }
         mTranslateMode = oldMode;
         switch (oldMode) {
-        case 1:
-            mKanaStream.mQueue.mode = static_cast<KPRMode>(4);
+        case TM_Kana:
+            mKanaStream.mQueue.mode = KPR_MODE_JP_ROMAJI_HIRAGANA;
             break;
-        case 2:
-            mKanaStream.mQueue.mode = static_cast<KPRMode>(8);
+        case TM_Roman:
+            mKanaStream.mQueue.mode = KPR_MODE_JP_ROMAJI_KATAKANA;
             break;
         default:
             break;
@@ -457,9 +457,9 @@ bool Decolated::atTheBeginningOfASentence() {
     }
     s32 ch = getWCharAtCursor();
     switch (ch) {
-    case 0x2e:
-    case 0x21:
-    case 0x3f:
+    case L'.':
+    case L'!':
+    case L'?':
         return true;
     default:
         return false;
@@ -468,16 +468,16 @@ bool Decolated::atTheBeginningOfASentence() {
 
 void Decolated::setTranslateMode(TranslateMode mode) {
     if (mTranslateMode != mode) {
-        if (!isKanaFix() && mode == 0) {
+        if (!isKanaFix() && mode == TM_Direct) {
             confirmKana();
         }
         mTranslateMode = mode;
         switch (mode) {
-        case 1:
-            mKanaStream.mQueue.mode = static_cast<KPRMode>(4);
+        case TM_Kana:
+            mKanaStream.mQueue.mode = KPR_MODE_JP_ROMAJI_HIRAGANA;
             break;
-        case 2:
-            mKanaStream.mQueue.mode = static_cast<KPRMode>(8);
+        case TM_Roman:
+            mKanaStream.mQueue.mode = KPR_MODE_JP_ROMAJI_KATAKANA;
             break;
         default:
             break;
@@ -487,15 +487,15 @@ void Decolated::setTranslateMode(TranslateMode mode) {
 
 void Decolated::initKanaConverter() {
     KPRInitQueue(&mKanaStream.mQueue);
-    KPRSetMode(&mKanaStream.mQueue, 0);
+    KPRSetMode(&mKanaStream.mQueue, KPR_MODE_NONE);
     mKanaStream.mOutput[0] = 0;
     s32 mode = mTranslateMode;
     switch (mode) {
-    case 1:
-        mKanaStream.mQueue.mode = static_cast<KPRMode>(4);
+    case TM_Kana:
+        mKanaStream.mQueue.mode = KPR_MODE_JP_ROMAJI_HIRAGANA;
         break;
-    case 2:
-        mKanaStream.mQueue.mode = static_cast<KPRMode>(8);
+    case TM_Roman:
+        mKanaStream.mQueue.mode = KPR_MODE_JP_ROMAJI_KATAKANA;
         break;
     default:
         break;

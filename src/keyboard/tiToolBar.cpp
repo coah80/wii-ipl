@@ -45,24 +45,24 @@ namespace textinput {
              "P_BT_cancel",
              5,
              NULL,
-             {&csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4]}},
+             {&csAninationFile[ANM_Normal], &csAninationFile[ANM_FocusIn], &csAninationFile[ANM_FocusOut], &csAninationFile[ANM_RollOver], &csAninationFile[ANM_Pushed]}},
             {KT_NormalButton,
              "P_BT_confirm",
              5,
              COMMON_BUTTON_ANIM,
-             {&csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4]}},
+             {&csAninationFile[ANM_Normal], &csAninationFile[ANM_FocusIn], &csAninationFile[ANM_FocusOut], &csAninationFile[ANM_RollOver], &csAninationFile[ANM_Pushed]}},
             {KT_ToggleButton,
              "P_kyChng_QWERTY",
              7,
              NULL,
-             {&csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5],
-              &csAninationFile[6], &csAninationFile[7]}},
+             {&csAninationFile[ANM_Normal], &csAninationFile[ANM_FocusIn], &csAninationFile[ANM_FocusOut], &csAninationFile[ANM_RollOver], &csAninationFile[ANM_Pushed], &csAninationFile[ANM_ToggleOn],
+              &csAninationFile[ANM_ToggleOff], &csAninationFile[7]}},
             {KT_ToggleButton,
              "P_kyChng_CP",
              7,
              COMMON_CHG_ANIM,
-             {&csAninationFile[0], &csAninationFile[1], &csAninationFile[2], &csAninationFile[3], &csAninationFile[4], &csAninationFile[5],
-              &csAninationFile[6], &csAninationFile[7]}},
+             {&csAninationFile[ANM_Normal], &csAninationFile[ANM_FocusIn], &csAninationFile[ANM_FocusOut], &csAninationFile[ANM_RollOver], &csAninationFile[ANM_Pushed], &csAninationFile[ANM_ToggleOn],
+              &csAninationFile[ANM_ToggleOff], &csAninationFile[7]}},
         };
 
         void Base::setQwerty(bool qwerty) {
@@ -95,32 +95,32 @@ namespace textinput {
             mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
 
             for (u16 i = 0; i < ARRAY_LENGTH(csPaneToAnimation); i++) {
-                const PaneToAnimation& p = csPaneToAnimation[i];
+                const PaneToAnimation& paneAnimations = csPaneToAnimation[i];
                 AnmPane* pane = NULL;
-                switch (p.type) {
+                switch (paneAnimations.type) {
                     case KT_NormalButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane));
-                        pane = new (pBtnBuf) NormalButtonAnmPane(getPane(p.paneName), NULL);
+                        pane = new (pBtnBuf) NormalButtonAnmPane(getPane(paneAnimations.paneName), NULL);
                         break;
                     }
                     case KT_ToggleButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(ToggleButtonAnmPane));
-                        pane = new (pBtnBuf) ToggleButtonAnmPane(getPane(p.paneName), NULL);
+                        pane = new (pBtnBuf) ToggleButtonAnmPane(getPane(paneAnimations.paneName), NULL);
                         break;
                     }
                 }
 
                 nw4r::ut::List_Append(&mAnmPanes, pane);
 
-                for (u16 j = 0; j < p.count; j++) {
-                    void* pResource = mpMultiArcResourceAccessor->GetResource(0, p.pAnims[j]->fileName);
+                for (u16 j = 0; j < paneAnimations.count; j++) {
+                    void* pResource = mpMultiArcResourceAccessor->GetResource(0, paneAnimations.pAnims[j]->fileName);
                     AnimTransformPane* transform =
                         static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(pResource, mpMultiArcResourceAccessor));
 
-                    if (p.forceAddName == NULL) {
-                        pane->addAnimation(allocator, p.pAnims[j]->id, transform, false, true);
+                    if (paneAnimations.forceAddName == NULL) {
+                        pane->addAnimation(allocator, paneAnimations.pAnims[j]->id, transform, false, true);
                     } else {
-                        pane->forceAddAnimation(allocator, p.pAnims[j]->id, transform, p.forceAddName, false, true);
+                        pane->forceAddAnimation(allocator, paneAnimations.pAnims[j]->id, transform, paneAnimations.forceAddName, false, true);
                     }
                 }
             }
@@ -383,7 +383,7 @@ namespace textinput {
                 if (pane != NULL) {
                     switch (event) {
                         case ON_TRIG: {
-                            if ((input->trigger & 0x800)) {
+                            if ((input->trigger & WPAD_BUTTON_A)) {
                                 pane->onAnmEvent(nw4rmanager::AnmPane::PE_0);
                             }
                             break;
@@ -400,19 +400,19 @@ namespace textinput {
                         }
                     }
                 }
-                if (event == ON_TRIG && (input->trigger & 0x800)) {
+                if (event == ON_TRIG && (input->trigger & WPAD_BUTTON_A)) {
                     if (util::strcmp(paneName, "P_BT_confirm")) {
                         mpLayoutByNW4R->onOK();
                     } else if (util::strcmp(paneName, "P_BT_cancel")) {
                         mpLayoutByNW4R->onCancel();
                     } else if (util::strcmp(paneName, "P_kyChng_QWERTY")) {
                         if (!mpLayoutByNW4R->isQwerty()) {
-                            mpLayoutByNW4R->searchAnmPane("P_kyChng_CP")->changeAnimation(6);
+                            mpLayoutByNW4R->searchAnmPane("P_kyChng_CP")->changeAnimation(ANM_ToggleOff);
                         }
                         mpLayoutByNW4R->setQwertyWithSE(true);
                     } else if (util::strcmp(paneName, "P_kyChng_CP")) {
                         if (mpLayoutByNW4R->isQwerty()) {
-                            mpLayoutByNW4R->searchAnmPane("P_kyChng_QWERTY")->changeAnimation(6);
+                            mpLayoutByNW4R->searchAnmPane("P_kyChng_QWERTY")->changeAnimation(ANM_ToggleOff);
                         }
                         mpLayoutByNW4R->setQwertyWithSE(false);
                     }

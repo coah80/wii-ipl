@@ -85,18 +85,18 @@ static s32 fa_nanddrv_physical_write(u32, const u8*, u32, u32, u32*, PDM_DISK*);
 
 static s32 fa_nanddrv_RelateNANDFileToDsk(PDM_DISK* disk, NAND_DISK_INFO* info, s32 format) {
     s32 error = NANDChangeDir(NAND_Org_Path);
-    if (error != 0) { return error; }
-    if (info->flags & 4) { error = 0; }
-    else { error = NANDOpen(info->path, &info->file, 3); }
-    if (format) { error = -12; }
+    if (error != NAND_RESULT_OK) { return error; }
+    if (info->flags & 4) { error = NAND_RESULT_OK; }
+    else { error = NANDOpen(info->path, &info->file, NAND_ACCESS_RW); }
+    if (format) { error = NAND_RESULT_NOEXISTS; }
     switch (error) {
-    case -12:
+    case NAND_RESULT_NOEXISTS:
         error = fa_nanddrv_CreateNANDFileForDsk(info);
-        if (error == 0) { info->disk = disk; }
+        if (error == NAND_RESULT_OK) { info->disk = disk; }
         break;
     case 0:
         info->disk = disk;
-        error = 0;
+        error = NAND_RESULT_OK;
         break;
     }
     return error;
@@ -110,28 +110,28 @@ static s32 fa_nanddrv_CreateNANDFileForDsk(NAND_DISK_INFO* info) {
     s32 error;
     u32 remaining;
     error = fa_nanddrv_ParseCreateNANDFile(info);
-    if (error != 0) { return error; }
+    if (error != NAND_RESULT_OK) { return error; }
     pf_memset(boot, 0, 512);
     clusters = 0;
     fa_nanddrv_BuildUpBootSector(info, boot, &type, 0);
     if (type != fa_nanddrv_VerifyBPB(boot, &clusters)) { fa_nanddrv_BuildUpBootSector(info, boot, &type, clusters); }
     error = NANDWrite(&info->file, boot, 512);
-    if (error < 0) { NANDClose(&info->file); NANDDelete(info->path); return error; }
+    if (error < NAND_RESULT_OK) { NANDClose(&info->file); NANDDelete(info->path); return error; }
     remaining = info->file_size - 512;
     if (type == PDM_FAT_32) {
         fa_nanddrv_BuildUpFSInfoSector(fsinfo);
         error = NANDWrite(&info->file, fsinfo, 512);
-        if (error < 0) { NANDClose(&info->file); NANDDelete(info->path); return error; }
+        if (error < NAND_RESULT_OK) { NANDClose(&info->file); NANDDelete(info->path); return error; }
         remaining -= 512;
     }
     pf_memset(zeros, 0, 512);
     for (; remaining >= 512; remaining -= 512) {
         error = NANDWrite(&info->file, zeros, 512);
-        if (error < 0) { NANDClose(&info->file); NANDDelete(info->path); return error; }
+        if (error < NAND_RESULT_OK) { NANDClose(&info->file); NANDDelete(info->path); return error; }
     }
     if (remaining) {
         error = NANDWrite(&info->file, zeros, remaining);
-        if (error < 0) { NANDClose(&info->file); NANDDelete(info->path); return error; }
+        if (error < NAND_RESULT_OK) { NANDClose(&info->file); NANDDelete(info->path); return error; }
     }
     return 0;
 }
@@ -150,25 +150,25 @@ static s32 fa_nanddrv_ParseCreateNANDFile(NAND_DISK_INFO* info) {
         switch (*path) {
         case '/':
             if (length == 0) {
-                if (position == 0) { error = NANDChangeDir("/"); if (error != 0) { return error; } }
+                if (position == 0) { error = NANDChangeDir("/"); if (error != NAND_RESULT_OK) { return error; } }
                 path++;
                 break;
             }
             if (path[1] == 0) {
                 if (length > 12) { return -20; }
-                error = NANDCreate(name, 0x30, 0);
-                if (error == 0 || error == -6) {
-                    NANDOpen(name, &info->file, 3);
+                error = NANDCreate(name, NAND_PERM_USER, 0);
+                if (error == NAND_RESULT_OK || error == NAND_RESULT_EXISTS) {
+                    NANDOpen(name, &info->file, NAND_ACCESS_RW);
                     error = NANDChangeDir(NAND_Org_Path);
                 }
                 return error;
             }
             if (length > 11) { return -20; }
-            if (pf_strcmp(name, "..") != 0) { error = NANDCreateDir(name, 0x30, 0); }
-            else { error = 0; }
-            if (error == 0 || error == -6 || error == -1) {
+            if (pf_strcmp(name, "..") != 0) { error = NANDCreateDir(name, NAND_PERM_USER, 0); }
+            else { error = NAND_RESULT_OK; }
+            if (error == NAND_RESULT_OK || error == NAND_RESULT_EXISTS || error == NAND_RESULT_ACCESS) {
                 error = NANDChangeDir(name);
-                if (error != 0) { return error; }
+                if (error != NAND_RESULT_OK) { return error; }
             } else {
                 return error;
             }
@@ -179,9 +179,9 @@ static s32 fa_nanddrv_ParseCreateNANDFile(NAND_DISK_INFO* info) {
             break;
         case 0:
             if (length > 12) { return -20; }
-            error = NANDCreate(name, 0x30, 0);
-            if (error == 0 || error == -6) {
-                NANDOpen(name, &info->file, 3);
+            error = NANDCreate(name, NAND_PERM_USER, 0);
+            if (error == NAND_RESULT_OK || error == NAND_RESULT_EXISTS) {
+                NANDOpen(name, &info->file, NAND_ACCESS_RW);
                 error = NANDChangeDir(NAND_Org_Path);
             }
             return error;
@@ -220,7 +220,7 @@ static s32 fa_nanddrv_VerifyBPB(u8* buf, u32* clusters) {
     total = (u32)(total - first) >> cluster_log;
     if (total < 4085) { return 0; }
     result = PDM_FAT_32;
-    if ((u32)total < 65525) { result = PDM_FAT_16; }
+    if (total < 65525) { result = PDM_FAT_16; }
     return result;
 }
 #pragma dont_inline on
@@ -279,8 +279,8 @@ static s32 fa_nanddrv_BuildUpBootSector(NAND_DISK_INFO* info, u8* buf, PDM_FAT_T
 s32 fa_nanddrv_init(PDM_DISK* disk) {
     if (disk == 0) { return -20; }
     if (NAND_Init == 0) {
-        if (NANDInit() != 0) { return -21; }
-        if (NANDGetCurrentDir(NAND_Org_Path) != 0) { return -21; }
+        if (NANDInit() != NAND_RESULT_OK) { return -21; }
+        if (NANDGetCurrentDir(NAND_Org_Path) != NAND_RESULT_OK) { return -21; }
         NAND_Init++;
     }
     pdm_disk_notify_media_insert(disk);
@@ -350,9 +350,9 @@ s32 fa_nanddrv_unmount(PDM_DISK* disk) {
         if (error != 0) { result = error; goto flush_done; }
         error = NANDClose(&info->file);
         if (error < 0) { result = error; goto flush_done; }
-        error = NANDOpen(info->path, &info->file, 3);
+        error = NANDOpen(info->path, &info->file, NAND_ACCESS_RW);
         if (error < 0) { result = error; goto flush_done; }
-        error = NANDSeek(&info->file, position, 0);
+        error = NANDSeek(&info->file, position, NAND_SEEK_BEG);
         result = error < 0 ? error : 0;
 flush_done:
         error = result;
@@ -443,7 +443,7 @@ static s32 fa_nanddrv_physical_read(u32 count, u8* buf, u32 block, u32 bps, u32*
     remaining = count * bps;
     file_size = info->file_size;
     wanted = block * bps;
-    if (NANDTell(&info->file, &position) != 0 || position != wanted) { error = NANDSeek(&info->file, wanted, 0); }
+    if (NANDTell(&info->file, &position) != NAND_RESULT_OK || position != wanted) { error = NANDSeek(&info->file, wanted, NAND_SEEK_BEG); }
     else { error = 0; }
     if (error >= 0) {
         if (wanted + remaining > file_size) {
@@ -497,7 +497,7 @@ static s32 fa_nanddrv_physical_write(u32 count, const u8* buf, u32 block, u32 bp
     remaining = count * bps;
     file_size = info->file_size;
     wanted = block * bps;
-    if (NANDTell(&info->file, &position) != 0 || position != wanted) { error = NANDSeek(&info->file, wanted, 0); }
+    if (NANDTell(&info->file, &position) != NAND_RESULT_OK || position != wanted) { error = NANDSeek(&info->file, wanted, NAND_SEEK_BEG); }
     else { error = 0; }
     if (error >= 0) {
         if (wanted + remaining > file_size) {

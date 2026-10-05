@@ -19,12 +19,12 @@ void FANotifyUSBEject(s8 drive);
 FAError FARegistCB(s32 device, FAInsertCallback insert, FAEjectCallback eject) {
     s32 error;
     switch (device) {
-        case 0:
+        case FA_DEVICE_SD:
             gMediaInOutCallback.sd_insert = insert;
             gMediaInOutCallback.sd_eject = eject;
             error = pfd_sddrv_registar_callback(FANotifySDInsert, FANotifySDEject);
             break;
-        case 1:
+        case FA_DEVICE_USB:
             gMediaInOutCallback.usb_insert = insert;
             gMediaInOutCallback.usb_eject = eject;
             error = pfd_mscdrv_registar_callback(FANotifyUSBInsert, FANotifyUSBEject);
@@ -33,9 +33,9 @@ FAError FARegistCB(s32 device, FAInsertCallback insert, FAEjectCallback eject) {
             return -2;
     }
     if (error != 0) {
-        return -1;
+        return FA_ERR_SYSTEM;
     }
-    return 0;
+    return FA_ERR_SUCCESS;
 }
 
 void FANotifySDInsert(s8 drive) {

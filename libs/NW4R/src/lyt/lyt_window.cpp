@@ -13,7 +13,7 @@ extern "C" char scLytFatalMsg[] = "Error#004\nAn error has occurred.\nThe system
             GXColor front = {*((volatile const u8*)&::scLytFatalColorR), *((volatile const u8*)&::scLytFatalColorG),                                        \
                              *((volatile const u8*)&::scLytFatalColorB), *((volatile const u8*)&::scLytFatalColorA)};                                        \
             GXColor back = {0, 0, 0, 0};                                                                                                             \
-            OSFatal((GXColor)front, (GXColor)back, ::scLytFatalMsg);                                                                                  \
+            OSFatal(front, back, ::scLytFatalMsg);                                                                                  \
         }                                                                                                                                            \
     }
 
@@ -22,7 +22,7 @@ extern "C" char scLytFatalMsg[] = "Error#004\nAn error has occurred.\nThe system
         if (!(x)) { \
             GXColor front = {255, 255, 255, 0}; \
             GXColor back = {0, 0, 0, 0}; \
-            OSFatal((GXColor)front, (GXColor)back, ::scLytFatalMsg); \
+            OSFatal(front, back, ::scLytFatalMsg); \
         } \
     }
 

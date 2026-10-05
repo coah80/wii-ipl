@@ -129,12 +129,12 @@ pf_s32 VFiPFCODE_CP932_Unicode2OEM(const pf_u16* uc_src, pf_s8* cp932_dst) {
 }
 
 pf_s32 VFiPFCODE_CP932_OEMCharWidth(const pf_s8* buf) {
-    pf_u16 tmp;
+    pf_u16 unicode;
     pf_s32 width;
     pf_s16 oem_width;
     pf_s16 uni_width;
 
-    width = VFiPFCODE_CP932_OEM2Unicode(buf, &tmp);
+    width = VFiPFCODE_CP932_OEM2Unicode(buf, &unicode);
     VFiPFCODE_Divide_Width(width, &oem_width, &uni_width);
     return (pf_s32)oem_width;
 }
@@ -163,11 +163,11 @@ pf_bool VFiPFCODE_CP932_isOEMMBchar(pf_s8 cp932, pf_u32 num) {
 }
 
 pf_s32 VFiPFCODE_CP932_UnicodeCharWidth(const pf_u16* buf) {
-    pf_s8 tmp[2];
+    pf_s8 encoded[2];
     pf_s32 width;
     pf_s16 oem_width;
     pf_s16 uni_width;
-    width = VFiPFCODE_CP932_Unicode2OEM(buf, tmp);
+    width = VFiPFCODE_CP932_Unicode2OEM(buf, encoded);
     VFiPFCODE_Divide_Width(width, &oem_width, &uni_width);
     return uni_width;
 }
