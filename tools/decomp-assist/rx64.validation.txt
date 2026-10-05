@@ -1,0 +1,19 @@
+[src/system/iplNwc24Manager] instruction-exact 53 -> 53/53; all report measures unchanged
+[src/system/iplKeyboard] instruction-exact 32 -> 32/32; all report measures unchanged
+[src/homebutton/HBMBase] instruction-exact 76 -> 76/76; all report measures unchanged
+[src/scene/calendar/iplDate] instruction-exact 19 -> 19/19; all report measures unchanged
+[src/scene/channelEdit/iplChanAppEdit] instruction-exact 31 -> 31/31; all report measures unchanged
+[src/keyboard/tiCellPhone] instruction-exact 86 -> 86/86; all report measures unchanged
+[libs/RevoEX/src/cdb/CDBFileSystemSD] instruction-exact 15 -> 15/15; all report measures unchanged
+[libs/RevoEX/src/nhttp/d_nhttp] instruction-exact 22 -> 22/22; all report measures unchanged
+[libs/RevoEX/src/nwc24/NWC24MBoxCtrl] instruction-exact 25 -> 25/25; all report measures unchanged
+[libs/RevoEX/src/vf/fatfs/pf_path] instruction-exact 24 -> 24/24; all report measures unchanged
+[libs/RVL_SDK/src/os/OSPlayRecord] instruction-exact 6 -> 6/6; all report measures unchanged
+[libs/RVL_SDK/src/dvd/dvdfs] instruction-exact 15 -> 15/15; all report measures unchanged
+[libs/RVL_SDK/src/dvd/dvd] instruction-exact 65 -> 65/65; all report measures unchanged
+[libs/RVL_SDK/src/wud/WUD] instruction-exact 66 -> 66/66; all report measures unchanged
+[libs/MSL/src/MSL_Common/strtold] instruction-exact 2 -> 2/2; all report measures unchanged
+FULL REPORT: 0 field changes across 1027 units, 12563 functions, 2675 sections
+INSTRUCTION EXACT: 537 -> 537
+DOL SHA1: 26116613f624061ba99c8d1a299aaa6efa85670d
+VALIDATION PASS

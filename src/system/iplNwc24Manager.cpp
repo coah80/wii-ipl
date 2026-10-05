@@ -931,22 +931,22 @@ namespace ipl {
                         memset(fullDlUrl, 0, sizeof(fullDlUrl));
 
                         NWC24DlId dlIds[4] = {
-                            *(volatile const NWC24DlId*)&DL_ID_0,
-                            *(volatile const NWC24DlId*)&DL_ID_1,
-                            *(volatile const NWC24DlId*)&DL_ID_5,
-                            *(volatile const NWC24DlId*)&DL_ID_6,
+                            DL_ID_0,
+                            DL_ID_1,
+                            DL_ID_5,
+                            DL_ID_6,
                         };
                         u16 dlIntervals[4] = {
-                            *(volatile const u16*)&DL_INTERVAL_0,
-                            *(volatile const u16*)&DL_INTERVAL_1,
-                            *(volatile const u16*)&DL_INTERVAL_2,
-                            *(volatile const u16*)&DL_INTERVAL_3,
+                            DL_INTERVAL_0,
+                            DL_INTERVAL_1,
+                            DL_INTERVAL_2,
+                            DL_INTERVAL_3,
                         };
                         u8 dlPrios[4] = {
-                            *(volatile const u8*)&DL_PRIORITY_0,
-                            *(volatile const u8*)&DL_PRIORITY_1,
-                            *(volatile const u8*)&DL_PRIORITY_2,
-                            *(volatile const u8*)&DL_PRIORITY_3,
+                            DL_PRIORITY_0,
+                            DL_PRIORITY_1,
+                            DL_PRIORITY_2,
+                            DL_PRIORITY_3,
                         };
 
                         for (int j = 0; j < 4; j++) {

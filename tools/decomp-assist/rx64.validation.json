@@ -1,0 +1,1110 @@
+{
+  "baseline_commit": "9550ccb3ffaf751203f7a4812dc37f3970a5c8bb",
+  "scope": "43U audit follow-up; complete JSON report equality and exact DOL; owned ELF metadata may differ",
+  "full_report_sha256_before": "97236cc7bfb669c0a818a67753cc4efc8c91928259ca777c48695be068f1c1a2",
+  "full_report_sha256_after": "97236cc7bfb669c0a818a67753cc4efc8c91928259ca777c48695be068f1c1a2",
+  "full_report_field_changes": [],
+  "units_checked": 1027,
+  "functions_checked": 12563,
+  "sections_checked": 2675,
+  "protected_sources_checked": [
+    "libs/RVLMiddleware/TMC_JPEG/src/buffer/idct_block_var.c",
+    "libs/RVLMiddleware/TMC_JPEG/src/exif/exif_parse.c",
+    "libs/RVLMiddleware/eZiText/src/clib/zi81key.c",
+    "libs/RVLMiddleware/eZiText/src/clib/zi8alpha.c",
+    "libs/RVLMiddleware/eZiText/src/clib/zi8cgetc.c",
+    "libs/RVLMiddleware/eZiText/src/clib/zi8uwd.c",
+    "libs/RVLMiddleware/eZiText/src/clib/zprepare.c",
+    "libs/RVL_SDK/src/cntcache/cntcache.c",
+    "libs/RVL_SDK/src/kbd/kbd_lib.c",
+    "libs/RVL_SDK/src/kbd/kbd_lib_map_us.c",
+    "libs/RVL_SDK/src/nup/nup.cpp",
+    "libs/RVL_SDK/src/nup/nup_mem.cpp",
+    "libs/RVL_SDK/src/nup/nup_nhttp.cpp",
+    "libs/RevoEX/src/net/aes.c",
+    "libs/RevoEX/src/nhttp/NHTTP_recvbuf.c",
+    "libs/RevoEX/src/nhttp/NHTTP_stdlib_RVL.c",
+    "libs/RevoEX/src/so/SOBasic.c",
+    "libs/RevoEX/src/so/SOCommon.c",
+    "libs/RevoEX/src/so/SOInformation.c",
+    "libs/RevoEX/src/so/SOOption.c",
+    "src/BS2/BS2Mach.c",
+    "src/channelScript/CHANSVm.c",
+    "src/scene/address/iplAddressEdit.cpp",
+    "src/scene/cardSequence/iplCardSequence.cpp",
+    "src/scene/memoryCard/iplGCSaveData.cpp",
+    "src/scene/memoryCard/iplGCWindow.cpp",
+    "src/scene/memoryCard/iplMemoryCard.cpp",
+    "src/scene/memoryCard/iplMemoryCardBase.cpp",
+    "src/scene/memoryCard/iplMemoryCardManager.cpp",
+    "src/scene/sdChannelMemory/iplSDMemory.cpp",
+    "src/scene/sdChannelSelect/iplSDChannelObj.cpp",
+    "src/scene/sdChannelSelect/iplSDChannelSelect.cpp",
+    "src/scene/setting/AOSS.c",
+    "src/scene/setting/ATERM.c",
+    "src/system/TVRC.cpp",
+    "src/system/iplChannelManager.cpp",
+    "src/system/iplSaveDataManager.cpp",
+    "src/system/iplSystem.cpp"
+  ],
+  "source_files_changed": [
+    "libs/MSL/src/MSL_Common/strtold.c",
+    "libs/RVL_SDK/src/dvd/dvd.c",
+    "libs/RVL_SDK/src/dvd/dvdfs.c",
+    "libs/RVL_SDK/src/os/OSPlayRecord.c",
+    "libs/RVL_SDK/src/wud/WUD.c",
+    "libs/RevoEX/src/cdb/CDBFileSystemSD.c",
+    "libs/RevoEX/src/nhttp/d_nhttp.c",
+    "libs/RevoEX/src/nwc24/NWC24MBoxCtrl.c",
+    "libs/RevoEX/src/vf/fatfs/pf_path.c",
+    "src/homebutton/HBMBase.cpp",
+    "src/keyboard/tiCellPhone.cpp",
+    "src/scene/calendar/iplDate.cpp",
+    "src/scene/channelEdit/iplChanAppEdit.cpp",
+    "src/system/iplKeyboard.cpp",
+    "src/system/iplNwc24Manager.cpp"
+  ],
+  "object_verification": {
+    "src": {
+      "count": 1027,
+      "changed": [
+        "libs/RevoEX/src/cdb/CDBFileSystemSD.o",
+        "libs/RevoEX/src/nhttp/d_nhttp.o",
+        "libs/RevoEX/src/nwc24/NWC24MBoxCtrl.o",
+        "libs/RevoEX/src/vf/fatfs/pf_path.o",
+        "libs/MSL/src/MSL_Common/strtold.o",
+        "libs/RVL_SDK/src/os/OSPlayRecord.o",
+        "libs/RVL_SDK/src/wud/WUD.o",
+        "libs/RVL_SDK/src/dvd/dvdfs.o",
+        "libs/RVL_SDK/src/dvd/dvd.o",
+        "src/system/iplNwc24Manager.o",
+        "src/system/iplKeyboard.o",
+        "src/keyboard/tiCellPhone.o",
+        "src/homebutton/HBMBase.o",
+        "src/scene/channelEdit/iplChanAppEdit.o",
+        "src/scene/calendar/iplDate.o"
+      ]
+    },
+    "obj": {
+      "count": 1027,
+      "changed": []
+    }
+  },
+  "instruction_method": "Use the ELF symbol section index and complete symbol size; decode PPC instructions and retain branch displacement and CR selector.",
+  "owned_units": [
+    {
+      "unit": "src/system/iplNwc24Manager",
+      "instruction_exact_before": 53,
+      "instruction_exact_after": 53,
+      "target_functions": 53,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "10252",
+        "matched_code": "10252",
+        "matched_code_percent": 100.0,
+        "total_data": "888",
+        "matched_data": "888",
+        "matched_data_percent": 100.0,
+        "total_functions": 53,
+        "matched_functions": 53,
+        "matched_functions_percent": 100.0,
+        "complete_code": "10252",
+        "complete_code_percent": 100.0,
+        "complete_data": "888",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "10252",
+        "matched_code": "10252",
+        "matched_code_percent": 100.0,
+        "total_data": "888",
+        "matched_data": "888",
+        "matched_data_percent": 100.0,
+        "total_functions": 53,
+        "matched_functions": 53,
+        "matched_functions_percent": 100.0,
+        "complete_code": "10252",
+        "complete_code_percent": 100.0,
+        "complete_data": "888",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 21 (mine=21 base=21)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 21 (mine=21 base=21)"
+        }
+      }
+    },
+    {
+      "unit": "src/system/iplKeyboard",
+      "instruction_exact_before": 32,
+      "instruction_exact_after": 32,
+      "target_functions": 32,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "6024",
+        "matched_code": "6024",
+        "matched_code_percent": 100.0,
+        "total_data": "1184",
+        "matched_data": "1184",
+        "matched_data_percent": 100.0,
+        "total_functions": 32,
+        "matched_functions": 32,
+        "matched_functions_percent": 100.0,
+        "complete_code": "6024",
+        "complete_code_percent": 100.0,
+        "complete_data": "1184",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "6024",
+        "matched_code": "6024",
+        "matched_code_percent": 100.0,
+        "total_data": "1184",
+        "matched_data": "1184",
+        "matched_data_percent": 100.0,
+        "total_functions": 32,
+        "matched_functions": 32,
+        "matched_functions_percent": 100.0,
+        "complete_code": "6024",
+        "complete_code_percent": 100.0,
+        "complete_data": "1184",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 28 (mine=28 base=28)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 28 (mine=28 base=28)"
+        }
+      }
+    },
+    {
+      "unit": "src/homebutton/HBMBase",
+      "instruction_exact_before": 76,
+      "instruction_exact_after": 76,
+      "target_functions": 76,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "23608",
+        "matched_code": "23608",
+        "matched_code_percent": 100.0,
+        "total_data": "3800",
+        "matched_data": "3800",
+        "matched_data_percent": 100.0,
+        "total_functions": 76,
+        "matched_functions": 76,
+        "matched_functions_percent": 100.0,
+        "complete_code": "23608",
+        "complete_code_percent": 100.0,
+        "complete_data": "3800",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "23608",
+        "matched_code": "23608",
+        "matched_code_percent": 100.0,
+        "total_data": "3800",
+        "matched_data": "3800",
+        "matched_data_percent": 100.0,
+        "total_functions": 76,
+        "matched_functions": 76,
+        "matched_functions_percent": 100.0,
+        "complete_code": "23608",
+        "complete_code_percent": 100.0,
+        "complete_data": "3800",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 129 (mine=129 base=129)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 129 (mine=129 base=129)"
+        }
+      }
+    },
+    {
+      "unit": "src/scene/calendar/iplDate",
+      "instruction_exact_before": 19,
+      "instruction_exact_after": 19,
+      "target_functions": 19,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "2868",
+        "matched_code": "2868",
+        "matched_code_percent": 100.0,
+        "total_data": "356",
+        "matched_data": "356",
+        "matched_data_percent": 100.0,
+        "total_functions": 19,
+        "matched_functions": 19,
+        "matched_functions_percent": 100.0,
+        "complete_code": "2868",
+        "complete_code_percent": 100.0,
+        "complete_data": "356",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "2868",
+        "matched_code": "2868",
+        "matched_code_percent": 100.0,
+        "total_data": "356",
+        "matched_data": "356",
+        "matched_data_percent": 100.0,
+        "total_functions": 19,
+        "matched_functions": 19,
+        "matched_functions_percent": 100.0,
+        "complete_code": "2868",
+        "complete_code_percent": 100.0,
+        "complete_data": "356",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 4 (mine=4 base=4)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 4 (mine=4 base=4)"
+        }
+      }
+    },
+    {
+      "unit": "src/scene/channelEdit/iplChanAppEdit",
+      "instruction_exact_before": 31,
+      "instruction_exact_after": 31,
+      "target_functions": 31,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "6696",
+        "matched_code": "6696",
+        "matched_code_percent": 100.0,
+        "total_data": "1392",
+        "matched_data": "1392",
+        "matched_data_percent": 100.0,
+        "total_functions": 31,
+        "matched_functions": 31,
+        "matched_functions_percent": 100.0,
+        "complete_code": "6696",
+        "complete_code_percent": 100.0,
+        "complete_data": "1392",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "6696",
+        "matched_code": "6696",
+        "matched_code_percent": 100.0,
+        "total_data": "1392",
+        "matched_data": "1392",
+        "matched_data_percent": 100.0,
+        "total_functions": 31,
+        "matched_functions": 31,
+        "matched_functions_percent": 100.0,
+        "complete_code": "6696",
+        "complete_code_percent": 100.0,
+        "complete_data": "1392",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 49 (mine=49 base=49)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 49 (mine=49 base=49)"
+        }
+      }
+    },
+    {
+      "unit": "src/keyboard/tiCellPhone",
+      "instruction_exact_before": 86,
+      "instruction_exact_after": 86,
+      "target_functions": 86,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "19028",
+        "matched_code": "19028",
+        "matched_code_percent": 100.0,
+        "total_data": "3860",
+        "matched_data": "3860",
+        "matched_data_percent": 100.0,
+        "total_functions": 86,
+        "matched_functions": 86,
+        "matched_functions_percent": 100.0,
+        "complete_code": "19028",
+        "complete_code_percent": 100.0,
+        "complete_data": "3860",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "19028",
+        "matched_code": "19028",
+        "matched_code_percent": 100.0,
+        "total_data": "3860",
+        "matched_data": "3860",
+        "matched_data_percent": 100.0,
+        "total_functions": 86,
+        "matched_functions": 86,
+        "matched_functions_percent": 100.0,
+        "complete_code": "19028",
+        "complete_code_percent": 100.0,
+        "complete_data": "3860",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 76 (mine=76 base=76)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 76 (mine=76 base=76)"
+        }
+      }
+    },
+    {
+      "unit": "libs/RevoEX/src/cdb/CDBFileSystemSD",
+      "instruction_exact_before": 15,
+      "instruction_exact_after": 15,
+      "target_functions": 15,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "2072",
+        "matched_code": "2072",
+        "matched_code_percent": 100.0,
+        "total_data": "616",
+        "matched_data": "616",
+        "matched_data_percent": 100.0,
+        "total_functions": 15,
+        "matched_functions": 15,
+        "matched_functions_percent": 100.0,
+        "complete_code": "2072",
+        "complete_code_percent": 100.0,
+        "complete_data": "616",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "2072",
+        "matched_code": "2072",
+        "matched_code_percent": 100.0,
+        "total_data": "616",
+        "matched_data": "616",
+        "matched_data_percent": 100.0,
+        "total_functions": 15,
+        "matched_functions": 15,
+        "matched_functions_percent": 100.0,
+        "complete_code": "2072",
+        "complete_code_percent": 100.0,
+        "complete_data": "616",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 13 (mine=13 base=13)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 13 (mine=13 base=13)"
+        }
+      }
+    },
+    {
+      "unit": "libs/RevoEX/src/nhttp/d_nhttp",
+      "instruction_exact_before": 22,
+      "instruction_exact_after": 22,
+      "target_functions": 22,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "3180",
+        "matched_code": "3180",
+        "matched_code_percent": 100.0,
+        "total_data": "720",
+        "matched_data": "720",
+        "matched_data_percent": 100.0,
+        "total_functions": 22,
+        "matched_functions": 22,
+        "matched_functions_percent": 100.0,
+        "complete_code": "3180",
+        "complete_code_percent": 100.0,
+        "complete_data": "720",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "3180",
+        "matched_code": "3180",
+        "matched_code_percent": 100.0,
+        "total_data": "720",
+        "matched_data": "720",
+        "matched_data_percent": 100.0,
+        "total_functions": 22,
+        "matched_functions": 22,
+        "matched_functions_percent": 100.0,
+        "complete_code": "3180",
+        "complete_code_percent": 100.0,
+        "complete_data": "720",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 17 (mine=17 base=17)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 17 (mine=17 base=17)"
+        }
+      }
+    },
+    {
+      "unit": "libs/RevoEX/src/nwc24/NWC24MBoxCtrl",
+      "instruction_exact_before": 25,
+      "instruction_exact_after": 25,
+      "target_functions": 25,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "10604",
+        "matched_code": "10604",
+        "matched_code_percent": 100.0,
+        "total_data": "192",
+        "matched_data": "192",
+        "matched_data_percent": 100.0,
+        "total_functions": 25,
+        "matched_functions": 25,
+        "matched_functions_percent": 100.0,
+        "complete_code": "10604",
+        "complete_code_percent": 100.0,
+        "complete_data": "192",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "10604",
+        "matched_code": "10604",
+        "matched_code_percent": 100.0,
+        "total_data": "192",
+        "matched_data": "192",
+        "matched_data_percent": 100.0,
+        "total_functions": 25,
+        "matched_functions": 25,
+        "matched_functions_percent": 100.0,
+        "complete_code": "10604",
+        "complete_code_percent": 100.0,
+        "complete_data": "192",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 8 (mine=8 base=8)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 8 (mine=8 base=8)"
+        }
+      }
+    },
+    {
+      "unit": "libs/RevoEX/src/vf/fatfs/pf_path",
+      "instruction_exact_before": 24,
+      "instruction_exact_after": 24,
+      "target_functions": 24,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "10636",
+        "matched_code": "10636",
+        "matched_code_percent": 100.0,
+        "total_data": "64",
+        "matched_data": "64",
+        "matched_data_percent": 100.0,
+        "total_functions": 24,
+        "matched_functions": 24,
+        "matched_functions_percent": 100.0,
+        "complete_code": "10636",
+        "complete_code_percent": 100.0,
+        "complete_data": "64",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "10636",
+        "matched_code": "10636",
+        "matched_code_percent": 100.0,
+        "total_data": "64",
+        "matched_data": "64",
+        "matched_data_percent": 100.0,
+        "total_functions": 24,
+        "matched_functions": 24,
+        "matched_functions_percent": 100.0,
+        "complete_code": "10636",
+        "complete_code_percent": 100.0,
+        "complete_data": "64",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 0 (mine=0 base=0)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 0 (mine=0 base=0)"
+        }
+      }
+    },
+    {
+      "unit": "libs/RVL_SDK/src/os/OSPlayRecord",
+      "instruction_exact_before": 6,
+      "instruction_exact_after": 6,
+      "target_functions": 6,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "2288",
+        "matched_code": "2288",
+        "matched_code_percent": 100.0,
+        "total_data": "624",
+        "matched_data": "624",
+        "matched_data_percent": 100.0,
+        "total_functions": 6,
+        "matched_functions": 6,
+        "matched_functions_percent": 100.0,
+        "complete_code": "2288",
+        "complete_code_percent": 100.0,
+        "complete_data": "624",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "2288",
+        "matched_code": "2288",
+        "matched_code_percent": 100.0,
+        "total_data": "624",
+        "matched_data": "624",
+        "matched_data_percent": 100.0,
+        "total_functions": 6,
+        "matched_functions": 6,
+        "matched_functions_percent": 100.0,
+        "complete_code": "2288",
+        "complete_code_percent": 100.0,
+        "complete_data": "624",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 1 (mine=1 base=1)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 1 (mine=1 base=1)"
+        }
+      }
+    },
+    {
+      "unit": "libs/RVL_SDK/src/dvd/dvdfs",
+      "instruction_exact_before": 15,
+      "instruction_exact_after": 15,
+      "target_functions": 15,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "3488",
+        "matched_code": "3488",
+        "matched_code_percent": 100.0,
+        "total_data": "472",
+        "matched_data": "472",
+        "matched_data_percent": 100.0,
+        "total_functions": 15,
+        "matched_functions": 15,
+        "matched_functions_percent": 100.0,
+        "complete_code": "3488",
+        "complete_code_percent": 100.0,
+        "complete_data": "472",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "3488",
+        "matched_code": "3488",
+        "matched_code_percent": 100.0,
+        "total_data": "472",
+        "matched_data": "472",
+        "matched_data_percent": 100.0,
+        "total_functions": 15,
+        "matched_functions": 15,
+        "matched_functions_percent": 100.0,
+        "complete_code": "3488",
+        "complete_code_percent": 100.0,
+        "complete_data": "472",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 5 (mine=5 base=5)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 5 (mine=5 base=5)"
+        }
+      }
+    },
+    {
+      "unit": "libs/RVL_SDK/src/dvd/dvd",
+      "instruction_exact_before": 65,
+      "instruction_exact_after": 65,
+      "target_functions": 65,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "21692",
+        "matched_code": "21692",
+        "matched_code_percent": 100.0,
+        "total_data": "20688",
+        "matched_data": "20688",
+        "matched_data_percent": 100.0,
+        "total_functions": 65,
+        "matched_functions": 65,
+        "matched_functions_percent": 100.0,
+        "complete_code": "21692",
+        "complete_code_percent": 100.0,
+        "complete_data": "20688",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "21692",
+        "matched_code": "21692",
+        "matched_code_percent": 100.0,
+        "total_data": "20688",
+        "matched_data": "20688",
+        "matched_data_percent": 100.0,
+        "total_functions": 65,
+        "matched_functions": 65,
+        "matched_functions_percent": 100.0,
+        "complete_code": "21692",
+        "complete_code_percent": 100.0,
+        "complete_data": "20688",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 1 (mine=1 base=1)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 1 (mine=1 base=1)"
+        }
+      }
+    },
+    {
+      "unit": "libs/RVL_SDK/src/wud/WUD",
+      "instruction_exact_before": 66,
+      "instruction_exact_after": 66,
+      "target_functions": 66,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "18852",
+        "matched_code": "18852",
+        "matched_code_percent": 100.0,
+        "total_data": "12016",
+        "matched_data": "12016",
+        "matched_data_percent": 100.0,
+        "total_functions": 66,
+        "matched_functions": 66,
+        "matched_functions_percent": 100.0,
+        "complete_code": "18852",
+        "complete_code_percent": 100.0,
+        "complete_data": "12016",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "18852",
+        "matched_code": "18852",
+        "matched_code_percent": 100.0,
+        "total_data": "12016",
+        "matched_data": "12016",
+        "matched_data_percent": 100.0,
+        "total_functions": 66,
+        "matched_functions": 66,
+        "matched_functions_percent": 100.0,
+        "complete_code": "18852",
+        "complete_code_percent": 100.0,
+        "complete_data": "12016",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 107 (mine=107 base=107)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 107 (mine=107 base=107)"
+        }
+      }
+    },
+    {
+      "unit": "libs/MSL/src/MSL_Common/strtold",
+      "instruction_exact_before": 2,
+      "instruction_exact_after": 2,
+      "target_functions": 2,
+      "measures_before": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "5284",
+        "matched_code": "5284",
+        "matched_code_percent": 100.0,
+        "total_data": "112",
+        "matched_data": "112",
+        "matched_data_percent": 100.0,
+        "total_functions": 2,
+        "matched_functions": 2,
+        "matched_functions_percent": 100.0,
+        "complete_code": "5284",
+        "complete_code_percent": 100.0,
+        "complete_data": "112",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "measures_after": {
+        "fuzzy_match_percent": 100.0,
+        "total_code": "5284",
+        "matched_code": "5284",
+        "matched_code_percent": 100.0,
+        "total_data": "112",
+        "matched_data": "112",
+        "matched_data_percent": 100.0,
+        "total_functions": 2,
+        "matched_functions": 2,
+        "matched_functions_percent": 100.0,
+        "complete_code": "5284",
+        "complete_code_percent": 100.0,
+        "complete_data": "112",
+        "complete_data_percent": 100.0,
+        "total_units": 1,
+        "complete_units": 1
+      },
+      "pools": {
+        "target": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 0 (mine=0 base=0)"
+        },
+        "baseline": {
+          "exit": 0,
+          "output": "POOL IDENTICAL up to 0 (mine=0 base=0)"
+        }
+      }
+    }
+  ],
+  "global_measures_before": {
+    "fuzzy_match_percent": 99.820076,
+    "total_code": "2995176",
+    "matched_code": "2824760",
+    "matched_code_percent": 94.31032,
+    "total_data": "1832684",
+    "matched_data": "1832576",
+    "matched_data_percent": 99.9941,
+    "total_functions": 12563,
+    "matched_functions": 12485,
+    "matched_functions_percent": 99.37913,
+    "complete_code": "2423872",
+    "complete_code_percent": 80.925865,
+    "complete_data": "1565868",
+    "complete_data_percent": 85.441246,
+    "total_units": 1027,
+    "complete_units": 988
+  },
+  "global_measures_after": {
+    "fuzzy_match_percent": 99.820076,
+    "total_code": "2995176",
+    "matched_code": "2824760",
+    "matched_code_percent": 94.31032,
+    "total_data": "1832684",
+    "matched_data": "1832576",
+    "matched_data_percent": 99.9941,
+    "total_functions": 12563,
+    "matched_functions": 12485,
+    "matched_functions_percent": 99.37913,
+    "complete_code": "2423872",
+    "complete_code_percent": 80.925865,
+    "complete_data": "1565868",
+    "complete_data_percent": 85.441246,
+    "total_units": 1027,
+    "complete_units": 988
+  },
+  "candidates": [
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RevoEX/src/nwc24/NWC24MBoxCtrl.c",
+      "report_field_changes": 0,
+      "trial": "mbox-carrier-reversed"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RVL_SDK/src/dvd/dvdfs.c",
+      "report_field_changes": 0,
+      "trial": "casts-15"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RevoEX/src/vf/fatfs/pf_path.c",
+      "report_field_changes": 0,
+      "trial": "casts-43-single-1"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RevoEX/src/vf/fatfs/pf_path.c",
+      "report_field_changes": 0,
+      "trial": "casts-43-single-2"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/MSL/src/MSL_Common/strtold.c",
+      "report_field_changes": 0,
+      "trial": "duplicate-0"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RVL_SDK/src/dvd/dvd.c",
+      "report_field_changes": 0,
+      "trial": "duplicate-15"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RVL_SDK/src/dvd/dvd.c",
+      "report_field_changes": 0,
+      "trial": "duplicate-16"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RVL_SDK/src/wud/WUD.c",
+      "report_field_changes": 0,
+      "trial": "duplicate-28"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "src/system/iplNwc24Manager.cpp",
+      "report_field_changes": 0,
+      "trial": "nwc24-volatile"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "src/scene/calendar/iplDate.cpp",
+      "report_field_changes": 0,
+      "trial": "date-data-padding"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "src/scene/channelEdit/iplChanAppEdit.cpp",
+      "report_field_changes": 0,
+      "trial": "chanedit-fake-constructor"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "src/keyboard/tiCellPhone.cpp",
+      "report_field_changes": 0,
+      "trial": "numeric-key-indexed"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RevoEX/src/nhttp/d_nhttp.c",
+      "report_field_changes": 0,
+      "trial": "nhttp-unused-once"
+    },
+    {
+      "decision": "rejected",
+      "dol_sha1": "03a070db1c6ed8bbe21f9470a1c3ef24d02369ad",
+      "file": "libs/EGG/src/core/eggAudioExpMgr.cpp",
+      "report_field_changes": 0,
+      "trial": "egg-thunk-carrier"
+    },
+    {
+      "decision": "rejected",
+      "dol_sha1": "49db536643b3bae0576a627220ea070ea46b22c1",
+      "file": "libs/RVL_SDK/src/ipc/ipcProfile.c",
+      "report_field_changes": 0,
+      "trial": "force-macros-4"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RVL_SDK/src/os/OSPlayRecord.c",
+      "report_field_changes": 0,
+      "trial": "force-macros-7"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "libs/RevoEX/src/cdb/CDBFileSystemSD.c",
+      "report_field_changes": 0,
+      "trial": "force-macros-15"
+    },
+    {
+      "decision": "rejected",
+      "dol_sha1": "0f4a7c10d477fa4e5e7c50865675e6dad1dad7d6",
+      "file": "src/channelScript/systemmenu/iplCSSavedata.cpp",
+      "report_field_changes": 0,
+      "trial": "force-macros-17"
+    },
+    {
+      "decision": "rejected",
+      "dol_sha1": "76a61f1cc4114f3e22a9ab4a978b2afc1006de66",
+      "file": "src/keyboard/tiDebug.cpp",
+      "report_field_changes": 0,
+      "trial": "force-macros-18"
+    },
+    {
+      "decision": "rejected",
+      "dol_sha1": "8062a2e39778ca6355e6af9d7d25909529ae9c49",
+      "file": "src/keyboard/tiPredictLang.cpp",
+      "report_field_changes": 0,
+      "trial": "force-macros-19"
+    },
+    {
+      "decision": "rejected",
+      "dol_sha1": "110756887fdc0f3b6c0f5173321b146876ba4759",
+      "file": "src/scene/sdButton/iplSDMenuButton.cpp",
+      "report_field_changes": 0,
+      "trial": "force-macros-22"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "src/scene/calendar/iplDate.cpp",
+      "report_field_changes": 0,
+      "trial": "date-unused-local"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "src/system/iplKeyboard.cpp",
+      "report_field_changes": 0,
+      "trial": "placement-4"
+    },
+    {
+      "decision": "kept",
+      "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+      "file": "src/homebutton/HBMBase.cpp",
+      "report_field_changes": 0,
+      "trial": "placement-5"
+    },
+    {
+      "decision": "deferred",
+      "reason": "CHANSVm is owned by rx62; source unchanged; queue only",
+      "trial": "vm-status-width"
+    },
+    {
+      "decision": "covered",
+      "reason": "First cast already removed on main; remaining changes independently passed as casts-43-single-1 and casts-43-single-2; whole redundant assignment removed",
+      "trial": "casts-43"
+    },
+    {
+      "decision": "covered",
+      "reason": "Retention call removed together with padding object by passing date-data-padding trial",
+      "trial": "force-macros-21"
+    }
+  ],
+  "dol_sha1": "26116613f624061ba99c8d1a299aaa6efa85670d",
+  "failures": [],
+  "origin_main_observed_at_handoff": "73139514df62e87ca2b5a23ed735114c270e2f26",
+  "origin_main_new_paths": [
+    "configure.py",
+    "docs/asm-inventory.md",
+    "libs/RVLMiddleware/eZiText/src/clib/zi8uwd.c",
+    "src/system/TVRC.cpp",
+    "tools/decomp-assist/perm4.attempts.md",
+    "tools/decomp-assist/permuter_mwcc.py",
+    "tools/decomp-assist/rx51.attempts.md"
+  ],
+  "origin_main_retained_source_overlap": []
+}

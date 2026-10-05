@@ -597,11 +597,10 @@ static void cbForStateGettingError(u32 intType) {
         if (error == REQUEST_ERROR_053000h) {
             StampCommand(COMMAND_STOP_MOTOR, 0, 0);
             DVDLowStopMotor(FALSE, FALSE, cbForStateCheckID1);
-            return;
         } else {
             stateError(NAND_ERROR_GENERIC);
-            return;
         }
+        return;
     } else {
         stateError(NAND_ERROR_GENERIC);
         return;
@@ -1708,12 +1707,11 @@ static void cbForStateBusy(u32 intType) {
                     NumInternalRetry = 0;
 
                     stateReady();
-                    return;
                 } else {
                     StampCommand(COMMAND_STOP_MOTOR, 0, 0);
                     DVDLowStopMotor(FALSE, FALSE, cbForStateCheckID1);
-                    return;
                 }
+                return;
             }
 
             if (CurrCommand == COMMAND_GET_PARTITION_PARAMS) {

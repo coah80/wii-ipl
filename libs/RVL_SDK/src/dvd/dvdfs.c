@@ -326,7 +326,7 @@ s32 DVDReadPrio(DVDFileInfo* fileInfo, void* addr, s32 length, s32 offset, s32 p
     enabled = OSDisableInterrupts();
 
     while (TRUE) {
-        state = ((DVDCommandBlock*)block)->state;
+        state = block->state;
 
         if (state == DVD_STATE_IDLE) {
             retVal = block->transferredSize;

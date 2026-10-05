@@ -552,8 +552,6 @@ long double __strtold(int max_width, int (*ReadProc)(void*, int, int), void* Rea
         if (sig_negative && success(scan_state)) {
             result = -result;
         }
-
-        return result;
     } else {
         unsigned mantissa_bit, dbl_bit;
         unsigned one_bit;
@@ -630,9 +628,8 @@ long double __strtold(int max_width, int (*ReadProc)(void*, int, int), void* Rea
         }
 
         result = *(long double*)dbl_bits;
-
-        return result;
     }
+    return result;
 }
 
 double strtod(const char* str, char** end) {

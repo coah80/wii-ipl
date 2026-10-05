@@ -169,7 +169,6 @@ static pf_u16 VFiPFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u16 name_kind
         wc = ((pf_u8)pattern[1] << 8) + (pf_u8)pattern[0];
         if (name_kind == 0) {
             VFipf_vol_set.codeset.unicode2oem(&wc, (pf_s8*)&tmp_wc);
-            tmp_wc = (pf_u16)tmp_wc;
             if (VFipf_vol_set.codeset.is_oem_mb_char((pf_u8)(tmp_wc >> 8), 1) != 0) {
                 wc = tmp_wc;
             } else {
@@ -179,7 +178,7 @@ static pf_u16 VFiPFPATH_GetNextCharOfPattern(PF_STR* p_pattern, pf_u16 name_kind
     }
     wc = (wc >= 'a') && (wc <= 'z') ? wc - ' ' : wc;
     if (name_kind == 1) {
-        if (VFiPFPATH_UNI_ConvertFWchar((pf_u16)wc, &twc) == 1) {
+        if (VFiPFPATH_UNI_ConvertFWchar(wc, &twc) == 1) {
             wc = twc;
         }
     } else if (VFiPFPATH_OEM_ConvertFWchar(pattern, &twc) == 1) {

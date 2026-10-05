@@ -28,11 +28,6 @@ namespace ipl {
             {85.f, 48.f},
         };
 
-        // TODO: Figure out what this might've been/why it isn't inlining
-        void CHANAPPEDIT_dummyFunctionToKeepAConstructorStuffFromInlining(nw4r::math::VEC3& vec) {
-            math::VEC3 end(vec);
-        }
-
         ChanAppEdit::ChanAppEdit(EGG::Heap* heap, nand::LayoutFile* layoutFile, const char* layoutDir, const char* layoutFileName)
             : AnmController(heap), ::gui::EventHandler(), mState(STATE_IDLE), mLinearInterp(), mpChanAppBox(NULL), mMsgId(0), mpThumbnail(NULL) {
             mpLayout = new (heap) layout::Object(heap, layoutFile, layoutDir, layoutFileName);
