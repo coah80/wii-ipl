@@ -561,13 +561,14 @@ static s32 WAD_815BFFA8(WADImportLoopArgs* args) {
 
 s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 offset, u32 flags,
                 WADProcessCallback processCallback) {
+    u32 chunkSize;
+    u32 i;
+    u32 transferIdValue;
+    u32 fileBytesRemaining;
+    u32 size;
     s32 result = 0;
-    ESHash* sharedContentHashes = 0;
-    ESContentId* installedContentIds = 0;
-    ESContentMeta* matchingContents = 0;
     u32 importedBytes = 0;
     u32 contentCount;
-    u32 headerReadSize;
     s32 streamOpened = FALSE;
     s32 backupFileOpened = FALSE;
     s32 importExistingTitle = TRUE;
@@ -579,6 +580,9 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
     s32 contentImportStarted = FALSE;
     void* secondBuffer = 0;
     ESTitleMeta* installedTitleMeta = 0;
+    ESContentId* installedContentIds = 0;
+    ESContentMeta* matchingContents = 0;
+    ESHash* sharedContentHashes = 0;
     WADStream stream;
     WADUnpackInfo unpackInfo;
     WADSaveDataHeader wadHeader ALIGN32;
@@ -597,22 +601,16 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
     u32 ticketViewCount;
     WADFileHeader* fileHeaderBuffer;
     u8 transferId[0x20] ALIGN32;
-    u32 contentIndex;
+    u32 j;
     u32 listIndex;
-    u32 sizeRemaining;
-    u32 transferIdValue;
     s32 fileReadResult;
-    u32 bufferIndex;
     u32 installedContentIndex;
     u32 sharedContentIndex;
-    u32 pathFileIndex;
+    ESContentMeta* content;
     s32 matchFound;
     u32 contentSize;
-    u32 chunkSize;
     u32 readSize;
-    u32 bootSize;
     u32 alignedSize;
-    u32 savedataFileIndex;
     s32 importResult;
     u32 threadPriority;
 
@@ -634,8 +632,9 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
     if (result != 0) {
         goto cleanup;
     }
-    headerReadSize = sizeof(wadHeader);
-    if ((s32)WADReadStream(&stream, &wadHeaderBuffer, headerReadSize, offset) != (s32)headerReadSize) {
+    size = sizeof(wadHeader);
+    result = WADReadStream(&stream, &wadHeaderBuffer, size, offset);
+    if (result != (s32)size) {
         result = -3005;
         goto cleanup;
     }
@@ -665,16 +664,17 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
     }
     if (((titleMeta != 0) && (titleMeta->head.titleId == 0x0000000100000001ULL)) ||
         (unpackInfo.headerInfo == 3)) {
-        bootSize = ((u32)titleMeta->contents[0].size + 0x0F) & ~0x0F;
-        alignedSize = (bootSize + 0x1F) & ~0x1F;
+        size = ((u32)titleMeta->contents[0].size + 0x0F) & ~0x0F;
+        alignedSize = (size + 0x1F) & ~0x1F;
         firstBuffer = _WADMemAlloc(allocator, alignedSize);
         if (firstBuffer == 0) {
             result = -3003;
             goto cleanup;
         }
         readBuffer = firstBuffer;
-        if ((u32)WADReadStream(&stream, &readBuffer, (bootSize + 0x1F) & ~0x1F,
-                                offset + importedBytes) != ((bootSize + 0x1F) & ~0x1F)) {
+        result = WADReadStream(&stream, &readBuffer, (size + 0x1F) & ~0x1F,
+                                offset + importedBytes);
+        if ((u32)result != ((size + 0x1F) & ~0x1F)) {
             result = -3005;
             goto cleanup;
         }
@@ -688,7 +688,7 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                                unpackInfo.size_0x0c,
                                unpackInfo.buffer_0x24,
                                unpackInfo.size_0x1c, readBuffer,
-                               bootSize);
+                               size);
         goto cleanup;
     }
     if (unpackInfo.buffer_0x34 != 0) {
@@ -750,13 +750,13 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                 result = -3003;
                 goto cleanup;
             }
-            for (listIndex = 0; listIndex < installedContentCount; listIndex++) {
-                for (contentIndex = 0;
-                     contentIndex < installedTitleMeta->head.numContents; contentIndex++) {
-                    if (installedContentIds[listIndex] ==
-                        installedTitleMeta->contents[contentIndex].cid) {
+            for (i = 0; i < installedContentCount; i++) {
+                for (j = 0;
+                     j < installedTitleMeta->head.numContents; j++) {
+                    if (installedContentIds[i] ==
+                        installedTitleMeta->contents[j].cid) {
                         memcpy(&matchingContents[installedContentIndex],
-                               &installedTitleMeta->contents[contentIndex], sizeof(ESContentMeta));
+                               &installedTitleMeta->contents[j], sizeof(ESContentMeta));
                         installedContentIndex++;
                     }
                 }
@@ -788,12 +788,11 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
         }
         titleImportStarted = TRUE;
         if ((flags & 2) == 0) {
-            for (contentIndex = 0; contentIndex < contentCount; contentIndex++) {
-                ESContentMeta* content;
+            for (i = 0; i < contentCount; i++) {
                 s32 titleMetaIndex;
                 matchFound = FALSE;
                 if (unpackInfo.cidxMode >= 1) {
-                    titleMetaIndex = _WADGetCidx(unpackInfo.contentIndex, contentIndex);
+                    titleMetaIndex = _WADGetCidx(unpackInfo.contentIndex, i);
                     if ((titleMetaIndex < 0) ||
                         (titleMetaIndex >= (s32)titleMeta->head.numContents)) {
                         result = -3001;
@@ -802,7 +801,7 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                     result = 0;
                     content = &titleMeta->contents[titleMetaIndex];
                 } else {
-                    content = &titleMeta->contents[contentIndex];
+                    content = &titleMeta->contents[i];
                 }
                 if (!importExistingTitle) {
                     for (listIndex = 0; listIndex < installedContentCount; listIndex++) {
@@ -858,11 +857,11 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                     }
                     result = 0;
                     contentImportStarted = TRUE;
-                    sizeRemaining = ((u32)content->size + 0x0F) & ~0x0F;
+                    size = ((u32)content->size + 0x0F) & ~0x0F;
                     WAD_815C4A2C(&transfer, firstBuffer, secondBuffer, 0x10000);
                     threadArgs.fd = contentFd;
                     threadArgs.transfer = &transfer;
-                    threadArgs.size = sizeRemaining;
+                    threadArgs.size = size;
                     threadPriority = OSGetThreadPriority(OSGetCurrentThread());
                     importResult = OSCreateThread(&importThread,
                                                   (void* (*)(void*))WAD_815BFFA8,
@@ -875,46 +874,46 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                         goto cleanup;
                     }
                     OSResumeThread(&importThread);
-                    bufferIndex = 0;
-                    while ((sizeRemaining != 0) && (transfer.error == 0)) {
-                        if (sizeRemaining > transfer.chunkSize) {
+                    j = 0;
+                    while ((size != 0) && (transfer.error == 0)) {
+                        if (size > transfer.chunkSize) {
                             chunkSize = transfer.chunkSize;
                         } else {
-                            chunkSize = sizeRemaining;
+                            chunkSize = size;
                         }
-                        OSLockMutex(&transfer.mutex[bufferIndex]);
-                        while ((transfer.ready[bufferIndex] != 0) &&
+                        OSLockMutex(&transfer.mutex[j]);
+                        while ((transfer.ready[j] != 0) &&
                                (transfer.error == 0)) {
-                            OSWaitCond(&transfer.waitCond[bufferIndex],
-                                       &transfer.mutex[bufferIndex]);
+                            OSWaitCond(&transfer.waitCond[j],
+                                       &transfer.mutex[j]);
                         }
                         if (transfer.error != 0) {
-                            OSUnlockMutex(&transfer.mutex[bufferIndex]);
+                            OSUnlockMutex(&transfer.mutex[j]);
                             break;
                         }
-                        readBuffer = transfer.buffers[bufferIndex];
+                        readBuffer = transfer.buffers[j];
                         result = WADReadStream(&stream,
                                                &readBuffer, (chunkSize + 0x1F) & ~0x1F,
                                                offset + importedBytes);
                         if ((u32)result != ((chunkSize + 0x1F) & ~0x1F)) {
-                            OSLockMutex(&transfer.mutex[bufferIndex ^ 1]);
+                            OSLockMutex(&transfer.mutex[j ^ 1]);
                             OSCancelThread(&importThread);
                             OSJoinThread(&importThread, 0);
-                            OSUnlockMutex(&transfer.mutex[bufferIndex ^ 1]);
-                            OSUnlockMutex(&transfer.mutex[bufferIndex]);
+                            OSUnlockMutex(&transfer.mutex[j ^ 1]);
+                            OSUnlockMutex(&transfer.mutex[j]);
                             result = -3005;
                             goto cleanup;
                         }
-                        transfer.ready[bufferIndex] = chunkSize;
-                        OSUnlockMutex(&transfer.mutex[bufferIndex]);
-                        OSSignalCond(&transfer.signalCond[bufferIndex]);
+                        transfer.ready[j] = chunkSize;
+                        OSUnlockMutex(&transfer.mutex[j]);
+                        OSSignalCond(&transfer.signalCond[j]);
                         importedBytes += chunkSize;
-                        sizeRemaining -= chunkSize;
+                        size -= chunkSize;
                         if (processCallback != 0) {
                             processCallback(importedBytes - unpackInfo.contentOffset,
                                             unpackInfo.contentSize + unpackInfo.fileListSize, FALSE);
                         }
-                        bufferIndex ^= 1;
+                        j ^= 1;
                     }
                     if (!OSJoinThread(&importThread, (void**)&result)) {
                         return -3009;
@@ -966,14 +965,21 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
     }
     transferIdValue = _WADGetTransferId(transferId);
     importedBytes = unpackInfo.fileOffset;
-    if (((((u64)((WADSaveDataHeader*)wadHeaderBuffer)->fileSize << 32) |
-          ((WADSaveDataHeader*)wadHeaderBuffer)->magic) & 0xFFFFFFFFFFFFFF00ULL) ==
-        0x00010000525A4400ULL) {
-        result = _WADVerifySavedataZD(wadHeaderBuffer, &stream, allocator,
-                                      offset + unpackInfo.fileOffset);
-        goto cleanup;
+    {
+        u32 headerFileSize;
+        u32 headerMagic;
+        WADSaveDataHeader* savedataHeader;
+        savedataHeader = wadHeaderBuffer;
+        headerFileSize = savedataHeader->fileSize;
+        headerMagic = savedataHeader->magic;
+        if (((((u64)headerFileSize << 32) | headerMagic) & 0xFFFFFFFFFFFFFF00ULL) ==
+            0x00010000525A4400ULL) {
+            result = _WADVerifySavedataZD(savedataHeader, &stream, allocator,
+                                          offset + unpackInfo.fileOffset);
+            goto cleanup;
+        }
     }
-    for (pathFileIndex = 0; pathFileIndex < unpackInfo.fileCount; pathFileIndex++) {
+    for (i = 0; i < unpackInfo.fileCount; i++) {
         fileHeaderBuffer = &backupHeader;
         result = WADReadStream(&stream, (void**)&fileHeaderBuffer, sizeof(backupHeader),
                                offset + importedBytes);
@@ -991,8 +997,8 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
         if (_WADCanImportFile(fileHeaderBuffer, transferIdValue,
                               unpackInfo.fileNames, transferId) == 0) {
             if ((fileHeaderBuffer->flags[2] == 1) && (fileHeaderBuffer->fileSize != 0)) {
-                importedBytes = (importedBytes + fileHeaderBuffer->fileSize + 0x3F) &
-                             ~0x3F;
+                importedBytes += fileHeaderBuffer->fileSize;
+                importedBytes = (importedBytes + 0x3F) & ~0x3F;
             }
             continue;
         }
@@ -1008,12 +1014,12 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                     goto cleanup;
                 }
                 backupFileOpened = TRUE;
-                sizeRemaining = fileHeaderBuffer->fileSize;
-                while (sizeRemaining != 0) {
-                    if (sizeRemaining > 0x10000) {
+                fileBytesRemaining = fileHeaderBuffer->fileSize;
+                while (fileBytesRemaining != 0) {
+                    if (fileBytesRemaining > 0x10000) {
                         chunkSize = 0x10000;
                     } else {
-                        chunkSize = sizeRemaining;
+                        chunkSize = fileBytesRemaining;
                     }
                     readBuffer = firstBuffer;
                     result = WADReadStream(&stream, &readBuffer,
@@ -1037,7 +1043,7 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                     }
                     result = 0;
                     importedBytes += chunkSize;
-                    sizeRemaining -= chunkSize;
+                    fileBytesRemaining -= chunkSize;
                     if (processCallback != 0) {
                         processCallback(unpackInfo.contentSize +
                                             (importedBytes - unpackInfo.fileOffset),
@@ -1092,8 +1098,8 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
         }
     }
     importedBytes = unpackInfo.fileOffset;
-    for (savedataFileIndex = 0; savedataFileIndex < unpackInfo.fileCount;
-         savedataFileIndex++) {
+    for (i = 0; i < unpackInfo.fileCount;
+         i++) {
         fileHeaderBuffer = &backupHeader;
         fileReadResult = WADReadStream(&stream, (void**)&fileHeaderBuffer,
                                        sizeof(backupHeader),
@@ -1118,7 +1124,8 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                 }
             }
         }
-        importedBytes = (importedBytes + fileHeaderBuffer->fileSize + 0x3F) & ~0x3F;
+        importedBytes += fileHeaderBuffer->fileSize;
+        importedBytes = (importedBytes + 0x3F) & ~0x3F;
     }
 
 cleanup:
@@ -1175,32 +1182,40 @@ cleanup:
     return result;
 }
 
+static inline u32 export_chunk_size(u32 remaining, u32 maximum) {
+    u32 size = remaining;
+    if (remaining > maximum) {
+        size = maximum;
+    }
+    return size;
+}
+
 static s32 WAD_815C1288(WADExportLoopArgs* args) {
-    ESFd fd = args->fd;
     u32 size;
-    u32 remaining = args->size;
-    u32 bufferIndex = 0;
-    WADImportTransfer* transfer = args->transfer;
-    s32 result = 0;
+    s32 result;
+    ESFd fd;
+    u32 remaining;
+    WADImportTransfer* transfer;
+    u32 bufferIndex;
+
+    fd = args->fd;
+    result = 0;
+    remaining = args->size;
+    bufferIndex = 0;
+    transfer = args->transfer;
 
     for (; (remaining != 0) && (result == 0); bufferIndex ^= 1) {
-        OSMutex* mutex;
-        size = remaining;
-
-        if (remaining > transfer->chunkSize) {
-            size = transfer->chunkSize;
-        }
-        mutex = &transfer->mutex[bufferIndex];
-        OSLockMutex(mutex);
+        size = export_chunk_size(remaining, transfer->chunkSize);
+        OSLockMutex(&transfer->mutex[bufferIndex]);
         while (transfer->ready[bufferIndex] != 0) {
-            OSWaitCond(&transfer->waitCond[bufferIndex], mutex);
+            OSWaitCond(&transfer->waitCond[bufferIndex], &transfer->mutex[bufferIndex]);
         }
         result = ES_ExportContentData(fd, transfer->buffers[bufferIndex], size);
         transfer->ready[bufferIndex] = size;
         if (result != 0) {
             transfer->error = 1;
         }
-        OSUnlockMutex(mutex);
+        OSUnlockMutex(&transfer->mutex[bufferIndex]);
         OSSignalCond(&transfer->signalCond[bufferIndex]);
         remaining -= size;
     }
