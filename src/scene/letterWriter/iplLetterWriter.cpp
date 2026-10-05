@@ -14,8 +14,9 @@
 
 namespace ipl {
     namespace scene {
-        static inline wchar_t* letterWriterCaption(wchar_t* caption) {
-            return caption;
+        static inline void setLetterHeaderCaption(LetterWriter* writer, const wchar_t* name) {
+            const wchar_t* caption = writer->makeHeaderCaption(name);
+            writer->getLetterInputForm()->setHeaderCaption(caption);
         }
 
         LetterWriter::LetterWriter(EGG::Heap* heap, int type)
@@ -145,8 +146,7 @@ namespace ipl {
                         Address* address = static_cast<Address*>(System::getScene(SCENE_ADDRESS));
                         memcpy(&mFriendInfo, &address->getFriendCache()->getInfo(address->getChosenFriendIndex()), sizeof(NWC24FriendInfo));
 
-                        const wchar_t* caption = letterWriterCaption(makeHeaderCaption((const wchar_t*)mFriendInfo.attr.name));
-                        getLetterInputForm()->setHeaderCaption(caption);
+                        setLetterHeaderCaption(this, (const wchar_t*)mFriendInfo.attr.name);
 
                         mbToFriend = true;
                         mLetterState = LETTER_STATE_NORMAL;

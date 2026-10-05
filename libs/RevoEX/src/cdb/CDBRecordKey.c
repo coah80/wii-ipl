@@ -29,25 +29,23 @@ BOOL CDBRecordKeyIsValid(CDBRecordKey* recordKey) {
 }
 
 void CDBRecordKeyInit(CDBRecordKey* recordKey, CDBDate epoch, int gameCode, u16 makerCode, int serialNumber, char* fileType, int recordLocation) {
-    struct {
-        char mcStr[4];
-        char typeStr[8];
-        char gcStr[8];
-    } strings;
+    char gcStr[CDB_KEYSTR_GAME_CODE_SIZE + 1];
+    char typeStr[6];
+    char mcStr[CDB_KEYSTR_MAKER_CODE_SIZE + 1];
 
     u32 typeLength;
 
-    CDBConvMCValueToMCStr(makerCode, strings.mcStr);
-    CDBConvGCValueToGCStr(gameCode, strings.gcStr);
+    CDBConvMCValueToMCStr(makerCode, mcStr);
+    CDBConvGCValueToGCStr(gameCode, gcStr);
 
     recordKey->wiiId = CDBGetWiiId();
     recordKey->location = recordLocation;
 
     typeLength = strlen(fileType);
-    strcpy(strings.typeStr, fileType);
-    CDBToLower(((char*)strings.typeStr), typeLength);
+    strcpy(typeStr, fileType);
+    CDBToLower(typeStr, typeLength);
 
-    sprintf(recordKey->keyString, "%010u_%s_%s_%03d.%s", epoch, strings.gcStr, strings.mcStr, serialNumber, strings.typeStr);
+    sprintf(recordKey->keyString, "%010u_%s_%s_%03d.%s", epoch, gcStr, mcStr, serialNumber, typeStr);
 }
 
 void CDBRecordKeySetSerialNumber(CDBRecordKey* recordKey, int serialNum) {

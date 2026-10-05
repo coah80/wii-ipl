@@ -48,24 +48,25 @@ NCDErr NCDWriteConfig(const NCDConfig* config) {
     return ExecConfigCommand("NCDWriteConfig", (NCDConfig*)config, 6);
 }
 
+static inline void RegisterUnofficialVersion(void) {
+    BOOL enabled;
+    enabled = OSDisableInterrupts();
+    if (!(ncdInitialized & 2)) {
+        OSRegisterVersion(__NCDUnofficialVersion);
+        ncdInitialized |= 2;
+    }
+    OSRestoreInterrupts(enabled);
+}
+
 NCDErr NCDSetIfConfig(NCDIfConfig* ifConfig) {
-    union {
-        BOOL enabled;
-        NCDConfig* config;
-    } state;
+    NCDConfig* config;
     NCDErr lockErr;
     NCDProfile* profile;
     NCDErr result;
     s32 i;
     u32 count;
 
-    state.enabled = OSDisableInterrupts();
-    if (!(ncdInitialized & 2)) {
-        OSRegisterVersion(__NCDUnofficialVersion);
-        ncdInitialized |= 2;
-    }
-    OSRestoreInterrupts(state.enabled);
-
+    RegisterUnofficialVersion();
 
     if (ifConfig == NULL) {
         return -3;
@@ -79,25 +80,25 @@ NCDErr NCDSetIfConfig(NCDIfConfig* ifConfig) {
     if (lockErr == 0) {
         result = ExecConfigCommand("NCDSetIfConfig", NULL, 3);
         if (result == 0) {
-            state.config = ncdCommonBuffer;
+            config = ncdCommonBuffer;
 
             if (ifConfig->selectedMedia != 1 && ifConfig->selectedMedia != 2) {
-                state.config->selectedMedia = 0;
+                config->selectedMedia = 0;
             } else {
-                state.config->selectedMedia = ifConfig->selectedMedia;
-                profile = state.config->profiles;
+                config->selectedMedia = ifConfig->selectedMedia;
+                profile = config->profiles;
                 i = 0;
-                state.config->linkTimeout = ifConfig->linkTimeout;
+                config->linkTimeout = ifConfig->linkTimeout;
                 count = 0;
                 for (; i < NCD_MAX_PROFILE; i++, profile++) {
-                    if (state.config->profiles[i].flags & 0x80) {
+                    if (config->profiles[i].flags & 0x80) {
                         switch (ifConfig->selectedMedia) {
                         case 1:
-                            state.config->profiles[i].flags &= ~1;
+                            config->profiles[i].flags &= ~1;
                             memcpy(&profile->netif, &ifConfig->netif, 0x15c);
                             break;
                         case 2:
-                            state.config->profiles[i].flags |= 1;
+                            config->profiles[i].flags |= 1;
                             memcpy(&profile->netif, &ifConfig->netif, 4);
                             break;
                         }
@@ -106,22 +107,22 @@ NCDErr NCDSetIfConfig(NCDIfConfig* ifConfig) {
                 }
 
                 if (count == 0) {
-                    state.config->profiles[0].flags |= 0x80;
+                    config->profiles[0].flags |= 0x80;
                     switch (ifConfig->selectedMedia) {
                     case 1:
-                        state.config->profiles[0].flags &= ~1;
-                        memcpy(&state.config->profiles[0].netif.wireless, &ifConfig->netif, 0x15c);
+                        config->profiles[0].flags &= ~1;
+                        memcpy(&config->profiles[0].netif.wireless, &ifConfig->netif, 0x15c);
                         break;
                     case 2:
-                        state.config->profiles[0].flags |= 1;
-                        memcpy(&state.config->profiles[0].netif.wired, &ifConfig->netif, 4);
+                        config->profiles[0].flags |= 1;
+                        memcpy(&config->profiles[0].netif.wired, &ifConfig->netif, 4);
                         break;
                     }
-                    memset(&state.config->profiles[0].adjust, 0, 0xc);
-                    state.config->profiles[0].flags |= 6;
-                    memset(&state.config->profiles[0].ip, 0, 0x14);
-                    state.config->profiles[0].flags &= ~0x10;
-                    memset(&state.config->profiles[0].proxy, 0, 0x79c);
+                    memset(&config->profiles[0].adjust, 0, 0xc);
+                    config->profiles[0].flags |= 6;
+                    memset(&config->profiles[0].ip, 0, 0x14);
+                    config->profiles[0].flags &= ~0x10;
+                    memset(&config->profiles[0].proxy, 0, 0x79c);
                 }
             }
             result = ExecConfigCommand("NCDSetIfConfig", NULL, 4);
