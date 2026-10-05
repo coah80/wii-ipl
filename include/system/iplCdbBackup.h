@@ -65,7 +65,7 @@ namespace ipl {
             STATE_FINISHED,
         };
 
-        bool mbDoneProcess;  // 0x00
+        volatile bool mbDoneProcess;  // 0x00
         int mCDBResult;      // 0x04
 
         int mPrevFreeSize;   // 0x08
