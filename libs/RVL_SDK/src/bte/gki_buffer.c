@@ -599,7 +599,7 @@ void *GKI_dequeue(BUFFER_Q *p_q)
 
 	GKI_enable();
 
-	return (BUFFER_HDR_T *)p_hdr + 1;
+	return p_hdr + 1;
 }
 
 void *GKI_remove_from_queue(BUFFER_Q *p_q, void *p_buf)

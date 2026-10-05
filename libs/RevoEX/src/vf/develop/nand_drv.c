@@ -157,22 +157,22 @@ s32 VFi_NandGetLength(NANDFileInfo* info, u32* length) {
 static u8 _MakePermitForRVL(u8 i_perm) {
     u8 perm = 0;
     if ((i_perm & 1) != 0) {
-        perm |= 0x10;
+        perm |= NAND_PERM_USER_READ;
     }
     if ((i_perm & 2) != 0) {
-        perm |= 0x20;
+        perm |= NAND_PERM_USER_WRITE;
     }
     if ((i_perm & 4) != 0) {
-        perm |= 4;
+        perm |= NAND_PERM_GROUP_READ;
     }
     if ((i_perm & 8) != 0) {
-        perm |= 8;
+        perm |= NAND_PERM_GROUP_WRITE;
     }
     if ((i_perm & 0x10) != 0) {
-        perm |= 1;
+        perm |= NAND_PERM_BOTH_READ;
     }
     if ((i_perm & 0x20) != 0) {
-        perm |= 2;
+        perm |= NAND_PERM_BOTH_WRITE;
     }
     return perm;
 }
@@ -618,7 +618,7 @@ static s32 nanddrv_physical_read(u32 num_blocks, u8* buf, u32 block, u32 bps, u3
         return -20;
     }
     fileInfo_p = drive_p->file_p;
-    if (dCommon_ReadDummyBPB(num_blocks, (u8*)buf, block, p_num_success, p_disk, &err, nanddrv_BuildUpBootSector, nanddrv_BuildUpFSInfoSector) == 0) {
+    if (!dCommon_ReadDummyBPB(num_blocks, buf, block, p_num_success, p_disk, &err, nanddrv_BuildUpBootSector, nanddrv_BuildUpFSInfoSector)) {
         return err;
     }
     size = num_blocks * bps;
@@ -628,7 +628,7 @@ static s32 nanddrv_physical_read(u32 num_blocks, u8* buf, u32 block, u32 bps, u3
         if ((offset + size) > fileSize) {
             return -22;
         }
-        nandError = A32_NANDRead(fileInfo_p, (u8*)buf, size);
+        nandError = A32_NANDRead(fileInfo_p, buf, size);
         if (nandError == size) {
             *p_num_success = num_blocks;
             return 0;
@@ -653,7 +653,7 @@ static s32 nanddrv_physical_write(u32 num_blocks, const u8* buf, u32 block, u32 
         return -20;
     }
     fileInfo_p = drive_p->file_p;
-    if (dCommon_WriteDummyBPB(num_blocks, block, p_num_success, p_disk, &err) == 0) {
+    if (!dCommon_WriteDummyBPB(num_blocks, block, p_num_success, p_disk, &err)) {
         return err;
     }
     size = num_blocks * bps;

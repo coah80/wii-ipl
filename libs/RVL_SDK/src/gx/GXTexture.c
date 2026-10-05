@@ -23,7 +23,7 @@ static u8 GX2HWFiltConv[6] = {0x00, 0x04, 0x01, 0x05, 0x02, 0x06};
 static void __GXGetTexTileShift(GXTexFmt fmt, u32* rowTileS, u32* colTileS) {
     switch (fmt) {
         case GX_TF_I4:
-        case 0x8:
+        case GX_TF_C4:
         case GX_TF_CMPR:
         case GX_CTF_R4:
         case GX_CTF_Z4: {
@@ -33,7 +33,7 @@ static void __GXGetTexTileShift(GXTexFmt fmt, u32* rowTileS, u32* colTileS) {
         }
         case GX_TF_I8:
         case GX_TF_IA4:
-        case 0x9:
+        case GX_TF_C8:
         case GX_TF_Z8:
         case GX_CTF_RA4:
         case GX_TF_A8:
@@ -50,7 +50,7 @@ static void __GXGetTexTileShift(GXTexFmt fmt, u32* rowTileS, u32* colTileS) {
         case GX_TF_RGB565:
         case GX_TF_RGB5A3:
         case GX_TF_RGBA8:
-        case 0xA:
+        case GX_TF_C14X2:
         case GX_TF_Z16:
         case GX_TF_Z24X8:
         case GX_CTF_RA8:
@@ -141,7 +141,7 @@ void GXInitTexObj(const GXTexObj* obj, void* image_ptr, u16 width, u16 height, G
         u8 lmax;
         t->flags |= 1;
 
-        if (format == 8 || format == 9 || format == 10) {
+        if (format == GX_TF_C4 || format == GX_TF_C8 || format == GX_TF_C14X2) {
             SET_REG_FIELD(t->mode0, 3, 5, 5);
         } else {
             SET_REG_FIELD(t->mode0, 3, 5, 6);
@@ -163,12 +163,12 @@ void GXInitTexObj(const GXTexObj* obj, void* image_ptr, u16 width, u16 height, G
     SET_REG_FIELD(t->image0, 10, 0, width - 1);
     SET_REG_FIELD(t->image0, 10, 10, height - 1);
     SET_REG_FIELD(t->image0, 4, 20, format & 0xF);
-    imageBase = (u32)((u32)image_ptr >> 5) & 0x01FFFFFF;
+    imageBase = ((u32)image_ptr >> 5) & 0x01FFFFFF;
     SET_REG_FIELD(t->image3, 24, 0, imageBase);
 
     switch (format & 0xF) {
         case GX_TF_I4:
-        case 8: {
+        case GX_TF_C4: {
             t->loadFmt = 1;
             rowT = 3;
             colT = 3;
@@ -176,7 +176,7 @@ void GXInitTexObj(const GXTexObj* obj, void* image_ptr, u16 width, u16 height, G
         }
         case GX_TF_I8:
         case GX_TF_IA4:
-        case 9: {
+        case GX_TF_C8: {
             t->loadFmt = 2;
             rowT = 3;
             colT = 2;
@@ -185,7 +185,7 @@ void GXInitTexObj(const GXTexObj* obj, void* image_ptr, u16 width, u16 height, G
         case GX_TF_IA8:
         case GX_TF_RGB565:
         case GX_TF_RGB5A3:
-        case 10: {
+        case GX_TF_C14X2: {
             t->loadFmt = 2;
             rowT = 2;
             colT = 2;
@@ -510,8 +510,8 @@ void __SetSURegs(u32 tmap, u32 tcoord) NO_INLINE {
     SET_REG_FIELD(__GXData->suTs0[tcoord], 16, 0, w);
     SET_REG_FIELD(__GXData->suTs1[tcoord], 16, 0, h);
 
-    s_bias = GET_REG_FIELD(__GXData->tMode0[tmap], 2, 0) == 1;
-    t_bias = GET_REG_FIELD(__GXData->tMode0[tmap], 2, 2) == 1;
+    s_bias = GET_REG_FIELD(__GXData->tMode0[tmap], 2, 0) == GX_REPEAT;
+    t_bias = GET_REG_FIELD(__GXData->tMode0[tmap], 2, 2) == GX_REPEAT;
 
     SET_REG_FIELD(__GXData->suTs0[tcoord], 1, 16, s_bias);
     SET_REG_FIELD(__GXData->suTs1[tcoord], 1, 16, t_bias);
@@ -566,13 +566,13 @@ void __GXSetSUTexRegs() {
         for (i = 0; i < nStages; i++) {
             ptref = &__GXData->tref[i / 2];
             map = __GXData->texmapId[i];
-            tmap = map & 0xFFFFFEFF;
+            tmap = map & ~GX_TEX_DISABLE;
             if (i & 1) {
                 coord = GET_REG_FIELD(*ptref, 3, 15);
             } else {
                 coord = GET_REG_FIELD(*ptref, 3, 3);
             }
-            if ((tmap != 0xFF) && !(__GXData->tcsManEnab & (1 << coord)) && (__GXData->tevTcEnab & (1 << i))) {
+            if ((tmap != GX_TEXMAP_NULL) && !(__GXData->tcsManEnab & (1 << coord)) && (__GXData->tevTcEnab & (1 << i))) {
                 __SetSURegs(tmap, coord);
             }
         }

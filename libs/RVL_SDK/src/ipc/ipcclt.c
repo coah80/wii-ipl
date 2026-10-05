@@ -765,7 +765,7 @@ IOSError IOS_IoctlvReboot(IOSFd fd, s32 cmd, u32 readCount, u32 writeCount, IOSI
 
     if (__relnchFl) {
         OSRestoreInterrupts(inten);
-        ret = -10;
+        ret = IPC_RESULT_NOTREADY;
         goto finish;
     }
 

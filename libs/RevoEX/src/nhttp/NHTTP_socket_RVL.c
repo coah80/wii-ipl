@@ -24,10 +24,10 @@ void* NHTTPi_memclr(void*, u32);
 s32 NHTTPi_SocSSLConnect(NHTTPBgnEndInfo*, void*, NHTTPRequestInfo*, s32);
 
 s32 NHTTPi_SocOpen(NHTTPRequestInfo* request) {
-    s32 socket=__SOCreateSocket(2,1,0);
+    s32 socket=__SOCreateSocket(SO_PF_INET,SO_SOCK_STREAM,0);
     s32 bufferSize=0;
     if(request) bufferSize=request->recvBufferSize;
-    if(socket>=0 && bufferSize!=0) SOSetSockOpt(socket,0xffff,0x1002,&bufferSize,4);
+    if(socket>=0 && bufferSize!=0) SOSetSockOpt(socket,SO_SOL_SOCKET,SO_SO_RCVBUF,&bufferSize,4);
     return socket;
 }
 
@@ -40,7 +40,7 @@ s32 NHTTPi_SocClose(void* mutex, NHTTPRequestInfo* request, s32 socket) {
 
 s32 NHTTPi_SocConnect(NHTTPBgnEndInfo* info, void* mutex, NHTTPRequestInfo* request, s32 socket, u32 address, u32 port) {
     SOSockAddrIn destination;
-    destination.len=8; destination.family=2;
+    destination.len=8; destination.family=SO_PF_INET;
     destination.port=SOHtoNs(port);
     destination.addr.addr=address;
     if(SOConnect(socket,&destination)<0) {
@@ -57,16 +57,16 @@ s32 NHTTPi_SocSSLConnect(NHTTPBgnEndInfo* info, void* mutex, NHTTPRequestInfo* r
     request->sslId=SSLNew(request->verifyOption,request->host);
     if(info->sslInit && request->sslInitParam) info->sslInit(request->sslId,request->sslInitParam);
     if(request->clientCertDefault==1) {
-        if(SSLSetBuiltinClientCert(request->sslId,request->builtinClientCert)!=0) return -1005;
+        if(SSLSetBuiltinClientCert(request->sslId,request->builtinClientCert)!=SSL_RESULT_OK) return -1005;
     } else if(request->clientCertData && request->privateKeyData) {
-        if(SSLSetClientCert(request->sslId,request->clientCertData,request->clientCertSize,request->privateKeyData,request->privateKeySize)!=0) return -1005;
+        if(SSLSetClientCert(request->sslId,request->clientCertData,request->clientCertSize,request->privateKeyData,request->privateKeySize)!=SSL_RESULT_OK) return -1005;
     }
     if(request->rootCAData) {
-        if(SSLSetRootCA(request->sslId,request->rootCAData,request->rootCASize)!=0) return -1004;
+        if(SSLSetRootCA(request->sslId,request->rootCAData,request->rootCASize)!=SSL_RESULT_OK) return -1004;
     } else {
-        if(SSLSetBuiltinRootCA(request->sslId,request->builtinRootCA)!=0) return -1004;
+        if(SSLSetBuiltinRootCA(request->sslId,request->builtinRootCA)!=SSL_RESULT_OK) return -1004;
     }
-    if(SSLConnect(request->sslId,socket)<-1) return -1001;
+    if(SSLConnect(request->sslId,socket)<SSL_RESULT_INVALID) return -1001;
     while(!complete) {
         NHTTPConnectionInfo* connection=NHTTPi_Request2Connection(mutex,request);
         s32 result=SSLDoHandshake(request->sslId);
@@ -76,7 +76,7 @@ s32 NHTTPi_SocSSLConnect(NHTTPBgnEndInfo* info, void* mutex, NHTTPRequestInfo* r
         case -7:
         case -3:
         case -2: break;
-        case 0: complete=TRUE; break;
+        case SSL_RESULT_OK: complete=TRUE; break;
         default: return -1001;
         }
     }
@@ -88,7 +88,7 @@ s32 NHTTPi_SocRecv_sub(NHTTPConnectionInfo* connection, s32 socket, void* data, 
     s32 received=0;
     if(length>0) {
         if(connection->recvBufDataLen==0) {
-            s32 result=SORecv(socket,buffer,32768,flags);
+            s32 result=SORecv(socket,buffer,NHTTP_CONN_RECVBUF_SIZE,flags);
             if(result>0) {
                 connection->recvBufDataLen=result;
                 connection->recvBufOffset=0;
@@ -99,7 +99,7 @@ s32 NHTTPi_SocRecv_sub(NHTTPConnectionInfo* connection, s32 socket, void* data, 
             NHTTPi_memcpy(data,buffer+connection->recvBufOffset,length);
             connection->recvBufDataLen-=length;
             if(connection->recvBufDataLen==0) {
-                NHTTPi_memclr(buffer,32768);
+                NHTTPi_memclr(buffer,NHTTP_CONN_RECVBUF_SIZE);
                 connection->recvBufOffset=0;
             } else connection->recvBufOffset+=length;
             received=length;
@@ -119,7 +119,7 @@ s32 NHTTPi_SocRecv(void* mutex, NHTTPRequestInfo* request, s32 socket, void* dat
     if(result<0) {
         if(request->cancel) return -1002;
         if(request->sslId>0) { if(result==-7 || result==-6) return 0; }
-        else if(result==-56) return 0;
+        else if(result==SO_ENOTCONN) return 0;
         return -1001;
     }
     return result;
@@ -176,7 +176,7 @@ s32 NHTTPi_SocSend(const NHTTPRequestInfo* request, s32 socket, const void* data
     if(result<0) {
         if(request->cancel) return -1002;
         if(request->sslId>0) { if(result==-7 || result==-6) return 0; }
-        else if(result==-56) return 0;
+        else if(result==SO_ENOTCONN) return 0;
         return -1001;
     }
     return result;

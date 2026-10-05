@@ -229,7 +229,7 @@ CDBErr CDBRecordAllocate(CDBRecord* record, int flag) {
     writeFlag = flag & CDB_RECORD_ALLOC_WRITE;
     for (i = 0, offset = 0; i < 5; i++, offset += 0x470) {
         if (CDBRecordInstanceIsUsed(s_recordPool + offset) &&
-            CDBRecordKeyCompare(&record->key, &((CDBRecordFile*)(s_recordPool + offset))->key) == FALSE &&
+            !CDBRecordKeyCompare(&record->key, &((CDBRecordFile*)(s_recordPool + offset))->key) &&
             record->key.location == ((CDBRecordFile*)(s_recordPool + offset))->key.location) {
             if ((((CDBRecordFile*)(s_recordPool + offset))->allocFlag & CDB_RECORD_ALLOC_WRITE) != 0) {
                 CDBReportError("can't open the record as WRITE mode; another record discripter opened the record as WRITE mode\n");

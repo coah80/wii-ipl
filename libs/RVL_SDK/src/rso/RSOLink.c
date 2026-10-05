@@ -508,7 +508,7 @@ RSOHash RSOGetHash(const char* symbolname) {
         h = (h << 4) + *symbolname++;
         g = h & 0xF0000000;
         if (g != 0) {
-            h ^= (u32)g >> 0x18U;
+            h ^= g >> 0x18U;
         }
         h &= ~g;
     }
@@ -552,7 +552,7 @@ BOOL RSOIsImportSymbolResolvedAll(const RSOObjectHeader* rso) {
     int s_max = RSOGetNumImportSymbols(&rso->impHeader);
 
     for (i = 0; i < s_max; i++) {
-        if (RSOIsImportSymbolResolved(rso, i) == 0) {
+        if (!RSOIsImportSymbolResolved(rso, i)) {
             return FALSE;
         }
     }
@@ -885,8 +885,8 @@ static BOOL LinkList(void* i_newRso, void* i_bss, RSOFixedLevel i_fixed_level) {
     }
 
     for (a_target = __RSOObjectInfoList.head; a_target; a_target = a_target->link.next) {
-        RSOLink((RSOObjectHeader*)a_rsoInfo, (RSOObjectHeader*)a_target);
-        RSOLink((RSOObjectHeader*)a_target, (RSOObjectHeader*)a_rsoInfo);
+        RSOLink(a_rsoInfo, (RSOObjectHeader*)a_target);
+        RSOLink((RSOObjectHeader*)a_target, a_rsoInfo);
     }
     ENQUEUE_INFO(&__RSOObjectInfoList, (RSOObjectInfo*)i_newRso, link);
     if (i_fixed_level >= RSO_FL_EXTERNAL) {
@@ -1062,10 +1062,10 @@ int RSOGetFarCodeSize(RSOObjectHeader* i_rsoImp, const RSOObjectHeader* i_rsoExp
     RSOImportTable* impTab = (RSOImportTable*)imp->tableOffset;
 
     for (i = 0; i < s_max; i++, impTab++) {
-        impName = (char*)impTab->strOffset + (u32)imp->stringOffset;
+        impName = (char*)impTab->strOffset + imp->stringOffset;
         if (impName != NULL) {
             addr = RSOFindExportSymbolAddr(i_rsoExp, impName);
-            if (addr && checkNeedFarCode(i_rsoImp, (RSOImportTable*)impTab, i, (u32)addr) != 0) {
+            if (addr && checkNeedFarCode(i_rsoImp, impTab, i, (u32)addr) != 0) {
                 count++;
             }
         }
@@ -1093,7 +1093,7 @@ int RSOLinkFar(RSOObjectHeader* i_rsoImp, const RSOObjectHeader* i_rsoExp, void*
         if (impName != NULL) {
             addr = RSOFindExportSymbolAddr(i_rsoExp, impName);
             if (addr) {
-                ret = cnvFarCode(i_rsoImp, (RSOImportTable*)impTab, i, (u32)addr, (u32*)r_buff);
+                ret = cnvFarCode(i_rsoImp, impTab, i, (u32)addr, r_buff);
                 if (ret == 1) {
                     count++;
                     r_buff += (RSO_FAR_JUMP_SIZE / sizeof(*r_buff));
@@ -1158,7 +1158,7 @@ int RSOLinkJump(RSOObjectHeader* i_rsoImp, const RSOObjectHeader* i_rsoExp, void
             a_idx = FindExportIndex(i_rsoExp, impName);
             if (a_idx >= 0) {
                 addr = RSOGetExportSymbolAddr(i_rsoExp, a_idx);
-                ret = cnvJumpCode(i_rsoImp, (RSOImportTable*)impTab, i, (u32)addr, &a_buff[a_idx * (RSO_FAR_JUMP_SIZE / (int)sizeof(*r_buff))]);
+                ret = cnvJumpCode(i_rsoImp, impTab, i, (u32)addr, &a_buff[a_idx * (RSO_FAR_JUMP_SIZE / (int)sizeof(*r_buff))]);
                 if (ret == 1) {
                     count++;
                     continue;

@@ -354,7 +354,7 @@ NWC24Err NWC24iInitMBox(void) {
     err = NWC24FOpen(&recvFile, path, NWC24_OPEN_NAND_R);
     if (err == NWC24_OK)
         err = NWC24FClose(&recvFile);
-    if (err == -20 || recvResult != 0)
+    if (err == NWC24_ERR_FILE_NOEXISTS || recvResult != 0)
         err = NWC24CreateVF(path, 0x700000);
     if (err != NWC24_OK)
         return err;
@@ -365,7 +365,7 @@ NWC24Err NWC24iInitMBox(void) {
     if (sendStatus == NWC24_OK)
         sendStatus = NWC24FClose(&sendFile);
     err = sendStatus;
-    if (sendStatus == -20 || sendResult != 0)
+    if (sendStatus == NWC24_ERR_FILE_NOEXISTS || sendResult != 0)
         err = NWC24CreateVF(path, 0x200000);
     if (err != NWC24_OK)
         return err;

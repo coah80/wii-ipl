@@ -405,8 +405,9 @@ finish:
         }
     }
 report:
-    if (result == NWC24_ERR_FULL || (result <= -16 && result >= -21) || result == -38 || result == -41 || result == -43 || result == -46)
-        NWC24iSetErrorCode(result - 109300);
+    if (result == NWC24_ERR_FULL || (result <= NWC24_ERR_FILE_OPEN && result >= NWC24_ERR_FILE_OTHER) ||
+        result == NWC24_ERR_NAND_CORRUPT || result == NWC24_ERR_FILE_EXISTS || result == NWC24_ERR_INTERNAL_VF || result == NWC24_ERR_FILE_BROKEN)
+        NWC24iSetErrorCode(NWC24iMakeCode(NWC24_ERRCODE_1093XX, result));
     return result;
 }
 

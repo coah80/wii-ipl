@@ -177,7 +177,7 @@ static void SITransferNext(s32 chan) {
 
         if (packet->chan != SI_CHAN_BAD) {
             if (packet->fire <= __OSGetSystemTime()) {
-                if (__SITransfer(packet->chan, packet->output, packet->outputBytes, packet->input, packet->inputBytes, packet->callback) != 0) {
+                if (__SITransfer(packet->chan, packet->output, packet->outputBytes, packet->input, packet->inputBytes, packet->callback)) {
                     OSCancelAlarm(&Alarm[chan]);
                     packet->chan = SI_CHAN_BAD;
                 }

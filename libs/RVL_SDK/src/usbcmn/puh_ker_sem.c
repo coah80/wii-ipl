@@ -48,7 +48,7 @@ s32 uhf_ker_create_sem(u32 initCount, int flags) {
         return -5;
     }
 
-    if (st_uhs_ker_sem_mng.usedCount == 12) {
+    if (st_uhs_ker_sem_mng.usedCount == MAX_PUH_SEM) {
         uhf_ker_sem_inline_1();
         return -24;
     }
@@ -61,7 +61,7 @@ s32 uhf_ker_create_sem(u32 initCount, int flags) {
             sem = &st_uhf_ker_sem[i];
 
             for (k = (int)(1 - initCount); k > 0; k--) {
-                OSWaitSemaphore((OSSemaphore*)sem);
+                OSWaitSemaphore(sem);
             }
 
             st_uhs_ker_sem_mng.entries[i].sem = sem;

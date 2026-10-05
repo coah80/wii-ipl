@@ -124,7 +124,7 @@ static struct {
 static u32* _HandleIdxToEventFlagAddress(u32 i_handleIdx /* r3 */) {
     static u32 tmp;
 
-    if (i_handleIdx < 0x1AU) {
+    if (i_handleIdx < PF_DRIVE_COUNT) {
         return (u32*)((u8*)l_event + (i_handleIdx << 5));
     }
     return &tmp;
@@ -153,7 +153,7 @@ SDDevIntrCallback _EventCallBack(u32 status /* r25 */, u32* data /* r27 */) {
         (void)0;
     } else {
         handleIdx = _EventFlagAddressToHandleIdx(data);
-        if ((u32)handleIdx < 0x1AU) {
+        if (handleIdx < PF_DRIVE_COUNT) {
             handle_p = VFSysGetHandleP(handleIdx);
             if ((u32)(status & 2) == 2) {
                 *data = 1;
@@ -218,7 +218,7 @@ static s32 _ChkMediaInsertedAndNotifyPrfile(PDM_DISK* p_disk /* r27 */) {
     if ((drive_p == NULL) || (device_p == NULL)) {
         return 0;
     }
-    dev_handle_p = &((VFSys_deviceSD*)device_p)->drive;
+    dev_handle_p = &device_p->drive;
     IOSErr = ISD_GetDeviceStatus(dev_handle_p, &devStatus);
     if (IOSErr != 0) {
         dCommon_setLastDeviceErrorToDisk(p_disk, IOSErr);

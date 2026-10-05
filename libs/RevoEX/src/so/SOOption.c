@@ -105,7 +105,7 @@ int SOGetInterfaceOpt(void* interface, int level, int option, void* value, int* 
     int* returnedLength;
     u8* reply;
     if ((result=SOiPrepareTempRm(NULL,&rm,&temporary))==0) {
-        if(option==0x1001 || option==0x1002) result=-28;
+        if(option==SO_CONFIG_FILTER_INPUT || option==SO_CONFIG_FILTER_OUTPUT) result=-28;
         else {
             size=(OptionLength(length)+127)&~31;
             request=SOiAlloc(12,size);
@@ -146,7 +146,7 @@ int SOSetInterfaceOpt(void* interface, int level, int option, const void* value,
     InterfaceCommand* command;
     u8* reply;
     if ((result=SOiPrepareTempRm(NULL,&rm,&temporary))==0) {
-        if(option==0x1001 || option==0x1002 || length<0) result=-28;
+        if(option==SO_CONFIG_FILTER_INPUT || option==SO_CONFIG_FILTER_OUTPUT || length<0) result=-28;
         else {
             size=(length+95)&~31;
             request=SOiAlloc(12,size);

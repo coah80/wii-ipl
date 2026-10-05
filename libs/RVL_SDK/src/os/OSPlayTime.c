@@ -117,7 +117,7 @@ BOOL __OSWriteExpiredFlag() {
         goto close;
     }
 
-    ret = NANDPrivateOpen("/shared2/expired", &nInfo, 2);
+    ret = NANDPrivateOpen("/shared2/expired", &nInfo, NAND_ACCESS_WRITE);
 
     if (ret != NAND_RESULT_OK) {
         goto close;

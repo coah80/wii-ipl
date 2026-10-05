@@ -128,7 +128,11 @@ static KPADInside inside_kpads[4];
 f32 initial_rotation_matrix[16];
 
 const char* __KPADVersion = "<< RVL_SDK - KPAD \trelease build: Apr 20 2010 11:20:37 (0x4199_60831) >>";
-static u8 dpdModeTable[12] = {0, 1, 3, 2, 0, 4, 1, 5, 0, 7, 1, 8};
+static u8 dpdModeTable[12] = {
+    WPAD_DPD_DISABLE, WPAD_FMT_CORE_BTN_ACC, WPAD_DPD_STANDARD, WPAD_FMT_CORE_BTN_ACC_DPD,
+    WPAD_DPD_DISABLE, WPAD_FMT_FS_BTN_ACC, WPAD_DPD_BASIC, WPAD_FMT_FS_BTN_ACC_DPD,
+    WPAD_DPD_DISABLE, WPAD_FMT_CLASSIC_BTN_ACC, WPAD_DPD_BASIC, WPAD_FMT_CLASSIC_BTN_ACC_DPD,
+};
 
 static f32 idist_org = 1.0f;
 static Vec2 iaccXY_nrm_hori = {0.0f, -1.0f};
@@ -170,17 +174,17 @@ static void* get_ring_buffer_by_kpad1_style(s32 chan, void* buffer, s32 style);
 
 void* KPADGetWPADRingBuffer(s32 chan) {
     static u8 status[0x2A0];
-    return get_ring_buffer_by_kpad1_style(chan, status, 0);
+    return get_ring_buffer_by_kpad1_style(chan, status, WPAD_DEV_CORE);
 }
 
 void* KPADGetWPADFSRingBuffer(s32 chan) {
     static u8 status[0x320];
-    return get_ring_buffer_by_kpad1_style(chan, status, 1);
+    return get_ring_buffer_by_kpad1_style(chan, status, WPAD_DEV_FREESTYLE);
 }
 
 void* KPADGetWPADCLRingBuffer(s32 chan) {
     static u8 status[0x360];
-    return get_ring_buffer_by_kpad1_style(chan, status, 2);
+    return get_ring_buffer_by_kpad1_style(chan, status, WPAD_DEV_CLASSIC);
 }
 
 static void* get_ring_buffer_by_kpad1_style(s32 chan, void* buffer, s32 style) {
@@ -192,13 +196,13 @@ static void* get_ring_buffer_by_kpad1_style(s32 chan, void* buffer, s32 style) {
     s32 size;
     u32 type;
     switch (style) {
-    case 0:
+    case WPAD_DEV_CORE:
         size = 0x2A;
         goto process;
-    case 1:
+    case WPAD_DEV_FREESTYLE:
         size = 0x32;
         goto process;
-    case 2:
+    case WPAD_DEV_CLASSIC:
         size = 0x36;
         goto process;
     default:
@@ -217,25 +221,25 @@ process:
         }
         type = kpad->ringData[index].device;
         switch (type) {
-        case 0:
-        case 0xFB:
-        case 0xFC:
-        case 0xFF:
-            type = 0;
+        case WPAD_DEV_CORE:
+        case WPAD_DEV_FUTURE:
+        case WPAD_DEV_NOT_SUPPORTED:
+        case WPAD_DEV_UNKNOWN:
+            type = WPAD_DEV_CORE;
             break;
-        case 1:
-            type = 1;
+        case WPAD_DEV_FREESTYLE:
+            type = WPAD_DEV_FREESTYLE;
             break;
-        case 2:
-            type = 2;
+        case WPAD_DEV_CLASSIC:
+            type = WPAD_DEV_CLASSIC;
             break;
         default:
-            type = 0xFF;
+            type = WPAD_DEV_UNKNOWN;
             break;
         }
         if (type == style) {
             if (WPADGetStatus() != 3) {
-                kpad->ringData[index].error = 0xFC;
+                kpad->ringData[index].error = WPAD_ERR_INVALID;
             }
             memcpy((u8*)buffer + latest * size, &kpad->ringData[index], size);
         }
@@ -438,7 +442,7 @@ static void calc_button_repeat(KPADInside* kpad, u8 extension, s32 elapsed) {
         u16 extensionThreshold;
         u16 extensionCurrent;
         u32 extensionNext;
-        if (extension == 2) {
+        if (extension == WPAD_DEV_CLASSIC) {
             if (kpad->status.ex_status.cl.trig != 0 || kpad->status.ex_status.cl.release != 0) {
                 kpad->repeatCurrent = 0;
                 kpad->repeatCurrent2 = kpad->repeatDelay;
@@ -594,12 +598,12 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     Vec raw;
     Vec previous;
     switch (status->dataFormat) {
-    case 1:
-    case 2:
-    case 4:
-    case 5:
-    case 7:
-    case 8:
+    case WPAD_FMT_CORE_BTN_ACC:
+    case WPAD_FMT_CORE_BTN_ACC_DPD:
+    case WPAD_FMT_FS_BTN_ACC:
+    case WPAD_FMT_FS_BTN_ACC_DPD:
+    case WPAD_FMT_CLASSIC_BTN_ACC:
+    case WPAD_FMT_CLASSIC_BTN_ACC_DPD:
         break;
     default:
         return;
@@ -618,11 +622,11 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     kpad->status.acc_speed = (f32)sqrt(previous.z * previous.z + (previous.x * previous.x + previous.y * previous.y));
     calc_acc_horizon(kpad);
     calc_acc_vertical(kpad);
-    if (status->error == 0 && status->device == 1) {
-        if (status->dataFormat == 4) {
+    if (status->error == WPAD_ERR_OK && status->device == WPAD_DEV_FREESTYLE) {
+        if (status->dataFormat == WPAD_FMT_FS_BTN_ACC) {
             goto read_extension_acceleration;
         }
-        if (status->dataFormat == 5) {
+        if (status->dataFormat == WPAD_FMT_FS_BTN_ACC_DPD) {
             goto read_extension_acceleration;
         }
     }
@@ -1017,7 +1021,7 @@ static void read_kpad_dpd(KPADInside* kpad, KPADSample* status) {
     DPDObject* source;
     KPADDPDObject* object;
     s8 selected;
-    if (format == 2 || format == 5 || format == 8) {
+    if (format == WPAD_FMT_CORE_BTN_ACC_DPD || format == WPAD_FMT_FS_BTN_ACC_DPD || format == WPAD_FMT_CLASSIC_BTN_ACC_DPD) {
         source = &status->objects[3];
         object = kpad->dpdState.objects + 3;
         for (;;) {
@@ -1255,7 +1259,7 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
         clamp = clamp_stick_circle;
     }
     device = status->device;
-    if (device == 1) {
+    if (device == WPAD_DEV_FREESTYLE) {
         format = status->dataFormat;
         if ((u8)(format + 0xFD) <= 2) {
             if (kpad->extensionResetPending != 0) {
@@ -1271,7 +1275,7 @@ static void read_kpad_stick(KPADInside* kpad, KPADSample* status) {
             return;
         }
     }
-    if (device == 2) {
+    if (device == WPAD_DEV_CLASSIC) {
         format = status->dataFormat;
         if ((u8)(format + 0xFA) > 2) {
             return;
@@ -1343,7 +1347,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
     }
     kpad->samplingInProgress = 1;
     probe = WPADProbe(chan, 0);
-    if (probe == -1 && kpad->dpdCallback != 0 && kpad->dpdCallbackFired != 0 && kpad->dpdCallbackPending == 0) {
+    if (probe == WPAD_ERR_NO_CONTROLLER && kpad->dpdCallback != 0 && kpad->dpdCallbackFired != 0 && kpad->dpdCallbackPending == 0) {
         if (kpad->dpdCallback != 0 && kpad->dpdCallbackPending == 0) {
             kpad->dpdCallbackPending = 1;
             kpad->dpdCallback(chan, 1);
@@ -1413,7 +1417,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
         remainingSamples = available;
         output = statuses + available;
         --output;
-        device = 0xFD;
+        device = WPAD_DEV_NOT_FOUND;
         extensionButtons = 0xFFFF;
         coreButtons = 0xFFFF;
         buttons = 0xFFFF;
@@ -1421,20 +1425,20 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
             output--;
             sample = remainingSamples > 1 ? (KPADSample*)output : &latestSample;
             switch (sample->error) {
-            case 0:
+            case WPAD_ERR_OK:
                 device = sample->device;
-                if (device == 1) {
+                if (device == WPAD_DEV_FREESTYLE) {
                     coreButtons = sample->buttons;
                     extensionButtons = 0;
-                } else if (device == 2) {
+                } else if (device == WPAD_DEV_CLASSIC) {
                     extensionButtons = sample->extension.cl.buttons;
                     coreButtons = 0;
                 } else {
                     extensionButtons = 0;
                     coreButtons = 0;
                 }
-            case -2:
-            case -7:
+            case WPAD_ERR_COMMUNICATION_ERROR:
+            case WPAD_ERR_CORRUPTED:
                 buttons = sample->buttons;
                 break;
             }
@@ -1458,7 +1462,7 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
             kpad->status.hold = heldButtons;
             kpad->status.trig = changed & heldButtons;
             kpad->status.release = changed & previousButtons;
-            if (device == 2) {
+            if (device == WPAD_DEV_CLASSIC) {
                 u16 previousExtensionButtons;
                 previousExtensionButtons = kpad->status.ex_status.cl.hold;
                 extensionButtons = (u16)extensionButtons;
@@ -1481,9 +1485,9 @@ s32 KPADRead(s32 chan, KPADStatus* statuses, u32 count) {
                 }
                 kpad->status.data_format = sample->dataFormat;
                 switch (sample->error) {
-                case 0:
+                case WPAD_ERR_OK:
                     read_kpad_stick(kpad, sample);
-                case -7:
+                case WPAD_ERR_CORRUPTED:
                     read_kpad_acc(kpad, sample);
                     read_kpad_dpd(kpad, sample);
                     break;
@@ -1526,10 +1530,10 @@ void KPADInit(void) {
     do {
         kpad->dpdEnable = 1;
         referenceWidth = 1.0f;
-        kpad->dpdFormat = 0;
+        kpad->dpdFormat = WPAD_DPD_DISABLE;
         referenceHeight = 0.75f;
-        kpad->status.dev_type = 0xFD;
-        kpad->status.data_format = 0;
+        kpad->status.dev_type = WPAD_DEV_NOT_FOUND;
+        kpad->status.data_format = WPAD_FMT_CORE_BTN;
         kpad->referenceDistance = idist_org;
         kpad->accelNormal = iaccXY_nrm_hori;
         kpad->horizonTangent = isec_nrm_hori;
@@ -1587,7 +1591,7 @@ void KPADInit(void) {
             i = 0;
             do {
                 i++;
-                kpad->ringData[i - 1].error = -1;
+                kpad->ringData[i - 1].error = WPAD_ERR_NO_CONTROLLER;
             } while (i < 16);
         }
         chan++;
@@ -1604,7 +1608,7 @@ void KPADInit(void) {
     kpad = &inside_kpads[3];
     do {
         if (WPADGetStatus() == 3) {
-            WPADControlMotor(chan, 0);
+            WPADControlMotor(chan, WPAD_MOTOR_STOP);
         }
         chan--;
         kpad->resetPending = 1;
@@ -1654,7 +1658,7 @@ static void KPADiSamplingCallback(s32 chan) {
             f32 distance;
             f32 x;
             if (kpad->sensorBarPosition != 0) {
-                if (WPADGetSensorBarPosition() == 1) {
+                if (WPADGetSensorBarPosition() == WPAD_SENSOR_BAR_TOP) {
                     sensor = 0.2f;
                 } else {
                     sensor = -0.2f;
@@ -1683,16 +1687,16 @@ static void KPADiSamplingCallback(s32 chan) {
             kpad->sensorHeightPending = 0;
         }
         switch (device) {
-        case 0:
-        case 0xFB:
-        case 0xFC:
-        case 0xFF:
+        case WPAD_DEV_CORE:
+        case WPAD_DEV_FUTURE:
+        case WPAD_DEV_NOT_SUPPORTED:
+        case WPAD_DEV_UNKNOWN:
             tier = 0;
             break;
-        case 1:
+        case WPAD_DEV_FREESTYLE:
             tier = 2;
             break;
-        case 2:
+        case WPAD_DEV_CLASSIC:
             tier = 4;
             break;
         default:
@@ -1701,7 +1705,7 @@ static void KPADiSamplingCallback(s32 chan) {
         if (kpad->dpdEnable != 0) {
             tier++;
         }
-        enabled = WPADIsDpdEnabled(chan) != 0 ? kpad->dpdFormat : 0;
+        enabled = WPADIsDpdEnabled(chan) ? kpad->dpdFormat : 0;
         tableIndex = tier * 2;
         if (enabled != dpdModeTable[tableIndex]) {
             if (kpad->dpdCallback != 0 && kpad->dpdCallbackFired == 0) {
@@ -1711,7 +1715,7 @@ static void KPADiSamplingCallback(s32 chan) {
             }
             if (kpad->dpdCommandPending == 0) {
                 kpad->dpdCommandPending = 1;
-                if (WPADControlDpd(chan, dpdModeTable[tableIndex], KPADiControlDpdCallback) == 0) {
+                if (WPADControlDpd(chan, dpdModeTable[tableIndex], KPADiControlDpdCallback) == WPAD_ERR_OK) {
                     kpad->dpdFormat = dpdModeTable[tableIndex];
                 }
             }

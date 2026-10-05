@@ -41,7 +41,7 @@ void dCommon_DevideBuff32(void* i_buf, u32 i_size, u32* i_1st_size_p, void* i_2n
         *(void**)i_2nd_pp = (u8*)i_buf + *i_1st_size_p;
         *i_2nd_size_p = i_size - 0x20;
     }
-    *i_3rd_size_p = (u32)align;
+    *i_3rd_size_p = align;
     *(void**)i_3rd_pp = (u8*)i_buf + i_size - align;
 }
 
@@ -269,7 +269,7 @@ static dCommon_DriveInfo* _getDriveInfoP(PDM_DISK* p_disk) {
     u32 handleIdx;
 
     handleIdx = dCommon_getHandleIdxFromDisk(p_disk);
-    if ((u32)handleIdx < PF_DRIVE_COUNT) {
+    if (handleIdx < PF_DRIVE_COUNT) {
         return &l_driveInfo[handleIdx];
     }
     return NULL;

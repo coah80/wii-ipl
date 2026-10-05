@@ -85,7 +85,7 @@ int SOCleanup(void);
 int SOiConcludeTempRm(const char* funcName, int result, int isTempRm);
 
 int SOInit(SOLibraryConfig* config) {
-    int result = 0;
+    int result = SO_SUCCESS;
     int enabled;
     void* ptr;
     OSThread* cur;
@@ -97,25 +97,25 @@ int SOInit(SOLibraryConfig* config) {
         soRegistered = 1;
     }
     if (!((int)soState == 0 || (int)soState < 0 || (int)soState >= 3)) {
-        result = -7;
+        result = SO_EALREADY;
         goto finish;
     }
     if (config == NULL || config->alloc == NULL || config->free == NULL) {
-        result = -28;
+        result = SO_EINVAL;
     } else {
         memset(&soWork, 0, sizeof(soWork));
         soWork.allocFunc = config->alloc;
         work = &soWork;
         work->freeFunc = config->free;
         work->allocCount = 0;
-        work->rmState = -2;
+        work->rmState = SO_INTERNAL_RM_STATE_CLOSED;
         work->rmFd = -1;
         ptr = SOiAlloc(0xB, 0x460);
         soWork.unk10 = (u32)ptr;
         if (ptr == NULL) {
-            result = -49;
+            result = SO_ENOMEM;
         } else {
-            soState = 1;
+            soState = SO_INTERNAL_STATE_READY;
         }
     }
 finish:
@@ -167,24 +167,24 @@ int SOFinish(void) {
 int SOStartup(void) { return SOStartupEx(0x927c0); }
 
 static int SOStartupErr(s32 errNwc24, s32 exErr) {
-  s32 result = -0x1c;
+  s32 result = SO_EINVAL;
   switch (errNwc24) {
-  case 0:
-    result = 0;
+  case NWC24_OK:
+    result = SO_SUCCESS;
     break;
-  case -0x16:
-  case -0xd:
-    result = -0x30;
+  case NWC24_ERR_MUTEX:
+  case NWC24_ERR_NOT_FOUND:
+    result = SO_ENOLINK;
     break;
-  case -0x21:
-  case -2:
+  case NWC24_ERR_CONFIG_NETWORK:
+  case NWC24_ERR_FAILED:
     result = exErr;
     break;
-  case -1:
-    result = -0x80000000;
+  case NWC24_ERR_FATAL:
+    result = SO_EFATAL;
     break;
-  case -0x1d:
-    result = -0x1a;
+  case NWC24_ERR_INPROGRESS:
+    result = SO_EINPROGRESS;
     break;
   }
   return result;
@@ -299,7 +299,7 @@ begin_startup:
         soState = SO_INTERNAL_STATE_ACTIVE;
         soWork.rmState = SO_INTERNAL_RM_STATE_OPENED;
       } else {
-        soState = 1;
+        soState = SO_INTERNAL_STATE_READY;
         if (result != SO_EFATAL)
           soWork.rmState = SO_INTERNAL_RM_STATE_CLOSED;
       }
@@ -326,7 +326,7 @@ begin_startup:
       dhcpTimeOutTicks = 0;
     }
     if (limitTime != 0 && dhcpTimeOutTicks <= 0) {
-      result = -76;
+      result = SO_ETIMEDOUT;
     } else {
       result = SOiWaitForDHCPEx(
           (int)((dhcpTimeOutTicks) / ((__OSBusClock / 4) / 1000)));

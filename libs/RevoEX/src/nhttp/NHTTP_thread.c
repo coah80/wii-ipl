@@ -616,15 +616,15 @@ static void NHTTPi_ThreadReqEnd(NHTTPThreadContext* context)
     NHTTPConnectionInfo* connection = NHTTPi_Request2Connection(mutex, request);
     if (request->cancel)
     {
-        context->error = 8;
+        context->error = NHTTP_ERROR_CANCELED;
         context->keepAlive = FALSE;
     }
     if (!context->keepAlive && info->socket >= 0)
     {
-        if (NHTTPi_SocClose(mutex, request, info->socket) < 0) context->error = 10;
+        if (NHTTPi_SocClose(mutex, request, info->socket) < 0) context->error = NHTTP_ERROR_REVOLUTIONWIFI;
         info->socket = -1;
     }
-    if (context->error == 0) response->isSuccess = TRUE;
+    if (context->error == NHTTP_ERROR_NONE) response->isSuccess = TRUE;
     else
     {
         response->isSuccess = FALSE;
@@ -679,8 +679,8 @@ static BOOL NHTTPi_ThreadHostAddrProc(NHTTPThreadContext* context)
         context->address = NHTTPi_resolveHostname(request, host);
         if (context->address == 0)
         {
-            if (request->proxyEnabled) { context->error = 12; return FALSE; }
-            context->error = 4;
+            if (request->proxyEnabled) { context->error = NHTTP_ERROR_DNS_PROXY; return FALSE; }
+            context->error = NHTTP_ERROR_DNS;
             return FALSE;
         }
     }
@@ -708,13 +708,13 @@ static BOOL NHTTPi_ThreadConnectProc(NHTTPThreadContext* context)
         if (info->socket >= 0 && NHTTPi_SocClose(mutex, request, info->socket) < 0)
         {
             info->socket = -1;
-            context->error = 10;
+            context->error = NHTTP_ERROR_REVOLUTIONWIFI;
             return FALSE;
         }
         info->socket = NHTTPi_SocOpen(request);
         if (info->socket < 0)
         {
-            context->error = 3;
+            context->error = NHTTP_ERROR_SOCKET;
             return FALSE;
         }
         NHTTPi_lockReqList(mutex);
@@ -723,11 +723,11 @@ static BOOL NHTTPi_ThreadConnectProc(NHTTPThreadContext* context)
         if (request->cancel) return FALSE;
         if (NHTTPi_SocConnect(info, mutex, request, info->socket, context->address, context->port) < 0)
         {
-            if (request->proxyEnabled) { context->error = 13; return FALSE; }
+            if (request->proxyEnabled) { context->error = NHTTP_ERROR_CONNECT_PROXY; return FALSE; }
             else
             {
-                if (NHTTPi_GetSSLError(info) != 0) { context->error = 14; return FALSE; }
-                context->error = 5; return FALSE;
+                if (NHTTPi_GetSSLError(info) != 0) { context->error = NHTTP_ERROR_SSL; return FALSE; }
+                context->error = NHTTP_ERROR_CONNECT; return FALSE;
             }
         }
     }
@@ -747,7 +747,7 @@ static s32 NHTTPi_ThreadProxyProc(NHTTPThreadContext* context)
     NHTTPReqInfo* requests = NHTTPi_GetReqInfoP(system);
     void* mutex = NHTTPi_GetMutexInfoP(system);
     NHTTPRequestInfo* request = requests->reqQueue->request;
-    context->error = 10;
+    context->error = NHTTP_ERROR_REVOLUTIONWIFI;
     context->sendLength = 0;
     if (request->secure && request->proxyEnabled)
     {
@@ -760,15 +760,15 @@ static s32 NHTTPi_ThreadProxyProc(NHTTPThreadContext* context)
         {
             if (sslResult == -1004)
             {
-                if (NHTTPi_GetSSLError(info) != 0) context->error = 16;
+                if (NHTTPi_GetSSLError(info) != 0) context->error = NHTTP_ERROR_SSL_ROOTCA;
                 return 1;
             }
             if (sslResult == -1005)
             {
-                if (NHTTPi_GetSSLError(info) != 0) context->error = 17;
+                if (NHTTPi_GetSSLError(info) != 0) context->error = NHTTP_ERROR_SSL_CLIENTCERT;
                 return 1;
             }
-            if (NHTTPi_GetSSLError(info) != 0) context->error = 14;
+            if (NHTTPi_GetSSLError(info) != 0) context->error = NHTTP_ERROR_SSL;
             return 1;
         }
     }
@@ -800,7 +800,7 @@ static s32 NHTTPi_ThreadSendProc(NHTTPThreadContext* context)
     char* buffer = NHTTPi_GetThreadInfoP(system)->commBuf;
     s32 urlLength = NHTTPi_strlen(request->url);
     s32 result = 0;
-    context->error = 10;
+    context->error = NHTTP_ERROR_REVOLUTIONWIFI;
     if (connection != NULL) connection->started = 2;
     context->sendLength = 0;
     switch (request->method)
@@ -865,7 +865,7 @@ static s32 NHTTPi_ThreadSendProc(NHTTPThreadContext* context)
         }
         if (result != 0)
         {
-            if (result == 3) context->error = 3;
+            if (result == 3) context->error = NHTTP_ERROR_SOCKET;
             return result;
         }
     }
@@ -930,19 +930,19 @@ static BOOL NHTTPi_ThreadRecvHeaderProc(NHTTPThreadContext* context)
                     block = NHTTPi_alloc(sizeof(NHTTPi_HDRBUFLIST), 4);
                     response->hdrBufBlock_p = block;
                 }
-                if (block == NULL) { context->error = 1; return FALSE; }
+                if (block == NULL) { context->error = NHTTP_ERROR_ALLOC; return FALSE; }
                 block->next_p = NULL;
             }
             destination = (char*)block->block + index;
             received = NHTTPi_SocRecv(mutex, request, info->socket, destination, 1, 0);
             recent[context->recvLength & 3] = *destination;
         }
-        if (received <= 0) { context->error = 10; return FALSE; }
+        if (received <= 0) { context->error = NHTTP_ERROR_REVOLUTIONWIFI; return FALSE; }
         context->recvLength += received;
         if (NHTTPi_CheckHeaderEnd(recent, context->recvLength)) break;
     }
     response->headerLen = context->recvLength;
-    if (response->headerLen == 0) { context->error = 7; return FALSE; }
+    if (response->headerLen == 0) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
     return TRUE;
 }
 
@@ -956,20 +956,20 @@ static BOOL NHTTPi_ThreadParseHeaderProc(NHTTPThreadContext* context)
     s32 offset;
     char* buffer = thread->commBuf;
     s32 length;
-    if (!NHTTPi_loadFromHdrRecvBuf(response, context->statusLine, 0, 14)) { context->error = 7; return FALSE; }
-    if (NHTTPi_strnicmp(context->statusLine, "HTTP/", 5) != 0) { context->error = 7; return FALSE; }
-    if (context->statusLine[8] != ' ') { context->error = 7; return FALSE; }
+    if (!NHTTPi_loadFromHdrRecvBuf(response, context->statusLine, 0, 14)) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
+    if (NHTTPi_strnicmp(context->statusLine, "HTTP/", 5) != 0) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
+    if (context->statusLine[8] != ' ') { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
     response->httpStatus = NHTTPi_strToInt(context->statusLine + 9, 3);
-    if (response->httpStatus < 0) { context->error = 7; return FALSE; }
-    if (NHTTPi_findNextLineHdrRecvBuf(response, 12, response->headerLen, &lineLength, 0) < 0) { context->error = 7; return FALSE; }
+    if (response->httpStatus < 0) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
+    if (NHTTPi_findNextLineHdrRecvBuf(response, 12, response->headerLen, &lineLength, 0) < 0) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
     context->contentLength = NHTTPi_getHeaderValue(response, "Content-Length", &offset);
-    if (context->contentLength == 0) { context->error = 0; return FALSE; }
-    if (context->contentLength > 0x100) { context->error = 7; return FALSE; }
+    if (context->contentLength == 0) { context->error = NHTTP_ERROR_NONE; return FALSE; }
+    if (context->contentLength > 0x100) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
     if (context->contentLength > 0)
     {
-        if (!NHTTPi_loadFromHdrRecvBuf(response, buffer, offset, context->contentLength)) { context->error = 7; return FALSE; }
+        if (!NHTTPi_loadFromHdrRecvBuf(response, buffer, offset, context->contentLength)) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
         context->contentLength = NHTTPi_strToInt(buffer, context->contentLength);
-        if (context->contentLength < 0) { context->error = 7; return FALSE; }
+        if (context->contentLength < 0) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
         response->contentLength = context->contentLength;
     }
     else response->contentLength = -1;
@@ -979,7 +979,7 @@ static BOOL NHTTPi_ThreadParseHeaderProc(NHTTPThreadContext* context)
         length = NHTTPi_getHeaderValue(response, "Connection", &offset);
         if (length == 0)
         {
-            context->error = 7;
+            context->error = NHTTP_ERROR_HTTPPARSE;
             context->keepAlive = FALSE;
             return FALSE;
         }
@@ -1000,7 +1000,7 @@ static BOOL NHTTPi_ThreadParseHeaderProc(NHTTPThreadContext* context)
         else context->keepAlive = FALSE;
     }
     context->chunked = NHTTPi_getHeaderValue(response, "Transfer-Encoding", &offset);
-    if (context->chunked == 0) { context->error = 7; return FALSE; }
+    if (context->chunked == 0) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
     if (context->chunked > 0x100) context->chunked = FALSE;
     else
     {
@@ -1010,7 +1010,7 @@ static BOOL NHTTPi_ThreadParseHeaderProc(NHTTPThreadContext* context)
         else chunked = FALSE;
         context->chunked = chunked;
     }
-    context->error = 0;
+    context->error = NHTTP_ERROR_NONE;
     response->isHeaderParse = TRUE;
     return TRUE;
 }
@@ -1055,34 +1055,34 @@ static BOOL NHTTPi_ThreadRecvBodyProc(NHTTPThreadContext* context)
         while (context->contentLength > 0)
         {
             s32 received;
-            if (context->error != 6 && !NHTTPi_BufFull(mutex, response))
+            if (context->error != NHTTP_ERROR_BUFFULL && !NHTTPi_BufFull(mutex, response))
             {
-                context->error = 6;
+                context->error = NHTTP_ERROR_BUFFULL;
                 response->recvBuf_p = context->discard;
                 response->recvBufLen = 0x200;
             }
-            if (context->error == 6)
+            if (context->error == NHTTP_ERROR_BUFFULL)
                 received = NHTTPi_RecvBufN(mutex, request, info->socket, 0, context->contentLength, 0);
             else received = NHTTPi_RecvBufN(mutex, request, info->socket, response->bodyLen, context->contentLength, 0);
             if (received < 0) return FALSE;
             if (received == 0) break;
-            if (context->error != 6)
+            if (context->error != NHTTP_ERROR_BUFFULL)
             {
                 response->bodyLen += received;
                 response->totalBodyLen += received;
             }
             context->contentLength -= received;
         }
-        if (context->error != 6)
+        if (context->error != NHTTP_ERROR_BUFFULL)
         {
             if (context->contentLength != 0)
-                context->error = NHTTPi_isRecvBufFull(response, response->bodyLen) ? 6 : 10;
-            else context->error = 0;
+                context->error = NHTTPi_isRecvBufFull(response, response->bodyLen) ? NHTTP_ERROR_BUFFULL : NHTTP_ERROR_REVOLUTIONWIFI;
+            else context->error = NHTTP_ERROR_NONE;
         }
     }
     else
     {
-        context->error = 10;
+        context->error = NHTTP_ERROR_REVOLUTIONWIFI;
         if (context->chunked)
         {
             remaining = -1;
@@ -1118,19 +1118,19 @@ static BOOL NHTTPi_ThreadRecvBodyProc(NHTTPThreadContext* context)
                     }
                     ++context->recvLength;
                 }
-                if (context->recvLength == 0x100) { context->error = 7; return FALSE; }
+                if (context->recvLength == 0x100) { context->error = NHTTP_ERROR_HTTPPARSE; return FALSE; }
                 if (remaining > 0)
                 {
                     NHTTPi_SetVirtualContentLength(connection, remaining);
                     while (remaining > 0)
                     {
-                        if (context->error != 6 && !NHTTPi_BufFull(mutex, response))
+                        if (context->error != NHTTP_ERROR_BUFFULL && !NHTTPi_BufFull(mutex, response))
                         {
-                            context->error = 6;
+                            context->error = NHTTP_ERROR_BUFFULL;
                             response->recvBuf_p = context->discard;
                             response->recvBufLen = 0x200;
                         }
-                        if (context->error == 6)
+                        if (context->error == NHTTP_ERROR_BUFFULL)
                             received = NHTTPi_RecvBufN(mutex, request, info->socket, 0, remaining, 0);
                         else received = NHTTPi_RecvBufN(mutex, request, info->socket, response->bodyLen, remaining, 0);
                         if (received <= 0) return FALSE;
@@ -1143,7 +1143,7 @@ static BOOL NHTTPi_ThreadRecvBodyProc(NHTTPThreadContext* context)
                 else
                 {
                     NHTTPi_RecvChunkLine(mutex, request, info->socket);
-                    context->error = 0;
+                    context->error = NHTTP_ERROR_NONE;
                     break;
                 }
             }
@@ -1155,16 +1155,16 @@ static BOOL NHTTPi_ThreadRecvBodyProc(NHTTPThreadContext* context)
                 s32 received;
                 if (!NHTTPi_BufFull(mutex, response))
                 {
-                    context->error = 6;
+                    context->error = NHTTP_ERROR_BUFFULL;
                     response->recvBuf_p = context->discard;
                     response->recvBufLen = 0x200;
                 }
-                if (context->error == 6) received = NHTTPi_RecvBuf(mutex, request, info->socket, 0, 0);
+                if (context->error == NHTTP_ERROR_BUFFULL) received = NHTTPi_RecvBuf(mutex, request, info->socket, 0, 0);
                 else received = NHTTPi_RecvBuf(mutex, request, info->socket, response->bodyLen, 0);
                 if (received < 0) return FALSE;
                 if (received == 0)
                 {
-                    if (context->error != 6) context->error = 0;
+                    if (context->error != NHTTP_ERROR_BUFFULL) context->error = NHTTP_ERROR_NONE;
                     break;
                 }
                 response->bodyLen += received;
@@ -1173,7 +1173,7 @@ static BOOL NHTTPi_ThreadRecvBodyProc(NHTTPThreadContext* context)
         }
     }
     connection = NHTTPi_Response2Connection(mutex, response);
-    if (context->error == 0 && connection != NULL) NHTTPi_ReceivedCallback(mutex, connection);
+    if (context->error == NHTTP_ERROR_NONE && connection != NULL) NHTTPi_ReceivedCallback(mutex, connection);
     return TRUE;
 }
 
@@ -1193,7 +1193,7 @@ void NHTTPi_CommThreadProcMain(void* argument)
     context.chunked = FALSE;
     context.retry = FALSE;
     context.contentLength = 0;
-    context.error = 0;
+    context.error = NHTTP_ERROR_NONE;
     while (!info->stopping)
     {
         s32 result;

@@ -183,7 +183,7 @@ BOOL __OSSetVIForceDimming(BOOL enable, u32 shiftY, u32 shiftX) {
     BOOL enabled;
 
     if (!StmReady) {
-        return -10;
+        return IPC_RESULT_NOTREADY;
     }
 
     enabled = OSDisableInterrupts();
@@ -215,7 +215,7 @@ BOOL __OSSetVIForceDimming(BOOL enable, u32 shiftY, u32 shiftX) {
 
 s32 __OSSetIdleLEDMode(u32 mode) {
     if (!StmReady) {
-        return -6;
+        return IPC_RESULT_NOEXISTS;
     }
     StmImInBuf[0] = mode;
     return IOS_Ioctl(StmImDesc, STM_IOCTL_SET_IDLE_LED_MODE, StmImInBuf, sizeof(StmImInBuf), StmImOutBuf, sizeof(StmImOutBuf));
@@ -228,7 +228,7 @@ s32 __OSUnRegisterStateEvent() {
         return 0;
     }
     if (!StmReady) {
-        return -6;
+        return IPC_RESULT_NOEXISTS;
     }
 
     result = IOS_Ioctl(StmImDesc, STM_IOCTL_UNREG_STM_EVENT, StmImInBuf, sizeof(StmImInBuf), StmImOutBuf, sizeof(StmImOutBuf));
