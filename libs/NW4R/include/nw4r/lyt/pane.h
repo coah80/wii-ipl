@@ -88,7 +88,7 @@ namespace nw4r {
             PaneList& GetChildList() { return mChildList; }
 
             const math::VEC3& GetTranslate() { return mTranslate; }
-#ifdef IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE
+#if defined(IPL_SDMEMORY_SET_TRANSLATE_OUT_OF_LINE) || defined(IPL_ADDRESS_MATCHING)
             void SetTranslate(const math::VEC3& translate);
 #else
             void SetTranslate(const math::VEC3& translate) { mTranslate = translate; }

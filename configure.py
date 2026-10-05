@@ -727,7 +727,7 @@ config.libs = [
         ]
     ),
     IPLSection("address", [
-            Object(NonMatching, "scene/address/iplAddress.cpp"),
+            Object(Matching,    "scene/address/iplAddress.cpp"),
             Object(Matching,    "scene/address/iplAddressAddSel.cpp"),
             Object(NonMatching, "scene/address/iplAddressEdit.cpp"),
         ]
