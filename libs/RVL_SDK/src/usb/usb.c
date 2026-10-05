@@ -346,7 +346,7 @@ IOSError IUSB_GetDeviceList(const char* path, USBDeviceInfo* deviceList, u8 maxD
     if (NULL == smaxDev || NULL == sclass || NULL == snumDev || NULL == vector) {
         USB_ERR("getDeviceList: Not enough memory\n");
         rv = IPC_RESULT_ALLOC_FAILED;
-        goto out;
+        goto close;
     }
 
     *smaxDev = maxDev;
@@ -370,6 +370,8 @@ IOSError IUSB_GetDeviceList(const char* path, USBDeviceInfo* deviceList, u8 maxD
 
     rv = IOS_Ioctlv(fd, 12, 2, 2, vector);
     *numDev = *snumDev;
+
+close:
     IOS_Close(fd);
 
 out:
@@ -621,14 +623,14 @@ IOSError IUSB_WriteCtrlMsgAsync(s32 fd, u8 requestType, u8 request, u16 value, u
 
 static s8 unicode2ascii(char* tbuf, int buflen) {
     char buf[128];
-    s8 di, si;
+    int di, si;
 
-    if (tbuf[1] != 0x03) {
+    if (tbuf == NULL || buflen < 2 || (u8)tbuf[0] < 2 || tbuf[1] != 0x03) {
         di = -1;
         goto out;
     }
 
-    for (di = 0, si = 2; si < tbuf[0] && si < buflen; si += 2) {
+    for (di = 0, si = 2; si + 1 < (u8)tbuf[0] && si + 1 < buflen; si += 2) {
         if (di >= (sizeof(buf) - 1))
             break;
         if (tbuf[si + 1])
@@ -658,7 +660,7 @@ static void _GetStrCb(IOSError ret, void* ctxt) {
     buf = (char*)req->msg.buffer;
     buflen = req->msg.length;
     USB_LOG("GetStrCb: buf = 0x%x buflen = %u\n", buf, buflen);
-    if ((len = unicode2ascii(buf, buflen)) < 0)
+    if ((len = unicode2ascii(buf, rv < buflen ? rv : buflen)) < 0)
         USB_ERR("Failed to convert buffer from unicode 2 ascii\n");
     else
         buf[len] = '\0';
@@ -684,7 +686,7 @@ IOSError IUSB_GetAsciiStr(IOSFd fd, u8 ep, u16 index, u16 langId, char* buf, u16
         USB_ERR("Failed __CtrlMsg: %d", rv);
         goto out;
     }
-    if ((len = unicode2ascii(buf, buflen)) < 0)
+    if ((len = unicode2ascii(buf, rv < buflen ? rv : buflen)) < 0)
         USB_ERR("Failed to convert unicode 2 ascii\n");
     else
         buf[len] = '\0';
@@ -847,7 +849,7 @@ IOSError IUSB_IsoMsgAsync(IOSFd fd, u8 ep, USBIsoTransfer* xfer, USBIsoCallback 
     sbuflen = IOSAlloc(OSRoundUp32B(sizeof(u16)));
     snumPackets = IOSAlloc(OSRoundUp32B(sizeof(u8)));
     req = IOSAlloc(OSRoundUp32B(sizeof(*req)));
-    if (NULL == vector || NULL == sep || NULL == sbuflen || NULL == req) {
+    if (NULL == vector || NULL == sep || NULL == sbuflen || NULL == snumPackets || NULL == req) {
         USB_ERR("IUSB_IsoMsgAsync: Not enough memory\n");
         rv = IPC_RESULT_ALLOC_FAILED;
         IOSFree(req);
@@ -958,6 +960,7 @@ clean:
     IOSFree(spid);
     IOSFree(vector);
     IOSFree(req);
+    IOS_Close(fd);
 
 done:
     return rv;
@@ -984,6 +987,12 @@ IOSError IUSB_DeviceClassInsertionNotifyAsync(const char* path, u8 devClass, USB
     vector = IOSAlloc(OSRoundUp32B(sizeof(IOSIoVector)) * 2);
     sdevClass = IOSAlloc(OSRoundUp32B(sizeof(u8)));
     req = IOSAlloc(OSRoundUp32B(sizeof(*req)));
+    if (NULL == vector || NULL == sdevClass || NULL == req) {
+        rv = IPC_RESULT_ALLOC_FAILED;
+        goto clean;
+    }
+
+    memset(req, 0, sizeof(USBCommandBlock));
     *sdevClass = devClass;
 
     vector[0].base = (u8*)sdevClass;
@@ -997,6 +1006,16 @@ IOSError IUSB_DeviceClassInsertionNotifyAsync(const char* path, u8 devClass, USB
     req->clean[1] = vector;
 
     rv = IOS_IoctlvAsync(fd, 28, 1, 0, vector, _intrBlkCtrlIsoCb, req);
+    if (rv >= 0) {
+        goto close;
+    }
+
+clean:
+    IOSFree(sdevClass);
+    IOSFree(vector);
+    IOSFree(req);
+
+close:
     IOS_Close(fd);
 
 done:
