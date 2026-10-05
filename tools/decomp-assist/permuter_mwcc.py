@@ -65,17 +65,21 @@ def prepare(args):
     directory = CAMPAIGN / args.name
     directory.mkdir(parents=True, exist_ok=False)
     source_path, flags = command_for(args.unit)
-    source = (ROOT / source_path).read_text()
+    reference = (ROOT / source_path).read_text()
+    source = Path(args.start).read_text() if args.start else reference
     mappings = {}
     edit_name = args.edit_name or args.function
     start, opening, end = span(source, edit_name)
     (directory / "original.txt").write_text(source)
+    (directory / "reference.txt").write_text(reference)
     if args.seed:
         seed = Path(args.seed).read_text()
         candidate_name = args.candidate_name or args.function
     else:
         preprocessed = directory / "preprocessed.i"
-        subprocess.run(flags + ["-E", source_path, "-o", str(preprocessed)], cwd=ROOT, check=True)
+        preprocess_source = str(Path(args.start).resolve()) if args.start else source_path
+        subprocess.run(flags + ["-i", str(Path(source_path).parent), "-E", preprocess_source,
+                                "-o", str(preprocessed)], cwd=ROOT, check=True)
         seed = strip(preprocessed.read_text(errors="replace"), edit_name)
         seed = re.sub(r"^#.*", "", seed, flags=re.M)
         for identifier in set(re.findall(r"\b\w*PERM_\w+", seed)):
@@ -93,7 +97,8 @@ def prepare(args):
                 return
             result, declarations = [], []
             for item in list(node.block_items or []) + [None]:
-                if isinstance(item, ca.Decl) and item.init is None:
+                if (isinstance(item, ca.Decl) and item.init is None
+                        and "\n" not in cg.CGenerator().visit(item).rstrip("\n")):
                     declarations.append(item)
                     continue
                 if len(declarations) > 1:
@@ -256,7 +261,8 @@ def run_campaign(args):
         for name in args.directories:
             directory = Path(name).resolve()
             metadata = json.loads((directory / "job.json").read_text())
-            source = (directory / "original.txt").read_text()
+            reference = directory / "reference.txt"
+            source = (reference if reference.exists() else directory / "original.txt").read_text()
             current = (ROOT / metadata["source"]).read_text()
             remote = subprocess.check_output(["git", "show", "origin/main:" + metadata["source"]], cwd=ROOT, text=True)
             if source != current or source != remote:
@@ -315,6 +321,7 @@ def main():
     setup.add_argument("--edit-name")
     setup.add_argument("--candidate-name")
     setup.add_argument("--seed")
+    setup.add_argument("--start", help="alternate full translation unit for a source candidate")
     setup.add_argument("--mappings")
     setup.add_argument("--lineswap", action="store_true")
     setup.set_defaults(run=prepare)
