@@ -48,8 +48,11 @@ s32 TMCJPEGDEC_rewind_ptr(TMCCJPEGDecWork* work) {
             return r;
         }
 
-        if ((u8)bitBuf == 0xFF && (r = TMCJPEGDEC_move_ptr(-1, work), r < 0)) {
-            return r;
+        if ((u8)bitBuf == 0xFF) {
+            r = TMCJPEGDEC_move_ptr(-1, work);
+            if (r < 0) {
+                return r;
+            }
         }
 
         bitBuf >>= 8;

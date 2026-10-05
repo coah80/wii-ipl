@@ -17,7 +17,8 @@ s32 TMCCJPEGDecInit(TMCCJPEGDecState* state, TMCCJPEGDecInitParam* param) {
 
     if (param->unk_0x24 != 0) {
         result = -1;
-    } else if (param->unk_0x2C != 0 && param->unk_0x2C != 1 && param->unk_0x2C != 2) {
+    } else if (param->unk_0x2C != TMCC_JPEG_OUTPUT_RGB565 && param->unk_0x2C != TMCC_JPEG_OUTPUT_RGBA8 &&
+               param->unk_0x2C != TMCC_JPEG_OUTPUT_Y8U8V8) {
         result = -1;
     } else {
         state->unk_0x21 = param->unk_0x24;
@@ -58,19 +59,19 @@ s32 TMCCJPEGDecInit(TMCCJPEGDecState* state, TMCCJPEGDecInitParam* param) {
     result = TMCJPEGDEC_Setsize(work);
     if (result >= 0) {
         switch (state->converterType) {
-            case 0:
+            case TMCC_JPEG_OUTPUT_RGB565:
                 result = TMCJPEGDEC_set_converterRGB565(work);
                 if (result < 0) {
                     goto error;
                 }
                 break;
-            case 1:
+            case TMCC_JPEG_OUTPUT_RGBA8:
                 result = TMCJPEGDEC_set_converterRGBA8(work);
                 if (result < 0) {
                     goto error;
                 }
                 break;
-            case 2:
+            case TMCC_JPEG_OUTPUT_Y8U8V8:
                 result = TMCJPEGDEC_set_converterY8U8V8(work);
                 if (result < 0) {
                     goto error;
@@ -104,7 +105,7 @@ s32 TMCCJPEGDecodeRGB565(TMCCJPEGDecState* state, s32 initResult, void* texBuffe
         return -1;
     }
 
-    if (state->converterType != 0) {
+    if (state->converterType != TMCC_JPEG_OUTPUT_RGB565) {
         return -4;
     }
 
@@ -173,19 +174,19 @@ s32 TMCCJPEGDecSetResolution(TMCCJPEGDecState* state, u32 scale) {
     }
 
     switch (state->converterType) {
-        case 0:
+        case TMCC_JPEG_OUTPUT_RGB565:
             result = TMCJPEGDEC_set_converterRGB565(work);
             if (result < 0) {
                 return result;
             }
             break;
-        case 1:
+        case TMCC_JPEG_OUTPUT_RGBA8:
             result = TMCJPEGDEC_set_converterRGBA8(work);
             if (result < 0) {
                 return result;
             }
             break;
-        case 2:
+        case TMCC_JPEG_OUTPUT_Y8U8V8:
             result = TMCJPEGDEC_set_converterY8U8V8(work);
             if (result < 0) {
                 return result;
