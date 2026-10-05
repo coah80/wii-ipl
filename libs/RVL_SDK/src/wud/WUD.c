@@ -3030,14 +3030,18 @@ void _WUDStartSyncDevice(BD_ADDR bd_addr, u8* bd_name) {
 
 void _WUDDeleteStoredDevice() {
     WUDCB* p_wcb = &_wcb;
+    BOOL enabled;
+    u8 deleteState;
 
     WUD_DEBUGPrint("_WUDDeleteStoreDevice()\n");
 
     WUDiDeleteAllLinkKeys();
 
     do {
-        ;
-    } while (p_wcb->deleteState != 0);
+        enabled = OSDisableInterrupts();
+        deleteState = p_wcb->deleteState;
+        OSRestoreInterrupts(enabled);
+    } while (deleteState != WUD_STATE_DELETE_START);
 
     WUD_DEBUGPrint("dev number = %d\n", WUDiGetDevNumber());
 }
