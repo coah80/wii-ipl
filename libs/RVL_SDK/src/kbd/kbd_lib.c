@@ -232,13 +232,10 @@ static void kbdEventHandler(void* device, char* report) {
     if (channel != 4) {
         KBDChannel* data;
         u8* bytes;
-        u8 status;
-        data = kbdData;
-        data += channel;
+        data = &kbdData[channel];
         bytes = (u8*)report;
-        status = bytes[2];
 
-        if ((u8)(bytes[2] + 0xff) <= 2) {
+        if (bytes[2] == 1 || bytes[2] == 2 || bytes[2] == 3) {
             OSCancelAlarm(&data->alarm);
 
             if (bytes[2] == 1) {
