@@ -104,7 +104,7 @@ ziChar Zi8ConvertWC2UC(ziWChar character, ziU8 language ZI_NEED_WORK) {
             }
             entry = (ziConversionEntry*)((ziU8*)table + value + character - first + 8);
             Zi8LogError(100, __zi8_work_data);
-            return *(ziU8*)entry;
+            return entry->first[0];
         }
         Zi8LogError(0x6C2, __zi8_work_data);
         return 0;

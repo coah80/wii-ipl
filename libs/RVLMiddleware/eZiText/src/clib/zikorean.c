@@ -23,10 +23,10 @@ ziU8 Zi8LookupKoreanChar(ziWChar character, ziU8* result, ziU16* index, ziPtr wo
     return 0;
 }
 
-ziU8 Zi8MatchKoreanSequence(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPtr workData);
+ziU8 Zi8MatchKoreanSequence(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, struct __zi8_work_data_s* workData);
 
 ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
-    ziPtr workData) {
+    struct __zi8_work_data_s* workData) {
     struct {
         ziU8 characterIndex;
         ziU8 matched;
@@ -104,7 +104,7 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                 state.characterIndex,
                 (state.elementIndex - currentCharacter) - 1,
                 workData);
-            if ((((struct __zi8_work_data_s*)workData)->koAltTables == 1)) {
+            if (workData->koAltTables == 1) {
                 switch (state.characterIndex) {
                 case 1:
                     selectedTable = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 0x1E, workData);
@@ -177,10 +177,10 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
             if (state.currentCandidate != 0) {
                 state.currentCandidate--;
             } else {
-                params->candidates[(ziU8)result] =
+                params->candidates[result] =
                 ((ziU16)selectedTable[state.nextIndex * 2] << 8) | (selectedTable + state.nextIndex * 2)[1];
-                if ((state.tableCount6 != 0) && (((struct __zi8_work_data_s*)workData)->koAltTables == 0)) {
-                    params->candidates[(ziU8)result] += state.inputIndex * state.tableCount3;
+                if ((state.tableCount6 != 0) && (workData->koAltTables == 0)) {
+                    params->candidates[result] += state.inputIndex * state.tableCount3;
                 }
                 result++;
             }
@@ -208,7 +208,7 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                         if (currentCharacter == 0) {
                             params->completion = 1;
                         }
-                        params->candidates[(ziU8)result] =
+                        params->candidates[result] =
                         state.tableCount0 + (state.table31 + state.index * 3)[2];
                         result++;
                         currentCharacter++;
@@ -216,11 +216,11 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                     }
                 }
                 if (state.index == state.tableCount31) {
-                    if ((params->candidates[(ziU8)result] = buffer[currentCharacter]) < 0xFF) {
+                    if ((params->candidates[result] = buffer[currentCharacter]) < 0xFF) {
                         if (currentCharacter == 0) {
                             params->completion = 1;
                         }
-                        params->candidates[(ziU8)result] += state.tableCount0;
+                        params->candidates[result] += state.tableCount0;
                         result++;
                     }
                 }
@@ -235,7 +235,7 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     return result;
 }
 
-ziU8 Zi8MatchKoreanSequence(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, ziPtr workData) {
+ziU8 Zi8MatchKoreanSequence(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 count, struct __zi8_work_data_s* workData) {
     ziU16 nestedScratch;
     ziU16 nestedIndexStorage;
     ziU16 index1;
@@ -249,7 +249,7 @@ ziU8 Zi8MatchKoreanSequence(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 c
 
     firstCharacter = input[0];
     mappedCharacter = 0xFF;
-    if (((struct __zi8_work_data_s*)workData)->koAltTables == 0) {
+    if (workData->koAltTables == 0) {
         table = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 3, workData);
         tableCount = Zi8GetTableCount(ZI8_LANG_KO, 3, workData);
     } else {

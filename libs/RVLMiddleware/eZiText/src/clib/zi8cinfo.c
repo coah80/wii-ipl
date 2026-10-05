@@ -25,7 +25,7 @@ const ziU8 zi8CangjieCodes[32] = {
     21, 22, 23, 25, 26, 27, 29, 30, 31
 };
 
-ziU32 Zi8GetCJInfo(ziU8* input, ziWChar* output, ziU8 outputSize, ziPtr work)
+ziU32 Zi8GetCJInfo(ziU8* input, ziWChar* output, ziU8 outputSize, ziPtr __zi8_work_data)
 {
     ziS32 packedCodes;
     ziS32 code;
@@ -33,13 +33,13 @@ ziU32 Zi8GetCJInfo(ziU8* input, ziWChar* output, ziU8 outputSize, ziPtr work)
     ziS32 codeCount;
     ziS32 index;
 
-    ((ZiInfoWork*)work)->cangjieEnabled = Zi8GetFormatVersion(1, work) & 2;
-    if (((ZiInfoWork*)work)->cangjieEnabled == 0) {
-        Zi8LogError(0x8fc, work);
+    ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(ZI8_LANG_ZH, __zi8_work_data) & 2;
+    if (ZI_WORK->cangjieEnabled == 0) {
+        Zi8LogError(0x8fc, __zi8_work_data);
         return 0;
     }
     if (outputSize < 6) {
-        Zi8LogError(0x322, work);
+        Zi8LogError(0x322, __zi8_work_data);
         return 0;
     }
 
@@ -57,14 +57,14 @@ ziU32 Zi8GetCJInfo(ziU8* input, ziWChar* output, ziU8 outputSize, ziPtr work)
             }
         }
         if (index >= 0x19) {
-            Zi8LogError(0x26d, work);
+            Zi8LogError(0x26d, __zi8_work_data);
             return 0;
         }
         output[outputCount] = index + 0x41;
         outputCount++;
     }
     output[outputCount] = 0;
-    Zi8LogError(100, work);
+    Zi8LogError(100, __zi8_work_data);
     return (ziU8)outputCount;
 }
 
@@ -858,7 +858,7 @@ ziPtr work)
     return;
 }
 
-ziU32 ZiCharInfo2(ziWChar ch, ziWChar* charInfoBuffer, ziU8 maxInfoBufSize, ziU32 hetMode, ziWChar* elements, ziU32 elementCount, ziPtr work)
+ziU32 ZiCharInfo2(ziWChar ch, ziWChar* charInfoBuffer, ziU8 maxInfoBufSize, ziU32 hetMode, ziWChar* elements, ziU32 elementCount, ZiInfoWork* work)
 
 {
     union {
@@ -892,22 +892,22 @@ ziU32 ZiCharInfo2(ziWChar ch, ziWChar* charInfoBuffer, ziU8 maxInfoBufSize, ziU3
     }
     if (((ziU8)hetMode & 0x80) != 0) {
         hetMode = (ziU8)(hetMode & 0x7f);
-        if (Zi8GetFormatVersion(1,work) >= 4) {
-            charTableCount = Zi8GetTableCount(1,0x19,work);
-            tablePtr = (ziU8*)Zi8GetTableAddress(1,0x19,work);
+        if (Zi8GetFormatVersion(ZI8_LANG_ZH,work) >= 4) {
+            charTableCount = Zi8GetTableCount(ZI8_LANG_ZH,0x19,work);
+            tablePtr = (ziU8*)Zi8GetTableAddress(ZI8_LANG_ZH,0x19,work);
         }
         else {
             charTableCount = 0;
-            tablePtr = (ziU8*)0;
+            tablePtr = ZI8_NULL;
         }
         if ((hetMode & 0xff) == 1) {
-            tableBase = (ziU8*)Zi8GetTableAddress(1,3,work);
+            tableBase = (ziU8*)Zi8GetTableAddress(ZI8_LANG_ZH,3,work);
         }
         else {
-            tableBase = (ziU8*)Zi8GetTableAddress(1,4,work);
+            tableBase = (ziU8*)Zi8GetTableAddress(ZI8_LANG_ZH,4,work);
         }
         if ((hetMode & 0xff) != 1 && (hetMode & 0xff) != 2) goto lookupCharacter;
-        if (charTableCount <= Zi8GetTableCount(1,8,work)) {
+        if (charTableCount <= Zi8GetTableCount(ZI8_LANG_ZH,8,work)) {
             highByte = (ziU8)((ch >> 8) & 0xff);
             lowByte = (ziU8)ch;
             index = 0;
@@ -917,10 +917,10 @@ ziU32 ZiCharInfo2(ziWChar ch, ziWChar* charInfoBuffer, ziU8 maxInfoBufSize, ziU3
                     charIndex = (ziU16)(((ziU32)tablePtr[2] >> 5) & 7) + tableBase[codeOffset] +
                     (ziU16)(((ziU32)tableBase[codeOffset + 1] & 0xffff) << 8);
                     if ((hetMode & 0xff) == 1) {
-                        count = Zi8GetPInfo(charIndex,(ziU16*)charInfoBuffer,maxInfoBufSize,work);
+                        count = Zi8GetPInfo(charIndex,charInfoBuffer,maxInfoBufSize,work);
                     }
                     else {
-                        count = Zi8GetZInfo(charIndex,(ziU16*)charInfoBuffer,maxInfoBufSize,work);
+                        count = Zi8GetZInfo(charIndex,charInfoBuffer,maxInfoBufSize,work);
                     }
                 normalizeStrokes:
                     if ((hetMode & 0xff) == 0x11) {
@@ -953,10 +953,10 @@ lookupCharacter:
         count = 0;
     }
     else {
-        tablePtr = (ziU8*)Zi8GetTableAddress(1,1,work);
+        tablePtr = (ziU8*)Zi8GetTableAddress(ZI8_LANG_ZH,1,work);
         tablePtr += ((uniInfoBuffer[9] & 0xf) << 0x10 | (uniInfoBuffer[11] | ((ziU32)uniInfoBuffer[10] << 8)));
-        ((ZiInfoWork*)work)->cangjieEnabled = Zi8GetFormatVersion(1,work) & 2;
-        if ((((((ZiInfoWork*)work)->cangjieEnabled != 0) && ((hetMode & 0xff) != 7)) && ((hetMode & 0xff) != 10))
+        work->cangjieEnabled = Zi8GetFormatVersion(ZI8_LANG_ZH,work) & 2;
+        if ((((work->cangjieEnabled != 0) && ((hetMode & 0xff) != 7)) && ((hetMode & 0xff) != 10))
         && (((hetMode & 0xff) != 8 && ((hetMode & 0xff) != 9)))) {
             switch (*tablePtr & 7) {
             case 2:
@@ -974,12 +974,12 @@ lookupCharacter:
                 break;
             }
         }
-        switch((ziU32)hetMode & 0xff) {
+        switch(hetMode & 0xff) {
         case 7:
         case 8:
         case 9:
         case 10:
-            count = (ziU32)Zi8GetCJInfo(tablePtr,charInfoBuffer,maxInfoBufSize,work);
+            count = Zi8GetCJInfo(tablePtr,charInfoBuffer,maxInfoBufSize,work);
             if ((((hetMode & 0xff) == 9) || ((hetMode & 0xff) == 10)) && (2 < (count & 0xff))) {
                 charInfoBuffer[1] = charInfoBuffer[(count & 0xff) - 1];
                 charInfoBuffer[2] = 0;
@@ -993,15 +993,15 @@ lookupCharacter:
             break;
         case 1:
         case 3:
-            tableBase = (ziU8*)Zi8GetTableAddress(1,3,work);
+            tableBase = (ziU8*)Zi8GetTableAddress(ZI8_LANG_ZH,3,work);
             charIndex = Zi8GetPCode((ziU32)tableBase,uniInfoBuffer);
-            count = Zi8GetPInfo(charIndex,(ziU16*)charInfoBuffer,maxInfoBufSize,work);
+            count = Zi8GetPInfo(charIndex,charInfoBuffer,maxInfoBufSize,work);
             break;
         case 2:
         case 4:
-            tableBase = (ziU8*)Zi8GetTableAddress(1,4,work);
+            tableBase = (ziU8*)Zi8GetTableAddress(ZI8_LANG_ZH,4,work);
             charIndex = Zi8GetPCode((ziU32)tableBase,uniInfoBuffer);
-            count = Zi8GetZInfo(charIndex,(ziU16*)charInfoBuffer,maxInfoBufSize,work);
+            count = Zi8GetZInfo(charIndex,charInfoBuffer,maxInfoBufSize,work);
             break;
         default:
             count = 0;
@@ -1009,8 +1009,8 @@ lookupCharacter:
         }
         if ((((elementCount & 0xff) != 0) && ((uniInfoBuffer[0] & 0x80) != 0)) &&
         (((hetMode & 0xff) == 3 || ((hetMode & 0xff) == 4)))) {
-            alternateTable = (ziU8 *)Zi8GetTableAddress(1,5,work);
-            alternatesRemaining = Zi8GetTableCount(1,5,work);
+            alternateTable = (ziU8 *)Zi8GetTableAddress(ZI8_LANG_ZH,5,work);
+            alternatesRemaining = Zi8GetTableCount(ZI8_LANG_ZH,5,work);
             while (alternatesRemaining != 0) {
                 if (codeOffset == (((ziU16)alternateTable[1] << 8) | (ziU16)alternateTable[0])) break;
                 alternatesRemaining--;
@@ -1042,10 +1042,10 @@ lookupCharacter:
             alternatesRemaining--;
             alternateTable = alternateTable + 4;
             if ((hetMode & 0xff) == 3) {
-                count = Zi8GetPInfo(charIndex,(ziU16*)charInfoBuffer,maxInfoBufSize,work);
+                count = Zi8GetPInfo(charIndex,charInfoBuffer,maxInfoBufSize,work);
             }
             else {
-                count = Zi8GetZInfo(charIndex,(ziU16*)charInfoBuffer,maxInfoBufSize,work);
+                count = Zi8GetZInfo(charIndex,charInfoBuffer,maxInfoBufSize,work);
             }
             goto checkElements;
         }

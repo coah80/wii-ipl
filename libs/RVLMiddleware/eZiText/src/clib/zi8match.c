@@ -108,7 +108,7 @@ ziBool Zi8ExactMatchNextChar(ziU8* node, ziU8 firstByteMask, ziU8 firstByteValue
     return 0;
 }
 
-ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* match, ziU16* code ZI_NEED_WORK) {
+ziU32 Zi8SecMatchChar(ziU8* nodeAddress, ziU8* dictionaryAddress, ziMatchParam* match, ziU16* code ZI_NEED_WORK) {
     ziBool isPartial = 0;
     ziU16 matchCode;
     ziU8* data;
@@ -121,7 +121,7 @@ ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* 
 
     if (match->componentIndex != 0) {
         state.targetCode = match->componentIndex;
-        matchCode = ((ziU16)(((ziU8*)nodeAddress)[4] & 3) << 8) | ((ziU8*)nodeAddress)[5];
+        matchCode = ((ziU16)(nodeAddress[4] & 3) << 8) | nodeAddress[5];
         value = 0;
         while (value++ < 6) {
             if (state.targetCode == matchCode) {
@@ -137,8 +137,8 @@ ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* 
         }
     }
 
-    data = (ziU8*)Zi8GetTableAddress(1, 1, ZI_WORK);
-    data += ((ziU8*)nodeAddress)[0xB] + (((ziU8*)nodeAddress)[0xA] << 8) + ((((ziU8*)nodeAddress)[9] & 0xF) << 16);
+    data = (ziU8*)Zi8GetTableAddress(ZI8_LANG_ZH, 1, ZI_WORK);
+    data += nodeAddress[0xB] + (nodeAddress[0xA] << 8) + ((nodeAddress[9] & 0xF) << 16);
     if (ZI_WORK->cangjieEnabled != 0) {
         switch (data[0] & 7) {
         case 2:
@@ -168,27 +168,27 @@ ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* 
                 isPartial = 1;
             }
         } else if ((match->length & 1) != 0) {
-            if ((((ziU8*)nodeAddress)[match->length >> 1] & 0xF) == 0xF) {
+            if ((nodeAddress[match->length >> 1] & 0xF) == 0xF) {
                 isPartial = 1;
             }
         } else {
-            if ((((ziU8*)nodeAddress)[match->length >> 1] & 0xF0) == 0xF0) {
+            if ((nodeAddress[match->length >> 1] & 0xF0) == 0xF0) {
                 isPartial = 1;
             }
         }
         if (match->length > 2) {
             if ((match->length & 1) != 0) {
-                if (((((ziU8*)nodeAddress)[(match->length - 1) >> 1] & 0xF0) == 0) || ((((ziU8*)nodeAddress)[(match->length - 1) >> 1] & 0xF0) == 0xF0)) {
+                if (((nodeAddress[(match->length - 1) >> 1] & 0xF0) == 0) || ((nodeAddress[(match->length - 1) >> 1] & 0xF0) == 0xF0)) {
                     return 0;
                 }
             } else {
-                if (((((ziU8*)nodeAddress)[(match->length - 1) >> 1] & 0xF) == 0) || ((((ziU8*)nodeAddress)[(match->length - 1) >> 1] & 0xF) == 0xF)) {
+                if (((nodeAddress[(match->length - 1) >> 1] & 0xF) == 0) || ((nodeAddress[(match->length - 1) >> 1] & 0xF) == 0xF)) {
                     return 0;
                 }
             }
         }
         if (code != 0) {
-            *code = ((ziU16)((ziU8*)nodeAddress)[6] << 8) + (ziU16)((ziU8*)nodeAddress)[7];
+            *code = ((ziU16)nodeAddress[6] << 8) + (ziU16)nodeAddress[7];
         }
         if (isPartial) {
             return 2;
@@ -208,7 +208,7 @@ ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* 
 
     state.dataIndex = 4;
     state.remaining = ((match->length + 1) >> 1) - 4;
-    if (((ziU8)value + 1) < (int)state.remaining) {
+    if ((value + 1) < state.remaining) {
         return 0;
     }
     if ((match->length & 1) != 0) {
@@ -231,7 +231,7 @@ ziU32 Zi8SecMatchChar(ziPtr nodeAddress, ziU8* dictionaryAddress, ziMatchParam* 
         }
     }
     if (code != 0) {
-        *code = ((ziU16)((ziU8*)nodeAddress)[6] << 8) + (ziU16)((ziU8*)nodeAddress)[7];
+        *code = ((ziU16)nodeAddress[6] << 8) + (ziU16)nodeAddress[7];
     }
     if (isPartial) {
         return 2;
@@ -254,20 +254,20 @@ ziBool Zi8PriMatchNextComp(ziU8* node, ziU8 firstByteMask, ziU8 firstByteValue, 
     return 0;
 }
 
-ziBool Zi8SecMatchComp(ziPtr nodeAddress, ziMatchParam* matchAddress, ziPtr dictionaryAddress ZI_NEED_WORK) {
+ziBool Zi8SecMatchComp(ziU8* nodeAddress, ziMatchParam* matchAddress, ziU8* dictionaryAddress ZI_NEED_WORK) {
     int chainIndex;
     ziU16 matchCode;
     ziU16 targetCode;
 
     if (matchAddress->componentIndex != 0) {
         targetCode = matchAddress->componentIndex;
-        matchCode = ((ziU16)(((ziU8*)nodeAddress)[6] & 3) << 8) | ((ziU8*)nodeAddress)[7];
+        matchCode = ((ziU16)(nodeAddress[6] & 3) << 8) | nodeAddress[7];
         chainIndex = 0;
         while (chainIndex++ < 6) {
             if (targetCode == matchCode) {
                 break;
             }
-            matchCode = ((ziU16)(*((ziU8*)dictionaryAddress + matchCode * 8 + 6) & 3) << 8) | *((ziU8*)dictionaryAddress + matchCode * 8 + 7);
+            matchCode = ((ziU16)(*(dictionaryAddress + matchCode * 8 + 6) & 3) << 8) | *(dictionaryAddress + matchCode * 8 + 7);
             if (matchCode == 0) {
                 break;
             }
@@ -277,10 +277,10 @@ ziBool Zi8SecMatchComp(ziPtr nodeAddress, ziMatchParam* matchAddress, ziPtr dict
         }
     }
     if (matchAddress->length > 8) {
-        if ((int)((ziU8*)nodeAddress)[5] < (int)(matchAddress->length - 2)) {
+        if (nodeAddress[5] < (matchAddress->length - 2)) {
             return 0;
         }
-    } else if ((int)((ziU8*)nodeAddress)[5] < (int)(matchAddress->length - 1)) {
+    } else if (nodeAddress[5] < (matchAddress->length - 1)) {
         return 0;
     }
     return 1;
@@ -289,7 +289,7 @@ ziBool Zi8SecMatchComp(ziPtr nodeAddress, ziMatchParam* matchAddress, ziPtr dict
 extern ziU16 Zi8MatchAltSound(ziPtr soundTable, ziU16 soundCode, ziPtr pCodeTable, ziU16 index, ziU16 mask, ziU16 value, ziU8 flag ZI_NEED_WORK);
 ziU16 Zi8GetPCode(ziU8* table, ziU8* node);
 
-ziBool Zi8MatchPhonetic(ziPtr pCodeTable, ziU8* dictionary, ziPtr soundTable, ziU16 soundCode, ziU32 tableAddress, ziU8* node, ziU16* masks, ziU16* values, ziU16* count, ziU8** resultNode, ziU8** stringOffset, ziU8 partialMode, ziU8 strictMode, ziU8 numParts, ziU16 partMask, ziU16 partValue, ziU8 flag, ziU8 altMode, ziU16 initialCode, ziU16* resultCode, ziU8 lastMode ZI_NEED_WORK) {
+ziBool Zi8MatchPhonetic(ziU8* pCodeTable, ziU8* dictionary, ziPtr soundTable, ziU16 soundCode, ziU32 tableAddress, ziU8* node, ziU16* masks, ziU16* values, ziU16* count, ziU8** resultNode, ziU8** stringOffset, ziU8 partialMode, ziU8 strictMode, ziU8 numParts, ziU16 partMask, ziU16 partValue, ziU8 flag, ziU8 altMode, ziU16 initialCode, ziU16* resultCode, ziU8 lastMode ZI_NEED_WORK) {
     struct {
         ziBool hasString;
         ziU8 partIndex;
@@ -327,7 +327,7 @@ next_node:
         node += 0xC;
         continue;
 decode_node:
-        traversal.code = Zi8GetPCode((ziU8*)pCodeTable, node);
+        traversal.code = Zi8GetPCode(pCodeTable, node);
         if ((*values != (traversal.code & *masks)) && (altMode == 0) && ((node[0] & 0x80) != 0)) {
             if (*count != 0) {
                 traversal.soundIndex = (initialCode - traversal.remaining) - 1;
@@ -399,7 +399,7 @@ next_group:
                     if (traversal.hasString) {
                         goto phonetic_skip;
                     }
-                    traversal.code = Zi8GetPCode((ziU8*)pCodeTable, dictionary + (traversal.dictionaryIndex & 0x7FFF) * sizeof(DictionaryNode));
+                    traversal.code = Zi8GetPCode(pCodeTable, dictionary + (traversal.dictionaryIndex & 0x7FFF) * sizeof(DictionaryNode));
                     if (((traversal.code & masks[traversal.partIndex]) != values[traversal.partIndex]) && (altMode == 0) && (dictionary[(traversal.dictionaryIndex & 0x7FFF) * sizeof(DictionaryNode)] & 0x80) != 0) {
                         traversal.code = Zi8MatchAltSound(soundTable, soundCode, pCodeTable, traversal.dictionaryIndex & 0x7FFF, masks[traversal.partIndex], values[traversal.partIndex], flag, ZI_WORK);
                     }
@@ -575,7 +575,7 @@ scan_final:
                 value -= 0x61;
             }
             pinyin[index] = (ziU8)value + 1;
-            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) == 0) goto try_final_extension;
+            if (!Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal)) goto try_final_extension;
             if (outputIndex == 0) {
                 *resultCount += 1;
             }
@@ -590,7 +590,7 @@ try_final_extension:
 
             if (index < 3) {
                 pinyin[index + 1] = 0xFF;
-                if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
+                if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal)) {
                     if (outputIndex == 0) {
                         *resultCount += 1;
                     }
@@ -624,7 +624,7 @@ finish_final:
             partial = 1;
         }
         if (partial && alternateInitial == 0) {
-            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
+            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal)) {
                 if (convertedCount == 0) {
                     result++;
                     initial[outputIndex] = 0x7E00;
@@ -641,7 +641,7 @@ finish_final:
             }
         } else {
             pinyin[index] = 0xFF;
-            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
+            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal)) {
                 if (convertedCount == 0) {
                     result++;
                     initial[outputIndex] = 0x7E00;
@@ -653,7 +653,7 @@ finish_final:
                 *bestFinal = final[0];
                 if ((outputIndex == 0) && (count == 0)) {
                     pinyin[index] = 0;
-                    if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
+                    if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal)) {
                         if (convertedCount == 0) {
                             *bestInitial = 0x7E00;
                             *bestFinal = 0x200;
@@ -664,7 +664,7 @@ finish_final:
                 }
             } else {
                 pinyin[index] = 0;
-                if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal) != 0) {
+                if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal)) {
                     if (convertedCount == 0) {
                         result++;
                         initial[outputIndex] = 0x7E00;

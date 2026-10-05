@@ -53,7 +53,7 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
         Zi8ReplaceLastError(300, __zi8_work_data);
         return 0;
     }
-    if (language != 1) {
+    if (language != ZI8_LANG_ZH) {
         for (count = 0; word[count] != 0; count++) {
             if (word[count] >= 0xEFF1 || count == 64) return 0;
         }
@@ -91,7 +91,7 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
         ZI_WORK->formatCount = savedCount;
         if (count != 0) return 1;
     }
-    if (language != 1) {
+    if (language != ZI8_LANG_ZH) {
         Zi8ReplaceLastError(0x26C, __zi8_work_data);
         return 0;
     }
@@ -106,10 +106,10 @@ ziBool Zi8IsWordW(ziWChar* word, ziU8 language ZI_NEED_WORK) {
         {
                 if (count-- == 1) return 1;
                 ordinals[count] |= 0x8000;
-                ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(1, __zi8_work_data) & 2;
-                table = (ziChineseEntry*)Zi8GetTableAddress(1, 0, __zi8_work_data);
+                ZI_WORK->cangjieEnabled = Zi8GetFormatVersion(ZI8_LANG_ZH, __zi8_work_data) & 2;
+                table = Zi8GetTableAddress(ZI8_LANG_ZH, 0, __zi8_work_data);
                 entry = table + ordinals[0];
-                baseData = (ziU8*)Zi8GetTableAddress(1, 1, __zi8_work_data);
+                baseData = Zi8GetTableAddress(ZI8_LANG_ZH, 1, __zi8_work_data);
                 baseData += ((entry->offsetHigh & 15) << 16 | (entry->offsetLow[1] | (entry->offsetLow[0] << 8)));
                 data = baseData;
                 if (ZI_WORK->cangjieEnabled != 0) {
@@ -168,10 +168,10 @@ ziWChar Zi8ConvertUC2UserKey(ziChar character, ziU8 language ZI_NEED_WORK) {
     if (character == 0 || language > 0x82 || (keys = ZI_WORK->userKeys[language]) == 0) return 0;
     for (key = 0; key < 32; key++) {
         for (cursor = keys->lower[key]; cursor != 0 && *cursor != 0; cursor++) {
-            if ((ziU16)*cursor == (ziU16)character) goto found;
+            if (*cursor == (ziU16)character) goto found;
         }
         for (cursor = keys->upper[key]; cursor != 0 && *cursor != 0; cursor++) {
-            if ((ziU16)*cursor == (ziU16)character) goto found;
+            if (*cursor == (ziU16)character) goto found;
         }
     }
 found:

@@ -10,7 +10,7 @@ ziU16 Zi8MatchAltSound(ziU8* elements, ziU16 count, ziU8* table, ziU16 ch,
     ziU16 off;
     ziU16 w;
 
-    hi = (ziU8)((ziU16)ch >> 8);
+    hi = (ziU8)(ch >> 8);
     lo = (ziU8)ch;
     flags = (ziU8)(flags >> 3);
     if (count == 0) {
@@ -28,25 +28,22 @@ ziU16 Zi8MatchAltSound(ziU8* elements, ziU16 count, ziU8* table, ziU16 ch,
     goto search;
 up:
     i = j;
-body:
-    if (((elements + i * 4)[3] & 0xE) == 0 ||
-        ((elements + i * 4)[3] & flags) != 0) {
-        off = (ziU16)(((ziU16)(elements + i * 4)[2] |
-                       (((ziU16)(elements + i * 4)[3] & 1) << 8)) << 1);
-        w = (ziU16)((((ziU16)(elements + i * 4)[3] & 0xF0) >> 4) |
-                    (table[off] | ((ziU16)table[off + 1] << 8)));
-        if (target == (w & (ziU16)mask)) {
-            return w;
+    do {
+        if (((elements + i * 4)[3] & 0xE) == 0 ||
+            ((elements + i * 4)[3] & flags) != 0) {
+            off = (ziU16)(((ziU16)(elements + i * 4)[2] |
+                           (((ziU16)(elements + i * 4)[3] & 1) << 8)) << 1);
+            w = (ziU16)((((ziU16)(elements + i * 4)[3] & 0xF0) >> 4) |
+                        (table[off] | ((ziU16)table[off + 1] << 8)));
+            if (target == (w & (ziU16)mask)) {
+                return w;
+            }
         }
-    }
-    i++;
-    if (i >= count) {
-        goto down_start;
-    }
-    if ((elements + i * 4)[1] == hi && (elements + i * 4)[0] == lo) {
-        goto body;
-    }
-down_start:
+        i++;
+        if (i >= count) {
+            break;
+        }
+    } while ((elements + i * 4)[1] == hi && (elements + i * 4)[0] == lo);
     i = j;
     goto dec;
 down_body:

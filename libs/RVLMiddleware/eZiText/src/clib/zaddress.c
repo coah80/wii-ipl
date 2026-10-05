@@ -10,21 +10,21 @@ ziU8 Zi8LangSupported(ziU8 lang ZI_NEED_WORK) {
         return 0;
     }
 
-    for (i = 0; ZI_WORK->langEntries[i].language != 0; i++) {
+    for (i = 0; ZI_WORK->langEntries[i].language != ZI8_LANG_NONE; i++) {
         if (lang == ZI_WORK->langEntries[i].language) {
             break;
         }
     }
 
-    if (ZI_WORK->langEntries[i].language == 0) {
-        for (i = 0; ZI_WORK->langEntries[i].language != 0; i++) {
+    if (ZI_WORK->langEntries[i].language == ZI8_LANG_NONE) {
+        for (i = 0; ZI_WORK->langEntries[i].language != ZI8_LANG_NONE; i++) {
             if ((ZI_WORK->langEntries[i].tableData != ZI8_NULL) && (lang == ZI_WORK->langEntries[i].tableData[0])) {
                 break;
             }
         }
     }
 
-    if (ZI_WORK->langEntries[i].language != 0) {
+    if (ZI_WORK->langEntries[i].language != ZI8_LANG_NONE) {
         return i + 1;
     } else {
         Zi8ReplaceLastError(0x582, ZI_WORK);
@@ -89,19 +89,19 @@ ziU32 Zi8GetTableData(ziU8 lang, ziU8 tableIdx, ziU8 memberId ZI_NEED_WORK) {
 }
 
 ziU32 Zi8GetTableAddress(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK) {
-    return Zi8GetTableData(lang, tableIdx, 1, ZI_WORK);
+    return Zi8GetTableData(lang, tableIdx, ziTableAddress, ZI_WORK);
 }
 
 ziU32 Zi8GetTableSize(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK) {
-    return Zi8GetTableData(lang, tableIdx, 2, ZI_WORK);
+    return Zi8GetTableData(lang, tableIdx, ziTableSize, ZI_WORK);
 }
 
 ziU16 Zi8GetTableCount(ziU8 lang, ziU8 tableIdx ZI_NEED_WORK) {
-    return Zi8GetTableData(lang, tableIdx, 2, ZI_WORK);
+    return Zi8GetTableData(lang, tableIdx, ziTableSize, ZI_WORK);
 }
 
 ziU8 Zi8GetFormatVersion(ziU8 lang ZI_NEED_WORK) {
-    return Zi8GetTableData(lang, 0, 4, ZI_WORK);
+    return Zi8GetTableData(lang, 0, ziTableFormatVersion, ZI_WORK);
 }
 
 ziU32 Zi8WCharCount(ziWChar* str ZI_NEED_WORK) {

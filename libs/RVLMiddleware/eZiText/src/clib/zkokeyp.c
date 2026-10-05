@@ -313,7 +313,7 @@ ziU32 Zi8GetKOcandidates(ziGetParam* param, ZiKoreanCandidateOptions* options ZI
                     wordNode = wordTable + wordOffset;
 match_word:
                     while (remainingLetters != 0) {
-                        keyIndex = Zi8_8148302C(param->currentWord[wordIndex], (ziU8*)keyTable, ZI_WORK);
+                        keyIndex = Zi8_8148302C(param->currentWord[wordIndex], keyTable, ZI_WORK);
                         if (keyIndex == (((ziU16)*wordNode & 0x1F) << 8 | (ziU16)wordNode[1])) {
                             --remainingLetters;
                             ++wordIndex;

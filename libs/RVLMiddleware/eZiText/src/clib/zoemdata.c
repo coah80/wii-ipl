@@ -44,7 +44,7 @@ posEntry:
                 if (pattern[position] == Zi8ConvertWC2Key(word[position], language, __zi8_work_data)) continue;
                 break;
             } else if (word[position] != pattern[position]) {
-                if (!ZI_WORK->ignoreCase || language == 1) break;
+                if (!ZI_WORK->ignoreCase || language == ZI8_LANG_ZH) break;
                 folded = pattern[position];
                 if (!Zi8ChangeCharCase(1, &folded, language, __zi8_work_data) || folded != word[position]) break;
             }
@@ -64,7 +64,7 @@ posEntry:
     while (word[position] != 0) position++;
     return position;
 matchRetry:
-    if ((ziS32)index >= ZI_WORK->oemLen) goto oemFailed;
+    if (index >= ZI_WORK->oemLen) goto oemFailed;
     if (!ZI_WORK->oemMatch(index, word, capacity, ZI_WORK->oemData)) goto oemFailed;
     goto posEntry;
 oemFailed:
