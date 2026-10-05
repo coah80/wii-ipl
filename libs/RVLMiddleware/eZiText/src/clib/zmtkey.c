@@ -92,8 +92,7 @@ tables_ready:
             return 0;
         }
 
-        tableCount = 0;
-        keyIndex = tableCount;
+        keyIndex = tableCount = 0;
         for (; (ziU16)keyIndex < key; keyIndex++) {
             tableCount += dataAddress[(ziU16)keyIndex];
         }

@@ -27,8 +27,7 @@ ziU8 Zi8MatchOEMdata(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* word
     ziU32 position;
     ziU32 fallback = 0;
     if (!continuation) ZI_WORK->oemIdx = 0;
-    index = ZI_WORK->oemIdx;
-    if ((ziS32)index >= ZI_WORK->oemLen) goto failed;
+    if ((index = ZI_WORK->oemIdx) >= ZI_WORK->oemLen) goto failed;
     if (ZI_WORK->oemMatch == 0) goto failed;
     if ((ziS32)length >= (ziS32)--capacity) {
 failed:
@@ -53,8 +52,7 @@ posEntry:
     }
     if ((ziS32)position < length) {
         if (complete) word[length] = 1; else word[length] = 0;
-        index++;
-        if ((ziS32)index >= ZI_WORK->oemLen) goto oemFailed;
+        if (++index >= ZI_WORK->oemLen) goto oemFailed;
         goto matchRetry;
     }
     if (fallback) {
@@ -62,8 +60,7 @@ posEntry:
         *word = *pattern;
         return 1;
     }
-    index++;
-    ZI_WORK->oemIdx = index;
+    ZI_WORK->oemIdx = ++index;
     while (word[position] != 0) position++;
     return position;
 matchRetry:

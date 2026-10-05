@@ -187,7 +187,8 @@ unsigned int Zi8MatchROMdata1(ziWChar *elements, ziU8 count, ziU8 language, ziWC
     ZI_WORK->groupPtr = (ziU8*)group;
     if (ZI_WORK->groupPtr == 0) {
       if (Zi8GetTableSize(language & 0xff,0xb,ZI_WORK) != 0) {
-        ZI_WORK->groupPtr = (ziU8*)(tableAddress = Zi8GetTableAddress(language & 0xff,0xb,ZI_WORK));
+        tableAddress = Zi8GetTableAddress(language & 0xff,0xb,ZI_WORK);
+        ZI_WORK->groupPtr = (ziU8*)tableAddress;
       }
     }
     if (ZI_WORK->groupPtr != 0) {

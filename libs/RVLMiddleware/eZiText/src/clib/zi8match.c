@@ -765,8 +765,7 @@ ziU8 Zi8GetBpmfPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final,
         *initial = 0x7E00;
         *final = ((ziU16)Zi8BpmfInitials[value] & 0x7F) << 9;
         resultCount++;
-        count--;
-        if (count == 0) {
+        if (--count == 0) {
             *bestInitial = *initial;
             *bestFinal = *final;
             if ((value >= 0xE) && (value <= 0x14)) {
@@ -778,8 +777,7 @@ ziU8 Zi8GetBpmfPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final,
         text++;
         if (*text == 0xF360) {
             resultCount++;
-            count--;
-            if (count == 0) {
+            if (--count == 0) {
                 return resultCount;
             }
             Zi8ReplaceLastError(0x156, ZI_WORK);
@@ -805,8 +803,7 @@ bpmf_value_22:
     *final |= 0x80;
     *initial |= 0x180;
     resultCount++;
-    count--;
-    if (count == 0) {
+    if (--count == 0) {
         *bestInitial = *initial | 0x78;
         *bestFinal = *final | 0x38;
         return resultCount;
@@ -817,8 +814,7 @@ bpmf_value_23:
     *final |= 0x100;
     *initial |= 0x180;
     resultCount++;
-    count--;
-    if (count == 0) {
+    if (--count == 0) {
         *bestInitial = *initial | 0x78;
         *bestFinal = *final | 0x38;
         return resultCount;
@@ -829,8 +825,7 @@ bpmf_value_24:
     *final |= 0x180;
     *initial |= 0x180;
     resultCount++;
-    count--;
-    if (count == 0) {
+    if (--count == 0) {
         *bestInitial = *initial | 0x78;
         *bestFinal = *final | 0x38;
         return resultCount;
@@ -848,8 +843,7 @@ after_bpmf_initial:
         *final |= (ziU16)Zi8BpmfInitials[value] << 3;
         *initial |= 0x78;
         resultCount++;
-        count--;
-        if (count == 0) {
+        if (--count == 0) {
             *bestInitial = *initial;
             *bestFinal = *final;
             return resultCount;
@@ -875,8 +869,7 @@ after_bpmf_initial:
     *bestInitial = *initial;
     *bestFinal = *final;
     resultCount++;
-    count--;
-    if (count != 0) {
+    if (--count != 0) {
         Zi8ReplaceLastError(0x157, ZI_WORK);
         return 0;
     }
