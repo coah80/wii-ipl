@@ -394,19 +394,23 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
                        WADBlocks* blocks, u32* fileListOut) {
     WADImportWorkspace workspace ALIGN32;
     void* wadHeader = workspace.wadHeader;
-    s32 result;
-    u32 fileOffset;
-    WADFileEntry* allocatedFiles;
-    BOOL streamOpened;
-    u32 transferId;
-    u32 contentCount;
     ESTitleMeta* titleMeta;
-    ESContentMeta* contentMeta;
+    u32 contentCount;
+    s32 result;
+    BOOL streamOpened;
     u32 index;
+    void* secondBuffer;
+    void* firstBuffer;
+    WADFileEntry* allocatedFiles;
+    u32 fileOffset;
+    u32 transferId;
+    ESContentMeta* contentMeta;
     u32 skipTitleMeta = flags & 4;
     WADFileHeader* fileHeader;
 
     streamOpened = FALSE;
+    secondBuffer = 0;
+    firstBuffer = 0;
     fileOffset = 0;
     allocatedFiles = 0;
     memset(&workspace.unpackInfo, 0, sizeof(WADUnpackInfo));
@@ -521,6 +525,12 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
 
 cleanup:
     _WADFreeMemory(&workspace.unpackInfo, allocator);
+    if (firstBuffer != 0) {
+        _WADMemFree(allocator, firstBuffer);
+    }
+    if (secondBuffer != 0) {
+        _WADMemFree(allocator, secondBuffer);
+    }
     if ((fileListOut != 0) && (result != 0)) {
         if (allocatedFiles != 0) {
             _WADMemFree(allocator, allocatedFiles);
@@ -3476,18 +3486,18 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         u32 titleMetaSize;
         void* titleMeta;
     } parts;
-    u8* readBuffer = buffer;
-    ESTitleMeta* titleMeta;
-    ESContentMeta* contentMeta;
-    s32 sectionOffset;
+    BOOL fileOpened = FALSE;
+    s32 result;
     u8* contentBuffer;
     u32 contentCount;
-    u32 remainingBufferSize;
+    ESTitleMeta* titleMeta;
+    u8* readBuffer = buffer;
     u32 contentIndex;
-    s32 contentFd;
-    s32 result;
-    s32 readResult;
-    BOOL fileOpened = FALSE;
+    s32 sectionOffset;
+    u32 remainingBufferSize;
+    u32 size;
+    ESContentMeta* contentMeta;
+    s32 value;
 
     if ((path == 0) || (buffer == 0)) {
         result = -3000;
@@ -3506,8 +3516,8 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         readBuffer += 0x20;
         bufferSize -= 0x20;
     }
-    readResult = DVDReadPrio(&fileInfo, &header, sizeof(header), 0, 2);
-    if (readResult != sizeof(header)) {
+    value = DVDReadPrio(&fileInfo, &header, sizeof(header), 0, 2);
+    if (value != sizeof(header)) {
         result = -3005;
         goto cleanup;
     }
@@ -3539,14 +3549,17 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         parts.titleMeta = readBuffer + sectionOffset;
         sectionOffset += (header.tmdSize + 0x3F) & ~0x3F;
     }
+    if (header.contentSize != 0) {
+        size = header.contentSize;
+    }
     contentBuffer = readBuffer + sectionOffset;
     remainingBufferSize = bufferSize - sectionOffset;
     if ((u32)sectionOffset > bufferSize) {
         result = -3003;
         goto cleanup;
     }
-    readResult = DVDReadPrio(&fileInfo, readBuffer, sectionOffset, 0, 2);
-    if (readResult != (s32)sectionOffset) {
+    value = DVDReadPrio(&fileInfo, readBuffer, sectionOffset, 0, 2);
+    if (value != (s32)sectionOffset) {
         result = -3005;
         goto cleanup;
     }
@@ -3587,7 +3600,6 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
     contentIndex = 0;
     while (contentIndex < contentCount) {
         s32 titleContentIndex;
-        u32 remainingContentSize;
 
         if (parts.cidxMode >= 1) {
             titleContentIndex = _WADGetCidx((ESContentMask*)&parts,
@@ -3601,39 +3613,40 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         } else {
             contentMeta = &titleMeta->contents[contentIndex];
         }
-        contentFd = ES_ImportContentBegin(titleMeta->head.titleId, contentMeta->cid);
-        if (contentFd < 0) {
-            result = contentFd;
-            ES_ImportContentEnd(contentFd);
+        value = ES_ImportContentBegin(titleMeta->head.titleId, contentMeta->cid);
+        if (value < 0) {
+            result = value;
+            ES_ImportContentEnd(value);
             ES_ImportTitleCancel();
             goto cleanup;
         }
 
-        remainingContentSize = ((u32)contentMeta->size + 0xF) & ~0xF;
-        while (remainingContentSize != 0) {
-            u32 chunkSize = remainingContentSize > remainingBufferSize ?
-                            remainingBufferSize : remainingContentSize;
+        size = ((u32)contentMeta->size + 0xF) & ~0xF;
+        while (size != 0) {
+            u32 chunkSize = size > remainingBufferSize ?
+                            remainingBufferSize : size;
             u32 readSize;
+            s32 readResult;
 
             readResult = DVDReadPrio(&fileInfo, contentBuffer, (chunkSize + 0x1F) & ~0x1F, sectionOffset, 2);
             readSize = (chunkSize + 0x1F) & ~0x1F;
             if ((u32)readResult != readSize) {
                 result = -3005;
-                ES_ImportContentEnd(contentFd);
+                ES_ImportContentEnd(value);
                 ES_ImportTitleCancel();
                 goto cleanup;
             }
             sectionOffset += readResult;
-            result = ES_ImportContentData(contentFd, contentBuffer, chunkSize);
+            result = ES_ImportContentData(value, contentBuffer, chunkSize);
             if (result < 0) {
-                ES_ImportContentEnd(contentFd);
+                ES_ImportContentEnd(value);
                 ES_ImportTitleCancel();
                 goto cleanup;
             }
-            remainingContentSize -= chunkSize;
+            size -= chunkSize;
         }
         sectionOffset = (sectionOffset + 0x3F) & ~0x3F;
-        result = ES_ImportContentEnd(contentFd);
+        result = ES_ImportContentEnd(value);
         if (result != 0) {
             ES_ImportTitleCancel();
             goto cleanup;
