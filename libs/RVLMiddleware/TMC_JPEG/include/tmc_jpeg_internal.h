@@ -252,11 +252,20 @@ s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work);
 s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work);
 s32 TMCJPEGDEC_set_converterRGBA8(TMCCJPEGDecWork* work);
 
+#ifdef TMC_JPEG_FRAME_PARSER
+extern const u8 TMCJPEGDEC_SampleH_N[6][4];
+extern const u8 TMCJPEGDEC_SampleV_N[6][4];
+#else
 extern const u8 TMCJPEGDEC_SampleH_N[24];
 extern const u8 TMCJPEGDEC_SampleV_N[24];
+#endif
 extern const u8 TMCJPEGDEC_Zigzag_data[64];
 extern const u32 TMCJPEGDEC_Zigzag_loop[64];
+#ifdef TMC_JPEG_FRAME_PARSER
+extern const u8 TMCJPEGDEC_SampleComps[];
+#else
 extern const u8 TMCJPEGDEC_SampleComps[6];
+#endif
 
 #ifdef __cplusplus
 }

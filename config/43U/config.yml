@@ -44,6 +44,18 @@ block_relocations:
     - source: .data:0x8165E19C
 
 add_relocations:
+    - source: .text:0x8152C08C
+      type: ha
+      target: __ArenaLo
+    - source: .text:0x8152C090
+      type: l
+      target: __ArenaLo
+    - source: .text:0x8152C134
+      type: ha
+      target: __ArenaLo
+    - source: .text:0x8152C138
+      type: l
+      target: __ArenaLo
     - source: .data:0x8165E15C
       type: abs
       target: csAninationFile__Q29textinput7toolbar

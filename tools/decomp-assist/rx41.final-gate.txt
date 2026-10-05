@@ -1,0 +1,35 @@
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[libs/RVL_SDK/src/os/OS] pool: IDENTICAL
+[libs/RVL_SDK/src/os/OS] objdiff: code 5084/5084 data 1240/1240 functions 21/21 fuzzy 100.0000 linked code 5084
+[libs/RVL_SDK/src/os/OS] instruction-exact functions: 21/21
+[libs/RVL_SDK/src/os/OS]   section .bss size 112 match 100.0
+[libs/RVL_SDK/src/os/OS]   section .data size 1008 match 100.0
+[libs/RVL_SDK/src/os/OS]   section .sbss size 72 match 100.0
+[libs/RVL_SDK/src/os/OS]   section .sdata size 48 match 100.0
+[libs/RVL_SDK/src/os/OS]   section .text size 5084 match 100.0
+[libs/RVL_SDK/src/os/OS] baseline: code 5084/5084 data 1240 functions 21 fuzzy 100.0000
+[libs/RVL_SDK/src/cntcache/cntcache] pool: IDENTICAL
+[libs/RVL_SDK/src/cntcache/cntcache] objdiff: code 1828/1828 data 280/280 functions 5/5 fuzzy 100.0000 linked code 1828
+[libs/RVL_SDK/src/cntcache/cntcache] instruction-exact functions: 5/5
+[libs/RVL_SDK/src/cntcache/cntcache]   section .bss size 24 match 100.0
+[libs/RVL_SDK/src/cntcache/cntcache]   section .data size 232 match 100.0
+[libs/RVL_SDK/src/cntcache/cntcache]   section .sbss size 16 match 100.0
+[libs/RVL_SDK/src/cntcache/cntcache]   section .sdata size 8 match 100.0
+[libs/RVL_SDK/src/cntcache/cntcache]   section .text size 1828 match 100.0
+[libs/RVL_SDK/src/cntcache/cntcache] baseline: code 1828/1828 data 280 functions 5 fuzzy 100.0000
+[libs/RVLMiddleware/TMC_JPEG/src/jpegdec/jdec_main] pool: IDENTICAL
+[libs/RVLMiddleware/TMC_JPEG/src/jpegdec/jdec_main] objdiff: code 5604/5604 data 256/256 functions 13/13 fuzzy 100.0000 linked code 5604
+[libs/RVLMiddleware/TMC_JPEG/src/jpegdec/jdec_main] instruction-exact functions: 13/13
+[libs/RVLMiddleware/TMC_JPEG/src/jpegdec/jdec_main]   section .rodata size 256 match 100.0
+[libs/RVLMiddleware/TMC_JPEG/src/jpegdec/jdec_main]   section .text size 5604 match 100.0
+[libs/RVLMiddleware/TMC_JPEG/src/jpegdec/jdec_main] baseline: code 5604/5604 data 256 functions 13 fuzzy 100.0000
+regressions vs baseline: 0
+global matched_code_percent: 93.99622 -> 93.99622
+global fuzzy_match_percent: 99.81744 -> 99.81744
+global complete_code_percent: 80.08451 -> 80.08451
+global matched_data_percent: 99.99410 -> 99.99410
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+note: config touched: config/43U/config.yml (orchestrator reviews every config/symbols change)
+GATE PASS
