@@ -19,13 +19,13 @@ DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "(other-group-owner)\n");
 DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "nocopy/cdbwiiid.dat");
 
 // These ones are used but they are pooled somewhere else
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "VFMountDriveNANDFlashEx VFErr=%d(%s)\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "home=%s\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "VFCreateSystemFileNANDFlashEx DEVErr=%d\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "VFMountDriveNANDFlashEx VFErr=%d\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "VFFormatDrive VFErr=%d\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "VFMountDriveNANDFlashEx %s->%s succeeded\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "VFChangeDir %s %s\n");
+static char mountError[] = "VFMountDriveNANDFlashEx VFErr=%d(%s)\n";
+static char homeDirectory[] = "home=%s\n";
+static char createFileError[] = "VFCreateSystemFileNANDFlashEx DEVErr=%d\n";
+static char retryMountError[] = "VFMountDriveNANDFlashEx VFErr=%d\n";
+static char formatError[] = "VFFormatDrive VFErr=%d\n";
+static char mountSuccess[] = "VFMountDriveNANDFlashEx %s->%s succeeded\n";
+static char changeDirectoryError[] = "VFChangeDir %s %s\n";
 
 static inline CDBErr CDBFSInitVFFile(void* cacheBuffer, u32 cacheSize) {
     VFErr vfErr;
@@ -33,7 +33,7 @@ static inline CDBErr CDBFSInitVFFile(void* cacheBuffer, u32 cacheSize) {
 
     vfErr = VFMountDriveNANDFlashCacheEx(CDB_CFG_VF_DRIVE_LETTER, CDB_VFF_FILE_NAME, cacheBuffer, cacheSize);
     if (vfErr != VF_ERR_SUCCESS) {
-        CDBReportInfo("VFMountDriveNANDFlashEx VFErr=%d(%s)\n", vfErr, VFGetApiErrorString(vfErr));
+        CDBReportInfo(mountError, vfErr, VFGetApiErrorString(vfErr));
 
         if (vfErr == VF_ERR_NOT_EXIST_FILE) {
             u32 nandCheck;
@@ -65,33 +65,33 @@ static inline CDBErr CDBFSInitVFFile(void* cacheBuffer, u32 cacheSize) {
                 char nandHomeDir[64];
                 NANDGetHomeDir(nandHomeDir);
 
-                CDBReportFatal("home=%s\n", nandHomeDir);
-                CDBReportFatal("VFCreateSystemFileNANDFlashEx DEVErr=%d\n", vfErr);
+                CDBReportFatal(homeDirectory, nandHomeDir);
+                CDBReportFatal(createFileError, vfErr);
                 return CDBOnNANDErrorOccured(vfErr);
             }
 
             vfErr = VFMountDriveNANDFlashCacheEx(CDB_CFG_VF_DRIVE_LETTER, CDB_VFF_FILE_NAME, cacheBuffer, cacheSize);
             if (vfErr != VF_ERR_SUCCESS) {
-                CDBReportFatal("VFMountDriveNANDFlashEx VFErr=%d\n", vfErr);
+                CDBReportFatal(retryMountError, vfErr);
                 return CDBOnVFErrorOccured(vfErr);
             }
 
             vfErr = VFFormatDrive(CDB_CFG_VF_DRIVE_LETTER);
             if (vfErr != VF_ERR_SUCCESS) {
-                CDBReportFatal("VFFormatDrive VFErr=%d\n", vfErr);
+                CDBReportFatal(formatError, vfErr);
                 return CDBOnVFErrorOccured(vfErr);
             }
         } else {
-            CDBReportFatal("VFMountDriveNANDFlashEx VFErr=%d(%s)\n", vfErr, VFGetApiErrorString(vfErr));
+            CDBReportFatal(mountError, vfErr, VFGetApiErrorString(vfErr));
             return CDBOnVFErrorOccured(vfErr);
         }
     }
 
-    CDBReportInfo("VFMountDriveNANDFlashEx %s->%s succeeded\n", CDB_VFF_FILE_NAME, CDB_CFG_VF_DRIVE_LETTER);
+    CDBReportInfo(mountSuccess, CDB_VFF_FILE_NAME, CDB_CFG_VF_DRIVE_LETTER);
 
     vfErr = VFChangeDir(CDB_CFG_VF_DRIVE_ROOT "/");
     if (vfErr != VF_ERR_SUCCESS) {
-        CDBReportFatal("VFChangeDir %s %s\n", CDB_CFG_VF_DRIVE_ROOT "/", VFGetApiErrorString(vfErr));
+        CDBReportFatal(changeDirectoryError, CDB_CFG_VF_DRIVE_ROOT "/", VFGetApiErrorString(vfErr));
         return CDBOnVFErrorOccured(vfErr);
     }
 

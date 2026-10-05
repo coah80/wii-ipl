@@ -131,7 +131,7 @@ void CDBConvMinuteValueToMinuteStr(char* minuteStr, int minute) {
     sprintf(minuteStr, "%02d", minute);
 }
 
-DECOMP_FORCE_ACTIVE(CDBConv_c, "%08X");
+static char wiiIdFormat[] = "%08X";
 
 void CDBGenRootPath(char* rootPath, CDBLocation location, u64* wiiId) {
     u32 wiiIdHi, wiiIdLo;
@@ -153,8 +153,8 @@ void CDBGenRootPath(char* rootPath, CDBLocation location, u64* wiiId) {
 
     strcpy(rootPath, CDB_SD_ROOT_PATH_LS);
 
-    sprintf(wiiIdHiPath, "%08X", wiiIdHi);
-    sprintf(wiiIdLoPath, "%08X", wiiIdLo);
+    sprintf(wiiIdHiPath, wiiIdFormat, wiiIdHi);
+    sprintf(wiiIdLoPath, wiiIdFormat, wiiIdLo);
 
     CDBFSConcatenatePath(rootPath, wiiIdHiPath);
     CDBFSConcatenatePath(rootPath, wiiIdLoPath);

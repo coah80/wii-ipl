@@ -42,7 +42,6 @@ static u32 VersionES = 0;
 static u32 ConsoleType = 0;
 static void* FatalFunc = NULL;
 
-#pragma force_active on
 char* getSuffix(const char* path) {
     char* suffix = strrchr(path, '.');
     if (suffix != NULL) {
@@ -50,7 +49,6 @@ char* getSuffix(const char* path) {
     }
     return suffix;
 }
-#pragma force_active off
 
 static void* UpdateThread(void* argument);
 

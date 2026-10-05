@@ -1,7 +1,7 @@
 #include <private/axfx.h>
-#include <revolution/AXFX.h>
-#include <revolution/MEM.h>
-#include <revolution/OS.h>
+#include <revolution/axfx.h>
+#include <revolution/mem.h>
+#include <revolution/os.h>
 
 #include <math.h>
 #include <string.h>
@@ -371,10 +371,9 @@ static void __FreeDelayLine(AXFX_REVERBHI_EXP* fx) {
     }
 }
 
-DECOMP_FORCE_LITERAL(AXFXReverbHiExp_c, -3.0f, 10.0);
-
 static BOOL __InitParams(AXFX_REVERBHI_EXP* reverb) {
     u32 ch, i;
+    f32 attenuation;
 
     if (reverb->earlyMode >= 8)
         return FALSE;
@@ -421,7 +420,8 @@ static BOOL __InitParams(AXFX_REVERBHI_EXP* reverb) {
     for (i = 0; i < 3; i++) {
         reverb->combPos[i] = 0;
         reverb->combLength[i] = __FilterSizeTable[reverb->fusedMode][i];
-        reverb->combCoef[i] = pow(10.0f, (-3.0f * (f32)(reverb->combLength[i]) / (f32)(reverb->fusedTime * 32000)));
+        attenuation = -3.0f * (f32)reverb->combLength[i] / (reverb->fusedTime * 32000);
+        reverb->combCoef[i] = pow(10.0, attenuation);
     }
 
     for (i = 0; i < 2; i++) {

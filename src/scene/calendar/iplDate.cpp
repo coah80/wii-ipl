@@ -13,10 +13,7 @@ namespace ipl {
         extern "C" char scInfo_a[];
         extern "C" char scB_Cal[];
 
-        #pragma push
-        #pragma section const_type ".data"
-        extern "C" const char scN_CalDay_r[] = "N_CalDay_r";
-        #pragma pop
+        extern "C" char scN_CalDay_r[] = "N_CalDay_r";
 
         // clang-format off
         extern "C" const char* scDateAnimPaneNames[Date::ANIM_PANE_MAX] = {
@@ -27,21 +24,15 @@ namespace ipl {
             scInfo_a,
         };
 
-        #pragma push
-        #pragma section const_type ".data"
-        extern "C" const char scMyIplTopFBrlan[] = "my_IplTop_f.brlan";
-        extern "C" const char scN_CalDay_t[] = "N_CalDay_t";
-        extern "C" const char scSEDateFocus[] = "WIPL_SE_DATE_FOCUS";
-        #pragma pop
+        extern "C" char scMyIplTopFBrlan[] = "my_IplTop_f.brlan";
+        extern "C" char scN_CalDay_t[] = "N_CalDay_t";
+        extern "C" char scSEDateFocus[] = "WIPL_SE_DATE_FOCUS";
 
-        #pragma push
-        #pragma section const_type ".sdata"
         extern "C" char scW_Cal[] = "W_Cal";
         extern "C" char scT_Cal[] = "T_Cal";
         extern "C" char scCal_Ac[] = "Cal_Ac";
         extern "C" char scInfo_a[] = "Info_a";
         extern "C" char scB_Cal[] = "B_Cal";
-        #pragma pop
 
         static const Date::AnmFrame scAnmFrame[] = {
             { Date::ANIM_PANE_BTN_HOVER,    0.0f,  6.0f  },
@@ -310,9 +301,7 @@ namespace ipl {
             onCmdRecv(3);
         }
 
-        #pragma push
-        #pragma section sconst_type ".sdata2"
         extern "C" const f32 scDateZeroF = 0.0f;
-        #pragma pop
+
     }  // namespace scene
 }  // namespace ipl

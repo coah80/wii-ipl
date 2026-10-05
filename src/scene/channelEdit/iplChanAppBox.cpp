@@ -2,30 +2,25 @@
 
 #include "scene/channelEdit/iplChannelEdit.h"
 
-#pragma push
-#pragma section const_type ".data"
-extern "C" const char scBrlan_SaveDataIn[] = "it_ObjChannelEdit_b_SaveDataIn.brlan";
-extern "C" const char scBrlan_SaveDataOut[] = "it_ObjChannelEdit_b_SaveDataOut.brlan";
-extern "C" const char scBrlan_SaveDataFocusIn[] = "it_ObjChannelEdit_b_SaveDataFoucusIn.brlan";
-extern "C" const char scBrlan_SaveDataFocusOut[] = "it_ObjChannelEdit_b_SaveDataFoucusOut.brlan";
-extern "C" const char scPaneName_N_Data16x9[] = "N_Data16x9";
-extern "C" const char scPaneName_N_Data4x3[] = "N_Data4x3";
-extern "C" const char scPaneName_B_Data_01[] = "B_Data_01";
-extern "C" const char scPaneName_B_Data_00[] = "B_Data_00";
-extern "C" const char scPaneName_N_Atari16x9[] = "N_Atari16x9";
-extern "C" const char scPaneName_N_Data_01[] = "N_Data_01";
-extern "C" const char scPaneName_N_Atari4x3[] = "N_Atari4x3";
-extern "C" const char scPaneName_N_Data_00[] = "N_Data_00";
-extern "C" const char scPaneName_DataBaseCover_00[] = "DataBaseCover_00";
-extern "C" const char scPaneName_DataBaseCover_01[] = "DataBaseCover_01";
-#pragma section const_type ".sdata"
-extern "C" __declspec(section ".sdata") const char scGroup_G_Data[] = "G_Data";
-extern "C" __declspec(section ".sdata") const wchar_t scUnknownWstr[] = L"???";
-#pragma section sconst_type ".sdata2"
-extern "C" __declspec(section ".sdata2") const f32 scHalfF = 0.5f;
-extern "C" __declspec(section ".sdata2") const f32 scTwoF = 2.0f;
-extern "C" __declspec(section ".sdata2") const f64 scF2IBias = 4503599627370496.0;
-#pragma pop
+extern "C" char scBrlan_SaveDataIn[] = "it_ObjChannelEdit_b_SaveDataIn.brlan";
+extern "C" char scBrlan_SaveDataOut[] = "it_ObjChannelEdit_b_SaveDataOut.brlan";
+extern "C" char scBrlan_SaveDataFocusIn[] = "it_ObjChannelEdit_b_SaveDataFoucusIn.brlan";
+extern "C" char scBrlan_SaveDataFocusOut[] = "it_ObjChannelEdit_b_SaveDataFoucusOut.brlan";
+extern "C" char scPaneName_N_Data16x9[] = "N_Data16x9";
+extern "C" char scPaneName_N_Data4x3[] = "N_Data4x3";
+extern "C" char scPaneName_B_Data_01[] = "B_Data_01";
+extern "C" char scPaneName_B_Data_00[] = "B_Data_00";
+extern "C" char scPaneName_N_Atari16x9[] = "N_Atari16x9";
+extern "C" char scPaneName_N_Data_01[] = "N_Data_01";
+extern "C" char scPaneName_N_Atari4x3[] = "N_Atari4x3";
+extern "C" char scPaneName_N_Data_00[] = "N_Data_00";
+extern "C" char scPaneName_DataBaseCover_00[] = "DataBaseCover_00";
+extern "C" char scPaneName_DataBaseCover_01[] = "DataBaseCover_01";
+extern "C" char scGroup_G_Data[] = "G_Data";
+extern "C" wchar_t scUnknownWstr[] = L"???";
+extern "C" const f32 scHalfF = 0.5f;
+extern "C" const f32 scTwoF = 2.0f;
+extern "C" const f64 scF2IBias = 4503599627370496.0;
 
 namespace ipl {
     namespace scene {

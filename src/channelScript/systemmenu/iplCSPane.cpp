@@ -1,7 +1,7 @@
 #include <revolution/gx/GXStruct.h>
 #include <revolution/os/OSError.h>
 
-extern "C" const char scCsFatalMsg[];
+extern "C" char scCsFatalMsg[];
 extern "C" const u8 scCsFatalColorR;
 extern "C" const u8 scCsFatalColorG;
 extern "C" const u8 scCsFatalColorB;
@@ -620,10 +620,7 @@ namespace ipl {
 namespace ipl {
     namespace cs {
         namespace pane {
-#pragma push
-#pragma section const_type ".data"
-            extern "C" const char scCsFatalMsg[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
-#pragma pop
+            extern "C" char scCsFatalMsg[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
 
 #pragma push
 #pragma section data_type ".sdata"
