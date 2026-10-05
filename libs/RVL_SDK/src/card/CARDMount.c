@@ -79,7 +79,7 @@ static s32 DoMount(s32 chan) {
 
     card = &__CARDBlock[chan];
     if (card->mountStep == 0) {
-        if (EXIGetID(chan, 0, &id) == 0) {
+        if (!EXIGetID(chan, 0, &id)) {
             result = CARD_RESULT_NOCARD;
         } else if (IsCard(id)) {
             result = CARD_RESULT_READY;

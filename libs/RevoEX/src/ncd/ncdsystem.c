@@ -130,14 +130,14 @@ NCDErr NCDSetIfConfig(NCDIfConfig* ifConfig) {
             result = ExecConfigCommand("NCDSetIfConfig", NULL, 4);
         }
         NWC24iUnlockSocket();
-    } else if (lockErr == -0x16) {
+    } else if (lockErr == NWC24_ERR_MUTEX) {
         result = -4;
-    } else if (lockErr == -0x1d) {
-        result = -8;
+    } else if (lockErr == NWC24_ERR_INPROGRESS) {
+        result = NCD_RESULT_INPROGRESS;
     } else {
         result = -2;
     }
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
     return result;
 }
 
@@ -217,14 +217,14 @@ NCDErr NCDSetIpConfig(NCDIpConfig* ipConfig) {
             err = ExecConfigCommand("NCDSetIpConfig", NULL, 4);
         }
         NWC24iUnlockSocket();
-    } else if (err == -0x16) {
+    } else if (err == NWC24_ERR_MUTEX) {
         err = -4;
-    } else if (err == -0x1d) {
-        err = -8;
+    } else if (err == NWC24_ERR_INPROGRESS) {
+        err = NCD_RESULT_INPROGRESS;
     } else {
         err = -2;
     }
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
     return err;
 }
 
@@ -266,7 +266,7 @@ NCDErr NCDGetCurrentIpConfig(NCDIpConfig* ipConfig) {
         }
     }
 
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
     return err;
 }
 
@@ -281,8 +281,8 @@ NCDErr NCDGetLinkStatus(void) {
     LockRight();
     fd = IOS_Open("/dev/net/ncd/manage", 0);
     if (fd < 0) {
-        if (fd == -6) {
-            err = -8;
+        if (fd == IPC_RESULT_NOEXISTS) {
+            err = NCD_RESULT_INPROGRESS;
         } else {
             err = -2;
         }
@@ -302,7 +302,7 @@ NCDErr NCDGetLinkStatus(void) {
             err = -1;
         }
     }
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
     return err;
 }
 
@@ -337,8 +337,8 @@ NCDErr NCDiGetWirelessMacAddress(u8* macAddr) {
     LockRight();
     fd = IOS_Open("/dev/net/ncd/manage", 0);
     if (fd < 0) {
-        if (fd == -6) {
-            err = -8;
+        if (fd == IPC_RESULT_NOEXISTS) {
+            err = NCD_RESULT_INPROGRESS;
         } else {
             err = -2;
         }
@@ -359,7 +359,7 @@ NCDErr NCDiGetWirelessMacAddress(u8* macAddr) {
             err = -1;
         }
     }
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
     return err;
 }
 
@@ -374,8 +374,8 @@ NCDErr NCDLockWirelessDriver(void) {
     LockRight();
     fd = IOS_Open("/dev/net/ncd/manage", 0);
     if (fd < 0) {
-        if (fd == -6) {
-            err = -8;
+        if (fd == IPC_RESULT_NOEXISTS) {
+            err = NCD_RESULT_INPROGRESS;
         } else {
             err = -2;
         }
@@ -395,7 +395,7 @@ NCDErr NCDLockWirelessDriver(void) {
             err = -1;
         }
     }
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
     return err;
 }
 
@@ -413,8 +413,8 @@ NCDErr NCDUnlockWirelessDriver(s32 id) {
     LockRight();
     fd = IOS_Open("/dev/net/ncd/manage", 0);
     if (fd < 0) {
-        if (fd == -6) {
-            err = -8;
+        if (fd == IPC_RESULT_NOEXISTS) {
+            err = NCD_RESULT_INPROGRESS;
         } else {
             err = -2;
         }
@@ -433,7 +433,7 @@ NCDErr NCDUnlockWirelessDriver(s32 id) {
             err = -1;
         }
     }
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
     return err;
 }
 
@@ -452,14 +452,14 @@ s32 NCDRestoreConfig(void) {
             err = ExecConfigCommand("NCDRestoreConfig", NULL, 4);
         }
         NWC24iUnlockSocket();
-    } else if (err == -0x16) {
+    } else if (err == NWC24_ERR_MUTEX) {
         err = -4;
-    } else if (err == -0x1d) {
-        err = -8;
+    } else if (err == NWC24_ERR_INPROGRESS) {
+        err = NCD_RESULT_INPROGRESS;
     } else {
         err = -2;
     }
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
     return err;
 }
 
@@ -493,7 +493,7 @@ NCDErr NCDiGetEnabledConfigList(u32* list0, u32* list1, u32* list2) {
             }
         }
     }
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
 
     if (list0 != NULL) {
         *list0 = mask0;
@@ -518,8 +518,8 @@ static NCDErr ExecConfigCommand(const char* name, NCDConfig* config, u32 command
     LockRight();
     fd = IOS_Open("/dev/net/ncd/manage", 0);
     if (fd < 0) {
-        if (fd == -6) {
-            err = -8;
+        if (fd == IPC_RESULT_NOEXISTS) {
+            err = NCD_RESULT_INPROGRESS;
         } else {
             err = -2;
         }
@@ -557,7 +557,7 @@ static NCDErr ExecConfigCommand(const char* name, NCDConfig* config, u32 command
             err = -1;
         }
     }
-    OSUnlockMutex((OSMutex*)&ncdMutex);
+    OSUnlockMutex(&ncdMutex.mutex);
     return err;
 }
 
@@ -568,7 +568,7 @@ static void LockRight(void) {
     enabled = OSDisableInterrupts();
     if (!(ncdInitialized & 1)) {
         OSRegisterVersion(__NCDVersion);
-        OSInitMutex((OSMutex*)&ncdMutex);
+        OSInitMutex(&ncdMutex.mutex);
         lo = (void*)OSRoundUp32B(IPCGetBufferLo());
         if ((u32)IPCGetBufferHi() - (u32)lo < NCD_IPC_HEAP_SIZE) {
             OSPanic("ncdsystem.c", 0x5B1, "Could not reserve heap for NCD library from IPC arena");
@@ -581,5 +581,5 @@ static void LockRight(void) {
         ncdInitialized |= 1;
     }
     OSRestoreInterrupts(enabled);
-    OSLockMutex((OSMutex*)&ncdMutex);
+    OSLockMutex(&ncdMutex.mutex);
 }

@@ -107,7 +107,7 @@ CNTError contentOpenNAND(CNTHandleNAND* cntHandle, const char* path, CNTFileInfo
         return CNT_RESULT_INVALID;
     }
 
-    if (ARCFastOpen(&cntHandle->ArcHandle, entryNum, &arcFile) == FALSE) {
+    if (!ARCFastOpen(&cntHandle->ArcHandle, entryNum, &arcFile)) {
         return CNT_RESULT_INVALID;
     }
 
@@ -130,7 +130,7 @@ s32 contentOpenDVD(CNTHandleDVD* cntHandle, const char* path, CNTFileInfoDVD* cn
         return CNT_RESULT_INVALID;
     }
 
-    if (DVDFastOpen(entryNum, &cntFileInfo->fileInfo) == FALSE) {
+    if (!DVDFastOpen(entryNum, &cntFileInfo->fileInfo)) {
         return CNT_RESULT_INVALID;
     }
 
@@ -144,7 +144,7 @@ CNTError contentFastOpenNAND(CNTHandleNAND* cntHandle, s32 entryNum, CNTFileInfo
 
     ARCFileInfo arcFile;
 
-    if (ARCFastOpen(&cntHandle->ArcHandle, entryNum, &arcFile) == FALSE) {
+    if (!ARCFastOpen(&cntHandle->ArcHandle, entryNum, &arcFile)) {
         return CNT_RESULT_INVALID;
     }
 

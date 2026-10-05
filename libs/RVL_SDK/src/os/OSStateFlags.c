@@ -41,7 +41,7 @@ BOOL __OSWriteStateFlags(OSStateFlags* flags) {
     memcpy(&StateFlags, flags, sizeof(StateFlags));
     StateFlags.checkSum = checkSum(&StateFlags);
 
-    ret = NANDOpen(OS_STATE_FLAGS_NAND_PATH, &fileInfo, 2);
+    ret = NANDOpen(OS_STATE_FLAGS_NAND_PATH, &fileInfo, NAND_ACCESS_WRITE);
 
     if (ret == NAND_RESULT_OK) {
         ret = NANDWrite(&fileInfo, &StateFlags, sizeof(StateFlags));
@@ -67,7 +67,7 @@ BOOL __OSReadStateFlags(OSStateFlags* flags) {
     NANDFileInfo fileInfo;
     s32 ret;
 
-    ret = NANDOpen(OS_STATE_FLAGS_NAND_PATH, &fileInfo, 1);
+    ret = NANDOpen(OS_STATE_FLAGS_NAND_PATH, &fileInfo, NAND_ACCESS_READ);
 
     if (ret == NAND_RESULT_OK) {
         ret = NANDRead(&fileInfo, &StateFlags, sizeof(OSStateFlags));

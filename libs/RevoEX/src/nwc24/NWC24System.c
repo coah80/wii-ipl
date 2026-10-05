@@ -17,9 +17,9 @@ NWC24Err NWC24EnableLedNotification(BOOL enable) {
     if (enable) {
         do {
             status = SCCheckStatus();
-            if (status == 2)
+            if (status == SC_STATUS_FATAL)
                 return NWC24_ERR_FATAL;
-        } while (status == 1);
+        } while (status == SC_STATUS_BUSY);
         SCGetIdleMode(&idleMode);
         led = idleMode.led;
     }
@@ -40,13 +40,13 @@ NWC24Err NWC24iPrepareShutdown(void) {
     nwc24ShtRetryRest = 5;
     do {
         status = SCCheckStatus();
-        if (status == 2)
+        if (status == SC_STATUS_FATAL)
             goto ready;
-    } while (status == 1);
+    } while (status == SC_STATUS_BUSY);
     SCGetIdleMode(&idleMode);
     __OSSetIdleLEDMode(idleMode.led);
 ready:
-    if (OSGetAppType() == 0x40)
+    if (OSGetAppType() == OS_APP_TYPE_IPL)
         NWC24iSetScriptMode(1);
     return result;
 }
@@ -91,14 +91,14 @@ NWC24Err NWC24DoDailyTasks(void* work) {
         return NWC24_ERR_LIB_OPENED;
     do {
         status = SCCheckStatus();
-        if (status == 2)
+        if (status == SC_STATUS_FATAL)
             return NWC24_ERR_FATAL;
         OSSleepTicks(OSMillisecondsToTicks((OSTime)100));
-    } while (status != 0);
+    } while (status != SC_STATUS_OK);
     if (!SCGetIdleMode(&idleMode))
         return NWC24_ERR_NOT_FOUND;
     restrictions = SCGetNetContentRestrictions() & 2;
-    if (idleMode.standby == 0) {
+    if (idleMode.standby == SC_IDLE_MODE_STANDBY_OFF) {
         if (restrictions == 0) {
             result = NWC24OpenLib(work);
             if (result >= 0) {

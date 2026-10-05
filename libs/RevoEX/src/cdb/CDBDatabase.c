@@ -1327,12 +1327,12 @@ CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLocati
         return CDB_ERROR_26;
     }
 
-    if ((recordLocation & 1) != 0) {
-        CDBFSFindFirstRoot(find, 1);
-        while (CDBFindDataIsEnd(find) == 0) {
-            if (CDBFindDataIsDirectory(find) != 0) {
-                if (CDBFSIsYearDirName(CDBFindDataGetName(find)) != 0) {
-                    result = CDBDatabaseCleanUpEmptyDirectoriesMonth(CDBFindDataGetName(find), 1, NULL);
+    if ((recordLocation & CDB_RECORD_LOCATION_NAND) != 0) {
+        CDBFSFindFirstRoot(find, CDB_FS_LOCATION_NAND);
+        while (!CDBFindDataIsEnd(find)) {
+            if (CDBFindDataIsDirectory(find)) {
+                if (CDBFSIsYearDirName(CDBFindDataGetName(find))) {
+                    result = CDBDatabaseCleanUpEmptyDirectoriesMonth(CDBFindDataGetName(find), CDB_FS_LOCATION_NAND, NULL);
                     if (result != CDB_ERROR_OK) {
                         return result;
                     }
@@ -1345,18 +1345,18 @@ CDBErr CDBDatabaseCleanUpEmptyDirectories(CDBDatabase* database, CDBRecordLocati
 
     CDBVFSync();
     sdAvailable = 0;
-    if (CDBFSSDIsMounted() != 0) {
+    if (CDBFSSDIsMounted()) {
         if (CDBFSSDIsEjected() == 0) {
             sdAvailable = 1;
         }
     }
     if (sdAvailable != 0) {
-        if ((recordLocation & 2) != 0) {
-            CDBFSFindFirstRoot(find, 2);
-            while (CDBFindDataIsEnd(find) == 0) {
-                if (CDBFindDataIsDirectory(find) != 0) {
-                    if (CDBFSIsYearDirName(CDBFindDataGetName(find)) != 0) {
-                        result = CDBDatabaseCleanUpEmptyDirectoriesMonth(CDBFindDataGetName(find), 2, NULL);
+        if ((recordLocation & CDB_RECORD_LOCATION_SD) != 0) {
+            CDBFSFindFirstRoot(find, CDB_FS_LOCATION_SD);
+            while (!CDBFindDataIsEnd(find)) {
+                if (CDBFindDataIsDirectory(find)) {
+                    if (CDBFSIsYearDirName(CDBFindDataGetName(find))) {
+                        result = CDBDatabaseCleanUpEmptyDirectoriesMonth(CDBFindDataGetName(find), CDB_FS_LOCATION_SD, NULL);
                         if (result != CDB_ERROR_OK) {
                             return result;
                         }

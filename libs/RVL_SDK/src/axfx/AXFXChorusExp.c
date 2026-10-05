@@ -113,7 +113,7 @@ void AXFXChorusExpCallback(AXFX_BUFFERUPDATE* update, AXFX_CHORUS_EXP* fx) {
         else if (position < 0) position += fx->delay.sizeFP;
         distance = position - fx->delay.lastPos;
         if ((s32)distance < 0) distance += fx->delay.sizeFP;
-        whole = (u32)distance >> 16;
+        whole = distance >> 16;
         fraction = distance & 0xFFFF;
         source = fx->delay.lastPos >> 16;
         history = fx->histIndex;

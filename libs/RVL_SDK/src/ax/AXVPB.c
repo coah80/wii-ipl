@@ -899,8 +899,8 @@ void AXSetVoiceSrcRatio(AXVPB* vpb, float ratio) {
 
     old = OSDisableInterrupts();
     r = 65536.0f * ratio;
-    vpb->pb.src.ratioHi = ((u32)r >> 0x10);
-    vpb->pb.src.ratioLo = ((u32)r);
+    vpb->pb.src.ratioHi = (r >> 0x10);
+    vpb->pb.src.ratioLo = r;
     vpb->sync |= AX_PBSYNC_SRC_RATIO;
     OSRestoreInterrupts(old);
 }

@@ -102,8 +102,8 @@ void GXSetDispCopyFrame2Field(GXCopyMode mode) {
 }
 
 void GXSetCopyClamp(GXFBClamp clamp) {
-    u8 clmpT = (clamp & GX_CLAMP_TOP) == 1;
-    u8 clmpB = (clamp & GX_CLAMP_BOTTOM) == 2;
+    u8 clmpT = (clamp & GX_CLAMP_TOP) == GX_CLAMP_TOP;
+    u8 clmpB = (clamp & GX_CLAMP_BOTTOM) == GX_CLAMP_BOTTOM;
 
     SET_REG_FIELD(__GXData->cpDisp, 1, 0, clmpT);
     SET_REG_FIELD(__GXData->cpDisp, 1, 1, clmpB);
@@ -315,7 +315,7 @@ void GXCopyDisp(void* dest, GXBool clear) {
 
     changePeCtrl = FALSE;
 
-    if ((clear || (u32)GET_REG_FIELD(__GXData->peCtrl, 3, 0) == 3) && (u32)GET_REG_FIELD(__GXData->peCtrl, 1, 6) == 1) {
+    if ((clear || (u32)GET_REG_FIELD(__GXData->peCtrl, 3, 0) == GX_PF_Z24) && (u32)GET_REG_FIELD(__GXData->peCtrl, 1, 6) == 1) {
         changePeCtrl = TRUE;
         tempPeCtrl = __GXData->peCtrl;
         SET_REG_FIELD(tempPeCtrl, 1, 6, 0);
@@ -370,12 +370,12 @@ void GXCopyTex(void* dest, GXBool clear) {
     changePeCtrl = 0;
     tempPeCtrl = __GXData->peCtrl;
 
-    if (__GXData->cpTexZ && ((tempPeCtrl & 7) != 3)) {
+    if (__GXData->cpTexZ && ((tempPeCtrl & 7) != GX_PF_Z24)) {
         changePeCtrl = 1;
-        SET_REG_FIELD(tempPeCtrl, 3, 0, 3);
+        SET_REG_FIELD(tempPeCtrl, 3, 0, GX_PF_Z24);
     }
 
-    if ((clear || ((u32)(tempPeCtrl & 7) == 3)) && ((u32)((tempPeCtrl >> 6) & 1) == 1)) {
+    if ((clear || ((tempPeCtrl & 7) == GX_PF_Z24)) && (((tempPeCtrl >> 6) & 1) == 1)) {
         changePeCtrl = 1;
         SET_REG_FIELD(tempPeCtrl, 1, 6, 0);
     }

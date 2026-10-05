@@ -230,7 +230,7 @@ BOOL __OSCheckMutexes(OSThread* thread) {
         if (mutex->thread != thread) {
             return FALSE;
         }
-        if (__OSCheckMutex(mutex) == FALSE) {
+        if (!__OSCheckMutex(mutex)) {
             return FALSE;
         }
         mutex = mutex->link.next;

@@ -275,12 +275,12 @@ static void getDevConfig(s32 chan, s32 result) {
         DEBUGPrint("x = %lf, y = %lf\n", x[i], y[i]);
     }
 
-    difaveX = (f32)((f32)difaveX / (f32)4.0f);
-    difaveY = (f32)((f32)difaveY / (f32)4.0f);
-    deltaX = (f32)atan((f32)((f32)((f32)126.5f + difaveX) / (f32)(1332.5f))) - (f32)atan((f32)((f32)126.5f / 1332.5f));
-    deltaY = (f32)atan((f32)((f32)((f32)93.0f + difaveY) / (f32)(1337.4f))) - (f32)atan((f32)((f32)93.0f / 1337.4f));
-    calibX[chan] = (f32)(-1.0f * (f32)tan(deltaX)) * 1332.5f;
-    calibY[chan] = (f32)(-1.0f * (f32)tan(deltaY)) * 1337.4f;
+    difaveX = difaveX / 4.0f;
+    difaveY = difaveY / 4.0f;
+    deltaX = (f32)atan((126.5f + difaveX) / 1332.5f) - (f32)atan(126.5f / 1332.5f);
+    deltaY = (f32)atan((93.0f + difaveY) / 1337.4f) - (f32)atan(93.0f / 1337.4f);
+    calibX[chan] = (-1.0f * (f32)tan(deltaX)) * 1332.5f;
+    calibY[chan] = (-1.0f * (f32)tan(deltaY)) * 1337.4f;
 
     DEBUGPrint("difaveX = %lf, difaveY = %lf\n", difaveX, difaveY);
     DEBUGPrint("deltaX  = %lf, deltaY  = %lf\n", deltaX, deltaY);
@@ -294,19 +294,19 @@ static void getDevConfig(s32 chan, s32 result) {
         centerY[chan] += y[i];
     }
 
-    centerX[chan] = (f32)((f32)centerX[chan] / (f32)4.0f);
-    centerY[chan] = (f32)((f32)centerY[chan] / (f32)4.0f);
+    centerX[chan] = centerX[chan] / 4.0f;
+    centerY[chan] = centerY[chan] / 4.0f;
     DEBUGPrint("centX  = %lf, centY  = %lf\n", centerX[chan], centerY[chan]);
 
     rolag[chan] = 0.0f;
     for (i = 0; i < WPAD_DPD_MAX_OBJECTS; i++) {
-        ag[i] = (f32)atan((f32)(y[i] - centerY[chan]) / (f32)(x[i] - centerX[chan]));
-        ag_org[i] = (f32)atan((f32)((f32)(defaultDpdY[i]) - 383.5f) / (f32)((f32)(defaultDpdX[i]) - 511.5f));
+        ag[i] = (f32)atan((y[i] - centerY[chan]) / (x[i] - centerX[chan]));
+        ag_org[i] = (f32)atan(((f32)defaultDpdY[i] - 383.5f) / ((f32)defaultDpdX[i] - 511.5f));
 
         rolag[chan] += ag[i] - ag_org[i];
     }
 
-    rolag[chan] = (f32)((f32)rolag[chan] / (f32)4.0f);
+    rolag[chan] = rolag[chan] / 4.0f;
     DEBUGPrint("rolag  = %lf\n", rolag[chan]);
 
     for (i = 0; i < 2; i++) {
@@ -857,7 +857,7 @@ static void __parse_dpd_data(s32 chan, WPADStatus** p_status, u8 fmt, u8* p_data
     f32 a;
     f32 b;
 
-    if (fmt == 3) {
+    if (fmt == WPAD_DPD_STANDARD) {
         for (i = 0; i < WPAD_DPD_MAX_OBJECTS; i++) {
             if (i * 3 + 2 < len) {
                 x = *(p_data + i * 3);
@@ -882,7 +882,7 @@ static void __parse_dpd_data(s32 chan, WPADStatus** p_status, u8 fmt, u8* p_data
                 (*p_status)->obj[i].traceId = i;
             }
         }
-    } else if (fmt == 1) {
+    } else if (fmt == WPAD_DPD_BASIC) {
         for (i = 0; i < WPAD_DPD_MAX_OBJECTS; i++) {
             x = *(p_data + i * 3 - (i / 2));
             y = *(p_data + i * 3 - (i / 2) + 1);
@@ -912,9 +912,9 @@ static void __parse_dpd_data(s32 chan, WPADStatus** p_status, u8 fmt, u8* p_data
             a = (((f32)(*p_status)->obj[i].x) + calibX[chan] - centerX[chan]);
             b = (((f32)p_cur->obj[i].y) + calibY[chan] - centerY[chan]);
             p_cur->obj[i].x =
-                (s16)((f32)((f32)a * (f32)cos(-1.0f * rolag[chan])) - (f32)((f32)b * (f32)sin(-1.0f * rolag[chan])) + centerX[chan]);
+                (s16)((a * (f32)cos(-1.0f * rolag[chan])) - (b * (f32)sin(-1.0f * rolag[chan])) + centerX[chan]);
             (*p_status)->obj[i].y =
-                (s16)((f32)((f32)a * (f32)sin(-1.0f * rolag[chan])) + (f32)((f32)b * (f32)cos(-1.0f * rolag[chan])) + centerY[chan]);
+                (s16)((a * (f32)sin(-1.0f * rolag[chan])) + (b * (f32)cos(-1.0f * rolag[chan])) + centerY[chan]);
         }
     }
 }

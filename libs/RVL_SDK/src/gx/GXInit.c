@@ -373,14 +373,14 @@ void __GXInitGX() {
     }
 
     GXSetCopyClear(clear, 0xFFFFFF);
-    GXSetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, 0x3C);
-    GXSetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX1, 0x3C);
-    GXSetTexCoordGen(GX_TEXCOORD2, GX_TG_MTX2x4, GX_TG_TEX2, 0x3C);
-    GXSetTexCoordGen(GX_TEXCOORD3, GX_TG_MTX2x4, GX_TG_TEX3, 0x3C);
-    GXSetTexCoordGen(GX_TEXCOORD4, GX_TG_MTX2x4, GX_TG_TEX4, 0x3C);
-    GXSetTexCoordGen(GX_TEXCOORD5, GX_TG_MTX2x4, GX_TG_TEX5, 0x3C);
-    GXSetTexCoordGen(GX_TEXCOORD6, GX_TG_MTX2x4, GX_TG_TEX6, 0x3C);
-    GXSetTexCoordGen(GX_TEXCOORD7, GX_TG_MTX2x4, GX_TG_TEX7, 0x3C);
+    GXSetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
+    GXSetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX1, GX_IDENTITY);
+    GXSetTexCoordGen(GX_TEXCOORD2, GX_TG_MTX2x4, GX_TG_TEX2, GX_IDENTITY);
+    GXSetTexCoordGen(GX_TEXCOORD3, GX_TG_MTX2x4, GX_TG_TEX3, GX_IDENTITY);
+    GXSetTexCoordGen(GX_TEXCOORD4, GX_TG_MTX2x4, GX_TG_TEX4, GX_IDENTITY);
+    GXSetTexCoordGen(GX_TEXCOORD5, GX_TG_MTX2x4, GX_TG_TEX5, GX_IDENTITY);
+    GXSetTexCoordGen(GX_TEXCOORD6, GX_TG_MTX2x4, GX_TG_TEX6, GX_IDENTITY);
+    GXSetTexCoordGen(GX_TEXCOORD7, GX_TG_MTX2x4, GX_TG_TEX7, GX_IDENTITY);
     GXSetNumTexGens(1);
     GXClearVtxDesc();
     GXInvalidateVtxCache();
@@ -395,14 +395,14 @@ void __GXInitGX() {
 
     GXSetLineWidth(6, GX_TO_ZERO);
     GXSetPointSize(6, GX_TO_ZERO);
-    GXEnableTexOffsets(GX_TEXCOORD0, 0, 0);
-    GXEnableTexOffsets(GX_TEXCOORD1, 0, 0);
-    GXEnableTexOffsets(GX_TEXCOORD2, 0, 0);
-    GXEnableTexOffsets(GX_TEXCOORD3, 0, 0);
-    GXEnableTexOffsets(GX_TEXCOORD4, 0, 0);
-    GXEnableTexOffsets(GX_TEXCOORD5, 0, 0);
-    GXEnableTexOffsets(GX_TEXCOORD6, 0, 0);
-    GXEnableTexOffsets(GX_TEXCOORD7, 0, 0);
+    GXEnableTexOffsets(GX_TEXCOORD0, GX_FALSE, GX_FALSE);
+    GXEnableTexOffsets(GX_TEXCOORD1, GX_FALSE, GX_FALSE);
+    GXEnableTexOffsets(GX_TEXCOORD2, GX_FALSE, GX_FALSE);
+    GXEnableTexOffsets(GX_TEXCOORD3, GX_FALSE, GX_FALSE);
+    GXEnableTexOffsets(GX_TEXCOORD4, GX_FALSE, GX_FALSE);
+    GXEnableTexOffsets(GX_TEXCOORD5, GX_FALSE, GX_FALSE);
+    GXEnableTexOffsets(GX_TEXCOORD6, GX_FALSE, GX_FALSE);
+    GXEnableTexOffsets(GX_TEXCOORD7, GX_FALSE, GX_FALSE);
     identity_mtx[0][0] = 1.0f;
     identity_mtx[0][1] = 0.0f;
     identity_mtx[0][2] = 0.0f;
@@ -436,10 +436,10 @@ void __GXInitGX() {
     GXSetChanAmbColor(GX_COLOR1A1, black);
     GXSetChanMatColor(GX_COLOR1A1, white);
     GXInvalidateTexAll();
-    GXSetTexRegionCallback((GXTexRegionCallback)__GXDefaultTexRegionCallback);
+    GXSetTexRegionCallback(__GXDefaultTexRegionCallback);
     GXSetTlutRegionCallback(__GXDefaultTlutRegionCallback);
 
-    GXInitTexObj(&tex_obj, DefaultTexData, 4, 4, GX_TF_IA8, GX_CLAMP, GX_CLAMP, 0);
+    GXInitTexObj(&tex_obj, DefaultTexData, 4, 4, GX_TF_IA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
     GXLoadTexObj(&tex_obj, GX_TEXMAP0);
     GXLoadTexObj(&tex_obj, GX_TEXMAP1);
     GXLoadTexObj(&tex_obj, GX_TEXMAP2);

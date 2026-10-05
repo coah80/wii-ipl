@@ -163,7 +163,7 @@ u32 SCCheckStatus() {
         SetBgJobStatus(SC_STATUS_BUSY);
         OSRestoreInterrupts(enabled);
 
-        if (ParseConfBuf(Control.fileBuffers[SC_CONF_FILE_SYSTEM], Control.fileSizes[SC_CONF_FILE_SYSTEM]) == 0) {
+        if (ParseConfBuf(Control.fileBuffers[SC_CONF_FILE_SYSTEM], Control.fileSizes[SC_CONF_FILE_SYSTEM]) == SC_STATUS_OK) {
             enabled = OSDisableInterrupts();
 
             if (__SCGetConfBuf() != Control.fileBuffers[SC_CONF_FILE_SYSTEM]) {
