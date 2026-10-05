@@ -293,8 +293,8 @@ ziU8 Zi8LangSupported(ziU8 language, ziPtr work);
 ziBool Zi8IsCharacter(ziWChar character, ziPtr work);
 ziU8 Zi8GetCharInfo(ziWChar character, ziWChar* output, ziU8 capacity, ziU8 type, ziPtr work);
 ziU32 Zi8GetKOcandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
-ziU32 Zi8GetKoreanCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
-ziU32 Zi8Punctuation(ziGetParam* parameters, ziPtr options, ziPtr work);
+ziU32 Zi8GetKoreanCandidates(ziGetParam* parameters, ziU8* countOnly, struct __zi8_work_data_s* work);
+ziU32 Zi8Punctuation(ziGetParam* parameters, ZiCandidateOptions* options, ziPtr work);
 ziU32 Zi8GetChineseCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
 ziU32 Zi8Get1KeyPressCandidates(ziGetParam* parameters, ziPtr options, ziPtr work);
 ziU32 Zi8Get1KeyPressSpelling(ziGetParam* parameters, ziPtr options, ziPtr work);
@@ -509,7 +509,7 @@ ziU32 Zi8GetCandidatesOrCount(ziGetParam* parameters, ZiCandidateOptions* option
         candidateCount = Zi8GetKOcandidates(parameters,options,ZI_WORK);
       }
       else {
-        candidateCount = Zi8GetKoreanCandidates(parameters,options,ZI_WORK);
+        candidateCount = Zi8GetKoreanCandidates(parameters,&options->countOnly,ZI_WORK);
       }
     }
     else if ((parameters->language == ZI8_LANG_ZH) && ((parameters->context & 8) != 0)) {

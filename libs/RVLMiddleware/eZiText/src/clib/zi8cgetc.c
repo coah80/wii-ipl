@@ -138,7 +138,7 @@ extern ziU16 Zi8GetTableCount(ziU8 language, ziU8 table, ziPtr work);
 extern ziU8 Zi8IsDupWChar(ziWChar character, ziPtr work);
 extern ziU8 Zi8IsDupWordW(ziWChar* word, ziU8 length, ziPtr work);
 extern ziWChar Zi8Ord2Uni(ziU16 ordinal, ziPtr work);
-extern ziU8 Zi8MatchPhonetic(ziPtr phonetics, ziU8* records,
+extern ziBool Zi8MatchPhonetic(ziU8* phonetics, ziU8* records,
                             ziPtr indexTable, ziU16 indexCount, ziU32 dictionary,
                             ziU8* record, ziU16* mask, ziU16* match,
                             ziU16* length, ziU8** matchedRecord,
@@ -169,11 +169,11 @@ extern ziU16 Zi8Uni2Ord(ziWChar character, ziPtr work);
 extern ziU16 Zi8GetPCode(ziU8* table, ziU8* record);
 extern ziU16 Zi8MatchAltSound(ziPtr table, ziU16 count, ziPtr phonetics,
                              ziU16 ordinal, ziU16 mask, ziU16 value, ziU8 flags, ziPtr work);
-extern ziU32 Zi8SecMatchChar(ziPtr record, ziU8* dictionary, ziMatchParam* match, ziU16* code, ziPtr work);
+extern ziU32 Zi8SecMatchChar(ziU8* record, ziU8* dictionary, ziMatchParam* match, ziU16* code, ziPtr work);
 extern ziBool Zi8PriMatchNextChar(ziU8* record, ziU8 firstByteMask, ziU8 firstByteValue, ziU8 secondByteMask, ziU8 secondByteValue, ziU8 thirdByteMask, ziU8 thirdByteValue, ziU8 fourthByteMask, ziU8 fourthByteValue, ziU16* count, ziU8** result, ziU16* code, ziPtr work);
 extern ziBool Zi8ExactMatchNextChar(ziU8* record, ziU8 firstByteMask, ziU8 firstByteValue, ziU8 secondByteMask, ziU8 secondByteValue, ziU8 thirdByteMask, ziU8 thirdByteValue, ziU8 fourthByteMask, ziU8 fourthByteValue, ziU16* count, ziU8** result, ziU16* code, ziPtr work);
 extern ziBool Zi8PriMatchNextComp(ziU8* component, ziU8 firstByteMask, ziU8 firstByteValue, ziU8 secondByteMask, ziU8 secondByteValue, ziU8 thirdByteMask, ziU8 thirdByteValue, ziU8 fourthByteMask, ziU8 fourthByteValue, ziU16* count, ziU8** result, ziPtr work);
-extern ziBool Zi8SecMatchComp(ziPtr component, ziMatchParam* match, ziPtr dictionary, ziPtr work);
+extern ziBool Zi8SecMatchComp(ziU8* component, ziMatchParam* match, ziU8* dictionary, ziPtr work);
 extern void Zi8InitDupWordBuf(ziPtr work);
 extern ziU8 Zi8MatchPUDdata_ZHS(ziWChar* word, ziU8 length, ziU8 language, ziWChar* spelling, ziU16 spellingCapacity, ziWChar* candidate, ziU16 candidateCapacity, ziU8 mode, ziU8 next, ziPtr work);
 extern ziPtr Zi8Memcpy(ziPtr destination, ziPtr source, ziS32 length);
