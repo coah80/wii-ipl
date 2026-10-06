@@ -531,9 +531,7 @@ ESError BS2ESGetTicketViews(IOSFd *descriptor, ESTitleId titleId, ESTicketView *
 }
 void BS2Reboot(void) {
     ESTicketView ticket ALIGN32;
-    struct {
-        ESTitleId title[32];
-    } launchWork ALIGN32;
+    u8 work[256] ALIGN32;
     OSStateFlags flags ALIGN32;
     IOSIoVector vectors[4] ALIGN32;
     IOSFd descriptor;
@@ -580,7 +578,7 @@ void BS2Reboot(void) {
                             {
                                 s32 launchResult;
                                 IOSIoVector *request = vectors;
-                                ESTitleId *title = launchWork.title;
+                                ESTitleId *title = (ESTitleId *)work;
                                 if (descriptor < 0) {
                                     launchResult = -0x3f9;
                                 } else if ((u32)&ticket % 32 != 0) {
