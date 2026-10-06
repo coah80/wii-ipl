@@ -492,15 +492,12 @@ BOOL BS2StartLoadingTitle(ESTitleId titleId, ESTicketView *pTicketView) {
 static void callback(u32 result) { LowReadResult = result; }
 
 ESError BS2ESGetTicketViews(IOSFd *descriptor, ESTitleId titleId, ESTicketView *views, u32 *count) {
-    struct {
-        ESTitleId title[4];
-        u32 count[56];
-    } work ALIGN32;
+    u8 work[256] ALIGN32;
     IOSIoVector vectors[4] ALIGN32;
     ESError result;
     IOSIoVector *request = vectors;
-    ESTitleId *title = work.title;
-    u32 *ticketCount = work.count;
+    ESTitleId *title = (ESTitleId *)work;
+    u32 *ticketCount = (u32 *)(work + 0x20);
 
     if (*descriptor < 0 || !count) {
         return ES_ERR_INVALID;
