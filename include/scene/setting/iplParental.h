@@ -50,6 +50,7 @@ namespace ipl {
             static void makeMasterkey();
 
             static char* getRequestNum();
+            static void dump();
 
         private:
             static void _initRating();
