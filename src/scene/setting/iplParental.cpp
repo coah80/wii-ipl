@@ -324,16 +324,18 @@ namespace ipl {
             return mRequestNum;
         }
 
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "flags:%d\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "rating:%d\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "password:%s\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "secretQuestion:%d\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "secretAnswer:%s\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "secretAnswerLength:%d\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "net contents restrictions:%02x\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "www channel restriction  :%d\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "requestNum:%s\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "masterkey:%s\n");
-        DECOMP_FORCE_ACTIVE(iplParental_cpp, "country: %d\n");
+        void Parental::dump() {
+            OSReport("flags:%d\n", m_sc.info.enable);
+            OSReport("rating:%d\n", m_sc.info.rating);
+            OSReport("password:%s\n", m_sc.info.password);
+            OSReport("secretQuestion:%d\n", m_sc.info.secretQuestion);
+            OSReport("secretAnswer:%s\n", m_sc.info.secretAnswer);
+            OSReport("secretAnswerLength:%d\n", m_sc.info.secretAnswerLength);
+            OSReport("net contents restrictions:%02x\n", SCGetNetContentRestrictions());
+            OSReport("www channel restriction  :%d\n", m_sc.wwwRestrict);
+            OSReport("requestNum:%s\n", mRequestNum);
+            OSReport("masterkey:%s\n", mMasterKey);
+            OSReport("country: %d\n", getCountry());
+        }
     }  // namespace parental
 }  // namespace ipl
