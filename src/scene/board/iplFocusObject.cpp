@@ -1243,14 +1243,30 @@ namespace ipl {
             return result;
         }
 
-        DECOMP_FORCE_ACTIVE(iplFocusObject_cpp, L".html");
-        DECOMP_FORCE_ACTIVE(iplFocusObject_cpp, L".htm");
-        DECOMP_FORCE_ACTIVE(iplFocusObject_cpp, L".shtml");
-        DECOMP_FORCE_ACTIVE(iplFocusObject_cpp, L".shtm");
-        DECOMP_FORCE_ACTIVE(iplFocusObject_cpp, L".cgi");
-        DECOMP_FORCE_ACTIVE(iplFocusObject_cpp, L".php");
-        DECOMP_FORCE_ACTIVE(iplFocusObject_cpp, L".asp");
-        DECOMP_FORCE_ACTIVE(iplFocusObject_cpp, L".jsp");
+        BOOL focus_object::is_url_ext(const wchar_t* url) const {
+            BOOL result = FALSE;
+            u32 len = wcslen(url);
+            const wchar_t* exts[8];
+            int i;
+
+            exts[0] = L".html";
+            exts[1] = L".htm";
+            exts[2] = L".shtml";
+            exts[3] = L".shtm";
+            exts[4] = L".cgi";
+            exts[5] = L".php";
+            exts[6] = L".asp";
+            exts[7] = L".jsp";
+
+            for (i = 0; i < 8; i++) {
+                u32 extLen = wcslen(exts[i]);
+                if (len >= extLen && wcsncmp(url + (len - extLen), exts[i], extLen) == 0) {
+                    result = TRUE;
+                    break;
+                }
+            }
+            return result;
+        }
 
         int focus_object::get_url_end(const wchar_t* url) const {
             int i;

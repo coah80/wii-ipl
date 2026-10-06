@@ -180,6 +180,7 @@ namespace ipl {
 
             BOOL is_url_end_code(wchar_t ch) const;
             BOOL is_url_protocol(const wchar_t* url) const;
+            BOOL is_url_ext(const wchar_t* url) const;
             int get_url_end(const wchar_t* url) const;
 
             BOOL is_buffer_over(const wchar_t* text, u32 textLen) const;
