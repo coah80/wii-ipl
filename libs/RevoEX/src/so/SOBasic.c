@@ -150,8 +150,8 @@ int SOGetSockName(int socket, void* address) {
             if(!request) result=-49;
             else {
                 request->socket=socket;
-                reply=&request->address;
-                memcpy(reply,addr,addr->len);
+                reply=(SOSockAddr*)(((u8*)request)+32);
+                memcpy(((u8*)request)+32,addr,addr->len);
                 result=IOS_Ioctl(rm,7,request,4,reply,addr->len);
                 if(result>=0) memcpy(addr,reply,reply->len);
                 SOiFree(12,request,size);
