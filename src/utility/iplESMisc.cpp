@@ -361,132 +361,17 @@ namespace ipl {
             return 0;
         }
 
-        extern "C" ESError ES_DeleteSharedContent(const u8* hash);
-
-        ESError ESMisc::DeleteSharedContent(EGG::Heap* heap) {
-            ESTitleMeta* tmd = NULL;
-            ESHash* hashes = NULL;
-            u8* used = NULL;
-            ESTitleId* titleIds = NULL;
-            u32 numShared = 0;
-            u32 numTitles = 0;
-            ESError ret;
-
-            tmd = (ESTitleMeta*)heap->alloc(OSRoundUp32B(sizeof(ESTitleMeta)), -DEFAULT_ALIGN);
-            if (tmd == NULL) {
-                OSReport("DeleteSharedContent: MEMAllocate for TMD err\n");
-                return ES_ERR_MEMORY_ERROR;
-            }
-
-            ret = ES_ListSharedContents(&numShared, NULL);
-            if (ret < ES_ERR_OK) {
-                OSReport("DeleteSharedContent: ES_ListSharedContents1 err %d\n", ret);
-                goto out;
-            }
-
-            if (numShared == 0) {
-                goto out;
-            }
-
-            hashes = (ESHash*)heap->alloc(OSRoundUp32B(numShared * sizeof(ESHash)), -DEFAULT_ALIGN);
-            if (hashes == NULL) {
-                OSReport("DeleteSharedContent: MEMAllocate for SHA-1 hash err\n");
-                ret = ES_ERR_MEMORY_ERROR;
-                goto out;
-            }
-
-            ret = ES_ListSharedContents(&numShared, hashes);
-            if (ret < ES_ERR_OK) {
-                OSReport("DeleteSharedContent: ES_ListSharedContents2 err %d\n", ret);
-                goto out;
-            }
-
-            used = (u8*)heap->alloc(OSRoundUp32B(numShared), -DEFAULT_ALIGN);
-            if (used == NULL) {
-                ret = ES_ERR_MEMORY_ERROR;
-                goto out;
-            }
-            memset(used, 0, numShared);
-
-            ret = ES_ListTitlesOnCard(NULL, &numTitles);
-            if (ret < ES_ERR_OK) {
-                OSReport("DeleteSharedContent: ES_ListTitlesOnCard1 err %d\n", ret);
-                goto out;
-            }
-
-            if (numTitles != 0) {
-                titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(numTitles * sizeof(ESTitleId)), -DEFAULT_ALIGN);
-                if (titleIds == NULL) {
-                    OSReport("DeleteSharedContent: MEMAllocate for Title List err\n");
-                    ret = ES_ERR_MEMORY_ERROR;
-                    goto out;
-                }
-
-                ret = ES_ListTitlesOnCard(titleIds, &numTitles);
-                if (ret < ES_ERR_OK) {
-                    OSReport("DeleteSharedContent: ES_ListTitlesOnCard2 err %d\n", ret);
-                    goto out;
-                }
-
-                for (u32 i = 0; i < numTitles; i++) {
-                    u32 tmdSize = 0;
-
-                    ret = ES_GetTmd(titleIds[i], NULL, &tmdSize);
-                    if (ret < ES_ERR_OK) {
-                        OSReport("DeleteSharedContent: ES_GetTmd1 err %d\n", ret);
-                        goto out;
-                    }
-
-                    if (tmdSize == 0 || tmdSize > sizeof(ESTitleMeta)) {
-                        ret = ES_ERR_INVALID;
-                        goto out;
-                    }
-
-                    ret = ES_GetTmd(titleIds[i], tmd, &tmdSize);
-                    if (ret < ES_ERR_OK) {
-                        OSReport("DeleteSharedContent: ES_GetTmd2 err %d\n", ret);
-                        goto out;
-                    }
-
-                    for (u16 c = 0; c < tmd->head.numContents; c++) {
-                        if ((tmd->contents[c].type & 0x8000) == 0) {
-                            continue;
-                        }
-
-                        for (u32 h = 0; h < numShared; h++) {
-                            if (memcmp(tmd->contents[c].hash, hashes[h], sizeof(ESHash)) == 0) {
-                                used[h] = 1;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (u32 h = 0; h < numShared; h++) {
-                if (used[h] != 0) {
-                    continue;
-                }
-
-                ret = ES_DeleteSharedContent(hashes[h]);
-                if (ret < ES_ERR_OK) {
-                    OSReport("DeleteSharedContent: ES_DeleteSharedContent err %d\n", ret);
-                }
-            }
-
-        out:
-            if (titleIds != NULL) {
-                heap->free(titleIds);
-            }
-            if (used != NULL) {
-                heap->free(used);
-            }
-            if (hashes != NULL) {
-                heap->free(hashes);
-            }
-            heap->free(tmd);
-            return ret;
-        }
+        // DeleteSharedContent did not survive
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: MEMAllocate for TMD err\n");
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_ListSharedContents1 err %d\n");
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: MEMAllocate for SHA-1 hash err\n");
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_ListSharedContents2 err %d\n");
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_ListTitlesOnCard1 err %d\n");
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: MEMAllocate for Title List err\n");
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_ListTitlesOnCard2 err %d\n");
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_GetTmd1 err %d\n");
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_GetTmd2 err %d\n");
+        DECOMP_FORCE_ACTIVE(iplESMisc_cpp, "DeleteSharedContent: ES_DeleteSharedContent err %d\n");
 
         BOOL ESMisc::IsLastTicketExpired(ESTitleId* titleId) {
             s32 ret;
