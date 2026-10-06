@@ -47,6 +47,8 @@ namespace ipl {
 
             static ESError GetValidTicketIndex(EGG::Heap* heap, ESTitleId titleId, ESTicketView* ticket = NULL, u32 ticketLength = 0);
 
+            static ESError DeleteSharedContent(EGG::Heap* heap);
+
             static BOOL IsLastTicketExpired(ESTitleId* titleId);
             static void DeleteExpiredFlagFile();
 
