@@ -526,3 +526,8 @@ MWCC const-fold vs SDA rule for `extern "C" const` objects:
   remain anonymous.
 - REMAINING: init @13881 (signed magic dedup didn't fire), ctor pair,
   GetTextColor pair, drawCursor operand/scheduling, then 'create'.
+
+Post-rebase states: Base::create(73i) normalized-identical (branch-target
+artifacts only). LayoutByNW4R::create(357i) residual = callee-web rotation
+(mine r20/r21/r28 vs base r23/r24/r30) + anonymous 0-operand pools; pure
+coloring. Unit fuzzy 99.54, data 100.
