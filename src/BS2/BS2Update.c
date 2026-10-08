@@ -16,7 +16,7 @@ static u8 ThreadStack[4096] = {0};
 static BS2UpdateHeader UpdateHeader0 ALIGN32 = {0};
 static BS2UpdateHeader UpdateHeader1 ALIGN32 = {0};
 
-#define UPDATE_DISC_ENTRIES ((BS2UpdateEntry*)0x80480000)
+BS2UpdateEntry DiscEntries[BS2_UPDATE_ENTRY_COUNT] ADDRESS(0x80480000);
 
 s32 WADCheckImport(u64 titleId, u16 titleVersion);
 s32 WADImportDVDForBS(const char* path, void* buffer, u32 length);
@@ -32,8 +32,8 @@ static u32 RebootRequired = 0;
 static BOOL ContainsSeatTitles = 0;
 static u32 UpdateImportState = 0;
 static u32 UpdateImportResult = 0;
-u32 StartUpdate = 0;
-u32 CancelUpdate = 0;
+volatile u32 StartUpdate = 0;
+volatile u32 CancelUpdate = 0;
 static u32 UpdateProgress = 0;
 static volatile s32 rc = 0;
 static u64 VersionIOS = 0;
@@ -66,7 +66,7 @@ void BS2UpdateInit(void* allocator) {
     CurrentEntry = NULL;
     pEntries = NULL;
     EntriesCount = 0;
-    memset(UPDATE_DISC_ENTRIES, 0, 0x40000);
+    memset(DiscEntries, 0, 0x40000);
     memset(EntriesToImport, 0, 0x40000);
     memset(Flags1, 0, sizeof(Flags1));
     BS2Report("Create update thread\n");
@@ -76,45 +76,42 @@ void BS2UpdateInit(void* allocator) {
 }
 
 static inline u32 BS2SelectUpdateEntries(void) {
-
     BOOL missingFile;
+    u32 index;
     u32 selectedCount;
     u32 requiredBytes;
     u32 requiredInodes;
     u32 channelCount;
-    u32 index;
     BS2UpdateEntry* seatEntries;
     BS2UpdateEntry* selectedSeats;
     u32 selectedSeatCount;
     BOOL regionValid;
     u32 titleRegion;
-    struct {
-        u32 freeChannels;
-        u32 freeBlocks;
-        u32 freeInodes;
-        u32 ticketCount;
-        char productArea[8];
-        u64 titleId;
-        char updatePath[32];
-        char seatPath[32];
-        DVDFileInfo file;
-    } scratch;
+    u32 freeChannels;
+    u32 freeBlocks;
+    u32 freeInodes;
+    u32 ticketCount;
+    char productArea[8];
+    u64 titleId;
+    char updatePath[32];
+    char seatPath[32];
+    DVDFileInfo file;
 
     missingFile = FALSE;
     selectedCount = 0;
     requiredBytes = 0;
     requiredInodes = 0;
     channelCount = 0;
-    scratch.freeChannels = 0;
-    scratch.freeBlocks = 0;
-    scratch.freeInodes = 0;
+    freeChannels = 0;
+    freeBlocks = 0;
+    freeInodes = 0;
     selectedSeatCount = 0;
     State = 0;
     ContainsSeatTitles = FALSE;
-    if (ES_GetTitleId(&scratch.titleId) != ES_ERR_OK) {
+    if (ES_GetTitleId(&titleId) != ES_ERR_OK) {
         regionValid = FALSE;
     } else {
-        titleRegion = (u8)scratch.titleId;
+        titleRegion = (u8)titleId;
         switch (SCGetProductArea()) {
         case SC_PRODUCT_AREA_JPN:
         case SC_PRODUCT_AREA_TWN:
@@ -159,23 +156,23 @@ product_region_checked:
         selectedCount = 0;
         goto selection_complete;
     }
-    if (!SCGetProductAreaString(scratch.productArea, sizeof(scratch.productArea))) {
+    if (!SCGetProductAreaString(productArea, sizeof(productArea))) {
         BS2Report("Error: failed to get product information.");
         selectedCount = 0;
         goto selection_complete;
     }
-    strcpy(scratch.updatePath, "__update.inf");
-    strcat(scratch.updatePath, ".");
-    strcat(scratch.updatePath, scratch.productArea);
-    if (DVDConvertPathToEntrynum(scratch.updatePath) < 0) {
+    strcpy(updatePath, "__update.inf");
+    strcat(updatePath, ".");
+    strcat(updatePath, productArea);
+    if (DVDConvertPathToEntrynum(updatePath) < 0) {
         switch (SCGetProductArea()) {
         case 0:
         case 1:
         case 2:
         case 6:
         case 11:
-            strcpy(scratch.updatePath, "__update.inf");
-            if (DVDConvertPathToEntrynum(scratch.updatePath) < 0) {
+            strcpy(updatePath, "__update.inf");
+            if (DVDConvertPathToEntrynum(updatePath) < 0) {
                 BS2Report("Error: update information file is not found.");
                 selectedCount = 0;
                 goto selection_complete;
@@ -187,13 +184,13 @@ product_region_checked:
             goto selection_complete;
         }
     }
-    BS2Report("%s is found.\n", scratch.updatePath);
-    if (!DVDOpen(scratch.updatePath, &scratch.file)) {
+    BS2Report("%s is found.\n", updatePath);
+    if (!DVDOpen(updatePath, &file)) {
         BS2Report("Error: failed to open update information file.");
         selectedCount = 0;
         goto selection_complete;
     }
-    if (DVDReadPrio(&scratch.file, &UpdateHeader0, sizeof(UpdateHeader0), 0, 2) < 0) {
+    if (DVDReadPrio(&file, &UpdateHeader0, sizeof(UpdateHeader0), 0, 2) < 0) {
         BS2Report("Error: failed to read update information header.");
         selectedCount = 0;
         goto selection_complete;
@@ -214,25 +211,24 @@ product_region_checked:
         selectedCount = 0;
         goto selection_complete;
     }
-    if (DVDReadPrio(&scratch.file, UPDATE_DISC_ENTRIES, UpdateHeader0.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
+    if (DVDReadPrio(&file, DiscEntries, UpdateHeader0.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
         BS2Report("Error: failed to read update information.");
         selectedCount = 0;
         goto selection_complete;
     }
     {
-        BS2UpdateEntry *discEntries = UPDATE_DISC_ENTRIES;
         for (index = 0; index < UpdateHeader0.wadCount; index++) {
-            if ((discEntries[index].attr & 1) == 0) {
+            if ((DiscEntries[index].attr & 1) == 0) {
                 continue;
             }
             switch (OSGetPhysicalMem2Size()) {
             case 0x4000000:
-                if ((discEntries[index].depend & 1) == 0) {
+                if ((DiscEntries[index].depend & 1) == 0) {
                     continue;
                 }
                 break;
             case 0x8000000:
-                if ((discEntries[index].depend & 2) == 0) {
+                if ((DiscEntries[index].depend & 2) == 0) {
                     continue;
                 }
                 break;
@@ -242,37 +238,37 @@ product_region_checked:
                 selectedCount = 0;
                 goto selection_complete;
             }
-            if (DVDOpen(discEntries[index].path, &scratch.file) < 0) {
-                BS2Report("%s is not found\n", discEntries[index].path);
+            if (DVDOpen(DiscEntries[index].path, &file) < 0) {
+                BS2Report("%s is not found\n", DiscEntries[index].path);
                 missingFile = TRUE;
                 continue;
             }
-            discEntries[index].size = scratch.file.length;
-            if (discEntries[index].type == 0) {
+            DiscEntries[index].size = file.length;
+            if (DiscEntries[index].type == 0) {
                 selectedCount++;
-            } else if (WADCheckImport(discEntries[index].titleId, discEntries[index].titleVersion) == 0) {
-                BS2Report("%s is already installed\n", discEntries[index].path);
+            } else if (WADCheckImport(DiscEntries[index].titleId, DiscEntries[index].titleVersion) == 0) {
+                BS2Report("%s is already installed\n", DiscEntries[index].path);
                 Flags1[index] = 0;
             } else {
-                BS2Report("%s\n", discEntries[index].path);
-                memcpy(&EntriesToImport[selectedCount], &discEntries[index], sizeof(BS2UpdateEntry));
+                BS2Report("%s\n", DiscEntries[index].path);
+                memcpy(&EntriesToImport[selectedCount], &DiscEntries[index], sizeof(BS2UpdateEntry));
                 selectedCount++;
                 Flags1[index] = 1;
             }
         }
     }
-    strcpy(scratch.seatPath, "__seatholder.inf");
-    strcat(scratch.seatPath, ".");
-    strcat(scratch.seatPath, scratch.productArea);
-    if (DVDConvertPathToEntrynum(scratch.seatPath) < 0) {
+    strcpy(seatPath, "__seatholder.inf");
+    strcat(seatPath, ".");
+    strcat(seatPath, productArea);
+    if (DVDConvertPathToEntrynum(seatPath) < 0) {
         switch (SCGetProductArea()) {
         case 0:
         case 1:
         case 2:
         case 6:
         case 11:
-            strcpy(scratch.seatPath, "__seatholder.inf");
-            if (DVDConvertPathToEntrynum(scratch.seatPath) < 0) {
+            strcpy(seatPath, "__seatholder.inf");
+            if (DVDConvertPathToEntrynum(seatPath) < 0) {
                 BS2Report("Error: update seatholder information file is not found.");
                 goto seats_done;
             }
@@ -282,12 +278,12 @@ product_region_checked:
             goto seats_done;
         }
     }
-    BS2Report("%s is found.\n", scratch.seatPath);
-    if (!DVDOpen(scratch.seatPath, &scratch.file)) {
+    BS2Report("%s is found.\n", seatPath);
+    if (!DVDOpen(seatPath, &file)) {
         BS2Report("Error: failed to open update information file.");
         goto seats_done;
     }
-    if (DVDReadPrio(&scratch.file, &UpdateHeader1, sizeof(UpdateHeader1), 0, 2) < 0) {
+    if (DVDReadPrio(&file, &UpdateHeader1, sizeof(UpdateHeader1), 0, 2) < 0) {
         BS2Report("Error: failed to read update information header.");
         goto seats_done;
     }
@@ -300,11 +296,9 @@ product_region_checked:
         BS2Report("Error: found too many extra entries.");
         goto seats_done;
     }
-    seatEntries = UPDATE_DISC_ENTRIES;
-    seatEntries += UpdateHeader0.wadCount;
-    selectedSeats = EntriesToImport;
-    selectedSeats += selectedCount;
-    if (DVDReadPrio(&scratch.file, seatEntries, UpdateHeader1.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
+    seatEntries = DiscEntries + UpdateHeader0.wadCount;
+    selectedSeats = EntriesToImport + selectedCount;
+    if (DVDReadPrio(&file, seatEntries, UpdateHeader1.wadCount * sizeof(BS2UpdateEntry), 32, 2) < 0) {
         BS2Report("Error: failed to read update information.");
         goto seats_done;
     }
@@ -337,7 +331,7 @@ product_region_checked:
             State = 5;
             goto seats_done;
         }
-        if (DVDOpen(seatEntries[index].path, &scratch.file) < 0) {
+        if (DVDOpen(seatEntries[index].path, &file) < 0) {
             BS2Report("%s is not found\n", seatEntries[index].path);
             missingFile = TRUE;
             continue;
@@ -345,11 +339,11 @@ product_region_checked:
         if (seatEntries[index].type != 7) {
             continue;
         }
-        if (ES_GetTicketViews(seatEntries[index].titleId, NULL, &scratch.ticketCount) != ES_ERR_OK) {
+        if (ES_GetTicketViews(seatEntries[index].titleId, NULL, &ticketCount) != ES_ERR_OK) {
             BS2Report("Faild to get eTicket views.\n");
             continue;
         }
-        if (scratch.ticketCount != 0) {
+        if (ticketCount != 0) {
             continue;
         }
         if (SCGetWwwRestriction() && ((u32)(seatEntries[index].titleId & 0xFFFFFFFFULL) & 0xFFFFFF00) == 0x48414400) {
@@ -372,23 +366,23 @@ product_region_checked:
         requiredInodes += seatEntries[index].inodes;
     }
     if (channelCount != 0) {
-        if (!SCGetFreeChannelAppCount(&scratch.freeChannels)) {
+        if (!SCGetFreeChannelAppCount(&freeChannels)) {
             BS2Report("Error: cannot get channel count.");
             goto seats_done;
         }
-        if (NANDSecretGetUserAvailableArea(&scratch.freeBlocks, &scratch.freeInodes) != NAND_RESULT_OK) {
+        if (NANDSecretGetUserAvailableArea(&freeBlocks, &freeInodes) != NAND_RESULT_OK) {
             BS2Report("Error: cannot get free user blocks.");
             goto seats_done;
         }
-        if ((scratch.freeBlocks << 14) < 0x1004000 || requiredBytes > (scratch.freeBlocks << 14) - 0x1004000) {
+        if ((freeBlocks << 14) < 0x1004000 || requiredBytes > (freeBlocks << 14) - 0x1004000) {
             BS2Report("Sufficient user blocks doesn't exist.");
             goto seats_done;
         }
-        if (scratch.freeInodes < requiredInodes + 36) {
+        if (freeInodes < requiredInodes + 36) {
             BS2Report("Sufficient user inodes doesn't exist.");
             goto seats_done;
         }
-        if (channelCount > scratch.freeChannels) {
+        if (channelCount > freeChannels) {
             BS2Report("No enough blank channel.");
             goto seats_done;
         }
@@ -410,14 +404,13 @@ seats_done:
     pEntries = EntriesToImport;
     pFlags = Flags1;
     {
-        BS2UpdateEntry *discEntries = UPDATE_DISC_ENTRIES;
         for (index = 0; index < UpdateHeader0.wadCount; index++) {
             if (Flags1[index] == 1) {
-                BS2Report("File: %s\n", discEntries[index].path);
-                BS2Report("Name: %s\n", discEntries[index].dataName);
-                BS2Report("Info: %s\n", discEntries[index].dataMeta);
-                BS2Report("Attr: %s\n", (discEntries[index].attr & 1) ? "Critical" : "Non critical");
-                BS2Report("      %s\n", (discEntries[index].attr & 2) ? "Reboot" : "Not reboot");
+                BS2Report("File: %s\n", DiscEntries[index].path);
+                BS2Report("Name: %s\n", DiscEntries[index].dataName);
+                BS2Report("Info: %s\n", DiscEntries[index].dataMeta);
+                BS2Report("Attr: %s\n", (DiscEntries[index].attr & 1) ? "Critical" : "Non critical");
+                BS2Report("      %s\n", (DiscEntries[index].attr & 2) ? "Reboot" : "Not reboot");
             }
         }
     }
@@ -442,25 +435,24 @@ static void* UpdateThread(void* argument) {
     State = 1;
     UpdateProgress = 0;
     {
-        BS2UpdateEntry *discEntries = UPDATE_DISC_ENTRIES;
         for (;;) {
             if (StartUpdate != 0) {
                 if (UpdateProgress < UpdateHeader0.wadCount) {
                     BS2Report("Progress : %d\n", UpdateProgress);
                     if (Flags1[UpdateProgress] == 1) {
-                        const char* path = discEntries[UpdateProgress].path;
+                        const char* path = DiscEntries[UpdateProgress].path;
                         BS2Report("Import : %s\n", path);
                         State = 2;
-                        CurrentEntry = &discEntries[UpdateProgress];
-                        if (discEntries[UpdateProgress].type == 0) {
+                        CurrentEntry = &DiscEntries[UpdateProgress];
+                        if (DiscEntries[UpdateProgress].type == 0) {
                             UpdateProgress++;
                             continue;
                         }
-                        if (((const BS2UpdateEntry *)discEntries)[UpdateProgress].type == 1) {
+                        if (((const BS2UpdateEntry *)DiscEntries)[UpdateProgress].type == 1) {
                             BS2Report("BS2WADImportDVD : ");
                             index = UpdateProgress;
-                            if (strcmp(getSuffix(discEntries[index].path), "wad") == 0) {
-                                importResult = WADImportDVDForBS(discEntries[index].path, (void*)BS2_UPDATE_ADDRESS, 0x80000);
+                            if (strcmp(getSuffix(DiscEntries[index].path), "wad") == 0) {
+                                importResult = WADImportDVDForBS(DiscEntries[index].path, (void*)BS2_UPDATE_ADDRESS, 0x80000);
                             } else {
                                 importResult = 0;
                             }
@@ -468,20 +460,20 @@ static void* UpdateThread(void* argument) {
                             BS2Report("rc = %d\n", rc);
                             if (rc != 0) {
                                 NANDLoggingAddMessageAsync(NULL, "BS2 error. [%d] titleID: 0x%016llx %s line: %d",
-                                                           rc, discEntries[UpdateProgress].titleId, "BS2Update.c", 0x3F5);
+                                                           rc, DiscEntries[UpdateProgress].titleId, "BS2Update.c", 0x3F5);
                                 State = 5;
                                 UpdateProgress = UpdateHeader0.wadCount + 1;
                                 break;
                             }
-                            if ((discEntries[UpdateProgress].attr & 2) != 0) {
+                            if ((DiscEntries[UpdateProgress].attr & 2) != 0) {
                                 RebootRequired = 1;
                             }
                             UpdateProgress++;
                         } else {
                             BS2Report("BS2WADImportDVDEx : ");
                             index = UpdateProgress;
-                            if (strcmp(getSuffix(discEntries[index].path), "wad") == 0) {
-                                importResult = WADImportDVDExForBS(discEntries[index].path, (void*)BS2_UPDATE_ADDRESS, 0x80000);
+                            if (strcmp(getSuffix(DiscEntries[index].path), "wad") == 0) {
+                                importResult = WADImportDVDExForBS(DiscEntries[index].path, (void*)BS2_UPDATE_ADDRESS, 0x80000);
                             } else {
                                 importResult = 0;
                             }
@@ -489,18 +481,18 @@ static void* UpdateThread(void* argument) {
                             BS2Report("rc = %d\n", rc);
                             if (rc != 0) {
                                 NANDLoggingAddMessageAsync(NULL, "BS2 error. [%d] titleID: 0x%016llx %s line: %d",
-                                                           rc, discEntries[UpdateProgress].titleId, "BS2Update.c", 0x40F);
+                                                           rc, DiscEntries[UpdateProgress].titleId, "BS2Update.c", 0x40F);
                                 State = 5;
                                 UpdateProgress = UpdateHeader0.wadCount + 1;
                                 break;
                             }
-                            if ((discEntries[UpdateProgress].attr & 2) != 0) {
+                            if ((DiscEntries[UpdateProgress].attr & 2) != 0) {
                                 RebootRequired = 1;
                             }
                             UpdateProgress++;
                         }
                     } else {
-                        const char* path = discEntries[UpdateProgress].path;
+                        const char* path = DiscEntries[UpdateProgress].path;
                         BS2Report("Not import : %s\n", path);
                         UpdateProgress++;
                     }
