@@ -1,10 +1,21 @@
 #include <nw4r/db/assert.h>
+#include <nw4r/lyt/window.h>
+
+#include <nw4r/lyt/common.h>
+#include <nw4r/lyt/layout.h>
+#include <nw4r/lyt/resources.h>
+#include <nw4r/lyt/types.h>
+
+
+#include <nw4r/math.h>
+
+#include <new>
 
 extern "C" const u8 scLytFatalColorR;
 extern "C" const u8 scLytFatalColorG;
 extern "C" const u8 scLytFatalColorB;
 extern "C" const u8 scLytFatalColorA;
-extern "C" char scLytFatalMsg[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+extern "C" char scLytFatalMsg[];
 
 #undef NW4R_ASSERT
 #define NW4R_GLOBAL_ASSERT(x)                                                                                                                               \
@@ -25,18 +36,6 @@ extern "C" char scLytFatalMsg[] = "Error#004\nAn error has occurred.\nThe system
             OSFatal(front, back, ::scLytFatalMsg); \
         } \
     }
-
-#include <nw4r/lyt/window.h>
-
-#include <nw4r/lyt/common.h>
-#include <nw4r/lyt/layout.h>
-#include <nw4r/lyt/resources.h>
-#include <nw4r/lyt/types.h>
-
-
-#include <nw4r/math.h>
-
-#include <new>
 
 namespace nw4r {
     namespace lyt {
@@ -174,7 +173,21 @@ namespace {
             flipInfo.coords[VERTEXCOLOR_RB][iy] +
             polSize.height / ((flipInfo.coords[VERTEXCOLOR_RT][iy] - flipInfo.coords[VERTEXCOLOR_RB][iy]) * tSz[iy]);
     }
+
+    inline void SetFrameTexOrigin(math::VEC2* texCds, int corner, int ix, int iy, u8 originX, u8 originY) {
+        texCds[corner][ix] = texCds[corner ^ 2][ix] = originX;
+        texCds[corner][iy] = texCds[corner ^ 1][iy] = originY;
+    }
+
+    inline void SetFrameTexExtent(math::VEC2* texCds, const Size& polSize, const Size& texSize, const TextureFlipInfo& flipInfo, int corner, int ix,
+                                  int iy, u8 originX, u8 originY) {
+        const math::VEC2 tSz(texSize.width, texSize.height);
+        texCds[corner ^ 3][ix] = texCds[corner ^ 1][ix] = originX + polSize.width / ((flipInfo.coords[corner ^ 1][ix] - originX) * tSz[ix]);
+        texCds[corner ^ 3][iy] = texCds[corner ^ 2][iy] = originY + polSize.height / ((flipInfo.coords[corner ^ 2][iy] - originY) * tSz[iy]);
+    }
 }  // namespace
+
+extern "C" char scLytFatalMsg[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
 
 namespace nw4r {
     namespace lyt {
@@ -388,7 +401,17 @@ namespace nw4r {
         detail::DrawQuad(polPt, polSize, GX_TEXMAP1, texCds, bUseVtxCol ? vtxColors : NULL, alpha);                                                  \
     }
 
-            DRAW_QUAD_FOR_FRAME_1(LT, TEXTUREFLIP_NONE);
+            GetLTFrameSize(&polPt, &polSize, basePt, mSize, frameSize);
+            {
+                TextureFlipInfo& flipInfo = GetTexutreFlipInfo(TEXTUREFLIP_NONE);
+                int iy = flipInfo.idx[FLIPINDEX_Y];
+                int ix = flipInfo.idx[FLIPINDEX_X];
+                const u8 originX = flipInfo.coords[VERTEXCOLOR_LT][ix];
+                const u8 originY = flipInfo.coords[VERTEXCOLOR_LT][iy];
+                SetFrameTexOrigin(*texCds, VERTEXCOLOR_LT, ix, iy, originX, originY);
+                SetFrameTexExtent(*texCds, polSize, texSize, flipInfo, VERTEXCOLOR_LT, ix, iy, originX, originY);
+            }
+            detail::DrawQuad(polPt, polSize, GX_TEXMAP1, texCds, bUseVtxCol ? vtxColors : NULL, alpha);
             DRAW_QUAD_FOR_FRAME_1(RT, TEXTUREFLIP_H);
             DRAW_QUAD_FOR_FRAME_1(RB, TEXTUREFLIP_180);
             DRAW_QUAD_FOR_FRAME_1(LB, TEXTUREFLIP_V);

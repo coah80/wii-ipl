@@ -1323,7 +1323,7 @@ config.libs = [
             Object(Matching,    "lyt/lyt_layout.cpp"),
             Object(Matching,    "lyt/lyt_picture.cpp"),
             Object(Matching,    "lyt/lyt_textBox.cpp"),
-            Object(Equivalent,  "lyt/lyt_window.cpp"),
+            Object(Matching,    "lyt/lyt_window.cpp"),
             Object(Matching,    "lyt/lyt_bounding.cpp"),
             Object(Matching,    "lyt/lyt_material.cpp"),
             Object(Matching,    "lyt/lyt_drawinfo.cpp"),
