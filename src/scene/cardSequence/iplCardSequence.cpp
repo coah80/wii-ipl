@@ -874,6 +874,8 @@ animationDone:
                 default:
                     break;
                 }
+                u32* iconOffsets = &sThread->icons[slot][fileNo].iconOffset[0];
+                s32 nextIcon = iconCount + 1;
                 if (iconCount < 7) {
                     sThread->icons[slot][fileNo].iconOffset[(u32)(iconCount + 1)] =
                         paletteSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
