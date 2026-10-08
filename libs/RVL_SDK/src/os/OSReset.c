@@ -66,8 +66,6 @@ vBOOL __OSIsReturnToIdle;
 static char resetSource[] = "OSReset.c";
 static char hotResetFailure[] = "__OSHotReset(): Falied to reset system.\n";
 
-DECOMP_FORCE_ACTIVE(OSReset_c, "OSReturnToMenu(): Falied to boot system menu.\n");
-
 void __OSReturnToMenu(u8 menuMode) {
     OSStateFlags state;
 
@@ -87,6 +85,11 @@ void __OSReturnToMenu(u8 menuMode) {
     OSDisableScheduler();
     __VISetRGBModeImm();
     __OSHotResetForError();
+}
+
+DECL_WEAK void OSReturnToMenu(void) {
+    __OSReturnToMenu(OS_STATE_FLAGS_MENUMODE_MENU);
+    OSPanic(resetSource, __LINE__, "OSReturnToMenu(): Falied to boot system menu.\n");
 }
 
 void OSReturnToDataManager(void) {

@@ -312,7 +312,9 @@ void CDBConvEpochValueToDate(CDBDate epoch, int* year, int* month, int* day, int
 
 void CDBConvKeyStrToFullPath_(char* keyString, char* fullPath, CDBLocation location, u64* wiiId);
 
-DECOMP_FORCE_ACTIVE(CDBConv_c, "%04d%02d%02d");
+void CDBConvDateValueToDateStr(char* dateStr, int year, int month, int day) {
+    sprintf(dateStr, "%04d%02d%02d", year, month, day);
+}
 
 CDBErr CDBConvKeyToFullPath(CDBRecordKey* recordKey, char* fullPath) {
     BOOL ret = CDBRecordKeyIsValid(recordKey);

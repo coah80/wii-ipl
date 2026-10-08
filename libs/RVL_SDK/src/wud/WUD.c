@@ -1628,7 +1628,11 @@ BOOL WUDStartSyncSpDevice(u8 type) {
 
     return busy;
 }
-DECOMP_FORCE_ACTIVE(WUD_c2, "WUDCancelSyncDevice()\n");
+
+BOOL WUDCancelSyncDevice(void) {
+    WUD_DEBUGPrint("WUDCancelSyncDevice()\n");
+    return StopSync();
+}
 
 BOOL WUDStopSyncSimple() {
     return StopSync();
