@@ -1351,6 +1351,8 @@ extern "C" void iplSDChannelTitle_prepareSceneExit(SDChannelTitle* scene, int ne
     }
 }
 
+#pragma push
+#pragma ppc_iro_level 0
 extern "C" void iplSDChannelTitle_flushSaveBeforeExit(SDChannelTitle* scene, int nextScene) {
     int page;
     int index;
@@ -1358,10 +1360,10 @@ extern "C" void iplSDChannelTitle_flushSaveBeforeExit(SDChannelTitle* scene, int
         System::getSaveData()->pushTitleCache(scene->mTitleId);
     }
     System::getSaveData()->getSDPrevPage() = scene->mPage;
-    EGG::Heap* saveHeap = System::getMem2App();
-    scene->mpSaveFile = System::getSaveData()->flushAsync(saveHeap);
+    scene->mpSaveFile = System::getSaveData()->flushAsync(System::getMem2App());
     __WPADReconnect(TRUE);
 }
+#pragma pop
 
 extern "C" void iplSDChannelTitle_rebootSystem(SDChannelTitle*) {
     snd::getSystem()->stopAllSound(0);

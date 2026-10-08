@@ -868,7 +868,7 @@ config.libs = [
         ]
     ),
     IPLSection("setting", [
-            Object(NonMatching, "scene/setting/iplSetting.cpp"),
+            Object(Matching,    "scene/setting/iplSetting.cpp"),
             Object(Matching,    "scene/setting/iplSensitivity.cpp"),
             Object(Matching,    "scene/setting/iplNCDSetting.cpp"),
             Object(Matching,    "scene/setting/iplParental.cpp"),

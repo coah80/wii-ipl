@@ -1,7 +1,7 @@
 # Assembly inventory
 
-4.3U, 2026-10-05. 171 functions contain 173 assembly
-bodies/blocks: 162 ORIGINAL functions and 9 PLACEHOLDER functions.
+4.3U, 2026-10-05. 170 functions contain 172 assembly
+bodies/blocks: 162 ORIGINAL functions and 8 PLACEHOLDER functions.
 
 Run `python3 tools/check_asm_inventory.py`. Completion requires exit 0, complete
 coverage and zero placeholders. The checker also rejects stale/duplicate rows,
@@ -191,7 +191,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `src/scene/nakamuraTest/gamespy/common/gsPlatformUtil.c` | `GetTicks` | ORIGINAL | Inactive PS2 branch reads the CP0 Count register with mfc0 $9. |
 | `src/system/iplChannelManager.cpp` | `getTitleName__Q33ipl7channel7ManagerCFiii` | PLACEHOLDER | Channel-name copying; best C 99.57746%, 71/71 instructions, four address-order differences, [rx17][rx17]. |
 | `src/system/iplSaveDataManager.cpp` | `Manager::hasChannel` | PLACEHOLDER | Title-slot search; best C 98.87324%, 71/71 instructions, 14 mask/base register differences, [rx30][rx30]. |
-| `src/system/iplSaveDataManager.cpp` | `Manager::doUpdateChanInfos` | PLACEHOLDER | Channel metadata updates; best C 93.35821%, 68/67 instructions, extra memset base, [rx17][rx17]. |
 | `src/system/iplSystem.cpp` | `System::warning_run` | PLACEHOLDER | Scene/render calls; best C 98.66477%, 176/176 instructions, 47 saved-register differences, [rx17][rx17]. |
 | `src/system/rvl_dec.c` | `Rvl_decode` | ORIGINAL | Direct beq decoder entries preserve r3/r4 and LR; lis/ori builds the format signatures. |
 | `src/system/rvl_dec.c` | `Rvl_decode_szs` | ORIGINAL | Original SZS decoder convention: nofralloc, r0 retains output length, fixed r3..r10/CTR byte-copy pipeline. |
