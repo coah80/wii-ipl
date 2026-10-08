@@ -222,3 +222,8 @@ The final diff retains three exact command functions and the palette destination
 correction and shared loop continuation. All remaining functions have at least
 three new distinct attempts.
 Shared headers and configure.py are unchanged. All data sections remain exact.
+
+## w1011/struct2 probes
+- cardThreadMain (301v301): pure reg-perms + one merge-order tie — base `mr r4,r19; rlwimi r4,r25,8` vs mine `rlwimi r23,r29,8; mr r4,r23`. Same count, ordering only.
+- loadCardFileIcons (508v512, -4): base emits per-path `li r?,0; stb` zero-init pairs (dead zero-webs on each switch-case path — `bannerEnable=0` etc. re-materialize the zero instead of sharing), plus split `addis/addi` addr materialization + `lbz -1(r); stb 0(r)` adjacent-field copy where mine fuses. Structural decode incomplete.
+- runCardMoveOrCopy (608v608?): not yet diffed.
