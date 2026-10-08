@@ -233,3 +233,7 @@ Shared headers and configure.py are unchanged. All data sections remain exact.
 - WIN: `u32* iconOffsets = &...iconOffset[0]` + `s32 nextIcon = iconCount + 1` → base's `slwi r,2; lwzx`/`stwx` indexed addressing (+2). Direct member index `iconOffset[iconCount+1]` folds to immediate-offset lwz/stw.
 - Tried/reverted: `(u16)` index cast (513), `iconFmt[iconCount]=iconFmt[iconCount-1]` direct (510), u16* iconOffsets.
 - Residual -1 + ~92 reg/order diffs: base materializes `&iconFmt[iconCount]` in one reg with `lbz -1(r); stb 0(r)` where every source form folds to `lbz -0x6fb5/stb -0x6fb4` field offsets (remat-vs-pin family).
+
+## loadCardFileIcons residual -1 insn + coloring
+- runCardMoveOrCopy (608v608): normalized-identical, pure coloring tie.
+- loadCardFileIcons -1 = pinned-result phi: mine emits `mr r24,r3` (callee-pinned result web) after CARDGetSectorSize, base keeps result in r3-arrival and remats `li r3,0` in the error path. Same phi-coalescing tie family as attach_mount (pfrest) — no source lever found.
