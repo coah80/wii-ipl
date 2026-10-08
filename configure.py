@@ -984,7 +984,7 @@ config.libs = [
             Object(Matching,    "clib/zaddress.c"),
             Object(Matching,    "clib/zconvert.c"),
             Object(Matching,    "clib/zi81key.c"),
-            Object(NonMatching, "clib/zi8alpha.c"),
+            Object(Matching, "clib/zi8alpha.c"),
             Object(Matching,    "clib/zi8alts.c"),
             Object(Matching,    "clib/zi8cgetc.c"),
             Object(Matching,    "clib/zi8cinfo.c"),
