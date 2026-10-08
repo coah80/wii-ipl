@@ -1917,3 +1917,183 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+### Round e xhigh, remaining icon carrier and ordinary stack layout
+
+Assigned sol-med, agent/w1009/cardseq-r at 0b67e647. Full Ninja build passed first; fresh origin fetch under the shared lock. Existing untracked perm5 and swe2ifd0 logs preserved. Read shared instructions, levers, task history, sol-x3 round 1-4 evidence and scoped gk3/rx7/agg/lv19/opus-game records. Baseline cardThreadMain is 13/301 with 11 stack-address differences plus two reply instructions. Baseline loadCardFileIcons is 509/512 instructions, 436/512 positional differences. Integrity removal is mandatory and will remain even without an exact match. Old parameter-type, packet-shape, optimization sweeps, older flat declaration permutations and animation/palette helper trials are not treated as new experiments.
+
+Replaced CardSequenceFileData with separate commentSectorSize, sectorSize and CARDFileInfo. Focused Ninja build and identical 43-entry pool pass. Ordinary source snapshot is /tmp/sol-x3-e-clean.cpp. differing: 436 / 512.
+- loadCardFileIcons: e-plain-clean-baseline: 436/512 differences; instructions 509/512; objdiff 91.33203%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-stack-order-021: 436/512 differences; instructions 509/512; objdiff 91.33203%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-stack-order-102: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-stack-order-120: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-stack-order-201: 436/512 differences; instructions 509/512; objdiff 91.33203%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-stack-order-210: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-sector-declarations-at-use-image: 436/512 differences; instructions 509/512; objdiff 91.33203%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-sector-declarations-at-use-u32-image: 436/512 differences; instructions 509/512; objdiff 91.33203%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-sector-declarations-at-use-comment: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-sector-declarations-at-use-u32-comment: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-sector-declarations-at-use-both: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-sector-declarations-at-use-u32-both: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-stack-after-result-forward: 436/512 differences; instructions 509/512; objdiff 91.33203%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-stack-after-result-reverse: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-image-sector-block: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-prior-animation-boundary-plain-initialized: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-animation-helper-plain-current-flow: 437/512 differences; instructions 509/512; objdiff 91.34961%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-inline-early-image-error-return: 436/512 differences; instructions 509/512; objdiff 91.740234%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-inline-shared-image-success-result: 432/512 differences; instructions 506/512; objdiff 91.23242%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-inline-native-sector-outputs: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-inline-icon-index-unsigned: 436/512 differences; instructions 509/512; objdiff 90.92969%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-inline-separate-address-locals: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-animation-early-image-error-return: 437/512 differences; instructions 509/512; objdiff 91.75%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-animation-shared-image-success-result: 433/512 differences; instructions 506/512; objdiff 91.24219%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-animation-native-sector-outputs: 437/512 differences; instructions 509/512; objdiff 91.34961%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-animation-native-sector-deferred-comment: 437/512 differences; instructions 509/512; objdiff 91.34961%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-animation-icon-index-unsigned: 437/512 differences; instructions 509/512; objdiff 90.93945%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-animation-separate-address-locals: 437/512 differences; instructions 509/512; objdiff 91.34961%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-prior-initialized-native-sector-outputs: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-prior-initialized-native-sector-deferred-comment: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-prior-initialized-icon-index-unsigned: 406/512 differences; instructions 511/512; objdiff 93.99609%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-prior-initialized-separate-address-locals: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-mountDir: 22/301 differences; instructions 301/301; objdiff 99.66777%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-freeDir: 13/301 differences; instructions 301/301; objdiff 99.69768%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-listingDir: 25/301 differences; instructions 301/301; objdiff 99.65781%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-fileName: 28/301 differences; instructions 301/301; objdiff 99.64784%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-listingDir-fileName: 28/301 differences; instructions 301/301; objdiff 99.64784%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-mountDir-listingDir-fileName: 28/301 differences; instructions 301/301; objdiff 99.64784%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-freeDir-mountDir: 13/301 differences; instructions 301/301; objdiff 99.69768%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-fileName-listingDir-mountDir-freeDir-compareName: 13/301 differences; instructions 301/301; objdiff 99.69768%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-compareName-mountDir: 22/301 differences; instructions 301/301; objdiff 99.66777%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-compareName-listingDir-fileName: 28/301 differences; instructions 301/301; objdiff 99.64784%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-case-freeDir-listingDir-fileName: 24/301 differences; instructions 301/301; objdiff 99.66113%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-mountDir: 22/301 differences; instructions 301/301; objdiff 99.66777%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-listingDir: 25/301 differences; instructions 301/301; objdiff 99.65781%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-fileName: 28/301 differences; instructions 301/301; objdiff 99.64784%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-listingDir-fileName: 28/301 differences; instructions 301/301; objdiff 99.64784%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-mountDir-listingDir-fileName: 28/301 differences; instructions 301/301; objdiff 99.64784%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-freeDir-mountDir: 13/301 differences; instructions 301/301; objdiff 99.69768%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-fileName-listingDir-mountDir-freeDir-compareName: 24/301 differences; instructions 301/301; objdiff 99.66113%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-compareName-mountDir: 22/301 differences; instructions 301/301; objdiff 99.66777%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-compareName-listingDir-fileName: 28/301 differences; instructions 301/301; objdiff 99.64784%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-scope-use-freeDir-listingDir-fileName: 24/301 differences; instructions 301/301; objdiff 99.66113%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-game-company-company-first-0: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-game-company-game-first-0: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-game-company-company-first-4: 13/301 differences; instructions 301/301; objdiff 99.69768%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-game-company-game-first-4: 13/301 differences; instructions 301/301; objdiff 99.69768%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-game-company-company-first-5: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-game-company-game-first-5: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-scalar-game: 210/301 differences; instructions 297/301; objdiff 98.00332%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-scalar-company: 210/301 differences; instructions 297/301; objdiff 98.00332%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-declaration-zero: 410/513 differences; instructions 513/512; objdiff 96.00195%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-declaration-zero-case-none: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-assignment-zero: 410/513 differences; instructions 513/512; objdiff 96.00195%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-explicit-reserved-case: 408/513 differences; instructions 513/512; objdiff 95.16016%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-palette-u32: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-signed-format-unsigned-count: 406/512 differences; instructions 511/512; objdiff 93.99609%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-shift-u32: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-named-icon-speed: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-banner-declarations-top: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-separate-comment-base: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-plain-initialized-block-image-metadata: 394/514 differences; instructions 514/512; objdiff 95.896484%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-reply-command-first: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-reply-command-low-byte-first: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-reply-aggregate-byte-fields: 296/305 differences; instructions 305/301; objdiff 94.35216%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-reply-aggregate-command-first: 296/305 differences; instructions 305/301; objdiff 94.38538%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-reply-command-first-or-mask: 2/301 differences; instructions 301/301; objdiff 99.601326%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-reply-command-static-cast-first: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-reply-valid-static-cast: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-reply-command-shift-low-byte: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-reply-command-first-compound-fields: 256/303 differences; instructions 303/301; objdiff 98.704315%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-command-first-init-valid-after-exit: 11/301 differences; instructions 301/301; objdiff 99.16943%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-command-first-valid-before-outer: 10/301 differences; instructions 301/301; objdiff 99.16943%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-command-first-exit-before-outer: 15/301 differences; instructions 301/301; objdiff 99.08638%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-command-first-command-before-states: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-command-first-valid-assignment-separate: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-command-first-state-type-bool: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-command-first-state-type-u8: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: e-thread-separate-buffers-command-first-loop-command-case-local: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-remove-unused-image-label: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-image-total-unsigned: 220/512 differences; instructions 512/512; objdiff 96.30469%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-image-size-unsigned: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-palette-unsigned: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-palette-switch-enum: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-palette-format-unsigned: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-shift-unsigned: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-sector-native: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-image-file-size-separate: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-icon-loop-postincrement: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-icon-size-plain-assignment: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-icon-offset-unsigned-both: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-image-base-before-offset: 220/512 differences; instructions 512/512; objdiff 96.28516%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-image-result-before-base: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-image-result-last: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-image-fileinfo-before-sizes: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-image-scoped-comment-sector: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-initialized-512-image-palette-case-scope: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-slot-initialized: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-slot-separate: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-fileNo-initialized: compile FAIL.
+- loadCardFileIcons: e-icon-512-copy-params-fileNo-separate: compile FAIL.
+- loadCardFileIcons: e-icon-512-copy-params-dir-initialized: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-dir-separate: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-slot-fileNo-initialized: compile FAIL.
+- loadCardFileIcons: e-icon-512-copy-params-slot-fileNo-separate: compile FAIL.
+- loadCardFileIcons: e-icon-512-copy-params-slot-fileNo-dir-initialized: compile FAIL.
+- loadCardFileIcons: e-icon-512-copy-params-slot-fileNo-dir-separate: compile FAIL.
+- loadCardFileIcons: e-icon-512-lifetime-dir-const: 435/512 differences; instructions 509/512; objdiff 89.68164%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-lifetime-dir-readonly-copy: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-lifetime-word-slot-unsigned: 439/514 differences; instructions 514/512; objdiff 94.44531%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-lifetime-top-scalar-declarations: 220/512 differences; instructions 512/512; objdiff 96.28516%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-lifetime-top-scalar-separate-init: 226/512 differences; instructions 512/512; objdiff 96.20703%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+
+Round-e driver correction: parameter-copy spelling initially renamed the real FileInfo::fileNo member too. Those trials failed compilation and are not candidates. The corrected driver excludes member names and repeats only changed valid source. All successful copy trials refer to the same parameter value, with no unrelated reuse.
+- loadCardFileIcons: e-icon-512-copy-params-corrected-fileNo-initialized: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-corrected-fileNo-separate: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-corrected-slot-fileNo-initialized: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-corrected-slot-fileNo-separate: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-corrected-slot-fileNo-dir-initialized: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-icon-512-copy-params-corrected-slot-fileNo-dir-separate: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+
+Round-e best ordinary source combines separate company[2] and gameName[4] comparison buffers, with the initialized-palette icon reconstruction. The two comparison arrays have real CARD metadata widths; all six zero stores and both memcmp ranges are unchanged. This reaches all target stack offsets without a carrier. No palette value is uninitialized: the loop initializes paletteSize to zero, and the no-icon case inherits that zero. The animation helper performs actual animation metadata work and returns early on the same zero-speed condition. The unused imageReadDone label is removed.
+
+Fresh combined-candidate Ninja build passed. Pool is identical at 43 entries. ctxdiff independently confirms cardThreadMain 301/301, diffs 2, and loadCardFileIcons 512/512, diffs 219. Exact-name objdiff is 99.73422% and 96.31445%, respectively. Unit remains 28/30 exact functions, 6600/9852 exact code bytes, 1496/1496 exact data bytes, with no exact sibling drop. All data sections remain 100%. No exact match is claimed.
+
+Fresh icon capture /tmp/sol-x3-e-icon-private-capture matches the separately compiled function and every allocated section. The simulator reproduces 381/381 virtual registers. Stock search moves compiler temporaries and reaches 15/16 wanted colors; that is not realizable as declaration order. A private named-only search freezes parameter and compiler-temporary numbering and reaches 6/16 after 5000 steps. The outstanding problem needs a different source shape, particularly early generated image/slot address lifetimes; parameter copies, const views and top declarations did not fix it. Target/source palette blocks also differ, despite equal total size. No simulator-only permutation is kept. The official tracer output-path guard and shared-port queue were handled with the already-validated private-port transport; compiler and debugger code-generation settings are unchanged.
+
+Best ordinary combined source saved to _luna-runs/best/sol-x3.iplCardSequence.diff, SHA256 87d9061e13a8aa8797ff045ec0a5472b8017f45ae696c93fa5891c6e5d970e85. Incoming diff backed up at /tmp/sol-x3-e-incoming.diff. Under the nonexact handoff rule, restore experimental source changes and retain only the required icon carrier removal, with ordinary declaration order reproducing sector r1+0xC, comment sector r1+8 and CARDFileInfo r1+0x10. The final gate certifies that retained cleanup, not the external partial candidate.
+
+Round-e experimental source is restored. Retained source removes only CardSequenceFileData and its local. member accesses, using three ordinary locals. No header, configure, helper, packet or thread change is retained. External best has the explicit initialized palette and no carrier. Existing untracked logs remain untouched.
+
+### Round e final gate and handoff
+
+76 successful icon variants and 46 successful thread variants were measured, plus six failed icon-copy compilations corrected above. No new exact function. Retained cleanup compiles to identical allocated and relocation sections compared with a fresh compilation of the original carrier-containing source snapshot. This is a pure source-integrity fix, with all ordinary stack offsets preserved and unchanged report percentages.
+
+Final required gate ran once on the retained cleanup: GATE PASS. Full 43U build passes; DOL SHA1 independently confirmed as 26116613f624061ba99c8d1a299aaa6efa85670d. Unit exact functions remain 28/30; exact code remains 6600/9852; data remains 1496/1496. All four data sections are 100%, with zero baseline regressions, forbidden additions or readability warnings. Retained cardThreadMain remains 13/301, 99.69768%; retained loadCardFileIcons remains 436/512, 509/512 instructions, 91.33984%. External best is 2/301 and 219/512, both equal-sized and preserving all 28 exact siblings. The best diff applies cleanly against the baseline index.
+
+Changed paths to commit are only src/scene/cardSequence/iplCardSequence.cpp and this attempts log. No push, PR, merge, rebase, other-worktree edit, configure change, new assembly, carrier, uninitialized palette or code comment. Existing untracked perm5 and swe2ifd0 logs remain untouched. Gate output is /tmp/sol-x3-e-gate.log. Next round should start from the external best and preserve the initialized palette, then investigate reply coalescing and the icon function address-temporary ordering.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/scene/cardSequence/iplCardSequence] pool: IDENTICAL
+[src/scene/cardSequence/iplCardSequence] objdiff: code 6600/9852 data 1496/1496 functions 28/30 fuzzy 98.1628 linked code 0
+[src/scene/cardSequence/iplCardSequence] instruction-exact functions: 28/30
+[src/scene/cardSequence/iplCardSequence]   section .bss size 16 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .data size 1464 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .sbss size 8 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .sdata size 8 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .text size 9852 match 98.16281
+[src/scene/cardSequence/iplCardSequence]   below 100: cardThreadMain 99.69768
+[src/scene/cardSequence/iplCardSequence]   below 100: loadCardFileIcons 91.33984
+[src/scene/cardSequence/iplCardSequence] baseline: code 6600/9852 data 1496 functions 28 fuzzy 98.1628
+regressions vs baseline: 0
+global matched_code_percent: 97.95043 -> 97.95043
+global fuzzy_match_percent: 99.91305 -> 99.91305
+global complete_code_percent: 89.90470 -> 89.90470
+global matched_data_percent: 100.00000 -> 100.00000
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+Handoff artifact refreshed against the committed ordinary-locals cleanup so the next round can apply it after this cleanup lands. Authoritative best path remains _luna-runs/best/sol-x3.iplCardSequence.diff; SHA256 396617842ab7b1728309078131a691b1afa0a7c4eb51c359e8054dfa273f092f. The earlier origin/main-relative patch is backed up at /tmp/sol-x3-e-best-origin-main.diff. This changes only patch context; the independently measured candidate source is unchanged.

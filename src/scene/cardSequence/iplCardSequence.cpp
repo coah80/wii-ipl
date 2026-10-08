@@ -707,15 +707,13 @@ extern "C" void clearAllCardFileEntries(s32 slot) {
 }
 
 extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
-    struct CardSequenceFileData {
-        s32 commentSectorSize;
-        s32 sectorSize;
-        CARDFileInfo fileInfo;
-    } local;
+    s32 sectorSize;
+    s32 commentSectorSize;
+    CARDFileInfo fileInfo;
     s32 iconAddressOffset;
     u32 iconAddressBase;
     s32 result;
-    result = CARDFastOpen(slot, fileNo, &local.fileInfo);
+    result = CARDFastOpen(slot, fileNo, &fileInfo);
     if (result < CARD_RESULT_READY) {
         return result;
     }
@@ -847,13 +845,13 @@ iconSpeedDone:
 
     s32 totalImageSize = iconImageSize + bannerImageSize;
     u32 transferSize = (totalImageSize + iconAddressOffset + 0x1FF) & 0xFFFFFE00;
-    result = CARDGetSectorSize(slot, (u32*)&local.sectorSize);
+    result = CARDGetSectorSize(slot, (u32*)&sectorSize);
     if (result < CARD_RESULT_READY) {
         result = 0;
         sThread->icons[slot][fileNo].bannerEnable = 0;
         sThread->icons[slot][fileNo].unk_0x01 = 0;
     } else {
-        u32 fileSize = (u32)dir->length * local.sectorSize;
+        u32 fileSize = (u32)dir->length * sectorSize;
         if (iconAddressBase > fileSize) {
             result = 0;
             sThread->icons[slot][fileNo].bannerEnable = 0;
@@ -863,7 +861,7 @@ iconSpeedDone:
             sThread->icons[slot][fileNo].bannerEnable = 0;
             sThread->icons[slot][fileNo].unk_0x01 = 0;
         } else if (totalImageSize > 0) {
-            result = CARDRead(&local.fileInfo, sThread->imageReadBuffer,
+            result = CARDRead(&fileInfo, sThread->imageReadBuffer,
                               transferSize, iconAddressBase);
             if (result < CARD_RESULT_READY) {
                 goto closeFile;
@@ -884,14 +882,14 @@ iconSpeedDone:
     iconAddressBase = iconAddress & 0xFFFFFE00;
     s32 commentDataOffset = iconAddress - iconAddressBase;
     s32 imageSize = ((iconAddress + 0x23F) & 0xFFFFFE00) - iconAddressBase;
-    result = CARDGetSectorSize(slot, (u32*)&local.commentSectorSize);
+    result = CARDGetSectorSize(slot, (u32*)&commentSectorSize);
     if (result < CARD_RESULT_READY) {
         goto clearComment;
     }
     {
         u32 fileSize;
         if ((s32)iconAddressBase < 0 ||
-            iconAddressBase > (fileSize = (u32)dir->length * local.commentSectorSize)) {
+            iconAddressBase > (fileSize = (u32)dir->length * commentSectorSize)) {
             result = 0;
         } else {
             u32 endOffset = iconAddressBase + imageSize;
@@ -899,7 +897,7 @@ iconSpeedDone:
                 result = 0;
                 goto clearComment;
             }
-            result = CARDRead(&local.fileInfo, sThread->commentBuffer, imageSize,
+            result = CARDRead(&fileInfo, sThread->commentBuffer, imageSize,
                               iconAddressBase);
             if (result < CARD_RESULT_READY) {
                 goto clearComment;
@@ -923,7 +921,7 @@ closeFile:
     return result;
 
 closeFileSuccess:
-    result = CARDClose(&local.fileInfo);
+    result = CARDClose(&fileInfo);
     if (result < CARD_RESULT_READY) {
         return result;
     }
