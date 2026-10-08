@@ -13,6 +13,8 @@ enum TMCExifFormat {
 
 enum TMCExifTag {
     TMC_EXIF_TAG_COMPRESSION = 0x0103,
+    TMC_EXIF_TAG_MAKE = 0x010F,
+    TMC_EXIF_TAG_MODEL = 0x0110,
     TMC_EXIF_TAG_STRIP_OFFSETS = 0x0111,
     TMC_EXIF_TAG_ORIENTATION = 0x0112,
     TMC_EXIF_TAG_X_RESOLUTION = 0x011A,
@@ -67,6 +69,14 @@ static u32 readU32(const u8* p, u16 byteOrder) {
         return raw;
     }
     return (raw >> 24) | ((raw >> 8) & 0xFF00) | ((raw & 0xFF00) << 8) | ((raw & 0xFF) << 24);
+}
+
+static inline void convertExifWord(u32* result, u32 raw, u16 byteOrder) {
+    if (byteOrder == TMC_EXIF_LITTLE_ENDIAN) {
+        *result = raw;
+    } else {
+        *result = (raw >> 24) | ((raw >> 8) & 0xFF00) | ((raw & 0xFF00) << 8) | ((raw & 0xFF) << 24);
+    }
 }
 
 s32 TMCCJPEGDecGetOffsetEXIF(u32* pOffset, u32* pSize, TMCCJPEGDecInitParam* pParam) {
@@ -388,9 +398,7 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
 
     switch (tag) {
         case TMC_EXIF_TAG_COMPRESSION:
-        case TMC_EXIF_TAG_STRIP_OFFSETS:
-        case TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT:
-        case TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT_LENGTH: {
+        case TMC_EXIF_TAG_STRIP_OFFSETS: {
             break;
         }
         case TMC_EXIF_TAG_ORIENTATION: {
@@ -398,17 +406,27 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             return;
         }
         case TMC_EXIF_TAG_X_RESOLUTION: {
-            u32 offset = readU32(entry->value, byteOrder);
-            const u8* p = pInfo->thumbnailData + offset;
+            const u8* base;
+            const u8* p;
+            u32 offsetRaw;
+            u32 offset;
+            u32 numeratorRaw;
+            u32 value;
+            offsetRaw = entry->value[1] << 8 | entry->value[0] | entry->value[2] << 16 | entry->value[3] << 24;
+            convertExifWord(&offset, offsetRaw, byteOrder);
+            p = pInfo->thumbnailData + offset;
             if (pInfo->thumbnailData > p) {
                 return;
             }
             if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
-            pInfo->xResNum = readU32(p, byteOrder);
-            p = pInfo->thumbnailData + (offset + sizeof(u32));
-            if (pInfo->thumbnailData > p) {
+            numeratorRaw = p[1] << 8 | p[0] | p[2] << 16 | p[3] << 24;
+            convertExifWord(&value, numeratorRaw, byteOrder);
+            pInfo->xResNum = value;
+            base = pInfo->thumbnailData;
+            p = base + (offset + sizeof(u32));
+            if (base > p) {
                 return;
             }
             if (p > pInfo->dataEnd - sizeof(u32)) {
@@ -418,17 +436,27 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             return;
         }
         case TMC_EXIF_TAG_Y_RESOLUTION: {
-            u32 offset = readU32(entry->value, byteOrder);
-            const u8* p = pInfo->thumbnailData + offset;
+            const u8* base;
+            const u8* p;
+            u32 offsetRaw;
+            u32 offset;
+            u32 numeratorRaw;
+            u32 value;
+            offsetRaw = entry->value[1] << 8 | entry->value[0] | entry->value[2] << 16 | entry->value[3] << 24;
+            convertExifWord(&offset, offsetRaw, byteOrder);
+            p = pInfo->thumbnailData + offset;
             if (pInfo->thumbnailData > p) {
                 return;
             }
             if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
-            pInfo->yResNum = readU32(p, byteOrder);
-            p = pInfo->thumbnailData + (offset + sizeof(u32));
-            if (pInfo->thumbnailData > p) {
+            numeratorRaw = p[1] << 8 | p[0] | p[2] << 16 | p[3] << 24;
+            convertExifWord(&value, numeratorRaw, byteOrder);
+            pInfo->yResNum = value;
+            base = pInfo->thumbnailData;
+            p = base + (offset + sizeof(u32));
+            if (base > p) {
                 return;
             }
             if (p > pInfo->dataEnd - sizeof(u32)) {
@@ -525,6 +553,12 @@ static void TMCJPEGDEC_IFD0_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             } else if (type == TMC_EXIF_TYPE_LONG) {
                 pInfo->pixelYDim = readU32(entry->value, byteOrder);
             }
+        }
+        case TMC_EXIF_TAG_MAKE:
+        case TMC_EXIF_TAG_MODEL:
+        case TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT:
+        case TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT_LENGTH:
+        default: {
             return;
         }
     }
@@ -534,25 +568,18 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
     s32 tag = readU16(entry->tag, byteOrder);
 
     switch (tag) {
-        case TMC_EXIF_TAG_DATE_TIME:
-        case TMC_EXIF_TAG_STRIP_OFFSETS:
-        case TMC_EXIF_TAG_ORIENTATION:
-        case TMC_EXIF_TAG_TRANSFER_FUNCTION:
-        case TMC_EXIF_TAG_YCBCR_POSITIONING:
-        case TMC_EXIF_TAG_EXIF_IFD:
-        case TMC_EXIF_TAG_EXIF_VERSION:
-        case TMC_EXIF_TAG_COMPONENTS_CONFIGURATION:
-        case TMC_EXIF_TAG_PLANAR_CONFIGURATION:
-        case TMC_EXIF_TAG_FLASHPIX_VERSION:
-        case TMC_EXIF_TAG_COLOR_SPACE:
-        case TMC_EXIF_TAG_PIXEL_X_DIMENSION:
-        case TMC_EXIF_TAG_PIXEL_Y_DIMENSION: {
+        case TMC_EXIF_TAG_STRIP_OFFSETS: {
             break;
         }
         case TMC_EXIF_TAG_X_RESOLUTION: {
-            u32 offset;
+            const u8* base;
             const u8* p;
-            offset = readU32(entry->value, byteOrder);
+            u32 offsetRaw;
+            u32 offset;
+            u32 numeratorRaw;
+            u32 value;
+            offsetRaw = entry->value[1] << 8 | entry->value[0] | entry->value[2] << 16 | entry->value[3] << 24;
+            convertExifWord(&offset, offsetRaw, byteOrder);
             p = pInfo->thumbnailData + offset;
             if (pInfo->thumbnailData > p) {
                 return;
@@ -560,9 +587,12 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
-            pInfo->xResNumIfd1 = readU32(p, byteOrder);
-            p = pInfo->thumbnailData + (offset + sizeof(u32));
-            if (pInfo->thumbnailData > p) {
+            numeratorRaw = p[1] << 8 | p[0] | p[2] << 16 | p[3] << 24;
+            convertExifWord(&value, numeratorRaw, byteOrder);
+            pInfo->xResNumIfd1 = value;
+            base = pInfo->thumbnailData;
+            p = base + (offset + sizeof(u32));
+            if (base > p) {
                 return;
             }
             if (p > pInfo->dataEnd - sizeof(u32)) {
@@ -572,9 +602,14 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             return;
         }
         case TMC_EXIF_TAG_Y_RESOLUTION: {
-            u32 offset;
+            const u8* base;
             const u8* p;
-            offset = readU32(entry->value, byteOrder);
+            u32 offsetRaw;
+            u32 offset;
+            u32 numeratorRaw;
+            u32 value;
+            offsetRaw = entry->value[1] << 8 | entry->value[0] | entry->value[2] << 16 | entry->value[3] << 24;
+            convertExifWord(&offset, offsetRaw, byteOrder);
             p = pInfo->thumbnailData + offset;
             if (pInfo->thumbnailData > p) {
                 return;
@@ -582,9 +617,12 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
             if (p > pInfo->dataEnd - sizeof(u32)) {
                 return;
             }
-            pInfo->planarConfigIfd1 = readU32(p, byteOrder);
-            p = pInfo->thumbnailData + (offset + sizeof(u32));
-            if (pInfo->thumbnailData > p) {
+            numeratorRaw = p[1] << 8 | p[0] | p[2] << 16 | p[3] << 24;
+            convertExifWord(&value, numeratorRaw, byteOrder);
+            pInfo->planarConfigIfd1 = value;
+            base = pInfo->thumbnailData;
+            p = base + (offset + sizeof(u32));
+            if (base > p) {
                 return;
             }
             if (p > pInfo->dataEnd - sizeof(u32)) {
@@ -607,6 +645,21 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
         }
         case TMC_EXIF_TAG_JPEG_INTERCHANGE_FORMAT_LENGTH: {
             pInfo->thumbnailLength = readU32(entry->value, byteOrder);
+        }
+        case TMC_EXIF_TAG_DATE_TIME:
+        case TMC_EXIF_TAG_ORIENTATION:
+        case TMC_EXIF_TAG_TRANSFER_FUNCTION:
+        case TMC_EXIF_TAG_YCBCR_POSITIONING:
+        case TMC_EXIF_TAG_EXIF_IFD:
+        case TMC_EXIF_TAG_EXIF_VERSION:
+        case TMC_EXIF_TAG_COMPONENTS_CONFIGURATION:
+        case TMC_EXIF_TAG_FLASHPIX_VERSION:
+        case TMC_EXIF_TAG_COLOR_SPACE:
+        case TMC_EXIF_TAG_PIXEL_X_DIMENSION:
+        case TMC_EXIF_TAG_PIXEL_Y_DIMENSION:
+        case TMC_EXIF_TAG_MAKE:
+        case TMC_EXIF_TAG_MODEL:
+        default: {
             return;
         }
     }

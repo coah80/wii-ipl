@@ -1209,7 +1209,7 @@ config.libs = [
             Object(Matching,    "jpegdec/jdec_main.c"),
             Object(Matching,    "jpegdec/jpformat.c"),
 
-            Object(NonMatching, "exif/exif_parse.c"),
+            Object(Matching, "exif/exif_parse.c"),
 
             Object(Matching,    "reschange/iqdec_resolution_change_a3.c"),
             Object(Matching,    "reschange/idct_resolution_change_var.c"),
