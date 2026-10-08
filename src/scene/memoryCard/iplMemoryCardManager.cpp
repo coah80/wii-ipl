@@ -367,13 +367,12 @@ GXTexObj* MemoryCardManager::_create_icon(u8 slot, s16 file, long start) {
         return NULL;
     }
     CardIcons* icons = reinterpret_cast<CardIcons*>(memorycard::getIconStateArray());
-    memorycard::IconState* icon = &icons[slot][file];
-    if ((int)icon->iconFmt[start] == GX_TF_RGB5A3) {
-        GXInitTexObj(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(icon) + icon->iconOffset[start], CARD_ICON_WIDTH, CARD_ICON_HEIGHT, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
+    if ((int)icons[slot][file].iconFmt[start] == GX_TF_RGB5A3) {
+        GXInitTexObj(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].iconOffset[start], CARD_ICON_WIDTH, CARD_ICON_HEIGHT, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
         GXLoadTexObj(&mFileCell[slot][file].icon, GX_TEXMAP0);
-    } else if ((int)icon->iconFmt[start] == GX_TF_C8) {
-        GXInitTexObjCI(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(icon) + icon->iconOffset[start], CARD_ICON_WIDTH, CARD_ICON_HEIGHT, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
-        GXInitTlutObj(&mFileCell[slot][file].iconTlut, reinterpret_cast<u8*>(icon) + icons[slot][file].iconTlutOffset, GX_TL_RGB5A3, 0x100);
+    } else if ((int)icons[slot][file].iconFmt[start] == GX_TF_C8) {
+        GXInitTexObjCI(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].iconOffset[start], CARD_ICON_WIDTH, CARD_ICON_HEIGHT, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
+        GXInitTlutObj(&mFileCell[slot][file].iconTlut, reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].iconTlutOffset, GX_TL_RGB5A3, 0x100);
         GXLoadTlut(&mFileCell[slot][file].iconTlut, GX_TLUT0);
         GXLoadTexObj(&mFileCell[slot][file].icon, GX_TEXMAP0);
     } else {
