@@ -490,3 +490,7 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## w1011/struct2 probes (drawCursor/calcCursorPos)
+- calcCursorPos (326 insns): already byte-identical modulo branch targets — report fuzzy 91.59 was reloc-scoring, no real residual.
+- drawCursor (70v70): eval-order tie. Base completes `opacity = f32(muGlobalAlpha)/255.0f` fsubs+fdivs BEFORE loading GXColor R/G/B bytes; mine hoists the lbz loads above the fdivs. Moving `GXColor color` decl later regressed 68v70 (splits the loads differently). Kept baseline form; documented sched-order tie.
