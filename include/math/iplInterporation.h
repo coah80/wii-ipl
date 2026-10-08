@@ -105,7 +105,7 @@ namespace ipl {
 
 #ifdef IPL_CHANNEL_TITLE_NOVTABLE
         template <typename T>
-        class __declspec(novtable) HermiteIntp : public utility::FrameController {
+        class HermiteIntp : public utility::FrameController {
         public:
             HermiteIntp() {}
             virtual ~HermiteIntp();
