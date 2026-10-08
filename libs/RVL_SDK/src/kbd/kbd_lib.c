@@ -821,6 +821,8 @@ USBKBDErr KBDSetLockProcessing(u32 channel, u32 value) {
     return 0;
 }
 
+#pragma push
+#pragma ppc_iro_level 1
 USBKBDErr KBDSetModState(u32 channel, u32 value) {
     if (!kbdInitialized) {
         return 2;
@@ -837,12 +839,13 @@ USBKBDErr KBDSetModState(u32 channel, u32 value) {
         interrupts = OSDisableInterrupts();
         newState.value = value & 0xfc0;
         oldState.value = kbdData[channel].modState;
-        newState.bits.physical = oldState.bits.physical;
+        newState.bits.physical = oldState.value;
         kbdData[channel].modState = newState.value;
         OSRestoreInterrupts(interrupts);
     }
     return 0;
 }
+#pragma pop
 
 u16 KBDTranslateHidCode(u32 keyCode, u32 modifiers, s32 country) {
     s32 mask;
