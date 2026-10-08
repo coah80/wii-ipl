@@ -31,7 +31,7 @@ typedef struct AppLoaderHeader {
     u8 pad_0x1C[4];
 } AppLoaderHeader;
 
-u8 TicketViewsBuf[OSRoundUp32B(sizeof(ESTicketView) * 64)] ALIGN32;
+static u8 TicketViewsBuf[OSRoundUp32B(sizeof(ESTicketView) * 64)] ALIGN32;
 ESTicketView *TicketViews = (ESTicketView *)TicketViewsBuf;
 DVDDiskID UpdateDiskID ALIGN32;
 OSBootInfo2 bi2 ALIGN32;
@@ -39,42 +39,42 @@ AppLoaderHeader AppLoaderHdr ALIGN32;
 OSBootInfo3 bi3 ALIGN32;
 u8 GameTOCBuf[OSRoundUp32B(sizeof(DVDGameTOC))] ALIGN32;
 DVDDriveInfo DriveInfo ALIGN32;
-DVDDiskID DiskID ALIGN32;
-DVDPartitionParams PartitionParams ALIGN32;
+static DVDDiskID DiskID ALIGN32;
+static DVDPartitionParams PartitionParams ALIGN32;
 NANDCommandBlock BS2NandBlock;
 NANDFileInfo BS2CacheFileInfo;
 DVDCommandBlock CoverBlock;
 u8 PartitionInfoBuf[OSRoundUp32B(sizeof(DVDPartitionInfo) * 256)] ALIGN32;
 DVDCommandBlock Block;
 
-BS2State State = BS2_STT_BEGIN;
-vu32 DvdReadPending = 0;
-u32 BannerAllocation = 0;
-u32 BannerBuffer = 0;
-u32 BannerAvailable = 0;
-u32 Allocator = 0;
-BOOL StartingGame = FALSE;
-u32 RestartRequested = 0;
-u32 PartitionOpen = 0;
-u32 CacheSeekComplete = 0;
-u32 LoadingTitle = 0;
+static BS2State State = BS2_STT_BEGIN;
+static vu32 DvdReadPending = 0;
+static u32 BannerAllocation = 0;
+static u32 BannerBuffer = 0;
+static u32 BannerAvailable = 0;
+static u32 Allocator = 0;
+volatile BOOL StartingGame = FALSE;
+static u32 RestartRequested = 0;
+static u32 PartitionOpen = 0;
+static u32 CacheSeekComplete = 0;
+static u32 LoadingTitle = 0;
 BOOL FatalErrorFlag = FALSE;
 BOOL RetryErrorFlag = FALSE;
 BOOL UpdateErrorFlag = FALSE;
 BOOL AbortFlag = FALSE;
 volatile int CacheFailed = 0;
 volatile int RegionValid = 0;
-volatile int NandPending = 0;
-vu32 CancelNand = 0;
-vu32 LowReadResult = 0;
-u32 CacheCommandComplete = 0;
-u32 AudioBufferUnconfigured = 0;
-u64 ResetTime = 0;
-u64 SpinupDeadline = 0;
+static volatile int NandPending = 0;
+static vu32 CancelNand = 0;
+static vu32 LowReadResult = 0;
+static u32 CacheCommandComplete = 0;
+static u32 AudioBufferUnconfigured = 0;
+static u64 ResetTime = 0;
+static u64 SpinupDeadline = 0;
 u64 CoverPollTime = 0;
 u32 DriveWasReset = 0;
-u32 TitleTicketView = 0;
-u32 CurrentTmd = 0;
+static u32 TitleTicketView = 0;
+static u32 CurrentTmd = 0;
 u32 TitleCode = 0;
 u32 RequiredIosHigh = 0;
 u32 RequiredIosLow = 0;
@@ -95,13 +95,13 @@ u32 LoaderOffset = 0;
 vu32 LoaderLength = 0;
 u32 LoaderAddress = 0;
 vu32 CacheLength = 0;
-vu32 BannerLength = 0;
-vu32 DvdTransferLength = 0;
-vu32 DvdTransferred = 0;
-u32 *DvdProgress = 0;
-u32 LoaderClose = 0;
-u32 LoaderMain = 0;
-u32 LoaderInit = 0;
+static vu32 BannerLength = 0;
+static vu32 DvdTransferLength = 0;
+static vu32 DvdTransferred = 0;
+static u32 *DvdProgress = 0;
+static u32 LoaderClose = 0;
+static u32 LoaderMain = 0;
+static u32 LoaderInit = 0;
 
 
 void BS2Report(const char *msg, ...) {
@@ -243,7 +243,7 @@ BOOL BS2IsDiagDisc() { return (u8)(*(u8 *)OSPhysicalToCached(OS_ADDR_BOOT_INFO) 
 extern vu32 BS2VideoMode;
 extern vu32 __DVDLayoutFormat;
 
-asm void Run(u32 entryPoint, void *start, u32 blockCount, u32 argument) {
+static asm void Run(u32 entryPoint, void *start, u32 blockCount, u32 argument) {
     // clang-format off
 #ifdef __MWERKS__
     nofralloc
@@ -491,7 +491,7 @@ BOOL BS2StartLoadingTitle(ESTitleId titleId, ESTicketView *pTicketView) {
 
 static void callback(u32 result) { LowReadResult = result; }
 
-ESError BS2ESGetTicketViews(IOSFd *descriptor, ESTitleId titleId, ESTicketView *views, u32 *count) {
+static ESError BS2ESGetTicketViews(IOSFd *descriptor, ESTitleId titleId, ESTicketView *views, u32 *count) {
     u8 work[256] ALIGN32;
     IOSIoVector vectors[4] ALIGN32;
     ESError result;
@@ -529,7 +529,7 @@ ESError BS2ESGetTicketViews(IOSFd *descriptor, ESTitleId titleId, ESTicketView *
     request[2].length = *count * sizeof(*views);
     return IOS_Ioctlv(*descriptor, 0x13, 2, 1, request);
 }
-void BS2Reboot(void) {
+static void BS2Reboot(void) {
     ESTicketView ticket ALIGN32;
     u8 work[256] ALIGN32;
     OSStateFlags flags ALIGN32;
@@ -834,9 +834,6 @@ void BS2StartGCGame() {
     static u8 gameCubeLanguages[] = {0, 0, 1, 2, 3, 4, 5};
     s32 ret;
     u32 rtc;
-    u32 counterBias;
-    u32 seconds;
-    u32 timerFrequency;
     u32 soundMode;
     s8 productVideoMode;
     u8 progressiveMode;
@@ -878,10 +875,7 @@ void BS2StartGCGame() {
     }
 
     __OSGetRTC(&rtc);
-    counterBias = SCGetCounterBias();
-    seconds = rtc + counterBias;
-    timerFrequency = OS_BUS_CLOCK >> 2;
-    time = (OSTime)seconds * timerFrequency;
+    time = OS_TIMER_CLOCK * (OSTime)(rtc + SCGetCounterBias());
     __OSSetTime(time);
 
     sram = __OSLockSram();
@@ -955,7 +949,7 @@ void BS2StartGCGame() {
     }
 }
 
-BOOL CheckDVDCommandStatus(DVDCommandBlock *block) {
+static BOOL CheckDVDCommandStatus(DVDCommandBlock *block) {
     if (State == 0x3A) {
         return TRUE;
     }
@@ -1018,11 +1012,11 @@ BOOL CheckDVDCommandStatus(DVDCommandBlock *block) {
     return FALSE;
 }
 
-void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block);
-void BS2NANDDivideReadAsync(NANDFileInfo *info, void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block);
-void BS2NANDDivideWriteAsync(NANDFileInfo *info, const void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block);
+static void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block);
+static void BS2NANDDivideReadAsync(NANDFileInfo *info, void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block);
+static void BS2NANDDivideWriteAsync(NANDFileInfo *info, const void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block);
 
-void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
+static void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
     s32 ret;
 
     if (CancelNand != 0) {
@@ -1063,7 +1057,7 @@ void BS2NANDDivideCallback(s32 result, NANDCommandBlock *block) {
     }
 }
 
-void BS2NANDDivideReadAsync(NANDFileInfo *info, void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block) {
+static void BS2NANDDivideReadAsync(NANDFileInfo *info, void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block) {
     NandCompletion = callback;
     NandOperation = 2;
     NandLength = length;
@@ -1079,7 +1073,7 @@ void BS2NANDDivideReadAsync(NANDFileInfo *info, void *buffer, u32 length, NANDCa
     }
 }
 
-void BS2NANDDivideWriteAsync(NANDFileInfo *info, const void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block) {
+static void BS2NANDDivideWriteAsync(NANDFileInfo *info, const void *buffer, u32 length, NANDCallback callback, NANDCommandBlock *block) {
     NandCompletion = callback;
     NandOperation = 1;
     NandLength = length;
@@ -1095,7 +1089,7 @@ void BS2NANDDivideWriteAsync(NANDFileInfo *info, const void *buffer, u32 length,
     }
 }
 
-BOOL CheckBS2CommandStatus() {
+static BOOL CheckBS2CommandStatus() {
     if (CheckDVDCommandStatus(&Block) == 0) {
         BS2Report("DVD command is issuing\n");
         return 0;
@@ -1299,7 +1293,7 @@ BOOL CheckBS2CommandStatus() {
     return TRUE;
 }
 
-void BS2InquiryAsync(void *buffer, s32 length, u32 offset) {
+static void BS2InquiryAsync(void *buffer, s32 length, u32 offset) {
     if (BS2BootFromCache) {
         BS2Report("Unencrypted read from cache.dat\n");
         NandPending = 1;
@@ -1309,7 +1303,7 @@ void BS2InquiryAsync(void *buffer, s32 length, u32 offset) {
     }
 }
 
-void BS2ReadDiskID(void *buffer, s32 length, u32 offset) {
+static void BS2ReadDiskID(void *buffer, s32 length, u32 offset) {
     if (BS2BootFromCache) {
         BS2Report("Read from cache.dat\n");
         NandPending = 1;
