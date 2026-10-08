@@ -39,3 +39,11 @@ Measured trials:
 - static initializer attempt 1: src 0x64 base 0x64 insns 25/25; diffs 0: []
 - static initializer attempt 2: src 0x64 base 0x64 insns 25/25; diffs 22: [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
 - static initializer attempt 3: src 0x64 base 0x64 insns 25/25; diffs 0: []
+
+## w1011/struct2 continuation (createAnmPane_)
+- WIN: `const PaneToAnimation* p = &scCandidatePaneData.panes[i]` (pointer, not ref) → 215v216→216v216, fuzzy 92.89→98.91. Base reloads `p->pAnims[j]` through the array slot (lwz 0x20(r23)) per use; ref-form folded the element into a pinned reg.
+- Regressions reverted: forceAddName moved into loop scope (118 ops), u32 j (86), int i (236), inline p->pAnims[j] at both uses (220), uninit-decl forms.
+- Residual ~77 reg-name ops = pure coloring: base homes `p+j*4` slot web in r23, panes-base in r24, zero-web in r26; mine r30/r23/r25. Birth-order levers exhausted.
+- `create` (352v352): insn-identical modulo branch targets; only `lfs f0,0(x)` anonymous .rodata ref offset differs (ties to .data granularity: mine names scPaneNameTable/scW_*/scN_* strings, base emits @9934-@9943 anonymous locals + base lacks mine's `__vt__textinput::gui::GUIComponent` weak emission; scCandidatePaneData 1676 vs 1664B).
+- `CalcPaneLocate_` (435v435): byte-identical modulo relocs.
+- loadCardFileIcons (iplCardSequence): 508v512 (-4): base emits extra `li r?,0; stb` zero-init pairs (per-path dead zero-webs) + separate addis/addi addr materialization where mine fuses; untreated structural gap.
