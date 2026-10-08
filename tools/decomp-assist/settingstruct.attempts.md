@@ -83,3 +83,19 @@ compare with a path-unset reg.
 **get_friendinfo is a NEW 100% fn** — owner PR bar (≥1 new 100% + zero regressions) met
 for a source-only PR. create improved to 98.73. Remaining fns stay at documented ties;
 units stay NonMatching.
+
+## Post-#1277 rebase (origin/main@c723136f)
+Owner merged get_friendinfo+update_friendinfo via #1277 (IRO-1 + named locals — same
+decode). Branch now keeps only create's `ppc_iro_level 1` (98.73) + this log.
+
+## libs/RevoEX/src/net/aes.c (added to leaf)
+- AESiEncryptBlock 65.81 (158=158 insns): whole-body table-load issue-order interleave.
+  Orig hoists all 16 byte-extract rlwinm webs to the loop top then interleaves
+  lwzx/rotlwi/xor; next-round key loads land mid-body. TRIED: IRO-0 (195 diffs, worse
+  than 183 baseline), IRO-1 (same 195), `nextState[4]` array (183 = scalarized
+  identical), `state[4]`+`nextState[4]` arrays (180), fused key-XOR into nextState
+  assignments (192, savegpr_20). All reverted — issue-order wall, no lever.
+- AESiDecryptBlock 78.96 (246=246 insns): IRO-0/IRO-1 both drop fuzzy to ~70 (+7 insns,
+  266 normalized diffs vs 290 baseline — normalized counts mislead again). Reverted.
+  Allhands exhaustive-decl-order docs predate IRO but the pragma is verified harmful
+  here — remaining residual is the same table-load scheduler family.
