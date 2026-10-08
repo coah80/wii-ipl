@@ -35,11 +35,7 @@ namespace ipl {
             MemoryBase* mpBase;  // 0x0C
         };
 
-#ifdef IPL_CHANNEL_TITLE_NOVTABLE
-        class __declspec(novtable) MemoryBase {
-#else
         class MemoryBase {
-#endif
         public:
             class Anm {
             public:
