@@ -68,6 +68,19 @@ namespace ipl {
 
         SDMemory::~SDMemory() {}
 
+        static inline s32 countCachedTitles(const savedata::Manager* saveData) {
+            s32 count = 0;
+            for (s32 i = 0; i < 48; ++i) {
+                if (saveData->getTitleCacheEntry(i) == 0) {
+                    break;
+                }
+                ++count;
+            }
+            return count;
+        }
+
+#pragma push
+#pragma ppc_iro_level 1
         void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* channelSelect) {
             s32 cachedTitleCount;
             const savedata::Manager* saveData;
@@ -151,13 +164,7 @@ namespace ipl {
             textBox->SetString(System::getMessage(0xBA));
 
             saveData = System::getSaveData();
-            cachedTitleCount = 0;
-            for (s32 i = 0; i < 48; ++i) {
-                if (saveData->getTitleCacheEntry(i) == 0) {
-                    break;
-                }
-                ++cachedTitleCount;
-            }
+            cachedTitleCount = countCachedTitles(saveData);
             if (cachedTitleCount >= 5) {
                 mpTitleLayout->FindPaneByName("N_Btn_3")->SetVisible(false);
                 nw4r::lyt::Pane* expandedButton = mpTitleLayout->FindPaneByName("N_Btn_4");
@@ -252,6 +259,8 @@ namespace ipl {
 
             mTransferFlags[0] = 1;
         }
+
+#pragma pop
 
         void SDMemory::setTitleLists(const TitleRange& nandTitles, const TitleRange& sdTitles) {
             mNandTitleRange = nandTitles;
