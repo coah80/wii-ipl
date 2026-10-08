@@ -177,7 +177,7 @@ namespace ipl {
                                const controller::Interface* controller);
             BOOL onEventDerived(const char* paneName, u32 event,
                                 controller::Interface* controller);
-            bool collectTitlesByUsage(const s32* firstUsage, const s32* secondUsage,
+            bool collectTitlesByUsage(s32* firstUsage, s32* secondUsage,
                                       ESTitleId* titleIds, char* titleNames,
                                       u32* titleCount);
 
@@ -221,7 +221,7 @@ namespace ipl {
             int getCenterChannelIndex(const char* paneName) const;
             nw4r::lyt::Pane* getCenterChannelPane(int index) const;
             nw4r::lyt::Pane* getChannelPane(int index) const;
-            static math::VEC3 getChannelPanePosition(SDChannelSelect* scene, int index);
+            static nw4r::math::VEC3 getChannelPanePosition(SDChannelSelect* scene, int index);
             void calcPageAnimations();
             void processNormalInput();
             void updateArrowVisibility();
@@ -232,16 +232,16 @@ namespace ipl {
             void setChannelScissor(const SDChannelObj* channel) const;
             bool isCurrentTitleUsageEnough(const s32* usage) const;
             void getCurrentTitleUsage(s32* bytes, s32* blocks) const;
-            bool collectTitlesByChannelOrder(const s32* firstUsage, const s32* secondUsage,
+            bool collectTitlesByChannelOrder(s32* firstUsage, s32* secondUsage,
                                              ESTitleId* titleIds, char* titleNames,
                                              u32* titleCount);
-            bool collectTitlesFromNandUsage(const s32* firstUsage, const s32* secondUsage,
+            bool collectTitlesFromNandUsage(s32* firstUsage, s32* secondUsage,
                                             ESTitleId* titleIds, char* titleNames,
                                             u32* titleCount);
-            bool collectTitlesBySpecialChannels(const s32* firstUsage, const s32* secondUsage,
+            bool collectTitlesBySpecialChannels(s32* firstUsage, s32* secondUsage,
                                                 ESTitleId* titleIds, char* titleNames,
                                                 u32* titleCount);
-            bool collectTitlesForMode(const s32* firstUsage, const s32* secondUsage,
+            bool collectTitlesForMode(s32* firstUsage, s32* secondUsage,
                                       ESTitleId* titleIds, char* titleNames,
                                       u32* titleCount, int searchMode);
             bool findAdjacentChannel(int direction, int* page, int* index) const;

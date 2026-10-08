@@ -277,6 +277,9 @@ namespace ipl {
             /* SEntry */
             bool hasLoadedBnr(int page, int index) const { return mChannels[page][index].loadedBnr; }
             int getSceneID(int page, int index) const { return mChannels[page][index].loadedBnr ? mChannels[page][index].info.sceneID : 0; }
+            ESTitleId getEntryTitleID(int page, int index) const {
+                return mChannels[page][index].loadedBnr ? ES_TITLE_ID(mChannels[page][index].info.titleType, mChannels[page][index].info.titleCode) : 0;
+            }
 
             /* SMetaBlockHeader */
             u32 getIconRSOIdx(int page, int index) const {

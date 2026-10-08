@@ -1325,7 +1325,7 @@ namespace ipl {
         }
 
         bool SDChannelSelect::collectTitlesByUsage(
-            const s32* firstUsage, const s32* secondUsage, ESTitleId* titleIds,
+            s32* firstUsage, s32* secondUsage, ESTitleId* titleIds,
             char* titleNames, u32* titleCount) {
             s32 bytes;
             s32 blocks;
@@ -1360,7 +1360,7 @@ namespace ipl {
         }
 
         bool SDChannelSelect::collectTitlesFromNandUsage(
-            const s32* firstUsage, const s32* secondUsage,
+            s32* firstUsage, s32* secondUsage,
             ESTitleId* titleIds, char* titleNames, u32* titleCount) {
             s32 bytes;
             s32 blocks;
@@ -1399,7 +1399,7 @@ namespace ipl {
         }
 
         bool SDChannelSelect::collectTitlesByChannelOrder(
-            const s32* firstUsage, const s32* secondUsage, ESTitleId* titleIds,
+            s32* firstUsage, s32* secondUsage, ESTitleId* titleIds,
             char* titleNames, u32* titleCount) {
             static const int channelOrder[MAX_CHANNEL_INDEX] = {
                 11, 7, 3, 10, 6, 2, 9, 5, 1, 8, 4, 0,
@@ -1409,17 +1409,10 @@ namespace ipl {
             getCurrentTitleUsage(&bytes, &blocks);
             *titleCount = 0;
 
-            ESTitleId titleId;
             for (int page = MAX_CHANNEL_PAGE - 1; page >= 0; --page) {
                 for (int order = 0; order < MAX_CHANNEL_INDEX; ++order) {
-                    int channelIndex = channelOrder[order];
-                    const channel::SEntry& channelInfo =
-                        System::getChannelManager()->mChannels[page][channelIndex];
-                    if (channelInfo.loadedBnr) {
-                        titleId = ES_TITLE_ID(channelInfo.info.titleType, channelInfo.info.titleCode);
-                    } else {
-                        titleId = 0;
-                    }
+                    ESTitleId titleId =
+                        System::getChannelManager()->getEntryTitleID(page, channelOrder[order]);
                     if (titleId == 0 || titleId == 0x48415A41) {
                         continue;
                     }
@@ -1451,7 +1444,7 @@ namespace ipl {
         }
 
         bool SDChannelSelect::collectTitlesBySpecialChannels(
-            const s32* firstUsage, const s32* secondUsage, ESTitleId* titleIds,
+            s32* firstUsage, s32* secondUsage, ESTitleId* titleIds,
             char* titleNames, u32* titleCount) {
             s32 bytes;
             s32 blocks;
@@ -1581,7 +1574,7 @@ namespace ipl {
         }
 
         bool SDChannelSelect::collectTitlesForMode(
-            const s32* requiredBytes, const s32* requiredBlocks,
+            s32* requiredBytes, s32* requiredBlocks,
             ESTitleId* titleIds, char* titleNames, u32* titleCount, int searchMode) {
             switch (searchMode) {
             case 0:
@@ -1908,7 +1901,7 @@ namespace ipl {
                         pageText->SetString(pageNumber, 0);
                         nw4r::lyt::Pane* clockPane = mpLayout->FindPaneByName(mscClockPaneNames[page]);
                         nw4r::math::MTX34 paneMatrix = clockPane->GetGlobalMtx();
-                        nw4r::math::VEC3 position(0.0f, 0.0f, 0.0f);
+                        math::VEC3 position(0.0f, 0.0f, 0.0f);
                         PSMTXMultVec(paneMatrix, position, position);
                         mpDialogLayout->GetRootPane()->SetTranslate(position);
                         mpDialogLayout->calcMtx();
@@ -2705,8 +2698,8 @@ namespace ipl {
             return mpLayout->FindPaneByName(mscChannelPaneNames[2][index]);
         }
 
-        math::VEC3 SDChannelSelect::getChannelPanePosition(SDChannelSelect* scene, int index) {
-            math::VEC3 position(0.0f, 0.0f, 0.0f);
+        nw4r::math::VEC3 SDChannelSelect::getChannelPanePosition(SDChannelSelect* scene, int index) {
+            nw4r::math::VEC3 position(0.0f, 0.0f, 0.0f);
             MTXMultVec(scene->getCenterChannelPane(index)->GetGlobalMtx(), position, position);
             return position;
         }
