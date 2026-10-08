@@ -1,3 +1,5 @@
+int gDpdWaitFrm = 0;
+
 #include "iplwww/www_wiisetting.h"
 
 #include <string.h>
@@ -9,16 +11,18 @@
 
 #include "iplwww/www_browser.h"
 
-int gDpdWaitFrm = 0;
 BOOL gEnableDpd = TRUE;
 
 namespace www {
     namespace wiisetting {
-        static const char emptyString[] = "";
-        char MSG_TICK_TIMER_TAG[12] = "[TickTimer]";
-        char MSG_WARNING_TAG[10] = "[Warning]";
-        char MSG_EVENT_TAG[10] = "[[Event]]";
-        const char* Message[] = {NULL, NULL, NULL, NULL, emptyString, NULL};
+        struct ReportInfo {
+            char tickTimerTag[12];
+            char warningTag[10];
+            char eventTag[10];
+            const char* MessageArr[6];
+        };
+
+        ReportInfo reportInfo = {"[TickTimer]", "[Warning]", "[[Event]]", {NULL, NULL, NULL, NULL, NULL, NULL}};
 
         const u8 kbLangUsaLUT[][0x30] = {
             {
@@ -150,8 +154,8 @@ namespace www {
         extern const char* strProps[FORM_ID_MAX];
         int getStringPropertyIdx(const char* targetStr) {
             const char* names[ARRAY_LENGTH(strProps)];
-            const char** destinationName = names - 1;
             const char* const* sourceName = strProps - 1;
+            const char** destinationName = names - 1;
             for (int i = 0; i < (ARRAY_LENGTH(names) >> 1); i++) {
                 *(++destinationName) = *(++sourceName);
                 *(++destinationName) = *(++sourceName);
@@ -169,9 +173,19 @@ namespace www {
             return -1;
         }
 
+        static inline int getSettingProperty(const char* str, WWWJSPluginValue* val);
+
+        static inline void selectEuropeanKeyboardLanguage(u32& kbLang) {
+            int i;
+            for (i = 0; i < 0x3b; i++) {
+                if (sWiiData.data[WB_ID_COUNTRY] == kbLangEurLUT[ipl::System::getLanguage() - 1][i] + 0x40) {
+                    kbLang = (u8)(i + 0x40);
+                    break;
+                }
+            }
+        }
+
         int Getter_(WWWJSPluginObj* obj, const char* str, WWWJSPluginValue* val) {
-            int retVal;
-            int strPropIdx;
             if (strcmp(str, "CallOSReport") == 0) {
                 int data;
                 if (opera_callbacks->globalGet(obj, 0, 0, wiiOSReport, wiiOSReport, "", 0, (WWWJSPluginValueData*)&data) < 0) {
@@ -191,6 +205,15 @@ namespace www {
                     return 7;
                 }
             }
+            return getSettingProperty(str, val);
+        }
+
+        static inline int getSettingProperty(const char* str, WWWJSPluginValue* val) {
+            int privacyIndex;
+            int retVal;
+            SetStringBuf* strBuf;
+            int maskLength;
+            int strPropIdx;
             if (!(writeBackID == WB_ID_PROGRESSIVE || writeBackID == WB_ID_PAL || writeBackID == WB_ID_COUNTRY || writeBackID == WB_ID_LIGHT ||
                   writeBackID == WB_ID_LANGUAGE || writeBackID == WB_ID_RATE)) {
                 writeBackID = WB_ID_RESET;
@@ -281,14 +304,13 @@ namespace www {
                         memset(pString->asterisks, 0, sizeof(pString->asterisks));
                         OSReport("mode %d %d\n", saveData, (u16)ipl::ncd::NCDSetting::getPrivacyMode());
                         if (saveData == (u16)ipl::ncd::NCDSetting::getPrivacyMode()) {
-                            int i;
                             OSReport("len ::: %d\n", ipl::ncd::NCDSetting::getPrivacyLen());
-                            for (i = 0; i < ipl::ncd::NCDSetting::getPrivacyLen(); i++) {
-                                pString->asterisks[i] = '*';
+                            for (privacyIndex = 0; privacyIndex < ipl::ncd::NCDSetting::getPrivacyLen(); privacyIndex++) {
+                                pString->asterisks[privacyIndex] = '*';
                             }
-                            if (0x20 < i) {
+                            if (0x20 < privacyIndex) {
                                 pString->asterisks[0x20] = '\n';
-                                pString->asterisks[i] = '*';
+                                pString->asterisks[privacyIndex] = '*';
                             }
                         } else {
                             memset(pString->securityKey, 0, sizeof(pString->securityKey));
@@ -298,13 +320,11 @@ namespace www {
                     }
                     case FORM_ID_DUMMY_SECURITY_KEY: {
                         memset(pString->asterisks, 0, sizeof(pString->asterisks));
-                        SetStringBuf* strBuf;
-                        int i;
-                        for (i = 0; i < strlen((strBuf = pString)->securityKey); strBuf->asterisks[i++] = '*') {
+                        for (maskLength = 0; maskLength < strlen((strBuf = pString)->securityKey); strBuf->asterisks[maskLength++] = '*') {
                         }
-                        if (i > 0x20) {
+                        if (maskLength > 0x20) {
                             pString->asterisks[0x20] = '\n';
-                            pString->asterisks[i] = '*';
+                            pString->asterisks[maskLength] = '*';
                         }
                         val->data.jsStr = pString->asterisks;
                         break;
@@ -522,12 +542,7 @@ namespace www {
                                 }
                             }
                         } else if ((u32)ipl::System::getRegion() == SC_PRODUCT_AREA_EUR) {
-                            for (int i = 0; i < 0x3b; i++) {
-                                if (sWiiData.data[WB_ID_COUNTRY] == kbLangEurLUT[ipl::System::getLanguage() - 1][i] + 0x40) {
-                                    kbLang = (u8)(i + 0x40);
-                                    break;
-                                }
-                            }
+                            selectEuropeanKeyboardLanguage(kbLang);
                         }
                         val->data.jsDouble = (u8)kbLang;
                     }
