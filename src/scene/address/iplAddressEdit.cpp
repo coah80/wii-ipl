@@ -2856,11 +2856,14 @@ void ipl::scene::AddressEdit::add_friendinfo() {
     }
 }
 
+#pragma push
+#pragma ppc_iro_level 1
 void ipl::scene::AddressEdit::get_friendinfo() {
     memcpy(&ipl::scene::sFriendInfo, &mpFriendCache->getInfo(mSelectedFriend),
         sizeof(ipl::scene::sFriendInfo));
     mString.setName(reinterpret_cast<const wchar_t*>(ipl::scene::sFriendInfo.attr.name));
-    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true), mString.mName);
+    const wchar_t* name = mString.mName;
+    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true), name);
 
     wchar_t wiiNo[0x100];
     wchar_t email[0x102];
@@ -2873,13 +2876,18 @@ void ipl::scene::AddressEdit::get_friendinfo() {
         ipl::utility::CharacterCode::ANSIToUTF16(email, reinterpret_cast<const u8*>(&ipl::scene::sFriendInfo.addr), 0x102);
         mString.setEMail(email);
     }
-    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true), mString.mDisplayText);
+    const wchar_t* text = mString.mDisplayText;
+    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true), text);
     memcpy(&mCreateID, &ipl::scene::sFriendInfo.attr.fdId, sizeof(mCreateID));
 }
+#pragma pop
 
+#pragma push
+#pragma ppc_iro_level 1
 void ipl::scene::AddressEdit::update_friendinfo() {
     memset(ipl::scene::sFriendInfo.attr.name, 0, sizeof(ipl::scene::sFriendInfo.attr.name));
-    wcsncpy(reinterpret_cast<wchar_t*>(ipl::scene::sFriendInfo.attr.name), mString.mName, 0xa);
+    const wchar_t* source = mString.mName;
+    wcsncpy(reinterpret_cast<wchar_t*>(ipl::scene::sFriendInfo.attr.name), source, 0xa);
     memcpy(&ipl::scene::sFriendInfo.attr.fdId, &mCreateID, sizeof(mCreateID));
     mpFriendCache->update(
         mSelectedFriend,
@@ -2887,6 +2895,7 @@ void ipl::scene::AddressEdit::update_friendinfo() {
         ipl::scene::sFriendInfo.attr.fdId);
     static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
 }
+#pragma pop
 
 void ipl::scene::AddressEdit::String::setEMail(const wchar_t* value) {
     mbHasWiiNo = false;
