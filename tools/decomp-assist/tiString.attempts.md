@@ -28,3 +28,31 @@ call result, or a non-foldable form). Dead `cmplwi r4,0xa` matches the documente
 dead-compare-fossil family (both-branch merge). Also: count lands in r29 via
 clrlwi (u16) — count is i.
 Unresolved: what source produces symbolic-index stores + dead compare.
+
+## inputChar (w1011/fossils wave) — symbolic-index DECODED, dead-compare wall remains
+Best: 135/136 (was 125/136). The winning source form:
+```cpp
+u32 inputIndex = 0;
+input[inputIndex] = 0;
+if (ch == 10) { inputIndex = 0; }
+input[inputIndex] = ch;
+++inputIndex;
+input[inputIndex] = 0;
+count = inputIndex;              // u16 count: emits clrlwi r29,r6,0x10
+mKanaStream.mOutput[0] = 0;
+```
+The `if(ch==10) inputIndex=0` creates an SSA phi on inputIndex -> MWCC keeps the
+index SYMBOLIC -> reproduces orig's `slwi/sthx/addi/slwi/clrlwi/sthx` sequence
+and the clrlwi count-narrow between the two sthx (u16 count, not int).
+REMAINING GAP = dead `cmplwi r4,0xa`: orig emits the compare with NO consuming
+branch and NO arm insns. Every arm-body variant fails both ways:
+- arm with any real op (`inputIndex=0`, `mOutput[0]=0`, `count=inputIndex`,
+  `input[0]=0`): MWCC keeps `bne` + arm insns (mine 135 = +bne+li vs orig).
+- empty arm `if(ch==10){}`, self-assign `inputIndex=inputIndex`, dead-on-arrival
+  `count=inputIndex` (overwritten unconditionally after), identical-arms
+  if/else, ternary `(ch==10)?0:inputIndex`: MWCC merges arms BEFORE emitting the
+  compare -> compare dies too (125).
+A compare-without-branch fossil is not producible by any tested source form on
+MWCC 3.0a5.2. Open question: whether orig's compare came from a non-if codegen
+path (peeled loop head, && short-circuit whose second test folds, or an
+MWCC-version difference).
