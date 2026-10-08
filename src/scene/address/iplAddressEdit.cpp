@@ -69,12 +69,151 @@ namespace ipl {
     }
 }
 
-ipl::keyboard::Manager::KeyboardSetting::KeyboardSetting(
-    ipl::keyboard::Manager::KeyboardType keyboardType, const wchar_t* value, u32 limit, u32 rows) {
-    type = keyboardType;
-    wcString = value;
-    stringLimit = limit;
-    rowLimit = rows;
+extern "C" BOOL RFLSearchOfficialData(const RFLCreateID*, u16*);
+
+namespace ipl {
+    namespace scene {
+        NWC24FriendInfo sFriendInfo;
+    }
+}
+extern "C" const char* smButtonName__Q33ipl5scene6Button[];
+
+int ipl::scene::AddressEdit::get_button_no(const char*);
+
+extern "C" NWC24Err NWC24CheckPublicMailAddr_(const char*);
+
+inline void ipl::scene::AddressEdit::set_textbox(nw4r::lyt::Pane* pane, u32 msgId) {
+    set_textbox(pane, ipl::System::getMessage(msgId));
+}
+
+static ChkHostNameError CheckHostName(const char* hostName, u32 hostNameLength) {
+    int i;
+    BOOL foundDot;
+
+    // Parameter check
+    if (hostNameLength == 0) {
+        return CHECK_HOSTNAME_BAD_LENGTH;
+    }
+
+    // Is null or empty check
+    if (hostName == NULL) {
+        return CHECK_HOSTNAME_IS_NULL;
+    }
+    if (*hostName == 0) {
+        return CHECK_HOSTNAME_IS_EMPTY;
+    }
+
+    // Verify check
+    if (*hostName == '.') {
+        return CHECK_HOSTNAME_INCORRECT;
+    }
+
+    foundDot = FALSE;
+
+    for (i = 0; i < hostNameLength; i++) {
+        char ch = hostName[i];
+
+        // Stop on NULL
+        if (ch == 0) {
+            break;
+        }
+
+        if (ch == '.') {
+            // Check if we already found one again after the previous character.
+            if (foundDot) {
+                return CHECK_HOSTNAME_MULTIPLE_DOTS;
+            }
+            foundDot = TRUE;
+            continue;
+        }
+
+        // Check if there are invalid characters
+        if ((ch < '0' || ch > '9') && (ch < 'a' || ch > 'z') && (ch < 'A' || ch > 'Z') && (ch != '-' && ch != '_')) {
+            return CHECK_HOSTNAME_INVALID_CHARACTERS;
+        }
+
+        foundDot = FALSE;
+    }
+
+    // Check if we are out of range
+    if (i == hostNameLength) {
+        return CHECK_HOSTNAME_OUT_OF_RANGE;
+    }
+
+    // Check if the end of hostname has a dot
+    if (i > 0 && hostName[i - 1] == '.') {
+        return CHECK_HOSTNAME_DOT_AT_END;
+    }
+
+    return CHECK_HOSTNAME_SUCCESS;
+}
+
+/*
+    This is a modified version of NWC24CheckPublicMailAddr.
+    Changes:
+     - Uses strnicmp instead of NWC24's Mail_strnicmp
+     - ... That's it!!
+*/
+extern "C" NWC24Err NWC24CheckPublicMailAddr_(const char* addr) {
+    int i, j;
+    int len;
+    BOOL readingDomain;
+
+    static const char specials[] = {'(', ')', '<', '>', '[', ']', ':', ';', '\\', ',', '"'};
+
+    // Check parameters
+    if (addr == NULL) {
+        return NWC24_ERR_NULL;
+    }
+
+    // Check address length
+    len = STD_strnlen(addr, sizeof(NWC24UserMailAddr));
+    if (len == (int)sizeof(NWC24UserMailAddr)) {
+        return NWC24_ERR_STRING_END;
+    }
+    if (len == 0) {
+        return NWC24_ERR_FORMAT;
+    }
+
+    readingDomain = FALSE;
+
+    for (i = 0; i < len; i++) {
+        char ch = addr[i];
+
+        // If we found '@'
+        if (ch == '@') {
+            // If it was at the beginning of the address, invalid!
+            if (i == 0) {
+                return NWC24_ERR_FORMAT;
+            }
+            readingDomain = TRUE;
+            break;
+        }
+
+        // If the character is not a letter or symbol, invalid!
+        if (ch <= ' ' || ch >= '~' + 1) {
+            return NWC24_ERR_FORMAT;
+        }
+
+        // If the character is special, invalid!
+        for (j = 0; j < sizeof(specials); j++) {
+            if (ch == specials[j]) {
+                return NWC24_ERR_FORMAT;
+            }
+        }
+    }
+
+    // If we are have not found '@', invalid!
+    if (!readingDomain) {
+        return NWC24_ERR_FORMAT;
+    }
+
+    // If the hostname is not valid, invalid!
+    if (CheckHostName(&addr[i + 1], (len - i)) < CHECK_HOSTNAME_SUCCESS) {
+        return NWC24_ERR_FORMAT;
+    }
+
+    return strnicmp(&addr[i], NWC24GetAccountDomain(), (len - i) + 1) == 0 ? NWC24_ERR_PROTECTED : NWC24_OK;
 }
 
 ipl::scene::AddressEdit::AddressEdit(EGG::Heap* heap, int friendCode)
@@ -103,284 +242,9 @@ ipl::scene::AddressEdit::~AddressEdit() {
     }
 }
 
-void ipl::scene::AddressEdit::stt_msg_code_add() {
-    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
-        mState = 0x22;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_code_edit() {
-    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
-        mState = 0;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_parental() {
-    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
-        mState = 0;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_nwc24_error() {
-    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
-        mState = 0;
-    }
-}
-
-void ipl::scene::AddressEdit::reset_gui() {
-    mpEditGui->init();
-    mpInputGui->init();
-    for (s32 i = 0; i < 5; ++i) {
-        if (mPointCount[i] > 0) {
-            ipl::layout::Animator* animator = mpCodeLayout->getAnim(i + 0xb);
-            animator->play();
-            mPointCount[i] = 0;
-        }
-    }
-}
-
-
-extern "C" BOOL RFLSearchOfficialData(const RFLCreateID*, u16*);
-
-namespace ipl {
-    namespace scene {
-        NWC24FriendInfo sFriendInfo;
-    }
-}
-extern "C" const char* smButtonName__Q33ipl5scene6Button[];
-
-
-
-
-
-
-
-
-
-
-int ipl::scene::AddressEdit::get_button_no(const char*);
-
-
-
-
-
-
-
-
-extern "C" NWC24Err NWC24CheckPublicMailAddr_(const char*);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void ipl::scene::AddressEdit::stt_msg_no_established() {
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 1:
-        reset_gui();
-        mState = 0;
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_code_invalid() {
-    ipl::System::getScene(ipl::SCENE_BUTTON);
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 1:
-        mState = 0x11;
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_dup_wii_no() {
-    ipl::System::getScene(ipl::SCENE_BUTTON);
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 1:
-        mState = 0x11;
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_dup_email() {
-    ipl::System::getScene(ipl::SCENE_BUTTON);
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 1:
-        mState = 0x11;
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_my_wii_no() {
-    ipl::System::getScene(ipl::SCENE_BUTTON);
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 1:
-        mState = 0x11;
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_no_mii_add() {
-    ipl::System::getScene(ipl::SCENE_BUTTON);
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 1:
-        mState = 0x1d;
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_add_rlt() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 1:
-        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
-        mState = 0x30;
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_code_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    if (button->isActive()) {
-        button->update();
-    }
-    if (mState == 0x11) {
-        mpInputGui->update();
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_name_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    if (button->isActive()) {
-        button->update();
-    }
-    if (mState == 0x19) {
-        mpInputGui->update();
-    }
-}
-
-const wchar_t* ipl::scene::AddressEdit::String::getDispCodeLong() const {
-    if (!mbHasWiiNo) {
-        return;
-    }
-    return mDisplayText;
-}
-
-void ipl::scene::AddressEdit::String::clear() {
-    memset(mValue, 0, sizeof(mValue));
-    memset(mName, 0, sizeof(mName));
-    memset(mDisplayText, 0, sizeof(mDisplayText));
-    mbValidMail = false;
-    mbNameNotEmpty = false;
-    mbHasWiiNo = false;
-}
-
-
-
-void ipl::scene::AddressEdit::String::setWiiNo(const wchar_t* value) {
-    mbHasWiiNo = true;
-    memset(mValue, 0, sizeof(mValue));
-    wcsncpy(mValue, value, 0x10);
-    memset(mDisplayText, 0, sizeof(mDisplayText));
-
-    for (s32 i = 0; i < 0x10; ++i) {
-        wchar_t digit = value[i];
-        if (digit >= L'0' && digit <= L'9') {
-            mDisplayText[i + i / 4] = digit;
-        } else {
-            mDisplayText[i + i / 4] = L'?';
-        }
-    }
-    mDisplayText[14] = L' ';
-    mDisplayText[9] = L' ';
-    mDisplayText[4] = L' ';
-
-    bool valid = false;
-    if (wcslen(value) == 0x10) {
-        u64 userId = AddressEdit::utf16_wiiid(value);
-        if (mpCallbackOwner->mpFriendCache->isValidId(userId)) {
-            valid = true;
-        }
-    }
-    mbValidMail = valid;
-}
-
-BOOL ipl::scene::AddressEdit::String::isDupCode() const {
-    if (mbHasWiiNo) {
-        u64 userId = AddressEdit::utf16_wiiid(mValue);
-        return mpCallbackOwner->mpFriendCache->isDupId(userId);
-    }
-
-    u8 mail[0x101];
-    memset(mail, 0, sizeof(mail));
-    ipl::utility::CharacterCode::UTF16ToANSI(mail, mValue, 0x100);
-    return mpCallbackOwner->mpFriendCache->isDupMail(reinterpret_cast<const char*>(mail));
-}
-
-BOOL ipl::scene::AddressEdit::String::isMyCode() const {
-    if (mbHasWiiNo) {
-        NWC24UserId myUserId = mpCallbackOwner->mpFriendCache->getMyUserId();
-        return AddressEdit::utf16_wiiid(mValue) == myUserId;
-    }
-    return false;
-}
-
 void ipl::scene::AddressEdit::prepare() {
     mpBalloonFile = ipl::System::getNandManager()->readLayoutAsync(
         getSceneHeap(), "balloon.ash", false);
-}
-
-inline void ipl::scene::AddressEdit::set_textbox(nw4r::lyt::Pane* pane, u32 msgId) {
-    set_textbox(pane, ipl::System::getMessage(msgId));
 }
 
 #pragma push
@@ -572,734 +436,6 @@ create_mode_done:
 }
 #pragma pop
 
-void ipl::scene::AddressEdit::stt_wait_decide_anm() {
-    nw4r::lyt::Pane* textPane;
-    bool complete = true;
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    for (s32 i = 0; i < 5; ++i) {
-        u16 index = static_cast<u16>(mSelectedButton + 6);
-        complete = (complete & !mpCodeLayout->getAnim(index)->isPlaying()) != 0;
-    }
-    if (!complete) {
-        return;
-    }
-
-    switch (mSelectedButton) {
-    case 2: {
-        if (mpFriendCache->getInfo(mSelectedFriend).attr.status == NWC24_FRIENDSTATUS_CONFIRMED) {
-            ipl::layout::Animator* statusAnimator = mpCodeLayout->getAnim(0x15);
-            statusAnimator->initFrame();
-            statusAnimator->restart();
-        } else {
-            ipl::layout::Animator* statusAnimator = mpCodeLayout->getAnim(0x1b);
-            statusAnimator->initFrame();
-            statusAnimator->restart();
-        }
-        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x16);
-        animator->initFrame();
-        animator->restart();
-        animator = mpCodeLayout->getAnim(0x17);
-        animator->initFrame();
-        animator->restart();
-        button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
-        mState = 3;
-        mpBalloon->fadeoutForce();
-        reset_gui();
-        break;
-    }
-    case 1: {
-        button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
-        button->reserveText(1, MESG_CMN_OK);
-        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
-        ipl::layout::Animator* animator = mpNameLayout->getAnim(0);
-        animator->initFrame();
-        animator->restart();
-        animator = mpNameLayout->getAnim(1);
-        animator->initFrame();
-        animator->restart();
-        animator = mpNameLayout->getAnim(2);
-        animator->initFrame();
-        animator->restart();
-        mpNameLayout->getAnim(3)->initAnmFrame();
-        animator = mpBackgroundLayout->getAnim(0);
-        animator->initFrame();
-        animator->restart();
-        textPane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
-            "T_question_00", true);
-        set_textbox(textPane, ipl::System::getMessage(0x32));
-        textPane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
-        set_textbox(textPane, mString.mName);
-        textPane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_msg_00", true);
-        set_textbox(textPane, ipl::System::getMessage(0x49));
-        mpBalloon->fadeoutForce();
-        reset_gui();
-        mState = 0xc;
-        break;
-    }
-    case 3: {
-        if (mNigaoeState != 1) {
-            mNigaoeState = 0;
-            if (RFLGetAvailableOfficialDataNum() != 0) {
-                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
-                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
-                createChildScene(ipl::SCENE_FACE_SELECT, this, 0, reinterpret_cast<void*>(1));
-                mState = 0xb;
-            } else {
-                ipl::System::getDialog()->callBtn1(MESG_TEXTWRITER_NO_MII, MESG_CMN_OK);
-                mState = 0xa;
-            }
-            mpBalloon->fadeoutForce();
-        }
-        break;
-    }
-    case 0: {
-        SCParentalControlsInfo parentalInfo;
-        BOOL parentalResult = SCGetParentalControl(&parentalInfo);
-        if (!ipl::ncd::NCDSetting::getConnectEnableFlag()) {
-            button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
-            ipl::System::getDialog()->callBtn2(MESG_NETWORK_NO_CONFIG, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT, false);
-            mState = 0x27;
-        } else if ((SCGetWCFlags() & SC_WC_FLAGS_ENABLED) == 0) {
-            button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
-            ipl::System::getDialog()->callBtn2(MESG_NETWORK_NO_WC24_CONFIG, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT, false);
-            mState = 0x2a;
-        } else if (parentalResult != 0 && (parentalInfo.enable & SC_PARENTAL_FLAG_ENABLED) != 0 &&
-                   (SCGetNetContentRestrictions() & SC_NET_RESTRICTIONS_MSG_BOARD) != 0) {
-            button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
-            ipl::System::getDialog()->callBtn1(MESG_NETWORK_PARENTAL_RESTRICT, MESG_CMN_OK);
-            mState = 0x2d;
-        } else {
-            s32 friendError = mpFriendCache->check();
-            if (friendError == NWC24_ERR_NETWORK ||
-                mpFriendCache->getLastErr() == NWC24_ERR_SERVER ||
-                mpFriendCache->getLastErr() == NWC24_ERR_FULL) {
-                wchar_t errorMessage[0x400];
-                wchar_t* errorMessagePointer = errorMessage - 1;
-                for (s32 i = 0; i < 0x200; i++) {
-                    errorMessagePointer[1] = 0;
-                    errorMessagePointer += 2;
-                    *errorMessagePointer = 0;
-                }
-                set_err_msg(errorMessage, 0x400,
-                    static_cast<NWC24Err>(mpFriendCache->getLastErr()));
-                ipl::System::getDialog()->callBtn1(errorMessage, MESG_CMN_OK);
-                button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
-                mState = 0x2e;
-            } else {
-                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
-                button->reserveText(1, MESG_BOARD_SEND);
-                button->reserveText(0, MESG_CMN_BACK_ALT_2);
-                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
-                requestSceneChange(ipl::SCENE_LETTER_WRITER, reinterpret_cast<void*>(1));
-                ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1e);
-                animator->initFrame();
-                animator->restart();
-                mState = 0x30;
-            }
-        }
-        mpBalloon->fadeoutForce();
-        reset_gui();
-        break;
-    }
-    case 4: {
-        ipl::System::getDialog()->callBtn1(mString.getDispCodeLong(), MESG_CMN_OK);
-        mpBalloon->fadeoutForce();
-        reset_gui();
-        mState = 9;
-        break;
-    }
-    default:
-        mState = 0;
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_wait_delete() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 2: {
-        delete_friendinfo();
-        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1d);
-        animator->initFrame();
-        animator->restart();
-        mState = 6;
-        break;
-    }
-    case 1: {
-        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
-        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1d);
-        animator->initFrame();
-        animator->restart();
-        mState = 5;
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_confirm_fadein() {
-    if (!mpCodeLayout->getAnim(0)->isPlaying()) {
-        mState = 0x22;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_name_fadein() {
-    if (!mpNameLayout->getAnim(1)->isPlaying() &&
-        !mpNameLayout->getAnim(3)->isPlaying() &&
-        !mpNameLayout->getAnim(2)->isPlaying()) {
-        mState = 0x19;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_mii_fadein() {
-    if (!mpNameLayout->getAnim(1)->isPlaying() &&
-        !mpNameLayout->getAnim(4)->isPlaying() &&
-        !mpNameLayout->getAnim(0)->isPlaying()) {
-        mState = 0x1d;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_code_fadein() {
-    if (!mpNameLayout->getAnim(0)->isPlaying() &&
-        !mpNameLayout->getAnim(1)->isPlaying() &&
-        !mpNameLayout->getAnim(3)->isPlaying() &&
-        !mpNameLayout->getAnim(4)->isPlaying() &&
-        !mpNameLayout->getAnim(2)->isPlaying()) {
-        mState = 0x11;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_name_input() {
-    ipl::keyboard::Manager::State* state = ipl::System::getKeyboard()->getState();
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    s32 keyboardType = state->iplType;
-    if (keyboardType == ipl::keyboard::Manager::STATE_DISAPPEARING) {
-        goto state_disappearing;
-    }
-    if (keyboardType >= ipl::keyboard::Manager::STATE_DISAPPEARING) {
-        goto state_at_or_after_disappearing;
-    }
-    if (keyboardType >= ipl::keyboard::Manager::STATE_VISIBLE) {
-        goto done;
-    }
-    if (keyboardType >= ipl::keyboard::Manager::STATE_HIDDEN) {
-        goto state_hidden;
-    }
-    goto done;
-
-state_at_or_after_disappearing:
-    if (keyboardType >= 5) {
-        goto done;
-    }
-    goto state_visible;
-
-state_disappearing: {
-        BOOL nameWasEmpty = mString.mName[0] == 0;
-        if (state->pressOK) {
-            mString.setName(state->wcString);
-            nw4r::lyt::Pane* pane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
-                "T_name_00", true);
-            set_textbox(pane, mString.mName);
-        }
-        if (mString.mName[0] == 0) {
-            if (!nameWasEmpty) {
-                ipl::layout::Animator* animator = mpNameLayout->getAnim(6);
-                animator->initFrame();
-                animator->restart();
-                animator = mpNameLayout->getAnim(3);
-                animator->initFrame();
-                animator->restart();
-            }
-            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
-        } else {
-            if (nameWasEmpty) {
-                ipl::layout::Animator* animator = mpNameLayout->getAnim(2);
-                animator->initFrame();
-                animator->restart();
-                animator = mpNameLayout->getAnim(7);
-                animator->initFrame();
-                animator->restart();
-            }
-            if (mString.mbNameNotEmpty) {
-                button->reserveText(1, MESG_CMN_OK);
-                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
-            } else {
-                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
-            }
-        }
-    }
-    goto done;
-
-state_visible: {
-        mState = 0x19;
-        if (static_cast<u32>(ipl::System::getRegion()) == SC_PRODUCT_AREA_KOR) {
-            ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(false);
-        }
-    }
-    goto done;
-
-state_hidden:
-    setDefaultTitleText(NULL, ipl::System::getKeyboard()->baseMgr()->isVacancy());
-
-done:
-    return;
-}
-
-void ipl::scene::AddressEdit::stt_add_mii_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    if (button->isActive()) {
-        button->update();
-    }
-    if (mState == 0x1d) {
-        mpInputGui->update();
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_mii_input() {
-    ipl::scene::Base* child = getChild();
-    if (child != NULL) {
-        ipl::scene::FaceSelect* faceSelect = static_cast<ipl::scene::FaceSelect*>(getChild());
-        int faceId = faceSelect->getSelectedFaceId();
-        if (faceId >= 0 && ipl::System::getMiiManager()->isAvalable(faceId) &&
-            mNigaoeState == 0) {
-            RFLAdditionalInfo additionalInfo;
-            RFLGetAdditionalInfo(&additionalInfo, RFLDataSource_Official, NULL, faceId);
-            if (!RFLiIsSameID(&mCreateID, &additionalInfo.createID)) {
-                memcpy(&mCreateID, &additionalInfo.createID, sizeof(mCreateID));
-                ipl::System::getMiiManager()->create(ipl::System::getMem2App(), 0x4c, 0x4c, faceId,
-                    ipl::scene::AddressEdit::nigaoe_create_callback_add,
-                    this);
-                mNigaoeState = 1;
-                mpInputGui->init();
-                mpBalloon->fadeoutForce();
-            }
-        }
-    }
-
-    if (getChild() == NULL &&
-        ipl::System::getSceneManager()->getReservedScene() == NULL) {
-        static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
-        mState = 0x1d;
-        mNigaoeState = 0;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_mii_fadeout() {
-    if (!mpNameLayout->getAnim(9)->isPlaying() &&
-        !mpNameLayout->getAnim(5)->isPlaying() &&
-        !mpNameLayout->getAnim(8)->isPlaying()) {
-        switch (mSubState) {
-    case 5: {
-        ipl::layout::Animator* animator = mpNameLayout->getAnim(1);
-        animator->initFrame();
-        animator->restart();
-        animator = mpNameLayout->getAnim(2);
-        animator->initFrame();
-        animator->restart();
-
-        nw4r::lyt::Pane* pane =
-            mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_question_00", true);
-        set_textbox(pane, ipl::System::getMessage(0x32));
-        pane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
-        set_textbox(pane, mString.mName);
-        pane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_msg_00", true);
-        set_textbox(pane, ipl::System::getMessage(0x49));
-        mState = 0x18;
-        break;
-    }
-
-    case 7: {
-        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0);
-        animator->initFrame();
-        animator->restart();
-        mpCodeLayout->getAnim(0x10)->initAnmFrame();
-        mpCodeLayout->getAnim(0x11)->initAnmFrame();
-        mpCodeLayout->getAnim(0x12)->initAnmFrame();
-        animator = mpCodeLayout->getAnim(0x1c);
-        animator->initFrame();
-        animator->restart();
-
-        nw4r::lyt::Pane* pane =
-            mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_card_msg_00", true);
-        set_textbox(pane, ipl::System::getMessage(0x44));
-        pane = mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
-        set_textbox(pane, mString.mName);
-        pane = mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true);
-        set_textbox(pane, mString.mDisplayText);
-        mState = 0x21;
-        break;
-    }
-    default:
-        break;
-        }
-    }
-}
-
-void ipl::scene::AddressEdit::stt_ipt_wait_fadeout() {
-    if (!mpNameLayout->getAnim(5)->isPlaying() &&
-        !mpNameLayout->getAnim(7)->isPlaying() &&
-        !mpNameLayout->getAnim(6)->isPlaying() &&
-        !mpNameLayout->getAnim(8)->isPlaying() &&
-        !mpNameLayout->getAnim(9)->isPlaying() &&
-        !mpBackgroundLayout->getAnim(1)->isPlaying()) {
-        mState = 0;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_wait_del_msg_fadeout() {
-    if (!mpCodeLayout->getAnim(0x1d)->isPlaying()) {
-        u32 friendIndex = mSelectedFriend;
-        u32 status = mpFriendCache->getInfo(friendIndex).attr.status;
-        if (status == 2) {
-            ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x10);
-            animator->initFrame();
-            animator->restart();
-        } else {
-            ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1a);
-            animator->initFrame();
-            animator->restart();
-        }
-        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x11);
-        animator->initFrame();
-        animator->restart();
-        animator = mpCodeLayout->getAnim(0x12);
-        animator->initFrame();
-        animator->restart();
-        mState = 2;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_no_mii() {
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 1:
-        mpEditGui->init();
-        for (u32 i = 0; i < 5; ++i) {
-            mPointCount[i] = 0;
-        }
-        mState = 0;
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_confirm_fadeout() {
-    if (mpCodeLayout->getAnim(0x1e)->isPlaying()) {
-        return;
-    }
-
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    switch (mSubState) {
-    case 5: {
-        ipl::utility::FrameController* animator = mpNameLayout->getAnim(0);
-        animator->initFrame();
-        animator->restart();
-        mState = 0x1c;
-        break;
-    }
-    case 7:
-        add_friendinfo();
-        button->reserveText(1, MESG_ADDRESS_REGISTER);
-        static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
-        ipl::System::getDialog()->callBtn1(0x4a, MESG_CMN_OK);
-        mState = 0x26;
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_wait_decide_anm_add() {
-    bool complete = true;
-    for (s32 i = 0; i < 5; ++i) {
-        u16 index = static_cast<u16>(mSelectedButton + 6);
-        complete = (complete & !mpCodeLayout->getAnim(index)->isPlaying()) != 0;
-    }
-    if (complete) {
-        switch (mSelectedButton) {
-        case 4:
-            mpEditGui->init();
-            ipl::System::getDialog()->callBtn1(mString.getDispCodeLong(), MESG_CMN_OK);
-            mState = 0x25;
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-void ipl::scene::AddressEdit::stt_add_confirm_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    if (button->isActive()) {
-        button->update();
-    }
-    if (mState == 0x22) {
-        mpEditGui->update();
-    }
-}
-
-void ipl::scene::AddressEdit::stt_wait_parental() {
-    ipl::scene::ParentalDialog* parental =
-        static_cast<ipl::scene::ParentalDialog*>(ipl::System::getScene(ipl::SCENE_PARENTAL_DIALOG));
-    if (parental != NULL) {
-        switch (parental->getResult()) {
-        case 1:
-            mbParentalOK = true;
-            mState = 0x29;
-            break;
-        case 2:
-        case 3:
-            mbParentalOK = false;
-            mState = 0x29;
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-void ipl::scene::AddressEdit::stt_wait_parental_wc() {
-    ipl::scene::ParentalDialog* parental =
-        static_cast<ipl::scene::ParentalDialog*>(ipl::System::getScene(ipl::SCENE_PARENTAL_DIALOG));
-    if (parental != NULL) {
-        switch (parental->getResult()) {
-        case 1:
-            mbParentalOK = true;
-            mState = 0x2c;
-            break;
-        case 2:
-        case 3:
-            mbParentalOK = false;
-            mState = 0x2c;
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-void ipl::scene::AddressEdit::stt_wait_parental_dst() {
-    if (getChild() == NULL) {
-        if (mbParentalOK) {
-            ipl::System::getFader()->fadeOut();
-            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(1));
-            mState = 0x30;
-        } else {
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
-            mState = 0;
-        }
-    }
-}
-
-void ipl::scene::AddressEdit::stt_wait_parental_dst_wc() {
-    if (getChild() == NULL) {
-        if (mbParentalOK) {
-            ipl::System::getFader()->fadeOut();
-            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(4));
-            mState = 0x30;
-        } else {
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
-            mState = 0;
-        }
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_net() {
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 2:
-        mState = 0;
-        break;
-    case 1: {
-        SCParentalControlsInfo info;
-        if (SCGetParentalControl(&info) && (info.enable & SC_PARENTAL_FLAG_ENABLED)) {
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(NULL, NULL);
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
-            createChildScene(ipl::SCENE_PARENTAL_DIALOG, this, NULL, reinterpret_cast<void*>(1));
-            mbParentalOK = false;
-            mState = 0x28;
-        } else {
-            ipl::System::getFader()->fadeOut();
-            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(1));
-            mState = 0x30;
-        }
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_msg_wc() {
-    switch (ipl::System::getDialog()->getLastResult()) {
-    case 2:
-        mState = 0;
-        break;
-    case 1: {
-        SCParentalControlsInfo info;
-        if (SCGetParentalControl(&info) && (info.enable & SC_PARENTAL_FLAG_ENABLED)) {
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(NULL, NULL);
-            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
-            createChildScene(ipl::SCENE_PARENTAL_DIALOG, this, NULL, reinterpret_cast<void*>(1));
-            mbParentalOK = false;
-            mState = 0x2b;
-        } else {
-            ipl::System::getFader()->fadeOut();
-            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(4));
-            mState = 0x30;
-        }
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::stt_select_mii() {
-    if (getChild() != NULL) {
-        ipl::scene::FaceSelect* faceSelect =
-            static_cast<ipl::scene::FaceSelect*>(getChild());
-        int faceId = faceSelect->getSelectedFaceId();
-        if (faceId >= 0 && ipl::System::getMiiManager()->isAvalable(faceId) &&
-            mNigaoeState == 0) {
-            RFLAdditionalInfo info;
-            RFLGetAdditionalInfo(&info, RFLDataSource_Official, NULL, faceId);
-            if (!RFLiIsSameID(&mCreateID, &info.createID)) {
-                memcpy(&mCreateID, &info.createID, sizeof(mCreateID));
-                ipl::System::getMiiManager()->create(
-                    ipl::System::getMem2App(), 0x4c, 0x4c, faceId,
-                    ipl::scene::AddressEdit::nigaoe_create_callback_edit,
-                    this);
-                mNigaoeState = 1;
-                update_friendinfo();
-            }
-        }
-    }
-
-    if (getChild() == NULL && ipl::System::getReservedScene() == NULL) {
-        static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
-        mState = 0;
-        mNigaoeState = 0;
-        mpEditGui->init();
-        for (u32 i = 0; i < 5; ++i) {
-            mPointCount[i] = 0;
-        }
-    }
-}
-
-void ipl::scene::AddressEdit::set_textbox(nw4r::lyt::Pane* pane, const wchar_t* text) {
-    nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
-    textBox->SetString(text, 0);
-}
-
-void ipl::scene::AddressEdit::setDefaultTitleText(const wchar_t* text, bool flag) {
-    if (!flag && (text == NULL || *text != L'\0')) {
-        goto set_empty_title;
-    }
-    switch (mState) {
-    case 0xe:
-    case 0x1a:
-        ipl::System::getKeyboard()->baseMgr()->setTitleText(ipl::System::getMessage(0x15e));
-        return;
-    case 0x12:
-        ipl::System::getKeyboard()->baseMgr()->setTitleText(ipl::System::getMessage(0x15d));
-        break;
-    }
-    return;
-
-set_empty_title:
-    ipl::System::getKeyboard()->baseMgr()->setTitleText(L"");
-}
-
-void ipl::scene::AddressEditEvent::onEvent(u32 componentId, u32 event, void* data) {
-    s32 signedEvent = static_cast<s32>(event);
-    ::gui::Manager* manager = mpManager;
-    ::gui::PaneComponent* component =
-        static_cast< ::gui::PaneComponent*>(manager->getComponent(componentId));
-    const char* paneName = component->getPane()->GetName();
-
-    switch (signedEvent) {
-    case 1:
-        if (data != NULL) {
-            mpParent->start_point_event(paneName, static_cast<ipl::controller::Interface*>(data));
-        }
-        break;
-    case 2:
-        mpParent->start_left_event(paneName);
-        break;
-    case 0:
-        if (data != NULL &&
-            static_cast<ipl::controller::Interface*>(data)->downTrg(ipl::controller::BTN_INTERACT)) {
-            mpParent->start_trig_event(paneName);
-        }
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressInputEvent::onEvent(u32 componentId, u32 event, void* data) {
-    s32 signedEvent = static_cast<s32>(event);
-    ::gui::Manager* manager = mpManager;
-    ::gui::PaneComponent* component =
-        static_cast< ::gui::PaneComponent*>(manager->getComponent(componentId));
-    const char* paneName = component->getPane()->GetName();
-
-    switch (signedEvent) {
-    case 0:
-        if (data != NULL &&
-            static_cast<ipl::controller::Interface*>(data)->downTrg(ipl::controller::BTN_INTERACT)) {
-            mpParent->start_ipt_trig_event(
-                paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
-        }
-        break;
-    case 1:
-        if (data != NULL) {
-            mpParent->start_ipt_point_event(
-                paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
-        }
-        break;
-    case 2:
-        if (data != NULL) {
-            mpParent->start_ipt_left_event(
-                paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
-        }
-        break;
-    default:
-        break;
-    }
-}
-
-void ipl::scene::AddressEdit::nigaoe_create_callback_edit(ipl::nigaoe::Object* object, void* callbackWork) {
-    ipl::scene::AddressEdit* self = static_cast<ipl::scene::AddressEdit*>(callbackWork);
-    if (self->mpNigaoe != NULL) {
-        delete self->mpNigaoe;
-    }
-    self->mpNigaoe = object;
-    nw4r::lyt::Pane* pane = self->mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
-        "mii_icon_00", true);
-    pane->GetMaterial()->SetTexture(0, object->getIconTexture());
-    self->mNigaoeState = 2;
-    self->mpBalloon->init(object->getName(), 0xa);
-}
-
-void ipl::scene::AddressEdit::nigaoe_create_callback_add(ipl::nigaoe::Object* object, void* callbackWork) {
-    ipl::scene::AddressEdit* self = static_cast<ipl::scene::AddressEdit*>(callbackWork);
-    if (self->mpNigaoe != NULL) {
-        delete self->mpNigaoe;
-    }
-    self->mpNigaoe = object;
-    nw4r::lyt::Pane* pane = self->mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
-        "mii_icon_00", true);
-    pane->GetMaterial()->SetTexture(0, object->getIconTexture());
-    pane = self->mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("mii_icon_00", true);
-    pane->GetMaterial()->SetTexture(0, object->getIconTexture());
-    self->mNigaoeState = 2;
-    self->mpBalloon->init(object->getName(), 0xa);
-}
-
 ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcFadein() {
     FaderSceneCommand command = FADER_SCN_CONTINUE;
     if (!mpCodeLayout->getAnim(0)->isPlaying() && !mpNameLayout->getAnim(0)->isPlaying()) {
@@ -1484,163 +620,9 @@ ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcNormal() {
         : ipl::scene::FADER_SCN_CONTINUE;
 }
 
-void ipl::scene::AddressEdit::stt_add_name_fadeout() {
-
-    if (!mpNameLayout->getAnim(5)->isPlaying() &&
-        !mpNameLayout->getAnim(7)->isPlaying() &&
-        !mpNameLayout->getAnim(6)->isPlaying() &&
-        !mpNameLayout->getAnim(9)->isPlaying()) {
-        s32 state = mSubState;
-        if (state == 6) {
-            goto state_done;
-        }
-        if (state >= 6) {
-            goto state_six_or_more;
-        }
-        if (state >= 5) {
-            goto state_five;
-        }
-        goto state_done;
-
-    state_six_or_more:
-        if (state >= 8) {
-            goto state_done;
-        }
-        goto state_seven;
-
-    state_five: {
-        ipl::layout::Animator* pane = mpNameLayout->getAnim(1);
-        pane->initFrame();
-        pane->restart();
-        pane = mpNameLayout->getAnim(2);
-        pane->initFrame();
-        pane->restart();
-
-        s32 inputType = mMode;
-        switch (inputType) {
-        case 2:
-            goto address_type_two;
-        case 1:
-            goto address_type_one;
-        default:
-            goto address_type_common;
-        }
-
-    address_type_one: {
-        nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-            "T_question_00", true);
-        set_textbox(label, ipl::System::getMessage(0x31));
-        label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-            "T_msg_00", true);
-        set_textbox(label, ipl::System::getMessage(0x47));
-    }
-        goto address_type_common;
-
-    address_type_two: {
-            nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-                "T_question_00", true);
-            set_textbox(label, ipl::System::getMessage(0x3f));
-            label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-                "T_msg_00", true);
-            set_textbox(label, ipl::System::getMessage(0x48));
-    }
-
-    address_type_common: {
-        nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-            "T_name_00", true);
-        set_textbox(label, mString.mDisplayText);
-        mState = 0x10;
-    }
-        goto state_done;
-    }
-
-    state_seven: {
-        ipl::layout::Animator* pane = mpNameLayout->getAnim(1);
-        pane->initFrame();
-        pane->restart();
-        pane = mpNameLayout->getAnim(4);
-        pane->initFrame();
-        pane->restart();
-
-        nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-            "T_question_00", true);
-        set_textbox(label, ipl::System::getMessage(0x55));
-        label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
-            "T_mii_msg_00", true);
-        set_textbox(label, ipl::System::getMessage(MESG_TEXTWRITER_ADD_MII));
-        mState = 0x1c;
-        }
-    state_done:
-        ;
-    }
-}
-
 void ipl::scene::AddressEdit::initCalcFadeout() {
     static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(NULL);
     mpBalloon->calc();
-}
-
-void ipl::scene::AddressEdit::calcCommonAfter() {
-    mpEditGui->calc();
-    mpCodeLayout->calc();
-    mpInputGui->calc();
-    mpNameLayout->calc();
-    mpBackgroundLayout->calc();
-}
-
-void ipl::scene::AddressEdit::stt_normal() {
-    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
-    if (button->isActive()) {
-        button->update();
-    }
-    if (mState == 0) {
-        mpEditGui->update();
-    }
-}
-
-void ipl::scene::AddressEdit::stt_wait_del_msg_fadein() {
-    if (!mpCodeLayout->getAnim(0x1c)->isPlaying()) {
-        mState = 7;
-    }
-}
-
-void ipl::scene::AddressEdit::delete_friendinfo() {
-    mpFriendCache->del(mSelectedFriend);
-    static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
-}
-
-u64 ipl::scene::AddressEdit::utf16_wiiid(const wchar_t* value) {
-    u64 result = 0;
-    u64 multiplier = 1;
-    for (int i = 0; i < 0x10; i++) {
-        result += static_cast<u64>(value[0xf - i] - L'0') * multiplier;
-        multiplier *= 10;
-    }
-    return result;
-}
-
-void ipl::scene::AddressEdit::wiiid_utf16(u64 value, wchar_t* output) {
-    u64 multiplier = 1;
-    for (int i = 0; i < 0x10; ++i) {
-        output[0xf - i] = static_cast<wchar_t>((value / multiplier) % 10 + L'0');
-        multiplier *= 10;
-    }
-    output[0x10] = 0;
-}
-
-void ipl::scene::AddressEdit::String::setName(const wchar_t* value) {
-    wcsncpy(mName, value, 0xa);
-    u32 length = wcslen(value);
-    mbNameNotEmpty = false;
-    for (u32 i = 0; i < length; i++) {
-        if (value[i] == 0) {
-            break;
-        }
-        if (value[i] != L' ' && value[i] != 0x3000) {
-            mbNameNotEmpty = true;
-            break;
-        }
-    }
 }
 
 ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcFadeout() {
@@ -1656,6 +638,14 @@ ipl::scene::FaderSceneCommand ipl::scene::AddressEdit::calcFadeout() {
                                                                            : FADER_SCN_CONTINUE;
 }
 
+void ipl::scene::AddressEdit::calcCommonAfter() {
+    mpEditGui->calc();
+    mpCodeLayout->calc();
+    mpInputGui->calc();
+    mpNameLayout->calc();
+    mpBackgroundLayout->calc();
+}
+
 void ipl::scene::AddressEdit::draw() {
     if (ipl::System::onDefaultDrawLayer()) {
         ipl::utility::Graphics::setOrtho(0);
@@ -1664,6 +654,165 @@ void ipl::scene::AddressEdit::draw() {
         mpNameLayout->draw();
         mpBalloon->draw();
     }
+}
+
+void ipl::scene::AddressEdit::stt_normal() {
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    if (button->isActive()) {
+        button->update();
+    }
+    if (mState == 0) {
+        mpEditGui->update();
+    }
+}
+
+void ipl::scene::AddressEdit::stt_wait_decide_anm() {
+    nw4r::lyt::Pane* textPane;
+    bool complete = true;
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    for (s32 i = 0; i < 5; ++i) {
+        u16 index = static_cast<u16>(mSelectedButton + 6);
+        complete = (complete & !mpCodeLayout->getAnim(index)->isPlaying()) != 0;
+    }
+    if (!complete) {
+        return;
+    }
+
+    switch (mSelectedButton) {
+    case 2: {
+        if (mpFriendCache->getInfo(mSelectedFriend).attr.status == NWC24_FRIENDSTATUS_CONFIRMED) {
+            ipl::layout::Animator* statusAnimator = mpCodeLayout->getAnim(0x15);
+            statusAnimator->initFrame();
+            statusAnimator->restart();
+        } else {
+            ipl::layout::Animator* statusAnimator = mpCodeLayout->getAnim(0x1b);
+            statusAnimator->initFrame();
+            statusAnimator->restart();
+        }
+        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x16);
+        animator->initFrame();
+        animator->restart();
+        animator = mpCodeLayout->getAnim(0x17);
+        animator->initFrame();
+        animator->restart();
+        button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+        mState = 3;
+        mpBalloon->fadeoutForce();
+        reset_gui();
+        break;
+    }
+    case 1: {
+        button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+        button->reserveText(1, MESG_CMN_OK);
+        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+        ipl::layout::Animator* animator = mpNameLayout->getAnim(0);
+        animator->initFrame();
+        animator->restart();
+        animator = mpNameLayout->getAnim(1);
+        animator->initFrame();
+        animator->restart();
+        animator = mpNameLayout->getAnim(2);
+        animator->initFrame();
+        animator->restart();
+        mpNameLayout->getAnim(3)->initAnmFrame();
+        animator = mpBackgroundLayout->getAnim(0);
+        animator->initFrame();
+        animator->restart();
+        textPane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
+            "T_question_00", true);
+        set_textbox(textPane, ipl::System::getMessage(0x32));
+        textPane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
+        set_textbox(textPane, mString.mName);
+        textPane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_msg_00", true);
+        set_textbox(textPane, ipl::System::getMessage(0x49));
+        mpBalloon->fadeoutForce();
+        reset_gui();
+        mState = 0xc;
+        break;
+    }
+    case 3: {
+        if (mNigaoeState != 1) {
+            mNigaoeState = 0;
+            if (RFLGetAvailableOfficialDataNum() != 0) {
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
+                createChildScene(ipl::SCENE_FACE_SELECT, this, 0, reinterpret_cast<void*>(1));
+                mState = 0xb;
+            } else {
+                ipl::System::getDialog()->callBtn1(MESG_TEXTWRITER_NO_MII, MESG_CMN_OK);
+                mState = 0xa;
+            }
+            mpBalloon->fadeoutForce();
+        }
+        break;
+    }
+    case 0: {
+        SCParentalControlsInfo parentalInfo;
+        BOOL parentalResult = SCGetParentalControl(&parentalInfo);
+        if (!ipl::ncd::NCDSetting::getConnectEnableFlag()) {
+            button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            ipl::System::getDialog()->callBtn2(MESG_NETWORK_NO_CONFIG, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT, false);
+            mState = 0x27;
+        } else if ((SCGetWCFlags() & SC_WC_FLAGS_ENABLED) == 0) {
+            button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            ipl::System::getDialog()->callBtn2(MESG_NETWORK_NO_WC24_CONFIG, MESG_NETWORK_SETTINGS_BTN, MESG_CMN_QUIT, false);
+            mState = 0x2a;
+        } else if (parentalResult != 0 && (parentalInfo.enable & SC_PARENTAL_FLAG_ENABLED) != 0 &&
+                   (SCGetNetContentRestrictions() & SC_NET_RESTRICTIONS_MSG_BOARD) != 0) {
+            button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+            ipl::System::getDialog()->callBtn1(MESG_NETWORK_PARENTAL_RESTRICT, MESG_CMN_OK);
+            mState = 0x2d;
+        } else {
+            s32 friendError = mpFriendCache->check();
+            if (friendError == NWC24_ERR_NETWORK ||
+                mpFriendCache->getLastErr() == NWC24_ERR_SERVER ||
+                mpFriendCache->getLastErr() == NWC24_ERR_FULL) {
+                wchar_t errorMessage[0x400];
+                wchar_t* errorMessagePointer = errorMessage - 1;
+                for (s32 i = 0; i < 0x200; i++) {
+                    errorMessagePointer[1] = 0;
+                    errorMessagePointer += 2;
+                    *errorMessagePointer = 0;
+                }
+                set_err_msg(errorMessage, 0x400,
+                    static_cast<NWC24Err>(mpFriendCache->getLastErr()));
+                ipl::System::getDialog()->callBtn1(errorMessage, MESG_CMN_OK);
+                button->animation(ipl::scene::Button::IDANIM_SELECT_CREATE_R);
+                mState = 0x2e;
+            } else {
+                button->reserveAnm(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+                button->reserveText(1, MESG_BOARD_SEND);
+                button->reserveText(0, MESG_CMN_BACK_ALT_2);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+                requestSceneChange(ipl::SCENE_LETTER_WRITER, reinterpret_cast<void*>(1));
+                ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1e);
+                animator->initFrame();
+                animator->restart();
+                mState = 0x30;
+            }
+        }
+        mpBalloon->fadeoutForce();
+        reset_gui();
+        break;
+    }
+    case 4: {
+        ipl::System::getDialog()->callBtn1(mString.getDispCodeLong(), MESG_CMN_OK);
+        mpBalloon->fadeoutForce();
+        reset_gui();
+        mState = 9;
+        break;
+    }
+    default:
+        mState = 0;
+        break;
+    }
+}
+
+const wchar_t* ipl::scene::AddressEdit::String::getDispCodeLong() const {
+    if (!mbHasWiiNo) {
+        return;
+    }
+    return mDisplayText;
 }
 
 void ipl::scene::AddressEdit::stt_wait_btn_fadein() {
@@ -1704,6 +853,59 @@ void ipl::scene::AddressEdit::stt_wait_btn_fadeout() {
         animator->initFrame();
         animator->restart();
         mState = 4;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_wait_del_msg_fadein() {
+    if (!mpCodeLayout->getAnim(0x1c)->isPlaying()) {
+        mState = 7;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_wait_del_msg_fadeout() {
+    if (!mpCodeLayout->getAnim(0x1d)->isPlaying()) {
+        u32 friendIndex = mSelectedFriend;
+        u32 status = mpFriendCache->getInfo(friendIndex).attr.status;
+        if (status == 2) {
+            ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x10);
+            animator->initFrame();
+            animator->restart();
+        } else {
+            ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1a);
+            animator->initFrame();
+            animator->restart();
+        }
+        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x11);
+        animator->initFrame();
+        animator->restart();
+        animator = mpCodeLayout->getAnim(0x12);
+        animator->initFrame();
+        animator->restart();
+        mState = 2;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_wait_delete() {
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 2: {
+        delete_friendinfo();
+        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1d);
+        animator->initFrame();
+        animator->restart();
+        mState = 6;
+        break;
+    }
+    case 1: {
+        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
+        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0x1d);
+        animator->initFrame();
+        animator->restart();
+        mState = 5;
+        break;
+    }
+    default:
+        break;
     }
 }
 
@@ -1826,6 +1028,37 @@ done:
     return;
 }
 
+void ipl::scene::AddressEdit::stt_ipt_wait_fadeout() {
+    if (!mpNameLayout->getAnim(5)->isPlaying() &&
+        !mpNameLayout->getAnim(7)->isPlaying() &&
+        !mpNameLayout->getAnim(6)->isPlaying() &&
+        !mpNameLayout->getAnim(8)->isPlaying() &&
+        !mpNameLayout->getAnim(9)->isPlaying() &&
+        !mpBackgroundLayout->getAnim(1)->isPlaying()) {
+        mState = 0;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_add_code_fadein() {
+    if (!mpNameLayout->getAnim(0)->isPlaying() &&
+        !mpNameLayout->getAnim(1)->isPlaying() &&
+        !mpNameLayout->getAnim(3)->isPlaying() &&
+        !mpNameLayout->getAnim(4)->isPlaying() &&
+        !mpNameLayout->getAnim(2)->isPlaying()) {
+        mState = 0x11;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_add_code_normal() {
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    if (button->isActive()) {
+        button->update();
+    }
+    if (mState == 0x11) {
+        mpInputGui->update();
+    }
+}
+
 void ipl::scene::AddressEdit::stt_add_code_input() {
     ipl::keyboard::Manager::State* state = ipl::System::getKeyboard()->getState();
     ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
@@ -1914,6 +1147,50 @@ void ipl::scene::AddressEdit::stt_add_code_input() {
     }
 }
 
+void ipl::scene::AddressEdit::stt_msg_code_invalid() {
+    ipl::System::getScene(ipl::SCENE_BUTTON);
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 1:
+        mState = 0x11;
+        break;
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_dup_wii_no() {
+    ipl::System::getScene(ipl::SCENE_BUTTON);
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 1:
+        mState = 0x11;
+        break;
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_dup_email() {
+    ipl::System::getScene(ipl::SCENE_BUTTON);
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 1:
+        mState = 0x11;
+        break;
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_my_wii_no() {
+    ipl::System::getScene(ipl::SCENE_BUTTON);
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 1:
+        mState = 0x11;
+        break;
+    default:
+        break;
+    }
+}
+
 void ipl::scene::AddressEdit::stt_add_code_fadeout() {
     ipl::utility::FrameController* pane = mpNameLayout->getAnim(5);
     if (!pane->isPlaying()) {
@@ -1946,139 +1223,604 @@ void ipl::scene::AddressEdit::stt_add_code_fadeout() {
     }
 }
 
-/*
-    This is a modified version of NWC24CheckPublicMailAddr.
-    Changes:
-     - Uses strnicmp instead of NWC24's Mail_strnicmp
-     - ... That's it!!
-*/
-extern "C" NWC24Err NWC24CheckPublicMailAddr_(const char* addr) {
-    int i, j;
-    int len;
-    BOOL readingDomain;
-
-    static const char specials[] = {'(', ')', '<', '>', '[', ']', ':', ';', '\\', ',', '"'};
-
-    // Check parameters
-    if (addr == NULL) {
-        return NWC24_ERR_NULL;
+void ipl::scene::AddressEdit::stt_add_name_fadein() {
+    if (!mpNameLayout->getAnim(1)->isPlaying() &&
+        !mpNameLayout->getAnim(3)->isPlaying() &&
+        !mpNameLayout->getAnim(2)->isPlaying()) {
+        mState = 0x19;
     }
-
-    // Check address length
-    len = STD_strnlen(addr, sizeof(NWC24UserMailAddr));
-    if (len == (int)sizeof(NWC24UserMailAddr)) {
-        return NWC24_ERR_STRING_END;
-    }
-    if (len == 0) {
-        return NWC24_ERR_FORMAT;
-    }
-
-    readingDomain = FALSE;
-
-    for (i = 0; i < len; i++) {
-        char ch = addr[i];
-
-        // If we found '@'
-        if (ch == '@') {
-            // If it was at the beginning of the address, invalid!
-            if (i == 0) {
-                return NWC24_ERR_FORMAT;
-            }
-            readingDomain = TRUE;
-            break;
-        }
-
-        // If the character is not a letter or symbol, invalid!
-        if (ch <= ' ' || ch >= '~' + 1) {
-            return NWC24_ERR_FORMAT;
-        }
-
-        // If the character is special, invalid!
-        for (j = 0; j < sizeof(specials); j++) {
-            if (ch == specials[j]) {
-                return NWC24_ERR_FORMAT;
-            }
-        }
-    }
-
-    // If we are have not found '@', invalid!
-    if (!readingDomain) {
-        return NWC24_ERR_FORMAT;
-    }
-
-    // If the hostname is not valid, invalid!
-    if (CheckHostName(&addr[i + 1], (len - i)) < CHECK_HOSTNAME_SUCCESS) {
-        return NWC24_ERR_FORMAT;
-    }
-
-    return strnicmp(&addr[i], NWC24GetAccountDomain(), (len - i) + 1) == 0 ? NWC24_ERR_PROTECTED : NWC24_OK;
 }
 
-static ChkHostNameError CheckHostName(const char* hostName, u32 hostNameLength) {
-    int i;
-    BOOL foundDot;
-
-    // Parameter check
-    if (hostNameLength == 0) {
-        return CHECK_HOSTNAME_BAD_LENGTH;
+void ipl::scene::AddressEdit::stt_add_name_normal() {
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    if (button->isActive()) {
+        button->update();
     }
-
-    // Is null or empty check
-    if (hostName == NULL) {
-        return CHECK_HOSTNAME_IS_NULL;
+    if (mState == 0x19) {
+        mpInputGui->update();
     }
-    if (*hostName == 0) {
-        return CHECK_HOSTNAME_IS_EMPTY;
-    }
-
-    // Verify check
-    if (*hostName == '.') {
-        return CHECK_HOSTNAME_INCORRECT;
-    }
-
-    foundDot = FALSE;
-
-    for (i = 0; i < hostNameLength; i++) {
-        char ch = hostName[i];
-
-        // Stop on NULL
-        if (ch == 0) {
-            break;
-        }
-
-        if (ch == '.') {
-            // Check if we already found one again after the previous character.
-            if (foundDot) {
-                return CHECK_HOSTNAME_MULTIPLE_DOTS;
-            }
-            foundDot = TRUE;
-            continue;
-        }
-
-        // Check if there are invalid characters
-        if ((ch < '0' || ch > '9') && (ch < 'a' || ch > 'z') && (ch < 'A' || ch > 'Z') && (ch != '-' && ch != '_')) {
-            return CHECK_HOSTNAME_INVALID_CHARACTERS;
-        }
-
-        foundDot = FALSE;
-    }
-
-    // Check if we are out of range
-    if (i == hostNameLength) {
-        return CHECK_HOSTNAME_OUT_OF_RANGE;
-    }
-
-    // Check if the end of hostname has a dot
-    if (i > 0 && hostName[i - 1] == '.') {
-        return CHECK_HOSTNAME_DOT_AT_END;
-    }
-
-    return CHECK_HOSTNAME_SUCCESS;
 }
 
+void ipl::scene::AddressEdit::stt_add_name_input() {
+    ipl::keyboard::Manager::State* state = ipl::System::getKeyboard()->getState();
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    s32 keyboardType = state->iplType;
+    if (keyboardType == ipl::keyboard::Manager::STATE_DISAPPEARING) {
+        goto state_disappearing;
+    }
+    if (keyboardType >= ipl::keyboard::Manager::STATE_DISAPPEARING) {
+        goto state_at_or_after_disappearing;
+    }
+    if (keyboardType >= ipl::keyboard::Manager::STATE_VISIBLE) {
+        goto done;
+    }
+    if (keyboardType >= ipl::keyboard::Manager::STATE_HIDDEN) {
+        goto state_hidden;
+    }
+    goto done;
 
+state_at_or_after_disappearing:
+    if (keyboardType >= 5) {
+        goto done;
+    }
+    goto state_visible;
 
+state_disappearing: {
+        BOOL nameWasEmpty = mString.mName[0] == 0;
+        if (state->pressOK) {
+            mString.setName(state->wcString);
+            nw4r::lyt::Pane* pane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
+                "T_name_00", true);
+            set_textbox(pane, mString.mName);
+        }
+        if (mString.mName[0] == 0) {
+            if (!nameWasEmpty) {
+                ipl::layout::Animator* animator = mpNameLayout->getAnim(6);
+                animator->initFrame();
+                animator->restart();
+                animator = mpNameLayout->getAnim(3);
+                animator->initFrame();
+                animator->restart();
+            }
+            button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
+        } else {
+            if (nameWasEmpty) {
+                ipl::layout::Animator* animator = mpNameLayout->getAnim(2);
+                animator->initFrame();
+                animator->restart();
+                animator = mpNameLayout->getAnim(7);
+                animator->initFrame();
+                animator->restart();
+            }
+            if (mString.mbNameNotEmpty) {
+                button->reserveText(1, MESG_CMN_OK);
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+            } else {
+                button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
+            }
+        }
+    }
+    goto done;
 
+state_visible: {
+        mState = 0x19;
+        if (static_cast<u32>(ipl::System::getRegion()) == SC_PRODUCT_AREA_KOR) {
+            ipl::System::getKeyboard()->baseMgr()->enableKSXFilter(false);
+        }
+    }
+    goto done;
+
+state_hidden:
+    setDefaultTitleText(NULL, ipl::System::getKeyboard()->baseMgr()->isVacancy());
+
+done:
+    return;
+}
+
+void ipl::scene::AddressEdit::stt_add_name_fadeout() {
+
+    if (!mpNameLayout->getAnim(5)->isPlaying() &&
+        !mpNameLayout->getAnim(7)->isPlaying() &&
+        !mpNameLayout->getAnim(6)->isPlaying() &&
+        !mpNameLayout->getAnim(9)->isPlaying()) {
+        s32 state = mSubState;
+        if (state == 6) {
+            goto state_done;
+        }
+        if (state >= 6) {
+            goto state_six_or_more;
+        }
+        if (state >= 5) {
+            goto state_five;
+        }
+        goto state_done;
+
+    state_six_or_more:
+        if (state >= 8) {
+            goto state_done;
+        }
+        goto state_seven;
+
+    state_five: {
+        ipl::layout::Animator* pane = mpNameLayout->getAnim(1);
+        pane->initFrame();
+        pane->restart();
+        pane = mpNameLayout->getAnim(2);
+        pane->initFrame();
+        pane->restart();
+
+        s32 inputType = mMode;
+        switch (inputType) {
+        case 2:
+            goto address_type_two;
+        case 1:
+            goto address_type_one;
+        default:
+            goto address_type_common;
+        }
+
+    address_type_one: {
+        nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
+            "T_question_00", true);
+        set_textbox(label, ipl::System::getMessage(0x31));
+        label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
+            "T_msg_00", true);
+        set_textbox(label, ipl::System::getMessage(0x47));
+    }
+        goto address_type_common;
+
+    address_type_two: {
+            nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
+                "T_question_00", true);
+            set_textbox(label, ipl::System::getMessage(0x3f));
+            label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
+                "T_msg_00", true);
+            set_textbox(label, ipl::System::getMessage(0x48));
+    }
+
+    address_type_common: {
+        nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
+            "T_name_00", true);
+        set_textbox(label, mString.mDisplayText);
+        mState = 0x10;
+    }
+        goto state_done;
+    }
+
+    state_seven: {
+        ipl::layout::Animator* pane = mpNameLayout->getAnim(1);
+        pane->initFrame();
+        pane->restart();
+        pane = mpNameLayout->getAnim(4);
+        pane->initFrame();
+        pane->restart();
+
+        nw4r::lyt::Pane* label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
+            "T_question_00", true);
+        set_textbox(label, ipl::System::getMessage(0x55));
+        label = (mpNameLayout)->getNW4RLyt()->GetRootPane()->FindPaneByName(
+            "T_mii_msg_00", true);
+        set_textbox(label, ipl::System::getMessage(MESG_TEXTWRITER_ADD_MII));
+        mState = 0x1c;
+        }
+    state_done:
+        ;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_add_mii_fadein() {
+    if (!mpNameLayout->getAnim(1)->isPlaying() &&
+        !mpNameLayout->getAnim(4)->isPlaying() &&
+        !mpNameLayout->getAnim(0)->isPlaying()) {
+        mState = 0x1d;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_add_mii_normal() {
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    if (button->isActive()) {
+        button->update();
+    }
+    if (mState == 0x1d) {
+        mpInputGui->update();
+    }
+}
+
+void ipl::scene::AddressEdit::stt_add_mii_input() {
+    ipl::scene::Base* child = getChild();
+    if (child != NULL) {
+        ipl::scene::FaceSelect* faceSelect = static_cast<ipl::scene::FaceSelect*>(getChild());
+        int faceId = faceSelect->getSelectedFaceId();
+        if (faceId >= 0 && ipl::System::getMiiManager()->isAvalable(faceId) &&
+            mNigaoeState == 0) {
+            RFLAdditionalInfo additionalInfo;
+            RFLGetAdditionalInfo(&additionalInfo, RFLDataSource_Official, NULL, faceId);
+            if (!RFLiIsSameID(&mCreateID, &additionalInfo.createID)) {
+                memcpy(&mCreateID, &additionalInfo.createID, sizeof(mCreateID));
+                ipl::System::getMiiManager()->create(ipl::System::getMem2App(), 0x4c, 0x4c, faceId,
+                    ipl::scene::AddressEdit::nigaoe_create_callback_add,
+                    this);
+                mNigaoeState = 1;
+                mpInputGui->init();
+                mpBalloon->fadeoutForce();
+            }
+        }
+    }
+
+    if (getChild() == NULL &&
+        ipl::System::getSceneManager()->getReservedScene() == NULL) {
+        static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
+        mState = 0x1d;
+        mNigaoeState = 0;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_no_mii_add() {
+    ipl::System::getScene(ipl::SCENE_BUTTON);
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 1:
+        mState = 0x1d;
+        break;
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_add_mii_fadeout() {
+    if (!mpNameLayout->getAnim(9)->isPlaying() &&
+        !mpNameLayout->getAnim(5)->isPlaying() &&
+        !mpNameLayout->getAnim(8)->isPlaying()) {
+        switch (mSubState) {
+    case 5: {
+        ipl::layout::Animator* animator = mpNameLayout->getAnim(1);
+        animator->initFrame();
+        animator->restart();
+        animator = mpNameLayout->getAnim(2);
+        animator->initFrame();
+        animator->restart();
+
+        nw4r::lyt::Pane* pane =
+            mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_question_00", true);
+        set_textbox(pane, ipl::System::getMessage(0x32));
+        pane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
+        set_textbox(pane, mString.mName);
+        pane = mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_msg_00", true);
+        set_textbox(pane, ipl::System::getMessage(0x49));
+        mState = 0x18;
+        break;
+    }
+
+    case 7: {
+        ipl::layout::Animator* animator = mpCodeLayout->getAnim(0);
+        animator->initFrame();
+        animator->restart();
+        mpCodeLayout->getAnim(0x10)->initAnmFrame();
+        mpCodeLayout->getAnim(0x11)->initAnmFrame();
+        mpCodeLayout->getAnim(0x12)->initAnmFrame();
+        animator = mpCodeLayout->getAnim(0x1c);
+        animator->initFrame();
+        animator->restart();
+
+        nw4r::lyt::Pane* pane =
+            mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_card_msg_00", true);
+        set_textbox(pane, ipl::System::getMessage(0x44));
+        pane = mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
+        set_textbox(pane, mString.mName);
+        pane = mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true);
+        set_textbox(pane, mString.mDisplayText);
+        mState = 0x21;
+        break;
+    }
+    default:
+        break;
+        }
+    }
+}
+
+void ipl::scene::AddressEdit::stt_add_confirm_fadein() {
+    if (!mpCodeLayout->getAnim(0)->isPlaying()) {
+        mState = 0x22;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_add_confirm_normal() {
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    if (button->isActive()) {
+        button->update();
+    }
+    if (mState == 0x22) {
+        mpEditGui->update();
+    }
+}
+
+void ipl::scene::AddressEdit::stt_add_confirm_fadeout() {
+    if (mpCodeLayout->getAnim(0x1e)->isPlaying()) {
+        return;
+    }
+
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    switch (mSubState) {
+    case 5: {
+        ipl::utility::FrameController* animator = mpNameLayout->getAnim(0);
+        animator->initFrame();
+        animator->restart();
+        mState = 0x1c;
+        break;
+    }
+    case 7:
+        add_friendinfo();
+        button->reserveText(1, MESG_ADDRESS_REGISTER);
+        static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
+        ipl::System::getDialog()->callBtn1(0x4a, MESG_CMN_OK);
+        mState = 0x26;
+        break;
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_wait_decide_anm_add() {
+    bool complete = true;
+    for (s32 i = 0; i < 5; ++i) {
+        u16 index = static_cast<u16>(mSelectedButton + 6);
+        complete = (complete & !mpCodeLayout->getAnim(index)->isPlaying()) != 0;
+    }
+    if (complete) {
+        switch (mSelectedButton) {
+        case 4:
+            mpEditGui->init();
+            ipl::System::getDialog()->callBtn1(mString.getDispCodeLong(), MESG_CMN_OK);
+            mState = 0x25;
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_code_add() {
+    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
+        mState = 0x22;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_code_edit() {
+    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
+        mState = 0;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_no_mii() {
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 1:
+        mpEditGui->init();
+        for (u32 i = 0; i < 5; ++i) {
+            mPointCount[i] = 0;
+        }
+        mState = 0;
+        break;
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_select_mii() {
+    if (getChild() != NULL) {
+        ipl::scene::FaceSelect* faceSelect =
+            static_cast<ipl::scene::FaceSelect*>(getChild());
+        int faceId = faceSelect->getSelectedFaceId();
+        if (faceId >= 0 && ipl::System::getMiiManager()->isAvalable(faceId) &&
+            mNigaoeState == 0) {
+            RFLAdditionalInfo info;
+            RFLGetAdditionalInfo(&info, RFLDataSource_Official, NULL, faceId);
+            if (!RFLiIsSameID(&mCreateID, &info.createID)) {
+                memcpy(&mCreateID, &info.createID, sizeof(mCreateID));
+                ipl::System::getMiiManager()->create(
+                    ipl::System::getMem2App(), 0x4c, 0x4c, faceId,
+                    ipl::scene::AddressEdit::nigaoe_create_callback_edit,
+                    this);
+                mNigaoeState = 1;
+                update_friendinfo();
+            }
+        }
+    }
+
+    if (getChild() == NULL && ipl::System::getReservedScene() == NULL) {
+        static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
+        mState = 0;
+        mNigaoeState = 0;
+        mpEditGui->init();
+        for (u32 i = 0; i < 5; ++i) {
+            mPointCount[i] = 0;
+        }
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_add_rlt() {
+    ipl::scene::Button* button = static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON));
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 1:
+        button->reserveAnm(ipl::scene::Button::IDANIM_APPEAR_LEFT_AND_RIGHT_BUTTON);
+        mState = 0x30;
+        break;
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_net() {
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 2:
+        mState = 0;
+        break;
+    case 1: {
+        SCParentalControlsInfo info;
+        if (SCGetParentalControl(&info) && (info.enable & SC_PARENTAL_FLAG_ENABLED)) {
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(NULL, NULL);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+            createChildScene(ipl::SCENE_PARENTAL_DIALOG, this, NULL, reinterpret_cast<void*>(1));
+            mbParentalOK = false;
+            mState = 0x28;
+        } else {
+            ipl::System::getFader()->fadeOut();
+            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(1));
+            mState = 0x30;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_wait_parental() {
+    ipl::scene::ParentalDialog* parental =
+        static_cast<ipl::scene::ParentalDialog*>(ipl::System::getScene(ipl::SCENE_PARENTAL_DIALOG));
+    if (parental != NULL) {
+        switch (parental->getResult()) {
+        case 1:
+            mbParentalOK = true;
+            mState = 0x29;
+            break;
+        case 2:
+        case 3:
+            mbParentalOK = false;
+            mState = 0x29;
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void ipl::scene::AddressEdit::stt_wait_parental_dst() {
+    if (getChild() == NULL) {
+        if (mbParentalOK) {
+            ipl::System::getFader()->fadeOut();
+            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(1));
+            mState = 0x30;
+        } else {
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
+            mState = 0;
+        }
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_wc() {
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 2:
+        mState = 0;
+        break;
+    case 1: {
+        SCParentalControlsInfo info;
+        if (SCGetParentalControl(&info) && (info.enable & SC_PARENTAL_FLAG_ENABLED)) {
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(NULL, NULL);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_DISAPPEAR_LEFT_BUTTON);
+            createChildScene(ipl::SCENE_PARENTAL_DIALOG, this, NULL, reinterpret_cast<void*>(1));
+            mbParentalOK = false;
+            mState = 0x2b;
+        } else {
+            ipl::System::getFader()->fadeOut();
+            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(4));
+            mState = 0x30;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_wait_parental_wc() {
+    ipl::scene::ParentalDialog* parental =
+        static_cast<ipl::scene::ParentalDialog*>(ipl::System::getScene(ipl::SCENE_PARENTAL_DIALOG));
+    if (parental != NULL) {
+        switch (parental->getResult()) {
+        case 1:
+            mbParentalOK = true;
+            mState = 0x2c;
+            break;
+        case 2:
+        case 3:
+            mbParentalOK = false;
+            mState = 0x2c;
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void ipl::scene::AddressEdit::stt_wait_parental_dst_wc() {
+    if (getChild() == NULL) {
+        if (mbParentalOK) {
+            ipl::System::getFader()->fadeOut();
+            reserveAllSceneDestruction(ipl::SCENE_SETTING, reinterpret_cast<void*>(4));
+            mState = 0x30;
+        } else {
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->animation(ipl::scene::Button::IDANIM_APPEAR_LEFT_BUTTON);
+            static_cast<ipl::scene::Button*>(ipl::System::getScene(ipl::SCENE_BUTTON))->setEventHandler(static_cast< ::gui::EventHandler*>(this), NULL);
+            mState = 0;
+        }
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_parental() {
+    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
+        mState = 0;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_nwc24_error() {
+    if (System::getDialog()->getLastResult() == DialogWindow::RESULT_BUTTON) {
+        mState = 0;
+    }
+}
+
+void ipl::scene::AddressEdit::stt_msg_no_established() {
+    switch (ipl::System::getDialog()->getLastResult()) {
+    case 1:
+        reset_gui();
+        mState = 0;
+        break;
+    default:
+        break;
+    }
+}
+
+void ipl::scene::AddressEdit::set_textbox(nw4r::lyt::Pane* pane, const wchar_t* text) {
+    nw4r::lyt::TextBox* textBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pane);
+    textBox->SetString(text, 0);
+}
+
+void ipl::scene::AddressEdit::nigaoe_create_callback_edit(ipl::nigaoe::Object* object, void* callbackWork) {
+    ipl::scene::AddressEdit* self = static_cast<ipl::scene::AddressEdit*>(callbackWork);
+    if (self->mpNigaoe != NULL) {
+        delete self->mpNigaoe;
+    }
+    self->mpNigaoe = object;
+    nw4r::lyt::Pane* pane = self->mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
+        "mii_icon_00", true);
+    pane->GetMaterial()->SetTexture(0, object->getIconTexture());
+    self->mNigaoeState = 2;
+    self->mpBalloon->init(object->getName(), 0xa);
+}
+
+void ipl::scene::AddressEdit::nigaoe_create_callback_add(ipl::nigaoe::Object* object, void* callbackWork) {
+    ipl::scene::AddressEdit* self = static_cast<ipl::scene::AddressEdit*>(callbackWork);
+    if (self->mpNigaoe != NULL) {
+        delete self->mpNigaoe;
+    }
+    self->mpNigaoe = object;
+    nw4r::lyt::Pane* pane = self->mpNameLayout->getNW4RLyt()->GetRootPane()->FindPaneByName(
+        "mii_icon_00", true);
+    pane->GetMaterial()->SetTexture(0, object->getIconTexture());
+    pane = self->mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("mii_icon_00", true);
+    pane->GetMaterial()->SetTexture(0, object->getIconTexture());
+    self->mNigaoeState = 2;
+    self->mpBalloon->init(object->getName(), 0xa);
+}
 
 void ipl::scene::AddressEdit::start_point_event(
     const char* paneName, ipl::controller::Interface* controller) {
@@ -2457,6 +2199,15 @@ void ipl::scene::AddressEdit::start_ipt_trig_event(
     }
 }
 
+ipl::keyboard::Manager::KeyboardSetting::KeyboardSetting(
+    ipl::keyboard::Manager::KeyboardType keyboardType, const wchar_t* value, u32 limit, u32 rows) {
+    type = keyboardType;
+    wcString = value;
+    stringLimit = limit;
+    rowLimit = rows;
+}
+
+inline textinput::InputForm* textinput::Manager::getInputForm() { return mpInputForm; }
 
 void ipl::scene::AddressEdit::start_ipt_point_event(
     const char* paneName, int channel) {
@@ -2485,6 +2236,181 @@ void ipl::scene::AddressEdit::start_ipt_point_event(
             }
         }
     }
+}
+
+void ipl::scene::AddressEdit::start_ipt_left_event(
+    const char* paneName, int channel) {
+    ipl::controller::Interface* controller = ipl::System::getControllerManager()->getYoungController();
+    if (controller != NULL) {
+        if (controller->getChannel() == channel) {
+            switch (mState) {
+                case 0x1d: {
+                    char paneNameCopy[12] = "mii_icon_00";
+                    if (strcmp(paneNameCopy, paneName) == 0) {
+                        (mpBalloon)->fadeoutForce();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+}
+
+int ipl::scene::AddressEdit::get_button_no(const char* paneName) {
+    int result = -1;
+    for (int i = 0; i < 5; i++) {
+        if (strcmp(sButtonPaneNames[i], paneName) == 0) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
+
+void ipl::scene::AddressEdit::reset_gui() {
+    mpEditGui->init();
+    mpInputGui->init();
+    for (s32 i = 0; i < 5; ++i) {
+        if (mPointCount[i] > 0) {
+            ipl::layout::Animator* animator = mpCodeLayout->getAnim(i + 0xb);
+            animator->play();
+            mPointCount[i] = 0;
+        }
+    }
+}
+
+void ipl::scene::AddressEdit::add_friendinfo() {
+    NWC24FriendInfo info ALIGN32;
+    memset(&info, 0, sizeof(info));
+    switch (mMode) {
+    case SCENE_ADD_WII:
+        info.attr.type = NWC24_FRIENDTYPE_WII;
+        {
+            const wchar_t* name = mString.mName;
+            wchar_t* storedName = reinterpret_cast<wchar_t*>(info.attr.name);
+            wcsncpy(storedName, name, 0xa);
+        }
+        info.addr.wiiId = ipl::scene::AddressEdit::utf16_wiiid(mString.mValue);
+        memcpy(&info.attr.fdId, &mCreateID, sizeof(mCreateID));
+        break;
+    case SCENE_ADD_EMAIL:
+        info.attr.type = NWC24_FRIENDTYPE_EMAIL;
+        {
+            const wchar_t* name = mString.mName;
+            wchar_t* storedName = reinterpret_cast<wchar_t*>(info.attr.name);
+            wcsncpy(storedName, name, 0xa);
+        }
+        {
+            const wchar_t* value = mString.mValue;
+            u8* address = reinterpret_cast<u8*>(&info.addr);
+            ipl::utility::CharacterCode::UTF16ToANSI(address, value, sizeof(info.addr));
+        }
+        memcpy(&info.attr.fdId, &mCreateID, sizeof(mCreateID));
+        break;
+    default:
+        break;
+    }
+
+    ipl::scene::Address* address =
+        static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS));
+    u32 index = address->getChosenFriendIndex();
+    if (index >= FriendListCache::FRIEND_MAX) {
+        index = 0;
+        for (u32 remaining = FriendListCache::FRIEND_MAX; remaining != 0; --remaining) {
+            if (!mpFriendCache->isThere(index)) {
+                break;
+            }
+            ++index;
+        }
+    }
+    mpFriendCache->add(index, info);
+    if (mMode == SCENE_ADD_EMAIL) {
+        mpFriendCache->sendRegisterMail(index);
+    }
+}
+
+#pragma push
+#pragma ppc_iro_level 1
+void ipl::scene::AddressEdit::get_friendinfo() {
+    memcpy(&ipl::scene::sFriendInfo, &mpFriendCache->getInfo(mSelectedFriend),
+        sizeof(ipl::scene::sFriendInfo));
+    mString.setName(reinterpret_cast<const wchar_t*>(ipl::scene::sFriendInfo.attr.name));
+    const wchar_t* name = mString.mName;
+    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true), name);
+
+    wchar_t wiiNo[0x100];
+    wchar_t email[0x102];
+    if (ipl::scene::sFriendInfo.attr.type == NWC24_FRIENDTYPE_WII) {
+        memset(wiiNo, 0, sizeof(wiiNo));
+        ipl::scene::AddressEdit::wiiid_utf16(ipl::scene::sFriendInfo.addr.wiiId, wiiNo);
+        mString.setWiiNo(wiiNo);
+    } else {
+        memset(email, 0, sizeof(email));
+        ipl::utility::CharacterCode::ANSIToUTF16(email, reinterpret_cast<const u8*>(&ipl::scene::sFriendInfo.addr), 0x102);
+        mString.setEMail(email);
+    }
+    const wchar_t* text = mString.mDisplayText;
+    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true), text);
+    memcpy(&mCreateID, &ipl::scene::sFriendInfo.attr.fdId, sizeof(mCreateID));
+}
+#pragma pop
+
+void ipl::scene::AddressEdit::delete_friendinfo() {
+    mpFriendCache->del(mSelectedFriend);
+    static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
+}
+
+#pragma push
+#pragma ppc_iro_level 1
+void ipl::scene::AddressEdit::update_friendinfo() {
+    memset(ipl::scene::sFriendInfo.attr.name, 0, sizeof(ipl::scene::sFriendInfo.attr.name));
+    const wchar_t* source = mString.mName;
+    wcsncpy(reinterpret_cast<wchar_t*>(ipl::scene::sFriendInfo.attr.name), source, 0xa);
+    memcpy(&ipl::scene::sFriendInfo.attr.fdId, &mCreateID, sizeof(mCreateID));
+    mpFriendCache->update(
+        mSelectedFriend,
+        reinterpret_cast<const wchar_t*>(ipl::scene::sFriendInfo.attr.name),
+        ipl::scene::sFriendInfo.attr.fdId);
+    static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
+}
+#pragma pop
+
+u64 ipl::scene::AddressEdit::utf16_wiiid(const wchar_t* value) {
+    u64 result = 0;
+    u64 multiplier = 1;
+    for (int i = 0; i < 0x10; i++) {
+        result += static_cast<u64>(value[0xf - i] - L'0') * multiplier;
+        multiplier *= 10;
+    }
+    return result;
+}
+
+void ipl::scene::AddressEdit::wiiid_utf16(u64 value, wchar_t* output) {
+    u64 multiplier = 1;
+    for (int i = 0; i < 0x10; ++i) {
+        output[0xf - i] = static_cast<wchar_t>((value / multiplier) % 10 + L'0');
+        multiplier *= 10;
+    }
+    output[0x10] = 0;
+}
+
+void ipl::scene::AddressEdit::setDefaultTitleText(const wchar_t* text, bool flag) {
+    if (!flag && (text == NULL || *text != L'\0')) {
+        goto set_empty_title;
+    }
+    switch (mState) {
+    case 0xe:
+    case 0x1a:
+        ipl::System::getKeyboard()->baseMgr()->setTitleText(ipl::System::getMessage(0x15e));
+        return;
+    case 0x12:
+        ipl::System::getKeyboard()->baseMgr()->setTitleText(ipl::System::getMessage(0x15d));
+        break;
+    }
+    return;
+
+set_empty_title:
+    ipl::System::getKeyboard()->baseMgr()->setTitleText(L"");
 }
 
 void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const ipl::controller::Interface* controller) {
@@ -2728,22 +2654,94 @@ void ipl::scene::AddressEdit::onEventDerived(u32 componentId, u32 event, const i
     }
 }
 
-void ipl::scene::AddressEdit::start_ipt_left_event(
-    const char* paneName, int channel) {
-    ipl::controller::Interface* controller = ipl::System::getControllerManager()->getYoungController();
-    if (controller != NULL) {
-        if (controller->getChannel() == channel) {
-            switch (mState) {
-                case 0x1d: {
-                    char paneNameCopy[12] = "mii_icon_00";
-                    if (strcmp(paneNameCopy, paneName) == 0) {
-                        (mpBalloon)->fadeoutForce();
-                    }
-                    break;
-                }
-            }
+void ipl::scene::AddressEdit::String::clear() {
+    memset(mValue, 0, sizeof(mValue));
+    memset(mName, 0, sizeof(mName));
+    memset(mDisplayText, 0, sizeof(mDisplayText));
+    mbValidMail = false;
+    mbNameNotEmpty = false;
+    mbHasWiiNo = false;
+}
+
+void ipl::scene::AddressEdit::String::setEMail(const wchar_t* value) {
+    mbHasWiiNo = false;
+    memset(mValue, 0, sizeof(mValue));
+    wcsncpy(mValue, value, 0xff);
+    u32 length = wcslen(value);
+    memset(mDisplayText, 0, sizeof(mDisplayText));
+    if (length > 0x10) {
+        wcsncpy(mDisplayText, value, 0xe);
+        wcscpy(mDisplayText + 0xe, L"...");
+    } else {
+        wcscpy(mDisplayText, value);
+    }
+    u8 address[0x100];
+    memset(address, 0, sizeof(address));
+    ipl::utility::CharacterCode::UTF16ToANSI(address, value, sizeof(address));
+    mbValidMail = !NWC24CheckPublicMailAddr_(reinterpret_cast<const char*>(address));
+}
+
+void ipl::scene::AddressEdit::String::setWiiNo(const wchar_t* value) {
+    mbHasWiiNo = true;
+    memset(mValue, 0, sizeof(mValue));
+    wcsncpy(mValue, value, 0x10);
+    memset(mDisplayText, 0, sizeof(mDisplayText));
+
+    for (s32 i = 0; i < 0x10; ++i) {
+        wchar_t digit = value[i];
+        if (digit >= L'0' && digit <= L'9') {
+            mDisplayText[i + i / 4] = digit;
+        } else {
+            mDisplayText[i + i / 4] = L'?';
         }
     }
+    mDisplayText[14] = L' ';
+    mDisplayText[9] = L' ';
+    mDisplayText[4] = L' ';
+
+    bool valid = false;
+    if (wcslen(value) == 0x10) {
+        u64 userId = AddressEdit::utf16_wiiid(value);
+        if (mpCallbackOwner->mpFriendCache->isValidId(userId)) {
+            valid = true;
+        }
+    }
+    mbValidMail = valid;
+}
+
+void ipl::scene::AddressEdit::String::setName(const wchar_t* value) {
+    wcsncpy(mName, value, 0xa);
+    u32 length = wcslen(value);
+    mbNameNotEmpty = false;
+    for (u32 i = 0; i < length; i++) {
+        if (value[i] == 0) {
+            break;
+        }
+        if (value[i] != L' ' && value[i] != 0x3000) {
+            mbNameNotEmpty = true;
+            break;
+        }
+    }
+}
+
+BOOL ipl::scene::AddressEdit::String::isDupCode() const {
+    if (mbHasWiiNo) {
+        u64 userId = AddressEdit::utf16_wiiid(mValue);
+        return mpCallbackOwner->mpFriendCache->isDupId(userId);
+    }
+
+    u8 mail[0x101];
+    memset(mail, 0, sizeof(mail));
+    ipl::utility::CharacterCode::UTF16ToANSI(mail, mValue, 0x100);
+    return mpCallbackOwner->mpFriendCache->isDupMail(reinterpret_cast<const char*>(mail));
+}
+
+BOOL ipl::scene::AddressEdit::String::isMyCode() const {
+    if (mbHasWiiNo) {
+        NWC24UserId myUserId = mpCallbackOwner->mpFriendCache->getMyUserId();
+        return AddressEdit::utf16_wiiid(mValue) == myUserId;
+    }
+    return false;
 }
 
 void ipl::scene::AddressEdit::set_err_msg(wchar_t* outErrMsg, u32 outErrMsgLen, NWC24Err nwc24Err) {
@@ -2772,128 +2770,61 @@ void ipl::scene::AddressEdit::set_err_msg(wchar_t* outErrMsg, u32 outErrMsgLen, 
     wcsncat(outErrMsg, ipl::System::getMessage(messageId), outErrMsgLen - wcslen(outErrMsg));
 }
 
+void ipl::scene::AddressEditEvent::onEvent(u32 componentId, u32 event, void* data) {
+    s32 signedEvent = static_cast<s32>(event);
+    ::gui::Manager* manager = mpManager;
+    ::gui::PaneComponent* component =
+        static_cast< ::gui::PaneComponent*>(manager->getComponent(componentId));
+    const char* paneName = component->getPane()->GetName();
 
-
-
-
-
-
-int ipl::scene::AddressEdit::get_button_no(const char* paneName) {
-    int result = -1;
-    for (int i = 0; i < 5; i++) {
-        if (strcmp(smButtonName__Q33ipl5scene6Button[i], paneName) == 0) {
-            result = i;
-            break;
+    switch (signedEvent) {
+    case 1:
+        if (data != NULL) {
+            mpParent->start_point_event(paneName, static_cast<ipl::controller::Interface*>(data));
         }
-    }
-    return result;
-}
-
-void ipl::scene::AddressEdit::add_friendinfo() {
-    NWC24FriendInfo info ALIGN32;
-    memset(&info, 0, sizeof(info));
-    switch (mMode) {
-    case SCENE_ADD_WII:
-        info.attr.type = NWC24_FRIENDTYPE_WII;
-        {
-            const wchar_t* name = mString.mName;
-            wchar_t* storedName = reinterpret_cast<wchar_t*>(info.attr.name);
-            wcsncpy(storedName, name, 0xa);
-        }
-        info.addr.wiiId = ipl::scene::AddressEdit::utf16_wiiid(mString.mValue);
-        memcpy(&info.attr.fdId, &mCreateID, sizeof(mCreateID));
         break;
-    case SCENE_ADD_EMAIL:
-        info.attr.type = NWC24_FRIENDTYPE_EMAIL;
-        {
-            const wchar_t* name = mString.mName;
-            wchar_t* storedName = reinterpret_cast<wchar_t*>(info.attr.name);
-            wcsncpy(storedName, name, 0xa);
+    case 2:
+        mpParent->start_left_event(paneName);
+        break;
+    case 0:
+        if (data != NULL &&
+            static_cast<ipl::controller::Interface*>(data)->downTrg(ipl::controller::BTN_INTERACT)) {
+            mpParent->start_trig_event(paneName);
         }
-        {
-            const wchar_t* value = mString.mValue;
-            u8* address = reinterpret_cast<u8*>(&info.addr);
-            ipl::utility::CharacterCode::UTF16ToANSI(address, value, sizeof(info.addr));
-        }
-        memcpy(&info.attr.fdId, &mCreateID, sizeof(mCreateID));
         break;
     default:
         break;
     }
+}
 
-    ipl::scene::Address* address =
-        static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS));
-    u32 index = address->getChosenFriendIndex();
-    if (index >= FriendListCache::FRIEND_MAX) {
-        index = 0;
-        for (u32 remaining = FriendListCache::FRIEND_MAX; remaining != 0; --remaining) {
-            if (!mpFriendCache->isThere(index)) {
-                break;
-            }
-            ++index;
+void ipl::scene::AddressInputEvent::onEvent(u32 componentId, u32 event, void* data) {
+    s32 signedEvent = static_cast<s32>(event);
+    ::gui::Manager* manager = mpManager;
+    ::gui::PaneComponent* component =
+        static_cast< ::gui::PaneComponent*>(manager->getComponent(componentId));
+    const char* paneName = component->getPane()->GetName();
+
+    switch (signedEvent) {
+    case 0:
+        if (data != NULL &&
+            static_cast<ipl::controller::Interface*>(data)->downTrg(ipl::controller::BTN_INTERACT)) {
+            mpParent->start_ipt_trig_event(
+                paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
         }
+        break;
+    case 1:
+        if (data != NULL) {
+            mpParent->start_ipt_point_event(
+                paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
+        }
+        break;
+    case 2:
+        if (data != NULL) {
+            mpParent->start_ipt_left_event(
+                paneName, static_cast<ipl::controller::Interface*>(data)->getChannel());
+        }
+        break;
+    default:
+        break;
     }
-    mpFriendCache->add(index, info);
-    if (mMode == SCENE_ADD_EMAIL) {
-        mpFriendCache->sendRegisterMail(index);
-    }
-}
-
-#pragma push
-#pragma ppc_iro_level 1
-void ipl::scene::AddressEdit::get_friendinfo() {
-    memcpy(&ipl::scene::sFriendInfo, &mpFriendCache->getInfo(mSelectedFriend),
-        sizeof(ipl::scene::sFriendInfo));
-    mString.setName(reinterpret_cast<const wchar_t*>(ipl::scene::sFriendInfo.attr.name));
-    const wchar_t* name = mString.mName;
-    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true), name);
-
-    wchar_t wiiNo[0x100];
-    wchar_t email[0x102];
-    if (ipl::scene::sFriendInfo.attr.type == NWC24_FRIENDTYPE_WII) {
-        memset(wiiNo, 0, sizeof(wiiNo));
-        ipl::scene::AddressEdit::wiiid_utf16(ipl::scene::sFriendInfo.addr.wiiId, wiiNo);
-        mString.setWiiNo(wiiNo);
-    } else {
-        memset(email, 0, sizeof(email));
-        ipl::utility::CharacterCode::ANSIToUTF16(email, reinterpret_cast<const u8*>(&ipl::scene::sFriendInfo.addr), 0x102);
-        mString.setEMail(email);
-    }
-    const wchar_t* text = mString.mDisplayText;
-    set_textbox(mpCodeLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true), text);
-    memcpy(&mCreateID, &ipl::scene::sFriendInfo.attr.fdId, sizeof(mCreateID));
-}
-#pragma pop
-
-#pragma push
-#pragma ppc_iro_level 1
-void ipl::scene::AddressEdit::update_friendinfo() {
-    memset(ipl::scene::sFriendInfo.attr.name, 0, sizeof(ipl::scene::sFriendInfo.attr.name));
-    const wchar_t* source = mString.mName;
-    wcsncpy(reinterpret_cast<wchar_t*>(ipl::scene::sFriendInfo.attr.name), source, 0xa);
-    memcpy(&ipl::scene::sFriendInfo.attr.fdId, &mCreateID, sizeof(mCreateID));
-    mpFriendCache->update(
-        mSelectedFriend,
-        reinterpret_cast<const wchar_t*>(ipl::scene::sFriendInfo.attr.name),
-        ipl::scene::sFriendInfo.attr.fdId);
-    static_cast<ipl::scene::Address*>(ipl::System::getScene(ipl::SCENE_ADDRESS))->reset_friend();
-}
-#pragma pop
-
-void ipl::scene::AddressEdit::String::setEMail(const wchar_t* value) {
-    mbHasWiiNo = false;
-    memset(mValue, 0, sizeof(mValue));
-    wcsncpy(mValue, value, 0xff);
-    u32 length = wcslen(value);
-    memset(mDisplayText, 0, sizeof(mDisplayText));
-    if (length > 0x10) {
-        wcsncpy(mDisplayText, value, 0xe);
-        wcscpy(mDisplayText + 0xe, L"...");
-    } else {
-        wcscpy(mDisplayText, value);
-    }
-    u8 address[0x100];
-    memset(address, 0, sizeof(address));
-    ipl::utility::CharacterCode::UTF16ToANSI(address, value, sizeof(address));
-    mbValidMail = !NWC24CheckPublicMailAddr_(reinterpret_cast<const char*>(address));
 }
