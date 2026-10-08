@@ -1873,10 +1873,7 @@ pf_s32 PFFILE_fappend(PFFILE_FILE* file, pf_u32 size, pf_u32* size_appended) {
 pf_s32 PFFILE_fadjust(PFFILE_FILE* file) {
     PF_VOLUME* volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
     PFFILE_CURSOR saved_cursor;
-    struct {
-        PF_FAT_HINT hint;
-        pf_u32 last_access_chain_index;
-    } saved_hint;
+    PFFILE_FAT_HINT saved_hint;
     pf_u16 access_time;
     pf_s32 error;
 
@@ -1894,8 +1891,7 @@ pf_s32 PFFILE_fadjust(PFFILE_FILE* file) {
     }
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = file;
     saved_cursor = file->cursor;
-    saved_hint.hint = file->hint;
-    saved_hint.last_access_chain_index = file->last_access_data.last_access.chain_index;
+    saved_hint = *(PFFILE_FAT_HINT*)&file->hint;
     if ((file->open_mode & 8) == 0 && (file->open_mode & 2) != 0) {
         error = 0x0A;
     } else if ((file->p_sfd->lock.mode & 3) != 0 &&
@@ -1907,8 +1903,7 @@ pf_s32 PFFILE_fadjust(PFFILE_FILE* file) {
         error &= (-error | error) >> 31;
     }
     file->cursor = saved_cursor;
-    file->hint = saved_hint.hint;
-    file->last_access_data.last_access.chain_index = saved_hint.last_access_chain_index;
+    *(PFFILE_FAT_HINT*)&file->hint = saved_hint;
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = PF_NULL;
     if (error != 0) {
         pf_vol_set.last_error = error;
@@ -1923,10 +1918,7 @@ pf_s32 PFFILE_fadjust(PFFILE_FILE* file) {
 pf_s32 PFFILE_finfo(PFFILE_FILE* file, PF_INFO* info) {
     PF_VOLUME* volume = file == PF_NULL ? PF_NULL : file->p_sfd->dir_entry.p_vol;
     PFFILE_CURSOR saved_cursor;
-    struct {
-        PF_FAT_HINT hint;
-        pf_u32 last_access_chain_index;
-    } saved_hint;
+    PFFILE_FAT_HINT saved_hint;
     pf_s32 error;
 
     error = PFVOL_CheckForRead(volume);
@@ -1943,12 +1935,10 @@ pf_s32 PFFILE_finfo(PFFILE_FILE* file, PF_INFO* info) {
     }
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = file;
     saved_cursor = file->cursor;
-    saved_hint.hint = file->hint;
-    saved_hint.last_access_chain_index = file->last_access_data.last_access.chain_index;
+    saved_hint = *(PFFILE_FAT_HINT*)&file->hint;
     error = PFFILE_p_finfo(file, info);
     file->cursor = saved_cursor;
-    file->hint = saved_hint.hint;
-    file->last_access_data.last_access.chain_index = saved_hint.last_access_chain_index;
+    *(PFFILE_FAT_HINT*)&file->hint = saved_hint;
     ((PFFILE_VOLUME_DIRS*)volume)->cache_signature = PF_NULL;
     if (error != 0) {
         pf_vol_set.last_error = error;

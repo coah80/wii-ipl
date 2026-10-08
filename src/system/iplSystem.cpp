@@ -527,11 +527,9 @@ namespace ipl {
 
         // Default values for initial setup
         if (!SCGetConfigDoneFlag() && !SCGetConfigDoneFlag2()) {
-            struct BlankNameStorage {
-                SCOwnerNickname blankName;
-            } blankNameStorage;
-            memset(&blankNameStorage.blankName, 0, sizeof(blankNameStorage.blankName));
-            SCSetOwnerNickName(&blankNameStorage.blankName);
+            SCOwnerNickname blankName;
+            memset(&blankName, 0, sizeof(blankName));
+            SCSetOwnerNickName(&blankName);
 
             SCSetAspectRatio(SC_ASPECT_RATIO_4x3);
 

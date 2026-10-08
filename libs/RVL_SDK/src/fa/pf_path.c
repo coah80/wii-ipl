@@ -418,15 +418,13 @@ pf_s32 PFPATH_cmpNameUni(const pf_u16* name, PF_STR* pattern) {
 }
 
 pf_s32 PFPATH_cmpName(const pf_s8* short_name, PF_STR* pattern, pf_u32 short_search) {
-    struct {
-        pf_u32 matched_end;
-        pf_s8 name[0x10];
-    } work;
-    pf_s8* name = work.name;
+    pf_s8 name_buffer[13];
+    pf_u32 matched_end;
+    pf_s8* name = name_buffer;
     pf_s8* name_end;
     const pf_s8* pattern_text;
 
-    work.matched_end = 0;
+    matched_end = 0;
     pattern_text = PFSTR_GetStrPos(pattern, 3);
     pf_strcpy(name, short_name);
     if ((pf_vol_set.setting & 2) == 2 && PFSTR_GetCodeMode(pattern) == 2 && pf_strcmp(name, (const pf_s8*)".") != 0 &&
@@ -450,7 +448,7 @@ pf_s32 PFPATH_cmpName(const pf_s8* short_name, PF_STR* pattern, pf_u32 short_sea
             return 1;
         }
     }
-    return PFPATH_cmpNameImpl(work.name, pattern_text, &work.matched_end);
+    return PFPATH_cmpNameImpl(name_buffer, pattern_text, &matched_end);
 }
 
 pf_s32 PFPATH_cmpTailSFN(const pf_s8* sfn_name, const pf_s8* pattern) {

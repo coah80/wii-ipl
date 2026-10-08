@@ -344,18 +344,16 @@ error:
 
 static inline ChunkEntry* VmReserveChunkEntry(CHANSVmPrivate* pVm) {
     u32 idx;
-    union {
-        u32 off;
-        ChunkEntry* entry;
-    } u;
+    u32 chunkOffset;
     ChunkEntry* chunk;
     u32 chunkIdx;
+    ChunkEntry* entry;
 
     idx = pVm->nextChunkIdx;
     chunk = pVm->pChunks[idx / 1024];
     if (chunk == vmNull || chunk[idx & 0x3FF].inUse != 0) {
         chunkIdx = 0;
-        u.off = 0;
+        chunkOffset = 0;
         while (chunkIdx < 0x80) {
             chunk = pVm->pChunks[chunkIdx];
             if (chunk == vmNull) {
@@ -369,29 +367,29 @@ static inline ChunkEntry* VmReserveChunkEntry(CHANSVmPrivate* pVm) {
             idx = 0;
             while (idx < 0x400) {
                 if (chunk[idx].inUse == 0) {
-                    u.off = idx + (chunkIdx << 10);
-                    idx = u.off;
+                    chunkOffset = idx + (chunkIdx << 10);
+                    idx = chunkOffset;
                     goto found;
                 }
                 idx++;
             }
 
             chunkIdx++;
-            u.off += 4;
+            chunkOffset += 4;
         }
     no_entry:
-        u.off = 0;
+        entry = vmNull;
         goto check_entry;
     }
 
 found:
     pVm->nextChunkIdx = (idx + 1 > 0x1FFFF) ? 0 : idx + 1;
-    u.entry = &chunk[idx & 0x3FF];
-    memset(u.entry, 0, sizeof(CHANSVmObjHdr));
-    u.entry->inUse = 1;
+    entry = &chunk[idx & 0x3FF];
+    memset(entry, 0, sizeof(CHANSVmObjHdr));
+    entry->inUse = 1;
 
 check_entry:
-    return u.entry;
+    return entry;
 }
 
 static inline u32 VmGetAlignedAllocationSize(u32 length) {

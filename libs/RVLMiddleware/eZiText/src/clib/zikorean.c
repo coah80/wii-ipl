@@ -27,31 +27,29 @@ ziU8 Zi8MatchKoreanSequence(ziU16* resultIndex, ziU16* input, ziU8 type, ziU16 c
 
 ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     struct __zi8_work_data_s* workData) {
-    struct {
-        ziU8 characterIndex;
-        ziU8 matched;
-        ziU8 elementIndex;
-        ziU16 index;
-        ziU16 currentCandidate;
-        ziU16 inputIndex;
-        ziU16 nextIndex;
-        ziU16 tableCount31;
-        ziU16 tableCount6;
-        ziU16 tableCount3;
-        ziU16 tableCount0;
-        ziU8* table31;
-        ziU8* table2;
-        ziU8* table1;
-    } state;
+    ziU8* table1;
+    ziU8* table2;
+    ziU8* table31;
+    ziU16 tableCount0;
+    ziU16 tableCount3;
+    ziU16 tableCount6;
+    ziU16 tableCount31;
+    ziU16 nextIndex;
+    ziU16 inputIndex;
+    ziU16 currentCandidate;
+    ziU16 index;
+    ziU8 elementIndex;
+    ziU8 matched;
+    ziU8 characterIndex;
     ziU16 buffer[100];
     ziU8 result;
     ziU16 currentCharacter;
     ziU8* selectedTable;
 
-    state.nextIndex = 0;
+    nextIndex = 0;
     result = 0;
-    state.characterIndex = 0xFF;
-    state.currentCandidate = params->firstCandidate;
+    characterIndex = 0xFF;
+    currentCandidate = params->firstCandidate;
     params->letters = params->completion = params->count = 0;
     if ((argument != 0) && (*argument != 0)) {
         Zi8LogError(0x7D0, workData);
@@ -63,31 +61,31 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     }
 
     selectedTable = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 4, workData);
-    state.table1 = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 1, workData);
-    state.table2 = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 2, workData);
-    state.table31 = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 0x31, workData);
-    state.tableCount0 = Zi8GetTableCount(ZI8_LANG_KO, 0, workData);
-    state.tableCount3 = Zi8GetTableCount(ZI8_LANG_KO, 3, workData);
-    state.tableCount6 = Zi8GetTableCount(ZI8_LANG_KO, 6, workData);
-    state.tableCount31 = Zi8GetTableCount(ZI8_LANG_KO, 0x31, workData);
+    table1 = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 1, workData);
+    table2 = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 2, workData);
+    table31 = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 0x31, workData);
+    tableCount0 = Zi8GetTableCount(ZI8_LANG_KO, 0, workData);
+    tableCount3 = Zi8GetTableCount(ZI8_LANG_KO, 3, workData);
+    tableCount6 = Zi8GetTableCount(ZI8_LANG_KO, 6, workData);
+    tableCount31 = Zi8GetTableCount(ZI8_LANG_KO, 0x31, workData);
 
-    for (state.elementIndex = 0; state.elementIndex < params->elementCount;
-        state.elementIndex++) {
-        currentCharacter = params->elements[state.elementIndex];
+    for (elementIndex = 0; elementIndex < params->elementCount;
+        elementIndex++) {
+        currentCharacter = params->elements[elementIndex];
 
         if ((currentCharacter >= 0x61) && (currentCharacter <= 0x7A)) {
-            buffer[state.elementIndex] = state.table1[(currentCharacter - 0x61) * 2];
+            buffer[elementIndex] = table1[(currentCharacter - 0x61) * 2];
         } else if ((currentCharacter >= 0x41) && (currentCharacter <= 0x5A)) {
-            buffer[state.elementIndex] = (state.table1 + (currentCharacter - 0x41) * 2)[1];
+            buffer[elementIndex] = (table1 + (currentCharacter - 0x41) * 2)[1];
         } else {
-            state.matched = 0;
-            for (; state.table2[state.matched * 3] != 0; state.matched++) {
-                if (currentCharacter == state.table2[state.matched * 3]) break;
+            matched = 0;
+            for (; table2[matched * 3] != 0; matched++) {
+                if (currentCharacter == table2[matched * 3]) break;
             }
-            if (state.table2[state.matched * 3] != 0) {
-                buffer[state.elementIndex] =
-                ((ziU16)(state.table2 + state.matched * 3)[1] << 8) |
-                (state.table2 + state.matched * 3)[2];
+            if (table2[matched * 3] != 0) {
+                buffer[elementIndex] =
+                ((ziU16)(table2 + matched * 3)[1] << 8) |
+                (table2 + matched * 3)[2];
             } else {
                 Zi8LogError(0x161, workData);
                 return 0;
@@ -96,16 +94,16 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
     }
 
     result = 0;
-    for (currentCharacter = 0; currentCharacter < state.elementIndex; currentCharacter++) {
-        if (Zi8LookupKoreanChar(buffer[currentCharacter], &state.characterIndex,
-            &state.inputIndex, workData) != 0) {
-            state.matched = Zi8MatchKoreanSequence(&state.nextIndex,
+    for (currentCharacter = 0; currentCharacter < elementIndex; currentCharacter++) {
+        if (Zi8LookupKoreanChar(buffer[currentCharacter], &characterIndex,
+            &inputIndex, workData) != 0) {
+            matched = Zi8MatchKoreanSequence(&nextIndex,
                 buffer + currentCharacter + 1,
-                state.characterIndex,
-                (state.elementIndex - currentCharacter) - 1,
+                characterIndex,
+                (elementIndex - currentCharacter) - 1,
                 workData);
             if (workData->koAltTables == 1) {
-                switch (state.characterIndex) {
+                switch (characterIndex) {
                 case 1:
                     selectedTable = (ziU8*)Zi8GetTableAddress(ZI8_LANG_KO, 0x1E, workData);
                     break;
@@ -168,59 +166,59 @@ ziU32 Zi8GetKoreanCandidates(ziGetParam* params, ziU8* argument,
                 }
             }
         } else {
-            state.matched = 0;
+            matched = 0;
         }
-        if (state.matched != 0) {
-            if (state.tableCount6 == 0) {
-                state.nextIndex += state.inputIndex * state.tableCount3;
+        if (matched != 0) {
+            if (tableCount6 == 0) {
+                nextIndex += inputIndex * tableCount3;
             }
-            if (state.currentCandidate != 0) {
-                state.currentCandidate--;
+            if (currentCandidate != 0) {
+                currentCandidate--;
             } else {
                 params->candidates[result] =
-                ((ziU16)selectedTable[state.nextIndex * 2] << 8) | (selectedTable + state.nextIndex * 2)[1];
-                if ((state.tableCount6 != 0) && (workData->koAltTables == 0)) {
-                    params->candidates[result] += state.inputIndex * state.tableCount3;
+                ((ziU16)selectedTable[nextIndex * 2] << 8) | (selectedTable + nextIndex * 2)[1];
+                if ((tableCount6 != 0) && (workData->koAltTables == 0)) {
+                    params->candidates[result] += inputIndex * tableCount3;
                 }
                 result++;
             }
             if (currentCharacter == 0) {
-                params->completion = state.matched + 1;
+                params->completion = matched + 1;
             }
-            currentCharacter += state.matched;
+            currentCharacter += matched;
         } else {
-            if (state.currentCandidate != 0) {
-                state.index = 0;
-                for (; state.index < state.tableCount31; state.index++) {
-                    if (state.table31[state.index * 3] == buffer[currentCharacter] &&
-                        (state.table31 + state.index * 3)[1] == buffer[currentCharacter + 1]) break;
+            if (currentCandidate != 0) {
+                index = 0;
+                for (; index < tableCount31; index++) {
+                    if (table31[index * 3] == buffer[currentCharacter] &&
+                        (table31 + index * 3)[1] == buffer[currentCharacter + 1]) break;
                 }
-                if (state.index == state.tableCount31) {
-                    state.currentCandidate--;
+                if (index == tableCount31) {
+                    currentCandidate--;
                 }
                 if (currentCharacter == 0) {
                     params->completion = 1;
                 }
             } else {
-                for (state.index = 0; state.index < state.tableCount31; state.index++) {
-                    if ((state.table31[(state.index * 3)] == buffer[currentCharacter]) &&
-                        ((state.table31 + state.index * 3)[1] == buffer[currentCharacter + 1])) {
+                for (index = 0; index < tableCount31; index++) {
+                    if ((table31[(index * 3)] == buffer[currentCharacter]) &&
+                        ((table31 + index * 3)[1] == buffer[currentCharacter + 1])) {
                         if (currentCharacter == 0) {
                             params->completion = 1;
                         }
                         params->candidates[result] =
-                        state.tableCount0 + (state.table31 + state.index * 3)[2];
+                        tableCount0 + (table31 + index * 3)[2];
                         result++;
                         currentCharacter++;
                         break;
                     }
                 }
-                if (state.index == state.tableCount31) {
+                if (index == tableCount31) {
                     if ((params->candidates[result] = buffer[currentCharacter]) < 0xFF) {
                         if (currentCharacter == 0) {
                             params->completion = 1;
                         }
-                        params->candidates[result] += state.tableCount0;
+                        params->candidates[result] += tableCount0;
                         result++;
                     }
                 }
