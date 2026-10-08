@@ -87,11 +87,9 @@ namespace ipl {
             mNwc24ErrCountdown2 = 0;
 
             // Text balloon for Mii face
-            f32 f0 = 30.0f;
-            f32 f1 = 120.0f;
             mpNigaoeBalloon =
-                new TextBalloon(getSceneHeap(), mpBalloonFile, "arc", "my_IplTopBalloon_a.brlyt",
-                                math::VEC3(0.0f, (f1 = 120.0f, 0.0f), (f0 = 30.0f, 0.0f)), f1, f0);
+                new TextBalloon(getSceneHeap(), mpBalloonFile, "arc", "my_IplTopBalloon_a.brlyt", math::VEC3(0.0f, 0.0f, 0.0f),
+                                TextBalloon::getDefaultMargin16x9(), TextBalloon::getDefaultMargin4x3());
 
             // Scroller
             mpScroller = new utility::YoungBScroller();

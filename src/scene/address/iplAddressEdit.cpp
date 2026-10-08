@@ -383,16 +383,6 @@ inline void ipl::scene::AddressEdit::set_textbox(nw4r::lyt::Pane* pane, u32 msgI
     set_textbox(pane, ipl::System::getMessage(msgId));
 }
 
-static inline f32 getBalloonMargin4x3() {
-    f32 margin = 30.0f;
-    return margin;
-}
-
-static inline f32 getBalloonMargin16x9() {
-    f32 margin = 120.0f;
-    return margin;
-}
-
 #pragma push
 #pragma ppc_iro_level 1
 void ipl::scene::AddressEdit::create() {
@@ -578,7 +568,7 @@ create_mode_done:
     ipl::System::getKeyboard()->init();
 
     mpBalloon = new ipl::scene::TextBalloon(getHeap(), mpBalloonFile, "arc",
-        "my_IplTopBalloon_a.brlyt", ipl::math::VEC3(0.0f, 0.0f, 0.0f), getBalloonMargin16x9(), getBalloonMargin4x3());
+        "my_IplTopBalloon_a.brlyt", ipl::math::VEC3(0.0f, 0.0f, 0.0f), ipl::scene::TextBalloon::getDefaultMargin16x9(), ipl::scene::TextBalloon::getDefaultMargin4x3());
 }
 #pragma pop
 

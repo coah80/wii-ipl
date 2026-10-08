@@ -18,6 +18,15 @@ namespace ipl {
                         f32 margin16x9 = 120.0f, f32 margin4x3 = 30.0f);
             ~TextBalloon();
 
+            static f32 getDefaultMargin16x9() {
+                f32 margin = 120.0f;
+                return margin;
+            }
+            static f32 getDefaultMargin4x3() {
+                f32 margin = 30.0f;
+                return margin;
+            }
+
             void calc();
             void draw();
 
