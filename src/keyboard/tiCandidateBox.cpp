@@ -376,6 +376,7 @@ namespace textinput {
         }
 
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
+            u32 animationCount;
             const char* forceAddName;
             u16 i;
             for (i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
@@ -408,7 +409,8 @@ namespace textinput {
                 nw4r::ut::List_Append(&mAnmPanes, pane);
 
                 forceAddName = p.forceAddName;
-                for (u16 j = 0; j < p.count; j++) {
+                animationCount = p.count;
+                for (u16 j = 0; j < animationCount; j++) {
                     const AnimationFile* const& animation = p.pAnims[j];
                     void* pResource = mpMultiArcResourceAccessor->GetResource(0, animation->fileName);
                     AnimTransformPane* transform =
