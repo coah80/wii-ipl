@@ -1,6 +1,7 @@
 #include <private/cdb.h>
 #include <revolution/cdb.h>
 
+#include <private/nand.h>
 #include <revolution/vf.h>
 
 #include <string.h>
@@ -10,13 +11,50 @@ char CDB_WIIID_DAT_PATH[NAND_MAX_PATH];
 char CDB_VFF_FILE_NAME[NAND_MAX_PATH];
 u32 CDB_VFF_FILE_SIZE;
 
-// Left over unused logs
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "NANDCreateDir %s\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "NANDCreateDir() error = %d\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "NANDPrivateGetStatus %s = %d\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "ownerId=%u, groupId=%u, attribute=%u, permission=");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "(other-group-owner)\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "nocopy/cdbwiiid.dat");
+s32 CDBFSCreateDirNAND(const char* path, u8 perm, u8 attr) {
+    s32 result;
+
+    CDBReportInfo("NANDCreateDir %s\n", path);
+    result = NANDCreateDir(path, perm, attr);
+    if (result != NAND_RESULT_OK) {
+        CDBReportInfo("NANDCreateDir() error = %d\n", result);
+    }
+    return result;
+}
+
+void CDBFSReportNANDPermission(u8 permission);
+
+void CDBFSReportNANDStatus(const char* path) {
+    NANDStatus status;
+    s32 result;
+
+    result = NANDPrivateGetStatus(path, &status);
+    CDBReportInfo("NANDPrivateGetStatus %s = %d\n", path, result);
+    if (result != NAND_RESULT_OK) {
+        return;
+    }
+
+    CDBReportInfo("ownerId=%u, groupId=%u, attribute=%u, permission=", status.ownerId, status.groupId, status.attribute);
+    CDBFSReportNANDPermission(status.permission);
+}
+
+void CDBFSReportNANDPermission(u8 permission) {
+    char text[7];
+
+    text[0] = (permission & NAND_PERM_BOTH_READ) ? 'r' : '-';
+    text[1] = (permission & NAND_PERM_BOTH_WRITE) ? 'w' : '-';
+    text[2] = (permission & NAND_PERM_GROUP_READ) ? 'r' : '-';
+    text[3] = (permission & NAND_PERM_GROUP_WRITE) ? 'w' : '-';
+    text[4] = (permission & NAND_PERM_USER_READ) ? 'r' : '-';
+    text[5] = (permission & NAND_PERM_USER_WRITE) ? 'w' : '-';
+    text[6] = '\0';
+    CDBReportInfo(text);
+    CDBReportInfo("(other-group-owner)\n");
+}
+
+void CDBFSReportWiiIdDat(void) {
+    CDBFSReportNANDStatus("nocopy/cdbwiiid.dat");
+}
 
 // These ones are used but they are pooled somewhere else
 static char mountError[] = "VFMountDriveNANDFlashEx VFErr=%d(%s)\n";
@@ -98,10 +136,15 @@ static inline CDBErr CDBFSInitVFFile(void* cacheBuffer, u32 cacheSize) {
     return CDBSetVFSyncMode(0);
 }
 
-// More unused
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "NANDPrivateDelete %s-->\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "NANDPrivateDelete=%d\n");
-DECOMP_FORCE_ACTIVE(CDBFileSystem_c, "<--NANDPrivateDelete\n");
+s32 CDBFSDeleteNAND(const char* path) {
+    s32 result;
+
+    CDBReportInfo("NANDPrivateDelete %s-->\n", path);
+    result = NANDPrivateDelete(path);
+    CDBReportInfo("NANDPrivateDelete=%d\n", result);
+    CDBReportInfo("<--NANDPrivateDelete\n");
+    return result;
+}
 
 CDBErr CDBFSInit(void* cacheBuffer, u32 cacheSize) {
     VFErr vfErr;
