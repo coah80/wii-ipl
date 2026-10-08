@@ -806,16 +806,25 @@ partition_fatal:
 partition_done:
     BS2Report("DVDLowOpenPartition done\n");
     if (*(u8 *)0x8000315D != 0x80) {
-        u32 diBits;
-        u32 diValue;
+        typedef union {
+            u32 value;
+            struct {
+                u32 reserved : 29;
+                u32 bit2 : 1;
+                u32 bit1 : 1;
+                u32 bit0 : 1;
+            } bits;
+        } DIControl;
+        DIControl diBits;
+        DIControl diValue;
         u32 *diAddr;
 
         diAddr = (u32 *)0xCC003024;
-        diBits = 2;
-        diBits |= 4;
-        diValue = *diAddr;
-        diValue |= 1;
-        *diAddr = diValue | diBits;
+        diValue.value = *diAddr;
+        diValue.bits.bit0 = 1;
+        diBits.value = 2;
+        diBits.bits.bit2 = 1;
+        *diAddr = diValue.value | diBits.value;
         enableLegacyDI();
     }
     oldInterrupts = OSDisableInterrupts();
