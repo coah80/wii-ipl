@@ -403,43 +403,87 @@ static inline void sendValidityResponse(u32 command, u32 valid) {
         u32 value;
         struct { u32 upper : 16; u32 valid : 8; u32 command : 8; } fields;
     } reply;
-    reply.value = command;
-    reply.fields.valid = valid;
+    reply.value = valid << 8;
+    reply.fields.command = command;
     OSSendMessage(&sThread->responses, (OSMessage)reply.value, OS_MESSAGE_BLOCK);
 }
 
-extern "C" void* cardThreadMain(void*) {
-    struct CardThreadLocals {
-        u8 compareName[6];
-        u32 message;
-        CARDDir freeDir;
-        CARDDir mountDir;
-        CARDDir listingDir;
-        char fileName[33];
-    } local;
-    BOOL brokenFile;
-    BOOL exitThread = FALSE;
-    u32 validState = TRUE;
-    u32 command;
-    s16 fileNo;
-    u8 slot;
+static inline u8 getCardCommandSlot(u32 message) {
+    u8 slot = message >> 16;
+    slot &= 1;
+    return slot;
+}
+
+static inline s32 countCardTitleBlocks(s32 slot, CARDDir* dir) {
+    s32 fileNo;
     s32 result;
+    s32 blocks;
+    blocks = 0;
+    for (fileNo = 0; fileNo < CARD_MAX_FILE; ++fileNo) {
+        result = __CARDGetStatusEx(slot, fileNo, dir);
+        if (result < CARD_RESULT_READY && result != CARD_RESULT_NOFILE) {
+            blocks = -1;
+            break;
+        }
+        if (result == CARD_RESULT_READY &&
+            memcmp(dir->gameName, (void*)0x80000000, 4) == 0 &&
+            memcmp(dir->company, (void*)0x80000004, 2) == 0) {
+            blocks += dir->length;
+        }
+    }
+    return blocks;
+}
+
+static inline void listCardFiles(u8 slot, CARDDir& dir, char* fileName) {
+    u32 fileNo;
+    for (fileNo = 0; fileNo < CARD_MAX_FILE; ++fileNo) {
+        if (__CARDGetStatusEx(slot, (u16)fileNo, &dir) == CARD_RESULT_READY) {
+            memcpy(fileName, dir.fileName, CARD_FILENAME_MAX);
+            fileName[CARD_FILENAME_MAX] = 0;
+            OSReport("%d - %s: %d blocks\n", (u16)fileNo, fileName, dir.length);
+        }
+    }
+}
+
+static inline void deleteCardFile(u8 slot, s16 fileNo) {
+    s32 result = CARDFastDelete(slot, fileNo);
+    if (result < CARD_RESULT_READY) {
+        reportCardThreadError(slot, 4, result);
+    } else {
+        clearCardFileEntry(slot, fileNo);
+        refreshCardSlotInfo(slot);
+        sendCardSlotState(slot, 4, (u8)fileNo);
+    }
+}
+
+extern "C" void* cardThreadMain(void*) {
+    char fileName[33];
+    CARDDir listingDir;
+    CARDDir mountDir;
+    CARDDir freeDir;
+    u32 message;
+    u8 compareName[6];
+    s32 result;
+    u8 slot;
+    BOOL brokenFile;
+    s32 scanResult;
     s32 file;
-    u32 listingFile;
-    s32 outerSlot;
-    s32 freeFile;
     s32 freeBlocks;
+    s32 outerSlot;
+    u32 validState = TRUE;
+    BOOL exitThread = FALSE;
+    u32 command;
 
     sThread->mounted[0] = 0;
     sThread->mounted[1] = 0;
     goto loopCheck;
 loopStart:
-        OSReceiveMessage(&sThread->requests, (OSMessage*)&local.message, OS_MESSAGE_BLOCK);
-        OSReport("CARD THREAD: Message received %d\n", (s8)(u8)local.message);
+        OSReceiveMessage(&sThread->requests, (OSMessage*)&message, OS_MESSAGE_BLOCK);
+        OSReport("CARD THREAD: Message received %d\n", (s8)(u8)message);
         if (validState != TRUE) {
             goto loopCheck;
         }
-        command = local.message & 0xFF;
+        command = message & 0xFF;
 
         switch ((s8)command) {
         case 10:
@@ -451,8 +495,8 @@ loopStart:
             exitThread = TRUE;
             break;
         case 0: {
-            slot = (local.message >> 16) & 1;
-            command = (local.message >> 14) & 4;
+            slot = getCardCommandSlot(message);
+            command = (message >> 14) & 4;
             result = CARDMount(slot, sThread->mountBuffers[command / 4], 0);
             if (result < CARD_RESULT_READY) {
                 result = handleCardMountResult(slot, result);
@@ -461,15 +505,15 @@ loopStart:
                 }
                 break;
             }
-            result = CARDCheck(slot);
-            if (result < CARD_RESULT_READY) {
+            scanResult = CARDCheck(slot);
+            if (scanResult < CARD_RESULT_READY) {
                 goto mountError;
             }
 
         mountContinue:
             clearAllCardFileEntries(slot);
             for (file = 0; file < CARD_MAX_FILE; ++file) {
-                result = __CARDGetStatusEx(slot, (s16)file, &local.mountDir);
+                result = __CARDGetStatusEx(slot, (s16)file, &mountDir);
                 if (result < CARD_RESULT_READY) {
                     result = handleCardMountResult(slot, result);
                     if (result != CARD_RESULT_READY) {
@@ -477,27 +521,27 @@ loopStart:
                     }
                     goto loopCheck;
                 } else {
-                    local.compareName[0] = 0;
-                    local.compareName[1] = 0;
-                    local.compareName[2] = 0;
-                    local.compareName[3] = 0;
-                    local.compareName[4] = 0;
-                    local.compareName[5] = 0;
-                    if (strncmp((const char*)local.mountDir.fileName, "Broken File", 0xB) == 0 &&
-                        memcmp(local.mountDir.gameName, local.compareName + 2, 4) == 0 &&
-                        memcmp(local.mountDir.company, local.compareName, 2) == 0) {
+                    compareName[0] = 0;
+                    compareName[1] = 0;
+                    compareName[2] = 0;
+                    compareName[3] = 0;
+                    compareName[4] = 0;
+                    compareName[5] = 0;
+                    if (strncmp((const char*)mountDir.fileName, "Broken File", 0xB) == 0 &&
+                        memcmp(mountDir.gameName, compareName + 2, 4) == 0 &&
+                        memcmp(mountDir.company, compareName, 2) == 0) {
                         brokenFile = TRUE;
                     } else {
                         brokenFile = FALSE;
                     }
                     if (brokenFile) {
-                        result = CARDFastDelete(slot, (s16)file);
-                        if (result < CARD_RESULT_READY) {
+                        scanResult = CARDFastDelete(slot, (s16)file);
+                        if (scanResult < CARD_RESULT_READY) {
                             goto mountError;
                         }
                     } else {
-                        result = loadCardFileIcons(slot, (s16)file, &local.mountDir);
-                        if (result < CARD_RESULT_READY) {
+                        scanResult = loadCardFileIcons(slot, (s16)file, &mountDir);
+                        if (scanResult < CARD_RESULT_READY) {
                             goto mountError;
                         }
                     }
@@ -507,26 +551,19 @@ loopStart:
             sThread->mounted[command / 4] = 1;
             sendCardSlotState(slot, 0, 0);
             OSReport("Slot %c\n", sCardSlotName[slot]);
-            for (listingFile = 0; listingFile < CARD_MAX_FILE; ++listingFile) {
-                if (__CARDGetStatusEx(slot, (u16)listingFile, &local.listingDir) == CARD_RESULT_READY) {
-                    memcpy(local.fileName, local.listingDir.fileName, CARD_FILENAME_MAX);
-                    local.fileName[CARD_FILENAME_MAX] = 0;
-                    OSReport("%d - %s: %d blocks\n", (u16)listingFile, local.fileName,
-                             local.listingDir.length);
-                }
-            }
+            listCardFiles(slot, listingDir, fileName);
             break;
 
         mountError:
             OSReport("MountError\n");
-            reportCardThreadError(slot, 0, result);
+            reportCardThreadError(slot, 0, scanResult);
             break;
         }
         case 9:
-            reportCardThreadError((local.message >> 16) & 1, 9, CARD_RESULT_NOCARD);
+            reportCardThreadError(getCardCommandSlot(message), 9, CARD_RESULT_NOCARD);
             break;
         case 1: {
-            slot = (local.message >> 16) & 1;
+            slot = getCardCommandSlot(message);
             result = CARDFormat(slot);
             if (result < CARD_RESULT_READY) {
                 reportCardThreadError(slot, 1, result);
@@ -538,44 +575,22 @@ loopStart:
             break;
         }
         case 2:
-            runCardMoveOrCopy((local.message >> 16) & 1,
-                                   (s16)(u8)(local.message >> 24), (s8)command);
+            runCardMoveOrCopy(getCardCommandSlot(message),
+                                   (s16)(u8)(message >> 24), (s8)command);
             break;
         case 3:
-            runCardMoveOrCopy((local.message >> 16) & 1,
-                                   (s16)(u8)(local.message >> 24), (s8)command);
+            runCardMoveOrCopy(getCardCommandSlot(message),
+                                   (s16)(u8)(message >> 24), (s8)command);
             break;
-        case 4: {
-            slot = (local.message >> 16) & 1;
-            fileNo = (s16)(local.message >> 24);
-            result = CARDFastDelete(slot, fileNo);
-            if (result < CARD_RESULT_READY) {
-                reportCardThreadError(slot, 4, result);
-            } else {
-                clearCardFileEntry(slot, fileNo);
-                refreshCardSlotInfo(slot);
-                sendCardSlotState(slot, 4, (u8)fileNo);
-            }
+        case 4:
+            deleteCardFile(getCardCommandSlot(message), (s16)(message >> 24));
             break;
-        }
         case 12:
             outerSlot = 0;
 
             do {
                 if (sThread->mounted[outerSlot] != 0) {
-                    freeBlocks = 0;
-                    for (freeFile = 0; freeFile < CARD_MAX_FILE; ++freeFile) {
-                        result = __CARDGetStatusEx(outerSlot, freeFile, &local.freeDir);
-                        if (result < CARD_RESULT_READY && result != CARD_RESULT_NOFILE) {
-                            freeBlocks = -1;
-                            break;
-                        }
-                        if (result == CARD_RESULT_READY &&
-                            memcmp(local.freeDir.gameName, (void*)0x80000000, 4) == 0 &&
-                            memcmp(local.freeDir.company, (void*)0x80000004, 2) == 0) {
-                            freeBlocks += local.freeDir.length;
-                        }
-                    }
+                    freeBlocks = countCardTitleBlocks(outerSlot, &freeDir);
                     sThread->slots[outerSlot].unk_0x12 = freeBlocks;
                 }
                 ++outerSlot;
