@@ -11,9 +11,27 @@
 #include <stdio.h>
 #include <string.h>
 
-DECOMP_FORCE_ACTIVE(cnt_c, "<< RVL_SDK - CNT \trelease build: Apr 20 2010 11:21:37 (0x4199_60831) >>");
-DECOMP_FORCE_ACTIVE(cnt_c, "/content%d");
-DECOMP_FORCE_ACTIVE(cnt_c, "Warning: CNTInitHandle(): directory '%s' is not found under '/'\n");
+void CNTInit(void) {
+    const char* __CNTVersion = "<< RVL_SDK - CNT \trelease build: Apr 20 2010 11:21:37 (0x4199_60831) >>";
+    OSRegisterVersion(__CNTVersion);
+}
+
+s32 CNTInitHandle(u32 contentId, CNTHandleDVD* cntHandle, MEMAllocator* allocator) {
+    char path[32];
+    s32 entryNum;
+
+    sprintf(path, "/content%d", contentId);
+    entryNum = DVDConvertPathToEntrynum(path);
+    if (entryNum < 0) {
+        OSReport("Warning: CNTInitHandle(): directory '%s' is not found under '/'\n", path);
+        return CNT_RESULT_INVALID;
+    }
+
+    cntHandle->index = contentId;
+    cntHandle->rootDir = entryNum;
+    cntHandle->currDir = entryNum;
+    return CNT_RESULT_OK;
+}
 
 typedef struct FSTEntry {
     u32 isDirAndStringOff;  // 0x00
