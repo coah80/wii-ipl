@@ -897,12 +897,15 @@ src/scene/setting/iplRakuRakuThread.cpp:
 	.sbss       start:0x81698C60 end:0x81698C70
 
 src/scene/setting/AOSS.c:
-	.bss        start:0x810BDEF8 end:0x810BECA0
+	.bss        start:0x810BDEF8 end:0x810BE838
 	.text       start:0x813FE27C end:0x814021BC
 	.data       start:0x81657C48 end:0x81657DB8
 	.sdata2     start:0x81694C78 end:0x81694C80
 	.sdata      start:0x81697200 end:0x81697218
 	.sbss       start:0x81698C70 end:0x81698C90
+
+src/scene/setting/AOSSData.c:
+	.bss        start:0x810BE838 end:0x810BECA0
 
 src/scene/setting/ATERM.c:
 	.bss        start:0x810BECA0 end:0x810C0C80

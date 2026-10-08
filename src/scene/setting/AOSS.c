@@ -167,11 +167,6 @@ typedef struct AOSSKeySchedule {
     u32 length;
 } AOSSKeySchedule;
 
-typedef struct AOSSKeyMaterial {
-    u8 nonce[2];
-    u8 address[8];
-} AOSSKeyMaterial;
-
 typedef struct AOSSReceiveBuffer {
     s32 socket;
     u32 length;
@@ -261,11 +256,6 @@ typedef struct AOSSConfigData {
 static AOSSRuntimeState s_runtime;
 static AOSSConfigData s_configData;
 static u8 s_networkBuffer[0x280];
-static struct {
-    AOSSKeyMaterial key;
-    u8 payload[0x5e];
-} s_packetState;
-static u32 s_crcTable[0x100];
 
 static s32 s_socket = -1;
 static char s_manufacturer[] = "MELCO";
@@ -2324,16 +2314,16 @@ int AOSSSendDiscoveryRequest(void* packet, AOSSRequestRecords* request, int sock
 }
 
 int AOSSSendHelloRequest(void* packet, void* request, int socket) {
-    AOSSHelloPacket* response = (AOSSHelloPacket*)s_responseBuffer;
     AOSSHelloPayload* payload;
-    AOSSRequestRecords* requestRecords = (AOSSRequestRecords*)request;
-    struct {
-        AOSSSocketAddress destination;
-        AOSSHelloRecord hello;
-        u8 accessPointName[8];
-        AOSSKeySchedule schedule;
-    } construction;
     u32 checksum;
+    AOSSRequestRecords* requestRecords = (AOSSRequestRecords*)request;
+    u8 accessPointName[8];
+    AOSSHelloRecord hello;
+    AOSSSocketAddress destination;
+    AOSSKeySchedule schedule;
+    int sequence;
+    u32 crc;
+    AOSSHelloPacket* response = (AOSSHelloPacket*)s_responseBuffer;
     u16 nonce;
     u32 stateLength;
     u32 index;
@@ -2341,72 +2331,68 @@ int AOSSSendHelloRequest(void* packet, void* request, int socket) {
     u32 firstByte;
     u32 secondIndex;
     u8* state;
+    u32 i;
+    const u8* input;
     u8 value;
     u8 swap;
     s16 responseLength;
     s16 sendLength;
-    int sequence;
     int encryptionResult;
 
     checksum = 0;
     sequence = 0;
-    memset(&construction.hello, 0, sizeof(construction.hello));
+    memset(&hello, 0, sizeof(hello));
     memset(response, 0, 0x5dc);
     payload = &response->payload;
-    construction.hello.data.fields.type = 2;
-    construction.hello.data.fields.reserved01 = 0;
-    construction.hello.data.fields.length = SOHtoNs(4);
-    construction.hello.data.fields.supportedModes = s_runtime.flags;
-    construction.hello.data.fields.supportedModes = SOHtoNl(construction.hello.data.fields.supportedModes);
+    hello.data.fields.type = 2;
+    hello.data.fields.reserved01 = 0;
+    hello.data.fields.length = SOHtoNs(4);
+    hello.data.fields.supportedModes = s_runtime.flags;
+    hello.data.fields.supportedModes = SOHtoNl(hello.data.fields.supportedModes);
     responseLength = 8;
 
     if ((s32)s_connectionState == 1) {
-        const u32* crcTable;
         sequence = 1;
-        checksum = 0xffffffff;
+        crc = 0xffffffff;
         AOSSInitCrc32Table(0, s_crcTable);
-        crcTable = s_crcTable;
-        {
-            u32 part;
-            for (part = 0; part < 4; part++) {
-                for (index = 0; index < 2; index++) {
-                    checksum = (checksum >> 8) ^ crcTable[(checksum ^ construction.hello.data.bytes[part * 2 + index]) & 0xff];
-                }
-            }
+        index = 0;
+        while (index < 8) {
+            crc = (crc >> 8) ^ s_crcTable[(crc ^ hello.data.bytes[index++]) & 0xff];
         }
-        checksum = (checksum ^ 0xffffffff) & 0xff;
+        checksum = (crc ^ 0xffffffff) & 0xff;
 
-        construction.schedule.bytes = (u8*)AOSSi_Alloc(8);
-        if (construction.schedule.bytes != 0) {
+        schedule.bytes = (u8*)AOSSi_Alloc(8);
+        if (schedule.bytes != 0) {
             nonce = (u16)rand();
             memcpy(&payload->encrypted.key.nonce, &nonce, 2);
             memcpy(s_packetState.key.nonce, payload->encrypted.key.nonceBytes, 2);
             memcpy(s_packetState.key.address, s_accessPointName, 8);
-            AOSSInitKeySchedule(&construction.schedule, (const u8*)&s_packetState.key, sizeof(s_packetState.key), 8);
-            for (index = 0; index < 8; index++) {
-                state = construction.schedule.bytes;
-                firstIndex = (construction.schedule.i + 1) % construction.schedule.length & 0xff;
+            AOSSInitKeySchedule(&schedule, (const u8*)&s_packetState.key, sizeof(s_packetState.key), 8);
+            input = hello.data.bytes;
+            for (i = 0; i < 8; i++) {
+                state = schedule.bytes;
+                firstIndex = (schedule.i + 1) % schedule.length & 0xff;
                 firstByte = state[firstIndex];
-                secondIndex = (firstByte + construction.schedule.j) % construction.schedule.length & 0xff;
+                secondIndex = (firstByte + schedule.j) % schedule.length & 0xff;
                 swap = state[secondIndex];
                 stateLength = firstByte + swap;
-                construction.schedule.i = firstIndex;
-                construction.schedule.j = secondIndex;
+                schedule.i = firstIndex;
+                schedule.j = secondIndex;
                 state[secondIndex] = (u8)firstByte;
                 state[firstIndex] = swap;
-                value = state[stateLength % construction.schedule.length] ^ construction.hello.data.bytes[index];
-                payload->bytes[index + 4] = value;
+                value = state[stateLength % schedule.length];
+                payload->bytes[i + 4] = value ^ *input++;
             }
-            AOSSi_Free(construction.schedule.bytes);
+            AOSSi_Free(schedule.bytes);
         }
         payload->encrypted.length = SOHtoNs(8);
         responseLength = 0x0c;
     } else {
-        memcpy(payload->bytes, &construction.hello, 8);
+        memcpy(payload->bytes, &hello, 8);
     }
 
-    memcpy(construction.accessPointName, &requestRecords->records[1], 8);
-    encryptionResult = AOSSXorBufferWithKey(construction.accessPointName, 8, s_manufacturer, 6);
+    memcpy(accessPointName, &requestRecords->records[1], 8);
+    encryptionResult = AOSSXorBufferWithKey(accessPointName, 8, s_manufacturer, 6);
     if (encryptionResult != 0) {
         s_errorCode = 2;
         return -1;
@@ -2421,17 +2407,17 @@ int AOSSSendHelloRequest(void* packet, void* request, int socket) {
     response->header.finalSequence = SOHtoNs(sequence);
     response->header.reserved = checksum;
     response->header.messageType = 0x11;
-    memcpy(response->header.messageIdentity, construction.accessPointName, 8);
+    memcpy(response->header.messageIdentity, accessPointName, 8);
     sendLength = (s16)(responseLength + 0x18);
-    memset(&construction.destination, 0, sizeof(construction.destination));
-    construction.destination.family = 2;
-    construction.destination.port = SOHtoNs(0x5790);
-    construction.destination.address = SOHtoNl(s_runtime.ipAddress);
+    memset(&destination, 0, sizeof(destination));
+    destination.family = 2;
+    destination.port = SOHtoNs(0x5790);
+    destination.address = SOHtoNl(s_runtime.ipAddress);
     if ((s8)s_runtime.active == 0) {
-        construction.destination.address = 0xffffffff;
+        destination.address = 0xffffffff;
     }
-    construction.destination.length = 8;
-    SOSendTo(socket, response, sendLength, 0, &construction.destination);
+    destination.length = 8;
+    SOSendTo(socket, response, sendLength, 0, &destination);
     return 0;
 }
 
