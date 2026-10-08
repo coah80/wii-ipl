@@ -2705,6 +2705,8 @@ namespace ipl {
             mUiStatus[2] = 0;
         }
 
+#pragma push
+#pragma ppc_iro_level 1
         void Setting::scanAP() {
             BOOL playing = FALSE;
             switch (mAPScanState) {
@@ -2753,9 +2755,8 @@ namespace ipl {
                     mpPaneManager->update();
                     break;
                 case 6: {
-                    int animationIndex = mAPAnimationIndex;
                     mInputDelayFrame = 1;
-                    playing |= mpMainLayout->getAnim(animationIndex)->isPlaying();
+                    playing |= mpMainLayout->getAnim(mAPAnimationIndex)->isPlaying();
                     if (!playing) {
                         mAPScanState = 5;
                         setAPDraw();
@@ -2780,9 +2781,8 @@ namespace ipl {
                     break;
                 }
                 case 7: {
-                    int animationIndex = mAPAnimationIndex;
                     mInputDelayFrame = 1;
-                    playing |= mpMainLayout->getAnim(animationIndex)->isPlaying();
+                    playing |= mpMainLayout->getAnim(mAPAnimationIndex)->isPlaying();
                     if (!playing) {
                         updateScroll();
                         mAPScanState = 6;
@@ -2806,6 +2806,7 @@ namespace ipl {
                     break;
             }
         }
+#pragma pop
 
         void Setting::initScroll() {
             if (mUiStatus[2] == 0) {

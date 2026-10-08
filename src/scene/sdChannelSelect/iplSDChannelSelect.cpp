@@ -212,6 +212,8 @@ namespace ipl {
             }
         }
 
+#pragma push
+#pragma ppc_iro_level 0
         void SDChannelSelect::create() {
             mpSDWorker = new (System::getMem2App(), 4) NandSDWorker();
             mpWorkerHeap = (EGG::Heap*)System::getMem2App()->alloc(0x3EA60, 0x40);
@@ -253,6 +255,7 @@ namespace ipl {
             utility::CSFlags::UpdateFlagsFile();
         }
 
+#pragma pop
         void SDChannelSelect::enqueueStartNotice() {
             SDChannelSelectCommand command;
             command.type = 1;
@@ -1647,6 +1650,8 @@ namespace ipl {
             }
         }
 
+#pragma push
+#pragma ppc_iro_level 0
         void SDChannelSelect::flushSaveDataAndMountSD() {
             if (System::getDialog()->getLastResult() != DialogWindow::RESULT_NONE) {
                 mpPointerLayout->getAnim(0)->initAnmFrame();
@@ -1658,6 +1663,7 @@ namespace ipl {
             }
         }
 
+#pragma pop
         void SDChannelSelect::handleThreePageDialog() {
             if (System::getDialog()->callBtn2Multi(sThreePageDialogPages, 3, 10)) {
                 mState = 27;
