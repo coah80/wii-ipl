@@ -1217,7 +1217,7 @@ config.libs = [
 
             Object(Matching, "texturecvtr/Texture_MCUtoY8U8V8.c"),
             Object(Matching, "texturecvtr/Texture_MCUtoRGB565.c"),
-            Object(NonMatching, "texturecvtr/Texture_MCUtoRGBA8.c"),
+            Object(Matching, "texturecvtr/Texture_MCUtoRGBA8.c"),
 
             Object(Matching,    "b65/iqdec_b65_frv32.c"),
         ]
