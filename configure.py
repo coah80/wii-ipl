@@ -854,7 +854,7 @@ config.libs = [
         ]
     ),
     IPLSection("sdChannelTitle", [
-            Object(NonMatching, "scene/sdChannelTitle/iplSDChannelTitle.cpp"),
+            Object(Matching,    "scene/sdChannelTitle/iplSDChannelTitle.cpp"),
         ]
     ),
     IPLSection("sdButton", [

@@ -5,9 +5,9 @@
 
 #define IPL_CHANNEL_TITLE_NOVTABLE
 #include "math/iplInterporation.h"
-#undef IPL_CHANNEL_TITLE_NOVTABLE
 
 #include "scene/sdChannelTitle/iplSDChannelTitle.h"
+#undef IPL_CHANNEL_TITLE_NOVTABLE
 #include "scene/sdChannelSelect/iplSDChannelSelect.h"
 #include "system/iplSystem.h"
 #include "sound/iplSound.h"
