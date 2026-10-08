@@ -998,12 +998,24 @@ namespace ipl {
             return ret;
         }
 
-        static inline void verifySavedataZD(EGG::Heap* heap, ESTitleId titleId, NANDFileInfo* fileInfo) {
-            char path[NAND_MAX_PATH];
+        static inline void verifySavedataZD(EGG::Heap* heap, ESTitleId requestedTitleId, NANDFileInfo* fileInfo) {
+            ESTitleId titleId;
+            u32 offset;
+            u32 j;
+            BOOL valid;
+            BOOL fileOpen;
+            u8* firstBlock;
+            u8* secondBlock;
+            BOOL deleteSaveData;
             s32 ret;
-            u8* saveData = NULL;
-            BOOL fileOpen = FALSE;
-            BOOL deleteSaveData = FALSE;
+            u8* saveData;
+            titleId = requestedTitleId;
+
+            char path[NAND_MAX_PATH];
+
+            saveData = NULL;
+            fileOpen = FALSE;
+            deleteSaveData = FALSE;
 
             sprintf(path, "/title/%08x/%08x/data/%s", (u32)((titleId & 0x00FFFFFFFFFFFFFFULL) >> 32), (u32)(titleId & 0x00FFFFFFFFFFFFFFULL), "zeldaTp.dat");
             if (!ESMisc::ChangeUid(titleId)) {
@@ -1030,17 +1042,17 @@ namespace ipl {
                             OSReport("%s::%s: File size is not correct: %d\n", __FILE__, __FUNCTION__, ret);
                             deleteSaveData = TRUE;
                         } else {
-                            u32 offset = 8;
-                            u32 j = 0;
-                            BOOL valid = FALSE;
+                            offset = 8;
+                            valid = FALSE;
+                            j = 0;
                             while (j < 3) {
-                                u8* block = saveData + offset;
-                                if (!checkForNullTermination((char*)block + 0x4e, 8) ||
-                                    !checkForNullTermination((char*)block + 0x58, 8) ||
-                                    !checkForNullTermination((char*)block + 0x72, 8) ||
-                                    !checkForNullTermination((char*)block + 0x8e, 8) ||
-                                    !checkForNullTermination((char*)block + 0x1b4, 0x11) ||
-                                    !checkForNullTermination((char*)block + 0x1c5, 0x11)) {
+                                firstBlock = saveData + offset;
+                                if (!checkForNullTermination((char*)firstBlock + 0x4e, 8) ||
+                                    !checkForNullTermination((char*)firstBlock + 0x58, 8) ||
+                                    !checkForNullTermination((char*)firstBlock + 0x72, 8) ||
+                                    !checkForNullTermination((char*)firstBlock + 0x8e, 8) ||
+                                    !checkForNullTermination((char*)firstBlock + 0x1b4, 0x11) ||
+                                    !checkForNullTermination((char*)firstBlock + 0x1c5, 0x11)) {
                                     goto verify_failed;
                                 }
                                 j++;
@@ -1050,13 +1062,13 @@ namespace ipl {
                             offset = 0x2008;
                             j = 0;
                             while (j < 3) {
-                                u8* block = saveData + offset;
-                                if (!checkForNullTermination((char*)block + 0x4e, 8) ||
-                                    !checkForNullTermination((char*)block + 0x58, 8) ||
-                                    !checkForNullTermination((char*)block + 0x72, 8) ||
-                                    !checkForNullTermination((char*)block + 0x8e, 8) ||
-                                    !checkForNullTermination((char*)block + 0x1b4, 0x11) ||
-                                    !checkForNullTermination((char*)block + 0x1c5, 0x11)) {
+                                secondBlock = saveData + offset;
+                                if (!checkForNullTermination((char*)secondBlock + 0x4e, 8) ||
+                                    !checkForNullTermination((char*)secondBlock + 0x58, 8) ||
+                                    !checkForNullTermination((char*)secondBlock + 0x72, 8) ||
+                                    !checkForNullTermination((char*)secondBlock + 0x8e, 8) ||
+                                    !checkForNullTermination((char*)secondBlock + 0x1b4, 0x11) ||
+                                    !checkForNullTermination((char*)secondBlock + 0x1c5, 0x11)) {
                                     goto verify_failed;
                                 }
                                 j++;
@@ -1093,8 +1105,11 @@ namespace ipl {
         }
 
         static inline s32 DeleteTicketsForce(EGG::Heap* heap, ESTitleId titleId, u8* ticketViews, u32* ticketViewCount) {
-            ESTicketView* ticketViewList = NULL;
             s32 ret;
+            u32 j;
+            ESTicketView* ticketViewList;
+            ticketViewList = NULL;
+
             memset(ticketViews, 0, OSRoundUp32B(sizeof(ESTicketView)));
             ret = ES_GetTicketViews(titleId, NULL, ticketViewCount);
             if (ret != ES_ERR_OK) {
@@ -1110,7 +1125,7 @@ namespace ipl {
                 OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret, titleId);
                 goto cleanup;
             }
-            for (u32 j = 0; j < *ticketViewCount; j++) {
+            for (j = 0; j < *ticketViewCount; j++) {
                 memcpy(ticketViews, &ticketViewList[j], sizeof(ESTicketView));
                 ret = ES_DeleteTicket((ESTicketView*)ticketViews);
                 if (ret != ES_ERR_OK) {
@@ -1126,12 +1141,16 @@ namespace ipl {
         }
 
         static inline s32 InitSavedata(EGG::Heap* heap) {
+            u32 i;
+            s32 ret;
+            ESTitleId* titleIds;
+            u8* ticketScratch;
             u8 ticketViews[OSRoundUp32B(sizeof(ESTicketView))] ALIGN32;
             NANDFileInfo fileInfo ALIGN32;
             u32 ticketViewCount;
-            ESTitleId* titleIds = NULL;
+            titleIds = NULL;
             u32 titleCount = 0;
-            s32 ret = ES_ListTitlesOnCard(NULL, &titleCount);
+            ret = ES_ListTitlesOnCard(NULL, &titleCount);
 
             if (ret != ES_ERR_OK) {
                 OSReport("%s::%s: Failed to ES_ListTitlesOnCard1: %d\n", __FILE__, __FUNCTION__, ret);
@@ -1151,8 +1170,8 @@ namespace ipl {
             }
 
             {
-                u8* ticketScratch = ticketViews;
-                for (u32 i = 0; i < titleCount; i++) {
+                ticketScratch = ticketViews;
+                for (i = 0; i < titleCount; i++) {
                     if ((titleIds[i] & 0xFFFFFFFFFFFFFF00ULL) == 0x00010000525A4400ULL) {
                         verifySavedataZD(heap, titleIds[i], &fileInfo);
                         continue;
@@ -1177,10 +1196,6 @@ namespace ipl {
             return ret;
         }
 
-        s32 ESMisc::DeleteUnauthorizedData(EGG::Heap* heap) {
-            return InitSavedata(heap);
-        }
-
         BOOL checkForNullTermination(char* str, u32 len) {
             for (u32 i = 0; i < len; i++) {
                 if (*str == 0) {
@@ -1189,6 +1204,10 @@ namespace ipl {
                 str++;
             }
             return FALSE;
+        }
+
+        s32 ESMisc::DeleteUnauthorizedData(EGG::Heap* heap) {
+            return InitSavedata(heap);
         }
 
         TMDFile::TMDFile(EGG::Heap* heap) : mpHeap(heap), mbFileOpen(FALSE), mFileLength(0) {
