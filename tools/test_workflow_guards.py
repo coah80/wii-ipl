@@ -182,12 +182,10 @@ class WorkflowGuardTests(unittest.TestCase):
         failures = check_report(report)
         self.assertFalse(any("enc_dummy section .sbss" in failure for failure in failures))
 
-    @unittest.skipUnless(
-        (Path(__file__).resolve().parents[1] / "build/43U/report.json").is_file(),
-        "generated 43U report is not available",
-    )
-    def test_complete_report_schema_passes(self):
+    def complete_report(self):
         report_path = Path(__file__).resolve().parents[1] / "build/43U/report.json"
+        if not report_path.is_file():
+            self.skipTest("generated 43U report is not available")
         report = copy.deepcopy(json.loads(report_path.read_text(encoding="utf-8")))
 
         def fill(measures):
@@ -230,7 +228,36 @@ class WorkflowGuardTests(unittest.TestCase):
                 function["fuzzy_match_percent"] = 100.0
         for category in report["categories"]:
             fill(category["measures"])
-        self.assertEqual(check_report(report), [])
+        return report
+
+    def test_complete_report_schema_passes(self):
+        self.assertEqual(check_report(self.complete_report()), [])
+
+    def test_missing_or_extra_unit_fails(self):
+        for total_units in (1027, 1029):
+            with self.subTest(total_units=total_units):
+                report = self.complete_report()
+                if total_units == 1027:
+                    report["units"].pop()
+                else:
+                    extra = copy.deepcopy(report["units"][-1])
+                    extra["name"] += "/extra"
+                    report["units"].append(extra)
+                failures = check_report(report)
+                self.assertIn(f"unit report length: {total_units}", failures)
+                self.assertIn(f"unit aggregate total_units: {total_units} != 1028", failures)
+
+    def test_wrong_unit_totals_fail(self):
+        for total_units in (1027, 1029):
+            with self.subTest(total_units=total_units):
+                report = self.complete_report()
+                delta = total_units - 1028
+                for field in ("total_units", "complete_units"):
+                    report["measures"][field] = total_units
+                    report["categories"][0]["measures"][field] += delta
+                failures = check_report(report)
+                self.assertIn(f"overall total_units: {total_units} != 1028", failures)
+                self.assertIn(f"category total_units: {total_units} != 1028", failures)
 
     @unittest.skipUnless(
         (Path(__file__).resolve().parents[1] / "build/43U/report.json").is_file(),
