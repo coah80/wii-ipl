@@ -28,3 +28,22 @@ r30/r31/r26) - allocator-internal, matches prior documentation.
 `add r0,r3,r29; add r31,r0,r30; add r3,r31,r28`) and callee-web pin rotation
 r29/r30/r31 + r24-r28. Rematerialization order of the *0x1fc0 / *6 / *0x15c
 products is allocator-internal - no source lever found in prior or this wave.
+
+## drawTransferTitles (w1011b) — ppc_iro_level 0 + discarded temp => 451/451
+`#pragma push` + `#pragma ppc_iro_level 0` around drawTransferTitles, with a
+bare discarded statement `nw4r::ut::Color(*reinterpret_cast<const Color*>(&gx));`
+before each setTitleRowColors call => insn-equal 451/451 (was 438/451).
+Mechanism: the discarded prvalue's construction is side-effectful enough to
+survive at IRO-0 (dies at default IRO — verified: removing pragma => 438/451).
+This IS the mechanism that kept orig's third copy: a discarded temp.
+Remaining 90 diffs = packing/coloring: frame 0x150 vs 0x140 (+0x10), my
+dead temps at 0x1c/0x10 vs orig 0xc/0x8 (orig's claim the two LOWEST slots —
+probably created earliest in the fn, not branch-local), arg addrs via mr from
+pinned regs vs orig's fresh `addi r4,r1,0x1c` (orig's temp addrs remat per-use),
+and reg-home permutation r17-r28 <-> r22-r31. Fn-top decls fix the frame to
+0x140 but turn copies into `bl` ctor calls (assignment not copy-init). Union
+overlay: rejected (Color non-trivial; GXColor union assign folds to lwz+stw).
+## _create_icon (w1011b) — pragma REJECTED
+ppc_iro_level 0 AND 1 both worsen 100v100 -> 124v100 (remat is desirable here —
+orig compiled at a level where remat happens). Committed form stands; the
+association+pin diff is allocator-internal, not an IRO artifact.

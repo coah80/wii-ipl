@@ -163,6 +163,8 @@ private:
 };
 }
 
+#pragma push
+#pragma ppc_iro_level 4
 void Decolated::inputChar(wchar_t ch) {
     if (ch != 0xfffe) {
         wchar_t input[8];
@@ -196,13 +198,14 @@ void Decolated::inputChar(wchar_t ch) {
 nonKana:
         if (mTranslateMode == 3) {
             u32 inputIndex = 0;
+            wchar_t* inputBuf = input;
             input[inputIndex] = 0;
             if (ch == 10) {
                 inputIndex = 0;
             }
             input[inputIndex] = ch;
             ++inputIndex;
-            input[inputIndex] = 0;
+            inputBuf[inputIndex] = 0;
             count = inputIndex;
             mKanaStream.mOutput[0] = 0;
         } else {
@@ -226,6 +229,7 @@ inputReady:
         mCursorEnd = mCursorStart;
     }
 }
+#pragma pop
 
 void Decolated::confirmKana() {
     inputChar(10);

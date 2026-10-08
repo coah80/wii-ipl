@@ -56,3 +56,18 @@ A compare-without-branch fossil is not producible by any tested source form on
 MWCC 3.0a5.2. Open question: whether orig's compare came from a non-if codegen
 path (peeled loop head, && short-circuit whose second test folds, or an
 MWCC-version difference).
+
+## inputChar (w1011b) — ppc_iro_level pragma + insn-equal 136/136
+`#pragma push` + `#pragma ppc_iro_level 4` around inputChar + `wchar_t* inputBuf
+= input` second-pointer for the last store + `if(ch==10) inputIndex=0` phi-arm
+=> insn-equal 136/136 (was 125/136). Orig's symbolic index IS a phi.
+Remaining 7 diffs: orig's `if(ch==10)` emits ONLY the cmplwi (no bne, no arm
+insns — a true compare fossil), orig's second-store base is `mr r4,r5` copy vs
+my addi rematerialization, plus r5<->r6 zero-web color and tail clrlwi position.
+Fossil-arm variants that ALL fail (arm must produce phi + zero insns): empty
+arm (folds everything), inputIndex=inputIndex (phi collapses), (ch==10)?0:i /
+?i:0 ternaries (diamond or full fold), input[0]=0 arm (emits sth),
+input[inputIndex]=0 arm (emits sthx), opt_dead_code/opt_dead_assignments/
+opt_common_subexpressions pragmas at IRO-0 (all still bne+li), iro 0-4.
+Compare-without-branch remains non-producible; likely needs the arm's value to
+materialize in the SAME register as the init (a CSE level mine never reaches).
