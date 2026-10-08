@@ -494,3 +494,35 @@ GATE PASS
 ## w1011/struct2 probes (drawCursor/calcCursorPos)
 - calcCursorPos (326 insns): already byte-identical modulo branch targets — report fuzzy 91.59 was reloc-scoring, no real residual.
 - drawCursor (70v70): eval-order tie. Base completes `opacity = f32(muGlobalAlpha)/255.0f` fsubs+fdivs BEFORE loading GXColor R/G/B bytes; mine hoists the lbz loads above the fdivs. Moving `GXColor color` decl later regressed 68v70 (splits the loads differently). Kept baseline form; documented sched-order tie.
+
+## struct2 wave 3 — extern "C" const architecture decoded
+
+MWCC const-fold vs SDA rule for `extern "C" const` objects:
+- Source ref folds to anonymous @NNNN pool object when the DEF (with init) is
+  VISIBLE at the use. Ref emits named SDA only when use sees extern decl and
+  def is later (defs at EOF + decls up top) => all value-uses named.
+- Generated conversion magics (u32/s32->f32/f64) dedup into same-valued named
+  objects INCONSISTENTLY (autoScroll signed conv deduped to
+  scInputFormF32ConvertMagic; init + drawCursor unsigned convs did NOT) —
+  appears tied to .sdata2 emission order (anon pools emit in fn order; defs
+  at EOF emit last). Unresolved: how orig got every generated magic named.
+- .sdata2 layout = emission order = DEF ORDER when defs precede fns.
+  Base order: ZeroF,640F,F32ConvertMagic(8B),OneF,HalfF,DegToFIdxF,150F,30F,
+  50F,10F,52F,TwoF,140F,90F,253F,20F,ColorR/G/B/A u8s,255F,127F,14592F,
+  [4B pad],F64ConvertMagic(8B),15F,[pad] — copied verbatim to EOF def block.
+- ALL inline float literals in the file's fn bodies were swapped to named
+  refs (150F/30F/50F/10F/52F/140F/90F/253F/20F/15F/640F/255F/127F/14592F/
+  DegToFIdxF/OneF/HalfF/TwoF/ZeroF + Color*u8). Mass .sdata2 184->124B.
+- Out-of-namespace uses (fns defined qualified-style at global scope) need
+  textinput::inputform:: qualification (~97 sites).
+- drawCursor: plain static_cast<f32>(u8/u32) emits the right
+  lis/lbz/stw/stw/lfd/fsubs seq; residual = magic operand @NNNN vs named +
+  eval-order (~11 diff lines). Union-pun form (u32[2]+f64, subtract named
+  magic) gives named operand but fsub+frsp instead of fsubs — WORSE.
+- autoScroll: orig used `* scInputFormHalfF` not `/ scInputFormTwoF`.
+- textdrawer::Base() header ctor literals (mfVIWidth 640 etc) — named-const
+  via header gate tried+reverted (orig likely defines ctor in cpp; also
+  regressed sdata2). ctor anon pair {0,640} + GetTextColor {ffffff00,0}
+  remain anonymous.
+- REMAINING: init @13881 (signed magic dedup didn't fire), ctor pair,
+  GetTextColor pair, drawCursor operand/scheduling, then 'create'.
