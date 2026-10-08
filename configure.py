@@ -729,7 +729,7 @@ config.libs = [
     IPLSection("address", [
             Object(Matching,    "scene/address/iplAddress.cpp"),
             Object(Matching,    "scene/address/iplAddressAddSel.cpp"),
-            Object(NonMatching, "scene/address/iplAddressEdit.cpp"),
+            Object(Matching,    "scene/address/iplAddressEdit.cpp"),
         ]
     ),
     IPLSection("backMenu", [

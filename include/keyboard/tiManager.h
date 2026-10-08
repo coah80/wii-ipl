@@ -129,7 +129,7 @@ namespace textinput {
 #ifdef TIHWKEYBOARD_IMPLEMENTATION
             EventObserver* getEventObserverForHardware() const { return mpEventObserver; }
 #endif
-#ifdef TISIGNWINDOW_IMPLEMENTATION
+#if defined(TISIGNWINDOW_IMPLEMENTATION) || defined(IPL_ADDRESS_EDIT_CPP)
             virtual InputForm*                          getInputForm();
 #else
             virtual InputForm*                          getInputForm()                          { return mpInputForm; }
