@@ -2,16 +2,13 @@
 #include <revolution/os/OSError.h>
 
 extern "C" char scCsFatalMsg[];
-extern "C" const u8 scCsFatalColorR;
-extern "C" const u8 scCsFatalColorG;
-extern "C" const u8 scCsFatalColorB;
-extern "C" const u8 scCsFatalColorA;
+extern "C" GXColor scCsFatalColor;
 
 #define NW4R_DB_ASSERT_H
 #define NW4R_ASSERT(x) \
     { \
         if (!(x)) { \
-            GXColor front = {scCsFatalColorR, scCsFatalColorG, scCsFatalColorB, scCsFatalColorA}; \
+            GXColor front = scCsFatalColor; \
             GXColor back = {0, 0, 0, 0}; \
             OSFatal(front, back, scCsFatalMsg); \
         } \
@@ -622,13 +619,7 @@ namespace ipl {
         namespace pane {
             extern "C" char scCsFatalMsg[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
 
-#pragma push
-#pragma section data_type ".sdata"
-            extern "C" __declspec(section ".sdata") const u8 scCsFatalColorR = 0xff;
-            extern "C" __declspec(section ".sdata") const u8 scCsFatalColorG = 0xff;
-            extern "C" __declspec(section ".sdata") const u8 scCsFatalColorB = 0xff;
-            extern "C" __declspec(section ".sdata") const u8 scCsFatalColorA = 0;
-#pragma pop
+            extern "C" GXColor scCsFatalColor = {0xff, 0xff, 0xff, 0};
         }
     }
 }
