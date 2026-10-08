@@ -15,3 +15,16 @@ Initial reconstruction uses the sibling tiString and tiUtil headers, real member
 
 ## character predicates
 The sibling util declarations return bool, while target callers normalize an integer result. Guarded u32 declarations preserve every other translation unit and make all three predicates 16/16 with zero differences.
+
+## inputChar (w1010 orchestrator probe) — indexed-store + dead-compare fossil
+Orig mode==3 block (this->0x24==3) emits: `sth r6,0x10` (input[0]=0, r6=0 reused as
+value), `cmplwi r4,0xa` (DEAD compare — no branch consumes it), then indexed stores
+`slwi r0,r6,1; sthx r4,buf,r0; addi r6,1; slwi r0,r6,1; clrlwi r29,r6,0x10; sthx r5,buf,r0`
+= input[i]=ch; i++; input[i]=0 with the index kept SYMBOLIC despite li i,0.
+Ours: direct-offset `sth r4,0x10; li r29,1; sth r5,0x12` (125 vs 136 insns).
+Tried: `input[i]=ch; i++; input[i]=0; count=i` — MWCC constant-folds i to 0,
+re-emits direct offsets. Index must be runtime-opaque in orig (loop bound from a
+call result, or a non-foldable form). Dead `cmplwi r4,0xa` matches the documented
+dead-compare-fossil family (both-branch merge). Also: count lands in r29 via
+clrlwi (u16) — count is i.
+Unresolved: what source produces symbolic-index stores + dead compare.
