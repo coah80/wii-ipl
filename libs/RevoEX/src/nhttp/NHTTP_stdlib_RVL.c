@@ -1,6 +1,8 @@
 #include <revolution/types.h>
 #include <string.h>
 
+#define NHTTPi_TOLOWER(c) ((((c) >= 'A') & ((c) <= 'Z')) ? (c) + ('a' - 'A') : (c))
+
 void* NHTTPi_memcpy(void* destination, const void* source, u32 size)
 {
     return memcpy(destination, source, size);
@@ -26,28 +28,33 @@ static int LowerCase(int character)
     return ((character >= 'A') & (character <= 'Z')) ? character + 32 : character;
 }
 
-s32 NHTTPi_strnicmp(const char* left, const char* right, s32 length)
+s32 NHTTPi_strnicmp(const char* left, const char* right, s32 size)
 {
-    while (length > 0)
+    char leftChar;
+    char rightChar;
+
+    while (size > 0)
     {
-        int a = *left++, b = *right++;
-        if (a == 0 || b == 0)
+        leftChar = *left++;
+        rightChar = *right++;
+
+        if (leftChar == '\0' || rightChar == '\0')
         {
-            if (a == 0 && b == 0)
+            if (leftChar == '\0' && rightChar == '\0')
             {
-                length = 0;
+                size = 0;
                 break;
             }
         }
-        b = LowerCase(b);
-        a = LowerCase(a);
-        if (a != b)
+
+        if (NHTTPi_TOLOWER(leftChar) != NHTTPi_TOLOWER(rightChar))
         {
             break;
         }
-        --length;
+        size--;
     }
-    return length;
+
+    return size;
 }
 
 static BOOL UrlPlain(int character)
@@ -237,18 +244,18 @@ s32 NHTTPi_intToStr(char* destination, u32 value)
     return length + 1;
 }
 
-s32 NHTTPi_compareToken(const char* left, const char* right)
+s32 NHTTPi_compareToken(const char* string, const char* token)
 {
-    u32 rawLeft;
-    while (LowerCase((s8)(rawLeft = *(const u8*)left)) == LowerCase((s8)*(const u8*)right))
+    while (NHTTPi_TOLOWER(*string) == NHTTPi_TOLOWER(*token))
     {
-        if ((s8)rawLeft == 0 || (s8)rawLeft == ' ')
+        if (*string == '\0' || *string == ' ')
         {
             return 0;
         }
-        ++left;
-        ++right;
+        string++;
+        token++;
     }
+
     return -1;
 }
 

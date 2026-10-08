@@ -3,6 +3,8 @@
 void* NHTTPi_memcpy(void*, const void*, u32);
 s32 NHTTPi_SocRecv(void*, NHTTPRequestInfo*, s32, void*, s32, s32);
 
+#define NHTTPi_TOLOWER(c) ((((c) >= 'A') & ((c) <= 'Z')) ? (c) + ('a' - 'A') : (c))
+
 static void FindHeaderBlock(const NHTTPResponseInfo* response, s32 position, NHTTPi_HDRBUFLIST** block, s32* offset) {
     if(position<NHTTP_HDRRECVBUF_INILEN) { *offset=position; *block=NULL; }
     else {
@@ -20,10 +22,6 @@ static int ReadHeaderChar(const NHTTPResponseInfo* response, NHTTPi_HDRBUFLIST**
         *offset=0;
     } else if(*offset==NHTTP_HDRRECVBUF_BLOCKLEN) { *offset=0; *block=(*block)->next_p; }
     return (*block)->block[(*offset)++];
-}
-
-static int LowerCase(int character) {
-    return ((character >= 'A') & (character <= 'Z')) ? character + ('a' - 'A') : character;
 }
 
 s32 NHTTPi_findNextLineHdrRecvBuf(const NHTTPResponseInfo* response, s32 position, s32 limit, s32* colon, s32* newlineLength) {
@@ -75,16 +73,48 @@ s32 NHTTPi_skipSpaceHdrRecvBuf(const NHTTPResponseInfo* response, s32 position, 
 s32 NHTTPi_compareTokenN_HdrRecvBuf(const NHTTPResponseInfo* response, s32 position, s32 limit, const char* token, s8 delimiter) {
     NHTTPi_HDRBUFLIST* block;
     s32 offset;
-    int character;
+    s32 i;
+    s32 tokenChar;
+    s32 character;
 
     if (position < limit) {
         FindHeaderBlock(response, position, &block, &offset);
-        character = ReadHeaderChar(response, &block, &offset);
-        while (LowerCase((s8)character) == LowerCase(*token)) {
-            if (*token == 0 || *token == ' ' || *token == delimiter || position == limit - 1) return 0;
-            character = ReadHeaderChar(response, &block, &offset);
-            ++position;
-            ++token;
+
+        if (block == NULL) {
+            if (offset < NHTTP_HDRRECVBUF_INILEN) {
+                character = (s8)response->hdrBufFirst[offset++];
+                goto compare_characters;
+            }
+            block = response->hdrBufBlock_p;
+            offset = 0;
+        } else if (offset == NHTTP_HDRRECVBUF_BLOCKLEN) {
+            offset = 0;
+            block = block->next_p;
+        }
+        character = block->block[offset++];
+
+    compare_characters:
+        i = position;
+        while (NHTTPi_TOLOWER((s8)character) == NHTTPi_TOLOWER((s8)*token)) {
+            tokenChar = (s8)*token;
+            if (tokenChar == '\0' || tokenChar == ' ' || tokenChar == delimiter || i == limit - 1) return 0;
+
+            if (block == NULL) {
+                if (offset < NHTTP_HDRRECVBUF_INILEN) {
+                    character = (s8)response->hdrBufFirst[offset++];
+                    goto advance_token;
+                }
+                block = response->hdrBufBlock_p;
+                offset = 0;
+            } else if (offset == NHTTP_HDRRECVBUF_BLOCKLEN) {
+                offset = 0;
+                block = block->next_p;
+            }
+            character = block->block[offset++];
+
+        advance_token:
+            i++;
+            token++;
         }
     }
     return -1;
