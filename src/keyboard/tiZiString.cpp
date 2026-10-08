@@ -295,13 +295,40 @@ confirmLetters:
     update();
 }
 
+static inline void CopyWordSuffix(u16* word, u32 length) {
+    u32 wordLength;
+    u32 copied;
+    wordLength = wcslen((wchar_t*)word) & 0xff;
+    for (copied = 0; copied < length; ++copied) {
+        word[copied] = word[(wordLength - length) + copied];
+    }
+    word[copied] = 0;
+}
+
 void WithZi::update() {
+    u16* koreanOutput;
+    u16* keyOutput;
+    wchar_t* candidateOutput;
+    u16* destination;
+    u32 copyLength;
+    u16 keyCharacter;
+    u16* wordOutput;
+    u16* letter;
+    u32 count;
+    s32 elementCount;
+    u16* source;
+    s32 keyIndex;
+    s32 position;
+    s32 candidateLength;
+    u16 character;
+    s32 index;
+
     if (mbDictionaryOpen == 0) {
         return;
     }
 
     mSelectedCandidate = 0;
-    s32 elementCount = static_cast<u16>(setElementBuffer());
+    elementCount = static_cast<u16>(setElementBuffer());
     mSearch.language = getPredictLanguage();
     mSearch.subLanguage = 7;
     mSearch.getMode = 0;
@@ -339,24 +366,23 @@ void WithZi::update() {
         CandidatedWord[0] = L'>';
         CandidatedWord[1] = 0;
         mCandidateCount = 1;
-        u16* output = CandidatedWord + 0x40;
-        for (s32 keyIndex = 1; keyIndex < 16; ++keyIndex) {
-            u16 candidate = static_cast<keyboard::cellphonetype::PaneNameToCharCode*>(mpHoldingKey)->wc[keyIndex - 1];
-            if (candidate != 0) {
-                output[0] = candidate;
-                output[1] = 0;
+        keyOutput = CandidatedWord;
+        for (keyIndex = 1; keyIndex < 16; ++keyIndex) {
+            keyCharacter = static_cast<keyboard::cellphonetype::PaneNameToCharCode*>(mpHoldingKey)->wc[keyIndex - 1];
+            if (keyCharacter != 0) {
+                keyOutput[keyIndex * 0x40] = keyCharacter;
+                keyOutput[keyIndex * 0x40 + 1] = 0;
                 ++mCandidateCount;
             }
-            output += 0x40;
         }
         EZTXGetCandidates(&mSearch, mpDictionaryWork);
     }
     else {
         memcpy(PredictionBuffer, CandidatesBuffer, 0x200);
         ChangeDictionaryLanguage(getPredictLanguage());
-        u32 count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
+        count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
         if (getPredictLanguage() == ZI8_LANG_ZH && count == 0x61) {
-            wchar_t* candidateOutput = reinterpret_cast<wchar_t*>(PredictionBuffer);
+            candidateOutput = reinterpret_cast<wchar_t*>(PredictionBuffer);
             mSearch.firstCandidate = 0x61;
             mSearch.candidates = candidateOutput + 0xC2;
             mSearch.maxCandidates = 199;
@@ -369,13 +395,8 @@ void WithZi::update() {
         }
         if (getPredictLanguage() == ZI8_LANG_ZH && mbContextChanged != 0 &&
             (mbContextChanged = 0, mSearch.count == 0)) {
-            u32 length = mCurrentWordLength;
-            u32 wordLength = wcslen((wchar_t*)LatestWord) & 0xff;
-            u32 copied;
-            for (copied = 0; copied < length; ++copied) {
-                LatestWord[copied] = LatestWord[(wordLength - length) + copied];
-            }
-            LatestWord[copied] = 0;
+            copyLength = mCurrentWordLength;
+            CopyWordSuffix(LatestWord, copyLength);
             mSearch.wordCharCount = wcslen((wchar_t*)LatestWord);
             count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
         }
@@ -392,28 +413,25 @@ void WithZi::update() {
         memset(CandidatedWord, 0, 0x1400);
         mCandidateCount = 0;
         if (elementCount != 0 || mSearch.wordCharCount != 0) {
-            u16* source = reinterpret_cast<u16*>(mSearch.candidates);
-            u16* destination = CandidatedWord;
-            for (s32 index = 0; index < static_cast<s32>(count); index++) {
+            source = reinterpret_cast<u16*>(mSearch.candidates);
+            destination = CandidatedWord;
+            for (index = 0; index < static_cast<s32>(count); index++) {
                 if (getPredictLanguage() == ZI8_LANG_ZH) {
-                    u16* output;
-                    s32 length;
-                    length = 0;
-                    output = destination;
+                    candidateLength = 0;
+                    wordOutput = destination;
                     for (; *source != L' ' && *source != 0; source++) {
-                        *output++ = *source;
-                        ++length;
+                        *wordOutput++ = *source;
+                        ++candidateLength;
                     }
                     ++source;
-                    destination[length] = 0;
+                    destination[candidateLength] = 0;
                 } else if (mPredictLanguage == PL_11) {
                     *destination = *source++;
                     destination[1] = 0;
                 } else if (getPredictLanguage() == ZI8_LANG_KO) {
-                    u16* output = destination;
-                    u16 character;
+                    koreanOutput = destination;
                     while ((character = *source) >= 0x100) {
-                        *output++ = character;
+                        *koreanOutput++ = character;
                         ++source;
                     }
                 } else if (EZTXCopy(reinterpret_cast<wchar_t*>(destination), &mSearch, index & 0xff, mpDictionaryWork) == 0) {
@@ -421,20 +439,18 @@ void WithZi::update() {
                 }
                 ++mCandidateCount;
                 {
-                    u16* candidate;
-                    s32 position;
                     position = 0;
-                    for (candidate = destination; *candidate != 0; ++candidate, ++position) {
+                    for (letter = destination; *letter != 0; ++letter, ++position) {
                         switch (mLetterMode) {
                         case LM_1:
-                            *candidate = util::toWLower(*candidate);
+                            *letter = util::toWLower(*letter);
                             break;
                         case LM_2:
-                            *candidate = util::toWUpper(*candidate);
+                            *letter = util::toWUpper(*letter);
                             break;
                         case LM_0:
-                            if (position == 0) *candidate = util::toWUpper(*candidate);
-                            else *candidate = util::toWLower(*candidate);
+                            if (position == 0) *letter = util::toWUpper(*letter);
+                            else *letter = util::toWLower(*letter);
                             break;
                         case LM_3:
                             break;

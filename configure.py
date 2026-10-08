@@ -678,7 +678,7 @@ config.libs = [
             Object(Matching,    "utility/iplThread.cpp"),
             Object(Matching,    "utility/iplMessageBase.cpp"),
             Object(Matching,    "utility/iplJpegDecoder.cpp"),
-            Object(NonMatching, "utility/iplESMisc.cpp"),
+            Object(Matching, "utility/iplESMisc.cpp"),
             Object(Matching,    "utility/iplCSFlags.cpp"),
         ]
     ),
@@ -917,7 +917,7 @@ config.libs = [
             Object(Matching, "keyboard/tiSignWindow.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiString.cpp", extra_cflags=["-O4,p"]),
             Object(NonMatching, "keyboard/tiAtokString.cpp", extra_cflags=["-O4,p"]),  # for 4.3J
-            Object(NonMatching, "keyboard/tiZiString.cpp", extra_cflags=["-O4,p"]),    # for 4.3U and 4.3E
+            Object(Matching, "keyboard/tiZiString.cpp", extra_cflags=["-O4,p"]),    # for 4.3U and 4.3E
             Object(Matching,    "keyboard/tiTextDrawer.cpp", extra_cflags=["-O4,p"]),
             Object(Matching,    "keyboard/tiNw4rManager.cpp", extra_cflags=["-O4,p"]),
             Object(Matching, "keyboard/tiKeyboard.cpp", extra_cflags=["-O4,p"]),
