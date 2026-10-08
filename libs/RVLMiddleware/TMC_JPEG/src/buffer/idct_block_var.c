@@ -10,10 +10,7 @@ static s32 clampU8(s32 value) {
     if (inRange) {
         return value;
     }
-    if (value < 0) {
-        return 0;
-    }
-    return 255;
+    return value < 0 ? 0 : 255;
 }
 
 static s32 clampS8(s32 value) {

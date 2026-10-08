@@ -644,3 +644,18 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## struct2 wave — idct_block_var (buffer/)
+
+- IRO probe (directive): ppc_iro_level 0/1/2 all REGRESS Lumi (IRO-0 emits
+  branchy clamp tails — +29 insns 286v257). Reverted. This fn needs the
+  DEFAULT level: its residual was fold-canonicalization, not over-folding.
+- clampU8 tail: `if (v<0) return 0; return 255;` (2 stmts) emits branchy
+  cmpwi/bge/li/b/li; single `return v<0?0:255;` emits base's mask fold
+  (srawi .1f + andc 0xff). Single-ternary decode: Lumi 258->257 (exact),
+  _Col 455->454 (exact). Both insn counts now match.
+- Residual: or-chain operand order `or ACC,ACC,NEW` vs base `or ACC,NEW,ACC`
+  — coalescer canonicalizes operand order regardless of source order
+  (reversed `x | acBits` tried, unchanged) — allocator-side coalescing
+  choice, not source-reachable (same wall as texturecvtr or-chains).
+  Remaining diffs are pure reg-renaming in the IDCT butterfly.
