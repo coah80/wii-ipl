@@ -700,7 +700,7 @@ config.libs = [
             Object(Matching,    "iplwww/www_print.cpp"),
             Object(Matching,    "iplwww/www_window.cpp"),
             Object(Matching,    "iplwww/www_trasition.cpp"),
-            Object(Equivalent,  "iplwww/www_wiisetting.cpp"),
+            Object(Matching,    "iplwww/www_wiisetting.cpp"),
             Object(Matching,    "iplwww/www_arcreader.cpp"),
         ]
     ),
