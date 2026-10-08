@@ -62,7 +62,6 @@ namespace textinput {
 
         struct CandidatePaneData {
             PaneToAnimation panes[26];
-            char tail[12];
         };
 
         extern "C" const CandidatePaneData scCandidatePaneData __attribute__((aligned(8))) = {{
@@ -196,22 +195,7 @@ namespace textinput {
              6,
              NULL,
              {&csAninationFile[0], &csAninationFile[8], &csAninationFile[9], &csAninationFile[10], &csAninationFile[11], &csAninationFile[12]}},
-        }, {"P_OffBtn"}};
-
-        extern "C" char scPaneNameTable[132] =
-            "B_OffBtn\0\0\0\0"
-            "P_JPOffBtn\0\0"
-            "P_CNOffBtn\0\0"
-            "P_CNOnBtn\0\0\0"
-            "B_prdc_scrl_Left\0\0\0\0"
-            "P_prdc_scrl_Left\0\0\0\0"
-            "B_prdc_scrl_Rght\0\0\0\0"
-            "P_prdc_scrl_Rght\0\0\0\0"
-            "\0\0\0";
-        extern "C" char scW_predictWindow[16] = "W_predictWindow";
-        extern "C" char scN_predictInput[15] = "N_predictInput";
-        extern "C" char scW_OnOff_Area[13] = "W_OnOff_Area";
-        extern "C" char scN_prdc_Texts[13] = "N_prdc_Texts";
+        }};
 
         void CandidateBoxCaller::Candidates::addCandidate(const wchar_t* wcString) {
             wcsncpy(szwcPredicted[mNumCandidate], wcString, ARRAY_LENGTH(szwcPredicted[0]));
@@ -383,27 +367,20 @@ namespace textinput {
             mTextArea.Init();
             mOnOffButton.Create(this);
             mOnOffButton.Init();
-            const char* paneNames = scPaneNameTable;
-            const char* leftScrollBoundName = paneNames + 48;
-            const char* leftScrollPaneName = paneNames + 68;
-            mLeftScroll.Create(this, leftScrollPaneName, leftScrollBoundName);
-            const char* rightScrollBoundName = paneNames + 88;
-            const char* rightScrollPaneName = paneNames + 108;
-            mRightScroll.Create(this, rightScrollPaneName, rightScrollBoundName);
+            mLeftScroll.Create(this, "P_prdc_scrl_Left", "B_prdc_scrl_Left");
+            mRightScroll.Create(this, "P_prdc_scrl_Rght", "B_prdc_scrl_Rght");
             mLeftScroll.Init();
             mRightScroll.Init();
-            const char* windowName = scW_predictWindow;
-            mTextWindow.Create(this, windowName);
+            mTextWindow.Create(this, "W_predictWindow");
             init();
         }
 
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
-            CandidateTextAnmPane* pane;
-            u16 j;
+            const char* forceAddName;
             u16 i;
             for (i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
-                pane = NULL;
                 const PaneToAnimation& p = scCandidatePaneData.panes[i];
+                CandidateTextAnmPane* pane = NULL;
                 switch (p.type) {
                     case KT_ScrollButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(CandidateScrollAnmPane));
@@ -430,9 +407,8 @@ namespace textinput {
 
                 nw4r::ut::List_Append(&mAnmPanes, pane);
 
-                const char* forceAddName = p.forceAddName;
-                u32 animationCount = p.count;
-                for (j = 0; j < animationCount; j++) {
+                forceAddName = p.forceAddName;
+                for (u16 j = 0; j < p.count; j++) {
                     const AnimationFile* const& animation = p.pAnims[j];
                     void* pResource = mpMultiArcResourceAccessor->GetResource(0, animation->fileName);
                     AnimTransformPane* transform =
@@ -448,7 +424,7 @@ namespace textinput {
         }
 
         void LayoutByNW4R::init() {
-            searchAnmPane(scN_predictInput)->changeAnimation(ANM_Normal);
+            searchAnmPane("N_predictInput")->changeAnimation(ANM_Normal);
             Base::setInvalid(false);
             setActive(true);
             setOnOff(false);
@@ -461,7 +437,7 @@ namespace textinput {
             mpLayout->CalculateMtx(mDrawInfo);
             if (meLanguage == KR) {
                 mTextWindow.SetVisible(false);
-                getPane(scW_OnOff_Area)->SetVisible(false);
+                getPane("W_OnOff_Area")->SetVisible(false);
             } else if (meLanguage == CN) {
                 setOnOff(true);
                 mTextWindow.SetVisible(true);
@@ -471,16 +447,16 @@ namespace textinput {
                 } else {
                     mTextWindow.ChangeAnimation(ANM_Normal);
                 }
-                getPane(scW_OnOff_Area)->SetVisible(false);
+                getPane("W_OnOff_Area")->SetVisible(false);
             } else {
-                getPane(scW_OnOff_Area)->SetVisible(true);
+                getPane("W_OnOff_Area")->SetVisible(true);
             }
         }
 
         void LayoutByNW4R::draw() {
-            getPane(scN_prdc_Texts)->SetVisible(false);
+            getPane("N_prdc_Texts")->SetVisible(false);
             nw4rmanager::Layout::draw();
-            getPane(scN_prdc_Texts)->SetVisible(true);
+            getPane("N_prdc_Texts")->SetVisible(true);
             if (!isInvalid()) {
                 mTextArea.Draw(mDrawInfo);
             }
@@ -490,8 +466,8 @@ namespace textinput {
             nw4rmanager::Layout::calc();
             mTextArea.Calc();
             if (mbAnimOn) {
-                getPane(scN_prdc_Texts)->Animate(0);
-                getPane(scN_prdc_Texts)->CalculateMtx(mDrawInfo);
+                getPane("N_prdc_Texts")->Animate(0);
+                getPane("N_prdc_Texts")->CalculateMtx(mDrawInfo);
             }
         }
 
@@ -499,7 +475,7 @@ namespace textinput {
             Base::setLanguage(language);
             init();
             // Maybe inlines, maybe not
-            nw4r::math::VEC3 pos = searchAnmPane(scW_predictWindow)->getPane()->GetTranslate();
+            nw4r::math::VEC3 pos = searchAnmPane("W_predictWindow")->getPane()->GetTranslate();
             if (meLanguage == CN || meLanguage == KR) {
                 Base::checkValidation();
                 // Potentially an inline
@@ -514,7 +490,7 @@ namespace textinput {
                 pos.x = 202.0f;
             }
 
-            searchAnmPane(scW_predictWindow)->getPane()->SetTranslate(pos);
+            searchAnmPane("W_predictWindow")->getPane()->SetTranslate(pos);
             if (meLanguage == CN) {
                 mTextArea.ApplyFontScale(1.2f);
             } else if (meLanguage == KR) {
@@ -631,7 +607,7 @@ namespace textinput {
                     current = reinterpret_cast<CandidateBoxCaller::Candidates*>(reinterpret_cast<u8*>(current) + sizeof(current->szwcPredicted[0]));
                 }
             }
-            gui::PaneComponent* p = mpPaneManager->searchPaneComponent(isOn() ? scB_OnBtn : scPaneNameTable);
+            gui::PaneComponent* p = mpPaneManager->searchPaneComponent(isOn() ? scB_OnBtn : "B_OffBtn");
             if (p != NULL) {
                 p->lockInitialize(true);
             }
@@ -1009,7 +985,7 @@ namespace textinput {
                 mpBoundingPane[i]->setListener(this);
             }
             mpTextAreaPane = mgr->searchPaneComponent("N_prdcTextArea");
-            mpTextsPane = mgr->searchPaneComponent(scN_prdc_Texts);
+            mpTextsPane = mgr->searchPaneComponent("N_prdc_Texts");
             mSize = mpTextBoxPane[0]->getTextPane()->GetFontSize();
             mpTextAreaPane->setListener(this);
         }
@@ -1494,7 +1470,7 @@ namespace textinput {
             if (mgr()->isInScroll() && event != gui::EventHandler::ON_LEFT && event != gui::EventHandler::ON_POINT) {
                 return;
             }
-            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == gui::EventHandler::ON_LEFT) {
+            if (!mgr()->searchAnmPane("W_predictWindow")->isInAnimation() || event == gui::EventHandler::ON_LEFT) {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
                         case gui::EventHandler::ON_TRIG:
@@ -1645,7 +1621,7 @@ namespace textinput {
             if (mgr()->isInScroll() && event != gui::EventHandler::ON_LEFT && event != gui::EventHandler::ON_POINT) {
                 return;
             }
-            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == gui::EventHandler::ON_LEFT) {
+            if (!mgr()->searchAnmPane("W_predictWindow")->isInAnimation() || event == gui::EventHandler::ON_LEFT) {
                 if (!mgr()->isInvalid()) {
                     switch (event) {
                         case gui::EventHandler::ON_TRIG:
@@ -1691,15 +1667,15 @@ namespace textinput {
             mpOnPictPane = mgr->searchPaneComponent(scP_OnBtn);
             mpOnBoundPane = mgr->searchPaneComponent(scB_OnBtn);
             mpOnAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane(scP_OnBtn));
-            mpOffPictPane = mgr->searchPaneComponent(scCandidatePaneData.tail);
-            mpOffBoundPane = mgr->searchPaneComponent(scPaneNameTable);
-            mpOffAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane(scCandidatePaneData.tail));
+            mpOffPictPane = mgr->searchPaneComponent("P_OffBtn");
+            mpOffBoundPane = mgr->searchPaneComponent("B_OffBtn");
+            mpOffAnmPane = static_cast<OnOffAnmPane*>(layout->searchAnmPane("P_OffBtn"));
 
-            layout->getLayout()->GetRootPane()->FindPaneByName(scCandidatePaneData.tail)->GetMaterial()->GetTexture(&mOffTexDefault, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName(scPaneNameTable + 12)->GetMaterial()->GetTexture(&mOffTexJP, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName(scPaneNameTable + 24)->GetMaterial()->GetTexture(&mOffTexCN, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName("P_OffBtn")->GetMaterial()->GetTexture(&mOffTexDefault, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName("P_JPOffBtn")->GetMaterial()->GetTexture(&mOffTexJP, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName("P_CNOffBtn")->GetMaterial()->GetTexture(&mOffTexCN, 0);
             layout->getLayout()->GetRootPane()->FindPaneByName(scP_OnBtn)->GetMaterial()->GetTexture(&mOnTexDefault, 0);
-            layout->getLayout()->GetRootPane()->FindPaneByName(scPaneNameTable + 36)->GetMaterial()->GetTexture(&mOnTexCN, 0);
+            layout->getLayout()->GetRootPane()->FindPaneByName("P_CNOnBtn")->GetMaterial()->GetTexture(&mOnTexCN, 0);
 
             mpOffBoundPane->setListener(this);
             mpOnBoundPane->setListener(this);
@@ -1755,7 +1731,7 @@ namespace textinput {
             if (mgr()->isInScroll() && event != gui::EventHandler::ON_LEFT && event != gui::EventHandler::ON_POINT) {
                 return;
             }
-            if (!mgr()->searchAnmPane(scW_predictWindow)->isInAnimation() || event == gui::EventHandler::ON_LEFT) {
+            if (!mgr()->searchAnmPane("W_predictWindow")->isInAnimation() || event == gui::EventHandler::ON_LEFT) {
                 OnOffAnmPane* p;
                 if (&component == mpOnBoundPane) {
                     p = mpOnAnmPane;
