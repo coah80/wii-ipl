@@ -379,7 +379,25 @@ void ipl::scene::AddressEdit::prepare() {
         getSceneHeap(), "balloon.ash", false);
 }
 
+inline void ipl::scene::AddressEdit::set_textbox(nw4r::lyt::Pane* pane, u32 msgId) {
+    set_textbox(pane, ipl::System::getMessage(msgId));
+}
+
+static inline f32 getBalloonMargin4x3() {
+    f32 margin = 30.0f;
+    return margin;
+}
+
+static inline f32 getBalloonMargin16x9() {
+    f32 margin = 120.0f;
+    return margin;
+}
+
+#pragma push
+#pragma ppc_iro_level 1
 void ipl::scene::AddressEdit::create() {
+    nw4r::lyt::Pane* textPane;
+    const wchar_t* friendText;
 
     ipl::nand::LayoutFile* boardFile =
         static_cast<ipl::scene::Board*>(ipl::System::getScene(ipl::SCENE_BOARD))->getLayoutFile();
@@ -433,17 +451,13 @@ void ipl::scene::AddressEdit::create() {
     mpEditEvent = editEvent;
     mpEditGui = editManager;
 
-    nw4r::lyt::Pane* textPane = bLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_crd_btn_00", true);
-    set_textbox(textPane, ipl::System::getMessage(0x2a));
-    textPane = (mpCodeLayout)
-        ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_crd_btn_10", true);
-    set_textbox(textPane, ipl::System::getMessage(0x2b));
-    textPane = (mpCodeLayout)
-        ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_crd_btn_11", true);
-    set_textbox(textPane, ipl::System::getMessage(0x2f));
-    textPane = (mpCodeLayout)
-        ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_crd_btn_gry", true);
-    set_textbox(textPane, ipl::System::getMessage(0x2a));
+    set_textbox(bLayout->getNW4RLyt()->GetRootPane()->FindPaneByName("T_crd_btn_00", true), 0x2a);
+    set_textbox((mpCodeLayout)
+        ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_crd_btn_10", true), 0x2b);
+    set_textbox((mpCodeLayout)
+        ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_crd_btn_11", true), 0x2f);
+    set_textbox((mpCodeLayout)
+        ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_crd_btn_gry", true), 0x2a);
     textPane = (mpCodeLayout)
         ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_card_msg_00", true);
     set_textbox(textPane, L"");
@@ -497,9 +511,7 @@ void ipl::scene::AddressEdit::create() {
     ipl::scene::Address* address = static_cast<ipl::scene::Address*>(addressScene);
     mpFriendCache = address->getFriendCache();
 
-    s32 mode = mMode;
-    ipl::layout::Animator* animator;
-    switch (mode) {
+    switch (mMode) {
     case 0: {
         mSelectedFriend = address->getChosenFriendIndex();
         get_friendinfo();
@@ -511,59 +523,41 @@ void ipl::scene::AddressEdit::create() {
             (mpCodeLayout)->getAnim(0x10)->initAnmFrame();
             (mpCodeLayout)->getAnim(0x1b)->initAnmFrame();
         }
-        animator = (mpCodeLayout)->getAnim(0);
-        animator->initFrame();
-        const wchar_t* friendText = mString.mName;
-        animator->restart();
+        (mpCodeLayout)->getAnim(0)->play();
+        friendText = mString.mName;
         textPane = (mpCodeLayout)
             ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_name_00", true);
         set_textbox(textPane, friendText);
+        friendText = mString.mDisplayText;
         textPane = (mpCodeLayout)
             ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_frnd_crd_00", true);
-        friendText = mString.mDisplayText;
         set_textbox(textPane, friendText);
         mState = 0;
             break;
     }
     case 1: {
-        animator = (mpNameLayout)->getAnim(0);
-        animator->initFrame();
-        animator->restart();
-        animator = (mpNameLayout)->getAnim(1);
-        animator->initFrame();
-        animator->restart();
-        animator = (mpNameLayout)->getAnim(3);
-        animator->initFrame();
-        animator->restart();
+        (mpNameLayout)->getAnim(0)->play();
+        (mpNameLayout)->getAnim(1)->play();
+        (mpNameLayout)->getAnim(3)->play();
         (mpCodeLayout)->getAnim(0x1a)->initAnmFrame();
         (mpCodeLayout)->getAnim(0x10)->initAnmFrame();
-        textPane = (mpNameLayout)
-            ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_question_00", true);
-        set_textbox(textPane, ipl::System::getMessage(0x31));
-        textPane = (mpNameLayout)
-            ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_msg_00", true);
-        set_textbox(textPane, ipl::System::getMessage(0x47));
+        set_textbox((mpNameLayout)
+            ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_question_00", true), 0x31);
+        set_textbox((mpNameLayout)
+            ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_msg_00", true), 0x47);
         mState = 0x10;
             break;
     }
     case 2: {
-        animator = (mpNameLayout)->getAnim(0);
-        animator->initFrame();
-        animator->restart();
-        animator = (mpNameLayout)->getAnim(1);
-        animator->initFrame();
-        animator->restart();
-        animator = (mpNameLayout)->getAnim(3);
-        animator->initFrame();
-        animator->restart();
+        (mpNameLayout)->getAnim(0)->play();
+        (mpNameLayout)->getAnim(1)->play();
+        (mpNameLayout)->getAnim(3)->play();
         (mpCodeLayout)->getAnim(0x1a)->initAnmFrame();
         (mpCodeLayout)->getAnim(0x10)->initAnmFrame();
-        textPane = (mpNameLayout)
-            ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_question_00", true);
-        set_textbox(textPane, ipl::System::getMessage(0x3f));
-        textPane = (mpNameLayout)
-            ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_msg_00", true);
-        set_textbox(textPane, ipl::System::getMessage(0x48));
+        set_textbox((mpNameLayout)
+            ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_question_00", true), 0x3f);
+        set_textbox((mpNameLayout)
+            ->getNW4RLyt()->GetRootPane()->FindPaneByName("T_msg_00", true), 0x48);
         mState = 0x10;
             break;
     }
@@ -583,11 +577,10 @@ create_mode_done:
 
     ipl::System::getKeyboard()->init();
 
-    f32 margin4x3 = 30.0f;
-    f32 margin16x9 = 120.0f;
     mpBalloon = new ipl::scene::TextBalloon(getHeap(), mpBalloonFile, "arc",
-        "my_IplTopBalloon_a.brlyt", ipl::math::VEC3(0.0f, 0.0f, 0.0f), margin16x9, margin4x3);
+        "my_IplTopBalloon_a.brlyt", ipl::math::VEC3(0.0f, 0.0f, 0.0f), getBalloonMargin16x9(), getBalloonMargin4x3());
 }
+#pragma pop
 
 void ipl::scene::AddressEdit::stt_wait_decide_anm() {
     nw4r::lyt::Pane* textPane;

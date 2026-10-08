@@ -50,6 +50,7 @@ namespace ipl {
             void add_friendinfo();
             void delete_friendinfo();
             void set_textbox(nw4r::lyt::Pane*, const wchar_t*);
+            void set_textbox(nw4r::lyt::Pane* pane, u32 msgId);
             void setDefaultTitleText(const wchar_t*, bool);
             static void wiiid_utf16(u64, wchar_t*);
             static void nigaoe_create_callback_add(ipl::nigaoe::Object*, void*);
