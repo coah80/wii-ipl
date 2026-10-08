@@ -554,26 +554,24 @@ static void kbdSendKey(KBDKeyEventData* event) {
     }
 }
 
+#pragma push
+#pragma ppc_iro_level 0
 static void kbd_led_handler(BOOL success, void* callbackArg) {
-    const KBDLEDCallbackData* callback;
-    s32 index;
-    u32 err;
-    index = (s32)callbackArg;
-    callback = &kbdLCBuf[index];
+    u32 index;
+    USBKBDErr err;
+    index = (u32)callbackArg;
     kbdCmdBuf[index].device = 0;
-    if (callback->callbackAddress == (USBKBDCmdLEDCallback)(u32)kbdCmdBuf[(u32)callbackArg].device) {
+    if (kbdLCBuf[index].callbackAddress == NULL) {
         return;
     }
-    switch (success) {
-    default:
-        err = 7;
-        break;
-    case TRUE:
+    if (success == TRUE) {
         err = 0;
-        break;
+    } else {
+        err = 7;
     }
-    kbdLCBuf[(u32)callbackArg].callbackAddress(err, kbdLCBuf[(u32)callbackArg].callbackArg);
+    kbdLCBuf[index].callbackAddress(err, kbdLCBuf[index].callbackArg);
 }
+#pragma pop
 
 USBKBDErr KBDSetLedsAsync(u32 channel, u32 leds, USBKBDCmdLEDCallback callback, void* callbackArg) {
     u8 ledBits;
