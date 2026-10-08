@@ -1854,7 +1854,7 @@ config.libs = [
             Object(Matching,    "fa/kernel/pfk_api.c"),
 
             Object(Matching,    "fa/driver/nand_drv.c"),
-            Object(NonMatching, "fa/driver/sd_drv.c"),
+            Object(Matching,    "fa/driver/sd_drv.c"),
             Object(Matching,    "fa/driver/pfd_cmn.c"),
             Object(Matching,    "fa/driver/msc_drv.c"),
 

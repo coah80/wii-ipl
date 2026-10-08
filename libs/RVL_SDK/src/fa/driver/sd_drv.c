@@ -29,13 +29,13 @@ typedef struct PFD_SDDRV_FORMAT_DATA {
     u32 total_sectors;
 } PFD_SDDRV_FORMAT_DATA;
 
-PFD_SDDRV_INFO g_pfd_sddrv_info;
-PFD_SDDEV_STORAGE g_pfd_sddev;
+volatile PFD_SDDRV_INFO g_pfd_sddrv_info;
+PFD_SDDEV_STORAGE g_pfd_sddev ATTRIBUTE_ALIGN(32);
 u8 g_pfd_sddrv_buf[0x200];
 
 static FAInsertCallback g_attach_func = 0;
 static FAEjectCallback g_detach_func = 0;
-u32 g_event;
+u32 g_event ATTRIBUTE_ALIGN(32);
 
 extern u8 pfd_get_media_drv_char(FADisk*, s8*, u32);
 extern void pdm_disk_notify_media_insert(FADisk*);
@@ -243,39 +243,23 @@ static inline void clear_mount_flag(void) {
     g_pfd_sddrv_info.flags &= ~2;
 }
 
-static inline u32 pfd_sddrv_flags(const PFD_SDDRV_INFO* info) {
-    return info->flags;
-}
-
-static inline SDDev* pfd_sddrv_device(const PFD_SDDRV_INFO* info) {
-    return info->device;
-}
-
-static inline FADisk* pfd_sddrv_disk(const PFD_SDDRV_INFO* info) {
-    return info->disk;
-}
-
-static inline s8 pfd_sddrv_drive(const PFD_SDDRV_INFO* info) {
-    return info->drive;
-}
-
 s32 pfd_st_inter_callback(s32 status, void* data) {
     s32 result;
 
     if ((status & 1) != 1) {
         return 0;
     }
-    if (pfd_sddrv_device(&g_pfd_sddrv_info) != 0) {
+    if (g_pfd_sddrv_info.device != 0) {
         g_event = 2;
         result = ISD_RegisterDeviceIntrHandler(g_pfd_sddrv_info.device, (SDDevIntrCallback)pfd_st_removal_callback, &g_event);
         if (result != 0) {
             OSReport("ERR:Failed to regist intr handler. pfd_st_inter_callback()\n");
         }
     }
-    if (pfd_sddrv_disk(&g_pfd_sddrv_info) != 0) {
+    if (g_pfd_sddrv_info.disk != 0) {
         update_media_drive();
         pdm_disk_notify_media_insert(g_pfd_sddrv_info.disk);
-        if (pfd_sddrv_drive(&g_pfd_sddrv_info) != 0 && g_attach_func != 0) {
+        if (g_pfd_sddrv_info.drive != 0 && g_attach_func != 0) {
             g_attach_func(g_pfd_sddrv_info.drive);
         }
     }
@@ -291,36 +275,39 @@ s32 pfd_st_removal_callback(s32 status, void* data) {
         return 0;
     }
     g_pfd_sddrv_info.media_inserted = 0;
-    if (g_pfd_sddrv_info.media_inserted == 0 && pfd_sddrv_device(&g_pfd_sddrv_info) != 0) {
+    if (g_pfd_sddrv_info.device != 0) {
         g_event = 1;
         result = ISD_RegisterDeviceIntrHandler(g_pfd_sddrv_info.device, (SDDevIntrCallback)pfd_st_inter_callback, &g_event);
         if (result != 0) {
             OSReport("ERR:Failed to regist intr handler. pfd_st_removal_callback()\n");
         }
     }
-    if (pfd_sddrv_disk(&g_pfd_sddrv_info) != 0) {
+    if (g_pfd_sddrv_info.disk != 0) {
         update_media_drive();
         pdm_disk_notify_media_eject(g_pfd_sddrv_info.disk);
-        if (pfd_sddrv_drive(&g_pfd_sddrv_info) != 0 && g_detach_func != 0) {
+        if (g_pfd_sddrv_info.drive != 0 && g_detach_func != 0) {
             g_detach_func(g_pfd_sddrv_info.drive);
         }
     }
     return 0;
 }
 
+#pragma push
+#pragma ppc_iro_level 0
 s32 pfd_sddrv_init(FADisk* disk) {
     s32 sd_result;
     SDDev* device;
     u32 status;
 
-    if (disk == 0) {
+    if (disk == NULL) {
         return -30;
     }
-    if ((pfd_sddrv_flags(&g_pfd_sddrv_info) & 1) != 0) {
+    if ((g_pfd_sddrv_info.flags & 1) != 0) {
         OSReport("INFO SD Card driver is already initialize. pfd_sddrv_init()\n");
         if (disk != g_pfd_sddrv_info.disk) {
             return -44;
         }
+        return 0;
     } else {
         if ((g_pfd_sddrv_info.flags & 4) == 0) {
             g_pfd_sddrv_info.bytes_per_sector = 0x200;
@@ -372,6 +359,7 @@ s32 pfd_sddrv_init(FADisk* disk) {
     }
     return 0;
 }
+#pragma pop
 
 s32 pfd_sddrv_mount(FADisk* disk) {
     s32 result;
@@ -473,7 +461,7 @@ s32 pfd_sddrv_unmount(FADisk* disk) {
     if (disk == 0) {
         return -30;
     }
-    if ((pfd_sddrv_flags(&g_pfd_sddrv_info) & 2) != 0) {
+    if ((g_pfd_sddrv_info.flags & 2) != 0) {
         clear_mount_flag();
     }
     return 0;
@@ -485,7 +473,7 @@ s32 pfd_sddrv_finalize(FADisk* disk) {
     if (disk == 0) {
         return -30;
     }
-    if ((pfd_sddrv_flags(&g_pfd_sddrv_info) & 2) != 0) {
+    if ((g_pfd_sddrv_info.flags & 2) != 0) {
         clear_mount_flag();
     }
     if ((g_pfd_sddrv_info.flags & 1) != 0) {
@@ -1371,22 +1359,24 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
 
 static s32 pfd_sddrv_store_fat32_reserved_buf(u8* sector_buffer) {
     PFD_SDDRV_RESERVED_BOOT_SECTOR* reserved_boot_sector;
-    s32 result = -30;
 
-    if (sector_buffer != 0) {
-        pf_memset(sector_buffer, 0, 0x200);
-        reserved_boot_sector = (PFD_SDDRV_RESERVED_BOOT_SECTOR*)sector_buffer;
-        if (((u32)reserved_boot_sector->signature.bytes & 1) != 0) {
-            reserved_boot_sector->signature.bytes[0] = 0x55;
-            reserved_boot_sector->signature.bytes[1] = 0xaa;
-        } else {
-            reserved_boot_sector->signature.value = 0x55aa;
-        }
-        result = 0;
+    pf_memset(sector_buffer, 0, 0x200);
+    reserved_boot_sector = (PFD_SDDRV_RESERVED_BOOT_SECTOR*)sector_buffer;
+    if (((u32)reserved_boot_sector->signature.bytes & 1) != 0) {
+        reserved_boot_sector->signature.bytes[0] = 0x55;
+        reserved_boot_sector->signature.bytes[1] = 0xaa;
+    } else {
+        reserved_boot_sector->signature.value = 0x55aa;
     }
-    return result;
+    return 0;
 }
 
+static inline s32 pfd_sddrv_write_sector(u32 sector) {
+    return ISD_WriteBlock(g_pfd_sddrv_info.device, sector, g_pfd_sddrv_buf, 1);
+}
+
+#pragma push
+#pragma ppc_iro_level 0
 s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     PFD_SDDRV_FORMAT_DATA format_data;
     s32 result;
@@ -1408,12 +1398,12 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector, g_pfd_sddrv_buf, 1);
+    result = pfd_sddrv_write_sector(format_data.partition_start_sector);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 6, g_pfd_sddrv_buf, 1);
+    result = pfd_sddrv_write_sector(format_data.partition_start_sector + 6);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
@@ -1429,12 +1419,12 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 1, g_pfd_sddrv_buf, 1);
+    result = pfd_sddrv_write_sector(format_data.partition_start_sector + 1);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 7, g_pfd_sddrv_buf, 1);
+    result = pfd_sddrv_write_sector(format_data.partition_start_sector + 7);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
@@ -1451,12 +1441,12 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 2, g_pfd_sddrv_buf, 1);
+    result = pfd_sddrv_write_sector(format_data.partition_start_sector + 2);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, format_data.partition_start_sector + 8, g_pfd_sddrv_buf, 1);
+    result = pfd_sddrv_write_sector(format_data.partition_start_sector + 8);
     if (result != 0) {
         OSReport("ERR Failed to write BPB fields. ISD_WriteBlock()\n");
         return -36;
@@ -1472,13 +1462,14 @@ s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     if (g_pfd_sddrv_info.media_ejected != 0) {
         return -33;
     }
-    result = ISD_WriteBlock(g_pfd_sddrv_info.device, 0, g_pfd_sddrv_buf, 1);
+    result = pfd_sddrv_write_sector(0);
     if (result != 0) {
         OSReport("ERR Failed to write MBR fields. ISD_WriteBlock()\n");
         return -36;
     }
     return 0;
 }
+#pragma pop
 
 s32 pfd_sddrv_full_format(void) {
     FADiskInfo geometry;
