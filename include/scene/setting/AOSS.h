@@ -20,6 +20,19 @@ typedef struct AOSSInitInput {
     u8 result[0x154];
 } AOSSInitInput;
 
+typedef struct AOSSKeyMaterial {
+    u8 nonce[2];
+    u8 address[8];
+} AOSSKeyMaterial;
+
+typedef struct AOSSPacketState {
+    AOSSKeyMaterial key;
+    u8 payload[0x5e];
+} AOSSPacketState;
+
+extern AOSSPacketState s_packetState;
+extern u32 s_crcTable[0x100];
+
 int AOSSi_Init(AOSSInitInput* input);
 int AOSS_Init_old(AOSSInitInput* input);
 void* AOSSi_Alloc(u32 size);
