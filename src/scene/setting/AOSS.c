@@ -2157,40 +2157,43 @@ int AOSSParsePskConfig(const AOSSOptionRecord* packet, AOSSStoredConfig* config)
     return 0;
 }
 
+#pragma push
+#pragma optimization_level 3
 int AOSSApplyAuthOptions(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData) {
     u32 flags = 0;
     const AOSSReplyOption* responseRecord;
+    const u8* responseTypes;
     AOSSConfigRecord* configRecord;
     AOSSStoredConfig* wep40Config;
     AOSSStoredConfig* wep104Config;
     AOSSStoredConfig* tkipConfig;
     AOSSStoredConfig* aesConfig;
     u8* networkSettings;
-    const AOSSReplyOption* option;
     u32 length;
-    s32 remainingLength = responseLength;
     int result;
+    s32 optionRemaining;
 
-    if (remainingLength <= 0) {
+    if (responseLength <= 0) {
         return -2;
     }
 
+    responseTypes = s_responseTypeByState;
     responseRecord = response;
     for (;;) {
-        if (responseRecord->fields.type == s_responseTypeByState[state]) {
+        if (responseRecord->fields.type == responseTypes[state]) {
             break;
         }
         length = SONtoHs(responseRecord->fields.length) + 4;
-        remainingLength -= length;
+        responseLength -= length;
         responseRecord = (const AOSSReplyOption*)&responseRecord->bytes[length];
-        if (remainingLength <= 0) {
+        if (responseLength <= 0) {
             return -4;
         }
     }
 
     length = responseRecord->fields.length;
-    option = (const AOSSReplyOption*)&responseRecord->bytes[4];
-    remainingLength = SONtoHs((u16)length);
+    responseRecord = (const AOSSReplyOption*)&responseRecord->bytes[4];
+    optionRemaining = SONtoHs((u16)length);
     configRecord = &((AOSSConfigData*)config)->records[state];
     wep40Config = (AOSSStoredConfig*)&configRecord->reserved00[8];
     networkSettings = ((AOSSNetworkBufferRecord*)networkData)[state + 3].bytes;
@@ -2199,31 +2202,31 @@ int AOSSApplyAuthOptions(int state, const AOSSReplyOption* response, int respons
     aesConfig = (AOSSStoredConfig*)&configRecord->reserved2d8[0];
 
     do {
-        switch (option->fields.type) {
+        switch (responseRecord->fields.type) {
         case 3:
-            result = AOSSParseWepConfig((const AOSSOptionRecord*)option, wep40Config);
+            result = AOSSParseWepConfig((const AOSSOptionRecord*)responseRecord, wep40Config);
             flags |= 1;
             break;
         case 4:
-            result = AOSSParseWepConfig((const AOSSOptionRecord*)option, wep104Config);
+            result = AOSSParseWepConfig((const AOSSOptionRecord*)responseRecord, wep104Config);
             flags |= 2;
             break;
         case 5:
-            result = AOSSParsePskConfig((const AOSSOptionRecord*)option, tkipConfig);
+            result = AOSSParsePskConfig((const AOSSOptionRecord*)responseRecord, tkipConfig);
             flags |= 4;
             break;
         case 6:
-            result = AOSSParsePskConfig((const AOSSOptionRecord*)option, aesConfig);
+            result = AOSSParsePskConfig((const AOSSOptionRecord*)responseRecord, aesConfig);
             flags |= 8;
             break;
         case 10:
-            length = SONtoHs(option->fields.payload.network.networkLength);
+            length = SONtoHs(responseRecord->fields.payload.network.networkLength);
             if ((s32)length <= 0) {
                 result = -1;
-            } else if (option->fields.payload.network.networkType != 0x70) {
+            } else if (responseRecord->fields.payload.network.networkType != 0x70) {
                 result = -1;
             } else {
-                memcpy(networkSettings, option->fields.payload.network.networkData, length);
+                memcpy(networkSettings, responseRecord->fields.payload.network.networkData, length);
                 result = 0;
             }
             break;
@@ -2236,14 +2239,15 @@ int AOSSApplyAuthOptions(int state, const AOSSReplyOption* response, int respons
             return result;
         }
 
-        length = SONtoHs(option->fields.length) + 4;
-        remainingLength -= length;
-        option = (const AOSSReplyOption*)&option->bytes[length];
-    } while (remainingLength > 0);
+        length = SONtoHs(responseRecord->fields.length) + 4;
+        optionRemaining -= length;
+        responseRecord = (const AOSSReplyOption*)&responseRecord->bytes[length];
+    } while (optionRemaining > 0);
 
     s_runtime.state |= flags;
     return 0;
 }
+#pragma pop
 
 int AOSSSendDiscoveryRequest(void* packet, AOSSRequestRecords* request, int socket) {
     u8* responsePayload;
