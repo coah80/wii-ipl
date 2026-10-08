@@ -1,7 +1,7 @@
 #include <revolution/gx/GXStruct.h>
 #include <revolution/os/OSError.h>
 
-extern "C" const char scRsoFatalMsg[65];
+extern "C" char scRsoFatalMsg[];
 extern GXColor scRsoFatalColor;
 
 #define NW4R_DB_ASSERT_H
@@ -323,10 +323,6 @@ __declspec(export) void IplRso_symbolMaker() {
 
 GXColor scRsoFatalColor = {255, 255, 255, 0};
 
-extern "C" __declspec(section ".data") const char scRsoFatalMsg[65] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
+extern "C" char scRsoFatalMsg[] = "Error#004\nAn error has occurred.\nThe system files are corrupted.";
 
-extern "C" __declspec(section ".data") __declspec(align(1)) const f32 rso_data_pad_f32 = 0.0f;
-extern "C" __declspec(section ".data") __declspec(align(1)) const u16 rso_data_pad_u16 = 0;
-extern "C" __declspec(section ".data") __declspec(align(1)) const u8 rso_data_pad_u8 = 0;
-
-extern "C" __declspec(section ".sdata2") const f32 scRsoZeroF = 0.0f;
+extern "C" const f32 scRsoZeroF = 0.0f;

@@ -7,7 +7,7 @@
 
 #include "iplSystem.h"
 
-__declspec(section ".sdata") extern char scPaneName_B_Stop[];
+extern char scPaneName_B_Stop[7];
 extern char scPaneName_T_Stop[];
 extern "C" BOOL push_button_queue(void*, const void*);
 

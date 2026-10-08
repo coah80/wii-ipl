@@ -137,23 +137,20 @@ extern "C" asm void calc__Q39textinput9inputform4BaseFv();
 extern "C" asm void calc__Q39textinput11nw4rmanager6LayoutFv();
 extern "C" asm void draw__Q39textinput11nw4rmanager6LayoutFv();
 extern "C" asm void searchPaneComponent__Q39textinput3gui11PaneManagerFPCc();
-#pragma push
-#pragma section const_type ".data"
-extern "C" const char scP_txtScrll_UP[];
-extern "C" const char scP_txtScrll_DOWN[];
-extern "C" const char scN_JPNUSAEUR[];
-extern "C" const char scN_separateBarAll[];
-extern "C" const char scT_2l_TextBox[];
-extern "C" const char scT_title_textJPN[];
-extern "C" const char scN_separateBarKOR[];
-extern "C" const char scT_2l_TextBoxKOR[];
-extern "C" const char scT_title_textKOR[];
-extern "C" const char scN_separateBarCHN[];
-extern "C" const char scT_2l_TextBoxCHN[];
-extern "C" const char scT_title_textCHN[];
+extern "C" char scP_txtScrll_UP[];
+extern "C" char scP_txtScrll_DOWN[];
+extern "C" char scN_JPNUSAEUR[];
+extern "C" char scN_separateBarAll[];
+extern "C" char scT_2l_TextBox[];
+extern "C" char scT_title_textJPN[];
+extern "C" char scN_separateBarKOR[];
+extern "C" char scT_2l_TextBoxKOR[];
+extern "C" char scT_title_textKOR[];
+extern "C" char scN_separateBarCHN[];
+extern "C" char scT_2l_TextBoxCHN[];
+extern "C" char scT_title_textCHN[];
 extern "C" const char scN_KOR[];
 extern "C" const char scN_CHN[];
-#pragma pop
 extern "C" const f32 scInputFormZeroF;
 extern "C" void _savegpr_20();
 extern "C" void _restgpr_20();
@@ -321,8 +318,6 @@ struct InputFormAnimationFile {
     char fileName[0x40];
 };
 
-#pragma push
-#pragma section const_type ".rodata"
 extern "C" const InputFormAnimationFile csAninationFile__Q29textinput9inputform[8] = {
     {0, "fs_VK_textBox_a_normal.brlan"},
     {1, "fs_VK_textBox_a_Foucus_IN.brlan"},
@@ -334,7 +329,6 @@ extern "C" const InputFormAnimationFile csAninationFile__Q29textinput9inputform[
     {7, "fs_VK_textBox_a_Off.brlan"},
 };
 
-#pragma section data_type ".rodata"
 extern "C" const VisiblePanes csVisiblePaneUEJ__Q29textinput9inputform = {
     1, 2,
     {scN_JPNUSAEUR, NULL, NULL, NULL},
@@ -347,7 +341,7 @@ extern "C" const VisiblePanes csVisiblePaneKOR__Q29textinput9inputform = {
     {"N_CHN", scN_JPNUSAEUR, NULL, NULL},
 };
 
-extern "C" const void* csVisiblePaneCHN__Q29textinput9inputform[10] = {
+extern "C" const void* const csVisiblePaneCHN__Q29textinput9inputform[10] = {
     (const void*)0x00010002,
     "N_CHN",
     0,
@@ -380,11 +374,9 @@ extern "C" const LanguagePaneData csLanguageDependencyDataCHN__Q29textinput9inpu
     scT_2l_TextBoxCHN,
     scT_title_textCHN,
 };
-#pragma section data_type ".data"
 
 extern "C" const wchar_t pppURLCheck[2][10] = {L"http://", L"https://"};
 
-#pragma pop
 
 extern "C" const f32 scInputFormZeroF = 0.0f;
 extern "C" const f32 scInputForm640F = 640.0f;
@@ -415,10 +407,8 @@ f32 sfColorPhase;
 
 bool mbHyphen = true;
 
-#pragma push
-#pragma section const_type ".data"
-extern "C" const char scP_txtScrll_UP[] = "P_txtScrll_UP";
-extern "C" const char scP_txtScrll_DOWN[] = "P_txtScrll_DOWN";
+extern "C" char scP_txtScrll_UP[] = "P_txtScrll_UP";
+extern "C" char scP_txtScrll_DOWN[] = "P_txtScrll_DOWN";
 struct ButtonAnimations {
     KeyType type;
     const char* paneName;
@@ -427,7 +417,7 @@ struct ButtonAnimations {
     const InputFormAnimationFile* files[12];
 };
 
-const ButtonAnimations csButtonAnimations[] = {
+ButtonAnimations csButtonAnimations[] = {
     {KT_NormalButton, scP_txtScrll_UP, 8, NULL, {
         &csAninationFile__Q29textinput9inputform[0], &csAninationFile__Q29textinput9inputform[1],
         &csAninationFile__Q29textinput9inputform[2], &csAninationFile__Q29textinput9inputform[3],
@@ -439,18 +429,20 @@ const ButtonAnimations csButtonAnimations[] = {
         &csAninationFile__Q29textinput9inputform[4], &csAninationFile__Q29textinput9inputform[5],
         &csAninationFile__Q29textinput9inputform[6], &csAninationFile__Q29textinput9inputform[7]}}
 };
-extern "C" const char scN_JPNUSAEUR[] = "N_JPNUSAEUR";
-extern "C" const char scN_separateBarAll[] = "N_separateBarAll";
-extern "C" const char scT_2l_TextBox[] = "T_2l_TextBox";
-extern "C" const char scT_title_textJPN[] = "T_title_textJPN";
-extern "C" const char scN_separateBarKOR[] = "N_separateBarKOR";
-extern "C" const char scT_2l_TextBoxKOR[] = "T_2l_TextBoxKOR";
-extern "C" const char scT_title_textKOR[] = "T_title_textKOR";
-extern "C" const char scN_separateBarCHN[] = "N_separateBarCHN";
-extern "C" const char scT_2l_TextBoxCHN[] = "T_2l_TextBoxCHN";
-extern "C" const char scT_title_textCHN[] = "T_title_textCHN";
+extern "C" char scN_JPNUSAEUR[] = "N_JPNUSAEUR";
+extern "C" char scN_separateBarAll[] = "N_separateBarAll";
+extern "C" char scT_2l_TextBox[] = "T_2l_TextBox";
+extern "C" char scT_title_textJPN[] = "T_title_textJPN";
+extern "C" char scN_separateBarKOR[] = "N_separateBarKOR";
+extern "C" char scT_2l_TextBoxKOR[] = "T_2l_TextBoxKOR";
+extern "C" char scT_title_textKOR[] = "T_title_textKOR";
+extern "C" char scN_separateBarCHN[] = "N_separateBarCHN";
+extern "C" char scT_2l_TextBoxCHN[] = "T_2l_TextBoxCHN";
+extern "C" char scT_title_textCHN[] = "T_title_textCHN";
 bool DeadKeyStream::sbCompatibleFilterEnabled = true;
 
+#pragma push
+#pragma section const_type ".data"
 inline bool DeadKeyStream::isCompatible(wchar_t character) {
     const wchar_t excluded[] = {
         0x00a4, 0x00ac, 0x00af, 0x00b2, 0x00b3, 0x00b6, 0x00b8, 0x00b9,
@@ -462,6 +454,7 @@ inline bool DeadKeyStream::isCompatible(wchar_t character) {
     }
     return true;
 }
+#pragma pop
 
 inline wchar_t DeadKeyStream::getChar() {
     wchar_t character = KPRGetChar(&mKPRQueue);
@@ -1349,7 +1342,6 @@ void LayoutByNW4R::onCommand(INPUT_COMMAND command, void* data) {
 }
 
 
-#pragma pop
 
 void EventHandler::onTiEvent(gui::PaneComponent* component, u32 event, Input* input) {
     char animationName[17];
