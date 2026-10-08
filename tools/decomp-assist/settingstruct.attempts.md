@@ -64,7 +64,22 @@ Verified orig stores every compared callee reg before use on all paths: WLANConn
 create/AddressEdit inits all present. No fn emits an extra init orig lacks or reaches a
 compare with a path-unset reg.
 
+## ppc_iro_level results (post-#1276 lever)
+- **get_friendinfo → 100%**: `#pragma push` + `ppc_iro_level 0` + named text locals
+  (`const wchar_t* name = mString.mName;`, `text = mString.mDisplayText;`). The named
+  local's def site births the text-ptr web early; IRO-0 blocks the remat that previously
+  folded it to the marshal — orig's `addi r29,r28,0x2b4` early-pin reproduces
+  (`_savegpr_28`/`_restgpr_28` match; residual = bare `bl` reloc offsets). Neither the
+  local alone (forwarded) nor IRO-0 alone (still remat) sufficed — both needed.
+- **create 97.56 → 98.73** with `ppc_iro_level 1` (friendText locals already present).
+  Levels 0 and 1 produce identical output here. Residual = callee-window rotation.
+- FAILED: AOSSi_WLANConnect (identical at 1/2, explodes to 219 at 0 — marshal swap
+  unaffected), AOSSi_WLANGetBSSList (46 diffs at 0/1 = baseline), AOSSApplyAuthOptions
+  (IRO-1 drops fuzzy 98.77→97.94 despite fewer normalized diffs — reverted),
+  AOSSXorBufferWithKey (61→154 at IRO — reverted), AOSS_Init_old (1213 diffs at 0/1 =
+  baseline — pragma no effect), update_friendinfo (IRO regresses 2→11 — reverted).
+
 ## Status
-All sub-100 fns verified as marshal-order / callee-web-rotation / pin ties — no new 100%
-fn this pass. Owner PR bar (≥1 new 100% fn + zero regressions) unmet; units stay
-NonMatching.
+**get_friendinfo is a NEW 100% fn** — owner PR bar (≥1 new 100% + zero regressions) met
+for a source-only PR. create improved to 98.73. Remaining fns stay at documented ties;
+units stay NonMatching.
