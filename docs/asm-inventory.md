@@ -88,9 +88,7 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `libs/RVL_SDK/src/base/PPCArch.c` | `PPCSetFpIEEEMode` | ORIGINAL | Special-register or synchronization operation: `mtfsb0 FPSCR_NI_BIT`. |
 | `libs/RVL_SDK/src/base/PPCArch.c` | `PPCSetFpNonIEEEMode` | ORIGINAL | Special-register or synchronization operation: `mtfsb1 FPSCR_NI_BIT`. |
 | `libs/RVL_SDK/src/base/PPCArch.c` | `PPCMthid4` | ORIGINAL | Both branches write HID4 with mtspr; the fallback preserves the Broadway H4A bit. |
-| `libs/RVL_SDK/src/cntcache/cntcache.c` | `CNTCACHEClear` | PLACEHOLDER | NAND/token logic; best C 93.364235%, 147/151 instructions, four missing pool literals, [rx30][rx30]. |
-| `libs/RVL_SDK/src/cntcache/cntcache.c` | `_CNTCACHEIsTitleRemovable` | PLACEHOLDER | NAND/TMD checks; best diagnostic C 93.70731%, 82/82 instructions, status-register interference, [rx18][rx18]. |
-| `libs/RVL_SDK/src/cntcache/cntcache.c` | `_CNTCACHEDeleteContent` | PLACEHOLDER | Token parsing and ES deletion; best C 95.793106%, 143/145 instructions, missing reload/copy, [rx18][rx18]. |
+| `libs/RVL_SDK/src/cntcache/cntcache.c` | `CNTCACHEClear` | PLACEHOLDER | NAND/token logic; best C 47/151 differing, 149/151 instructions; pool solved with stripped writer literals, two post-delete compares missing, [rx30][rx30], [opus-cntc](../tools/decomp-assist/opus-cntc.attempts.md). |
 | `libs/RVL_SDK/src/db/db.c` | `__DBExceptionDestination` | ORIGINAL | mfmsr/mtmsr enable address translation before the exception-handler tail branch. |
 | `libs/RVL_SDK/src/gx/GXLight.c` | `PushLight` | ORIGINAL | psq_l/psq_st transfers paired-single values for the GX command stream. |
 | `libs/RVL_SDK/src/gx/GXTransform.c` | `WriteProjPS` | ORIGINAL | psq_l/psq_st transfers paired-single values for the GX command stream. |
@@ -198,7 +196,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `src/system/rvl_dec.c` | `Rvl_decode_asr` | ORIGINAL | nofralloc hand-built 0x40 frame saves r21..31 with stmw; work address uses lis @h/ori @l. |
 
 [rx17]: ../tools/decomp-assist/rx36.attempts.md#rx17
-[rx18]: ../tools/decomp-assist/rx36.attempts.md#rx18
 [rx24]: ../tools/decomp-assist/rx36.attempts.md#rx24
 [rx30]: ../tools/decomp-assist/rx36.attempts.md#rx30
 [rx36-osinit]: ../tools/decomp-assist/rx36.attempts.md#osinit

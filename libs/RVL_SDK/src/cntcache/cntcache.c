@@ -31,8 +31,6 @@ char scCntCacheSpaceNl[3] = {0x20, 0x0a, 0x00};
 
 extern void _savegpr_23();
 extern void _restgpr_23();
-extern void _savegpr_26();
-extern void _restgpr_26();
 
 OSMutex _CNTCACHEMutex;
 long long _CNTCACHEUnused816997A8;
@@ -263,254 +261,102 @@ void _CNTCACHEDeleteTitle() {
     }
 }
 
-asm int _CNTCACHEIsTitleRemovable(ESTitleId titleId) {
-    clrlwi r11, r1, 0x1b
-    mr r12, r1
-    subfic r11, r11, -0x2100
-    stwux r1, r1, r11
-    mflr r0
-    lis r5, scCntCacheTitleDataFmt@ha
-    stw r0, 4(r12)
-    li r0, 1
-    addi r5, r5, scCntCacheTitleDataFmt@l
-    stw r31, -4(r12)
-    stw r30, -8(r12)
-    mr r30, r3
-    addi r3, r1, 0x40
-    stw r29, -0xc(r12)
-    mr r29, r4
-    li r4, -1
-    stw r0, 0x20(r1)
-    and r6, r30, r4
-    and r7, r29, r4
-    li r4, 0x40
-    stw r0, 0x24(r1)
-    crclr 4*cr1+eq
-    bl snprintf
-    addi r3, r1, 0x40
-    addi r4, r1, 0x20
-    addi r5, r1, 0x24
-    bl NANDSecretGetUsage
-    cmpwi r3, -0xc
-    mr r4, r3
-    bne L_418
-    li r4, 2
-    b L_444
-L_418:
-    cmpwi r3, 0
-    blt L_444
-    lwz r0, 0x24(r1)
-    cmplwi r0, 1
-    bne L_440
-    lwz r0, 0x20(r1)
-    cmpwi r0, 0
-    bne L_440
-    li r4, 1
-    b L_444
-L_440:
-    li r4, 0
-L_444:
-    cmpwi r4, 1
-    bne L_4bc
-    mr r4, r29
-    mr r3, r30
-    addi r31, r1, 0x80
-    addi r6, r1, 0x28
-    li r5, 0
-    bl ES_GetTmdView
-    cmpwi r3, 0
-    beq L_470
-    b L_4c0
-L_470:
-    lwz r0, 0x28(r1)
-    cmplwi r0, 0x2060
-    ble L_484
-    li r3, -0x400
-    b L_4c0
-L_484:
-    mr r4, r29
-    mr r3, r30
-    mr r5, r31
-    addi r6, r1, 0x28
-    bl ES_GetTmdView
-    cmpwi r3, 0
-    beq L_4a4
-    b L_4c0
-L_4a4:
-    lhz r0, 0xd8(r1)
-    rlwinm. r0, r0, 0x18, 0x18, 0x1f
-    bne L_4b8
-    li r4, 1
-    b L_4bc
-L_4b8:
-    li r4, 0
-L_4bc:
-    mr r3, r4
-L_4c0:
-    lwz r10, 0(r1)
-    lwz r0, 4(r10)
-    lwz r31, -4(r10)
-    lwz r30, -8(r10)
-    lwz r29, -0xc(r10)
-    mtlr r0
-    mr r1, r10
-    blr
+static s32 GetSaveDataUsage(ESTitleId titleId) {
+    s32 ret = -1;
+    char nandPath[64] ALIGN32;
+    u32 usedBlocks = 1;
+    u32 usedINodes = 1;
+
+    snprintf(nandPath, (int)sizeof(nandPath), scCntCacheTitleDataFmt, NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
+    ret = NANDSecretGetUsage(nandPath, &usedBlocks, &usedINodes);
+
+    if (ret == NAND_RESULT_NOEXISTS) {
+        ret = 2;
+    } else if (ret >= NAND_RESULT_OK) {
+        if (usedINodes == 1 && usedBlocks == 0) {
+            ret = 1;
+        } else {
+            ret = 0;
+        }
+    }
+    return ret;
 }
 
-asm void _CNTCACHEDeleteContent() {
-    clrlwi r11, r1, 0x1b
-    mr r12, r1
-    subfic r11, r11, -0x2100
-    stwux r1, r1, r11
-    mflr r0
-    mr r11, r12
-    stw r0, 4(r12)
-    bl _savegpr_26
-    li r3, 0
-    la r4, scCntCacheSpaceNl
-    bl strtok
-    li r31, 0
-    li r4, 0
-    stw r31, errno(r0)
-    li r5, 0x10
-    bl strtoull
-    lwz r0, errno(r0)
-    mr r29, r4
-    mr r30, r3
-    cmpwi r0, 0
-    bne L_708
-    li r0, -1
-    and r5, r3, r0
-    addis r0, r5, -1
-    cmplwi r0, 5
-    bne L_708
-    addi r28, r1, 0x80
-    addi r6, r1, 0x28
-    li r5, 0
-    bl ES_GetTmdView
-    cmpwi r3, -0x6a
-    beq L_708
-    cmpwi r3, 0
-    bne L_708
-    mr r4, r29
-    mr r3, r30
-    mr r5, r28
-    addi r6, r1, 0x28
-    bl ES_GetTmdView
-    cmpwi r3, 0
-    bne L_708
-    lwz r3, 0x94(r1)
-    rlwinm. r0, r3, 0, 0x1c, 0x1c
-    beq L_6f0
-    rlwinm. r0, r3, 0, 0x1b, 0x1b
-    beq L_6f0
-    li r3, 0
-    la r4, scCntCacheSpaceNl
-    bl strtok
-    li r26, 1
-    lis r27, scCntCacheTitleDataFmt@ha
-    b L_6e8
-L_5b0:
-    stw r31, errno(r0)
-    li r4, 0
-    li r5, 0xa
-    bl strtoul
-    lwz r0, errno(r0)
-    cmpwi r0, 0
-    bne L_6dc
-    cmplwi r3, 0x1fe
-    bgt L_6dc
-    lhz r0, 0xda(r1)
-    li r4, 0
-    mtctr r0
-    cmplwi r0, 0
-    ble L_6dc
-L_5e8:
-    add r5, r28, r4
-    lhz r0, 0x60(r5)
-    cmplw r3, r0
-    bne L_6d4
-    lhz r0, 0x62(r5)
-    rlwinm. r0, r0, 0, 0x10, 0x10
-    bne L_6dc
-    lwz r5, 0x5c(r5)
-    mr r4, r29
-    mr r3, r30
-    bl ES_DeleteContent
-    cmpwi r3, 0
-    bne L_6dc
-    mr r4, r29
-    mr r3, r30
-    addi r6, r1, 0x2c
-    li r5, 0
-    bl ES_ListTitleContentsOnCard
-    cmpwi r3, 0
-    bne L_6dc
-    lwz r0, 0x2c(r1)
-    cmpwi r0, 0
-    bne L_6dc
-    li r0, -1
-    stw r26, 0x20(r1)
-    addi r3, r1, 0x40
-    addi r5, r27, scCntCacheTitleDataFmt@l
-    stw r26, 0x24(r1)
-    and r6, r30, r0
-    and r7, r29, r0
-    li r4, 0x40
-    crclr 4*cr1+eq
-    bl snprintf
-    addi r3, r1, 0x40
-    addi r4, r1, 0x20
-    addi r5, r1, 0x24
-    bl NANDSecretGetUsage
-    cmpwi r3, -0xc
-    mr r0, r3
-    bne L_690
-    li r0, 2
-    b L_6bc
-L_690:
-    cmpwi r3, 0
-    blt L_6bc
-    lwz r0, 0x24(r1)
-    cmplwi r0, 1
-    bne L_6b8
-    lwz r0, 0x20(r1)
-    cmpwi r0, 0
-    bne L_6b8
-    li r0, 1
-    b L_6bc
-L_6b8:
-    li r0, 0
-L_6bc:
-    cmpwi r0, 1
-    bne L_6dc
-    mr r4, r29
-    mr r3, r30
-    bl ES_DeleteTitle
-    b L_6dc
-L_6d4:
-    addi r4, r4, 0x10
-    bdnz L_5e8
-L_6dc:
-    li r3, 0
-    la r4, scCntCacheSpaceNl
-    bl strtok
-L_6e8:
-    cmpwi r3, 0
-    bne L_5b0
-L_6f0:
-    lwz r5, 0x28(r1)
-    addi r3, r1, 0x80
-    li r4, 0
-    addi r0, r5, 0x1f
-    rlwinm r5, r0, 0, 0, 0x1a
-    bl memset
-L_708:
-    lwz r10, 0(r1)
-    mr r11, r10
-    bl _restgpr_26
-    lwz r0, 4(r10)
-    mtlr r0
-    mr r1, r10
-    blr
+BOOL _CNTCACHEIsTitleRemovable(ESTitleId titleId) {
+    u8 tmdBuf[OSRoundUp32B(sizeof(ESTmdView))] ALIGN32;
+    u32 tmdSize;
+    ESTmdView* tmd;
+    s32 ret;
+
+    ret = GetSaveDataUsage(titleId);
+    if (ret == 1) {
+        tmd = (ESTmdView*)tmdBuf;
+        ret = ES_GetTmdView(titleId, NULL, &tmdSize);
+        if (ret != ES_ERR_OK) {
+            return ret;
+        }
+        if (tmdSize > sizeof(tmdBuf)) {
+            return ES_ERR_MEMORY_ERROR;
+        }
+        ret = ES_GetTmdView(titleId, tmd, &tmdSize);
+        if (ret != ES_ERR_OK) {
+            return ret;
+        }
+
+        if (((tmd->head.titleVersion >> 8) & 0xFF) == 0) {
+            ret = 1;
+        } else {
+            ret = 0;
+        }
+    }
+
+    return ret;
+}
+
+void _CNTCACHEDeleteContent() {
+    u8 buf[OSRoundUp32B(sizeof(ESTmdView))] ALIGN32;
+    u32 numOnCard;
+    u32 size;
+    ESTitleId titleId;
+    ESTmdView* tmd;
+    ESError result;
+    char* token;
+
+    token = strtok(NULL, scCntCacheSpaceNl);
+    errno = 0;
+    titleId = strtoull(token, NULL, 16);
+    if (errno == 0 && NANDTitleIdHi(titleId) == 0x00010005) {
+        tmd = (ESTmdView*)buf;
+        result = ES_GetTmdView(titleId, NULL, &size);
+        if (result == ES_ERR_DONT_EXISTS) {
+            return;
+        }
+        if (result == ES_ERR_OK && ES_GetTmdView(titleId, tmd, &size) == ES_ERR_OK) {
+            if ((tmd->head.titleType & 8) && (tmd->head.titleType & 0x10)) {
+                token = strtok(NULL, scCntCacheSpaceNl);
+                while (token) {
+                    u32 index;
+                    u32 i;
+
+                    errno = 0;
+                    index = strtoul(token, NULL, 10);
+                    if (errno == 0 && index <= 510) {
+                        for (i = 0; i < tmd->head.numContents; i++) {
+                            if (index == tmd->contents[i].index) {
+                                if (!(tmd->contents[i].type & 0x8000) &&
+                                    ES_DeleteContent(titleId, tmd->contents[i].cid) == ES_ERR_OK &&
+                                    ES_ListTitleContentsOnCard(titleId, NULL, &numOnCard) == ES_ERR_OK &&
+                                    numOnCard == 0 && GetSaveDataUsage(titleId) == 1) {
+                                    ES_DeleteTitle(titleId);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    token = strtok(NULL, scCntCacheSpaceNl);
+                }
+            }
+            memset(buf, 0, OSRoundUp32B(size));
+        }
+    }
 }
