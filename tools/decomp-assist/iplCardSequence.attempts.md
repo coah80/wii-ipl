@@ -227,3 +227,9 @@ Shared headers and configure.py are unchanged. All data sections remain exact.
 - cardThreadMain (301v301): pure reg-perms + one merge-order tie — base `mr r4,r19; rlwimi r4,r25,8` vs mine `rlwimi r23,r29,8; mr r4,r23`. Same count, ordering only.
 - loadCardFileIcons (508v512, -4): base emits per-path `li r?,0; stb` zero-init pairs (dead zero-webs on each switch-case path — `bannerEnable=0` etc. re-materialize the zero instead of sharing), plus split `addis/addi` addr materialization + `lbz -1(r); stb 0(r)` adjacent-field copy where mine fuses. Structural decode incomplete.
 - runCardMoveOrCopy (608v608?): not yet diffed.
+
+## w1011/struct2 wave 2 (loadCardFileIcons 508->511/512)
+- WIN: `s32 icon = 0` decl-init materializes a missing zero-web (+1).
+- WIN: `u32* iconOffsets = &...iconOffset[0]` + `s32 nextIcon = iconCount + 1` → base's `slwi r,2; lwzx`/`stwx` indexed addressing (+2). Direct member index `iconOffset[iconCount+1]` folds to immediate-offset lwz/stw.
+- Tried/reverted: `(u16)` index cast (513), `iconFmt[iconCount]=iconFmt[iconCount-1]` direct (510), u16* iconOffsets.
+- Residual -1 + ~92 reg/order diffs: base materializes `&iconFmt[iconCount]` in one reg with `lbz -1(r); stb 0(r)` where every source form folds to `lbz -0x6fb5/stb -0x6fb4` field offsets (remat-vs-pin family).
