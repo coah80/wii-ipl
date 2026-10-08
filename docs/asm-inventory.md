@@ -1,7 +1,7 @@
 # Assembly inventory
 
-4.3U, 2026-10-05. 170 functions contain 172 assembly
-bodies/blocks: 162 ORIGINAL functions and 8 PLACEHOLDER functions.
+4.3U, 2026-10-05. 167 functions contain 169 assembly
+bodies/blocks: 162 ORIGINAL functions and 5 PLACEHOLDER functions.
 
 Run `python3 tools/check_asm_inventory.py`. Completion requires exit 0, complete
 coverage and zero placeholders. The checker also rejects stale/duplicate rows,
@@ -160,7 +160,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `libs/RVL_SDK/src/os/__ppc_eabi_init.cpp` | `__init_hardware` | ORIGINAL | Before normal C startup, mfmsr/mtmsr enables the FPU and r31 holds LR across init calls. |
 | `libs/RVL_SDK/src/os/__ppc_eabi_init.cpp` | `__flush_cache` | ORIGINAL | dcbst/sync/icbi/isync make freshly initialized code visible to instruction fetch. |
 | `libs/RVL_SDK/src/os/__ppc_eabi_init.cpp` | `__init_user` | ORIGINAL | fralloc/bl __init_cpp/frfree/blr matches the public [SDK startup assembly][sdk-init]. |
-| `libs/RevoEX/src/nwc24/NWC24UserId.c` | `getUnScrambleId` | PLACEHOLDER | Integer byte permutation; best C 76.27329%, 161/161 instructions, 97 register/scheduling differences, [rx30][rx30]. |
 | `libs/Runtime/src/Gecko_setjmp.c` | `__setjmp` | ORIGINAL | Saves or restores caller GPRs/FPRs, LR, CR, and stack state across nonlocal returns. |
 | `libs/Runtime/src/Gecko_setjmp.c` | `longjmp` | ORIGINAL | Saves or restores caller GPRs/FPRs, LR, CR, and stack state across nonlocal returns. |
 | `libs/Runtime/src/__init_cpp_exceptions.cpp` | `__exception_info_constants` | ORIGINAL | Reads the caller ABI TOC register r2 directly for exception registration. |
