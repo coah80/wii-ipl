@@ -1325,14 +1325,12 @@ static void BS2ReadDiskID(void *buffer, s32 length, u32 offset) {
 
 BS2State BS2Tick() {
     u32 interruptsEnabled = OSDisableInterrupts();
+    u32 loaderAddress;
+    u32 loaderLength;
+    u32 loaderOffset;
     u32 titleCode;
     s32 titlePrefix;
     u8 titleCharacters[4];
-    struct {
-        u32 offset;
-        u32 length;
-        u32 address;
-    } loaderRead;
     DVDFileInfo bannerFile;
     u32 discRegion;
     s32 status;
@@ -1733,14 +1731,14 @@ invalidRvlRegion:
         BS2Report("\nApploader Initialized\n");
         State = BS2_STT_29;
     case 0x1d:
-        status = ((int (*)(u32 *, u32 *, u32 *))((*(void **)&LoaderMain)))(&loaderRead.address, &loaderRead.length, &loaderRead.offset);
+        status = ((int (*)(u32 *, u32 *, u32 *))((*(void **)&LoaderMain)))(&loaderAddress, &loaderLength, &loaderOffset);
         if (status != 0) {
-            BS2Report("Addr [0x%x] length [0x%x] offset [0x%x]\n", loaderRead.address, loaderRead.length, loaderRead.offset);
+            BS2Report("Addr [0x%x] length [0x%x] offset [0x%x]\n", loaderAddress, loaderLength, loaderOffset);
             readInterruptsEnabled = OSDisableInterrupts();
-            DVDReadAbsAsyncForBS(&Block, (void *)loaderRead.address, loaderRead.length, loaderRead.offset >> __DVDLayoutFormat, BS2DVDCallback);
+            DVDReadAbsAsyncForBS(&Block, (void *)loaderAddress, loaderLength, loaderOffset >> __DVDLayoutFormat, BS2DVDCallback);
             if (*(s32 *)DvdProgress != 0) {
                 DvdReadPending = 1;
-                DvdTransferLength = loaderRead.length;
+                DvdTransferLength = loaderLength;
             }
             OSRestoreInterrupts(readInterruptsEnabled);
             State = BS2_STT_30;
@@ -2021,18 +2019,18 @@ invalidRvlRegion:
         BS2Report("\nApploader Initialized\n");
         State = BS2_STT_43;
     case 0x2b:
-        status = ((int (*)(u32 *, u32 *, u32 *))((*(void **)&LoaderMain)))(&loaderRead.address, &loaderRead.length, &loaderRead.offset);
+        status = ((int (*)(u32 *, u32 *, u32 *))((*(void **)&LoaderMain)))(&loaderAddress, &loaderLength, &loaderOffset);
         if (status != 0) {
-            BS2Report("Addr [0x%x] length [0x%x] offset [0x%x]\n", loaderRead.address, loaderRead.length, loaderRead.offset);
+            BS2Report("Addr [0x%x] length [0x%x] offset [0x%x]\n", loaderAddress, loaderLength, loaderOffset);
             readInterruptsEnabled = OSDisableInterrupts();
-            BS2ReadDiskID((void *)loaderRead.address, loaderRead.length, loaderRead.offset >> __DVDLayoutFormat);
-            readAddress = loaderRead.address;
-            LoaderLength = loaderRead.length;
+            BS2ReadDiskID((void *)loaderAddress, loaderLength, loaderOffset >> __DVDLayoutFormat);
+            readAddress = loaderAddress;
+            LoaderLength = loaderLength;
             LoaderAddress = readAddress;
-            LoaderOffset = loaderRead.offset;
+            LoaderOffset = loaderOffset;
             if ((*(s32 *)DvdProgress != 0) && (BS2BootFromCache == 0)) {
                 DvdReadPending = 1;
-                DvdTransferLength = loaderRead.length;
+                DvdTransferLength = loaderLength;
             }
             OSRestoreInterrupts(readInterruptsEnabled);
             State = BS2_STT_44;
