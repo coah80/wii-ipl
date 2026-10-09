@@ -1538,3 +1538,8 @@ slots), block-scoped afterEnd-only (neutral). Earlier: declsearch optimal,
 all-static (507), ref-params (79), self-add (+8).
 Theory tested and rejected: FindTag `char* start; char* end;` decl swap
 (neutral — res2 doesn't come from inline-local decl order).
+
+## optimization_level sweep (w1009/update)
+
+- CHANSVmStep: O3 → 43 diffs (web renumber), O2 → 1254 insns (frame -0x30), O1 → 1256 — O4 confirmed (current 2-diff state under opt_lifetimes off).
+- nup ParseServerInfo: O3 → same 71 (rotation untouched — it's numbering, not opt folding), O2 → 454 insns — O4 confirmed.
