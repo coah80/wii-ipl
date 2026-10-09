@@ -17,9 +17,9 @@
 typedef enum {
     USB_NCLEAN_CLOSEDEVICE = 0,
     USB_NCLEAN_1,
-    USB_NCLEAN_2,
+    USB_NCLEAN_CLASS_NOTIFY,
     USB_NCLEAN_BULKMSG,
-    USB_NCLEAN_4,
+    USB_NCLEAN_ISOMSG,
     USB_NCLEAN_5,
     USB_NCLEAN_6,
     USB_NCLEAN_CTRLMSG,
@@ -72,7 +72,7 @@ typedef struct USBCommandBlock {
     void* callbackArg;           // 0x08
     void* isoArg;                // 0x0C
 
-    void* spare;
+    USBDeviceDescriptor* descriptorOut;
 
     void* clean[USB_NCLEAN_MAX];  // 0x14
     u32 nclean;                   // 0x34
@@ -188,7 +188,7 @@ static s32 _intrBlkCtrlIsoCb(s32 result, void* arg) {
     USB_LOG("_intrBlkCtrlIsoCb: nclean = %d\n", block->nclean);
 
     if (block->nclean != USB_NCLEAN_CTRLMSG && block->nclean != USB_NCLEAN_BULKMSG && block->nclean != USB_NCLEAN_CLOSEDEVICE &&
-        block->nclean != USB_NCLEAN_4 && block->nclean != USB_NCLEAN_2) {
+        block->nclean != USB_NCLEAN_ISOMSG && block->nclean != USB_NCLEAN_CLASS_NOTIFY) {
         USB_ERR("__intrBlkCtrlIsoCb: got invalid nclean\n");
     } else {
         for (i = 0; i < block->nclean; i++) {
@@ -622,27 +622,27 @@ IOSError IUSB_WriteCtrlMsgAsync(s32 fd, u8 requestType, u8 request, u16 value, u
 
 static s8 unicode2ascii(char* tbuf, int buflen) {
     char buf[128];
-    s8 di, si;
+    s8 asciiIndex, unicodeIndex;
 
     if (tbuf[1] != 0x03) {
-        di = -1;
+        asciiIndex = -1;
         goto out;
     }
 
-    for (di = 0, si = 2; si < tbuf[0] && si < buflen; si += 2) {
-        if (di >= (sizeof(buf) - 1))
+    for (asciiIndex = 0, unicodeIndex = 2; unicodeIndex < tbuf[0] && unicodeIndex < buflen; unicodeIndex += 2) {
+        if (asciiIndex >= (sizeof(buf) - 1))
             break;
-        if (tbuf[si + 1])
-            buf[di++] = '?';
+        if (tbuf[unicodeIndex + 1])
+            buf[asciiIndex++] = '?';
         else
-            buf[di++] = tbuf[si];
+            buf[asciiIndex++] = tbuf[unicodeIndex];
     }
 
-    buf[di] = 0;
-    memcpy(tbuf, buf, (u32)di);
+    buf[asciiIndex] = 0;
+    memcpy(tbuf, buf, (u32)asciiIndex);
 
 out:
-    return di;
+    return asciiIndex;
 }
 
 static void _GetStrCb(IOSError ret, void* ctxt) {
@@ -675,7 +675,7 @@ out:
 }
 
 IOSError IUSB_GetAsciiStr(IOSFd fd, u8 ep, u16 index, u16 langId, char* buf, u16 buflen) {
-    IOSError rv = IPC_RESULT_OK;
+    IOSError rv;
     s8 len;
 
     USB_LOG("GetStr\n");
@@ -697,7 +697,7 @@ out:
 }
 
 IOSError IUSB_GetAsciiStrAsync(IOSFd fd, u8 ep, u16 index, u16 langId, char* buf, u16 buflen, USBCallback cb, void* cbArg) {
-    IOSError rv = IPC_RESULT_OK;
+    IOSError rv;
     USBCommandBlock* req;
 
     USB_LOG("GetStr - _GetStrCb\n");
@@ -720,7 +720,6 @@ IOSError IUSB_GetAsciiStrAsync(IOSFd fd, u8 ep, u16 index, u16 langId, char* buf
     if (rv < 0) {
         USB_ERR("__CtrlMsgInt failed %d\n", rv);
         IOSFree(req);
-        goto out;
     }
 
 out:
@@ -735,7 +734,7 @@ static void _GetDescrCb(IOSError ret, void* ctxt) {
     if (rv <= 0)
         goto out;
 
-    *(USBDeviceDescriptor*)req->spare = req->descriptor;
+    *req->descriptorOut = req->descriptor;
 
 out:
     if (req->callback)
@@ -745,7 +744,7 @@ out:
 }
 
 IOSError IUSB_GetDevDescr(IOSFd fd, USBDeviceDescriptor* des) {
-    IOSError rv = IPC_RESULT_OK;
+    IOSError rv;
     USBCommandBlock* req = 0;
 
     USB_LOG("GetDevDescr\n");
@@ -772,7 +771,7 @@ out:
 }
 
 IOSError IUSB_GetDevDescrAsync(IOSFd fd, USBDeviceDescriptor* des, USBCallback cb, void* cbArg) {
-    IOSError rv = IPC_RESULT_OK;
+    IOSError rv;
     USBCommandBlock* req;
 
     USB_LOG("GetDevDescr - _GetDescrCb\n");
@@ -788,12 +787,11 @@ IOSError IUSB_GetDevDescrAsync(IOSFd fd, USBDeviceDescriptor* des, USBCallback c
     req->callback = cb;
     req->callbackArg = cbArg;
     req->nclean = 0;
-    req->spare = des;
+    req->descriptorOut = des;
 
     rv = IUSB_ReadCtrlMsgAsync(fd, 0x80, 0x06, 0x100, 0, sizeof(*des), (char*)&req->descriptor, _GetDescrCb, req);
     if (rv < 0) {
         IOSFree(req);
-        goto out;
     }
 
 out:
@@ -832,7 +830,7 @@ out:
 }
 
 IOSError IUSB_IsoMsgAsync(IOSFd fd, u8 ep, USBIsoTransfer* xfer, USBIsoCallback cb, void* cbArg) {
-    IOSError rv = IPC_RESULT_OK;
+    IOSError rv;
     u8 *sep, *snumPackets;
     u16* sbuflen;
     IOSIoVector* vector;
@@ -881,7 +879,7 @@ IOSError IUSB_IsoMsgAsync(IOSFd fd, u8 ep, USBIsoTransfer* xfer, USBIsoCallback 
     req->isoCallback = cb;
     req->isoArg = xfer;
     req->callbackArg = cbArg;
-    req->nclean = 4;
+    req->nclean = USB_NCLEAN_ISOMSG;
     req->clean[0] = sep;
     req->clean[1] = sbuflen;
     req->clean[2] = snumPackets;
@@ -997,7 +995,7 @@ IOSError IUSB_DeviceClassInsertionNotifyAsync(const char* path, u8 devClass, USB
     DCFlushRange(vector, OSRoundUp32B(sizeof(IOSIoVector)) * 2);
     req->callback = cb;
     req->callbackArg = cbArg;
-    req->nclean = 2;
+    req->nclean = USB_NCLEAN_CLASS_NOTIFY;
     req->clean[0] = sdevClass;
     req->clean[1] = vector;
 

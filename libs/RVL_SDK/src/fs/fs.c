@@ -59,13 +59,13 @@ typedef struct FS_Callback {
     u8 ioBuf[0x100] ALIGN32;  // 0x00
     ISFSCallback callback;    // 0x100
     void* callbackArg;        // 0x104
-    u32 func;                 // 0x108
+    u32 operation;            // 0x108
 
     union {
         ISFSStats* stats;
-        ISFSFileStats* fstats;
+        ISFSFileStats* fileStats;
 
-        u32* num;
+        u32* numEntries;
 
         FS_GetAttr getAttr;
         FS_GetUsage getUsage;
@@ -88,7 +88,7 @@ ISFSError ISFS_OpenLib() {
     static void* lo = NULL;
     static void* hi = NULL;
 
-    FS_Callback* __fsCtxt = NULL;
+    FS_Callback* heapBase = NULL;
 
     if (!__fsInitialized) {
         lo = IPCGetBufferLo();
@@ -110,20 +110,20 @@ ISFSError ISFS_OpenLib() {
         goto out;
     }
 
-    __fsCtxt = (FS_Callback*)__devfs;
+    heapBase = (FS_Callback*)__devfs;
 
-    if (!__fsInitialized && ((u32)__fsCtxt + FS_HEAP_SIZE) > (u32)hi) {
+    if (!__fsInitialized && ((u32)heapBase + FS_HEAP_SIZE) > (u32)hi) {
         OSReport("APP ERROR: Not enough IPC arena\n");
         ret = IPC_RESULT_ALLOC_FAILED;
         goto out;
     }
 
     if (!__fsInitialized) {
-        IPCSetBufferLo((void*)((u32)__fsCtxt + FS_HEAP_SIZE));
+        IPCSetBufferLo((void*)((u32)heapBase + FS_HEAP_SIZE));
         __fsInitialized = TRUE;
     }
 
-    hId = iosCreateHeap(__fsCtxt, FS_HEAP_SIZE);
+    hId = iosCreateHeap(heapBase, FS_HEAP_SIZE);
 
     if (hId < 0) {
         ret = IPC_RESULT_ALLOC_FAILED;
@@ -174,7 +174,7 @@ static IOSError _FSReadDirCb(IOSError result, void* isfsCallbackArg) {
         IOSIoVector* vec = (IOSIoVector*)_context->ioBuf;
         ptr = (u8*)OSRoundUp32B((u8*)&vec[4]);
         ptr = (u8*)OSRoundUp32B(ptr + FS_MAX_PATH);
-        *_context->args.num = *(u32*)ptr;
+        *_context->args.numEntries = *(u32*)ptr;
     }
 
     return ISFS_ERROR_OK;
@@ -216,7 +216,7 @@ static IOSError _FSGetFileStatsCb(IOSError result, void* isfsCallbackArg) {
     FS_Callback* _context = (FS_Callback*)isfsCallbackArg;
 
     if (result == IPC_RESULT_OK) {
-        memcpy(_context->args.fstats, _context->ioBuf, sizeof(*_context->args.fstats));
+        memcpy(_context->args.fileStats, _context->ioBuf, sizeof(*_context->args.fileStats));
     }
 
     return IPC_RESULT_OK;
@@ -227,7 +227,7 @@ IOSError _isfsFuncCb(IOSError result, void* isfsCallbackArg) {
     ISFSError ret = result;
 
     if (ret >= IPC_RESULT_OK) {
-        switch (_context->func) {
+        switch (_context->operation) {
             case ISFS_CB_STATE_GET_STATS: {
                 _FSGetStatsCb(result, isfsCallbackArg);
                 break;
@@ -358,7 +358,7 @@ ISFSError ISFS_CreateDirAsync(const char* dirName, u32 dirAttr, u32 ownerAcc, u3
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
 
     pathAttrArgs = (ISFSPathAttrArgs*)isfsCallbackArg->ioBuf;
     memcpy(pathAttrArgs->path, dirName, len + 1);
@@ -458,8 +458,8 @@ ISFSError ISFS_ReadDirAsync(const char* dirName, char* nameList, u32* num, ISFSC
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_READ_DIR;
-    isfsCallbackArg->args.num = num;
+    isfsCallbackArg->operation = ISFS_CB_STATE_READ_DIR;
+    isfsCallbackArg->args.numEntries = num;
 
     vec = (IOSIoVector*)isfsCallbackArg->ioBuf;
 
@@ -556,7 +556,7 @@ ISFSError ISFS_SetAttrAsync(const char* fileName, u32 ownerId, u16 groupId, u32 
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
 
     pathAttrArgs = (ISFSPathAttrArgs*)isfsCallbackArg->ioBuf;
     memcpy(pathAttrArgs->path, fileName, len + 1);
@@ -646,7 +646,7 @@ ISFSError ISFS_GetAttrAsync(const char* fileName, u32* ownerId, u16* groupId, u3
     isfsCallbackArg->args.getAttr.othersAcc = othersAcc;
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_GET_ATTR;
+    isfsCallbackArg->operation = ISFS_CB_STATE_GET_ATTR;
 
     ptr = isfsCallbackArg->ioBuf;
     memcpy(ptr, fileName, len + 1);
@@ -703,7 +703,7 @@ ISFSError ISFS_DeleteAsync(const char* fileName, ISFSCallback callback, void* ca
     memcpy(isfsCallbackArg->ioBuf, fileName, len + 1);
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
     ret = IOS_IoctlAsync(__fsFd, ISFS_IOCTL_DELETE_PATH, isfsCallbackArg->ioBuf, FS_MAX_PATH, NULL, 0, _isfsFuncCb, isfsCallbackArg);
 
 out:
@@ -765,7 +765,7 @@ ISFSError ISFS_RenameAsync(const char* oldName, const char* newName, ISFSCallbac
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
 
     pathsArgs = (ISFSPathsArgs*)isfsCallbackArg->ioBuf;
     memcpy(pathsArgs->path1, oldName, oldLen + 1);
@@ -888,7 +888,7 @@ ISFSError ISFS_CreateFileAsync(const char* fileName, u32 fileAttr, u32 ownerAcc,
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
 
     pathAttrArgs = (ISFSPathAttrArgs*)isfsCallbackArg->ioBuf;
     memcpy(pathAttrArgs->path, fileName, len + 1);
@@ -947,7 +947,7 @@ IOSFd ISFS_OpenAsync(const char* fileName, u32 access, ISFSCallback callback, vo
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
 
     memcpy(isfsCallbackArg->ioBuf, fileName, len + 1);
     ret = IOS_OpenAsync((const char*)isfsCallbackArg->ioBuf, access, _isfsFuncCb, isfsCallbackArg);
@@ -1003,8 +1003,8 @@ ISFSError ISFS_GetFileStatsAsync(IOSFd fd, ISFSFileStats* stats, ISFSCallback ca
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_GET_FILE_STATS;
-    isfsCallbackArg->args.fstats = stats;
+    isfsCallbackArg->operation = ISFS_CB_STATE_GET_FILE_STATS;
+    isfsCallbackArg->args.fileStats = stats;
 
     ret = IOS_IoctlAsync(fd, ISFS_IOCTL_GET_FILE_STATS, NULL, 0, isfsCallbackArg->ioBuf, sizeof(*stats), _isfsFuncCb, isfsCallbackArg);
 out:
@@ -1027,7 +1027,7 @@ ISFSError ISFS_SeekAsync(IOSFd fd, s32 offset, u32 whence, ISFSCallback callback
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
 
     ret = IOS_SeekAsync(fd, offset, whence, _isfsFuncCb, isfsCallbackArg);
 out:
@@ -1059,7 +1059,7 @@ ISFSError ISFS_ReadAsync(IOSFd fd, u8* buffer, u32 size, ISFSCallback callback, 
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
     ret = IOS_ReadAsync(fd, buffer, size, _isfsFuncCb, isfsCallbackArg);
 
 out:
@@ -1096,7 +1096,7 @@ ISFSError ISFS_WriteAsync(IOSFd fd, const char* buffer, u32 size, ISFSCallback c
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
     ret = IOS_WriteAsync(fd, (void*)buffer, size, _isfsFuncCb, isfsCallbackArg);
 
 out:
@@ -1120,7 +1120,7 @@ ISFSError ISFS_CloseAsync(IOSFd fd, ISFSCallback callback, void* callbackArg) {
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
 
     ret = IOS_CloseAsync(fd, _isfsFuncCb, isfsCallbackArg);
 out:
@@ -1140,7 +1140,7 @@ ISFSError ISFS_ShutdownAsync(ISFSCallback callback, void* callbackArg) {
 
     isfsCallbackArg->callback = callback;
     isfsCallbackArg->callbackArg = callbackArg;
-    isfsCallbackArg->func = ISFS_CB_STATE_NONE;
+    isfsCallbackArg->operation = ISFS_CB_STATE_NONE;
 
     ret = IOS_IoctlAsync(__fsFd, ISFS_IOCTL_SHUTDOWN_FS, NULL, 0, NULL, 0, _isfsFuncCb, isfsCallbackArg);
 out:

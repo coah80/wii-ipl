@@ -19,6 +19,9 @@ SDKDefineVersion(SC, "Apr 20 2010", "11:21:17");
 #define SC_SMALLARRAY_MAX 0xFF
 #define SC_BIGARRAY_MAX 0xFFFF
 
+#define SC_ITEM_TYPE_MASK 0xE0
+#define SC_ITEM_NAME_LEN_MASK 0x1F
+
 typedef enum {
     SC_ITEM_BIGARRAY = (1 << 5),
     SC_ITEM_SMALLARRAY = (2 << 5),
@@ -442,14 +445,14 @@ static SCStatus ParseConfBuf(u8* conf, u32 size) {
     // Build lookup table
 
     // MWCC needs the name load in this loop condition to preserve scheduling.
-    for (tblEnd = &tblIter[ItemIDMaxPlus1]; tblIter < tblEnd && (itName = tblIter->name) != (void*)NULL; tblIter++) {
+    for (tblEnd = &tblIter[ItemIDMaxPlus1]; tblIter < tblEnd && (itName = tblIter->name) != NULL; tblIter++) {
         u32 itNameLen = strlen(itName);
 
         for (i = 0; i < numItems; i++) {
             SCConfItem* itData = (SCConfItem*)(confBegin + confItems[i]);
 
             // Item length doesn't include terminator
-            if (itNameLen != (itData->desc & 0b00011111) + 1) {
+            if (itNameLen != (itData->desc & SC_ITEM_NAME_LEN_MASK) + 1) {
                 continue;
             }
 
@@ -492,9 +495,9 @@ static BOOL UnpackItem(const SCConfItem* raw, SCItem* item) {
     u8 type;
 
     memset(item, 0, sizeof(SCItem));
-    type = raw->desc & 0b11100000;
+    type = raw->desc & SC_ITEM_TYPE_MASK;
     item->name = raw->name;
-    item->nameLen = (raw->desc & 0b00011111) + 1;
+    item->nameLen = (raw->desc & SC_ITEM_NAME_LEN_MASK) + 1;
     item->data = (u8*)raw + item->nameLen + 1;
 
     switch (type) {
@@ -574,7 +577,7 @@ static void DeleteItemByID(SCItemID id) {
     u16* confLut;
     u16* confItemsBegin;
     u16* confItemsEnd;
-    u32 sp14;
+    u32 prefixSize;
     u16* it;
     int i;
 
@@ -612,8 +615,8 @@ static void DeleteItemByID(SCItemID id) {
     // Offset from next item
     itemSize = itemOfs[1] - itemOfs[0] + sizeof(u16);
 
-    sp14 = *itemOfs - (itemOfsOfs + sizeof(u16));
-    memmove(conf + itemOfsOfs, conf + itemOfsOfs + sizeof(u16), sp14);
+    prefixSize = *itemOfs - (itemOfsOfs + sizeof(u16));
+    memmove(conf + itemOfsOfs, conf + itemOfsOfs + sizeof(u16), prefixSize);
 
     // Adjust item offsets
     for (it = confItemsEnd - 1; it >= confItemsBegin; it--) {
@@ -672,7 +675,7 @@ static BOOL CreateItemByID(SCItemID id, u8 primType, const void* src, u32 len) {
         goto _error;
     }
 
-    if (src == (void*)NULL) {
+    if (src == NULL) {
         goto _error;
     }
 
@@ -727,19 +730,19 @@ static BOOL CreateItemByID(SCItemID id, u8 primType, const void* src, u32 len) {
     itemSize += len;
 
     // MWCC needs the name load in this loop condition to preserve both branches.
-    for (; (itemName = it->name) != (void*)NULL; it++) {
+    for (; (itemName = it->name) != NULL; it++) {
         if (it->id == id) {
             break;
         }
     }
 
-    if (itemName == (void*)NULL) {
+    if (itemName == NULL) {
         goto _error;
     }
 
     // Only five bits reserved for name length (minus one)
     itemNameLen = strlen(itemName);
-    if (itemNameLen > 0b00011111 + 1) {
+    if (itemNameLen > SC_ITEM_NAME_LEN_MASK + 1) {
         goto _error;
     }
 
@@ -801,7 +804,7 @@ BOOL SCFindByteArrayItem(void* dst, u32 len, SCItemID id) {
     success = FALSE;
     enabled = OSDisableInterrupts();
 
-    if (dst != ((void*)NULL) && FindItemByID(id, &item) && item.arrayType != 0 && item.dataLen == len) {
+    if (dst != NULL && FindItemByID(id, &item) && item.arrayType != 0 && item.dataLen == len) {
         memcpy(dst, item.data, len);
         success = TRUE;
     }
@@ -818,7 +821,7 @@ BOOL SCReplaceByteArrayItem(const void* src, u32 len, SCItemID id) {
     success = FALSE;
     enabled = OSDisableInterrupts();
 
-    if (src != ((void*)NULL)) {
+    if (src != NULL) {
         if (FindItemByID(id, &item)) {
             if (item.arrayType != 0 && item.dataLen == len) {
                 if (memcmp(item.data, src, len) != 0) {
@@ -977,7 +980,7 @@ void SCFlushAsync(SCFlushCallback callback) {
     if (status == SC_STATUS_OK) {
         SetBgJobStatus(SC_STATUS_BUSY);
 
-        if (callback == ((void*)NULL)) {
+        if (callback == NULL) {
             callback = __SCFlushSyncCallback;
         }
 
@@ -1131,7 +1134,7 @@ static void FinishFromFlush() {
         ctrl->flushCallback = NULL;
         callback(ctrl->flushStatus);
 
-        if (ctrl->threadQueue.head != ((void*)NULL)) {
+        if (ctrl->threadQueue.head != NULL) {
             OSWakeupThread(&ctrl->threadQueue);
         }
     }

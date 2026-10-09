@@ -61,7 +61,7 @@ finish:
 }
 
 IOSError iosDestroyHeap(IOSHeapId id) {
-    IOSError ret = IPC_RESULT_ACCESS;
+    IOSError ret;
     IOSHeap* h;
 
     int enabled = OSDisableInterrupts();
@@ -126,6 +126,7 @@ static void* __iosAlloc(IOSHeapId id, u32 size, u32 alignment) {
 
     size = OSRoundUp32B(size);
 
+    /* MWCC needs this result assignment to preserve the invalid-heap branch layout. */
     if (id < 0 || id >= MAX_HEAPS || __heaps[id].base == NULL) {
         ret = NULL;
         goto finish;
@@ -217,6 +218,7 @@ IOSError iosFree(IOSHeapId id, void* ptr) {
         goto finish;
     }
 
+    /* MWCC needs this result assignment to preserve the invalid-heap branch layout. */
     if (id < 0 || id >= MAX_HEAPS || __heaps[id].base == NULL) {
         ret = IPC_RESULT_INVALID;
         goto finish;
