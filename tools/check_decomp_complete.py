@@ -15,6 +15,11 @@ EXPECTED_TOTAL_DATA = 1832684
 EXPECTED_TOTAL_FUNCTIONS = 12563
 INTEGER_PATTERN = re.compile(r"-?(0|[1-9][0-9]*)\Z")
 CODE_SECTIONS = frozenset({".text", ".init"})
+# objdiff accumulates the aggregate fuzzy_match_percent in 32-bit floats over every code byte,
+# so a fully matched report can read 99.9998 instead of 100.0. Aggregates are accepted within
+# this tolerance only when every code byte is counted as matched; units, sections and functions
+# are always checked exactly.
+AGGREGATE_FUZZY_TOLERANCE = 0.001
 AGGREGATE_FIELDS = (
     "total_units",
     "total_code",
@@ -85,7 +90,25 @@ def percent(measures, field, label, failures):
         failures.append(f"{label}: {value}")
 
 
-def check_complete_measures(measures, label, failures):
+def aggregate_fuzzy(measures, label, failures):
+    value = required(measures, "fuzzy_match_percent", f"{label} fuzzy_match_percent", failures)
+    if value is None or exact(value):
+        return
+    try:
+        fully_matched = integer(measures.get("matched_code")) == integer(measures.get("total_code"))
+    except ValueError:
+        fully_matched = False
+    if (
+        not fully_matched
+        or not isinstance(value, (int, float))
+        or isinstance(value, bool)
+        or not math.isfinite(float(value))
+        or not 100.0 - AGGREGATE_FUZZY_TOLERANCE <= float(value) <= 100.0
+    ):
+        failures.append(f"{label} fuzzy_match_percent: {value}")
+
+
+def check_complete_measures(measures, label, failures, aggregate=False):
     for matched, total, name in (
         ("matched_code", "total_code", "code match"),
         ("complete_code", "total_code", "code link"),
@@ -101,9 +124,12 @@ def check_complete_measures(measures, label, failures):
         "matched_data_percent",
         "complete_data_percent",
         "matched_functions_percent",
-        "fuzzy_match_percent",
     ):
         percent(measures, field, f"{label} {field}", failures)
+    if aggregate:
+        aggregate_fuzzy(measures, label, failures)
+    else:
+        percent(measures, "fuzzy_match_percent", f"{label} fuzzy_match_percent", failures)
 
 
 def key_for(value):
@@ -131,7 +157,7 @@ def check_report(report):
         value = count(measures, field, "overall", failures)
         if value is not None and value != expected:
             failures.append(f"overall {field}: {value} != {expected}")
-    check_complete_measures(measures, "overall", failures)
+    check_complete_measures(measures, "overall", failures, aggregate=True)
 
     units = report.get("units")
     if not isinstance(units, list) or len(units) != EXPECTED_TOTAL_UNITS:
@@ -244,7 +270,7 @@ def check_report(report):
         if not isinstance(category_measures, dict):
             failures.append(f"{name}: missing measures")
             continue
-        check_complete_measures(category_measures, name, failures)
+        check_complete_measures(category_measures, name, failures, aggregate=True)
         for field in AGGREGATE_FIELDS:
             if field in category_measures:
                 value = count(category_measures, field, name, failures)

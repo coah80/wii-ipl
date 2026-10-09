@@ -233,6 +233,25 @@ class WorkflowGuardTests(unittest.TestCase):
     def test_complete_report_schema_passes(self):
         self.assertEqual(check_report(self.complete_report()), [])
 
+    def test_aggregate_fuzzy_float_rounding_passes_only_when_fully_matched(self):
+        report = self.complete_report()
+        report["measures"]["fuzzy_match_percent"] = 99.999886
+        report["categories"][0]["measures"]["fuzzy_match_percent"] = 99.999886
+        self.assertEqual(check_report(report), [])
+
+        code_unit = next(unit for unit in report["units"] if "total_code" in unit["measures"])
+        code_unit["measures"]["fuzzy_match_percent"] = 99.999886
+        self.assertIn(f"{code_unit['name']} fuzzy percent: 99.999886", check_report(report))
+
+        report = self.complete_report()
+        report["measures"]["fuzzy_match_percent"] = 99.9
+        self.assertIn("overall fuzzy_match_percent: 99.9", check_report(report))
+
+        report = self.complete_report()
+        report["measures"]["fuzzy_match_percent"] = 99.999886
+        report["measures"]["matched_code"] = int(report["measures"]["total_code"]) - 4
+        self.assertIn("overall fuzzy_match_percent: 99.999886", check_report(report))
+
     def test_missing_or_extra_unit_fails(self):
         for total_units in (1027, 1029):
             with self.subTest(total_units=total_units):
