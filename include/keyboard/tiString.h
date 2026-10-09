@@ -85,10 +85,30 @@ namespace textinput {
 #endif
 
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            virtual ~Decolated() {}
+#else
             virtual ~Decolated();
+#endif
             enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            virtual void clear() {
+                StringBase::clear();
+                mCursorStart = 0;
+                mCursorEnd = 0;
+                mbSustain = false;
+                initKanaConverter();
+            }
+            virtual void set(const wchar_t* string) {
+                StringBase::set(string);
+                u32 length = getLength();
+                mCursorStart = length;
+                mCursorEnd = length;
+            }
+#else
             virtual void clear();
             virtual void set(const wchar_t* string);
+#endif
             virtual void setLength(u16 length);
             void setTranslateMode(TranslateMode mode);
             TranslateMode getTranslateMode() const { return static_cast<TranslateMode>(mTranslateMode); }
@@ -194,6 +214,9 @@ namespace textinput {
         public:
             WithAtok(u16 maxLength) : Decolated(maxLength) {}
             virtual ~WithAtok();
+            virtual bool isFix();
+            virtual void setFix(bool fix);
+            virtual void initConverting();
             virtual void pushBack(wchar_t ch);
             virtual void popBack();
             virtual void inputChar(wchar_t ch);
@@ -209,9 +232,6 @@ namespace textinput {
                 u32 selectedStart;
                 u32 selectedEnd;
             };
-            virtual bool isFix();
-            virtual void setFix(bool fix);
-            virtual void initConverting();
             virtual bool isConverting();
             virtual wchar_t* getConfirmedWCString() const;
             virtual int getCurrentNumPredicted();
