@@ -155,3 +155,15 @@ Needs: buf + zero homing on same reg to force copy-out — allocator tie.
 
 ### Diff state: 134v136 — real diffs: `addi r29`(→clrlwi), missing `mr r4,r5`,
 plus operand-color ties (r5/r6/r4 homes) elsewhere.
+
+### Final probes (before swarm #1336 landed it)
+- `u16 count` + `count = i` emits the mode-3 `clrlwi r29` def ✓ but every
+  epilogue cast form (`(u32)`, `(s32)`, `(u16)`, double-cast) elides to `add`
+  — u16-var promotions never materialize a use-side clrlwi.
+- `u32 count` + `count = i` + `+ (u16)count` emits BOTH epilogue clrlwis ✓ but
+  the mode-3 def is `addi` not `clrlwi` — narrow-def/non-narrow-phi contradiction.
+- `wchar_t *p = input` as a named pointer local HOISTS the buf `addi` to block
+  top (web born at def); orig never keeps buf in a vreg — it's a remat base at
+  each sthx (`input[i]` direct, not p[i]).
+- Pure `input[i]` form gets buf mid-block but homes stay swapped: i→r5/buf→r6
+  vs orig i→r6/buf→r5 — `li r5,0` never vacates buf → no `mr r4,r5` copy-out.
