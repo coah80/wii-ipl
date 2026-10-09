@@ -237,3 +237,22 @@ Shared headers and configure.py are unchanged. All data sections remain exact.
 ## loadCardFileIcons residual -1 insn + coloring
 - runCardMoveOrCopy (608v608): normalized-identical, pure coloring tie.
 - loadCardFileIcons -1 = pinned-result phi: mine emits `mr r24,r3` (callee-pinned result web) after CARDGetSectorSize, base keeps result in r3-arrival and remats `li r3,0` in the error path. Same phi-coalescing tie family as attach_mount (pfrest) — no source lever found.
+
+## w1011/struct2 wave-2 — web-birth decode (loadCardFileIcons SOLVED -1)
+
+- `s32 iconCount; ... iconCount = 0;` — UNINIT DECL + SEPARATE ASSIGN
+  splits the zero web's birth so MWCC rematerializes a second `li 0` for
+  the icon-init stores (base's exact remat pattern). Applied in BOTH
+  updateCardIconAnimation and loadCardFileIcons: 511 -> 512 insns,
+  residual now 26 pure callee-renaming diffs (r31/r26 sThread,
+  r7/r4+r10/r6 record ptrs — coloring family).
+  NB: `static s32 iconCount` also produced 512 but emits dead object
+  `iconCount$16368` (forbidden, PR #973) — the lever is web-birth
+  timing, not storage class. Static variant rejected.
+- cardThreadMain sendValidityResponse: `reply.value = command;
+  reply.fields.valid = valid;` produces base's `mr` + `rlwimi @0xFF00`
+  byte-insert order (vs `reply.value = valid<<8; fields.command=command`
+  which folds to `li 0x100 + rlwimi`). Residual 2 lines: in-place
+  `rlwimi r19` vs base `mr r4,r19; rlwimi r4` — same coalescer
+  dst-operand wall as the or-chain. `|=` folds to ori; bitfield-order
+  emits 2 rlwimi + stw.
