@@ -24,7 +24,6 @@
 
 #undef IPL_CHANNEL_TITLE_NOVTABLE
 
-// :)
 #define PREV_LOADED_INDEX (1 - mLoadedIndex)
 
 namespace ipl {
@@ -646,6 +645,7 @@ namespace ipl {
 
                 if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN && System::isReceiveScheduleStopped()) {
                     if (System::getNwc24Manager() && !System::getNwc24Manager()->isReceivingIdle()) {
+                        // MWCC needs the shared exit label to preserve these branches.
                         goto scn_continue;
                     }
 
@@ -708,7 +708,7 @@ namespace ipl {
                             memcpy(titleName[1], System::getChannelManager()->getTitleName(mChanPage, mChanIndex, 1), sizeof(titleName[1]));
 
                             char code[] = {((char*)&mCurGameCode)[0], ((char*)&mCurGameCode)[1]};
-                            __OSCreatePlayRecord(titleName[0], &((char*)&titleId)[sizeof(ESTitleId32)] /* :( */, code);
+                            __OSCreatePlayRecord(titleName[0], &((char*)&titleId)[sizeof(ESTitleId32)], code);
                             OSReport("Create play recode\n");  // @BUG: recode instead of record
 
                             BS2SetStateFlags();
@@ -801,7 +801,7 @@ namespace ipl {
                             memcpy(titleName[1], System::getChannelManager()->getTitleName(mChanPage, mChanIndex, 1), sizeof(titleName[1]));
 
                             char code[] = {((char*)&mCurGameCode)[0], ((char*)&mCurGameCode)[1]};
-                            __OSCreatePlayRecord(titleName[0], &((char*)&titleId)[sizeof(ESTitleId32)] /* :( */, code);
+                            __OSCreatePlayRecord(titleName[0], &((char*)&titleId)[sizeof(ESTitleId32)], code);
                             OSReport("Create play recode\n");  // @BUG: recode instead of record
 
                             System::getBS2Manager()->startRVLGame();
@@ -1213,6 +1213,7 @@ namespace ipl {
             }
         }
 
+// MWCC needs IRO level 0 to preserve the BS2 argument-base registers.
 #pragma push
 #pragma ppc_iro_level 0
         void ChannelTitle::calcNormalParentalDialog() {
@@ -1313,7 +1314,7 @@ namespace ipl {
             }
         }
 
-        // uhh
+// MWCC needs IRO level 0 to preserve ticket-check branches and register saves.
 #pragma push
 #pragma ppc_iro_level 0
         void ChannelTitle::calcNormalWaitTmd() {
@@ -1455,6 +1456,7 @@ namespace ipl {
             }
         }
 
+// MWCC needs IRO level 1 to preserve progress-bar register allocation.
 #pragma push
 #pragma ppc_iro_level 1
         void ChannelTitle::calcNormalUpdating() {
@@ -1926,6 +1928,7 @@ namespace ipl {
                             bool noDisk = BS2State == bs2::IPL_STATE_NO_DISK;
 
                             nw4r::lyt::Group* group = mpDiskBnrLayout->FindGroupByName(scDiskGroups[DISK_ANIM_GRP_COMMENT]);
+                            // MWCC needs group references to preserve pane-loop register allocation.
                             nw4r::lyt::Group*& groupAlias = group;
                             for (nw4r::lyt::PaneLinkList::Iterator it = groupAlias->GetPaneList().GetBeginIter(); it != groupAlias->GetPaneList().GetEndIter();
                                  it++) {
@@ -2152,8 +2155,7 @@ namespace ipl {
         }
 
         BOOL ChannelTitle::checkNetSetting(int page, int index) {
-            // i hate this
-
+            // MWCC needs the shared return label to preserve this branch sequence.
             BOOL flag = System::getChannelManager()->getSceneID(page, index) == SCENE_DISK_CHANNEL;
             if (flag) {
                 goto yes;
@@ -2552,9 +2554,8 @@ namespace ipl {
             if (mLimitType == LIMIT_TYPE_TIME) {
                 *hour = mTimeLimitRemain / (60 * 60);
 
-                // FAKEMATCH: should be modular division. not whatever this is
+                // MWCC needs subtraction through the stored hour value to preserve this sequence.
                 *minute = (mTimeLimitRemain - ((60 * 60) * *hour)) / 60;
-                //*minute = (u32)(mTimeLimitRemain % (60 * 60)) / 60U;
                 return TRUE;
             } else {
                 return FALSE;
@@ -2675,8 +2676,6 @@ namespace ipl {
             chanTtl->mbTmdReady = true;
         }
 
-#pragma push
-#pragma ppc_iro_level 1
         void ChannelTitle::getTicketLimitTask(void* work) {
             ChannelTitle* chanTtl = static_cast<ChannelTitle*>(work);
 
@@ -2694,7 +2693,6 @@ namespace ipl {
             }
             chanTtl->mbTicketLimitReady = true;
         }
-#pragma pop
 
         void ChannelTitle::deleteTmpTitleContentTask(void* work) {
             ChannelTitle* chanTtl = static_cast<ChannelTitle*>(work);
