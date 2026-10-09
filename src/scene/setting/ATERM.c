@@ -555,7 +555,6 @@ int ATERMParseAssociationResponse(u16* response);
 int ATERMStartNetworkStack(void) {
     int status;
     int waitCount = 0;
-    u32 convertedHost;
     u32 timeoutTicks;
     NCDIpConfig* ipConfig;
     NCDIfConfig* ifConfig;

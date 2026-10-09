@@ -598,6 +598,7 @@ namespace ipl {
 
                     // Get app and group ID
                     u32 msgAppId;
+                    // MWCC needs this halfword declaration for the original receive allocation.
                     u16 msgOptOutAppId;
                     u16 msgGroupId;
                     getMsgAppId(&msgObj, &msgAppId);
@@ -739,140 +740,137 @@ namespace ipl {
 
                     // Get attachment count
                     getMsgNumAttached(&msgObj, &msgNumAttached);
-                    if (mLastError == NWC24_ERR_BROKEN) {
-                        goto message_received;
-                    }
+                    if (mLastError != NWC24_ERR_BROKEN) {
+                        // Get attachment data
+                        for (int attachIndex = 0; attachIndex < msgNumAttached; attachIndex++) {
+                            getMsgAttachedSize(&msgObj, attachIndex, &mAttachSize[attachIndex]);
+                            mAttachData[attachIndex] = new (heap, DEFAULT_ALIGN) u8[mAttachSize[attachIndex]];
+                            if (mAttachData[attachIndex] == NULL) {
+                                mAttachSize[attachIndex] = 0;
+                                break;
+                            }
 
-                    // Get attachment data
-                    for (int attachIndex = 0; attachIndex < msgNumAttached; attachIndex++) {
-                        getMsgAttachedSize(&msgObj, attachIndex, &mAttachSize[attachIndex]);
-                        mAttachData[attachIndex] = new (heap, DEFAULT_ALIGN) u8[mAttachSize[attachIndex]];
-                        if (mAttachData[attachIndex] == NULL) {
-                            mAttachSize[attachIndex] = 0;
-                            break;
-                        }
+                            if (!readMsgAttached(&msgObj, attachIndex, mAttachData[attachIndex], mAttachSize[attachIndex]) && !FILE_ERROR_OK) {
+                                goto cleanup;
+                            }
 
-                        if (!readMsgAttached(&msgObj, attachIndex, mAttachData[attachIndex], mAttachSize[attachIndex]) && !FILE_ERROR_OK) {
-                            goto cleanup;
-                        }
-
-                        getMsgAttachedType(&msgObj, attachIndex, &nwc24AttachTypes[attachIndex]);
-                        switch (nwc24AttachTypes[attachIndex]) {
-                            // For JPEG files
-                            case NWC24_IMAGE_JPEG: {
-                                if (strcmp(rbrFileType, RBRFileType_Txt) == 0) {
-                                    // Attempt to convert to ODH (AJPG)
-                                    if (encode_odh(heap, attachIndex)) {
-                                        msgAttachTypes[attachIndex] = RBRAttachmentType_Picture;
-                                        rbrFileType = RBRFileType_Odh;
-                                    } else {
-                                        if (mAttachData[attachIndex] != NULL) {
-                                            delete mAttachData[attachIndex];
-                                            mAttachData[attachIndex] = NULL;
-                                        }
-                                        mAttachSize[attachIndex] = 0;
-
-                                        // Failed? Use "invalid image" JPEG instead (my_question.jpg)
-                                        nand::File* invalidJpegImage = System::getInvalidJpegImage();
-
-                                        mAttachSize[attachIndex] = System::getInvalidJpegImage()->getLength();
-
-                                        mAttachData[attachIndex] = new (heap, DEFAULT_ALIGN) u8[mAttachSize[attachIndex]];
-                                        memcpy(mAttachData[attachIndex], invalidJpegImage->getBuffer(), mAttachSize[attachIndex]);
-
+                            getMsgAttachedType(&msgObj, attachIndex, &nwc24AttachTypes[attachIndex]);
+                            switch (nwc24AttachTypes[attachIndex]) {
+                                // For JPEG files
+                                case NWC24_IMAGE_JPEG: {
+                                    if (strcmp(rbrFileType, RBRFileType_Txt) == 0) {
                                         // Attempt to convert to ODH (AJPG)
                                         if (encode_odh(heap, attachIndex)) {
                                             msgAttachTypes[attachIndex] = RBRAttachmentType_Picture;
                                             rbrFileType = RBRFileType_Odh;
                                         } else {
-                                            // Failed to do that too? Don't use it.
                                             if (mAttachData[attachIndex] != NULL) {
                                                 delete mAttachData[attachIndex];
                                                 mAttachData[attachIndex] = NULL;
                                             }
                                             mAttachSize[attachIndex] = 0;
+
+                                            // Failed? Use "invalid image" JPEG instead (my_question.jpg)
+                                            nand::File* invalidJpegImage = System::getInvalidJpegImage();
+
+                                            mAttachSize[attachIndex] = System::getInvalidJpegImage()->getLength();
+
+                                            mAttachData[attachIndex] = new (heap, DEFAULT_ALIGN) u8[mAttachSize[attachIndex]];
+                                            memcpy(mAttachData[attachIndex], invalidJpegImage->getBuffer(), mAttachSize[attachIndex]);
+
+                                            // Attempt to convert to ODH (AJPG)
+                                            if (encode_odh(heap, attachIndex)) {
+                                                msgAttachTypes[attachIndex] = RBRAttachmentType_Picture;
+                                                rbrFileType = RBRFileType_Odh;
+                                            } else {
+                                                // Failed to do that too? Don't use it.
+                                                if (mAttachData[attachIndex] != NULL) {
+                                                    delete mAttachData[attachIndex];
+                                                    mAttachData[attachIndex] = NULL;
+                                                }
+                                                mAttachSize[attachIndex] = 0;
+                                            }
                                         }
+                                    } else {
+                                        delete[] mAttachData[attachIndex];
+                                        mAttachData[attachIndex] = NULL;
+                                        mAttachSize[attachIndex] = 0;
                                     }
-                                } else {
-                                    delete[] mAttachData[attachIndex];
-                                    mAttachData[attachIndex] = NULL;
+                                    break;
+                                }
+                                // For ODH files
+                                case NWC24_X_WII_PICTURE: {
+                                    if (strcmp(rbrFileType, RBRFileType_Txt) == 0 && mAttachSize[attachIndex] < NWC24_ATTACH_PICTURE_MAX + 0x1400) {
+                                        msgAttachTypes[attachIndex] = RBRAttachmentType_Picture;
+                                        rbrFileType = RBRFileType_Odh;
+                                    } else {
+                                        delete[] mAttachData[attachIndex];
+                                        mAttachData[attachIndex] = NULL;
+                                        mAttachSize[attachIndex] = 0;
+                                    }
+                                    break;
+                                }
+                                // For Message Board exclusive data
+                                case NWC24_X_WII_MSGBOARD: {
+                                    if (isMsgBoardData == false && mAttachSize[attachIndex] < NWC24_ATTACH_MSGBOARD_MAX) {
+                                        msgAttachTypes[attachIndex] = RBRAttachmentType_MsgBoard;
+                                        isMsgBoardData = true;
+                                    } else {
+                                        delete[] mAttachData[attachIndex];
+                                        mAttachData[attachIndex] = NULL;
+                                        mAttachSize[attachIndex] = 0;
+                                    }
+                                    break;
+                                }
+                                // For "Mini data" (custom user data??)
+                                case NWC24_X_WII_MINIDATA: {
+                                    if (strcmp(rbrFileType, RBRFileType_Txt) == 0 && mAttachSize[attachIndex] < NWC24_ATTACH_MINIDATA_MAX) {
+                                        msgAttachTypes[attachIndex] = RBRAttachmentType_MiniData;
+                                        rbrFileType = RBRFileType_Dat;
+                                    } else {
+                                        delete[] mAttachData[attachIndex];
+                                        mAttachData[attachIndex] = NULL;
+                                        mAttachSize[attachIndex] = 0;
+                                    }
+                                    break;
+                                }
+                                // Otherwise, invalid attachment data found and we don't use it
+                                default: {
+                                    if (mAttachData[attachIndex] != NULL) {
+                                        delete mAttachData[attachIndex];
+                                        mAttachData[attachIndex] = NULL;
+                                    }
                                     mAttachSize[attachIndex] = 0;
+                                    break;
                                 }
-                                break;
-                            }
-                            // For ODH files
-                            case NWC24_X_WII_PICTURE: {
-                                if (strcmp(rbrFileType, RBRFileType_Txt) == 0 && mAttachSize[attachIndex] < NWC24_ATTACH_PICTURE_MAX + 0x1400) {
-                                    msgAttachTypes[attachIndex] = RBRAttachmentType_Picture;
-                                    rbrFileType = RBRFileType_Odh;
-                                } else {
-                                    delete[] mAttachData[attachIndex];
-                                    mAttachData[attachIndex] = NULL;
-                                    mAttachSize[attachIndex] = 0;
-                                }
-                                break;
-                            }
-                            // For Message Board exclusive data
-                            case NWC24_X_WII_MSGBOARD: {
-                                if (isMsgBoardData == false && mAttachSize[attachIndex] < NWC24_ATTACH_MSGBOARD_MAX) {
-                                    msgAttachTypes[attachIndex] = RBRAttachmentType_MsgBoard;
-                                    isMsgBoardData = true;
-                                } else {
-                                    delete[] mAttachData[attachIndex];
-                                    mAttachData[attachIndex] = NULL;
-                                    mAttachSize[attachIndex] = 0;
-                                }
-                                break;
-                            }
-                            // For "Mini data" (custom user data??)
-                            case NWC24_X_WII_MINIDATA: {
-                                if (strcmp(rbrFileType, RBRFileType_Txt) == 0 && mAttachSize[attachIndex] < NWC24_ATTACH_MINIDATA_MAX) {
-                                    msgAttachTypes[attachIndex] = RBRAttachmentType_MiniData;
-                                    rbrFileType = RBRFileType_Dat;
-                                } else {
-                                    delete[] mAttachData[attachIndex];
-                                    mAttachData[attachIndex] = NULL;
-                                    mAttachSize[attachIndex] = 0;
-                                }
-                                break;
-                            }
-                            // Otherwise, invalid attachment data found and we don't use it
-                            default: {
-                                if (mAttachData[attachIndex] != NULL) {
-                                    delete mAttachData[attachIndex];
-                                    mAttachData[attachIndex] = NULL;
-                                }
-                                mAttachSize[attachIndex] = 0;
-                                break;
                             }
                         }
+
+                        // Decide position
+                        f32 left, right, top, bottom;
+                        RBRGetPosRect(&left, &right, &top, &bottom);
+                        math::VEC2 msgBoardPos(left + (right - left) * System::getRndm()->get_f01(), top + (bottom - top) * System::getRndm()->get_f01());
+
+                        // Get current time (For backup incase we have not got the message date)
+                        BOOL enabled = OSDisableInterrupts();
+                        OSCalendarTime currTime = System::getCurrentTime();
+                        OSRestoreInterrupts(enabled);
+
+                        // Decide record flags
+                        RBRRecordFlags msgRecordFlags = {0};
+                        msgRecordFlags.type = recordFlags;
+                        if (msgBoardCanOptOut) {
+                            msgRecordFlags.optOut |= TRUE;
+                        }
+
+                        // And now lets create a CDBRecord of the message!
+                        System::getCdbManager()->createNewRecord(
+                            "ripl_board_record", rbrFileType, msgUseMbRegDate ? &msgMbRegDate : &currTime,
+                            msgGroupId == 1 || msgGroupId == 0 ? NULL : &msgAppId, msgGroupId == 1 || msgGroupId == 0 ? NULL : &msgGroupId, msgBoardPos,
+                            msgRecordFlags.data, msgFriendAddr, msgFriendType, msgNoReply, msgTitleText[0] != 0 ? msgTitleText : msgFriendName,
+                            msgBodyText, msgHasMii ? &msgCharData : NULL, (const void**)mAttachData, mAttachSize, msgAttachTypes);
                     }
 
-                    // Decide position
-                    f32 left, right, top, bottom;
-                    RBRGetPosRect(&left, &right, &top, &bottom);
-                    math::VEC2 msgBoardPos(left + (right - left) * System::getRndm()->get_f01(), top + (bottom - top) * System::getRndm()->get_f01());
-
-                    // Get current time (For backup incase we have not got the message date)
-                    BOOL enabled = OSDisableInterrupts();
-                    OSCalendarTime currTime = System::getCurrentTime();
-                    OSRestoreInterrupts(enabled);
-
-                    // Decide record flags
-                    RBRRecordFlags msgRecordFlags = {0};
-                    msgRecordFlags.type = recordFlags;
-                    if (msgBoardCanOptOut) {
-                        msgRecordFlags.optOut |= TRUE;
-                    }
-
-                    // And now lets create a CDBRecord of the message!
-                    System::getCdbManager()->createNewRecord(
-                        "ripl_board_record", rbrFileType, msgUseMbRegDate ? &msgMbRegDate : &currTime,
-                        msgGroupId == 1 || msgGroupId == 0 ? NULL : &msgAppId, msgGroupId == 1 || msgGroupId == 0 ? NULL : &msgGroupId, msgBoardPos,
-                        msgRecordFlags.data, msgFriendAddr, msgFriendType, msgNoReply, msgTitleText[0] != 0 ? msgTitleText : msgFriendName,
-                        msgBodyText, msgHasMii ? &msgCharData : NULL, (const void**)mAttachData, mAttachSize, msgAttachTypes);
-
-                message_received:
                     mbReviecedMsg = true;
 
                 cleanup:
