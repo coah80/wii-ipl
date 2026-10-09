@@ -31,15 +31,18 @@ namespace homebutton {
             switch (mAnmType) {
                 // Animate normally; Once reaching the maximum frame, the animation stops.
                 case ANIM_TYPE_FORWARD: {
-                    if ((mFrame += mDelta) >= getLastFrame()) {
-                        mFrame = getLastFrame();
+                    f32 lastFrame = getLastFrame();
+                    mFrame += mDelta;
+                    if (mFrame >= lastFrame) {
+                        mFrame = lastFrame;
                         mState = ANIM_STATE_STOP;
                     }
                     break;
                 }
                 // Animate in reverse; Once reaching the minimum frame, the animation stops.
                 case ANIM_TYPE_BACKWARD: {
-                    if ((mFrame -= mDelta) <= mMinFrame) {
+                    mFrame -= mDelta;
+                    if (mFrame <= mMinFrame) {
                         mFrame = mMinFrame;
                         mState = ANIM_STATE_STOP;
                     }
@@ -47,7 +50,8 @@ namespace homebutton {
                 }
                 // Animate forever; Once reaching the maximum frame, the animation repeats.
                 case ANIM_TYPE_LOOP: {
-                    if ((mFrame += mDelta) >= mMaxFrame) {
+                    mFrame += mDelta;
+                    if (mFrame >= mMaxFrame) {
                         mFrame -= (mMaxFrame - mMinFrame);
                     }
                     break;
@@ -56,12 +60,15 @@ namespace homebutton {
                 // And once reaching the minimum frame, it animates backwards. Then repeat.
                 case ANIM_TYPE_ALTERNATE: {
                     if (!mbAlternateBack) {
-                        if ((mFrame += mDelta) >= getLastFrame()) {
-                            mFrame = getLastFrame();
+                        f32 lastFrame = getLastFrame();
+                        mFrame += mDelta;
+                        if (mFrame >= lastFrame) {
+                            mFrame = lastFrame;
                             mbAlternateBack = true;
                         }
                     } else {
-                        if ((mFrame -= mDelta) <= mMinFrame) {
+                        mFrame -= mDelta;
+                        if (mFrame <= mMinFrame) {
                             mFrame = mMinFrame;
                             mbAlternateBack = false;
                         }

@@ -379,6 +379,7 @@ bool WaveFileAiff::checkFile(const void* _data, u32 _dataLen, bool ignoreSize) {
     u16 loopMode;
     int i;
 
+    // MWCC needs these local aliases to preserve the original register allocation.
     u32 dataLen = *(u32*)&_dataLen;
     const u8* data = (u8*)_data;
     WaveFileAiff* self = reinterpret_cast<WaveFileAiff*>((void*)this);
@@ -458,7 +459,8 @@ bool WaveFileAiff::checkFile(const void* _data, u32 _dataLen, bool ignoreSize) {
                 ret = reader.seekChunk('MARK', fileEnd);
                 EGG_ASSERTLINE(384, ret);
 
-                for (i = 0, markerCount = reader.read16(); i < markerCount; i++) {
+                markerCount = reader.read16();
+                for (i = 0; i < markerCount; i++) {
                     int markerId = reader.read16();
                     u32 position = reader.read32();
                     u8 pstringLen = reader.read8();

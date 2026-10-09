@@ -16,7 +16,7 @@ void BannerSoundPlayer::init(s32 prio) {
     mIsStarted = false;
     mSoundType = SOUND_TYPE_UNINIT;
     if (prio >= 0) {
-        mWavePlayer.makeThread(prio, s_player_thread_stack, 0x4000);
+        mWavePlayer.makeThread(prio, s_player_thread_stack, sizeof(s_player_thread_stack));
     }
     mWavePlayer.setBuffer(pBSWaveBuffer, SimpleWavePlayer::wsize);
     mAdpcmPlayer.init();

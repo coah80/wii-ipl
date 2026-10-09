@@ -53,7 +53,6 @@ namespace www {
                             return true;
                         }
                         fileData += chunkSize;
-                        // sStatus = 0;
                     }
                     sStatus = WWWProtocolFinished(protocolData->wwwInternal);
                     return true;
@@ -83,7 +82,7 @@ namespace www {
                 break;
             }
 
-            if (i == 4 || !mFlags[i]) {
+            if (i == (int)ARRAY_LENGTH(mFlags) || !mFlags[i]) {
                 OSHalt(" the file cannot registered\n", 142);
             }
         }

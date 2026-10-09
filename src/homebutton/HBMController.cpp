@@ -1,5 +1,6 @@
 #include <nw4r/snd.h>
 
+// MWCC needs inline handle initialization and an out-of-line destructor here.
 #define SoundHandle SoundHandle*
 #include "homebutton/HBMController.h"
 #undef SoundHandle

@@ -267,7 +267,8 @@ int AxAdpcmSimplePlayer::start(void* data, u32 length, AxAdpcmHandle* handle) {
         pChanInfoBufB = chanInfoBufB;
         pChanDataBuf = chanDataBuf;
         pCoeffsBufA = coeffsBufA;
-        for (i = 0; chanCount = infoBlock->channelCount, i < chanCount; i++) {
+        // MWCC needs the count update in the loop condition to preserve the branch layout.
+        for (i = 0; i < (chanCount = infoBlock->channelCount); i++) {
             int chanStartOffs = channelStartOffsets[i];
             ChannelInfo* chanInfo = ADD_OFFSET(ChannelInfo, infoBlockDataBase, chanStartOffs);
 
