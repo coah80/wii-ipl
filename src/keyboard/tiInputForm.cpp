@@ -1108,7 +1108,36 @@ LayoutByNW4R::LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor
       mpLanguageData(&csLanguageDependencyDataUEJ__Q29textinput9inputform), mpFontName(fontName),
       mbUpVisible(false), mbDownVisible(false), mbRepeat(false), mpInputEventHandler(NULL) {}
 
+static inline const char* selectInputTextName(const nw4rmanager::Layout& layout, const void* const& languageData) {
+    if (layout.getPane(static_cast<const LanguagePaneData*>(languageData)->textBox)) {
+        return static_cast<const LanguagePaneData*>(languageData)->textBox;
+    }
+    return "T_2l_TextBox";
+}
+
+inline void LayoutByNW4R::addButtonAnimation(MEMAllocator* allocator, nw4rmanager::AnmPane* animationPane, const InputFormAnimationFile* const& file, const char* bindingName) {
+    void* resource = mpMultiArcResourceAccessor->GetResource(0, file->fileName, NULL);
+    AnimTransformPane* transform = static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
+    if (!bindingName) animationPane->addAnimation(allocator, file->id, transform, false, true);
+    else animationPane->forceAddAnimation(allocator, file->id, transform, bindingName, false, true);
+}
+
 void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
+    Info_* listEnd;
+    void* memory;
+    nw4r::lyt::Pane* pane;
+    const char* bindingName;
+    u16 next;
+    Info_* rows;
+    u16 previous;
+    void* handlerMemory;
+    u32 count;
+    u16 animationIndex;
+    Info_* selected;
+    nw4rmanager::AnmPane* animationPane;
+    nw4r::lyt::TextBox* textBox;
+    u16 selectedIndex;
+    u32 buttonIndex;
     mpAllocator = allocator;
     textdrawer::Base::create(allocator);
     mpString = static_cast<tistring::Decolated*>(editBuffer->mpString);
@@ -1117,18 +1146,18 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     mriManager.mpAllocator = allocator;
     mriManager.mpInfo = static_cast<Info_*>(MEMAllocFromAllocator(allocator, (mriManager.mMaxLength + 2) * sizeof(Info_)));
     mriManager.init();
-    Info_* rows = mriManager.mpInfo;
-    Info_* selected = &rows[rows[mriManager.mMaxLength].Next];
-    u16 previous = selected->Back;
-    u16 next = selected->Next;
-    u16 selectedIndex = rows[next].Back;
+    rows = mriManager.mpInfo;
+    selected = &rows[rows[mriManager.mMaxLength].Next];
+    previous = selected->Back;
+    next = selected->Next;
+    selectedIndex = rows[next].Back;
     rows[next].Back = previous;
     rows[previous].Next = next;
     selected->Back = selectedIndex;
     selected->Next = selectedIndex;
-    Info_* listEnd = &mriManager.mpInfo[mriManager.mpInfo[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
     rows = mriManager.mpInfo;
-    if (selected->Back == selected->Next) {
+    listEnd = &mriManager.mpInfo[mriManager.mpInfo[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
+    if (selected->Next == selected->Back) {
         next = listEnd->Next;
         selected->Back = rows[next].Back;
         selected->Next = next;
@@ -1138,7 +1167,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     selected->StrCount = 0;
     selected->DispRowCount = 1;
     mpCursorLine = selected;
-    void* handlerMemory = MEMAllocFromAllocator(allocator, sizeof(EventHandler));
+    handlerMemory = MEMAllocFromAllocator(allocator, sizeof(EventHandler));
     mpInputEventHandler = new (handlerMemory) EventHandler(this);
     nw4rmanager::Layout::createWithEventHandler(allocator, mpInputEventHandler);
     if (!mpFontName) {
@@ -1150,7 +1179,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
         mpMultiArcResourceAccessor->GetFont(mpFontName)->SetAlternateChar(0xe06b);
         setFont(*mpMultiArcResourceAccessor->GetFont(mpFontName));
     }
-    nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true));
+    textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true));
     textBox->SetString(L"", 0);
     mfCharacterSpacing = textBox->GetCharSpace();
     mfLineSpacing = textBox->GetLineSpace();
@@ -1162,29 +1191,24 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     setVisible("N_2line", true);
     mpPaneManager->setAllComponentTriggerTarget(false);
     mpPaneManager->setAllBoundingBoxComponentTriggerTarget(true);
-    nw4r::lyt::Pane* pane = mpLayout->GetRootPane()->FindPaneByName(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox, true);
-    if (!pane) pane = mpLayout->GetRootPane()->FindPaneByName(getLanguageTextPane() ? static_cast<const LanguagePaneData*>(mpLanguageData)->textBox : "T_2l_TextBox", true);
+    pane = mpLayout->GetRootPane()->FindPaneByName(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox, true);
+    if (!pane) pane = mpLayout->GetRootPane()->FindPaneByName(selectInputTextName(*this, mpLanguageData), true);
     mpPaneManager->getPaneComponentByPane(pane)->setTriggerTarget(true);
-    for (u32 buttonIndex = 0; buttonIndex < 2; ++buttonIndex) {
+    for (buttonIndex = 0; buttonIndex < 2; ++buttonIndex) {
         const ButtonAnimations& button = csButtonAnimations[static_cast<u16>(buttonIndex)];
-        nw4rmanager::AnmPane* animationPane = NULL;
+        animationPane = NULL;
         switch (button.type) {
         case KT_NormalButton: {
-            void* memory = MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane));
+            memory = MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane));
             animationPane = new (memory) NormalButtonAnmPane(getPane(button.paneName), NULL);
             break;
         }
         }
         nw4r::ut::List_Append(&mAnmPanes, animationPane);
-        u32 count;
-        const char* bindingName = button.bindingName;
+        bindingName = button.bindingName;
         count = button.count;
-        for (u16 animationIndex = 0; animationIndex < count; ++animationIndex) {
-            const InputFormAnimationFile* const& file = button.files[animationIndex];
-            void* resource = mpMultiArcResourceAccessor->GetResource(0, file->fileName, NULL);
-            AnimTransformPane* transform = static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
-            if (!bindingName) animationPane->addAnimation(allocator, file->id, transform, false, true);
-            else animationPane->forceAddAnimation(allocator, file->id, transform, bindingName, false, true);
+        for (animationIndex = 0; animationIndex < count; ++animationIndex) {
+            addButtonAnimation(allocator, animationPane, button.files[animationIndex], bindingName);
         }
     }
     init();
@@ -1246,12 +1270,6 @@ void LayoutByNW4R::calc() {
             } else searchAnmPane("P_txtScrll_DOWN")->onAnmEvent(nw4rmanager::AnmPane::PE_7);
         }
     }
-}
-static inline const char* selectInputTextName(const nw4rmanager::Layout& layout, const void* const& languageData) {
-    if (layout.getPane(static_cast<const LanguagePaneData*>(languageData)->textBox)) {
-        return static_cast<const LanguagePaneData*>(languageData)->textBox;
-    }
-    return "T_2l_TextBox";
 }
 
 void LayoutByNW4R::setLanguage(Language language) {
@@ -3113,6 +3131,16 @@ bool Base::onCursor(CursorPos* cursor) {
     return positioned;
 }
 
+static inline f32 scaledExtent(f32 scale, f32 start, f32 end) {
+    f32 extent = end - start;
+    return scale * extent;
+}
+
+static inline f32 glyphBottom(f32 origin, const Base::DrawInfo& glyph, const nw4r::math::VEC2& scale) {
+    f32 extent = glyph.rect.GetHeight();
+    return origin + scale.y * extent;
+}
+
 u32 Base::calcCursorPos(f32 x, f32 y) {
     f32 cursorX;
     f32 lineTop;
@@ -3135,8 +3163,8 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
         info.rect.bottom = 0.0f;
         info.character = *string;
         calcRect(info);
-        lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
-        f32 right = cursorX + scale.x * info.rect.GetWidth();
+        lineBottom = glyphBottom(lineTop, info, scale);
+        f32 right = cursorX + scaledExtent(scale.x, info.rect.left, info.rect.right);
         if (doWordWrap(mpString->getWCString(), pos, cursorX)) {
             if (localY >= lineTop && localY <= lineBottom) {
                 if (pos != 0) return pos - 1;
@@ -3144,35 +3172,35 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
             }
             lineTop += scale.y * getLineHeight();
             cursorX = getScale().x;
-            lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
-            right = cursorX + scale.x * info.rect.GetWidth();
+            lineBottom = glyphBottom(lineTop, info, scale);
+            right = cursorX + scaledExtent(scale.x, info.rect.left, info.rect.right);
         }
-        if (right >= scale.x * mRect.GetWidth()) {
+        if (right >= scaledExtent(scale.x, mRect.left, mRect.right)) {
             if (localY >= lineTop && localY <= lineBottom) return pos;
             lineTop += scale.y * getLineHeight();
             cursorX = getScale().x;
-            lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
-            right = cursorX + scale.x * info.rect.GetWidth();
+            lineBottom = glyphBottom(lineTop, info, scale);
+            right = cursorX + scaledExtent(scale.x, info.rect.left, info.rect.right);
         }
         if (x <= info.rect.left && localY >= lineTop && localY <= lineBottom) return pos;
         if (*string == L'\n') {
             if (localY >= lineTop && localY <= lineBottom) return pos;
             lineTop += scale.y * getLineHeight();
             cursorX = getScale().x;
-            lineBottom = lineTop + scale.y * (info.rect.bottom - info.rect.top);
+            lineBottom = glyphBottom(lineTop, info, scale);
             if (!string[1] && localY >= lineTop && localY <= lineBottom) return pos + 1;
         } else {
             if (x >= cursorX && x < right && localY >= lineTop && localY < lineBottom) {
-                if (cursorX + 0.5f * (right - cursorX) > x) return pos;
+                if (cursorX + (right - cursorX) / 2.0f > x) return pos;
                 return pos + 1;
             }
-            cursorX += scale.x * info.rect.GetWidth();
+            cursorX += scaledExtent(scale.x, info.rect.left, info.rect.right);
         }
         ++string;
         ++pos;
         if (!*string && localY >= lineTop && localY <= lineBottom) return pos;
     }
-    if (lineTop + (lineBottom - lineTop) * 0.5f <= localY) {
+    if (lineTop + (lineBottom - lineTop) / 2.0f <= localY) {
         return Base::calcCursorPos(x, 1.0f + lineTop + mfScrollY);
     }
     return Base::calcCursorPos(x, 1.0f);
