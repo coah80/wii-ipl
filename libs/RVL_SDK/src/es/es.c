@@ -5,6 +5,8 @@
 
 #include <private/es.h>
 
+#include <stddef.h>
+
 static IOSFd __esFd = -1;
 
 #define DECLARE_ES_WORK u8 __esWork[256] ALIGN32
@@ -13,7 +15,6 @@ static IOSFd __esFd = -1;
 #define IS_ALIGNED(x) (((u32)(x) & 31) == 0)
 #define IS_ALIGNED64(x) (((u32)(x) & 63) == 0)
 
-// Di means something. DVD Interface????
 enum {
     ES_IOCTLV_IMPORT_TICKET = 1,
     ES_IOCTLV_IMPORT_TITLE_0 = 2,
@@ -77,14 +78,12 @@ enum {
 ESError ES_InitLib() {
     ESError ret = ES_ERR_OK;
 
-    // Already initialized? Get out.
     if (__esFd >= 0) {
         goto out;
     }
 
     __esFd = IOS_Open("/dev/es", 0);
 
-    // Failed? Return error code
     if (__esFd < ES_ERR_OK) {
         ret = __esFd;
     }
@@ -98,6 +97,7 @@ ESError ES_ImportTicket(ESTicket* ticket, void* certs, u32 certSize, void* crls,
 
     IOSIoVector* vec = (IOSIoVector*)AT_ES_WORK(0xD0);
 
+    /* MWCC needs the initial success value to preserve validation branch layout. */
     ESError ret = ES_ERR_OK;
 
     if (ticket == NULL || certs == NULL || certSize == 0) {
@@ -126,10 +126,9 @@ ESError ES_ImportTicket(ESTicket* ticket, void* certs, u32 certSize, void* crls,
 
     if (transferMode == 0) {
         ret = IOS_Ioctlv(__esFd, ES_IOCTLV_IMPORT_TICKET, 3, 0, vec);
-        goto out;
+    } else {
+        ret = ES_ERR_INVALID_UNKNOWN;
     }
-
-    ret = ES_ERR_INVALID_UNKNOWN;
 
 out:
     return ret;
@@ -141,6 +140,7 @@ ESError ES_ImportBoot(ESTicket* ticket, void* certs, u32 certSize, void* tmd, u3
 
     IOSIoVector* vec = (IOSIoVector*)AT_ES_WORK(0xD0);
 
+    /* MWCC needs the initial success value to preserve validation branch layout. */
     ESError ret = ES_ERR_OK;
 
     if (ticket == NULL || certs == NULL || certSize == 0 || tmd == NULL || tmdSize == 0 || tmdCerts == NULL || tmdCertSize == 0 || app == NULL ||
@@ -191,7 +191,7 @@ ESError ES_GetTmdSize(ESTitleMeta* tmd, u32* tmdSize) {
         goto out;
     }
 
-    *tmdSize = tmd->head.numContents * 0x24 + 0x1E4 /* todo: figure these out. */;
+    *tmdSize = tmd->head.numContents * sizeof(ESContentMeta) + offsetof(ESTitleMeta, contents);
 
 out:
     return ret;
@@ -205,7 +205,7 @@ ESError ES_GetTmdSizeFromView(ESTmdView* tmd, u32* tmdSize) {
         goto out;
     }
 
-    *tmdSize = tmd->head.numContents * 0x24 + 0x1E4 /* todo: figure these out. */;
+    *tmdSize = tmd->head.numContents * sizeof(ESContentMeta) + offsetof(ESTitleMeta, contents);
 
 out:
     return ret;

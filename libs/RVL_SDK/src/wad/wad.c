@@ -283,7 +283,7 @@ s32 WADGetTitleVersionEx(char* path, ESTitleId* titleId, u16* titleVersion, WADL
             }
             if (((type == 2) && (headerBuffer->tmdSize == 0)) ||
                 ((type == 1) && (headerBuffer->ticketSize == 0))) {
-                result = -3002;
+                result = WAD_ERROR_NOCOPY;
                 if (headerInfo == 2) {
                     titleDataOffset = 0x60;
                 } else {
@@ -294,7 +294,7 @@ s32 WADGetTitleVersionEx(char* path, ESTitleId* titleId, u16* titleVersion, WADL
             if (titleDataOffset == 0) {
                 result = _WADGetTitleVer(headerBuffer, 0, 0, type, headerInfo);
                 if (result == 0) {
-                    result = -3002;
+                    result = WAD_ERROR_NOCOPY;
                     goto done;
                 }
                 titleDataOffset = result + 0x180;
@@ -342,7 +342,7 @@ s32 WADCheckImport(ESTitleId titleId, u32 titleVersion) {
     }
 
     result = WADGetInstalledVersion(titleId, &installedVersion);
-    if (result == -3002) {
+    if (result == WAD_ERROR_NOCOPY) {
         return 1;
     }
     if (result == 0) {
@@ -377,7 +377,7 @@ s32 WADGetInstalledVersion(ESTitleId titleId, u16* version) {
 
     result = ES_GetTmdView(titleId, 0, &tmdSize);
     if (result == ES_ERR_DONT_EXISTS) {
-        return -3002;
+        return WAD_ERROR_NOCOPY;
     }
     if (result != 0) {
         return result;
@@ -579,6 +579,7 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
     u32 transferIdValue;
     u32 fileBytesRemaining;
     u32 size;
+    /* MWCC needs the success initializer and resets to preserve branch layout. */
     s32 result = 0;
     u32 importedBytes = 0;
     u32 contentCount;
@@ -1253,6 +1254,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
     u32 bufferIndex;
     u32 sizeRemaining;
     u32 chunkSize;
+    /* MWCC needs success resets before calls to preserve branch layout. */
     s32 result;
     OSThread exportThread;
     NANDFileInfo savedFile;
@@ -1348,7 +1350,6 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
         }
         result = 0;
         titleMeta = &titleMetaBuffer->view;
-        result = 0;
         result = ES_GetTmdView(titleId, titleMeta, &titleMetaViewSize);
         if (result != 0) {
             goto cleanup;
@@ -1357,13 +1358,13 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
     if ((flags & 1) != 0) {
         result = ES_ListTitleContentsOnCard(titleId, 0, &installedContentCount);
         if (result == ES_ERR_DONT_EXISTS) {
-            result = -3002;
+            result = WAD_ERROR_NOCOPY;
             goto cleanup;
         }
         result = 0;
         if (installedContentCount == 0) {
             if (!_WADIsError(result)) {
-                result = -3002;
+                result = WAD_ERROR_NOCOPY;
             }
             goto cleanup;
         }
@@ -1407,7 +1408,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
         goto cleanup;
     }
     if ((contentDataSize == 0) && (fileDataSize == 0)) {
-        result = -3002;
+        result = WAD_ERROR_NOCOPY;
         goto cleanup;
     }
     result = 0;
@@ -1840,13 +1841,13 @@ cleanup:
 }
 
 static s32 _WADCheckContents(ESTmdView* titleMeta, ESContentMask* contentMask) {
-    ESContentId installedContentIds[512] ALIGN32;
+    ESContentId installedContentIds[ES_MAX_CONTENT] ALIGN32;
     u32 installedContentCount;
     s32 result;
     u32 contentIndex;
 
     if (ES_ListTitleContentsOnCard(titleMeta->head.titleId, 0, &installedContentCount) == ES_ERR_DONT_EXISTS) {
-        result = -3002;
+        result = WAD_ERROR_NOCOPY;
     } else {
         result = ES_ListTitleContentsOnCard(titleMeta->head.titleId, installedContentIds,
                                             &installedContentCount);
@@ -1866,7 +1867,7 @@ static s32 _WADCheckContents(ESTmdView* titleMeta, ESContentMask* contentMask) {
                     }
                     if (installedIndex == installedContentCount) {
                         if ((titleMeta->contents[contentIndex].type & 0x4000) == 0) {
-                            result = -3002;
+                            result = WAD_ERROR_NOCOPY;
                             break;
                         }
                         result = 0;
@@ -2309,7 +2310,7 @@ static s32 _WADUnpack(void* header, WADStream* stream, WADUnpackInfo* info, MEMA
     if ((header == 0) || (info == 0)) {
         result = -3000;
     } else {
-        memset(info, 0, 0x70);
+        memset(info, 0, sizeof(*info));
         type = WAD_815C2F44(header, &info->headerInfo);
         info->type = type;
         if (type == 2) {
@@ -2629,7 +2630,7 @@ s32 _WADGetCidxCount(const ESContentMask* contentMask) {
     u32 bitIndex;
     s32 count = 0;
 
-    for (bitIndex = 0; bitIndex < 512; bitIndex++) {
+    for (bitIndex = 0; bitIndex < ES_MAX_CONTENT; bitIndex++) {
         if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             count++;
         }
@@ -2641,7 +2642,7 @@ static s32 _WADGetCidx(const ESContentMask* contentMask, u32 contentNumber) {
     s32 bitIndex;
     u32 remaining = contentNumber + 1;
 
-    for (bitIndex = 0; bitIndex < 512; bitIndex++) {
+    for (bitIndex = 0; bitIndex < ES_MAX_CONTENT; bitIndex++) {
         if ((contentMask->data[bitIndex >> 3] & (1 << (bitIndex & 7))) != 0) {
             remaining--;
         }
@@ -2999,6 +3000,7 @@ static s32 WAD_815C43E0(WADHashThreadArgs* args) {
 static s32 _WADHash(WADStream* stream, u32 offset, u32 size, void* context, void* buffer,
                     u32 chunkSize, void* secondBuffer, void* threadStack, u32 threadStackSize) {
     OSMutex* mutex;
+    /* MWCC needs success resets before calls to preserve branch layout. */
     s32 result;
     u32 completed = 0;
     void* readBuffer;

@@ -26,7 +26,7 @@ typedef struct IOSResourceOpen {
     u8* path;     // 0x00
     u32 flags;    // 0x04
     u32 ownerId;  // 0x08
-    u16 groudId;  // 0x0C
+    u16 groupId;  // 0x0C
 } IOSResourceOpen;
 
 typedef struct IOSResourceRead {
