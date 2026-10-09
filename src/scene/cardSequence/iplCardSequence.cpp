@@ -462,7 +462,6 @@ extern "C" void* cardThreadMain(void*) {
     CARDDir mountDir;
     CARDDir freeDir;
     u32 message;
-    u8 compareName[6];
     s32 result;
     u8 slot;
     BOOL brokenFile;
@@ -521,15 +520,17 @@ loopStart:
                     }
                     goto loopCheck;
                 } else {
-                    compareName[0] = 0;
-                    compareName[1] = 0;
-                    compareName[2] = 0;
-                    compareName[3] = 0;
-                    compareName[4] = 0;
-                    compareName[5] = 0;
+                    u8 company[2];
+                    u8 gameName[4];
+                    company[0] = 0;
+                    company[1] = 0;
+                    gameName[0] = 0;
+                    gameName[1] = 0;
+                    gameName[2] = 0;
+                    gameName[3] = 0;
                     if (strncmp((const char*)mountDir.fileName, "Broken File", 0xB) == 0 &&
-                        memcmp(mountDir.gameName, compareName + 2, 4) == 0 &&
-                        memcmp(mountDir.company, compareName, 2) == 0) {
+                        memcmp(mountDir.gameName, gameName, 4) == 0 &&
+                        memcmp(mountDir.company, company, 2) == 0) {
                         brokenFile = TRUE;
                     } else {
                         brokenFile = FALSE;
@@ -706,13 +707,39 @@ extern "C" void clearAllCardFileEntries(s32 slot) {
     } while (file < CARD_MAX_FILE);
 }
 
+static inline void updateCardIconAnimation(s32 slot, s32 fileNo, CARDDir* dir) {
+    s32 shift = 0;
+    s32 iconCount = 0;
+    s32 icon;
+    sThread->icons[slot][fileNo].unk_0x02 = 0;
+    sThread->icons[slot][fileNo].anmMax = 0;
+    sThread->icons[slot][fileNo].anmFrameBits = dir->iconSpeed;
+    sThread->icons[slot][fileNo].unk_0x06 =
+        (dir->iconSpeed & CARD_STAT_SPEED_MASK) << 2;
+    for (icon = 0; icon < CARD_ICON_MAX; ++icon) {
+        s32 iconSpeed = (dir->iconSpeed >> shift) & CARD_STAT_SPEED_MASK;
+        if (iconSpeed != 0) {
+            sThread->icons[slot][fileNo].anmMax =
+                sThread->icons[slot][fileNo].anmMax + (iconSpeed << 2);
+        } else {
+            sThread->icons[slot][fileNo].unk_0x07 =
+                (u8)(((dir->iconSpeed >> ((iconCount - 1) * 2)) << 2) & 0xC);
+            return;
+        }
+        iconCount = iconCount + 1;
+        shift = shift + 2;
+    }
+    sThread->icons[slot][fileNo].unk_0x07 =
+        (dir->iconSpeed >> 0xC) & 0xC;
+}
+
 extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
     s32 sectorSize;
     s32 commentSectorSize;
     CARDFileInfo fileInfo;
-    s32 iconAddressOffset;
     u32 iconAddressBase;
     s32 result;
+    s32 iconAddressOffset;
     result = CARDFastOpen(slot, fileNo, &fileInfo);
     if (result < CARD_RESULT_READY) {
         return result;
@@ -760,42 +787,21 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
     }
 
     s32 shift = 0;
+    BOOL hasTlut = FALSE;
     s32 iconImageSize = 0;
-    s32 iconCount = 0;
     s32 icon;
-    sThread->icons[slot][fileNo].unk_0x02 = 0;
-    sThread->icons[slot][fileNo].anmMax = 0;
-    sThread->icons[slot][fileNo].anmFrameBits = dir->iconSpeed;
-    sThread->icons[slot][fileNo].unk_0x06 =
-        (dir->iconSpeed & CARD_STAT_SPEED_MASK) << 2;
-    for (icon = 0; icon < CARD_ICON_MAX; ++icon) {
-        s32 iconSpeed = (dir->iconSpeed >> shift) & CARD_STAT_SPEED_MASK;
-        if (iconSpeed != 0) {
-            sThread->icons[slot][fileNo].anmMax =
-                sThread->icons[slot][fileNo].anmMax + (iconSpeed << 2);
-        } else {
-            sThread->icons[slot][fileNo].unk_0x07 =
-                (u8)(((dir->iconSpeed >> ((iconCount - 1) * 2)) << 2) & 0xC);
-            goto iconSpeedDone;
-        }
-        iconCount = iconCount + 1;
-        shift = shift + 2;
-    }
-    sThread->icons[slot][fileNo].unk_0x07 =
-        (dir->iconSpeed >> 0xC) & 0xC;
-
-iconSpeedDone:
+    s32 iconCount = 0;
+    updateCardIconAnimation(slot, fileNo, dir);
     if ((dir->iconSpeed & CARD_STAT_SPEED_MASK) == 0 || (dir->iconFormat & CARD_STAT_ICON_MASK) == 0) {
-        iconImageSize = 0;
         sThread->icons[slot][fileNo].unk_0x01 = 0;
+        iconImageSize = 0;
     } else {
-        BOOL hasTlut = FALSE;
         iconCount = 0;
         shift = 0;
         for (icon = 0; icon < CARD_ICON_MAX; ++icon) {
             if (((dir->iconSpeed >> shift) & CARD_STAT_SPEED_MASK) != 0) {
                 s32 iconFormat = (dir->iconFormat >> shift) & CARD_STAT_ICON_MASK;
-                s32 paletteSize;
+                s32 paletteSize = 0;
                 switch (iconFormat) {
                 case CARD_STAT_ICON_C8:
                     paletteSize = 0x400;
@@ -807,18 +813,16 @@ iconSpeedDone:
                     sThread->icons[slot][fileNo].iconFmt[iconCount] = GX_TF_RGB5A3;
                     break;
                 case CARD_STAT_ICON_NONE: {
-                    paletteSize = 0;
                     u8* iconPalette =
                         &sThread->icons[slot][fileNo].iconFmt[iconCount];
                     *iconPalette = iconPalette[-1];
                     break;
                 }
                 default:
-                    paletteSize = 0;
                     break;
                 }
                 if (iconCount < 7) {
-                    sThread->icons[slot][fileNo].iconOffset[iconCount + 1] =
+                    sThread->icons[slot][fileNo].iconOffset[(u32)(iconCount + 1)] =
                         paletteSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
                 } else {
                     sThread->icons[slot][fileNo].iconTlutOffset =
@@ -860,22 +864,24 @@ iconSpeedDone:
             result = 0;
             sThread->icons[slot][fileNo].bannerEnable = 0;
             sThread->icons[slot][fileNo].unk_0x01 = 0;
-        } else if (totalImageSize > 0) {
-            result = CARDRead(&fileInfo, sThread->imageReadBuffer,
-                              transferSize, iconAddressBase);
-            if (result < CARD_RESULT_READY) {
-                goto closeFile;
+        } else {
+            if (totalImageSize > 0) {
+                result = CARDRead(&fileInfo, sThread->imageReadBuffer,
+                                  transferSize, iconAddressBase);
+                if (result < CARD_RESULT_READY) {
+                    return result;
+                }
+                memcpy(sThread->images[slot][fileNo],
+                       sThread->imageReadBuffer + iconAddressOffset,
+                       totalImageSize);
+                DCStoreRange(sThread->images[slot][fileNo], transferSize);
             }
-            memcpy(sThread->images[slot][fileNo],
-                   sThread->imageReadBuffer + iconAddressOffset,
-                   totalImageSize);
-            DCStoreRange(sThread->images[slot][fileNo], transferSize);
             result = 0;
         }
     }
 
     if (result < CARD_RESULT_READY) {
-        goto closeFile;
+        return result;
     }
 
     iconAddress = dir->commentAddr;
@@ -914,13 +920,10 @@ clearComment:
     memset(sThread->comments[slot][fileNo], 0, CARD_COMMENT_SIZE);
 
 commentDone:
-    if (result >= CARD_RESULT_READY) {
-        goto closeFileSuccess;
+    if (result < CARD_RESULT_READY) {
+        return result;
     }
-closeFile:
-    return result;
 
-closeFileSuccess:
     result = CARDClose(&fileInfo);
     if (result < CARD_RESULT_READY) {
         return result;
