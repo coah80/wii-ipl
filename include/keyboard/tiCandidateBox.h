@@ -77,7 +77,7 @@ namespace textinput {
 
         class Base : public CommandSender {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
+#if defined(TIMANAGER_IMPLEMENTATION) || defined(TI_CANDIDATEBOX_SAMPLE_CLASS)
             Base(Manager* manager) : mpCandidates(NULL), mpAllocator(NULL), mbOn(false), mbInvalid(true), meLanguage(USA), mpManager(manager) {}
 #endif
             virtual ~Base();
@@ -114,7 +114,7 @@ namespace textinput {
 
         class EventHandler : public nw4rmanager::TiEventHandler {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
+#if defined(TIMANAGER_IMPLEMENTATION) || defined(TI_CANDIDATEBOX_SAMPLE_CLASS)
             EventHandler(LayoutByNW4R* layout) : mpLayoutByNW4R(layout) {}
 #endif
             virtual void onTiEvent(gui::PaneComponent* paneComponent, u32 event, Input* input) override;  // 0x18
@@ -302,7 +302,7 @@ namespace textinput {
         // TODO
         class LayoutByNW4R : public Base, public nw4rmanager::Layout, public UIObj::Listener {
         public:
-#ifdef TIMANAGER_IMPLEMENTATION
+#if defined(TIMANAGER_IMPLEMENTATION) || defined(TI_CANDIDATEBOX_SAMPLE_CLASS)
             LayoutByNW4R(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
                 : Base(manager), nw4rmanager::Layout(accessor, layoutName, observer), mEventHandler(this), mpTiString(NULL),
                   mTextArea(0, this, this), mLeftScroll(1, this, this), mRightScroll(2, this, this), mOnOffButton(3, this, this),
@@ -370,6 +370,15 @@ namespace textinput {
             UITextWindow mTextWindow;
             bool mbActive;
         };
+
+#ifdef TI_CANDIDATEBOX_SAMPLE_CLASS
+        class Sample : public LayoutByNW4R {
+        public:
+            Sample(Manager* manager, nw4r::lyt::MultiArcResourceAccessor* accessor, EventObserver* observer, const char* layoutName)
+                : LayoutByNW4R(manager, accessor, observer, layoutName) {}
+            virtual ~Sample() {}
+        };
+#endif
 
         class CandidateTextAnmPane : public nw4rmanager::AnmPane {
         public:
