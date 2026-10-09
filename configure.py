@@ -824,7 +824,7 @@ config.libs = [
         ]
     ),
     IPLSection("cardSequence", [
-            Object(NonMatching, "scene/cardSequence/iplCardSequence.cpp"),
+            Object(Matching, "scene/cardSequence/iplCardSequence.cpp"),
         ]
     ),
     IPLSection("nakamuraTest", [
