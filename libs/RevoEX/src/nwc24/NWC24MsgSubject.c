@@ -111,12 +111,11 @@ NWC24Err NWC24ReadMsgSubjectPublic(const NWC24MsgObj* msg, u16* subject, u32* su
                     }
                     break;
                 default:
-                    goto done;
+                    break;
             }
         }
     }
 
-done:
     return result;
 }
 
@@ -164,12 +163,11 @@ NWC24Err NWC24ReadMsgTextPublic(const NWC24MsgObj* msg, u16* text, u32* textSize
                     }
                     break;
                 default:
-                    goto done;
+                    break;
             }
         }
     }
 
-done:
     return result;
 }
 

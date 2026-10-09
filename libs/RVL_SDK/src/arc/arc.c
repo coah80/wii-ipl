@@ -201,6 +201,7 @@ s32 ARCConvertPathToEntrynum(ARCHandle* handle, const char* path) {
     }
 }
 
+/* MWCC must retain this unreferenced SDK entry point in the linked image. */
 #pragma push
 #pragma force_active on
 BOOL ARCEntrynumIsDir(ARCHandle* handle, s32 entryNum) {

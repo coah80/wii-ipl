@@ -434,7 +434,7 @@ BOOL NHTTP_CancelRequestAsync(void* sysInfo_p, s32 id)
     BOOL rc = FALSE;
     NHTTPReqInfo* reqInfo_p = NHTTPi_GetReqInfoP(sysInfo_p);
     void* mutexInfo_p = NHTTPi_GetMutexInfoP(sysInfo_p);
-    volatile NHTTPReqQueue* reqCurrent_p = reqInfo_p->reqQueue;
+    NHTTPReqQueue* reqCurrent_p = reqInfo_p->reqQueue;
 
     NHTTPi_lockReqList(mutexInfo_p);
 
@@ -468,7 +468,7 @@ void NHTTPi_cancelAllRequests(void* sysInfo_p)
     NHTTPReqInfo* reqInfo_p = NHTTPi_GetReqInfoP(sysInfo_p);
     NHTTPListInfo* listInfo_p = NHTTPi_GetListInfoP(sysInfo_p);
     void* mutexInfo_p = NHTTPi_GetMutexInfoP(sysInfo_p);
-    volatile NHTTPReqQueue* reqCurrent_p = reqInfo_p->reqQueue;
+    NHTTPReqQueue* reqCurrent_p = reqInfo_p->reqQueue;
 
     NHTTPi_lockReqList(mutexInfo_p);
 

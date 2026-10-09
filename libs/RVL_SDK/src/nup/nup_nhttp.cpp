@@ -133,12 +133,21 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
     state.result = 0;
     state.lastActivity = 0;
     request = NHTTPCreateRequestEx(url, method, NULL, 0, __nupNhttpReqDone, &state, __nupNhttpBufFull, __nupNhttpBufFree);
-    if (request == NULL) { result = -7000 - NHTTPGetError(); goto cleanup; }
-    if (NHTTPSetSocketBufferSize(request, 0x8000) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
+    if (request == NULL) {
+        result = -7000 - NHTTPGetError();
+        goto cleanup;
+    }
+    if (NHTTPSetSocketBufferSize(request, 0x8000) != 0) {
+        result = -7000 - NHTTPGetError();
+        goto cleanup;
+    }
     if (headers != NULL) {
         unsigned long size = strlen(headers) + 1;
         headerCopy = (char*)nup::__nupMalloc(size);
-        if (headerCopy == NULL) { result = -5000; goto cleanup; }
+        if (headerCopy == NULL) {
+            result = -5000;
+            goto cleanup;
+        }
         memcpy(headerCopy, headers, size);
         char* field = headerCopy;
         char* colon;
@@ -150,18 +159,42 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
             while (*field && isspace(*field)) field++;
             char* value = colon + 1;
             while (*value && isspace(*value)) ++value;
-            if (NHTTPAddHeaderField(request, field, value) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
+            if (NHTTPAddHeaderField(request, field, value) != 0) {
+                result = -7000 - NHTTPGetError();
+                goto cleanup;
+            }
             field = end + 2;
         }
     }
-    if (NHTTPAddHeaderField(request, "Accept", "text/html, image/gif, image/jpeg, */*") != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
-    if (NHTTPAddHeaderField(request, "Content-type", "text/xml; charset=utf-8") != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
-    if (NHTTPAddHeaderField(request, "Connection", "Keep-Alive") != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
-    if (NHTTPSetClientCertDefault(request) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
-    if (NHTTPSetRootCADefault(request) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
-    if (NHTTPSetVerifyOption(request, 11) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
+    if (NHTTPAddHeaderField(request, "Accept", "text/html, image/gif, image/jpeg, */*") != 0) {
+        result = -7000 - NHTTPGetError();
+        goto cleanup;
+    }
+    if (NHTTPAddHeaderField(request, "Content-type", "text/xml; charset=utf-8") != 0) {
+        result = -7000 - NHTTPGetError();
+        goto cleanup;
+    }
+    if (NHTTPAddHeaderField(request, "Connection", "Keep-Alive") != 0) {
+        result = -7000 - NHTTPGetError();
+        goto cleanup;
+    }
+    if (NHTTPSetClientCertDefault(request) != 0) {
+        result = -7000 - NHTTPGetError();
+        goto cleanup;
+    }
+    if (NHTTPSetRootCADefault(request) != 0) {
+        result = -7000 - NHTTPGetError();
+        goto cleanup;
+    }
+    if (NHTTPSetVerifyOption(request, 11) != 0) {
+        result = -7000 - NHTTPGetError();
+        goto cleanup;
+    }
     NHTTPSetProxyDefault(request);
-    if (method == NHTTP_POST && body != NULL && bodyLength != 0 && NHTTPAddPostDataRaw(request, body, bodyLength) != 0) { result = -7000 - NHTTPGetError(); goto cleanup; }
+    if (method == NHTTP_POST && body != NULL && bodyLength != 0 && NHTTPAddPostDataRaw(request, body, bodyLength) != 0) {
+        result = -7000 - NHTTPGetError();
+        goto cleanup;
+    }
     requestId = NHTTPSendRequestAsync(request);
     if (requestId < 0) {
         result = -7000 - NHTTPGetError();
@@ -180,16 +213,28 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
         }
         NCDSleep(OSMillisecondsToTicks(100));
     }
-    if (state.result != 0) { result = -7000 - state.result; goto cleanup; }
+    if (state.result != 0) {
+        result = -7000 - state.result;
+        goto cleanup;
+    }
     if (state.response != NULL) {
         length = NHTTPGetBodyAll(state.response, &responseBody);
-        if (length < 0) { result = -5007; goto cleanup; }
+        if (length < 0) {
+            result = -5007;
+            goto cleanup;
+        }
         __nupNhttpBufFull(&responseBody, (unsigned long*)&length, 0, NULL, NULL, &state);
     }
-    if (state.error != 0) { result = state.error; goto cleanup; }
+    if (state.error != 0) {
+        result = state.error;
+        goto cleanup;
+    }
     if (state.response == NULL) goto cleanup;
     length = NHTTPGetHeaderAll(state.response, &responseHeaders);
-    if (length < 0) { result = -5007; goto cleanup; }
+    if (length < 0) {
+        result = -5007;
+        goto cleanup;
+    }
     char* protocol = strstr(responseHeaders, "HTTP/");
     if (protocol == NULL || sscanf(protocol, "HTTP/%*d.%*d %d", &status) != 1) {
         result = -5007;
@@ -218,7 +263,10 @@ static inline long AppendHttpString(unsigned long length, u8* data, unsigned lon
     if (total > text->capacity) {
         requested = HttpStringGrowthSize(text, total, requested);
         next = (u8*)nup::__nupMalloc(requested);
-        if (next == NULL) { result = -5000; goto done; }
+        if (next == NULL) {
+            result = -5000;
+            goto done;
+        }
         if (text->buffer != NULL) {
             memcpy(next, text->buffer, text->length);
             nup::__nupFree(text->buffer);

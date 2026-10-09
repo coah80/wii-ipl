@@ -216,7 +216,7 @@ static ISFSError nandCopy(IOSFd dest, IOSFd src, void* buffer, u32 length) {
     }
 }
 
-// Force this unused function to link
+// MWCC must retain this unreferenced SDK entry point in the linked image.
 #pragma push
 #pragma force_active on
 s32 NANDSafeOpen(const char* path, NANDFileInfo* info, u8 accType, void* buffer, u32 length) {
@@ -681,4 +681,5 @@ static void nandCloseCallback(ISFSError result, void* callbackContext) {
 }
 
 // Force to align
+// MWCC needs this object to preserve the data section layout.
 char canYouAlignMe[] = "pretty pls?" ALIGN32;

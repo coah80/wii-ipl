@@ -85,15 +85,15 @@ void __OSPlayTimeFadeLastAIDCallback() {
         u32 bytes = AIGetDMALength();
         f32 delta = 0.995f;
 
-        int i = bytes;
-        while (i) {
+        int bytesRemaining = bytes;
+        while (bytesRemaining) {
             *dest++ = __OSExpireAIFade->auxL;
             *dest++ = __OSExpireAIFade->auxR;
 
             __OSExpireAIFade->auxL *= delta;
             __OSExpireAIFade->auxR *= delta;
 
-            i -= 4;
+            bytesRemaining -= 4;
         }
 
         DCFlushRange(buffer, bytes);
@@ -164,8 +164,8 @@ BOOL __OSWriteExpiredFlagIfSet() {
 
 void* __OSPlayTimeRebootThread(void* args) {
     BOOL enabled;
-    u32 frames = 1;
-    u32 fadeShift = 1;
+    u32 frames;
+    u32 fadeShift;
     __OSExpireAIFadeStruct aiFade ALIGN32;
 
     // Setup sound fade out
@@ -270,7 +270,7 @@ getout:
 
 s32 __OSGetPlayTime(ESTicketView* ticket, OSPlayTimeType* type, u32* playTime) {
     s32 ret;
-    u32 i, numEntries = 0, seenOther = 0;
+    u32 i, numEntries = 0, otherLimitIndex = 0;
 
     ESTicketView ticketAligned ALIGN32;
     ESLpEntry lpEntry[ES_LIMIT_MAX] ALIGN32;
@@ -300,22 +300,22 @@ s32 __OSGetPlayTime(ESTicketView* ticket, OSPlayTimeType* type, u32* playTime) {
             *playTime = ticket->limits.data[i].limit - lpEntry[i].limit;
             goto getout;
         } else if (ticket->limits.data[i].code != OS_PLAYTIME_PERMANENT) {
-            seenOther = i + 1;
+            otherLimitIndex = i + 1;
         }
     }
 
-    if (!seenOther) {
+    if (!otherLimitIndex) {
         *type = OS_PLAYTIME_PERMANENT;
         *playTime = 0xFFFFFFFF;
     } else {
-        seenOther--;
+        otherLimitIndex--;
 
-        if (ticket->limits.data[seenOther].code == OS_PLAYTIME_LAUNCH_LIMIT) {
+        if (ticket->limits.data[otherLimitIndex].code == OS_PLAYTIME_LAUNCH_LIMIT) {
             *type = OS_PLAYTIME_LAUNCH_LIMIT;
-            *playTime = ticket->limits.data[seenOther].limit;
+            *playTime = ticket->limits.data[otherLimitIndex].limit;
 
             if (numEntries > 0) {
-                *playTime -= lpEntry[seenOther].limit;
+                *playTime -= lpEntry[otherLimitIndex].limit;
             }
         } else {
             *type = OS_PLAYTIME_UNKNOWN;

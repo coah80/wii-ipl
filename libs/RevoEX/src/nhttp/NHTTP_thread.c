@@ -1,6 +1,7 @@
 #include <private/nhttp.h>
 #include <revolution/ncd.h>
 
+/* MWCC needs these HTTP helpers out of line to preserve the worker call sequence. */
 #pragma auto_inline off
 
 static const char STR_POST_DISPOS[] = "Content-Disposition: form-data; name=\"";
@@ -805,9 +806,9 @@ static s32 NHTTPi_ThreadSendProc(NHTTPThreadContext* context)
     context->sendLength = 0;
     switch (request->method)
     {
-    case 0: result = NHTTPi_SendData(context, "GET ", 4); break;
-    case 1: result = NHTTPi_SendData(context, "POST ", 5); break;
-    case 2: result = NHTTPi_SendData(context, "HEAD ", 5); break;
+    case NHTTP_REQMETHOD_GET: result = NHTTPi_SendData(context, "GET ", 4); break;
+    case NHTTP_REQMETHOD_POST: result = NHTTPi_SendData(context, "POST ", 5); break;
+    case NHTTP_REQMETHOD_HEAD: result = NHTTPi_SendData(context, "HEAD ", 5); break;
     }
     if (result != 0) return result;
     if (request->proxyEnabled && !request->secure)
@@ -843,13 +844,13 @@ static s32 NHTTPi_ThreadSendProc(NHTTPThreadContext* context)
     if (result != 0) return result;
     result = NHTTPi_SendHeaderList(context);
     if (result != 0) return result;
-    if (request->method == 1)
+    if (request->method == NHTTP_REQMETHOD_POST)
     {
         if (request->isRawData) result = NHTTPi_SendProcPostDataRaw(context);
         else
         {
             BOOL binary;
-            if (request->encodingType == 0)
+            if (request->encodingType == NHTTP_ENCODING_TYPE_AUTO)
             {
                 NHTTPHeader* header;
                 binary = FALSE;
@@ -859,7 +860,7 @@ static s32 NHTTPi_ThreadSendProc(NHTTPThreadContext* context)
                     if (header == request->postData->next) break;
                 }
             }
-            else binary = request->encodingType == 2;
+            else binary = request->encodingType == NHTTP_ENCODING_TYPE_MULTIPART;
             if (!binary) result = NHTTPi_SendProcPostDataAscii(context);
             else result = NHTTPi_SendProcPostDataBinary(context);
         }
@@ -986,6 +987,7 @@ static BOOL NHTTPi_ThreadParseHeaderProc(NHTTPThreadContext* context)
         if (length > 0x100) context->keepAlive = FALSE;
         else if (length > 0)
         {
+            /* MWCC needs this scoped match object to preserve the keep-alive branch. */
             struct TokenMatch {
                 BOOL matched;
             };
@@ -1046,7 +1048,7 @@ static BOOL NHTTPi_ThreadRecvBodyProc(NHTTPThreadContext* context)
     NHTTPConnectionInfo* connection = NHTTPi_Request2Connection(mutex, request);
     char* buffer = NHTTPi_GetThreadInfoP(system)->commBuf;
     s32 status;
-    if (request->method == 2 || (status = response->httpStatus) == 204 || status == 304 || (status >= 100 && status < 200)) return TRUE;
+    if (request->method == NHTTP_REQMETHOD_HEAD || (status = response->httpStatus) == 204 || status == 304 || (status >= 100 && status < 200)) return TRUE;
     NHTTPi_SetVirtualContentLength(connection, 0);
     if (connection != NULL) connection->started = 4;
     if (context->contentLength >= 0)
