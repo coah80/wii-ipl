@@ -274,3 +274,17 @@ Shared headers and configure.py are unchanged. All data sections remain exact.
   `command | (valid<<8)` single expr (folds, 300), mask+or
   `(v & ~0xFF00)|(valid<<8)` (rlwinm+ori split) — the mr+rlwimi
   copy-vs-inplace residual (2 lines) is the coalescer dst-operand wall.
+
+## w1011/struct2 wave-4 — mr+rlwimi mechanism PROVEN, no free source form
+
+- `sThread->lastCommand = command;` after sendValidityResponse makes
+  command's web survive the pack → emits base's EXACT `mr r4,r19;
+  rlwimi r4,r25,8` (copy+insert, not in-place). Mechanism confirmed:
+  the rlwimi dst binds to a surviving operand's copy — but the store
+  costs +3 insns and base has no such store. Verified base's r19 dies
+  at the same point (reborn at 0xd58 case-0 reassign).
+- `command & 0xFF` extract: folds (command provably masked) → in-place.
+- `command | (valid<<8)`: single-expr fold to li/ori (300, -1).
+- `(reply.value & ~0xFF00)|(valid<<8)`: rlwinm+ori split.
+- Residual 2 lines = coalescer dst-operand choice with no source
+  lever that preserves insn count.
