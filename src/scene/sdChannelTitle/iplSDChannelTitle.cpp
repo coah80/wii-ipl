@@ -83,7 +83,6 @@ extern "C" void iplSDChannelTitle_setPageAndIndex(SDChannelTitle* scene, int pag
 extern "C" void iplSDChannelTitle_cleanupAndLeave(SDChannelTitle* scene);
 extern "C" void iplSDChannelTitle_confirmLeaveToSettings(SDChannelTitle* scene, bool settings);
 extern "C" void iplSDChannelTitle_flushSaveBeforeExit(SDChannelTitle* scene, int nextScene);
-extern "C" SDMemory::TitleRange* iplSDChannelTitle_copyTitleRange(SDMemory::TitleRange*, const SDMemory::TitleRange*);
 
 static inline void setMemoryTitleLists(SDMemory* memory, SDMemory::TitleRange sdRange,
                                       SDMemory::TitleRange nandRange) {
@@ -764,9 +763,9 @@ extern "C" void iplSDChannelTitle_updateCopyPrepare(SDChannelTitle* scene) {
                 if (static_cast<u32>(scene->mTitleRange.mByteSize) < 0x3800000) {
                     nandRange.mByteSize = 0x3800000;
                     nandRange.mCount = scene->mTitleRange.mCount;
-                    iplSDChannelTitle_copyTitleRange(&sdRange, &scene->mTitleRange);
+                    sdRange = scene->mTitleRange;
                 } else {
-                    iplSDChannelTitle_copyTitleRange(&nandRange, iplSDChannelTitle_copyTitleRange(&sdRange, &scene->mTitleRange));
+                    nandRange = sdRange = scene->mTitleRange;
                 }
                 SDMemory* memory = &scene->mMemory;
                 setMemoryTitleLists(memory, sdRange, nandRange);
@@ -786,14 +785,6 @@ extern "C" void iplSDChannelTitle_updateCopyPrepare(SDChannelTitle* scene) {
             scene->mErrorMessage = 0xae;
         }
     }
-}
-
-extern "C" SDMemory::TitleRange* iplSDChannelTitle_copyTitleRange(
-    SDMemory::TitleRange* target, const SDMemory::TitleRange* source) {
-    s32 bytes = source->mByteSize;
-    target->mCount = source->mCount;
-    target->mByteSize = bytes;
-    return target;
 }
 
 extern "C" void iplSDChannelTitle_updateMemoryCalc(SDChannelTitle* scene) {

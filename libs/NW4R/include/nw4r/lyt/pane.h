@@ -123,7 +123,7 @@ namespace nw4r {
             const math::MTX34& GetMtx() const { return mMtx; }
             void SetMtx(const math::MTX34& mtx) { mMtx = mtx; }
 
-            u8 GetAlpha() { return mAlpha; }
+            u8 GetAlpha() const { return mAlpha; }
             void SetAlpha(u8 alpha) { mAlpha = alpha; }
 
             const char* GetName() const { return mName; }
