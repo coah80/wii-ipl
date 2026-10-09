@@ -190,6 +190,7 @@ namespace ipl {
 
         PointerCore mCore;  // 0x40
 
+        friend class System;
         friend class PointerCoreObject;
         friend class PointerCore;
         friend class utility::BScroller;
