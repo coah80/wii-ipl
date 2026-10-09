@@ -153,3 +153,24 @@ Baseline macro form remains best (183 norm, fuzzy 65.81). All reverted:
 Conclusion: the AES loop-body interleave is an allocator ready-set artifact;
 the register-lifetime shape that produces orig's ordering is not expressible
 through these source levers. No scheduling/-O lever improves fuzzy.
+
+## Round 3: fn-local static lever (swarm #1299 hint) + pragma combos
+
+Refuted for this leaf:
+- Op-multiset check: EncryptBlock and DecryptBlock emit IDENTICAL opcode
+  histograms vs orig (158=158, same op counts) — residual is pure
+  issue-order + regname. Any memory-backed intermediate (static buffer)
+  ADDS lwz/stw ops orig provably lacks.
+- No SDA/r13/r2-relative accesses in orig AESi*Block, WLANConnect,
+  WLANGetBSSList, AOSS_Init_old — globals go through lis+addi.
+- `static u32 sbuf[4]/nbuf[4]` state buffers: 305 norm diffs (lwz/stw
+  traffic), reverted.
+- Pragma combos: iro1+sched-twice 195, iro0+sched-twice 195, iro2+sched-twice
+  177 (all worse than 183 baseline or no better), iro1 alone 195.
+- mw_version lever reported dead by orchestrator (swept, identical/worse).
+
+Standing wall: AESiEncryptBlock/DecryptBlock = allocator ready-set ordering
+inside an identical instruction multiset. No scheduling/IRO/O-level/cflag/
+static/source-structure lever changes it in the right direction.
+AOSSi_WLANConnect: 2-insn marshal-order pair (mr r3,r27 vs li r5,0x7c4);
+all decl/static/source forms tried.
