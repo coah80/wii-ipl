@@ -1269,20 +1269,49 @@ namespace ipl {
             }
         }
 
+        static inline void setChildrenAlpha(nw4r::lyt::Pane& pane, const u8 alpha);
+
+#pragma push
+#pragma ppc_iro_level 1
         void SDMemory::drawTransferTitles() {
+            f32 rowY;
+            f32 rowTop;
+            f32 backgroundOffset;
+            f32 titleOffset;
+            f32 rowHeight;
+            f32 messageOffset;
+            f32 bodyHeight;
+            f32 bodyY;
+            u8 alpha;
+            nw4r::lyt::Pane* bodyPane;
+            nw4r::lyt::Pane* titleSizePane;
+            nw4r::lyt::TextBox* titleText;
+            nw4r::lyt::Pane* footerPane;
+            u32 nandTitleIndex;
+            u32 titleIndex;
+            s32 visibleRows;
+            s32 row;
+            const wchar_t* messageForCount;
+            s32 lineCount;
+            const wchar_t* messageLine;
+            s32 totalLines;
+            s32 lineIndex;
+            const wchar_t* lineEnd;
+            u32 lineLength;
+            nw4r::lyt::TextBox* messageText;
             const nw4r::math::VEC3& translation = mpDialogLayout->FindPaneByName("N_Memo")->GetTranslate();
             nw4r::math::VEC3 memoPosition;
             memoPosition.x = translation.x;
             memoPosition.y = translation.y;
             memoPosition.z = translation.z;
-            f32 bodyY = memoPosition.y;
+            bodyY = memoPosition.y;
             mpDialogLayout->FindPaneByName("header_header");
-            nw4r::lyt::Pane* bodyPane = mpDialogLayout->FindPaneByName("header_body");
+            bodyPane = mpDialogLayout->FindPaneByName("header_body");
             if (bodyY < 500.0f) {
                 mpDialogLayout->draw("header_header");
             }
 
-            u8 alpha = mpDialogLayout->FindPaneByName("N_Memo")->GetAlpha();
+            alpha = mpDialogLayout->FindPaneByName("N_Memo")->GetAlpha();
             nw4r::ut::LinkList<nw4r::lyt::Pane, offsetof(nw4r::lyt::detail::PaneBase, mLink)>::Iterator child =
                 bodyPane->GetChildList().GetBeginIter();
             while (child != bodyPane->GetChildList().GetEndIter()) {
@@ -1290,29 +1319,30 @@ namespace ipl {
                 ++child;
             }
 
-            f32 messageOffset = 0.0f;
-            f32 bodyHeight = bodyPane->GetSize().height;
+            messageOffset = 0.0f;
+            bodyHeight = bodyPane->GetSize().height;
             if (mNandTitleCount != 0) {
-                const wchar_t* messageForCount = System::getMessage(0xCB);
-                s32 lineCount = 0;
+                messageForCount = System::getMessage(0xCB);
+                lineCount = 0;
                 const wchar_t* newline = wcsstr(messageForCount, L"\n");
-                while (newline != NULL) {
-                    ++lineCount;
-                    newline = wcsstr(newline + 1, L"\n");
+                if (newline != NULL) {
+                    do {
+                        ++lineCount;
+                        newline = wcsstr(newline + 1, L"\n");
+                    } while (newline != NULL);
                 }
 
-                const wchar_t* messageLine = System::getMessage(0xCB);
-                nw4r::lyt::TextBox* messageText = static_cast<nw4r::lyt::TextBox*>(
+                messageLine = System::getMessage(0xCB);
+                messageText = static_cast<nw4r::lyt::TextBox*>(
                     mpDialogLayout->FindPaneByName("T_Header_body"));
-                s32 totalLines = lineCount + 1;
-                s32 lineIndex = 0;
-                if (lineIndex < totalLines) {
-                    do {
-                    const wchar_t* lineEnd = wcsstr(messageLine, L"\n");
+                totalLines = lineCount + 1;
+                lineIndex = 0;
+                for (; lineIndex < totalLines; ++lineIndex) {
+                    lineEnd = wcsstr(messageLine, L"\n");
                     if (lineEnd == NULL) {
                         utility::layout::set_string(messageText, messageLine);
                     } else {
-                        u32 lineLength = static_cast<u32>(lineEnd - messageLine);
+                        lineLength = static_cast<u32>(lineEnd - messageLine);
                         wcsncpy(mCurrentTitleName, messageLine, lineLength);
                         mCurrentTitleName[lineLength] = L'\0';
                         utility::layout::set_string(messageText, mCurrentTitleName);
@@ -1327,52 +1357,48 @@ namespace ipl {
                     }
 
                     messageOffset -= bodyHeight;
-                    ++lineIndex;
-                    } while (lineIndex < totalLines);
                 }
             }
 
             messageOffset += bodyHeight;
-            f32 backgroundOffset = 40.0f + messageOffset;
-            f32 titleOffset = 79.5f + messageOffset;
+            backgroundOffset = 40.0f + messageOffset;
+            titleOffset = 79.5f + messageOffset;
 
-            nw4r::lyt::Pane* titleSizePane = mpDialogLayout->FindPaneByName("N_Body");
-            f32 rowHeight = titleSizePane->GetSize().height;
-            nw4r::lyt::PaneList::Iterator titleChild = titleSizePane->GetChildList().GetBeginIter();
-            while (titleChild != titleSizePane->GetChildList().GetEndIter()) {
-                titleChild->SetAlpha(alpha);
-                ++titleChild;
-            }
+            titleSizePane = mpDialogLayout->FindPaneByName("N_Body");
+            rowHeight = titleSizePane->GetSize().height;
+            setChildrenAlpha(*titleSizePane, alpha);
 
-            nw4r::lyt::TextBox* titleText = static_cast<nw4r::lyt::TextBox*>(
+            titleText = static_cast<nw4r::lyt::TextBox*>(
                 mpDialogLayout->FindPaneByName("T_Letter"));
             titleText->SetAlpha(alpha);
 
-            u32 nandTitleIndex = 0;
-            for (u32 titleIndex = 0; titleIndex < mTitleCount; ++titleIndex) {
+            nandTitleIndex = 0;
+            for (titleIndex = 0; titleIndex < mTitleCount; ++titleIndex) {
                 utility::layout::set_string(titleText, mTitleNames[titleIndex]);
                 if (nandTitleIndex < mNandTitleCount && mTitleIds[titleIndex] == mNandTitleIds[nandTitleIndex]) {
                     GXColor gxActive;
-                    writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
                     ++nandTitleIndex;
-                    nw4r::ut::Color active0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxActive);
-                    setTitleRowColors(titleText,
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)),
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxActive)));
+                    writeFourFlagBytes(&gxActive.r, 0x34, 0xBE, 0xED, 0xFF);
+                    GXColor activeColor = gxActive;
+                    GXColor activeTop = activeColor;
+                    GXColor activeBottom = activeColor;
+                    setTitleRowColors(titleText, *reinterpret_cast<const nw4r::ut::Color*>(&activeTop),
+                                      *reinterpret_cast<const nw4r::ut::Color*>(&activeBottom));
                 } else {
                     GXColor gxInactive;
                     writeFourFlagBytes(&gxInactive.r, 0x64, 0x64, 0x64, 0xFF);
-                    nw4r::ut::Color inactive0 = *reinterpret_cast<const nw4r::ut::Color*>(&gxInactive);
-                    setTitleRowColors(titleText,
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)),
-                                      nw4r::ut::Color(*reinterpret_cast<const nw4r::ut::Color*>(&gxInactive)));
+                    GXColor inactiveColor = gxInactive;
+                    GXColor inactiveTop = inactiveColor;
+                    GXColor inactiveBottom = inactiveColor;
+                    setTitleRowColors(titleText, *reinterpret_cast<const nw4r::ut::Color*>(&inactiveTop),
+                                      *reinterpret_cast<const nw4r::ut::Color*>(&inactiveBottom));
                 }
 
                 nw4r::ut::Rect textRect = mpDialogLayout->getTextDrawRect("T_Letter");
-                f32 rowTop = textRect.bottom - textRect.top;
-                s32 visibleRows = static_cast<s32>(static_cast<f32>(ceil(-rowTop / titleSizePane->GetSize().height)));
-                for (s32 row = 0; row < visibleRows; ++row) {
-                    f32 rowY = bodyY + backgroundOffset;
+                rowTop = textRect.bottom - textRect.top;
+                visibleRows = static_cast<s32>(static_cast<f32>(ceil(-rowTop / titleSizePane->GetSize().height)));
+                for (row = 0; row < visibleRows; ++row) {
+                    rowY = bodyY + backgroundOffset;
                     if (-500.0f < rowY && rowY < 500.0f) {
                         nw4r::math::VEC2 translation(0.0f, backgroundOffset);
                         titleSizePane->SetTranslate(translation);
@@ -1391,7 +1417,7 @@ namespace ipl {
             }
 
             backgroundOffset += rowHeight;
-            nw4r::lyt::Pane* footerPane = mpDialogLayout->FindPaneByName("N_Footer");
+            footerPane = mpDialogLayout->FindPaneByName("N_Footer");
             nw4r::lyt::PaneList::Iterator footerChild = footerPane->GetChildList().GetBeginIter();
             while (footerChild != footerPane->GetChildList().GetEndIter()) {
                 footerChild->SetAlpha(alpha);
@@ -1408,6 +1434,15 @@ namespace ipl {
             mpDialogLayout->draw("N_TopBtn_00");
             mpDialogLayout->draw("N_Back");
             mpDialogLayout->draw("N_Move");
+        }
+#pragma pop
+
+        static inline void setChildrenAlpha(nw4r::lyt::Pane& pane, const u8 alpha) {
+            nw4r::lyt::PaneList::Iterator child = pane.GetChildList().GetBeginIter();
+            while (child != pane.GetChildList().GetEndIter()) {
+                child->SetAlpha(alpha);
+                ++child;
+            }
         }
 
         void writeFourFlagBytes(u8* flags, u8 first, u8 second, u8 third, u8 fourth) {
