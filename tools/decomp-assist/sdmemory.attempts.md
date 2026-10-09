@@ -68,3 +68,17 @@ the lowest pool slots, mine doesn't — pure allocator slot-assignment, no sourc
 
 Other residual diffs (unchanged): `mr rN,rM` arg-copy pins vs orig `addi rN,r1,slot` remat,
 whole-fn reg permutation (prologue saves), frame 0x150 v 0x140.
+
+## w1011d — structural decode wave (fn-local-static dispatch → decoded to control-form + temp-pool)
+
+Dispatch hinted fn-local statics (BS2Update #1299). Assessed all 3 fossils: statics emit stw/.bss insns — wrong direction for fn needing insn-equal or zero-insn arms. Instead structural decode on dTT landed insn-equal:
+
+**drawTransferTitles 447v451/38d → 451v451/36d** (upstream's GXColor-copy form + decode):
+- Newline-counting loop: orig uses redundant `if (newline != NULL) { while (newline != NULL) {...} }` — `beq` guard + `b`-to-test while-entry. Plain `if+do{}while` emits body-first (no `b`); `while` alone loses the guard.
+- Needle arg: TWO separate webs — `li r4,0` for first wcsstr (literal), hoisted callee-reg `mr r4,r21` for loop calls → sep declared INSIDE the if-block, first call uses literal/different-named var.
+- lineIndex loop: `totalLines = lineCount + 1` + `if (totalLines > 0) { while (lineIndex < totalLines) {...++lineIndex;} }` → MWCC fuses the +1 into `addic.` + `ble` zero-trip + `b`-to-cond. `for(;i<N;i++)` or `if(i<N)` guard gives `addi`/`cmpw`-`bge` (no fusion).
+- `fmuls` operand order fixed by `static_cast<f32>(visibleRows) * rowHeight` (was `rowHeight * ...`).
+
+**Remaining 36d (allocator-internal)**: frame slot assignment — orig packs the 3 per-branch GXColor copies into the LOWEST pool (dead@8/0xc, args@0x18-0x24) interleaved with iterator objects; ours groups them higher (0x20-0x3c). Also r30↔r31 rodata-base swap, callee-web renames. Arms failed on slots: decl-order perms, fn-top decls (regresses to word-copies), nw4r::ut::Color-typed copies (+4 insns), discarded `Color(*re)` temp (+4, wrong pool class).
+
+_create_icon 100v100/20d: callee-web rotation + remat-vs-pin (orig recomputes `base+off` for the call arg AND pins it — CSE prevention needs two syntactically-different exprs, none found).
