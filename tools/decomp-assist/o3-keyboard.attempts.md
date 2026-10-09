@@ -69,3 +69,57 @@ every pass. Findings that constrain the original:
   then-block li left (rb2 in /tmp/o3-keyboard/ic2.txt).
 - Read-back then-blocks (n = out[n], n = *out, length scan) and ternary index/arms fold in IRO because IRO
   knows the buffer and n are zero (60-74). switch on u32 still compares with cmpwi (60-73).
+
+## Round b (worktree data-d4, branch agent/w1009/o3b-keyboard, base e47a8e94)
+
+### LayoutByNW4R::create: EXACT (120 -> 0)
+
+Three structural changes, each found with mwdbg captures, regsim, and a positional vreg-to-target-register map
+(/tmp/o3-keyboard/cr/posmap.py: aligns backend-04 with the object and reads the target register at each def):
+
+1. Loop. `csButtonAnimations` is `const` in the original. It sits in .data only because entry 1's bindingName
+   is filled by the dynamic initializer (the target's slot is zero with no relocation; __sinit stores it). With a
+   const table, `button.count` and `button.bindingName` read directly in the loop are hoisted by the backend, so
+   count becomes the late codegen temp that round a predicted. The loop body is written out as in tiToolBar's
+   matched create; the addButtonAnimation helper is gone.
+2. textBox. It must be numbered above the `&button.files[i]` CSE temp, so it is an inline local: an inline
+   `getTextBox()` getter that returns a local, used by create and init. The L"" literal has to stay in the
+   callers. Inside an inline member it becomes a weak @STRING@ object and .sdata grows from 40 to 46 bytes.
+3. Row list. Base::create's code is duplicated in create, not inlined: inlining reverses the relative numbering
+   of the inline's locals (inline locals are keyed by declaration order, named locals by reverse declaration
+   order). Both functions now use the same code: C89 declarations rows, row, next, previous, selectedIndex,
+   listEnd, info. `row` is reused (`row = &rows[max]; row = &rows[row->Next];`) so the selected row is a split
+   IRO temp. The second mpInfo load goes into `info`, declared after listEnd. The head index is a block-scoped
+   `head`. Base::create stays exact and loses the RowCursor carrier struct.
+
+Dead ends: Base::create auto-inlined (bl, too big), `inline Base::create` (27, reversed row registers), a
+RowInfoManager::newLine() helper (reloads mpInfo, 74 insns), a setupTextBox() helper holding SetString (exact
+code, but .sdata changes).
+
+### Decolated::inputChar: not exact (13)
+
+Mechanism behind the target's vanished '\n' then-block, from per-pass PCode captures on GC3:
+- VN (0x5976e0) merges li's within a block at pass 01 and across single-predecessor chains at passes 19/24.
+  A redundant li disappears only if it matches a value-number record whose holder is the same register with the
+  same index. Records are keyed by opcode, flags and operand count. Li's created by const-prop have 3 operands,
+  so they form their own record chain.
+- The function-start zeroing (`input[4..0] = 0`) owns the 2-operand `li 0` record in the mode-3 block's chain,
+  so any 2-operand `n = 0` reset survives. That covers main's CharacterOutput and every class, inline, ternary,
+  switch, reference, pointer and read-back form tried.
+- A POD struct with a constant initializer (`LinePosition position = {0}; ... position = LinePosition();`) stays
+  in memory through both const-prop passes. Array-to-register (pass 07) gives it a new vreg, const-prop (pass 17)
+  turns its defs into 3-operand li's, and VN at pass 24 deletes the then-block def. This reproduces the dead
+  `cmplwi` with no branch (tiny tests struct1/tc, real-function variants p1/z2).
+- Remaining blocker for that family: the input[0] store's zero then belongs to the struct init's codegen li,
+  which pass 24 replaces with the function-start zero. The result is `sth r5` instead of `li r6,0; sth r6`, and
+  the `mr r4,r5` before the second store is lost (133 insns, 73 diffs). The target needs the store and n to share
+  one register whose li comes first in the block and whose then-block def is deleted. None of about 120 variants
+  reached that (/tmp/o3-keyboard/{t,t2,ic,grid}). combosweep: 13 -> 13.
+
+### tiInputForm link (not flipped)
+
+The unit is 221/221 exact with code and data at 100%, but a trial Matching flip fails to link: the vtables for
+Decolated (tiString.o) and CommandReceiver (tiTextInputBase.o) are multiply defined, and GUIComponent's is also
+emitted here. There are also about 96 extra bytes of anonymous .sdata2 floats, Base::RowInfoManager::~RowInfoManager
+is emitted as a global (the target inlines it into ~Base), and only 37 of the 221 functions are in target order.
+Flip reverted; the DOL is unchanged.
