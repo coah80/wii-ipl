@@ -318,3 +318,12 @@ forms. `sThread->lastCommand = command` post-send DOES force `mr`+`rlwimi`
 (making command's web survive) but costs +3 insns — mechanism proven, no
 free source lever. Extra base `li r22,0` at 0x1040 = another remat-position
 diff, same family.
+
+## w1011/struct2 wave-7 — optimization_level pragma sweep (negative)
+
+Per-fn `#pragma push` + `#pragma optimization_level N` + `#pragma pop`
+(g-idct lever: Lumi was O3 inside an O4 unit) swept on cardThreadMain:
+O1/O2/O3 all emit the identical 302-insn object — `rlwimi r19,r29` in-place
++ `mr r4,r19`. The coalescer's dst-operand fold is opt-level-invariant;
+orig was built at the same -O4,p as ours. Mixed-opt is NOT the explanation
+for the 2-line residual.

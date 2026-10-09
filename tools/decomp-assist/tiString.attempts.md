@@ -69,3 +69,12 @@ Dead `cmplwi r4,0xa` unproduced (comma/`||`/empty-if all drop it). `mr r4,r5`
 ptr copy + `li r5,0` zero web = same coalescer home-choice family as
 cardThreadMain. BEST KEPT: `count = mTranslateMode - 3; input[count] = 0;
 input[count] = ch; count++; input[count] = 0;` with `u16 count` (94.34).
+
+## wave-3 — optimization_level pragma sweep (negative)
+
+Per-fn `#pragma optimization_level 2|3` and whole-unit `-O2,p` probed on
+inputChar (g-idct lever): per-fn O2 → 134 insns, O3 → 133 (base 137);
+unit-level O2 → 133 insns / 91 opcode diffs (vs 57 at O4). Lower opt
+emits the same symbolic-index structure, just worse — orig is -O4,p.
+The undef-web birth (`slwi r0,r6,1` on a def-less web) is not an
+opt-level artifact.
