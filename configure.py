@@ -1049,7 +1049,7 @@ config.libs = [
             Object(Matching, "net/hmac.c"),
             Object(Matching,    "net/neterrorcode.c"),
             Object(Matching,    "net/NETVersion.c"),
-            Object(NonMatching, "net/aes.c"),
+            Object(Matching,    "net/aes.c"),
             Object(Matching,    "net/wireless_macaddr.c"),
         ]
     ),
