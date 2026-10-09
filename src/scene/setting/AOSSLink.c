@@ -127,15 +127,23 @@ int AOSSi_EndLocal(void) {
 }
 
 int AOSSi_WLANGetBSSList(void** output) {
+    int index;
+    int driver;
+    void* buffer;
+    u8* scanBuffer;
+    WDBssDesc* descriptor;
+    int count;
+    struct AOSSAccessPointList* list;
+    int rate;
+    int rateCount;
+    int scanResult;
     int result = -1;
     int startupRetries = 0;
+    int scanRetries = 0;
+    int cleanupRetries = 0;
+    int unlockRetries = 0;
     WDScanParam scan ATTRIBUTE_ALIGN(32);
     WD_Info info ATTRIBUTE_ALIGN(32);
-    int unlockRetries = 0;
-    int driver;
-    u8* buffer;
-    int cleanupRetries = 0;
-    int scanRetries = 0;
     u8 macAddress[6];
     if (!allocateMemory || !releaseMemory) {
         return -1;
@@ -159,6 +167,7 @@ startup:
     buffer = AOSSi_Alloc(0x3200);
     if (buffer) {
         memset(buffer, 0, 0x3200);
+        scanBuffer = (u8*)buffer;
         scan.channelBit = info.enableChannel;
         scan.maxChannelTime = 40;
         memset(scan.bssid, 255, 6);
@@ -167,15 +176,11 @@ startup:
         memset(scan.ssid, 0, 32);
         memset(scan.ssidMask, 255, 32);
         while (1) {
-            int scanResult = WD_Scan(&scan, buffer, 0x3200);
-            int count;
-            struct AOSSAccessPointList* list;
-            WDBssDesc* descriptor;
-            int index;
+            scanResult = WD_Scan(&scan, scanBuffer, 0x3200);
             if (scanResult != 0 && scanResult != WD_INTERNAL_ERR_4) {
                 break;
             }
-            count = *(u16*)buffer;
+            count = *(u16*)scanBuffer;
             if (count != 0) {
                 list = AOSSi_Alloc(sizeof(*list) + (count - 1) * sizeof(struct AOSSAccessPoint));
                 if (!list) {
@@ -183,10 +188,8 @@ startup:
                     break;
                 }
                 list->count = count;
-                descriptor = (WDBssDesc*)&buffer[2];
+                descriptor = (WDBssDesc*)&scanBuffer[2];
                 for (index = 0; index < count; ++index) {
-                    int rate;
-                    int rateCount;
                     list->accessPoints[index].ssidLength = descriptor->ssidLength;
                     memcpy(list->accessPoints[index].ssid, descriptor->ssid, 32);
                     list->accessPoints[index].channel = descriptor->channel;
