@@ -47,3 +47,11 @@ Measured trials:
 - `create` (352v352): insn-identical modulo branch targets; only `lfs f0,0(x)` anonymous .rodata ref offset differs (ties to .data granularity: mine names scPaneNameTable/scW_*/scN_* strings, base emits @9934-@9943 anonymous locals + base lacks mine's `__vt__textinput::gui::GUIComponent` weak emission; scCandidatePaneData 1676 vs 1664B).
 - `CalcPaneLocate_` (435v435): byte-identical modulo relocs.
 - loadCardFileIcons (iplCardSequence): 508v512 (-4): base emits extra `li r?,0; stb` zero-init pairs (per-path dead zero-webs) + separate addis/addi addr materialization where mine fuses; untreated structural gap.
+
+## struct2 wave — structural decode probe
+
+- `const AnimationFile* animation` (pointer) vs `const&` reference: 50->45
+  diff lines — pointer form closer (matches the p->pAnims[j] slot reload
+  idiom used for p itself). Committed.
+- Hoisted `const AnimationFile* const* anims = p->pAnims` — no change (45).
+- Remaining residual = callee-web coloring (same tie family).
