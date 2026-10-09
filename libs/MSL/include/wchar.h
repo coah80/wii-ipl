@@ -27,7 +27,11 @@ wchar_t* wcscat(wchar_t* dest, const wchar_t* src);
 wchar_t* wcsncat(wchar_t* dest, const wchar_t* src, size_t num);
 int wcsncmp(const wchar_t* s1, const wchar_t* s2, size_t num);
 wchar_t* wcschr(wchar_t* ws, wchar_t wc);
+#ifndef __cplusplus
 wchar_t* wcsstr(const wchar_t* s1, const wchar_t* s2);
+#else
+const wchar_t* wcsstr(const wchar_t* s1, const wchar_t* s2);
+#endif
 
 int swprintf(wchar_t* ws, size_t len, const wchar_t* format, ...);
 int vswprintf(wchar_t* ws, size_t len, const wchar_t* format, va_list arg);
@@ -35,6 +39,12 @@ int vswprintf(wchar_t* ws, size_t len, const wchar_t* format, va_list arg);
 int wcsnicmp(const char* dst, const char* src, size_t num);
 
 #ifdef __cplusplus
+}
+
+extern "C++" {
+inline wchar_t* wcsstr(wchar_t* s1, const wchar_t* s2) {
+    return const_cast<wchar_t*>(wcsstr(static_cast<const wchar_t*>(s1), s2));
+}
 }
 #endif
 

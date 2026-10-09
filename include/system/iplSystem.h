@@ -302,7 +302,7 @@ namespace ipl {
         }
 
         /** @return The Message ID as a Wide-string. */
-        static const wchar_t* getMessage(u32 id) { return smArg.mpMessageMgr->getMessage(id); }
+        static wchar_t* getMessage(u32 id) { return smArg.mpMessageMgr->getMessage(id); }
         static message::Manager* getMessageManager() { return smArg.mpMessageMgr; }
 
         static void* getFont();
