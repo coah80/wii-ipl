@@ -22,7 +22,11 @@ int strcmp(const char* s1, const char* s2);
 char* strpbrk(const char* s1, const char* s2);
 size_t strspn(const char* s1, const char* s2);
 char* strtok(char* str, const char* delimiters);
+#ifdef __cplusplus
+const char* strstr(const char* str, const char* pat);
+#else
 char* strstr(const char* str, const char* pat);
+#endif
 
 char* strncpy(char* dst, const char* src, size_t length);
 char* strncat(char* dst, const char* src, size_t length);
@@ -36,6 +40,14 @@ int strnicmp(const char* s1, const char* s2, size_t length);
 int strcmpi(const char* s1, const char* s2);
 
 #ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+extern "C++" {
+inline char* strstr(char* str, const char* pat) {
+    return const_cast<char*>(strstr(static_cast<const char*>(str), pat));
+}
 }
 #endif
 
