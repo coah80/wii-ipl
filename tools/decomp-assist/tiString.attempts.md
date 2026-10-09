@@ -71,3 +71,13 @@ input[inputIndex]=0 arm (emits sthx), opt_dead_code/opt_dead_assignments/
 opt_common_subexpressions pragmas at IRO-0 (all still bne+li), iro 0-4.
 Compare-without-branch remains non-producible; likely needs the arm's value to
 materialize in the SAME register as the init (a CSE level mine never reaches).
+
+## Wave w1011c — scheduling pragmas on inputChar (no movement)
+
+On the 136/136 insn-equal form (IRO-4 + inputBuf + phi arm, 7 diff ops):
+- `scheduling 604` → 18d (worse); `scheduling 750`/`schedule_twice on` → 7d (inert)
+- `optimization_level 0` → 151 insns; `level 2` → 139 insns (+3)
+- TU `-ipa function`/`-ipa off` → 7d (inert)
+- TU `-O4,s` or NO extra_cflags → 132 insns — the committed `extra_cflags=["-O4,p"]` is
+  LOAD-BEARING: removing it drops 4 insns (kills the symbolic-index sequence)
+- bool-assign arm `u32 v=(ch==10); inputIndex=v-v` → cntlzw materialization (135,11d) — rejected

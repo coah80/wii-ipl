@@ -47,3 +47,24 @@ overlay: rejected (Color non-trivial; GXColor union assign folds to lwz+stw).
 ppc_iro_level 0 AND 1 both worsen 100v100 -> 124v100 (remat is desirable here —
 orig compiled at a level where remat happens). Committed form stands; the
 association+pin diff is allocator-internal, not an IRO artifact.
+
+## Wave w1011c — scheduling/opt-level pragmas + slot-pool analysis (no movement)
+
+All pragma levers on drawTransferTitles (451/451 insn-equal baseline, 90 diff ops):
+- `scheduling 604` → 96d (worse); `scheduling 750`/`7400`/`schedule_twice on` → 90d (inert)
+- `optimization_level 0` → 699 insns (disaster); `level 2` → 447 (kills copies); `level 4` → 90d
+- TU `-ipa function`/`-ipa off` → 439 insns (LOSES dead copies — ipa phase also eats the discarded-temp construction)
+- TU `-O4,p` → 430 insns (peephole kills copies even at IRO-0); `-O4` → same
+- shared fn-scope GXColor → 88d (slightly fewer, same walls)
+
+Named dead objects (`Color deadActive = *re` fn-top, in-branch assign): emits `bl` operator= calls
+NOT inlined at IRO-0 → +1 insn (452v451). Copy-assign does not inline; only the discarded-prvalue
+construction inlines.
+
+Slot-pool decode: orig's dead temps at 0x8/0xc live in a shared low pool also used by other objects
+(o393 `stw r3,0x10`, o395 `addi r4,r1,0x10` — sret/arg objects overlay). Mine allocates its pool
+starting at 0x10. The dead temps' lifetimes end before the call in both; orig overlays them onto
+the lowest pool slots, mine doesn't — pure allocator slot-assignment, no source lever found.
+
+Other residual diffs (unchanged): `mr rN,rM` arg-copy pins vs orig `addi rN,r1,slot` remat,
+whole-fn reg permutation (prologue saves), frame 0x150 v 0x140.
