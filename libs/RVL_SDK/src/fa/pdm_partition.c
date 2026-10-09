@@ -8,11 +8,6 @@ static inline pf_u16 read_boot_u16(pf_u8* buf, pf_u32 offset) {
     return PF_SWAP_16(*(pf_u16*)&buf[(offset + 1) & ~1]);
 }
 
-static inline pf_u32 read_partition_u32(const pf_u8* buf, pf_u32 offset) {
-    return (((pf_u32)buf[offset + 2] << 16) + buf[offset]) +
-           (((pf_u32)buf[offset + 3] << 24) + ((pf_u32)buf[offset + 1] << 8));
-}
-
 pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mbr) {
     pf_u32* p_start;
     pf_u32* p_count;
@@ -25,8 +20,8 @@ pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mb
     p_count = count;
     for (index = 0; index < 4; index++) {
         *p_start = 0;
-        *p_start = read_partition_u32(buf, 454);
-        *p_count = read_partition_u32(buf, 458);
+        *p_start = MBR_WORD(buf, 454);
+        *p_count = MBR_WORD(buf, 458);
         if (*p_start != 0 && *p_count != 0) {
             if (index == 0) { *p_is_mbr = 1; }
         } else {
@@ -36,15 +31,11 @@ pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mb
         p_count++;
         buf += 16;
     }
-    p_start = start;
-    p_count = count;
     for (index = 0; index < 4; index++) {
-        if (*p_start + *p_count > total) {
+        if (start[index] + count[index] > total) {
             if (index == 0) { *p_is_mbr = 0; }
             return 2;
         }
-        p_start++;
-        p_count++;
     }
     return 0;
 }

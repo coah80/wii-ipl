@@ -341,7 +341,7 @@ void MemoryCardManager::update_change_cardstate(u8 slot) {
     }
 }
 
-GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index) {
+const GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index) {
     memorycard::IconState (*icons)[CARD_MAX_FILE] = reinterpret_cast<memorycard::IconState(*)[CARD_MAX_FILE]>(memorycard::getIconStateArray());
     int total = 0;
     s16 frame = 0;
@@ -355,26 +355,24 @@ GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index) {
     return _create_icon(slot, file, frame - 1);
 }
 
-GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index, long start) {
+const GXTexObj* MemoryCardManager::create_icon(u8 slot, s16 index, long start) {
     memorycard::getIconStateArray();
     u32 file = mFile[slot][index].fileNo;
     return _create_icon(slot, file, 0);
 }
 
-GXTexObj* MemoryCardManager::_create_icon(u8 slot, s16 file, long start) {
+const GXTexObj* MemoryCardManager::_create_icon(u8 slot, s16 file, long start) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     if (dirs[slot][file].fileNo == 0) {
         return NULL;
     }
     CardIcons* icons = reinterpret_cast<CardIcons*>(memorycard::getIconStateArray());
-    memorycard::IconState* icon = &icons[slot][file];
-    if ((int)icon->iconFmt[start] == GX_TF_RGB5A3) {
-        GXInitTexObj(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(icon) + icon->iconOffset[start], CARD_ICON_WIDTH, CARD_ICON_HEIGHT, GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
-        GXLoadTexObj(&mFileCell[slot][file].icon, GX_TEXMAP0);
-    } else if ((int)icon->iconFmt[start] == GX_TF_C8) {
-        GXInitTexObjCI(&mFileCell[slot][file].icon, reinterpret_cast<u8*>(icon) + icon->iconOffset[start], CARD_ICON_WIDTH, CARD_ICON_HEIGHT, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
-        GXInitTlutObj(&mFileCell[slot][file].iconTlut, reinterpret_cast<u8*>(icon) + icons[slot][file].iconTlutOffset, GX_TL_RGB5A3, 0x100);
-        GXLoadTlut(&mFileCell[slot][file].iconTlut, GX_TLUT0);
+    if ((int)icons[slot][file].iconFmt[start] == GX_TF_RGB5A3) {
+        GXLoadTexObj(initIconTexture(slot, file, reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].iconOffset[start]), GX_TEXMAP0);
+    } else if ((int)icons[slot][file].iconFmt[start] == GX_TF_C8) {
+        initIconTextureCI(slot, file, reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].iconOffset[start]);
+        GXTlutObj* tlut = initIconPalette(slot, file, reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].iconTlutOffset);
+        GXLoadTlut(tlut, GX_TLUT0);
         GXLoadTexObj(&mFileCell[slot][file].icon, GX_TEXMAP0);
     } else {
         return NULL;
@@ -424,7 +422,7 @@ const wchar_t* MemoryCardManager::getComment(u8 slot, s16 index, int which) {
     return mFileCell[slot][file].comment[which];
 }
 
-GXTexObj* MemoryCardManager::create_banner(u8 slot, s16 index) {
+const GXTexObj* MemoryCardManager::create_banner(u8 slot, s16 index) {
     CardDirectory* dirs = reinterpret_cast<CardDirectory*>(memorycard::getCardDirState());
     CardIcons* icons = reinterpret_cast<CardIcons*>(memorycard::getIconStateArray());
     u32 file = mFile[slot][index].fileNo;
@@ -432,7 +430,7 @@ GXTexObj* MemoryCardManager::create_banner(u8 slot, s16 index) {
         return NULL;
     }
     if ((int)icons[slot][file].bannerType == GX_TF_RGB5A3) {
-        GXTexObj* banner = initBannerTexture(slot, file,
+        const GXTexObj* banner = initBannerTexture(slot, file,
             reinterpret_cast<u8*>(&icons[slot][file]) + icons[slot][file].bannerOffset);
         GXLoadTexObj(banner, GX_TEXMAP0);
     } else if ((int)icons[slot][file].bannerType == GX_TF_C8) {
