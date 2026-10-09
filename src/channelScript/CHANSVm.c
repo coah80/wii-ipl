@@ -4994,30 +4994,47 @@ static inline void VmBlobCopyPadded(BlobHeader* parentBlob, const BlobHeader* sr
 
 static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, CHANSVmObjHdr* VmReturnObj, vmU32 flag) {
     u32 packBuf[2];
+    s32 writeHexBufSize;
+    CHANSVmObjHdr* argArr;
+    CHANSVmObjHdr* measureStringObj;
+    s32 measureBlobCount;
+    u32 writeFmtPos;
+    u32 writeHexI;
     BlobHeader* parentBlob;
     CHANSVmObjHdr* argStr;
+    CHANSVmObjHdr* measureHexObj;
+    CHANSVmObjHdr* writeStringStrObj;
+    u32 writeIntegerValHigh;
+    CHANSVmObjHdr* writeHexStrObj;
+    u32 writeIntegerValLow;
+    u8* writeStringDest;
     const wchar_t* fmtStr;
+    u8* writeHexSrcData;
+    u32 writeStringStrLen;
     u32 fmtLen;
-    CHANSVmObjHdr* argArr;
-    u32 fmtPos;
+    u32 writeArgCount;
+    u8* writeHexDest;
+    s32 measureHexCount;
+    s32 writeIntegerCount;
+    BlobHeader* measureBlobSrcBlob;
+    u32 writeIntegerI;
+    s32 writeStringCount;
+    CHANSVmObjHdr* writeBlobObj;
     u32 argCount;
+    CHANSVmObjHdr* measureBlobObj;
+    s32 writeBlobCopySize;
+    s32 measureIntegerCount;
+    CHANSVmObjHdr* writeIntegerIntObj;
+    BlobHeader* writeBlobSrcBlob;
+    u8* writeStringSrcData;
+    u32 writeStringCharCount;
+    u32 fmtPos;
     u32 totalSize;
-    s32 count;
-    u32 i;
-    CHANSVmObjHdr* obj;
-    BlobHeader* srcBlob;
-    s32 copySize;
-    CHANSVmObjHdr* strObj;
-    u8* srcData;
-    u32 charCount;
-    u32 strLen;
-    CHANSVmObjHdr* intObj;
-    u32 valLow;
-    u32 valHigh;
-    s32 bufSize;
-    u8* dest;
-    u32 ch;
-    CHANSVmExecutionCtx* execCtx;
+    u32 writeHexCh;
+    s32 measureStringCount;
+    s32 writeHexCount;
+    CHANSVmExecutionCtx* measureIntegerExecCtx;
+    CHANSVmExecutionCtx* writeIntegerExecCtx;
 
     parentBlob = (BlobHeader*)VmGetStrFromObjHdr(VmParentObj);
     argStr = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, CHANSVmGetArg(VmInst, 0));
@@ -5057,26 +5074,26 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
             case 4: {
                 if (paramValue < 0) {
                     if (argArr != vmNull) {
-                        obj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
+                        measureBlobObj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
                     } else {
-                        obj = CHANSVmGetArg(VmInst, argCount + 1);
+                        measureBlobObj = CHANSVmGetArg(VmInst, argCount + 1);
                     }
-                    if (CHANSVmCheckNativeInstance(obj, VmBlobClassName)) {
-                        srcBlob = (BlobHeader*)VmGetStrFromObjHdr(obj);
+                    if (CHANSVmCheckNativeInstance(measureBlobObj, VmBlobClassName)) {
+                        measureBlobSrcBlob = (BlobHeader*)VmGetStrFromObjHdr(measureBlobObj);
                     } else {
-                        srcBlob = vmNull;
+                        measureBlobSrcBlob = vmNull;
                     }
-                    if (srcBlob == vmNull) {
+                    if (measureBlobSrcBlob == vmNull) {
                         goto error;
                     }
-                    count = srcBlob->size - srcBlob->offset;
+                    measureBlobCount = measureBlobSrcBlob->size - measureBlobSrcBlob->offset;
                 } else {
-                    count = paramValue;
+                    measureBlobCount = paramValue;
                 }
-                if (count < 0) {
+                if (measureBlobCount < 0) {
                     goto error;
                 }
-                totalSize += count;
+                totalSize += measureBlobCount;
                 argCount++;
                 break;
             }
@@ -5093,20 +5110,20 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
             case 9: {
                 if (paramValue < 0) {
                     if (argArr != vmNull) {
-                        count = CHANSVmGetArrayLength(VmInst, argArr);
-                        count = count - argCount;
+                        measureIntegerCount = CHANSVmGetArrayLength(VmInst, argArr);
+                        measureIntegerCount = measureIntegerCount - argCount;
                     } else {
-                        execCtx = ((CHANSVmPrivate*)VmInst)->pActiveCtx;
-                        count = execCtx->argc - argCount - 1;
+                        measureIntegerExecCtx = ((CHANSVmPrivate*)VmInst)->pActiveCtx;
+                        measureIntegerCount = measureIntegerExecCtx->argc - argCount - 1;
                     }
                 } else {
-                    count = paramValue;
+                    measureIntegerCount = paramValue;
                 }
-                if (count < 0) {
+                if (measureIntegerCount < 0) {
                     goto error;
                 }
-                argCount += count;
-                totalSize += elemSize * count;
+                argCount += measureIntegerCount;
+                totalSize += elemSize * measureIntegerCount;
                 break;
             }
             case 10:
@@ -5115,47 +5132,47 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
             case 13: {
                 if (paramValue < 0) {
                     if (argArr != vmNull) {
-                        obj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
-                        obj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, obj);
+                        measureStringObj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
+                        measureStringObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, measureStringObj);
                     } else {
-                        obj = CHANSVmGetArg(VmInst, argCount + 1);
-                        obj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, obj);
+                        measureStringObj = CHANSVmGetArg(VmInst, argCount + 1);
+                        measureStringObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, measureStringObj);
                     }
-                    if (obj == vmNull) {
+                    if (measureStringObj == vmNull) {
                         goto error;
                     }
-                    count = (u32)obj->value.int32_v->val >> 1;
+                    measureStringCount = (u32)measureStringObj->value.int32_v->val >> 1;
                 } else {
-                    count = paramValue;
+                    measureStringCount = paramValue;
                 }
-                if (count < 0) {
+                if (measureStringCount < 0) {
                     goto error;
                 }
                 argCount++;
-                totalSize += elemSize * count;
+                totalSize += elemSize * measureStringCount;
                 break;
             }
             case 14: {
                 if (paramValue < 0) {
                     if (argArr != vmNull) {
-                        obj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
-                        obj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, obj);
+                        measureHexObj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
+                        measureHexObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, measureHexObj);
                     } else {
-                        obj = CHANSVmGetArg(VmInst, argCount + 1);
-                        obj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, obj);
+                        measureHexObj = CHANSVmGetArg(VmInst, argCount + 1);
+                        measureHexObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, measureHexObj);
                     }
-                    if (obj == vmNull) {
+                    if (measureHexObj == vmNull) {
                         goto error;
                     }
-                    count = (u32)obj->value.int32_v->val >> 1;
+                    measureHexCount = (u32)measureHexObj->value.int32_v->val >> 1;
                 } else {
-                    count = paramValue;
+                    measureHexCount = paramValue;
                 }
-                if (count < 0) {
+                if (measureHexCount < 0) {
                     goto error;
                 }
                 argCount++;
-                totalSize += (s32)((u32)count + 1U) / 2;
+                totalSize += (s32)((u32)measureHexCount + 1U) / 2;
                 break;
             }
         }
@@ -5180,8 +5197,8 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
         }
     }
 
-    argCount = 0;
-    fmtPos = 0;
+    writeArgCount = 0;
+    writeFmtPos = 0;
 
     while (vmTrue) {
         u32 nextPos = 0;
@@ -5189,7 +5206,7 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
         u32 elemSize = 1;
         s32 paramValue = 1;
 
-        fmtPos = vmBlobParsePackFormatString(&nextPos, &elemType, &elemSize, (void*)&paramValue, fmtStr, fmtLen, fmtPos);
+        writeFmtPos = vmBlobParsePackFormatString(&nextPos, &elemType, &elemSize, (void*)&paramValue, fmtStr, fmtLen, writeFmtPos);
 
         if (elemType == 1) {
             break;
@@ -5202,33 +5219,33 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
         switch (elemType) {
             case 4: {
                 if (argArr != vmNull) {
-                    obj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
+                    writeBlobObj = CHANSVmGetArrayElement(VmInst, argArr, writeArgCount);
                 } else {
-                    obj = CHANSVmGetArg(VmInst, argCount + 1);
+                    writeBlobObj = CHANSVmGetArg(VmInst, writeArgCount + 1);
                 }
 
-                if (CHANSVmCheckNativeInstance(obj, VmBlobClassName)) {
-                    srcBlob = (BlobHeader*)VmGetStrFromObjHdr(obj);
+                if (CHANSVmCheckNativeInstance(writeBlobObj, VmBlobClassName)) {
+                    writeBlobSrcBlob = (BlobHeader*)VmGetStrFromObjHdr(writeBlobObj);
                 } else {
-                    srcBlob = vmNull;
+                    writeBlobSrcBlob = vmNull;
                 }
-                argCount++;
+                writeArgCount++;
 
-                if (srcBlob == vmNull) {
+                if (writeBlobSrcBlob == vmNull) {
                     goto error;
                 }
 
                 if (paramValue < 0) {
-                    copySize = srcBlob->size - srcBlob->offset;
+                    writeBlobCopySize = writeBlobSrcBlob->size - writeBlobSrcBlob->offset;
                 } else {
-                    copySize = paramValue;
+                    writeBlobCopySize = paramValue;
                 }
 
-                if (copySize < 0 || !CHANSVmBlobHasSpace(parentBlob, copySize)) {
+                if (writeBlobCopySize < 0 || !CHANSVmBlobHasSpace(parentBlob, writeBlobCopySize)) {
                     goto error;
                 }
 
-                VmBlobCopyPadded(parentBlob, srcBlob, copySize);
+                VmBlobCopyPadded(parentBlob, writeBlobSrcBlob, writeBlobCopySize);
                 break;
             }
             case 5: {
@@ -5247,38 +5264,38 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
             case 9: {
                 if (paramValue < 0) {
                     if (argArr != vmNull) {
-                        count = CHANSVmGetArrayLength(VmInst, argArr) - argCount;
+                        writeIntegerCount = CHANSVmGetArrayLength(VmInst, argArr) - writeArgCount;
                     } else {
-                        execCtx = ((CHANSVmPrivate*)VmInst)->pActiveCtx;
-                        count = execCtx->argc - argCount - 1;
+                        writeIntegerExecCtx = ((CHANSVmPrivate*)VmInst)->pActiveCtx;
+                        writeIntegerCount = writeIntegerExecCtx->argc - writeArgCount - 1;
                     }
                 } else {
-                    count = paramValue;
+                    writeIntegerCount = paramValue;
                 }
-                if (count < 0) {
+                if (writeIntegerCount < 0) {
                     goto error;
                 }
 
-                if (!CHANSVmBlobHasSpace(parentBlob, elemSize * count)) {
+                if (!CHANSVmBlobHasSpace(parentBlob, elemSize * writeIntegerCount)) {
                     goto error;
                 }
 
-                for (i = 0; i < count; i++) {
+                for (writeIntegerI = 0; writeIntegerI < writeIntegerCount; writeIntegerI++) {
                     packBuf[1] = 0;
                     packBuf[0] = 0;
                     if (argArr != vmNull) {
-                        intObj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
-                        intObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_INTEGER, intObj);
+                        writeIntegerIntObj = CHANSVmGetArrayElement(VmInst, argArr, writeArgCount);
+                        writeIntegerIntObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_INTEGER, writeIntegerIntObj);
                     } else {
-                        intObj = CHANSVmGetArg(VmInst, argCount + 1);
-                        intObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_INTEGER, intObj);
+                        writeIntegerIntObj = CHANSVmGetArg(VmInst, writeArgCount + 1);
+                        writeIntegerIntObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_INTEGER, writeIntegerIntObj);
                     }
-                    argCount++;
-                    if (intObj == vmNull) {
+                    writeArgCount++;
+                    if (writeIntegerIntObj == vmNull) {
                         goto error;
                     }
-                    valLow = (u32)intObj->value.int_v;
-                    valHigh = (u32)((u64)intObj->value.int_v >> 32);
+                    writeIntegerValLow = (u32)writeIntegerIntObj->value.int_v;
+                    writeIntegerValHigh = (u32)((u64)writeIntegerIntObj->value.int_v >> 32);
 
                     switch ((s32)elemType) {
                         case 6:
@@ -5286,20 +5303,20 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                             // signed
                             switch (elemSize) {
                                 case 1: {
-                                    *(s8*)packBuf = (s8)valLow;
+                                    *(s8*)packBuf = (s8)writeIntegerValLow;
                                     break;
                                 }
                                 case 2: {
-                                    *(s16*)packBuf = (s16)valLow;
+                                    *(s16*)packBuf = (s16)writeIntegerValLow;
                                     break;
                                 }
                                 case 4: {
-                                    packBuf[0] = valLow;
+                                    *(s32*)packBuf = writeIntegerValLow;
                                     break;
                                 }
                                 case 8: {
-                                    packBuf[1] = valLow;
-                                    packBuf[0] = valHigh;
+                                    ((s32*)packBuf)[1] = writeIntegerValLow;
+                                    *(s32*)packBuf = writeIntegerValHigh;
                                     break;
                                 }
                                 default: {
@@ -5313,15 +5330,15 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                             // unsigned
                             switch (elemSize) {
                                 case 1: {
-                                    *(u8*)packBuf = (u8)valLow;
+                                    *(u8*)packBuf = (u8)writeIntegerValLow;
                                     break;
                                 }
                                 case 2: {
-                                    *(u16*)packBuf = (u16)valLow;
+                                    *(u16*)packBuf = (u16)writeIntegerValLow;
                                     break;
                                 }
                                 case 4: {
-                                    packBuf[0] = valLow;
+                                    *(u32*)packBuf = writeIntegerValLow;
                                     break;
                                 }
                                 default: {
@@ -5350,7 +5367,7 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                                     break;
                                 }
                                 case 4: {
-                                    __stwbrx(packBuf[0], packBuf, 0);
+                                    __stwbrx(*(u32*)packBuf, packBuf, 0);
                                     break;
                                 }
                                 case 8: {
@@ -5371,100 +5388,100 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
             case 12:
             case 13: {
                 if (argArr != vmNull) {
-                    strObj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
-                    strObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, strObj);
+                    writeStringStrObj = CHANSVmGetArrayElement(VmInst, argArr, writeArgCount);
+                    writeStringStrObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, writeStringStrObj);
                 } else {
-                    strObj = CHANSVmGetArg(VmInst, argCount + 1);
-                    strObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, strObj);
+                    writeStringStrObj = CHANSVmGetArg(VmInst, writeArgCount + 1);
+                    writeStringStrObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, writeStringStrObj);
                 }
-                argCount++;
-                if (strObj == vmNull) {
+                writeArgCount++;
+                if (writeStringStrObj == vmNull) {
                     goto error;
                 }
 
                 if (paramValue < 0) {
-                    count = (u32)strObj->value.int32_v->val >> 1;
+                    writeStringCount = (u32)writeStringStrObj->value.int32_v->val >> 1;
                 } else {
-                    count = paramValue;
+                    writeStringCount = paramValue;
                 }
-                if (count < 0) {
+                if (writeStringCount < 0) {
                     goto error;
                 }
 
-                if (!CHANSVmBlobHasSpace(parentBlob, elemSize * count)) {
+                if (!CHANSVmBlobHasSpace(parentBlob, elemSize * writeStringCount)) {
                     goto error;
                 }
 
-                srcData = (u8*)VmGetStrFromObjHdr(strObj);
-                strLen = (u32)VmGetIntFromObjHdr(strObj) >> 1;
-                charCount = strLen;
-                dest = parentBlob->pData + parentBlob->offset;
+                writeStringSrcData = (u8*)VmGetStrFromObjHdr(writeStringStrObj);
+                writeStringStrLen = (u32)VmGetIntFromObjHdr(writeStringStrObj) >> 1;
+                writeStringCharCount = writeStringStrLen;
+                writeStringDest = parentBlob->pData + parentBlob->offset;
 
-                if (charCount > count) {
-                    charCount = count;
+                if (writeStringCharCount > writeStringCount) {
+                    writeStringCharCount = writeStringCount;
                 }
 
-                memset(dest, 0, elemSize * count);
+                memset(writeStringDest, 0, elemSize * writeStringCount);
                 if (elemSize == 1) {
-                    CHANSVmStrCpyToU8FromU16(dest, srcData, charCount);
+                    CHANSVmStrCpyToU8FromU16(writeStringDest, writeStringSrcData, writeStringCharCount);
                 } else {
-                    memcpy(dest, srcData, elemSize * charCount);
+                    memcpy(writeStringDest, writeStringSrcData, elemSize * writeStringCharCount);
                 }
-                parentBlob->offset += elemSize * count;
+                parentBlob->offset += elemSize * writeStringCount;
                 break;
             }
             case 14: {
                 if (argArr != vmNull) {
-                    strObj = CHANSVmGetArrayElement(VmInst, argArr, argCount);
-                    strObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, strObj);
+                    writeHexStrObj = CHANSVmGetArrayElement(VmInst, argArr, writeArgCount);
+                    writeHexStrObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, writeHexStrObj);
                 } else {
-                    strObj = CHANSVmGetArg(VmInst, argCount + 1);
-                    strObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, strObj);
+                    writeHexStrObj = CHANSVmGetArg(VmInst, writeArgCount + 1);
+                    writeHexStrObj = CHANSVmConvertObjectType(VmInst, CHANS_VM_OBJ_TYPE_STRING, writeHexStrObj);
                 }
-                argCount++;
-                if (strObj == vmNull) {
+                writeArgCount++;
+                if (writeHexStrObj == vmNull) {
                     goto error;
                 }
 
                 if (paramValue < 0) {
-                    count = (u32)strObj->value.int32_v->val >> 1;
+                    writeHexCount = (u32)writeHexStrObj->value.int32_v->val >> 1;
                 } else {
-                    count = paramValue;
+                    writeHexCount = paramValue;
                 }
-                if (count < 0) {
+                if (writeHexCount < 0) {
                     goto error;
                 }
 
-                bufSize = (s32)((u32)count + 1U) / 2;
-                if (!CHANSVmBlobHasSpace(parentBlob, bufSize)) {
+                writeHexBufSize = (s32)((u32)writeHexCount + 1U) / 2;
+                if (!CHANSVmBlobHasSpace(parentBlob, writeHexBufSize)) {
                     goto error;
                 }
 
-                srcData = (u8*)VmGetStrFromObjHdr(strObj);
-                strLen = (u32)VmGetIntFromObjHdr(strObj) >> 1;
-                dest = parentBlob->pData + parentBlob->offset;
-                memset(dest, 0, bufSize);
+                writeHexSrcData = (u8*)VmGetStrFromObjHdr(writeHexStrObj);
+                VmGetIntFromObjHdr(writeHexStrObj);
+                writeHexDest = parentBlob->pData + parentBlob->offset;
+                memset(writeHexDest, 0, writeHexBufSize);
 
-                for (i = 0; (s32)i < count; i++) {
-                    ch = ((const u16*)srcData)[i];
-                    if (ch >= 0x30 && ch <= 0x39) {
-                        ch -= 0x30;
-                    } else if (ch >= 0x61 && ch <= 0x66) {
-                        ch -= 0x57;
-                    } else if (ch >= 0x41 && ch <= 0x46) {
-                        ch -= 0x37;
+                for (writeHexI = 0; (s32)writeHexI < writeHexCount; writeHexI++) {
+                    writeHexCh = ((const u16*)writeHexSrcData)[writeHexI];
+                    if (writeHexCh >= 0x30 && writeHexCh <= 0x39) {
+                        writeHexCh -= 0x30;
+                    } else if (writeHexCh >= 0x61 && writeHexCh <= 0x66) {
+                        writeHexCh -= 0x57;
+                    } else if (writeHexCh >= 0x41 && writeHexCh <= 0x46) {
+                        writeHexCh -= 0x37;
                     } else {
-                        ch = 0;
+                        writeHexCh = 0;
                     }
-                    if ((i & 1) == 0) {
-                        ch *= 16;
+                    if ((writeHexI & 1) == 0) {
+                        writeHexCh *= 16;
                     }
-                    *dest |= ch & 0xFF;
-                    if (i & 1) {
-                        dest++;
+                    *writeHexDest |= writeHexCh & 0xFF;
+                    if (writeHexI & 1) {
+                        writeHexDest++;
                     }
                 }
-                parentBlob->offset += bufSize;
+                parentBlob->offset += writeHexBufSize;
                 break;
             }
             default: {
