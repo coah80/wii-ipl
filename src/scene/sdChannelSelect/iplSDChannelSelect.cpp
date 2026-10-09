@@ -206,12 +206,12 @@ namespace ipl {
                 getSceneHeap(), "corrupt_icon.ash", 0, 0, 0);
 
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 iplSDChannelObj_activateIfIdle(channel);
             }
         }
 
+// MWCC needs IRO level 0 to preserve the BS2 wait-loop instructions.
 #pragma push
 #pragma ppc_iro_level 0
         void SDChannelSelect::create() {
@@ -453,6 +453,7 @@ namespace ipl {
                 break;
             }
 
+            // MWCC needs this branch shape to preserve worker-state dispatch.
             if (mState < 8) {
                 if (mState == 1) {
                 } else if (mState >= 1) {
@@ -1646,6 +1647,7 @@ namespace ipl {
             }
         }
 
+// MWCC needs IRO level 0 to load the flush heap before its receiver.
 #pragma push
 #pragma ppc_iro_level 0
         void SDChannelSelect::flushSaveDataAndMountSD() {
@@ -1935,8 +1937,7 @@ namespace ipl {
             SDChannelObj* channel = NULL;
             System::getSaveData()->setLastSDPrevPage(mCurrentPage);
 
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 nw4r::ut::List_Remove(&mChannelObjects, channel);
                 destroyChannelObject(channel);
                 channel = NULL;
@@ -2054,8 +2055,7 @@ namespace ipl {
 
         void SDChannelSelect::updateChannelObjects() {
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 updateChannelObject(channel);
             }
         }
@@ -2071,16 +2071,14 @@ namespace ipl {
 
         void SDChannelSelect::calcChannelObjects() {
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 iplSDChannelObj_calc(channel);
             }
         }
 
         void SDChannelSelect::drawChannelTransitionObjects() {
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 int page = channel->mPage;
                 int index = channel->mIndex;
                 if (!hasChannelObject(page, index) || !isChannelReady(channel)) {
@@ -2145,6 +2143,7 @@ namespace ipl {
             }
         }
 
+// MWCC needs this pragma to preserve calls from the drawing loops.
 #pragma dont_inline on
         BOOL SDChannelSelect::isChannelReady(const SDChannelObj* channel) {
             return channel->mState == 3;
@@ -2153,16 +2152,14 @@ namespace ipl {
 
         void SDChannelSelect::drawChannelObjects() {
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 if (hasChannelObject(channel->getPage(), channel->getIndex())) {
                     iplSDChannelObj_drawPage(channel);
                 }
             }
 
             channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 if (hasChannelObject(channel->getPage(), channel->getIndex())) {
                     iplSDChannelObj_drawDialog(channel);
                 }
@@ -3289,8 +3286,7 @@ namespace ipl {
             button->disableBtn();
 
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 int channelPage = channel->getPage();
                 int channelIndex = channel->getIndex();
                 bool selected = channelPage == page && channelIndex == index;
@@ -3328,8 +3324,7 @@ namespace ipl {
             mbDialogActive = false;
 
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 iplSDChannelObj_resetPageAnim(channel, 1);
             }
 

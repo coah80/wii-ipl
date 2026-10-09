@@ -54,10 +54,8 @@ extern "C" BOOL iplSDChannelTitle_isNetworkAllowed(SDChannelTitle*, ESTmdView*, 
 extern "C" BOOL iplSDChannelTitle_isParentalEnabled();
 extern "C" void iplSDChannelTitle_beginLaunch(SDChannelTitle* scene, SDChannelObj* channel);
 extern "C" void iplSDChannelTitle_prepareSceneExit(SDChannelTitle* scene, int nextScene);
-extern "C" void iplSDChannelTitle_rebootSystem(SDChannelTitle*);
 extern "C" bool iplSDChannelTitle_isLaunchDelayDone(SDChannelTitle* scene);
 extern "C" void iplSDChannelTitle_setStartButtonPressed(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_drawDimOverlay(SDChannelTitle*, const nw4r::ut::Rect& bounds, GXColor color);
 extern "C" void iplSDChannelTitle_setPaneMessage(SDChannelTitle*, nw4r::lyt::Pane* pane, u32 message, bool allocate);
 extern "C" nand::LayoutFile* iplSDChannelTitle_loadBannerMetaFiles(SDChannelTitle*, ESTitleId title, nand::File** sound);
 extern "C" void iplSDChannelTitle_fetchTmdViewTask(void* argument);
@@ -139,9 +137,6 @@ public:
 
 extern "C" void iplSDChannelObj_applyLanguageGroups(layout::Object* layout);
 extern "C" const wchar_t* iplSDChannelObj_getLocalizedName(SDChannelObj* channel, int nameIndex);
-extern "C" bool iplSDChannelTitle_startZoomFade(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_rebuildBannerLayout(SDChannelTitle* scene);
-extern "C" void iplSDChannelTitle_setPaneMessage(SDChannelTitle* scene, nw4r::lyt::Pane* pane, u32 message, bool allocate);
 
 SDChannelTitle::SDChannelTitle(EGG::Heap* heap, SDChannelSelect* channelSelect)
     : FaderSceneBase(heap), mState(0), mNextScene(0), mParentalResult(0),
@@ -765,6 +760,7 @@ extern "C" void iplSDChannelTitle_updateCopyPrepare(SDChannelTitle* scene) {
                     nandRange.mCount = scene->mTitleRange.mCount;
                     sdRange = scene->mTitleRange;
                 } else {
+                    // MWCC needs the chained copy to preserve title-range copy order.
                     nandRange = sdRange = scene->mTitleRange;
                 }
                 SDMemory* memory = &scene->mMemory;
@@ -1342,6 +1338,7 @@ extern "C" void iplSDChannelTitle_prepareSceneExit(SDChannelTitle* scene, int ne
     }
 }
 
+// MWCC needs IRO level 0 to preserve the save-manager address register.
 #pragma push
 #pragma ppc_iro_level 0
 extern "C" void iplSDChannelTitle_flushSaveBeforeExit(SDChannelTitle* scene, int nextScene) {

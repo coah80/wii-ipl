@@ -55,6 +55,7 @@ namespace ipl {
             return count;
         }
 
+// MWCC needs IRO level 1 to preserve the layout-string base register.
 #pragma push
 #pragma ppc_iro_level 1
         void SDMemory::create(EGG::Heap* heap, nand::LayoutFile* layoutFile, SDChannelSelect* channelSelect) {
@@ -1140,7 +1141,9 @@ namespace ipl {
 
             if (blockCountMarker != NULL && message != NULL) {
                 format[0] = L'\0';
+                // MWCC retains this zero-length memset call in the original dialog setup.
                 memset(format + 1, 1, 0);
+                // MWCC needs unsigned address subtraction to preserve the logical shift.
                 wcsncat(format, message,
                         (reinterpret_cast<u32>(blockCountMarker) - reinterpret_cast<u32>(message)) >> 1);
                 wcscat(format, L"%d");
@@ -1269,9 +1272,7 @@ namespace ipl {
             u32 lineLength;
             const nw4r::math::VEC3& translation = mpDialogLayout->FindPaneByName("N_Memo")->GetTranslate();
             nw4r::math::VEC3 memoPosition;
-            memoPosition.x = translation.x;
-            memoPosition.y = translation.y;
-            memoPosition.z = translation.z;
+            memoPosition = translation;
             bodyY = memoPosition.y;
             mpDialogLayout->FindPaneByName("header_header");
             bodyPane = mpDialogLayout->FindPaneByName("header_body");
