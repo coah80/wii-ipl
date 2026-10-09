@@ -8,7 +8,7 @@ static inline pf_u16 read_boot_u16(pf_u8* buf, pf_u32 offset) {
     return PF_SWAP_16(*(pf_u16*)&buf[(offset + 1) & ~1]);
 }
 
-pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mbr) {
+pf_s32 pdm_part_is_master_boot_sector(volatile pf_u8* buf, pf_u32 total, pf_bool* p_is_mbr) {
     pf_u32* p_start;
     pf_u32* p_count;
     pf_s16 index;

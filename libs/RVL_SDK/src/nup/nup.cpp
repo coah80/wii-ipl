@@ -175,7 +175,8 @@ static inline char* __nupFindTag(char* response, const char* startTag, const cha
     }
     *value = start + strlen(startTag);
     *length = end - *value;
-    return end + strlen(endTag);
+    end += strlen(endTag);
+    return end;
 }
 
 static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* messageId,

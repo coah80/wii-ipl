@@ -1691,7 +1691,7 @@ config.libs = [
             Object(Matching,    "fa/pdm_api.c"),
             Object(Matching,    "fa/pdm_bpb.c"),
             Object(Matching,    "fa/pdm_disk.c"),
-            Object(NonMatching, "fa/pdm_partition.c"),
+            Object(Matching,    "fa/pdm_partition.c"),
             Object(Matching,    "fa/pf_cache.c"),
             Object(Matching,    "fa/pf_cluster.c"),
             Object(Matching,    "fa/pf_dir.c"),
@@ -1869,7 +1869,7 @@ config.libs = [
         ]
     ),
     RVLSDKLib("nup", [
-            Object(NonMatching, "nup/nup.cpp"),
+            Object(Matching, "nup/nup.cpp"),
             Object(Matching, "nup/nup_nhttp.cpp"),
             Object(Matching,    "nup/nup_mem.cpp"),
         ]
