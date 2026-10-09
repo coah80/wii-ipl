@@ -175,10 +175,7 @@ void Decolated::inputChar(wchar_t ch) {
         input[1] = 0;
         input[0] = 0;
         u16 count;
-        if (static_cast<u32>(mTranslateMode) - 1 > 1) {
-            goto nonKana;
-        }
-        {
+        if (mTranslateMode == TM_Kana || mTranslateMode == TM_Roman) {
             mKanaStream.mOutput[4] = 0;
             mKanaStream.mOutput[3] = 0;
             mKanaStream.mOutput[2] = 0;
@@ -194,10 +191,7 @@ void Decolated::inputChar(wchar_t ch) {
                 input[static_cast<u8>(inputIndex)] = KPRGetChar(&mKanaStream.mQueue);
             }
             KPRLookAhead(&mKanaStream.mQueue, mKanaStream.mOutput, 5);
-            goto inputReady;
-        }
-nonKana:
-        if (mTranslateMode == 3) {
+        } else if (mTranslateMode == TM_Hangul) {
             CharacterOutput output(input);
             output.append(ch);
             count = output.finish();
@@ -207,7 +201,6 @@ nonKana:
             input[0] = ch;
             input[1] = 0;
         }
-inputReady:
         setCandidate(0);
         u32 start;
         u32 end;
