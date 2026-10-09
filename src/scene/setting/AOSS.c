@@ -390,6 +390,14 @@ cleanup_done:
 }
 
 
+static inline void* AOSSCopyManufacturer(AOSSNetworkSettings* settings) {
+    settings->manufacturerLength = strlen(s_manufacturer);
+    if (settings->manufacturerLength > 0xd) {
+        return NULL;
+    }
+    return memcpy(settings->manufacturer, s_manufacturer, settings->manufacturerLength);
+}
+
 int AOSS_Init_old(AOSSInitInput* input)
 {
   s16 initialWait;
@@ -415,6 +423,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   int initializationResult;
   int socketOptionResult;
   u8 requestMessageType;
+  u8 replyAddressLength;
   short attemptCount;
   u16 remainingWait;
   short waitAttempt;
@@ -592,10 +601,7 @@ int AOSS_Init_old(AOSSInitInput* input)
         settings.networkNameLength = strlen("ESSID-AOSS");
         memcpy(settings.networkName,"ESSID-AOSS",settings.networkNameLength);
         settings.useManufacturer = 1;
-        settings.manufacturerLength = strlen(s_manufacturer);
-        if (settings.manufacturerLength <= 0xd) {
-          memcpy(settings.manufacturer,s_manufacturer,settings.manufacturerLength);
-        }
+        AOSSCopyManufacturer(&settings);
         initializationResult = AOSSi_SetNCDIPAddr(0xc0a80b65,0xffffff00,0xc0a80b01,0,0);
         state = initializationResult;
         if (state != 0) {
@@ -792,6 +798,7 @@ handle_initial_link:
       }
       {
         requestMessageType = 0x11;
+        replyAddressLength = sizeof(replyAddress);
         attemptCount = waitSettings.halfwords.high;
         settings.gatewayAddress = 0xc0a80b65;
         settings.ipAddress = 0xc0a80b01;
@@ -999,7 +1006,7 @@ request_socket_cleanup_complete:
               if ((s8)s_runtime.active == 0) {
                 replyAddress.address = 0xffffffff;
               }
-              replyAddress.length = 8;
+              replyAddress.length = replyAddressLength;
               SOSendTo(requestSocket,packetWords,0x18,0,&replyAddress);
               sendResult = 0;
 

@@ -878,7 +878,7 @@ config.libs = [
             Object(Matching,    "scene/setting/iplAOSSThread.cpp"),
             Object(NonMatching, "scene/setting/AOSSLink.c"),
             Object(Matching,    "scene/setting/iplRakuRakuThread.cpp"),
-            Object(NonMatching, "scene/setting/AOSS.c", extra_cflags=["-O4,p", "-inline off"]),
+            Object(NonMatching, "scene/setting/AOSS.c", extra_cflags=["-O4,p", "-inline on,noauto"]),
             Object(Matching,    "scene/setting/AOSSData.c"),
             Object(NonMatching, "scene/setting/ATERM.c", mw_version="GC/3.0a5", extra_cflags=["-O4,p", "-inline on"]),
         ]
