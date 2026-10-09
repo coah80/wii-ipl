@@ -1079,20 +1079,21 @@ static WUDInitState WUDiGetRegisteredDevice() {
             memset(&_scArray.devices[i], 0, sizeof(SCBtDeviceInfo));
         }
 
+        // MWCC needs the shared registration join after a successful slot move.
         if (WUD_BDCMP(_scArray.devices[i].addr, emptyAddr) == 0) {
             if (i < WUD_MAX_DEV_ENTRY_FOR_STD - 1) {
                 for (j = i + 1; j < WUD_MAX_DEV_ENTRY_FOR_STD; j++) {
                     if (WUD_DEV_NAME_IS_CNT(_scArray.devices[j].info.devName)) {
                         memcpy(&_scArray.devices[i], &_scArray.devices[j], sizeof(SCBtDeviceInfo));
                         memset(&_scArray.devices[j], 0, sizeof(SCBtDeviceInfo));
-                        goto there;
+                        goto device_ready;
                     }
                 }
             }
             continue;
         }
 
-    there:
+    device_ready:
         pInfo = WUDiGetNewDevInfo();
         if (pInfo == NULL) {
             continue;

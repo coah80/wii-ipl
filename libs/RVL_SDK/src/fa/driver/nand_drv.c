@@ -223,7 +223,6 @@ static s32 fa_nanddrv_VerifyBPB(u8* buf, u32* clusters) {
     if (total < 65525) { result = PDM_FAT_16; }
     return result;
 }
-#pragma dont_inline on
 static s32 fa_nanddrv_BuildUpFSInfoSector(u8* buf) {
     pf_memset(buf, 0, 512);
     if ((u32)&buf[0] & 3) { buf[0] = 0x52; buf[1] = 0x52; buf[2] = 0x61; buf[3] = 0x41; }
@@ -238,7 +237,6 @@ static s32 fa_nanddrv_BuildUpFSInfoSector(u8* buf) {
     else { *(u32*)&buf[508] = 0x000055AA; }
     return 0;
 }
-#pragma dont_inline reset
 static s32 fa_nanddrv_BuildUpBootSector(NAND_DISK_INFO* info, u8* buf, PDM_FAT_TYPE* type, u32 clusters) {
     u32 total;
     u32 fat_sectors;

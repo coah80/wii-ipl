@@ -1346,22 +1346,21 @@ pf_s32 PFFILE_p_flock(PFFILE_FILE* file, pf_u32 mode) {
         }
         file->p_sfd->lock.count++;
         file->lock_count++;
-        goto complete;
+    } else {
+        if (file->lock_count == 0 || file->p_sfd->lock.count == 0) {
+            return 0x27;
+        }
+        if ((file->p_sfd->lock.mode & 2) != 0 && file->p_sfd->lock.owner != (PF_FILE*)file) {
+            return 0x27;
+        }
+        file->lock_count--;
+        file->p_sfd->lock.count--;
+        if (file->p_sfd->lock.count == 0) {
+            PF_UnLockFile((PF_FILE*)file);
+            if ((file->p_sfd->lock.mode & 2) != 0) { file->p_sfd->lock.owner = 0; }
+            file->p_sfd->lock.mode &= ~3;
+        }
     }
-    if (file->lock_count == 0 || file->p_sfd->lock.count == 0) {
-        return 0x27;
-    }
-    if ((file->p_sfd->lock.mode & 2) != 0 && file->p_sfd->lock.owner != (PF_FILE*)file) {
-        return 0x27;
-    }
-    file->lock_count--;
-    file->p_sfd->lock.count--;
-    if (file->p_sfd->lock.count == 0) {
-        PF_UnLockFile((PF_FILE*)file);
-        if ((file->p_sfd->lock.mode & 2) != 0) { file->p_sfd->lock.owner = 0; }
-        file->p_sfd->lock.mode &= ~3;
-    }
-complete:
     return 0;
 }
 

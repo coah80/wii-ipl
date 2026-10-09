@@ -28,8 +28,6 @@ extern u64 __shl2i(u64 value, s32 shift);
 const char* __VIVersion =
     "<< RVL_SDK - VI \trelease build: Apr 20 2010 11:20:54 (0x4199_60831) >>";
 
-
-
 static VITiming timing[11] = {
         { 6, 240, 24, 25, 3, 2, 12, 13, 12, 13, 520, 519, 520, 519, 525, 429, 64, 71, 105, 162, 373, 122, 412 },
         { 6, 240, 24, 24, 4, 4, 12, 12, 12, 12, 520, 520, 520, 520, 526, 429, 64, 71, 105, 162, 373, 122, 412 },
@@ -111,7 +109,6 @@ static VIHorVer HorVer;
 static volatile u16 shdwRegs[59];
 
 #define MARK_CHANGED(index) (changed |= (1LL << (63 - (index))))
-#pragma dont_inline on
 static VITiming* getTiming(VITVMode mode);
 static void AdjustPosition(u16 acv);
 static s32 cntlzd(u64 bits);
@@ -119,7 +116,6 @@ static u32 getCurrentHalfLine(void);
 static u32 getCurrentFieldEvenOdd(void);
 void __VIDisplayPositionToXY(u32 horizontalCount, u32 verticalCount,
                              s16* pixelX, s16* pixelY);
-#pragma dont_inline reset
 
 static BOOL OnShutdown(BOOL final, u32 event)
 {
@@ -221,12 +217,7 @@ static void __VIRetraceHandler(__OSInterrupt interrupt, OSContext* context)
         interruptFlags |= 8;
     }
     registerValue = __VIRegs[0x1E];
-    if (interruptFlags & 4) {
-        goto position_interrupt;
-    }
-    if (interruptFlags & 8) {
-position_interrupt:
-    {
+    if ((interruptFlags & 4) || (interruptFlags & 8)) {
         u32 previousVertical;
         u32 horizontal;
         u32 vertical;
@@ -248,7 +239,6 @@ position_interrupt:
         OSClearContext(&exceptionContext);
         OSSetCurrentContext(context);
         return;
-    }
     }
     retraceCount++;
     OSClearContext(&exceptionContext);
@@ -461,7 +451,6 @@ VIRetraceCallback VISetPostRetraceCallback(VIRetraceCallback callback)
     return oldCallback;
 }
 
-#pragma dont_inline on
 static VITiming* getTiming(VITVMode mode)
 {
     switch (mode) {
@@ -506,7 +495,6 @@ static VITiming* getTiming(VITVMode mode)
         return 0;
     }
 }
-#pragma dont_inline reset
 
 void __VIInit(VITVMode mode)
 {
@@ -760,7 +748,6 @@ static void setFbbRegs(VIHorVer* mode, u32* topBuffer, u32* bottomBuffer,
     }
 }
 
-#pragma dont_inline on
 static void setHorizontalRegs(VITiming* currentTiming, u16 displayPosX,
                               u16 displaySizeX)
 {
@@ -788,9 +775,6 @@ static void setHorizontalRegs(VITiming* currentTiming, u16 displayPosX,
     MARK_CHANGED(4);
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 static void setVerticalRegs(u16 displayPosY, u16 displaySizeY, u8 equ,
                             u16 acv, u16 prbOdd, u16 prbEven, u16 psbOdd,
                             u16 psbEven, BOOL black)
@@ -840,8 +824,6 @@ static void setVerticalRegs(u16 displayPosY, u16 displaySizeY, u8 equ,
     regs[8] = (u16)(u32)actualPsbEven;
     MARK_CHANGED(8);
 }
-
-#pragma dont_inline reset
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

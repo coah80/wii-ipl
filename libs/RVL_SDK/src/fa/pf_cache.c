@@ -40,7 +40,6 @@ extern pf_s32 PFDRV_lread(PF_VOLUME* p_vol, pf_u8* buffer, pf_u32 sector, pf_u32
 extern pf_s32 PFDRV_lwrite(PF_VOLUME* p_vol, const pf_u8* buffer, pf_u32 sector, pf_u32 num_sector, pf_u32* p_num_success);
 pf_s32 PFCACHE_FlushAllCaches(PF_VOLUME* p_vol);
 
-#pragma dont_inline on
 pf_s32 PFCACHE_InitPageList(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, PF_CACHE_PAGE* pages, PF_CACHE_BUFFER* buffers, pf_u32 num,
     pf_u32 size, pf_bool is_fat) {
     pf_u32 i;
@@ -122,9 +121,6 @@ pf_s32 PFCACHE_InitPageList(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, PF_CACHE_
     return 0;
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 PF_CACHE_PAGE* PFCACHE_SearchForPage(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_head, pf_u32 sector) {
     PF_CACHE_PAGE* p_page;
     if (sector == 0xFFFFFFFF) {
@@ -149,9 +145,6 @@ PF_CACHE_PAGE* PFCACHE_SearchForPage(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_head, pf
     return PF_NULL;
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 pf_bool PFCACHE_SearchForFreePage(PF_CACHE_PAGE* p_head, PF_CACHE_PAGE** pp_page) {
     PF_CACHE_PAGE* p_page;
     for (p_page = p_head->p_prev; p_page != p_head; p_page = p_page->p_prev) {
@@ -176,9 +169,6 @@ pf_bool PFCACHE_SearchForFreePage(PF_CACHE_PAGE* p_head, PF_CACHE_PAGE** pp_page
     return PF_FALSE;
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 pf_s32 PFCACHE_FlushPageIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_page) {
     pf_s32 err;
     pf_u32 num_success;
@@ -207,9 +197,6 @@ pf_s32 PFCACHE_FlushPageIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_page) {
     return 0;
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 pf_s32 PFCACHE_DoAllocatePage(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, pf_u32 sector, PF_CACHE_PAGE** pp_page, pf_bool* p_is_hit) {
     pf_s32 err;
     *pp_page = PFCACHE_SearchForPage(p_vol, *pp_head, sector);
@@ -268,9 +255,6 @@ pf_s32 PFCACHE_DoAllocatePage(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, pf_u32 
     return 0;
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 pf_s32 PFCACHE_DoReadPage(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, pf_u32 sector, PF_CACHE_PAGE** pp_page, pf_bool set_sig) {
     pf_u32 num_success;
     pf_bool is_hit;
@@ -335,9 +319,6 @@ pf_s32 PFCACHE_DoReadPage(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, pf_u32 sect
     return 0;
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 pf_s32 PFCACHE_DoReadPageAndFlushIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, pf_u32 sector, PF_CACHE_PAGE** pp_page,
     pf_bool set_sig) {
     pf_u32 num_success;
@@ -409,9 +390,24 @@ pf_s32 PFCACHE_DoReadPageAndFlushIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_h
     return 0;
 }
 
-#pragma dont_inline reset
+static inline PF_CACHE_PAGE* PFCACHE_NextValidPage(PF_CACHE_PAGE* page, PF_CACHE_PAGE** head) {
+    if (page == PF_NULL) {
+        page = *head;
+    } else {
+        page = page->p_next;
+        if (page == *head) {
+            return PF_NULL;
+        }
+    }
+    for (; (page->stat & 1) != 0; page = page->p_next) {
+        if (page->sector != 0xFFFFFFFF) {
+            page->p_buf = page->buffer;
+            return page;
+        }
+    }
+    return PF_NULL;
+}
 
-#pragma dont_inline on
 pf_s32 PFCACHE_DoReadNumSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, pf_u8* p_buf, pf_u32 sector, pf_u32 num_sector,
     pf_u32* p_num_success) {
     PF_CACHE_PAGE* p_page;
@@ -427,23 +423,7 @@ pf_s32 PFCACHE_DoReadNumSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, pf_u8*
     num_rest_sector = *p_num_success;
     num_success_sector = *p_num_success;
     do {
-        if (p_page == PF_NULL) {
-            p_page = *pp_head;
-        } else {
-            p_page = p_page->p_next;
-            if (p_page == *pp_head) {
-                p_page = PF_NULL;
-                goto found_page;
-            }
-        }
-        for (; (p_page->stat & 1) != 0; p_page = p_page->p_next) {
-            if (p_page->sector != 0xFFFFFFFF) {
-                p_page->p_buf = p_page->buffer;
-                goto found_page;
-            }
-        }
-        p_page = PF_NULL;
-    found_page:
+        p_page = PFCACHE_NextValidPage(p_page, pp_head);
         if (p_page != PF_NULL && p_page->sector != 0xFFFFFFFF) {
             if (p_page->sector <= sector && p_page->sector + p_page->size >= sector + num_success_sector) {
                 pf_memcpy(p_buf, &p_page->buffer[(sector - p_page->sector) << p_vol->bpb.log2_bytes_per_sector],
@@ -472,9 +452,6 @@ pf_s32 PFCACHE_DoReadNumSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, pf_u8*
     return 0;
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 pf_s32 PFCACHE_DoWritePage(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, PF_CACHE_PAGE* p_page, pf_bool set_sig) {
     pf_s32 err;
     if (p_page != *pp_head) {
@@ -513,9 +490,6 @@ pf_s32 PFCACHE_DoWritePage(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, PF_CACHE_P
     return 0;
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 pf_s32 PFCACHE_DoWriteSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, const pf_u8* p_buf, pf_u32 sector) {
     PF_CACHE_PAGE* p_page;
     pf_u32 num_success;
@@ -548,8 +522,6 @@ pf_s32 PFCACHE_DoWriteSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, const pf
     return 0;
 }
 
-#pragma dont_inline reset
-
 pf_s32 PFCACHE_DoWriteNumSectorAndFreeIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE** pp_head, const pf_u8* p_buf, pf_u32 sector,
     pf_u32 num_sector, pf_u32* p_num_success) {
     PF_CACHE_PAGE* p_page = PF_NULL;
@@ -559,23 +531,7 @@ pf_s32 PFCACHE_DoWriteNumSectorAndFreeIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE**
     pf_u8* p_ebuf;
     *p_num_success = 0;
     do {
-        if (p_page == PF_NULL) {
-            p_page = *pp_head;
-        } else {
-            p_page = p_page->p_next;
-            if (p_page == *pp_head) {
-                p_page = PF_NULL;
-                goto found_page;
-            }
-        }
-        for (; (p_page->stat & 1) != 0; p_page = p_page->p_next) {
-            if (p_page->sector != 0xFFFFFFFF) {
-                p_page->p_buf = p_page->buffer;
-                goto found_page;
-            }
-        }
-        p_page = PF_NULL;
-    found_page:
+        p_page = PFCACHE_NextValidPage(p_page, pp_head);
         if (p_page != PF_NULL && p_page->sector != 0xFFFFFFFF) {
             if (p_page->sector <= sector && (p_page->sector + p_page->size) >= (sector + num_sector)) {
                 pf_memcpy(&p_page->buffer[(sector - p_page->sector) << p_vol->bpb.log2_bytes_per_sector], (pf_u8*)p_buf,
@@ -638,9 +594,6 @@ pf_s32 PFCACHE_DoWriteNumSectorAndFreeIfNeeded(PF_VOLUME* p_vol, PF_CACHE_PAGE**
     return 0;
 }
 
-#pragma dont_inline reset
-
-#pragma dont_inline on
 pf_s32 PFCACHE_DoFlushCache(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_head) {
     PF_CACHE_PAGE* p_page;
     pf_s32 err;
@@ -665,8 +618,6 @@ pf_s32 PFCACHE_DoFlushCache(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_head) {
     } while (p_page != p_head);
     return first_err;
 }
-
-#pragma dont_inline reset
 
 void PFCACHE_SetCache(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_cache_page, PF_CACHE_BUFFER* p_cache_buf, pf_u16 num_fat_pages, pf_u16 num_data_pages) {
     p_vol->cache.pages = p_cache_page;

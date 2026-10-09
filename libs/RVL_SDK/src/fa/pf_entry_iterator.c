@@ -119,7 +119,6 @@ pf_s32 PFENT_ITER_Advance(PFITER_ENT_ITER*, pf_u32);
 pf_s32 PFENT_ITER_Retreat(PFITER_ENT_ITER*, pf_u32);
 pf_s32 PFENT_ITER_FindDirEntryFromCluster(PFITER_ENT_ITER*, PF_DIR_ENT*, pf_u32, pf_bool*);
 
-#pragma dont_inline on
 pf_s32 PFENT_RecalcEntryIterator(PFITER_ENT_ITER* p_iter, pf_u32 may_allocate) {
     pf_u32 file_sector_index;
     pf_u32 previous_fsindex;
@@ -160,7 +159,6 @@ pf_s32 PFENT_RecalcEntryIterator(PFITER_ENT_ITER* p_iter, pf_u32 may_allocate) {
     p_iter->offset = (p_iter->index & p_iter->offset_mask) * 32;
     return 0;
 }
-#pragma dont_inline reset
 
 static inline pf_s32 PFENT_ITER_LoadEntry(PFITER_ENT_ITER* p_iter) {
     pf_u32 success_size;
@@ -271,60 +269,60 @@ pf_s32 PFENT_ITER_DoFindEntry(PFITER_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, PF_STR
                 *p_is_found = 1;
                 return 0;
             }
-            goto finish;
+            break;
         }
-    }
-    for (; !PFENT_ITER_IsAtLogicalEnd(p_iter); err = AdvanceIterator(p_iter, 0)) {
-        pf_s32 attr;
-        if (err != 0) return err;
-        if (p_iter->buf[0] == 0) break;
-        if (p_iter->buf[0] == 0xe5) {
-            p_ent->num_entry_LFNs = 0;
-            p_ent->long_name[0] = 0;
-            continue;
-        }
-        attr = p_iter->buf[11];
-        if ((attr & 15) == 15) {
-            if (PFENT_LoadLFNEntryFieldsFromBuf(p_ent, p_iter->buf) != 0) {
+    } else {
+        for (; !PFENT_ITER_IsAtLogicalEnd(p_iter); err = AdvanceIterator(p_iter, 0)) {
+            pf_s32 attr;
+            if (err != 0) return err;
+            if (p_iter->buf[0] == 0) break;
+            if (p_iter->buf[0] == 0xe5) {
+                p_ent->num_entry_LFNs = 0;
+                p_ent->long_name[0] = 0;
+                continue;
+            }
+            attr = p_iter->buf[11];
+            if ((attr & 15) == 15) {
+                if (PFENT_LoadLFNEntryFieldsFromBuf(p_ent, p_iter->buf) != 0) {
+                    p_ent->num_entry_LFNs = 0;
+                    p_ent->long_name[0] = 0;
+                }
+                continue;
+            }
+            if (attr == 0) attr = 0x40;
+            if (attr_required & 0x80) {
+                attr_required &= 0x7f;
+                attr_forbidden &= 0x7f;
+                if ((attr_required && (pf_s32)(attr_required & attr) != (pf_s32)attr_required) ||
+                    (attr_forbidden && (pf_s32)(attr_forbidden & attr) == (pf_s32)attr_forbidden)) err = -1;
+            } else if ((pf_u8)attr_required != 0x7f && (pf_u32)attr != (pf_u8)attr_required &&
+                (!(attr & (pf_u8)attr_required) || (attr & (pf_u8)attr_forbidden))) err = -1;
+            if (err == -1) {
+                p_ent->num_entry_LFNs = 0;
+                p_ent->long_name[0] = 0;
+                continue;
+            }
+            if (attr & 8) {
                 p_ent->num_entry_LFNs = 0;
                 p_ent->long_name[0] = 0;
             }
-            continue;
-        }
-        if (attr == 0) attr = 0x40;
-        if (attr_required & 0x80) {
-            attr_required &= 0x7f;
-            attr_forbidden &= 0x7f;
-            if ((attr_required && (pf_s32)(attr_required & attr) != (pf_s32)attr_required) ||
-                (attr_forbidden && (pf_s32)(attr_forbidden & attr) == (pf_s32)attr_forbidden)) err = -1;
-        } else if ((pf_u8)attr_required != 0x7f && (pf_u32)attr != (pf_u8)attr_required &&
-            (!(attr & (pf_u8)attr_required) || (attr & (pf_u8)attr_forbidden))) err = -1;
-        if (err == -1) {
-            p_ent->num_entry_LFNs = 0;
-            p_ent->long_name[0] = 0;
-            continue;
-        }
-        if (attr & 8) {
+            PFENT_LoadShortNameFromBuf(p_ent, p_iter->buf);
+            if (p_ent->num_entry_LFNs && p_ent->ordinal == 1 && p_ent->check_sum == PFENT_CalcCheckSum(p_ent) &&
+                PFPATH_MatchFileNameWithPattern((pf_s8*)p_ent->long_name, p_pattern, 1)) {
+                LoadNumericEntry(p_iter, p_ent);
+                *p_is_found = 1;
+                return 0;
+            }
+            if (PFPATH_MatchFileNameWithPattern(p_ent->short_name, p_pattern, 0)) {
+                if (p_iter->buf[12] & 0x18) PFENT_ITER_MakeLongFileName(p_iter, p_ent);
+                LoadNumericEntry(p_iter, p_ent);
+                *p_is_found = 1;
+                return 0;
+            }
             p_ent->num_entry_LFNs = 0;
             p_ent->long_name[0] = 0;
         }
-        PFENT_LoadShortNameFromBuf(p_ent, p_iter->buf);
-        if (p_ent->num_entry_LFNs && p_ent->ordinal == 1 && p_ent->check_sum == PFENT_CalcCheckSum(p_ent) &&
-            PFPATH_MatchFileNameWithPattern((pf_s8*)p_ent->long_name, p_pattern, 1)) {
-            LoadNumericEntry(p_iter, p_ent);
-            *p_is_found = 1;
-            return 0;
-        }
-        if (PFPATH_MatchFileNameWithPattern(p_ent->short_name, p_pattern, 0)) {
-            if (p_iter->buf[12] & 0x18) PFENT_ITER_MakeLongFileName(p_iter, p_ent);
-            LoadNumericEntry(p_iter, p_ent);
-            *p_is_found = 1;
-            return 0;
-        }
-        p_ent->num_entry_LFNs = 0;
-        p_ent->long_name[0] = 0;
     }
-finish:
     return 0;
 }
 

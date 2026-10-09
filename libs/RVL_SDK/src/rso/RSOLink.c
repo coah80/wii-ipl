@@ -168,7 +168,6 @@ static void makeCode(u32 addr, u32* i_buff);
 static int cnvFarCode(RSOObjectHeader* rso, RSOImportTable* impTab, int impIndex, u32 addr, u32* i_buff);
 static int cnvJumpCode(RSOObjectHeader* rso, RSOImportTable* impTab, int impIndex, u32 addr, u32* i_buff);
 
-#pragma dont_inline on
 #if SDK_VERSION > 20090224 && !defined(SDK_IPL)
 void RSONotifyModuleLoaded(RSOObjectHeader* moduleHeader) {
 }
@@ -193,7 +192,6 @@ void RSONotifyLink(RSOObjectHeader* moduleHeader) {
 void RSONotifyUnlink(RSOObjectHeader* moduleHeader) {
 }
 #endif
-#pragma dont_inline reset
 
 static BOOL LocateObject(void* newModule, void* bss, RSOFixedLevel i_fixed_level) {
     u32 i;

@@ -139,10 +139,11 @@ pf_s32 PFFAT32_ReadFATEntryWithBuf(PF_VOLUME* p_vol, pf_u32 cluster, pf_u32* p_v
                 VFiPFSEC_WriteFAT(p_vol, p_page->p_buf, p_page->sector + fat * p_vol->bpb.sectors_per_FAT, 0, p_vol->bpb.bytes_per_sector);
             }
         }
+        // MWCC needs the shared read-result block to preserve the retry branches.
         do {
             err = VFiPFSEC_ReadFAT(p_vol, p_page->p_buf, sector, 0, p_vol->bpb.bytes_per_sector);
             if (err != 0x1000 || p_vol->p_callback == PF_NULL) {
-                goto block_22;
+                goto check_read_result;
             }
             result = ((PF_VOLUME_CB)p_vol->p_callback)(p_vol->last_driver_error);
             if (result != 0) {
@@ -150,11 +151,11 @@ pf_s32 PFFAT32_ReadFATEntryWithBuf(PF_VOLUME* p_vol, pf_u32 cluster, pf_u32* p_v
                     current_fat++;
                     sector += p_vol->bpb.sectors_per_FAT;
                 } else {
-                    goto block_22;
+                    goto check_read_result;
                 }
             }
             continue;
-        block_22:
+        check_read_result:
             if (err != 0) {
                 return err;
             }

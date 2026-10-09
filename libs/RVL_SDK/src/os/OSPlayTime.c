@@ -242,6 +242,7 @@ void __OSPlayTimeAlarmExpired(OSAlarm* alarm, OSContext* context) {
     }
 }
 
+// MWCC needs the error-path result self-copies to preserve the original branches.
 s32 __OSPlayTimeGetConsumption(ESTicketView* ticket, ESLpEntry* lpEntry, u32* entries) {
     s32 ret = ESP_GetConsumption(ticket->ticketId, NULL, entries);
 
