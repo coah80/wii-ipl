@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-typedef CHANSVmObjHdr* (*VmConvertFunc)(CHANSVm*, CHANSVmObjType, CHANSVmObjHdr*);
+typedef CHANSVmObjHdr* (*VmConvertFunc)(CHANSVm*, CHANSVmObjType, const CHANSVmObjHdr*);
 
 typedef struct VmConvertEntry {
     VmConvertFunc convFunc[6];  // 0x00
