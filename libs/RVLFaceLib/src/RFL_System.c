@@ -318,6 +318,7 @@ s32 RFLGetLastReason() {
 }
 
 RFLErrcode RFLWaitAsync() {
+    /* MWCC needs the status spill and reload on each polling iteration. */
     volatile RFLErrcode errcode;
     do {
         errcode = RFLGetAsyncStatus();
