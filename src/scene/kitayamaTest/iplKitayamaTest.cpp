@@ -63,8 +63,6 @@ namespace ipl {
         void KitayamaTest::calcCommon() {
         }
 
-        #pragma push
-        #pragma ppc_iro_level 2
         FaderSceneCommand KitayamaTest::calcNormal() {
             FaderSceneCommand command = FADER_SCN_CONTINUE;
             controller::Interface* controller = System::getMasterController();
@@ -82,16 +80,13 @@ namespace ipl {
                     s32 result;
                     NANDFileInfo bannerInfo;
                     NANDFileInfo testInfo;
-                    WIISaveBannerFile* buffer;
 
                     ES_SetUid(0x0001000030303030);
                     ISFS_CloseLib();
                     ISFS_OpenLib();
 
-                    // Delete old test file
                     nand::wrapper::Delete("/title/00010000/30303030/data/banner.bin");
 
-                    // Create new test file
                     result = nand::wrapper::Create("/title/00010000/30303030/data/banner.bin", NAND_PERM_ALL_RW, 0);
                     if (result == NAND_RESULT_OK) {
                         result = nand::wrapper::Open("/title/00010000/30303030/data/banner.bin", &bannerInfo, NAND_ACCESS_WRITE);
@@ -100,8 +95,7 @@ namespace ipl {
                             OSHalt("Terminated.\n", 173);
                         }
 
-                        // Write some data to test file
-                        buffer = (WIISaveBannerFile*)mpHeap->alloc(sizeof(WIISaveBannerFile), 32);
+                        WIISaveBannerFile* buffer = (WIISaveBannerFile*)mpHeap->alloc(sizeof(WIISaveBannerFile), 32);
                         memset(buffer, 0x55, sizeof(WIISaveBannerFile));
                         buffer->signature = 'WIBN';
                         buffer->flags = 0;
@@ -134,7 +128,7 @@ namespace ipl {
                             OSHalt("Terminated.\n", 213);
                         }
 
-                        buffer = (WIISaveBannerFile*)mpHeap->alloc(sizeof(WIISaveBannerFile), 32);
+                        WIISaveBannerFile* buffer = (WIISaveBannerFile*)mpHeap->alloc(sizeof(WIISaveBannerFile), 32);
                         memset(buffer, 0x55, sizeof(WIISaveBannerFile));
                         buffer->signature = 'WIBN';
                         buffer->flags = 0;
@@ -270,7 +264,6 @@ namespace ipl {
 
             return command;
         }
-        #pragma pop
 
         FaderSceneCommand KitayamaTest::calcFadeout() {
             if (mOption == KITAYAMA_OPT_INIT_NAND) {

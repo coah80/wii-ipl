@@ -36,8 +36,9 @@ namespace nw4r {
                 return instance;
             }
 
+            // MWCC needs IRO 0 to recompute voice addresses inside the initialization loop.
 #pragma push
-#pragma ppc_iro_level 0  // uh
+#pragma ppc_iro_level 0
             void AxManager::Init() {
                 if (mInitialized) {
                     return;

@@ -247,49 +247,32 @@ namespace ipl {
             char fontName[32];
             char htmlPath[64];
             char productArea = SCGetProductArea();
-            if (productArea == 6) {
-                goto koreanFont;
+            switch (productArea) {
+            case SC_PRODUCT_AREA_JPN:
+            case SC_PRODUCT_AREA_USA:
+            case SC_PRODUCT_AREA_EUR:
+            case SC_PRODUCT_AREA_AUS:
+                snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
+                snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
+                break;
+            case SC_PRODUCT_AREA_KOR:
+                snprintf(fontName, sizeof(fontName), "Wii-kr_Round Gothic B.ttf");
+                snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
+                break;
+            case SC_PRODUCT_AREA_CHN:
+                snprintf(fontName, sizeof(fontName), "Wii-cn_HeiTiW5.ttf");
+                snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
+                break;
+            case SC_PRODUCT_AREA_TWN:
+                snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
+                snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "TW2");
+                break;
+            default:
+                snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
+                snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
+                break;
             }
-            if (productArea < 6) {
-                if (productArea == 4) {
-                    goto defaultFont;
-                }
-                if (productArea >= 4) {
-                    goto europeFont;
-                }
-                if (productArea >= 0) {
-                    goto standardFont;
-                }
-            } else if (productArea == 11) {
-                goto chineseFont;
-            }
-            goto defaultFont;
 
-        standardFont:
-            snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
-            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
-            goto loadFiles;
-
-        koreanFont:
-            snprintf(fontName, sizeof(fontName), "Wii-kr_Round Gothic B.ttf");
-            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
-            goto loadFiles;
-
-        chineseFont:
-            snprintf(fontName, sizeof(fontName), "Wii-cn_HeiTiW5.ttf");
-            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
-            goto loadFiles;
-
-        europeFont:
-            snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
-            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "TW2");
-            goto loadFiles;
-
-        defaultFont:
-            snprintf(fontName, sizeof(fontName), "WiiNTLG-Regular.ttc");
-            snprintf(htmlPath, sizeof(htmlPath), "/html/%s/iplsetting.ash", "US2");
-
-        loadFiles:
             mpSettingHTMLFile = System::getNandManager()->readAsync(
                 System::createMem1AppHeap(), htmlPath, 0, 0, false);
             mpWWWArchiveFile = System::getNandManager()->readAsync(
@@ -673,7 +656,7 @@ namespace ipl {
                     }
                     break;
                 default:
-                    goto screenModeDispatch;
+                    break;
                 }
             } else if (mScreenModeChangeState == 1 && mDialogState == 8) {
                     System::getFader()->fadeOut();
@@ -683,7 +666,6 @@ namespace ipl {
                     return true;
             }
 
-        screenModeDispatch:
             switch (mScreenModeChangeState) {
             case 1:
                 if (System::getFader()->getStatus() == EGG::Fader::PREPARE_IN) {
@@ -1514,44 +1496,45 @@ namespace ipl {
             }
 
             if (mpWiiSettingFlag->smthMsgData >= 2 && mpWiiSettingFlag->smthMsgData <= 7) {
-                GXRenderModeObj* pRmode = System::getRenderModeObj();
+                GXRenderModeObj* sourceMode = System::getRenderModeObj();
                 GXRenderModeObj renderMode;
-                volatile GXRenderModeObj* srcMode = pRmode;
-                volatile GXRenderModeObj* dstMode = &renderMode;
-                int n = 12;
-                u8* src;
-                u8* dst = &renderMode.aa;
-                src = &pRmode->aa;
-                dstMode->viTVmode = srcMode->viTVmode;
-                dstMode->fbWidth = srcMode->fbWidth;
-                dstMode->efbHeight = srcMode->efbHeight;
-                dstMode->xfbHeight = srcMode->xfbHeight;
-                dstMode->viXOrigin = srcMode->viXOrigin;
-                dstMode->viYOrigin = srcMode->viYOrigin;
-                dstMode->viWidth = srcMode->viWidth;
-                dstMode->viHeight = srcMode->viHeight;
-                dstMode->xFBmode = srcMode->xFBmode;
-                dstMode->field_rendering = srcMode->field_rendering;
-                dstMode->aa = srcMode->aa;
-                for (; n != 0; n--) {
-                    dst[1] = src[1];
-                    dst[2] = src[2];
-                    src += 2;
-                    dst += 2;
+                // Volatile accesses preserve MWCC's field-copy order and stores.
+                volatile GXRenderModeObj* sourceFields = sourceMode;
+                volatile GXRenderModeObj* copiedFields = &renderMode;
+                int samplePairsRemaining = 12;
+                u8* sourceSamples;
+                u8* destinationSamples = &renderMode.aa;
+                sourceSamples = &sourceMode->aa;
+                copiedFields->viTVmode = sourceFields->viTVmode;
+                copiedFields->fbWidth = sourceFields->fbWidth;
+                copiedFields->efbHeight = sourceFields->efbHeight;
+                copiedFields->xfbHeight = sourceFields->xfbHeight;
+                copiedFields->viXOrigin = sourceFields->viXOrigin;
+                copiedFields->viYOrigin = sourceFields->viYOrigin;
+                copiedFields->viWidth = sourceFields->viWidth;
+                copiedFields->viHeight = sourceFields->viHeight;
+                copiedFields->xFBmode = sourceFields->xFBmode;
+                copiedFields->field_rendering = sourceFields->field_rendering;
+                copiedFields->aa = sourceFields->aa;
+                for (; samplePairsRemaining != 0; samplePairsRemaining--) {
+                    destinationSamples[1] = sourceSamples[1];
+                    destinationSamples[2] = sourceSamples[2];
+                    sourceSamples += 2;
+                    destinationSamples += 2;
                 }
-                dstMode->vfilter[0] = srcMode->vfilter[0];
-                dstMode->vfilter[1] = srcMode->vfilter[1];
-                dstMode->vfilter[2] = srcMode->vfilter[2];
-                dstMode->vfilter[3] = srcMode->vfilter[3];
-                dstMode->vfilter[4] = srcMode->vfilter[4];
-                dstMode->vfilter[5] = srcMode->vfilter[5];
-                dstMode->vfilter[6] = srcMode->vfilter[6];
+                copiedFields->vfilter[0] = sourceFields->vfilter[0];
+                copiedFields->vfilter[1] = sourceFields->vfilter[1];
+                copiedFields->vfilter[2] = sourceFields->vfilter[2];
+                copiedFields->vfilter[3] = sourceFields->vfilter[3];
+                copiedFields->vfilter[4] = sourceFields->vfilter[4];
+                copiedFields->vfilter[5] = sourceFields->vfilter[5];
+                copiedFields->vfilter[6] = sourceFields->vfilter[6];
                 u32 left;
                 u32 top;
                 u32 width;
                 u32 height;
                 GXGetScissor(&left, &top, &width, &height);
-                GXSetScissor(0, dstMode->efbHeight / 2 - 0xA4, dstMode->fbWidth, 0x132);
+                GXSetScissor(0, copiedFields->efbHeight / 2 - 0xA4, copiedFields->fbWidth, 0x132);
                 mpMainLayout->draw();
                 GXSetScissor(left, top, width, height);
             }
@@ -2705,6 +2688,7 @@ namespace ipl {
             mUiStatus[2] = 0;
         }
 
+        // MWCC needs IRO 1 to load animation indices before layout addresses.
 #pragma push
 #pragma ppc_iro_level 1
         void Setting::scanAP() {
