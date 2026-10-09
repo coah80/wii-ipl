@@ -1004,12 +1004,7 @@ int ATERMDiscoverAccessPoints(void) {
         iteration++;
     }
 
-    if (iteration >= 300) {
-        goto timed_out;
-    }
-    now = (u32)OSTicksToMilliseconds(OSGetTime());
-    if (now > gAtermDeadline) {
-    timed_out:
+    if (iteration >= 300 || (u32)OSTicksToMilliseconds(OSGetTime()) > gAtermDeadline) {
         result = -3;
     } else {
         result = 1;
@@ -1060,6 +1055,21 @@ int ATERMBuildEncryptedMessage(u16* messageBuffer, u32 sequence, u16* payload, s
     return end + sizeof(u16) - (u8*)messageBuffer;
 }
 
+static inline u8* atermNextPacketOption(u8** cursor, u8* end, s32* type, s32* length) {
+    AtermPacketOption* option;
+    u8* value;
+    if (*cursor >= end) {
+        value = NULL;
+    } else {
+        option = (AtermPacketOption*)*cursor;
+        *type = SONtoHs(option->type);
+        *length = SONtoHs(option->length);
+        value = option->value;
+        *cursor = (u8*)(((*length + 0x0B) & ~7) + (u32)*cursor);
+    }
+    return value;
+}
+
 int ATERMParsePacket(AtermPacket* packet, u32* setupType) {
     u8* cursor;
     u8* end;
@@ -1073,7 +1083,6 @@ int ATERMParsePacket(AtermPacket* packet, u32* setupType) {
     s32 authenticationReady;
     s32 networkReady;
     s32 selectedMode;
-    AtermPacketOption* option;
 
     messageType = SONtoHs(packet->sequence);
     payloadLength = SONtoHs(packet->length);
@@ -1096,46 +1105,30 @@ int ATERMParsePacket(AtermPacket* packet, u32* setupType) {
     if (messageType != 1) {
         return 0;
     }
-    {
-        end = payload + payloadLength;
-        cursor = payload + 8;
-        goto next_packet_option;
-        do {
-            switch (optionType) {
-            case 1:
-                authenticationReady = SONtoHs(*(u16*)value);
-                break;
-            case 2:
-                networkReady = SONtoHs(*(u16*)value);
-                break;
-            case 5:
-                selectedMode = SONtoHs(*(u16*)value);
-                break;
-            }
-        next_packet_option:
-            if (cursor >= end) {
-                value = NULL;
-            } else {
-                option = (AtermPacketOption*)cursor;
-                optionType = SONtoHs(option->type);
-                optionLength = SONtoHs(option->length);
-                value = option->value;
-                cursor = (u8*)(((optionLength + 0x0B) & ~7) + (u32)cursor);
-            }
-        } while (value != NULL);
-        if (authenticationReady != 1 || networkReady != 1) {
-            return 0;
-        }
-        {
-            if (selectedMode >= 1) {
-                *setupType = 1;
-            } else {
-                *setupType = 0;
-            }
-            return 1;
+    end = payload + payloadLength;
+    cursor = payload + 8;
+    while ((value = atermNextPacketOption(&cursor, end, &optionType, &optionLength)) != NULL) {
+        switch (optionType) {
+        case 1:
+            authenticationReady = SONtoHs(*(u16*)value);
+            break;
+        case 2:
+            networkReady = SONtoHs(*(u16*)value);
+            break;
+        case 5:
+            selectedMode = SONtoHs(*(u16*)value);
+            break;
         }
     }
-    return 0;
+    if (authenticationReady != 1 || networkReady != 1) {
+        return 0;
+    }
+    if (selectedMode >= 1) {
+        *setupType = 1;
+    } else {
+        *setupType = 0;
+    }
+    return 1;
 }
 
 int ATERMBuildAssociationRequest(AtermAssociationRequest* request, AtermSocketAddress* address) {
@@ -1165,6 +1158,19 @@ int ATERMBuildAssociationRequest(AtermAssociationRequest* request, AtermSocketAd
     return 1;
 }
 
+static inline u8* atermNextResponseOption(u16** cursor, u16* end, u32* type, s32* length) {
+    u8* value;
+    if (*cursor >= end) {
+        value = NULL;
+    } else {
+        *type = SONtoHs((*cursor)[0]);
+        *length = SONtoHs((*cursor)[1]);
+        value = (u8*)(*cursor + 2);
+        *cursor = (u16*)(((*length + 0x0B) & ~7) + (u32)*cursor);
+    }
+    return value;
+}
+
 int ATERMParseAssociationResponse(u16* response) {
     u16* optionCursor = response + 4;
     u8* optionValue;
@@ -1175,8 +1181,7 @@ int ATERMParseAssociationResponse(u16* response) {
     s32 result = 0;
 
     responseEnd = (u16*)((u8*)optionCursor + SONtoHs(response[0]));
-    goto next_response_option;
-    do {
+    while ((optionValue = atermNextResponseOption(&optionCursor, responseEnd, &optionType, &optionLength)) != NULL) {
         switch (optionType) {
         case 0x201:
             memset(gScanSettings.ssid, 0, sizeof(gScanSettings.ssid));
@@ -1227,16 +1232,7 @@ int ATERMParseAssociationResponse(u16* response) {
             memcpy(gScanSettings.sharedKey, optionValue, optionLength);
             break;
         }
-    next_response_option:
-        if (optionCursor >= responseEnd) {
-            optionValue = NULL;
-        } else {
-            optionType = SONtoHs(optionCursor[0]);
-            optionLength = SONtoHs(optionCursor[1]);
-            optionValue = (u8*)(optionCursor + 2);
-            optionCursor = (u16*)(((optionLength + 0x0B) & ~7) + (u32)optionCursor);
-        }
-    } while (optionValue != NULL);
+    }
     return result;
 }
 
