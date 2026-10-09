@@ -2,6 +2,18 @@
 
 extern void* memset(void* dest, int value, unsigned long size);
 
+typedef struct {
+    u16 bitLength;
+    u16 symbol;
+} TMCHuffmanEntry;
+
+static inline BOOL exceedsHuffmanLimit(u32 code, const u16* entry, TMCHuffmanEntry* limit, TMCHuffmanEntry* decoded) {
+    *limit = *(const TMCHuffmanEntry*)entry;
+    /* MWCC needs the entry copy before reloading its bit length. */
+    *decoded = *limit;
+    return code > decoded->bitLength;
+}
+
 static s32 TMCJPEGDEC_vl_decode_rc(u32* huff_tbl, u8* huff_sym, TMCCJPEGDecWork* work);
 
 static inline s32 readCoefficientBits(TMCCJPEGDecWork* work, s32 count) {
@@ -150,6 +162,8 @@ static s32 TMCJPEGDEC_vl_decode_rc(u32* huff_tbl, u8* huff_sym, TMCCJPEGDecWork*
     u32 code;
     unsigned int i;
     s32 r;
+    TMCHuffmanEntry limit;
+    TMCHuffmanEntry decoded;
 
     bit_pos = work->bitCount;
 
@@ -168,9 +182,7 @@ static s32 TMCJPEGDEC_vl_decode_rc(u32* huff_tbl, u8* huff_sym, TMCCJPEGDecWork*
     code = (bit_data >> bit_pos) & 0x1FF;
     work->bitCount = bit_pos;
 
-    goto entry_check;
-
-    do {
+    while (exceedsHuffmanLimit(code, entry, &limit, &decoded)) {
         i++;
         entry += 2;
         if (i > 16) {
@@ -183,24 +195,11 @@ static s32 TMCJPEGDEC_vl_decode_rc(u32* huff_tbl, u8* huff_sym, TMCCJPEGDecWork*
         bit_pos--;
         work->bitCount = bit_pos;
         code |= (bit_data >> bit_pos) & 1;
-
-    entry_check: {
-        typedef struct {
-            u16 t;
-            u16 o;
-        } HuffEnt;
-        HuffEnt local = *(HuffEnt*)entry;
-        u32 combined = *(u32*)&local;
-        u16 th = *(u16*)&combined;
-        s32 tmp;
-
-        if (code > th) {
-            continue;
-        }
-
-        tmp = code - local.t;
-        code = tmp + (u32)local.o;
     }
-        return huff_sym[code & 0xFF];
-    } while (1);
+
+    {
+        s32 relativeCode = code - limit.bitLength;
+        code = relativeCode + (u32)limit.symbol;
+    }
+    return huff_sym[code & 0xFF];
 }

@@ -1,6 +1,28 @@
 #include <string.h>
 #include <tmc_jpeg_internal.h>
 
+static inline s32 finishImageStart(TMCCJPEGDecWork* work, s32 result) {
+    if (result < 0) {
+        return result;
+    }
+    if (work->frameWidth == 0) {
+        return TMCC_ERROR_HEADER;
+    }
+    work->mcuCount = work->mcuXCount * work->mcuYCount;
+    work->mcuRemCount = work->mcuXRem * work->mcuXCount2;
+    return result;
+}
+
+static inline s32 finishScanStart(TMCCJPEGDecWork* work, s32 result) {
+    if (result < 0) {
+        return result;
+    }
+    if (work->scanCount == 1) {
+        return 0;
+    }
+    return result;
+}
+
 s32 TMCCJPEGDecInit(TMCCJPEGDecState* state, TMCCJPEGDecInitParam* param) {
     s32 result;
     TMCCJPEGDecWork* work;
@@ -37,17 +59,13 @@ s32 TMCCJPEGDecInit(TMCCJPEGDecState* state, TMCCJPEGDecInitParam* param) {
     }
 
     result = TMCJPEGDEC_imagestart(work);
-    result = (result < 0) ?
-                 result :
-                 ((work->frameWidth == 0) ?
-                      TMCC_ERROR_HEADER :
-                      ((work->mcuCount = work->mcuXCount * work->mcuYCount, work->mcuRemCount = work->mcuXRem * work->mcuXCount2), result));
+    result = finishImageStart(work, result);
     if (result < 0) {
         goto error;
     }
 
     result = TMCJPEGDEC_scanstart(work);
-    result = (result < 0) ? result : ((work->scanCount == 1) ? 0 : result);
+    result = finishScanStart(work, result);
     if (result < 0) {
         goto error;
     }

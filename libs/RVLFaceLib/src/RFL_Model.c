@@ -343,7 +343,7 @@ void RFLSetExpression(RFLCharModel* charModel, RFLExpression expression) {
 }
 
 RFLExpression RFLGetExpression(const RFLCharModel* charModel) {
-    const RFLiCharModel* charModel_ = (RFLiCharModel*)charModel;
+    const RFLiCharModel* charModel_ = (const RFLiCharModel*)charModel;
 
     RFLi_ASSERTLINE_NULL(charModel, 499);
 
@@ -351,7 +351,7 @@ RFLExpression RFLGetExpression(const RFLCharModel* charModel) {
 }
 
 BOOL RFLIsAvailableExpression(const RFLCharModel* charModel, RFLExpression expression) {
-    const RFLiCharModel* charModel_ = (RFLiCharModel*)charModel;
+    const RFLiCharModel* charModel_ = (const RFLiCharModel*)charModel;
 
     RFLi_ASSERTLINE_NULL(charModel, 518);
 
@@ -459,13 +459,13 @@ void RFLLoadMaterialSetting(const RFLDrawCoreSetting* setting) {
 }
 
 void RFLDrawOpaCore(const RFLCharModel* charModel, const RFLDrawCoreSetting* setting) {
-    const RFLiCharModel* charModel_ = (RFLiCharModel*)charModel;
+    const RFLiCharModel* charModel_ = (const RFLiCharModel*)charModel;
     const RFLiCharModelRes* charModelRes;
 
     RFLi_ASSERTLINE_NULL(charModel, 760);
     RFLi_ASSERTLINE_NULL(setting, 761);
 
-    charModelRes = (RFLiCharModelRes*)charModel_->resource;
+    charModelRes = (const RFLiCharModelRes*)charModel_->resource;
 
     GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_KONST);
 
@@ -550,13 +550,13 @@ void RFLDrawOpaCore(const RFLCharModel* charModel, const RFLDrawCoreSetting* set
 }
 
 void RFLDrawXluCore(const RFLCharModel* charModel, const RFLDrawCoreSetting* setting) {
-    const RFLiCharModel* charModel_ = (RFLiCharModel*)charModel;
+    const RFLiCharModel* charModel_ = (const RFLiCharModel*)charModel;
     const RFLiCharModelRes* charModelRes;
 
     RFLi_ASSERTLINE_NULL(charModel, 897);
     RFLi_ASSERTLINE_NULL(setting, 898);
 
-    charModelRes = (RFLiCharModelRes*)charModel_->resource;
+    charModelRes = (const RFLiCharModelRes*)charModel_->resource;
 
     GXSetTevOrder(GX_TEVSTAGE0, setting->txcID, setting->texMapID, GX_COLOR_NULL);
     GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_TEXA);
@@ -1127,7 +1127,7 @@ void RFLiTransformCoordinate(s16* to, const s16* from) {
 }
 
 void RFLDrawShape(const RFLCharModel* charModel) {
-    const RFLiCharModel* charModel_ = (RFLiCharModel*)charModel;
+    const RFLiCharModel* charModel_ = (const RFLiCharModel*)charModel;
     const RFLiCharModelRes* res;
     GXCullMode cullMode;
 
