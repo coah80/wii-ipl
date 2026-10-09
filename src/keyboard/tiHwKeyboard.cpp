@@ -115,99 +115,48 @@ extern const u8 controlKeys[];
 
                 u32 modifierFlag = modifierState & 0x8;
 
-                while (currentKeySet.IsValid()) {
+                for (; currentKeySet.IsValid(); currentKeySet = currentKeySet.GetNext()) {
                     int key = currentKeySet.GetKey();
                     u32 command;
 
-                    if (key == 0x4c) {
-                        goto sendCommand2;
-                    }
-
-                    if (key < 0x4c) {
-                        if (key != 0x2b) {
-                            if (key < 0x2b) {
-                                if (key >= 0x2a) {
-                                    goto sendCommand1;
-                                }
-                            } else {
-                                if (key >= 0x2d) {
-                                    goto nextRepeatedKey;
-                                }
-                                goto checkSpecialCommand;
-                            }
+                    // MWCC needs the navigation cases to share this command tail.
+                    switch (key) {
+                    case 0x4c:
+                        sendCommand(2, NULL);
+                        continue;
+                    case 0x2a:
+                        sendCommand(1, NULL);
+                        continue;
+                    case 0x4f:
+                        command = 0x20;
+                        goto sendNavigationCommand;
+                    case 0x50:
+                        command = 0x1f;
+                        goto sendNavigationCommand;
+                    case 0x51:
+                        command = 0x1e;
+                        goto sendNavigationCommand;
+                    case 0x52:
+                        command = 0x1d;
+                    sendNavigationCommand:
+                        {
+                            u32 commandData[2];
+                            commandData[0] = command;
+                            commandData[1] = modifierState;
+                            sendCommand(0x26, commandData);
                         }
-                        goto nextRepeatedKey;
-                    }
-
-                    if (key == 0x51) {
-                        goto setNavigationCommand1e;
-                    }
-
-                    if (key < 0x51) {
-                        if (key == 0x4f) {
-                            goto setNavigationCommand20;
-                        } else if (key >= 0x4f) {
-                            goto setNavigationCommand1f;
+                        continue;
+                    case 0x2c:
+                        if ((mgr()->getToolBar()->isQwerty() ||
+                             !mgr()->getCellPhoneKeyboard()->isNumeric()) && modifierFlag == 0) {
+                            NavigationCommand commandData = {8, modifierState};
+                            sendCommand(0x26, &commandData);
                         }
-                    } else {
-                        if (key >= 0x53) {
-                            goto nextRepeatedKey;
-                        }
-                        goto setNavigationCommand1d;
+                        continue;
+                    case 0x2b:
+                    default:
+                        continue;
                     }
-
-                    goto nextRepeatedKey;
-
-                sendCommand2:
-                    sendCommand(2, NULL);
-                    goto nextRepeatedKey;
-
-                sendCommand1:
-                    sendCommand(1, NULL);
-                    goto nextRepeatedKey;
-
-                setNavigationCommand20:
-                    command = 0x20;
-                    goto sendNavigationCommand;
-
-                setNavigationCommand1f:
-                    command = 0x1f;
-                    goto sendNavigationCommand;
-
-                setNavigationCommand1e:
-                    command = 0x1e;
-                    goto sendNavigationCommand;
-
-                setNavigationCommand1d:
-                    command = 0x1d;
-
-                sendNavigationCommand:
-                    {
-                        u32 commandData[2];
-                        commandData[0] = command;
-                        commandData[1] = modifierState;
-                        sendCommand(0x26, commandData);
-                    }
-                    goto nextRepeatedKey;
-
-                checkSpecialCommand:
-                    if (mgr()->getToolBar()->isQwerty() ||
-                        !mgr()->getCellPhoneKeyboard()->isNumeric()) {
-                        if (modifierFlag == 0) {
-                            goto sendSpecialCommand;
-                        }
-                    }
-                    goto nextRepeatedKey;
-
-                sendSpecialCommand:
-                    {
-                        NavigationCommand commandData = {8, modifierState};
-                        sendCommand(0x26, &commandData);
-                    }
-
-                nextRepeatedKey:
-
-                    currentKeySet = currentKeySet.GetNext();
                 }
 
                 return false;
@@ -250,29 +199,28 @@ extern const u8 controlKeys[];
                         bool sendCharacter = true;
                         if (!mgr()->getToolBar()->isQwerty() &&
                             mgr()->getCellPhoneKeyboard()->isNumeric()) {
-                            if (static_cast<wchar_t>(character) == '/') {
-                                goto suppressCharacter;
-                            }
-                            if (static_cast<wchar_t>(character) < '/') {
-                                if (static_cast<wchar_t>(character) >= '.') {
-                                    goto checkNumericDot;
+                            switch (static_cast<wchar_t>(character)) {
+                            case '0':
+                            case '1':
+                            case '2':
+                            case '3':
+                            case '4':
+                            case '5':
+                            case '6':
+                            case '7':
+                            case '8':
+                            case '9':
+                                break;
+                            case '.':
+                                if (mgr()->getCellPhoneKeyboard()->isNumericWithDot()) {
+                                    break;
                                 }
-                                goto suppressCharacter;
+                            case '/':
+                            default:
+                                sendCharacter = false;
+                                break;
                             }
-                            if (static_cast<wchar_t>(character) >= ':') {
-                                goto suppressCharacter;
-                            }
-                            goto sendCharacterCheck;
-                        checkNumericDot:
-                            if (mgr()->getCellPhoneKeyboard()->isNumericWithDot()) {
-                                goto sendCharacterCheck;
-                            }
-                        suppressCharacter:
-                            sendCharacter = false;
                         }
-
-                        goto sendCharacterCheck;
-                    sendCharacterCheck:
                         if (sendCharacter) {
                             modifierState = 0;
                             if ((hkbManager.GetModifierState() & 0x2) != 0) {
@@ -287,7 +235,7 @@ extern const u8 controlKeys[];
                             }
 
                             character = convertWCCode(character);
-                                                        KeyInputData keyInputData = {0, 0, 0, 1, 0, 0, 0};
+                            KeyInputData keyInputData = {0, 0, 0, 1, 0, 0, 0};
                             keyInputData.character = character;
                             keyInputData.modifier = modifierState;
                             sendCommand(0, &keyInputData);
@@ -325,24 +273,21 @@ extern const u8 controlKeys[];
                             hkbManager.SetModifierState(capsLock ? 0x100 : 0, 0x100);
                         }
 
-                        if (mgr()->getToolBar()->isQwerty() ||
-                            !mgr()->getCellPhoneKeyboard()->isNumeric()) {
-                            goto sendKeyCheck;
+                        if (!mgr()->getToolBar()->isQwerty() &&
+                            mgr()->getCellPhoneKeyboard()->isNumeric()) {
+                            switch (translatedKey) {
+                            case 0x15:
+                            case 0x16:
+                            case 0x1d:
+                            case 0x1e:
+                            case 0x1f:
+                            case 0x20:
+                                break;
+                            default:
+                                sendKey = false;
+                                break;
+                            }
                         }
-
-                        switch (translatedKey) {
-                        case 0x15:
-                        case 0x16:
-                        case 0x1d:
-                        case 0x1e:
-                        case 0x1f:
-                        case 0x20:
-                            break;
-                        default:
-                            sendKey = false;
-                            break;
-                        }
-                    sendKeyCheck:
                         if (sendKey) {
                             u32 commandData[2] = {translatedKey, modifierState};
                             sendCommand(0x26, commandData);
