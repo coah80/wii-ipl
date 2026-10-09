@@ -532,7 +532,7 @@ extern u8 gAtermDigestFill[64];
 extern u8* gAtermRequestOptions;
 int ATERMAesKeyWrap(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
 int ATERMAesKeyUnwrap(u16* destination, u16* source, u32 length, void* key, u32 keyLength);
-int ATERMAesExpandEncryptKey(u32* expandedKey, const void* key, u32 keyBits);
+int ATERMAesExpandEncryptKey(u32* roundKey, const void* key, int keyBits);
 int ATERMAesExpandDecryptKey(u32* expandedKey, const void* key, u32 keyBits);
 void ATERMAesEncryptBlock(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
 void ATERMAesDecryptBlock(const u32* expandedKey, u32 rounds, const u8* input, u8* output);
@@ -1901,120 +1901,91 @@ int ATERMAesKeyUnwrap(u16* destination, u16* source, u32 length, void* key, u32 
     return result;
 }
 
-#define ATERM_AES_SUB_BYTE(value) (gAtermAesSubstitutionTable[(value)] & 0xFF)
-#define ATERM_AES_SUB_WORD(value) \
-    ((ATERM_AES_SUB_BYTE(((value) >> 24) & 0xFF) << 24) | \
-     (ATERM_AES_SUB_BYTE(((value) >> 16) & 0xFF) << 16) | \
-     (ATERM_AES_SUB_BYTE(((value) >> 8) & 0xFF) << 8) | \
-     ATERM_AES_SUB_BYTE((value) & 0xFF))
+#define ATERM_AES_GETU32(bytes) \
+    (((u32)(bytes)[0] << 24) ^ ((u32)(bytes)[1] << 16) ^ ((u32)(bytes)[2] << 8) ^ ((u32)(bytes)[3]))
 
-#define ATERM_AES_READ_KEY_WORD(index) \
-    (((u32)keyBytes[(index) * 4] << 24) ^ \
-     ((u32)keyBytes[(index) * 4 + 1] << 16) ^ \
-     ((u32)keyBytes[(index) * 4 + 2] << 8) ^ \
-     keyBytes[(index) * 4 + 3])
-
-int ATERMAesExpandEncryptKey(u32* expandedKey, const void* key, u32 keyBits) {
+int ATERMAesExpandEncryptKey(u32* roundKey, const void* key, int keyBits) {
     const u8* keyBytes = (const u8*)key;
-    u32* roundKey = expandedKey;
-
+    int round = 0;
     u32 keyWord;
-    s32 generatedRounds = 0;
 
-    u32 initialKey[4];
-    s32 wordIndex;
-    for (wordIndex = 0; wordIndex < 4; wordIndex++) {
-        initialKey[wordIndex] =
-            (((u32)keyBytes[wordIndex * 4] << 24) ^
-             ((u32)keyBytes[wordIndex * 4 + 1] << 16)) ^
-            ((u32)keyBytes[wordIndex * 4 + 2] << 8) ^
-            keyBytes[wordIndex * 4 + 3];
-    }
-    for (wordIndex = 0; wordIndex < 4; wordIndex++) {
-        expandedKey[wordIndex] = initialKey[wordIndex];
-    }
-
-    if ((s32)keyBits == 0x80) {
-        const u32* roundConstant;
-        roundConstant = gAtermAesRoundConstants;
-        do {
+    roundKey[0] = ATERM_AES_GETU32(keyBytes);
+    roundKey[1] = ATERM_AES_GETU32(keyBytes + 4);
+    roundKey[2] = ATERM_AES_GETU32(keyBytes + 8);
+    roundKey[3] = ATERM_AES_GETU32(keyBytes + 12);
+    if (keyBits == 128) {
+        for (;;) {
             keyWord = roundKey[3];
-            roundKey[4] =
-                (*roundConstant++ ^
-                 ((gAtermAesSubstitutionTable[keyWord >> 24] & 0xFF) ^
-                  (gAtermAesSubstitutionTable[keyWord & 0xFF] & 0xFF00))) ^
-                ((roundKey[0] ^
-                  (gAtermAesSubstitutionTable[(keyWord >> 16) & 0xFF] & 0xFF000000)) ^
-                 (gAtermAesSubstitutionTable[(keyWord >> 8) & 0xFF] & 0xFF0000));
+            roundKey[4] = roundKey[0] ^
+                (gAtermAesSubstitutionTable[(keyWord >> 16) & 0xFF] & 0xFF000000) ^
+                (gAtermAesSubstitutionTable[(keyWord >> 8) & 0xFF] & 0x00FF0000) ^
+                (gAtermAesSubstitutionTable[keyWord & 0xFF] & 0x0000FF00) ^
+                (gAtermAesSubstitutionTable[keyWord >> 24] & 0x000000FF) ^
+                gAtermAesRoundConstants[round];
             roundKey[5] = roundKey[1] ^ roundKey[4];
             roundKey[6] = roundKey[2] ^ roundKey[5];
             roundKey[7] = roundKey[3] ^ roundKey[6];
-            if (++generatedRounds == 10) {
+            if (++round == 10) {
                 return 10;
             }
             roundKey += 4;
-        } while (1);
+        }
     }
-
-    expandedKey[4] = (((u32)keyBytes[19] ^ ((u32)keyBytes[18] << 8)) ^ (((u32)keyBytes[16] << 24) ^ ((u32)keyBytes[17] << 16)));
-    expandedKey[5] = (((u32)keyBytes[23] ^ ((u32)keyBytes[22] << 8)) ^ (((u32)keyBytes[20] << 24) ^ ((u32)keyBytes[21] << 16)));
-    if ((s32)keyBits == 0xC0) {
-        const u32* substitution;
-        const u32* roundConstant;
-        roundConstant = gAtermAesRoundConstants;
-        substitution = gAtermAesSubstitutionTable;
-        do {
+    roundKey[4] = ATERM_AES_GETU32(keyBytes + 16);
+    roundKey[5] = ATERM_AES_GETU32(keyBytes + 20);
+    if (keyBits == 192) {
+        for (;;) {
             keyWord = roundKey[5];
-            roundKey[6] = (*roundConstant++ ^ ((substitution[keyWord >> 24] & 0xFF) ^ (substitution[keyWord & 0xFF] & 0xFF00))) ^ ((roundKey[0] ^ (substitution[(keyWord >> 16) & 0xFF] & 0xFF000000)) ^ (substitution[(keyWord >> 8) & 0xFF] & 0xFF0000));
+            roundKey[6] = roundKey[0] ^
+                (gAtermAesSubstitutionTable[(keyWord >> 16) & 0xFF] & 0xFF000000) ^
+                (gAtermAesSubstitutionTable[(keyWord >> 8) & 0xFF] & 0x00FF0000) ^
+                (gAtermAesSubstitutionTable[keyWord & 0xFF] & 0x0000FF00) ^
+                (gAtermAesSubstitutionTable[keyWord >> 24] & 0x000000FF) ^
+                gAtermAesRoundConstants[round];
             roundKey[7] = roundKey[1] ^ roundKey[6];
             roundKey[8] = roundKey[2] ^ roundKey[7];
             roundKey[9] = roundKey[3] ^ roundKey[8];
-            if (++generatedRounds == 8) {
+            if (++round == 8) {
                 return 12;
             }
             roundKey[10] = roundKey[4] ^ roundKey[9];
             roundKey[11] = roundKey[5] ^ roundKey[10];
             roundKey += 6;
-        } while (1);
-        return 12;
+        }
     }
-
-    expandedKey[6] = (((u32)keyBytes[27] ^ ((u32)keyBytes[26] << 8)) ^ (((u32)keyBytes[24] << 24) ^ ((u32)keyBytes[25] << 16)));
-    expandedKey[7] = (((u32)keyBytes[31] ^ ((u32)keyBytes[30] << 8)) ^ (((u32)keyBytes[28] << 24) ^ ((u32)keyBytes[29] << 16)));
-    if ((s32)keyBits == 0x100) {
-        const u32* substitution;
-        const u32* roundConstant;
-        roundConstant = gAtermAesRoundConstants;
-        substitution = gAtermAesSubstitutionTable;
-        do {
+    roundKey[6] = ATERM_AES_GETU32(keyBytes + 24);
+    roundKey[7] = ATERM_AES_GETU32(keyBytes + 28);
+    if (keyBits == 256) {
+        for (;;) {
             keyWord = roundKey[7];
-            roundKey[8] = (*roundConstant++ ^ ((substitution[keyWord >> 24] & 0xFF) ^ (substitution[keyWord & 0xFF] & 0xFF00))) ^ ((roundKey[0] ^ (substitution[(keyWord >> 16) & 0xFF] & 0xFF000000)) ^ (substitution[(keyWord >> 8) & 0xFF] & 0xFF0000));
+            roundKey[8] = roundKey[0] ^
+                (gAtermAesSubstitutionTable[(keyWord >> 16) & 0xFF] & 0xFF000000) ^
+                (gAtermAesSubstitutionTable[(keyWord >> 8) & 0xFF] & 0x00FF0000) ^
+                (gAtermAesSubstitutionTable[keyWord & 0xFF] & 0x0000FF00) ^
+                (gAtermAesSubstitutionTable[keyWord >> 24] & 0x000000FF) ^
+                gAtermAesRoundConstants[round];
             roundKey[9] = roundKey[1] ^ roundKey[8];
             roundKey[10] = roundKey[2] ^ roundKey[9];
             roundKey[11] = roundKey[3] ^ roundKey[10];
-            if (++generatedRounds == 7) {
+            if (++round == 7) {
                 return 14;
             }
             keyWord = roundKey[11];
             roundKey[12] = roundKey[4] ^
-            (substitution[keyWord >> 24] & 0xFF000000) ^
-            (substitution[(keyWord >> 16) & 0xFF] & 0x00FF0000) ^
-            (substitution[(keyWord >> 8) & 0xFF] & 0x0000FF00) ^
-            (substitution[keyWord & 0xFF] & 0x000000FF);
+                (gAtermAesSubstitutionTable[keyWord >> 24] & 0xFF000000) ^
+                (gAtermAesSubstitutionTable[(keyWord >> 16) & 0xFF] & 0x00FF0000) ^
+                (gAtermAesSubstitutionTable[(keyWord >> 8) & 0xFF] & 0x0000FF00) ^
+                (gAtermAesSubstitutionTable[keyWord & 0xFF] & 0x000000FF);
             roundKey[13] = roundKey[5] ^ roundKey[12];
             roundKey[14] = roundKey[6] ^ roundKey[13];
             roundKey[15] = roundKey[7] ^ roundKey[14];
             roundKey += 8;
-        } while (1);
-        return 14;
+        }
     }
     return 0;
 }
 
-#undef ATERM_AES_READ_KEY_WORD
-#undef ATERM_AES_SUB_WORD
-#undef ATERM_AES_SUB_BYTE
-#undef ATERM_AES_SUB_BYTE
+#undef ATERM_AES_GETU32
 
 
 #define ATERM_AES_TRANSFORM_KEY(roundKey, index) \
