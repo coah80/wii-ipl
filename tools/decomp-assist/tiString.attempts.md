@@ -90,3 +90,20 @@ form must leave a SECOND mCount def that MWCC can't prove equal — no such form
 found for var/member/local-arm writes.
 
 u32 mCount retained (removes all rlwinm per-access mask diffs): 135 vs base 136.
+
+## inputChar — orchestrator-diff wave 2 (w1009)
+Plain-local decode confirmed pieces:
+- `u32 i = 0; input[0] = i;` — stores i's web directly: `sth r5,0x10` shares ONE
+  web with `slwi r0,r5` — reproduces base's single `li` web (vs two separate li
+  webs in the member form). With `if(ch=='\n') i=0` arm kept: symbolic slwi +
+  shared store web both landed — but arm stays LIVE (bne;li) as always.
+- `i = (ch=='\n') ? 0 : i` select: folds entirely (compare deleted, index
+  collapses to input[0]).
+- `i = output.mCount` overwrite: member-read folds to init-0 -> collapse.
+- `if(ch=='\n') input[i]=0` arm (dedup vs later input[i]=ch): i single-def ->
+  index folds -> collapse.
+Established: the arm's def is the ONLY phi input keeping `input[i]` symbolic;
+MWCC 3.0a5.2 eliminates neither redundant var-stores nor member stores, and
+deleting the arm's def always collapses the phi -> literal fold. The dead
+cmplwi needs a pass ordering where the phi survives the arm's deletion —
+no source form found. ~50 total probe forms on this wall across sessions.
