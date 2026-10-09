@@ -28,3 +28,34 @@ call result, or a non-foldable form). Dead `cmplwi r4,0xa` matches the documente
 dead-compare-fossil family (both-branch merge). Also: count lands in r29 via
 clrlwi (u16) — count is i.
 Unresolved: what source produces symbolic-index stores + dead compare.
+
+## inputChar (w1009 wave — post-#1319 structure)
+Base: 136 insns. g-keyboard baseline (u16 mCount member + newline reset): 13 diffs
+at 66-78 — rlwinm per-access masks (u16 index) + live bne on the newline compare.
+
+Decode landed: mCount is a **u32** member — orig emits `slwi` (no mask) on the
+index and ONE `clrlwi r29` (u16 narrow for count), not per-access rlwinm.
+`u32 mCount` removes all mask diffs -> 135 insns vs 136.
+
+Remaining (unresolved):
+1. `if (ch == L'\n') mCount = 0;` — orig's compare is a DEAD fossil (cmplwi kept,
+   no consuming branch, block straight-line). Tried and rejected: mpOutput[0]=0 /
+   mpOutput[mCount]=0 conditional stores (MWCC never dedups conditional memory
+   stores — kept `bne; sth`); ternary/switch/empty-if/goto-next (frontend folds
+   compare AND kills the mCount phi -> index collapses to direct sth, mode3 block
+   merges into else shape); mCount=0 else=0 (same collapse); adjacent backward
+   redundant store (kept bne;sth). Constraint pair: mCount must stay OPAQUE
+   (phi/web, else index folds) AND the if's only effect must die late. The live
+   `if(ch=='\n') mCount=0` phi is currently what keeps the index symbolic —
+   any fossil form that kills the branch also kills the phi. Needs the reset to
+   target something else (member load/codegen temp per orchestrator hint).
+2. Cursor add re-narrow x2: base emits `clrlwi r0,r29,0x10` before
+   `mCursorStart + count` — count's u32/s32 web is UNPROVEN at the use (phi
+   provenance lost). Tried: u32/s32/u16 count + static_cast<u16>, (u16)(s32)
+   double-cast, & 0xffff, plain +count — MWCC folds all since all 3 phi inputs
+   (clrlwi-0x18 kana, clrlwi-0x10 mode3, li 1 else) are provably narrow. Base's
+   count web must be dirty through a different mechanism (member web? call
+   boundary? different var shape).
+3. 1 missing insn in mode3 tail: base has `mr r4,r5` + `li r5,0` (buf re-copied
+   into r4 for the terminator store) — mine shares r5 (append and finish inlined
+   reads coalesce the mpOutput web).
