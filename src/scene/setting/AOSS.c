@@ -2510,6 +2510,8 @@ int AOSSXorBufferWithKey(void* packet, s32 length, char* key, int keyLength) {
     s32 index;
     int result = -1;
     u8* packetBytes;
+    u8* mask;
+    u8* output;
 
     keyMask = (u8*)AOSSi_Alloc(halfLength);
     if (keyMask == 0) {
@@ -2528,8 +2530,9 @@ int AOSSXorBufferWithKey(void* packet, s32 length, char* key, int keyLength) {
     for (round = 0; round < 2; round++) {
         keyIndex = round % keyLength;
         for (index = 0; index < halfLength; index++) {
-            keyMask[index] = (u8)index;
-            keyMask[index] = keyMask[index] ^ (u8)key[keyIndex];
+            mask = &keyMask[index];
+            *mask = (u8)index;
+            *mask = *mask ^ (u8)key[keyIndex];
             keyIndex++;
             if (keyIndex >= keyLength) {
                 keyIndex = 0;
@@ -2537,9 +2540,9 @@ int AOSSXorBufferWithKey(void* packet, s32 length, char* key, int keyLength) {
         }
 
         for (index = 0; index < halfLength; index++) {
-            u8 inputByte = packetHalf[index];
-            inputByte ^= keyMask[index];
-            packetHalf[index] = inputByte;
+            mask = &keyMask[index];
+            output = &packetHalf[index];
+            *output = *output ^ *mask;
         }
 
         memcpy(temporary, packetHalf, halfLength);

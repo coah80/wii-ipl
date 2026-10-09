@@ -109,3 +109,35 @@ AOSS_Init_old 1306/1584, AOSSApplyAuthOptions 22/114, AOSSXorBufferWithKey 34/14
 AOSSData, 1128/1128). AOSS 18/21 exact (17 -> 18), code 7720 -> 8812/16192, ATERM 20/26 unchanged, pools
 identical, global matched code 97.12163 -> 97.15810, fuzzy 99.88565 -> 99.88839, data 100%, 0 forbidden, 0
 readability, DOL SHA1 OK.
+
+# opus-aoss round 3 (2026-10-09): AOSSXorBufferWithKey, AOSS_Init_old
+
+Worktree data-d1, branch agent/w1009/o-aoss at origin/main 72e9c8d6. Scratch
+compiles in /tmp/opus-aoss (same flags as ninja, 0.2 s per unit).
+
+## AOSSXorBufferWithKey: 34 -> 0
+
+mwdbg on the old forms (base, compound `^=`, `P = P ^ K`, `output` pointer)
+showed what decides the unrolled-loop registers. The second loop's index is
+an IRO temp split late, so it is numbered below the IRO CSE cursors
+(`packetHalf + index`, `keyMask + index`). With three per-copy values the
+cursors are high-degree and colored before the index, so the index never got
+r3. A function-scope `output` pointer (used for load and store) is a named
+local and survives; a single-use `mask` pointer inside only the second loop
+is propagated back into a CSE temp.
+
+The fix is the same `mask` pointer used in both loops (the first loop writes
+the mask byte through it twice). Then both cursors stay named locals, the
+index temp is colored first (r3), mask (declared first) gets r4 and output
+r5, and `mask =` before `output =` gives the target add order.
+
+| trial | differing |
+|---|---|
+| 14 loop-body spellings (compound, P^K, K^P, temps u8/u32/int, casts) | 37-57 |
+| 256-form sweep (P/K spellings x 16 bodies x shared/new index) | best 24 (`u8* output = &packetHalf[index]`) |
+| scoped pragma x every form above (15 pragmas) | best 24 |
+| `output`/`mask` function-scope, `mask` only in loop 2 | 24 |
+| `mask` in both loops, `output =` before `mask =` | 2 (add order) |
+| `mask` in both loops, `mask =` before `output =` | **0** |
+
+Unit after: 20/21 exact, pool identical.
