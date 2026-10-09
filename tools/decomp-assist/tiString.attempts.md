@@ -101,3 +101,19 @@ Wall (final): a phi whose arm-side definition emits zero insns — only realizab
 elides BOTH the arm's li and the guard branch; no source form does it while keeping the
 index web symbolic. Compare fossil likely requires an MWCC phase-ordering quirk
 (compare emitted, then its branch consumer folded by a later pass that doesn't re-dce).
+
+## w1011e — MSL-overload/dead-arm batch on the compare fossil
+
+inputChar committed at 136/136/7d (IRO-4 + u32 inputIndex + inputBuf + `if(ch==10) inputIndex=0`).
+Orig idx-68 `cmplwi r4,0xa` is a TRUE dead compare — no branch consumer, flows straight into
+the symbolic-index stores. Fossil = a folded `if` whose compare outlived its branch.
+
+Variants (all -> 125 full-fold or live-arm real insns):
+- dead-arm no-ops: `i += 0`, `i |= 0`, `i *= 1`, `i = i|0`, `i = 1; i = 0`, `count = 0`, `i = i` -> 125
+- folded calls: `wmemset(input, 0, 0)` arm -> 125
+- expr-form: `input[i] = (ch==10) ? ch : ch`, `if (ch==10) goto L; L:` -> 125
+- always-true guard: `if (ch == 10 || inputIndex == 0)` -> 125
+- count type: `u32`/`s32`/`int` count (+static_cast<u16> at uses) all collapse index to 125.
+  `u16 count` is LOAD-BEARING for the symbolic index; orig re-narrows per use
+  (`clrlwi r0,r29,0x10` at both mCursorStart adds) — its count web is wider-typed
+  but the u16 decl is what keeps OUR index symbolic. Unsolved contradiction.

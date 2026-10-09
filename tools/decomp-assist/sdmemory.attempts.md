@@ -82,3 +82,12 @@ Dispatch hinted fn-local statics (BS2Update #1299). Assessed all 3 fossils: stat
 **Remaining 36d (allocator-internal)**: frame slot assignment — orig packs the 3 per-branch GXColor copies into the LOWEST pool (dead@8/0xc, args@0x18-0x24) interleaved with iterator objects; ours groups them higher (0x20-0x3c). Also r30↔r31 rodata-base swap, callee-web renames. Arms failed on slots: decl-order perms, fn-top decls (regresses to word-copies), nw4r::ut::Color-typed copies (+4 insns), discarded `Color(*re)` temp (+4, wrong pool class).
 
 _create_icon 100v100/20d: callee-web rotation + remat-vs-pin (orig recomputes `base+off` for the call arg AND pins it — CSE prevention needs two syntactically-different exprs, none found).
+
+## w1011e — post-#1305 residual analysis (upstream's form)
+
+dTT now upstream's version: 451v451/38d, fuzzy 99.39. All 38 diffs = wholesale
+callee-reg rotation (orig r30=rodata-base, r31=byte-flag lbz 0xcd, r22/23=line counter;
+mine r31/rodata, r29/flag, r19/counter) — the "+1 callee web" family again: orig pins
+one more callee web (a member byte live across calls). Decl-order swaps tried:
+lineIndex/totalLines, titleIndex/nandTitleIndex, footerPane/titleText,
+lineCount/messageForCount -> 38/44/38/38. Allocator-internal wall confirmed.
