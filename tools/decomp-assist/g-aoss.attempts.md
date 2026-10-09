@@ -120,3 +120,9 @@ Independent focused checks: AOSS pool 1/1 strings identical, AOSSLink 0/0 identi
 - Residual per-site mapping unclear: my pair landed at MY insn ~304 while orig's three pairs sit at 371/713/1273 — the other two `if (state != 0)` sites (BSSList/CheckAP ~539, wait_for_packet ~1132) likely need the same idiom.
 - Also remaining: `ble; b` dual-branch at 272 (`manufacturerLength <= 0xd` — orig enters body via taken-ble + unconditional-b; ours single bgt), protocol-constant materialization region ~566-590 (mulhw + lis/addi 0xc0a80b01 store+reload — IP 192.168.11.1 materialized via named constant?), spill-order block ~969-985.
 - AOSSi_WLANConnect: all sched-copy shapes dead-end (u8* typed view cross-block, shared fillByte, result-as-fill, view-first chain, cfg-block) — swarm's two required internal shapes (chain-copy / r4+r5 both reg-copies) unreachable from source. Confirmed wall.
+
+## w1011/aoss wave-2 (opt-level + twin-branch decode)
+
+- `#pragma optimization_level 2` scoped to AOSS_Init_old: 1603 insns/1040 diffs (regression). `optimization_level 3`: inert (identical 1582/534 — O4,p TU flag dominates). `#pragma ppc_iro_level 0/1`: inert. Opt-level hypothesis (idct-style) disproved for this fn.
+- insn-272 `ble;b` decoded from raw bytes (capstone printed reloc-addend targets — real targets are sign-extended imm): `0x40810008` = ble+8 -> memcpy body; `0x48000014` = b+0x14 -> SetNCDIPAddr args. Orig emits TWIN-BRANCH (ble->body + b->join) vs ours bgt-skip. Failed producers: goto-label form, explicit empty else{}, do{...}while(0), `|| *cfg` at lines 539/1194 (773d regression — orig does NOT deref *cfg at those sites). Likely an MWCC block-layout artifact — unresolved.
+- Residual bne sites at orig 371/713/1273: NOT `||`-sites (adding *cfg loads regresses); undecoded.
