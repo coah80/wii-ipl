@@ -74,8 +74,7 @@ namespace EGG {
         return MEMAllocFromFrmHeapEx(mHeapHandle, size, align);
     }
 
-    void FrmHeap::free(void* ptr) {
-#pragma unused(ptr)
+    void FrmHeap::free(void*) {
     }
 
     u32 FrmHeap::resizeForMBlock(void* ptr, u32 size) {

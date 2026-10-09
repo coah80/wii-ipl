@@ -92,8 +92,8 @@ namespace nw4r {
             u16 sheetGlyphCount;  // 0x04
             u16 nameCount;        // 0x06
             u16 sheetCount;       // 0x08
-            u16 smthCount_0x0a;   // 0x0A
-            u16 smthCount_0x0c;   // 0x0C
+            u16 cwdhCount;        // 0x0A
+            u16 cmapCount;        // 0x0C
             u16 nameOffsets[0];
         } GlyphGroups;
 

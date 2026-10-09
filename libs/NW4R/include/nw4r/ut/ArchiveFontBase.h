@@ -18,29 +18,29 @@ namespace nw4r {
             inline u32 CalcOffsetSheetData(u16 countNames) {
                 return ROUNDUP(CalcOffsetNameOffsetData() + countNames * sizeof(u16), 4);
             }
-            inline u32 CalcOffset0AData(u16 countNames, u16 countSheets) {
+            inline u32 CalcOffsetCWDHData(u16 countNames, u16 countSheets) {
                 return ROUNDUP(CalcOffsetSheetData(countNames) + countSheets * sizeof(u32), 4);
             }
-            inline u32 CalcOffset0CData(u16 countNames, u16 countSheets, u16 count0A) {
-                return ROUNDUP(CalcOffset0AData(countNames, countSheets) + count0A * sizeof(u32), 4);
+            inline u32 CalcOffsetCMAPData(u16 countNames, u16 countSheets, u16 countCWDH) {
+                return ROUNDUP(CalcOffsetCWDHData(countNames, countSheets) + countCWDH * sizeof(u32), 4);
             }
 
             inline u32 CalcSizeFlagSet(u32 entries) {
                 return ((s32)entries + 0x1f) / 32 * 4;
             }
 
-            inline u32 CalcOffsetSheetFlags(u16 countNames, u16 countSheets, u16 count0A, u16 count0C) {
-                return ROUNDUP(CalcOffset0CData(countNames, countSheets, count0A) + count0C * sizeof(u32), 4);
+            inline u32 CalcOffsetSheetFlags(u16 countNames, u16 countSheets, u16 countCWDH, u16 countCMAP) {
+                return ROUNDUP(CalcOffsetCMAPData(countNames, countSheets, countCWDH) + countCMAP * sizeof(u32), 4);
             }
-            inline u32 CalcOffset0AFlags(u16 countNames, u16 countSheets, u16 count0A, u16 count0C) {
-                u32 offsetSheetFlags = CalcOffsetSheetFlags(countNames, countSheets, count0A, count0C);
+            inline u32 CalcOffsetCWDHFlags(u16 countNames, u16 countSheets, u16 countCWDH, u16 countCMAP) {
+                u32 offsetSheetFlags = CalcOffsetSheetFlags(countNames, countSheets, countCWDH, countCMAP);
                 u32 stepSheet = CalcSizeFlagSet(countSheets);
                 return ROUNDUP(offsetSheetFlags + stepSheet * countNames, 4);
             }
-            inline u32 CalcOffset0CFlags(u16 countNames, u16 countSheets, u16 count0A, u16 count0C) {
-                u32 offset0AFlags = CalcOffset0AFlags(countNames, countSheets, count0A, count0C);
-                u32 step0A = CalcSizeFlagSet(count0A);
-                return ROUNDUP(offset0AFlags + step0A * countNames, 4);
+            inline u32 CalcOffsetCMAPFlags(u16 countNames, u16 countSheets, u16 countCWDH, u16 countCMAP) {
+                u32 offsetCWDHFlags = CalcOffsetCWDHFlags(countNames, countSheets, countCWDH, countCMAP);
+                u32 stepCWDH = CalcSizeFlagSet(countCWDH);
+                return ROUNDUP(offsetCWDHFlags + stepCWDH * countNames, 4);
             }
 
             inline u32 CalcSizeSheetOffsets(u32 countSheets) {

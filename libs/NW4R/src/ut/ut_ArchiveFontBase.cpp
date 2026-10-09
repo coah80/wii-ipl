@@ -74,16 +74,6 @@ namespace nw4r {
                 }
             }
 
-            // u32 ArchiveFontBase::ConstructContext::updateTextureBlockPtr() {
-            //     u32 imgDataOffset;
-            //     imgDataOffset = (u32)pFontInfo->pGlyph->sheetImage;
-
-            //     pWorkCurr = (u8*)ROUNDUP((u32)pWorkCurr, 0x20);
-            //     pFontInfo->pGlyph->sheetImage = pWorkCurr;
-
-            //     return imgDataOffset;
-            // }
-
             ArchiveFontBase::ArchiveFontBase() : pSheetOffsets(NULL) {
             }
 
@@ -126,24 +116,6 @@ namespace nw4r {
                         return false;
                     }
 
-                    // Check that there is nothing but spaces between the substr
-                    // and the preceeding comma
-                    // - Fails:
-                    //   - groupList = "foo, BAD bar, baz"
-                    //   - substr                ^
-                    // - Succeeds:
-                    //   - groupList = "foo, bar, baz"
-                    //   - substr            ^
-                    // - Succeeds:
-                    //   - groupList = "foo,bar,baz"
-                    //   - substr           ^
-                    // - Succeeds:
-                    //   - groupList = "foo,bar,baz"
-                    //   - substr       ^
-                    // - Fails (I think this is a bug):
-                    //   - groupList = " foo, bar, baz"
-                    //   - substr        ^
-                    // @bug Should allow for leading spaces in groupList (maybe?)
                     if (substr != groupList) {
                         const char* backsearchStr = substr - 1;
                         while (backsearchStr > groupList && *backsearchStr == ' ') {
@@ -154,11 +126,6 @@ namespace nw4r {
                         }
                     }
 
-                    // Get the length of the section up until the next comma or
-                    // the end
-                    // - substr = "foo bar, baz"     -> sectionLen = 7
-                    // - substr = "foo        , baz" -> sectionLen = 11
-                    // - substr = "foo"              -> sectionLen = 3
                     const char* nextComma = strchr(substr, ',');
                     u32 sectionLen;
                     if (nextComma != NULL) {
@@ -167,17 +134,6 @@ namespace nw4r {
                         sectionLen = strlen(substr);
                     }
 
-                    // Check to make sure there is nothing except spaces between
-                    // the end of the group name and the next comma:
-                    // - Fails:
-                    //   - substr = "foo bar, baz"
-                    //   - group = "foo"
-                    // - Succeeds:
-                    //   - substr = "foo     , baz"
-                    //   - group = "foo"
-                    // - Succeeds:
-                    //   - substr = "foo, baz"
-                    //   - group = "foo"
                     const char* sectionEnd = substr + groupLen;
                     while (sectionEnd < substr + sectionLen && (*sectionEnd == ' ')) {
                         sectionEnd++;
@@ -313,11 +269,6 @@ namespace nw4r {
                 ctx->pSheetOffsets = (u16*)sheetOffsets;
             }
 
-            // inline u32 getOffsetSize(void* fontData, u32 remWorkSpace, u16 countSheet, u16** sheetOffsetsScratch) {
-            //     u32 sheetOffsetsSize = ROUNDUP(countSheet * sizeof(u16), 4);
-            //     *sheetOffsetsScratch = (u16*)ROUNDDOWN((u32)((u8*)fontData + remWorkSpace) - sheetOffsetsSize, 2);
-            //     return sheetOffsetsSize;
-            // }
             class FontGlyphGroupsAcs {
             public:
                 explicit FontGlyphGroupsAcs(const ArchiveFontBinaryLayout* font)
@@ -393,8 +344,8 @@ namespace nw4r {
                 dataBlockCount = font->hdr.dataBlocks;
                 countSheet = gg.GetNumSheet();
                 const u32 stepSheetFlags = detail::CalcSizeFlagSet(countSheet);
-                flagsSheetsOff = detail::CalcOffsetSheetFlags(gg.GetGroups().nameCount, countSheet, gg.GetGroups().smthCount_0x0a,
-                                                              gg.GetGroups().smthCount_0x0c);
+                flagsSheetsOff = detail::CalcOffsetSheetFlags(gg.GetGroups().nameCount, countSheet, gg.GetGroups().cwdhCount,
+                                                              gg.GetGroups().cmapCount);
                 flagsSheets = (const u32*)((flagsSheetsOff & ~3) + (u32)font);
                 gg.SetSheetFlags(stepSheetFlags, flagsSheets);
 
