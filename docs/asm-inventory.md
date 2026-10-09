@@ -1,7 +1,7 @@
 # Assembly inventory
 
-4.3U, 2026-10-09. 164 functions contain 166 assembly
-bodies/blocks: 162 ORIGINAL functions and 2 PLACEHOLDER functions.
+4.3U, 2026-10-09. 163 functions contain 165 assembly
+bodies/blocks: 162 ORIGINAL functions and 1 PLACEHOLDER function.
 
 Run `python3 tools/check_asm_inventory.py`. Completion requires exit 0, complete
 coverage and zero placeholders. The checker also rejects stale/duplicate rows,
@@ -185,13 +185,11 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `src/BS2/BS2Start.c` | `__start` | ORIGINAL | Runs before the C stack and ABI registers exist; constructs the initial stack. |
 | `src/BS2/BS2Start.c` | `__init_registers` | ORIGINAL | Initializes GPRs, r1, r2, and r13 for the C runtime. |
 | `src/scene/nakamuraTest/gamespy/common/gsPlatformUtil.c` | `GetTicks` | ORIGINAL | Inactive PS2 branch reads the CP0 Count register with mfc0 $9. |
-| `src/system/iplSystem.cpp` | `System::warning_run` | PLACEHOLDER | Scene/render calls; best C 98.66477%, 176/176 instructions, 47 saved-register differences, [rx17][rx17]. |
 | `src/system/rvl_dec.c` | `Rvl_decode` | ORIGINAL | Direct beq decoder entries preserve r3/r4 and LR; lis/ori builds the format signatures. |
 | `src/system/rvl_dec.c` | `Rvl_decode_szs` | ORIGINAL | Original SZS decoder convention: nofralloc, r0 retains output length, fixed r3..r10/CTR byte-copy pipeline. |
 | `src/system/rvl_dec.c` | `Rvl_decode_ash` | ORIGINAL | nofralloc hand-built 0x40 frame saves r21..31 with stmw; work address uses lis @h/ori @l. |
 | `src/system/rvl_dec.c` | `Rvl_decode_asr` | ORIGINAL | nofralloc hand-built 0x40 frame saves r21..31 with stmw; work address uses lis @h/ori @l. |
 
-[rx17]: ../tools/decomp-assist/rx36.attempts.md#rx17
 [rx24]: ../tools/decomp-assist/rx36.attempts.md#rx24
 [rx36-osinit]: ../tools/decomp-assist/rx36.attempts.md#osinit
 [sdk-init]: https://github.com/doldecomp/ogws/blob/master/src/revolution/OS/__ppc_eabi_init.c
