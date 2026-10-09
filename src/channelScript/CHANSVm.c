@@ -4293,22 +4293,15 @@ VmMethodDefine(Blob, GetHexString) {
 
     if (CHANSVmBlobHasSpace(blob, count) && CHANSVmNewObject(VmInst, vmFalse, VmReturnObj, CHANS_VM_OBJ_TYPE_STRING, count * 4) != vmNull) {
         wchar_t* dest = (wchar_t*)VmGetStrFromObjHdr(VmReturnObj);
-        u8* src = blob->pData;
-        u32 offset = blob->offset;
-        u32 destOff = 0;
-        u32 i = 0;
+        u8* src = blob->pData + blob->offset;
         char* hexTbl = scHexDigitsPtr;
         u32 byteIndex;
 
-        src += offset;
-
         for (byteIndex = 0; byteIndex < count; byteIndex++) {
-            u32 lowDigitIndex = i + 1;
-            i += 2;
-            dest[destOff] = (wchar_t)(s8)hexTbl[(u32)*src >> 4 & 0xF];
-            destOff += 2;
-            dest[lowDigitIndex] = (wchar_t)(s8)hexTbl[(u32)*src & 0xF];
-            src++;
+            int highDigitIndex = byteIndex * 2;
+            int lowDigitIndex = byteIndex * 2 + 1;
+            dest[highDigitIndex] = (wchar_t)(s8)hexTbl[(u32)src[byteIndex] >> 4 & 0xF];
+            dest[lowDigitIndex] = (wchar_t)(s8)hexTbl[(u32)src[byteIndex] & 0xF];
         }
         blob->offset += count;
         return vmTrue;
@@ -4973,28 +4966,10 @@ exit:
     return curPos;
 }
 
-static inline void VmBlobCopyPadded(BlobHeader* parentBlob, const BlobHeader* srcBlob, s32 copySize) {
-    u32 srcOff;
-    u32 dataSize;
-    u8* dest;
-
-    srcOff = srcBlob->offset;
-    dataSize = srcBlob->size - srcOff;
-    dest = parentBlob->pData + parentBlob->offset;
-    if (dataSize > copySize) {
-        dataSize = copySize;
-    }
-    memmove(dest, srcBlob->pData + srcOff, dataSize);
-    if (dataSize < copySize) {
-        memset(dest + dataSize, 0, copySize - dataSize);
-    }
-    parentBlob->offset += copySize;
-}
-
 static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, CHANSVmObjHdr* VmReturnObj, vmU32 flag) {
     u32 packBuf[2];
     s32 writeHexBufSize;
-    CHANSVmObjHdr* argArr;
+    u32 writeArgCount;
     CHANSVmObjHdr* measureStringObj;
     s32 measureBlobCount;
     u32 writeFmtPos;
@@ -5011,7 +4986,7 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
     u8* writeHexSrcData;
     u32 writeStringStrLen;
     u32 fmtLen;
-    u32 writeArgCount;
+    CHANSVmObjHdr* argArr;
     u8* writeHexDest;
     s32 measureHexCount;
     s32 writeIntegerCount;
@@ -5019,15 +4994,18 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
     u32 writeIntegerI;
     s32 writeStringCount;
     CHANSVmObjHdr* writeBlobObj;
-    u32 argCount;
     CHANSVmObjHdr* measureBlobObj;
     s32 writeBlobCopySize;
     s32 measureIntegerCount;
+    u32 writeBlobSrcOff;
+    u32 writeBlobDataSize;
+    u8* writeBlobDest;
     CHANSVmObjHdr* writeIntegerIntObj;
     BlobHeader* writeBlobSrcBlob;
     u8* writeStringSrcData;
     u32 writeStringCharCount;
     u32 fmtPos;
+    u32 argCount;
     u32 totalSize;
     u32 writeHexCh;
     s32 measureStringCount;
@@ -5244,7 +5222,17 @@ static vmBoolInt VmBlobPackCommon(CHANSVm* VmInst, CHANSVmObjHdr* VmParentObj, C
                     goto error;
                 }
 
-                VmBlobCopyPadded(parentBlob, writeBlobSrcBlob, writeBlobCopySize);
+                writeBlobSrcOff = writeBlobSrcBlob->offset;
+                writeBlobDataSize = writeBlobSrcBlob->size - writeBlobSrcOff;
+                writeBlobDest = parentBlob->pData + parentBlob->offset;
+                if (writeBlobDataSize > writeBlobCopySize) {
+                    writeBlobDataSize = writeBlobCopySize;
+                }
+                memmove(writeBlobDest, writeBlobSrcBlob->pData + writeBlobSrcOff, writeBlobDataSize);
+                if (writeBlobDataSize < writeBlobCopySize) {
+                    memset(writeBlobDest + writeBlobDataSize, 0, writeBlobCopySize - writeBlobDataSize);
+                }
+                parentBlob->offset += writeBlobCopySize;
                 break;
             }
             case 5: {
@@ -6125,38 +6113,42 @@ const CHANSVmPropertyList VmImagePropertyTbl[] = {
     {"format", VmImageFormat, vmNull},
 };
 
-static vmBoolInt VmWinEmuWrite(CHANSVm* vm, CHANSVmObjHdr* parent, CHANSVmObjHdr* ret) {
-    CHANSVmObjHdr* strObj;
+static inline void VmWinEmuPrintString(CHANSVmObjHdr* strObj) {
     u32 offset;
     u32 totalLength;
     u8 buf[VM_STRING_SIZE];
-    s32 outLen;
     s32 inLen;
+    s32 outLen;
     s32 result;
     u32 remaining;
 
-    strObj = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_STRING, CHANSVmGetArg(vm, 0));
-    if (strObj != vmNull && strObj->type == CHANS_VM_OBJ_TYPE_STRING) {
-        offset = 0;
-        totalLength = strObj->value.wstring_v->len & ~1;
+    offset = 0;
+    totalLength = strObj->value.wstring_v->len & ~1;
 
-        while (offset < totalLength) {
-            remaining = totalLength - offset;
-            outLen = VM_STRING_SIZE;
-            inLen = (remaining < VM_STRING_SIZE ? remaining : VM_STRING_SIZE) / 2;
+    while (offset < totalLength) {
+        remaining = totalLength - offset;
+        outLen = VM_STRING_SIZE;
+        inLen = (remaining < VM_STRING_SIZE ? remaining : VM_STRING_SIZE) / 2;
 
-            result = ENCConvertStringUnicodeToSjis(buf, &outLen, (u16*)((u8*)strObj->value.wstring_v->spData + offset), &inLen);
-            if (result == ENC_OK) {
-                buf[outLen] = 0;
-                buf[outLen + 1] = 0;
-                OSReport(VmReportFormat, buf);
-            } else {
-                OSReport("document.write(): conversion error (%d)\n", result);
-                break;
-            }
-
-            offset += VM_STRING_SIZE;
+        result = ENCConvertStringUnicodeToSjis(buf, &outLen, (u16*)((u8*)strObj->value.wstring_v->spData + offset), &inLen);
+        if (result == ENC_OK) {
+            buf[outLen] = 0;
+            buf[outLen + 1] = 0;
+            OSReport(VmReportFormat, buf);
+        } else {
+            OSReport("document.write(): conversion error (%d)\n", result);
+            break;
         }
+
+        offset += VM_STRING_SIZE;
+    }
+}
+
+static vmBoolInt VmWinEmuWrite(CHANSVm* vm, CHANSVmObjHdr* parent, CHANSVmObjHdr* ret) {
+    CHANSVmObjHdr* strObj = CHANSVmGetArgString(vm, 0);
+
+    if (strObj != vmNull && strObj->type == CHANS_VM_OBJ_TYPE_STRING) {
+        VmWinEmuPrintString(strObj);
     }
     return vmTrue;
 }
