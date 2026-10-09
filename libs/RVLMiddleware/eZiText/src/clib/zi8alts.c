@@ -1,105 +1,95 @@
 #include <zi8clib/zitypes.h>
 
-ziU16 Zi8MatchAltSound(ziU8* elements, ziU16 count, ziU8* table, ziU16 ch,
+ziU16 Zi8MatchAltSound(ziU8* elements, ziU16 count, ziU8* table, ziU16 ordinal,
                        ziU32 mask, ziU16 target, ziU8 flags ZI_NEED_WORK) {
-    ziU8 hi;
-    ziU8 lo;
-    ziS32 i;
-    ziS32 j;
-    ziS32 mid;
-    ziU16 off;
-    ziU16 w;
+    ziU8 ordinalHigh;
+    ziU8 ordinalLow;
+    ziS32 recordIndex;
+    ziS32 searchIndex;
+    ziS32 midpoint;
+    ziU16 phoneticOffset;
+    ziU16 phoneticCode;
 
-    hi = (ziU8)(ch >> 8);
-    lo = (ziU8)ch;
+    ordinalHigh = (ziU8)(ordinal >> 8);
+    ordinalLow = (ziU8)ordinal;
     flags = (ziU8)(flags >> 3);
     if (count == 0) {
         return 0;
     }
-    j = 0;
-    i = count - 1;
-    if ((elements + i * 4)[1] == hi && (elements + i * 4)[0] == lo) {
-        j = i;
-        goto up;
+    searchIndex = 0;
+    recordIndex = count - 1;
+    if ((elements + recordIndex * 4)[1] == ordinalHigh && (elements + recordIndex * 4)[0] == ordinalLow) {
+        searchIndex = recordIndex;
+    } else {
+        if ((elements + searchIndex * 4)[1] != ordinalHigh || (elements + searchIndex * 4)[0] != ordinalLow) {
+            goto search;
+        }
     }
-    if ((elements + j * 4)[1] == hi && (elements + j * 4)[0] == lo) {
-        goto up;
-    }
-    goto search;
 up:
-    i = j;
+    recordIndex = searchIndex;
     do {
-        if (((elements + i * 4)[3] & 0xE) == 0 ||
-            ((elements + i * 4)[3] & flags) != 0) {
-            off = (ziU16)(((ziU16)(elements + i * 4)[2] |
-                           (((ziU16)(elements + i * 4)[3] & 1) << 8)) << 1);
-            w = (ziU16)((((ziU16)(elements + i * 4)[3] & 0xF0) >> 4) |
-                        (table[off] | ((ziU16)table[off + 1] << 8)));
-            if (target == (w & (ziU16)mask)) {
-                return w;
+        if (((elements + recordIndex * 4)[3] & 0xE) == 0 ||
+            ((elements + recordIndex * 4)[3] & flags) != 0) {
+            phoneticOffset = (ziU16)(((ziU16)(elements + recordIndex * 4)[2] |
+                           (((ziU16)(elements + recordIndex * 4)[3] & 1) << 8)) << 1);
+            phoneticCode = (ziU16)((((ziU16)(elements + recordIndex * 4)[3] & 0xF0) >> 4) |
+                        (table[phoneticOffset] | ((ziU16)table[phoneticOffset + 1] << 8)));
+            if (target == (phoneticCode & (ziU16)mask)) {
+                return phoneticCode;
             }
         }
-        i++;
-        if (i >= count) {
+        recordIndex++;
+        if (recordIndex >= count) {
             break;
         }
-    } while ((elements + i * 4)[1] == hi && (elements + i * 4)[0] == lo);
-    i = j;
-    goto dec;
-down_body:
-    if (((elements + i * 4)[3] & 0xE) == 0 ||
-        ((elements + i * 4)[3] & flags) != 0) {
-        off = (ziU16)(((ziU16)(elements + i * 4)[2] |
-                       (((ziU16)(elements + i * 4)[3] & 1) << 8)) << 1);
-        w = (ziU16)((((ziU16)(elements + i * 4)[3] & 0xF0) >> 4) |
-                    (table[off] | ((ziU16)table[off + 1] << 8)));
-        if (target == (w & (ziU16)mask)) {
-            return w;
+    } while ((elements + recordIndex * 4)[1] == ordinalHigh && (elements + recordIndex * 4)[0] == ordinalLow);
+    recordIndex = searchIndex;
+    while (--recordIndex >= 0 && (elements + recordIndex * 4)[1] == ordinalHigh && (elements + recordIndex * 4)[0] == ordinalLow) {
+        if (((elements + recordIndex * 4)[3] & 0xE) == 0 ||
+            ((elements + recordIndex * 4)[3] & flags) != 0) {
+            phoneticOffset = (ziU16)(((ziU16)(elements + recordIndex * 4)[2] |
+                           (((ziU16)(elements + recordIndex * 4)[3] & 1) << 8)) << 1);
+            phoneticCode = (ziU16)((((ziU16)(elements + recordIndex * 4)[3] & 0xF0) >> 4) |
+                        (table[phoneticOffset] | ((ziU16)table[phoneticOffset + 1] << 8)));
+            if (target == (phoneticCode & (ziU16)mask)) {
+                return phoneticCode;
+            }
         }
     }
-dec:
-    i--;
-    if (i < 0) {
-        goto fail;
-    }
-    if ((elements + i * 4)[1] == hi && (elements + i * 4)[0] == lo) {
-        goto down_body;
-    }
-fail:
     return 0;
 search:
-    if ((elements + j * 4)[1] == hi && (elements + j * 4)[0] == lo) {
+    if ((elements + searchIndex * 4)[1] == ordinalHigh && (elements + searchIndex * 4)[0] == ordinalLow) {
         goto up;
     }
-    if ((((ziU16)(elements + j * 4)[1] << 8) | (ziU16)(elements + j * 4)[0]) > ch) {
+    if ((((ziU16)(elements + searchIndex * 4)[1] << 8) | (ziU16)(elements + searchIndex * 4)[0]) > ordinal) {
         return 0;
     }
-    mid = (j + i) / 2;
-    if (mid == j) {
+    midpoint = (searchIndex + recordIndex) / 2;
+    if (midpoint == searchIndex) {
         return 0;
     }
-    if ((((ziU16)(elements + mid * 4)[1] << 8) | (ziU16)(elements + mid * 4)[0]) >= ch) {
-        i = mid;
-        goto hi_check;
+    if ((((ziU16)(elements + midpoint * 4)[1] << 8) | (ziU16)(elements + midpoint * 4)[0]) >= ordinal) {
+        recordIndex = midpoint;
+    } else {
+        searchIndex = midpoint;
+        goto search;
     }
-    j = mid;
-    goto search;
 hi_check:
-    if ((elements + i * 4)[1] == hi && (elements + i * 4)[0] == lo) {
-        j = i;
+    if ((elements + recordIndex * 4)[1] == ordinalHigh && (elements + recordIndex * 4)[0] == ordinalLow) {
+        searchIndex = recordIndex;
         goto up;
     }
-    if ((((ziU16)(elements + i * 4)[1] << 8) | (ziU16)(elements + i * 4)[0]) < ch) {
+    if ((((ziU16)(elements + recordIndex * 4)[1] << 8) | (ziU16)(elements + recordIndex * 4)[0]) < ordinal) {
         return 0;
     }
-    mid = (j + i) / 2;
-    if (mid == j) {
+    midpoint = (searchIndex + recordIndex) / 2;
+    if (midpoint == searchIndex) {
         return 0;
     }
-    if ((((ziU16)(elements + mid * 4)[1] << 8) | (ziU16)(elements + mid * 4)[0]) >= ch) {
-        i = mid;
+    if ((((ziU16)(elements + midpoint * 4)[1] << 8) | (ziU16)(elements + midpoint * 4)[0]) >= ordinal) {
+        recordIndex = midpoint;
         goto hi_check;
     }
-    j = mid;
+    searchIndex = midpoint;
     goto search;
 }

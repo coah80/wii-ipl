@@ -643,7 +643,7 @@ ziU32 Zi8GetSInfo(ziU8* strokes, ziU8* extraStrokes, ziWChar* outputBuffer, ziU8
 {
     int strokeIndex;
     int outputCount;
-    volatile int extraCount;
+    int extraCount;
 
     outputCount = 0;
     Zi8LogError(100, work);
@@ -652,17 +652,14 @@ ziU32 Zi8GetSInfo(ziU8* strokes, ziU8* extraStrokes, ziWChar* outputBuffer, ziU8
         return 0;
     }
     for (strokeIndex = 0; strokeIndex < 4; strokeIndex++) {
-        if (strokeIndex == 0) {
-            goto lowStroke;
-        }
-        outputBuffer[(ziU8)outputCount] = zi8StrokeCode((strokes[strokeIndex] & 0xf0) >> 4, work);
-        if (outputBuffer[(ziU8)outputCount++] != 0) {
-            goto lowStroke;
-        }
+        if (strokeIndex != 0) {
+            outputBuffer[(ziU8)outputCount] = zi8StrokeCode((strokes[strokeIndex] & 0xf0) >> 4, work);
+            if (outputBuffer[(ziU8)outputCount++] == 0) {
     badStroke:
-        outputBuffer[(ziU8)--outputCount] = 0;
-        return outputCount;
-    lowStroke:
+                outputBuffer[(ziU8)--outputCount] = 0;
+                return outputCount;
+            }
+        }
         outputBuffer[(ziU8)outputCount] = zi8StrokeCode(strokes[strokeIndex] & 0xf, work);
         if (outputBuffer[(ziU8)outputCount++] == 0) {
             goto badStroke;
@@ -939,7 +936,6 @@ ziU32 ZiCharInfo2(ziWChar ch, ziWChar* charInfoBuffer, ziU8 maxInfoBufSize, ziU3
                     }
                     Zi8LogError(100,work);
                     return count;
-
                 }
                 index++;
                 tablePtr = tablePtr + 4;

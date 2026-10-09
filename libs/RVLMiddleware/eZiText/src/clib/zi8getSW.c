@@ -179,25 +179,25 @@ match_syllable:
             goto syllable_found;
         }
     }
-    if (needKeyFallback == 0) goto end;
-
-    if (param->elements[0] == 0xEFF1 && param->elementCount > 1 && allowHyphen != 0) {
-        keyLayout[0] = 0x2D;
-        keyLayout[1] = 0;
-        Zi8getKeyLayout(param->language, param->elements[0], &keyLayout[1], 1, ZI_WORK);
-        for (index = 1; keyLayout[index] != 0; index++) {
-            if (keyLayout[index] == 0x2D) break;
+    if (needKeyFallback != 0) {
+        if (param->elements[0] == 0xEFF1 && param->elementCount > 1 && allowHyphen != 0) {
+            keyLayout[0] = 0x2D;
+            keyLayout[1] = 0;
+            Zi8getKeyLayout(param->language, param->elements[0], &keyLayout[1], 1, ZI_WORK);
+            for (index = 1; keyLayout[index] != 0; index++) {
+                if (keyLayout[index] == 0x2D) break;
+            }
+            while (keyLayout[index] != 0) {
+                keyLayout[index] = keyLayout[index + 1];
+                index++;
+            }
+        } else {
+            Zi8getKeyLayout(param->language, param->elements[0], keyLayout, 1, ZI_WORK);
         }
-        while (keyLayout[index] != 0) {
-            keyLayout[index] = keyLayout[index + 1];
-            index++;
-        }
-    } else {
-        Zi8getKeyLayout(param->language, param->elements[0], keyLayout, 1, ZI_WORK);
+        syllableLength = 1;
+        nextCharacter = keyLayout;
+        goto next_syllable;
     }
-    syllableLength = 1;
-    nextCharacter = keyLayout;
-    goto next_syllable;
 
 end:
     if (sw->countOnly != 0) {

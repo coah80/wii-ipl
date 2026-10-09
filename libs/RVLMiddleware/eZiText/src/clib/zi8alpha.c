@@ -231,7 +231,7 @@ ziBool Zi8IsVowel(ziU8 language, ziWChar character) {
     if (language == 47) return ZI8_FALSE;
     switch (character) {
     case 0xFF: case 0x152: case 0x153: case 0x178:
-        goto vowel;
+        break;
     default:
         return ZI8_FALSE;
     }
@@ -461,10 +461,14 @@ int Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr optionData, ziPtr workDa
   if (((Zi8GetTableCount(parameters->language,0x1f,workData) & 0x80) != 0) && (parameters->subLanguage == 0x80)) {
     contextEnabled = ZI8_TRUE;
   }
-  if (!(((((ZiAlphaOptions*)optionData)->lookupMode == '\0') && (parameters->subLanguage != 7)) &&
-     ((parameters->subLanguage != language &&
-      ((((parameters->subLanguage != 0 && (parameters->subLanguage != 1)) && (parameters->subLanguage != 2)) &&
-       ((parameters->subLanguage != 0x80 && ((Zi8LangSupported(parameters->subLanguage,workData)) != '\0'))))))))) {
+  if (((ZiAlphaOptions*)optionData)->lookupMode != '\0' ||
+    parameters->subLanguage == 7 ||
+    parameters->subLanguage == language ||
+    parameters->subLanguage == 0 ||
+    parameters->subLanguage == 1 ||
+    parameters->subLanguage == 2 ||
+    parameters->subLanguage == 0x80 ||
+    (Zi8LangSupported(parameters->subLanguage,workData)) == '\0') {
     languagePassCount = 0;
     if (((ZiAlphaWork*)workData)->language != parameters->language) {
       ((ZiAlphaWork*)workData)->language = 0;
@@ -943,12 +947,12 @@ selectDictionary:
                     wordLength = 0;
                   }
                 }
-                if (wordLength != 0) goto filterVowelCandidate;
-                dictionaryStatus[dictionaryKind] = 1;
-                if (elements[apostropheIndex] >= 0xEFF1) continue;
-                goto finishDictionaryPass;
-              }
-filterVowelCandidate:
+            if (wordLength == 0) {
+                  dictionaryStatus[dictionaryKind] = 1;
+                  if (elements[apostropheIndex] >= 0xEFF1) continue;
+                  goto finishDictionaryPass;
+                }
+          }
               if ((wordLength != 0) && (prefixVowelRestriction)) {
                 if ((*wordCursor >= 0x30) && (*wordCursor <= 0x39)) {
                   wordLength = 0;
@@ -1099,11 +1103,10 @@ filterVowelCandidate:
               case 7:
               case 8:
               case 12:
-                goto prepareRememberedPunctuation;
+                break;
               default:
                 goto finishDictionaryPass;
               }
-prepareRememberedPunctuation:
               if (Zi8getKeyLayout(language,0xeff1,&punctuationBuffer[0],1,workData) == 0) {
                 punctuationBuffer[0] = 0;
               }
@@ -1556,20 +1559,27 @@ checkPrefixPunctuation:
       goto preparePrefix;
     }
   }
-  if (!completionAllowed && ((ZiAlphaWork*)workData)->suffixMode == 0 && ((ZiAlphaWork*)workData)->prefixCount != 0 &&
-      elementCount > 2 && ((ZiAlphaWork*)workData)->prefixCount == elementCount - 1 &&
-      Zi8IsAlphaPunct(parameters->elements[((ZiAlphaWork*)workData)->prefixCount - 1]) != 0) goto checkPrefixFields;
-  if (!completionAllowed && ((ZiAlphaWork*)workData)->suffixMode == 0 && parameters->elementCount > 1 &&
-      Zi8IsAlphaPunct(parameters->elements[parameters->elementCount - 1]) == 0) goto finishCandidates;
-checkPrefixFields:
+  if (completionAllowed ||
+    ((ZiAlphaWork*)workData)->suffixMode != 0 ||
+    ((ZiAlphaWork*)workData)->prefixCount == 0 ||
+    elementCount <= 2 ||
+    ((ZiAlphaWork*)workData)->prefixCount != elementCount - 1 ||
+    Zi8IsAlphaPunct(parameters->elements[((ZiAlphaWork*)workData)->prefixCount - 1]) == 0) {
+    if (!completionAllowed && ((ZiAlphaWork*)workData)->suffixMode == 0 && parameters->elementCount > 1 &&
+        Zi8IsAlphaPunct(parameters->elements[parameters->elementCount - 1]) == 0) goto finishCandidates;
+  }
   prefixMode = ((ZiAlphaWork*)workData)->suffixMode;
   prefixLength = ((ZiAlphaWork*)workData)->prefixCount;
-  if (prefixMode != 0 || prefixLength == 0 || elementCount <= 2 ||
-      prefixLength != elementCount - 1 || parameters->elements[parameters->elementCount - 1] == 0xEFF1) goto finishCandidates;
-  ((ZiAlphaWork*)workData)->suffixMode = 1;
-  ((ZiAlphaWork*)workData)->prefixElementCount = parameters->elementCount;
-  prefixPrepared = ZI8_TRUE;
-  goto preparePrefix;
+  if (prefixMode == 0 &&
+    prefixLength != 0 &&
+    elementCount > 2 &&
+    prefixLength == elementCount - 1 &&
+    parameters->elements[parameters->elementCount - 1] != 0xEFF1) {
+    ((ZiAlphaWork*)workData)->suffixMode = 1;
+    ((ZiAlphaWork*)workData)->prefixElementCount = parameters->elementCount;
+    prefixPrepared = ZI8_TRUE;
+    goto preparePrefix;
+  }
 
 finishCandidates:
               ((ZiAlphaWork*)workData)->usePrefixAsElements = 0;

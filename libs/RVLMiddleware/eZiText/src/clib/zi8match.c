@@ -393,15 +393,14 @@ next_group:
                 do {
                     dictionaryIndex = sound[0] | ((ziU16)sound[1] << 8);
                     sound += 2;
-                    if (hasString) {
-                        goto phonetic_skip;
-                    }
-                    code = Zi8GetPCode(pCodeTable, dictionary + (dictionaryIndex & 0x7FFF) * sizeof(DictionaryNode));
-                    if (((code & masks[partIndex]) != values[partIndex]) && (altMode == 0) && (dictionary[(dictionaryIndex & 0x7FFF) * sizeof(DictionaryNode)] & 0x80) != 0) {
-                        code = Zi8MatchAltSound(soundTable, soundCode, pCodeTable, dictionaryIndex & 0x7FFF, masks[partIndex], values[partIndex], flag, ZI_WORK);
-                    }
-                    if ((code & masks[partIndex]) == values[partIndex]) {
-                        goto phonetic_matched;
+                    if (!hasString) {
+                        code = Zi8GetPCode(pCodeTable, dictionary + (dictionaryIndex & 0x7FFF) * sizeof(DictionaryNode));
+                        if (((code & masks[partIndex]) != values[partIndex]) && (altMode == 0) && (dictionary[(dictionaryIndex & 0x7FFF) * sizeof(DictionaryNode)] & 0x80) != 0) {
+                            code = Zi8MatchAltSound(soundTable, soundCode, pCodeTable, dictionaryIndex & 0x7FFF, masks[partIndex], values[partIndex], flag, ZI_WORK);
+                        }
+                        if ((code & masks[partIndex]) == values[partIndex]) {
+                            goto phonetic_matched;
+                        }
                     }
 phonetic_skip:
                     if ((dictionaryIndex & 0x8000) == 0) {
@@ -480,17 +479,14 @@ ziU8 Zi8GetPyPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final, z
         initial[outputIndex] = 0;
         final[outputIndex] = 0;
         value = *current;
-        if (value < 0x61) {
-            goto check_pinyin_extension;
+        if (value >= 0x61) {
+            if (value <= 0x7A) {
+                goto pinyin_ascii;
+            }
         }
-        if (value <= 0x7A) {
-            goto pinyin_ascii;
+        if (value >= 0xF361) {
+            if (value <= 0xF37A) goto pinyin_extension;
         }
-check_pinyin_extension:
-        if (value < 0xF361) {
-            goto invalid_pinyin;
-        }
-        if (value <= 0xF37A) goto pinyin_extension;
 invalid_pinyin:
         *bestInitial = *bestFinal = initial[0] = final[0] = 0xFFFF;
         return 1;
@@ -716,7 +712,6 @@ pinyin_initial:
         *resultCount -= 1;
     }
     return result;
-
 }
 
 ziBool Zi8GetPyFinal(ziU8* pinyin, ziU8* initial, ziU8* final) {

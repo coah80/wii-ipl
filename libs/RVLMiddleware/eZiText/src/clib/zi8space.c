@@ -76,16 +76,14 @@ ziU8 Zi8ZHaddSpace(ziWChar* src, ziU8 count, ziWChar* dst,
         i = 2;
     }
 
-    if (i-- > m) {
-        goto fail;
+    if (i-- <= m) {
+        for (k = 0; k < i; k++) {
+            pdst[k] = psrc[k];
+        }
+        pdst[k] = 0;
+        Zi8LogError(0x64, ZI_WORK);
+        return 1;
     }
-    for (k = 0; k < i; k++) {
-        pdst[k] = psrc[k];
-    }
-    pdst[k] = 0;
-    Zi8LogError(0x64, ZI_WORK);
-    return 1;
-
 fail:
     if (count >= maxLen) {
         count = (ziU8)(maxLen - 1);

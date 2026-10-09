@@ -103,7 +103,7 @@ ziU8 Zi8MatchUWDdata(ziWChar* pattern, ziU8 length, ziWChar* currentWord, ziU16 
     ziU32 size;
     int headerSize;
     int entryLanguage;
-    volatile int entryLength;
+    int entryLength;
     int previousOffset;
     int visited = 0;
     int fallback = 0;
