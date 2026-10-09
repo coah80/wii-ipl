@@ -73,6 +73,7 @@ static u8* __nupNhttpBufFull(u8** buffer, unsigned long* length, unsigned long r
                 if (state->error != 0) goto done;
             }
             next = *buffer;
+            /* MWCC needs the switch's extra branch around buffer allocation. */
             switch ((u32)next) {
             case 0: {
                 requested = NhttpBufferSize(requested);
@@ -142,6 +143,7 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
         char* field = headerCopy;
         char* colon;
         char* end;
+        /* MWCC needs the header searches in this loop condition to preserve instruction order. */
         while (*field != 0 && (colon = strchr(field, ':')) != NULL && (end = strstr(colon, "\r\n")) != NULL) {
             *colon = 0;
             *end = 0;
@@ -194,7 +196,6 @@ static int __nupNhttpOp(char* url, NHTTPReqMethod method, char* headers, u8* bod
         goto cleanup;
     }
     if (status != 200 && status != 202) result = -5000 - status;
-    goto cleanup;
 cleanup:
     if (state.response != NULL || result == -5009) NHTTPDestroyResponse(state.response);
     if (headerCopy != NULL) nup::__nupFree(headerCopy);
@@ -233,6 +234,7 @@ static long __nupHttpStringFlush(u8* data, unsigned long length, unsigned long r
     return AppendHttpString(length, data, requested, (HttpString*)context);
 }
 }
+/* MWCC must keep this helper out of line to match its callers. */
 static int __nupNhttpOpString(u8** output, unsigned long* outputLength, char* url, NHTTPReqMethod method, char* headers, u8* body, unsigned long bodyLength, unsigned long limit, ProgressCallback progress, void* context) NO_INLINE;
 static int __nupNhttpOpString(u8** output, unsigned long* outputLength, char* url, NHTTPReqMethod method, char* headers, u8* body, unsigned long bodyLength, unsigned long limit, ProgressCallback progress, void* context) {
     HttpString text;

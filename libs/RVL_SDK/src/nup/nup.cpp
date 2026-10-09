@@ -169,6 +169,7 @@ static inline char* __nupFindTag(char* response, const char* startTag, const cha
                                 char** value, size_t* length) {
     char* start;
     char* end;
+    /* MWCC needs the tag searches in this short-circuit expression. */
     if (response == 0 || (start = strstr(response, startTag)) == 0 ||
         (end = strstr(start, endTag)) == 0) {
         return 0;
@@ -266,6 +267,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
     titleCount = 0;
     cursor = response;
     {
+        /* MWCC needs both tag searches in the loop condition to preserve instruction order. */
         while ((cursor = __nupFindTag(cursor, "<TitleId>", "</TitleId>", &start, &valueLength)) != 0 &&
                (cursor = __nupFindTag(cursor, "<Version>", "</Version>", &start, &valueLength)) != 0) {
             titleCount++;
@@ -285,6 +287,7 @@ static s32 __nupParseServerInfo(NUPContextInfo* context, char* response, char* m
         size_t titleLength;
         size_t versionLength;
         char* parsedEnd;
+        /* MWCC needs both tag searches in the loop condition to preserve instruction order. */
         while ((cursor = __nupFindTag(cursor, "<TitleId>", "</TitleId>", &titleStart, &titleLength)) != 0 &&
                (cursor = __nupFindTag(cursor, "<Version>", "</Version>", &versionStart, &versionLength)) != 0) {
             unsigned long long titleId = strtoull(titleStart, &parsedEnd, 16);
@@ -424,6 +427,7 @@ static s32 __nupGetTicketViews(ESTitleId titleId, ESTicketView** ticketViews, u3
     return result;
 }
 
+/* MWCC must keep this helper out of line to match its callers. */
 #pragma dont_inline on
 static u32 __nupSetAuditState(u8 state) {
     const char* auditPath = "NUPAUDIT";
@@ -618,6 +622,7 @@ done:
     return result;
 }
 
+/* MWCC must keep this helper out of line to match its callers. */
 #pragma dont_inline on
 static s32 __nupGetTmdView(ESTitleId titleId, ESTmdView** tmdView) {
     u32 tmdViewSize;
@@ -646,10 +651,9 @@ static inline BOOL __nupHasContent(const Title* title, ESContentId contentId) {
     if (title->contentCount == 0 || title->contentIds == 0) {
         return FALSE;
     }
-    ESContentId* installedContent;
     u32 index;
     for (index = 0; index < title->contentCount; index++) {
-        if (contentId == *(installedContent = &title->contentIds[index])) {
+        if (contentId == title->contentIds[index]) {
             break;
         }
     }
@@ -661,10 +665,9 @@ static inline BOOL __nupHasInstalledContent(const ESTitleVersion* title, ESConte
     if (contentCount == 0 || title->contentIds == 0) {
         return FALSE;
     }
-    ESContentId* installedContent;
     u32 index;
     for (index = 0; index < contentCount; index++) {
-        if (contentId == *(installedContent = &title->contentIds[index])) {
+        if (contentId == title->contentIds[index]) {
             break;
         }
     }
@@ -841,7 +844,7 @@ static s32 __nupGetTmd(NUPTitleInfo* title, char* contentPrefixUrl) {
                                     result = -5000;
                                 } else {
                                     result = ES_DiGetTmdView((ESTitleMeta*)title->tmd, title->tmdSize,
-                                                            (ESTmdView*)title->tmdView, &title->tmdViewSize);
+                                                            title->tmdView, &title->tmdViewSize);
                                     if (result != 0) {
                                         nup::__nupFree(title->tmdView);
                                         title->tmdView = 0;
@@ -907,10 +910,10 @@ static s32 __nupGetContentFull(NUPContextInfo* context, NUPTitleInfo* title, cha
     char* url = 0;
     u8* response = 0;
     unsigned long responseSize = 0;
-    tmdView = (ESTmdView*)title->tmdView;
+    tmdView = title->tmdView;
 
     for (contentIndex = 0; contentIndex < tmdView->head.numContents; contentIndex++) {
-        if (contentId == ((ESTmdView*)title->tmdView)->contents[contentIndex].cid) {
+        if (contentId == title->tmdView->contents[contentIndex].cid) {
             break;
         }
     }
@@ -954,11 +957,11 @@ static s32 __nupGetContentIncr(NUPContextInfo* context, NUPTitleInfo* title, cha
     if (url == 0) {
         result = -5000;
     } else {
-        for (contentIndex = 0; contentIndex < ((ESTmdView*)title->tmdView)->head.numContents; contentIndex++) {
-            ESContentId contentId = ((ESTmdView*)title->tmdView)->contents[contentIndex].cid;
+        for (contentIndex = 0; contentIndex < title->tmdView->head.numContents; contentIndex++) {
+            ESContentId contentId = title->tmdView->contents[contentIndex].cid;
             if (!__nupHasContent(title, contentId)) {
                 snprintf(url, urlSize, "%s/%016llx/%08x", contentPrefixUrl, title->titleId, contentId);
-                unsigned long contentSize = (u32)((((ESTmdView*)title->tmdView)->contents[contentIndex].size + 0xf) & 0xfffffffffffffff0ULL);
+                unsigned long contentSize = (u32)((title->tmdView->contents[contentIndex].size + 0xf) & 0xfffffffffffffff0ULL);
                 ESFd fd = ES_ImportContentBegin(title->titleId, contentId);
                 result = fd;
                 if (result < 0) {
@@ -1021,6 +1024,7 @@ static void __nupCleanup(NUPContextInfo* context) {
     if (context->titles != 0) {
         for (u32 i = 0; i < context->titleCount; i++) {
             NUPTitleInfo* title = &context->titles[i];
+            /* MWCC emits a separate null check before title cleanup. */
             if (title != 0) {
                 __nupCleanupTitleInfo(title);
             }
@@ -1072,7 +1076,7 @@ static s32 __nupUpdateTitle(NUPContextInfo* context, NUPTitleInfo* title, char* 
         if (result != 0) {
             goto done;
         }
-        ESTmdView* tmdView = (ESTmdView*)title->tmdView;
+        ESTmdView* tmdView = title->tmdView;
         if (tmdView->head.numContents != 1) {
             result = -0x1389;
             goto done;
@@ -1135,8 +1139,11 @@ static inline s32 __nupGetBoot2Version(u16* version) {
     s32 result = ES_GetBoot2Version(&bootVersion);
     if (result == 0) {
         u16 checkedVersion = bootVersion;
-        if (checkedVersion != bootVersion) { result = -0x1389; }
-        if (checkedVersion == bootVersion) { *version = checkedVersion; }
+        if (checkedVersion != bootVersion) {
+            result = -0x1389;
+        } else {
+            *version = checkedVersion;
+        }
     }
     return result;
 }
@@ -1323,7 +1330,7 @@ extern "C" void* __nupOp(void* argument) {
         }
     }
     if (menuTitle != 0 && menuTitle->updateRequired != 0) {
-        ESTitleId requiredSystemTitle = ((ESTmdView*)menuTitle->tmdView)->head.sysVersion;
+        ESTitleId requiredSystemTitle = menuTitle->tmdView->head.sysVersion;
         for (i = 0; i < context->titleCount; i++) {
             if (context->titles[i].titleId == requiredSystemTitle) {
                 systemTitle = &context->titles[i];
@@ -1390,7 +1397,8 @@ void* NUP_Init(MEMAllocator* allocator) {
             NUPContextInfo* context = (NUPContextInfo*)instance;
             OSInitMutex(&context->mutex);
             OSLockMutex(&context->mutex);
-            context->progress.message = (context->progress.result = 1, __nupStatusMessage[1]);
+            context->progress.result = 1;
+            context->progress.message = __nupStatusMessage[1];
             OSUnlockMutex(&context->mutex);
         }
     }
@@ -1444,6 +1452,7 @@ int NUP_Start(void* instance, const char* serverAddress, const char* countryCode
     if (result < 0) {
         OSLockMutex(&context->mutex);
         context->progress.result = result;
+        /* MWCC retains these status alternatives under the negative-result guard. */
         if (result < 0) {
             context->progress.message = __nupStatusMessage[5];
         } else {
