@@ -152,14 +152,15 @@ int AOSSi_WLANGetBSSList(void** output) {
     if (driver <= 0) {
         return -1;
     }
-startup:
-    if (WD_Startup(3) != 0) {
+    while (1) {
+        if (WD_Startup(3) == 0) {
+            break;
+        }
         if (startupRetries > 10) {
             goto unlock;
         }
         ++startupRetries;
         AOSSi_SleepMs(10);
-        goto startup;
     }
     if (WD_GetInfo(&info) == 0) {
         memcpy(macAddress, info.MAC, 6);
@@ -238,7 +239,6 @@ startup:
         }
         AOSSi_Free(buffer);
     }
-cleanup:
     while (WD_Cleanup() != 0) {
         if (cleanupRetries > 10) {
             result = -1;

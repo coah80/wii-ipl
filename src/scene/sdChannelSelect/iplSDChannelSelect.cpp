@@ -453,69 +453,69 @@ namespace ipl {
                 break;
             }
 
-            // MWCC needs this branch shape to preserve worker-state dispatch.
-            if (mState < 8) {
-                if (mState == 1) {
-                } else if (mState >= 1) {
-                    goto process_worker;
-                } else if (mState >= 0) {
-                    goto process_worker;
-                }
-            } else {
-                if (mState >= 15) {
-                } else if (mState >= 12) {
-                    goto process_worker;
-                }
-            }
-            switch (mCurrentSDState) {
-            case 1:
+            switch (mState) {
+            case 0:
             case 2:
             case 3:
-            case 4: {
-                if (mDialogState != 0) {
-                    return;
-                }
-                mSourcePage = -1;
-                mSourceIndex = -1;
-                mbShowNoCardMessage = true;
-                refreshChannelList();
-                memset(mpChannelTitleIds, 0, mPageCount * 0x30);
-                memset(mpSDTitleInfo, 0, 0x4b00);
-                mSDTitleCount = 0;
-                mbOperationActive = false;
-                mbHazardTitleFound = false;
-                mbChannelLimitReached = false;
-                mbSDCardBroken = false;
-                mbNeedsRefresh = false;
-
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 12:
+            case 13:
+            case 14:
+                break;
+            default:
                 switch (mCurrentSDState) {
                 case 1:
-                    setDialogMessage(2, 0xa9);
-                    mWorkerCommand = 6;
-                    break;
                 case 2:
-                    if (!mbInitialLoadComplete) {
-                        setDialogMessage(8, 0xaa);
-                    }
-                    mbInitialLoadComplete = true;
-                    enqueueStartNotice();
-                    enqueueFinishNotice();
-                    break;
                 case 3:
-                case 4:
-                    setDialogMessage(2, 0xab);
-                    mWorkerCommand = 15;
+                case 4: {
+                    if (mDialogState != 0) {
+                        return;
+                    }
+                    mSourcePage = -1;
+                    mSourceIndex = -1;
+                    mbShowNoCardMessage = true;
+                    refreshChannelList();
+                    memset(mpChannelTitleIds, 0, mPageCount * 0x30);
+                    memset(mpSDTitleInfo, 0, 0x4b00);
+                    mSDTitleCount = 0;
+                    mbOperationActive = false;
+                    mbHazardTitleFound = false;
+                    mbChannelLimitReached = false;
+                    mbSDCardBroken = false;
+                    mbNeedsRefresh = false;
+
+                    switch (mCurrentSDState) {
+                    case 1:
+                        setDialogMessage(2, 0xa9);
+                        mWorkerCommand = 6;
+                        break;
+                    case 2:
+                        if (!mbInitialLoadComplete) {
+                            setDialogMessage(8, 0xaa);
+                        }
+                        mbInitialLoadComplete = true;
+                        enqueueStartNotice();
+                        enqueueFinishNotice();
+                        break;
+                    case 3:
+                    case 4:
+                        setDialogMessage(2, 0xab);
+                        mWorkerCommand = 15;
+                        break;
+                    default:
+                        break;
+                    }
                     break;
+                }
                 default:
                     break;
                 }
-                            break;
-            }
-            default:
                 break;
             }
 
-        process_worker:
             if (mpSDWorker->is_working() || mWorkerState != 4) {
                 return;
             }
@@ -1832,9 +1832,8 @@ namespace ipl {
 
             if (state == 1 && mState != 1 && mState != 15) {
                 SDChannelObj* channel = NULL;
-                while (channel = static_cast<SDChannelObj*>(
-                           nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                       channel != NULL) {
+                while ((channel = static_cast<SDChannelObj*>(
+                           nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                     int channelPage = channel->getPage();
                     int channelIndex = channel->getIndex();
                     if (channelPage == mCurrentPage) {
@@ -2291,9 +2290,8 @@ namespace ipl {
             updateChannelObjectOrder(page);
 
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(
-                       nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(
+                       nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 int titleIndex = channel->getPage() * MAX_CHANNEL_INDEX + channel->getIndex();
                 if (!iplSDChannelObj_hasAppMeta(channel) && mpChannelTitleIds[titleIndex] != 0 &&
                     mbNeedsRefresh) {
@@ -2352,9 +2350,8 @@ namespace ipl {
             }
 
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(
-                       nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(
+                       nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 int page = channel->getPage();
                 int index = channel->getIndex();
                 if (keepChannel != NULL && page == keepPage && index == keepIndex) {
@@ -2387,9 +2384,8 @@ namespace ipl {
 
         void SDChannelSelect::refreshChannelList() {
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(
-                       nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(
+                       nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 if (iplSDChannelObj_hasAppMeta(channel)) {
                     SDChannelObj* previous = static_cast<SDChannelObj*>(
                         nw4r::ut::List_GetPrev(&mChannelObjects, channel));
@@ -2413,9 +2409,8 @@ namespace ipl {
 
         void SDChannelSelect::refreshAfterSDTitleList() {
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(
-                       nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(
+                       nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 int channelIndex = channel->mPage * 12 + channel->mIndex;
                 if (!iplSDChannelObj_hasAppMeta(channel) &&
                     mpChannelTitleIds[channelIndex] != 0) {
@@ -2489,9 +2484,8 @@ namespace ipl {
 
         SDChannelObj* SDChannelSelect::findChannelObject(int page, int index) const {
             SDChannelObj* channel = NULL;
-            while (channel = static_cast<SDChannelObj*>(
-                   nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                   channel != NULL) {
+            while ((channel = static_cast<SDChannelObj*>(
+                       nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                 int channelPage = channel->getPage();
                 int channelIndex = channel->getIndex();
                 if (channelPage == page && channelIndex == index) {
@@ -2973,9 +2967,8 @@ namespace ipl {
                 mPendingPage = -1;
 
                 SDChannelObj* channel = NULL;
-                while (channel = static_cast<SDChannelObj*>(
-                           nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                       channel != NULL) {
+                while ((channel = static_cast<SDChannelObj*>(
+                           nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                     iplSDChannelObj_resetPageAnim(channel, 1);
                 }
 
@@ -2995,9 +2988,8 @@ namespace ipl {
                 mPendingPage = 0;
 
                 SDChannelObj* channel = NULL;
-                while (channel = static_cast<SDChannelObj*>(
-                           nw4r::ut::List_GetNext(&mChannelObjects, channel)),
-                       channel != NULL) {
+                while ((channel = static_cast<SDChannelObj*>(
+                           nw4r::ut::List_GetNext(&mChannelObjects, channel))) != NULL) {
                     iplSDChannelObj_resetPageAnim(channel, 1);
                 }
 
