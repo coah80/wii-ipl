@@ -239,3 +239,29 @@ zero web pinned fn-wide (stw/sth stores + addc/adde + 2 cmplw) where orig
 pins `input` in r27 (addi r27,r4,0) and remats zero per-site. Orig's
 pinned-input vs pinned-zero callee choice is an allocator web-priority
 decision; source can't declare which constant webs win a callee reg.
+
+## Round 7: cross-block-use copies (o2-aoss doc), Init_old pinned-zero crack
+
+o2-aoss.attempts.md methodology applied. WLANConnect second-memset marshal:
+cross-block-use copy is refuted structurally — the ONLY post-copy use of an
+ipConfig alias is NCDSetIpConfig, which sits in the SAME block as the copy
+birth (the if-test IS the block terminator) — block-local copy forwarding
+(0x596850) kills it. Verified: configMem-as-takeover (all later uses),
+configMem-as-parallel-web (NCDSetIpConfig only), configMem = &AOSSi_NcdIpConfig
+(second materialization — CSE'd into r27 web), (u8*) typed view, void* view —
+all 2 diffs. No other-block use exists in the fn (field writes + call all in
+the memset block). Doc's alternatives already covered: struct-wrap gives
+right order +1 insn (addi r27,r3,0x160).
+
+Init_old pinned-zero pair cracked for ONE site: `(int)s_accessPointConfig == 0`
+at line ~1203 gives orig's `cmpwi r3,0` at 0x154c (the pinned r27-zero web is
+not live there). Same cast at line 627 site (0xc94) stays `cmplw r3,r27` —
+the r27 web (born 0xb34) is live at that point so MWCC prefers reg-compare;
+named `allocCheck` local folds via VN canonicalization. 0xc18 `cmplw r3,r4`
+vs `r3,r0` is the u64 bound-check idiom, pure operand-name drift.
+
+Allocator analysis: orig splits input's web (r15 early -> addi r27,r4,0 re-home
+at 0xb1c for the 0x14/0x10/0x18 field reads) and remats `li r0,0` at ~25 sites.
+Mine keeps input in r15 fn-wide and fuses all zeroes into the r27 web.
+The re-home is a backend web-split, not a source copy (copies die in COpt
+pre-phase). Remaining levers exhausted: declsearch r2 pending.

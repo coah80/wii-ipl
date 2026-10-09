@@ -396,7 +396,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   u32 resultCode;
   u32 flags;
   int state;
-  int protocolState;
+  int timeoutMilliseconds;
   u32 retryWait;
   u16 retryDelay;
   u32 delayStep;
@@ -405,7 +405,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   int requestResult;
   size_t manufacturerLength;
   int timeoutSeconds;
-  int timeoutMilliseconds;
+  int protocolState;
   int protocolResult;
   OSTime timeoutTicks;
   int initializationResult;
@@ -624,7 +624,7 @@ int AOSS_Init_old(AOSSInitInput* input)
             goto finish_initialization;
           }
           s_accessPointConfig = (int *)AOSSi_Alloc(0x58);
-          if (s_accessPointConfig == 0) {
+          if ((int)s_accessPointConfig == 0) {
             input->status = 0xf;
             if (s_accessPointConfig) {
               AOSSi_Free(s_accessPointConfig);
@@ -1200,7 +1200,7 @@ wait_for_packet:
         goto finish_initialization;
       }
       s_accessPointConfig = (int *)AOSSi_Alloc(0x58);
-      if (s_accessPointConfig == (int *)0x0) {
+      if ((int)s_accessPointConfig == 0) {
         input->status = 0xf;
         if (s_accessPointConfig) {
           AOSSi_Free(s_accessPointConfig);
