@@ -159,7 +159,7 @@ namespace ipl {
             RBRRecordType mRecordType;  // 0xDC
             u32 mOptOutFlag;            // 0xE0
 
-            class {
+            class StandData {
             public:
                 void init() {
                     mAngleIdx = -1;
