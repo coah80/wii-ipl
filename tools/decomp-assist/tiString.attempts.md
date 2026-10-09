@@ -107,3 +107,51 @@ MWCC 3.0a5.2 eliminates neither redundant var-stores nor member stores, and
 deleting the arm's def always collapses the phi -> literal fold. The dead
 cmplwi needs a pass ordering where the phi survives the arm's deletion —
 no source form found. ~50 total probe forms on this wall across sessions.
+
+## inputChar fossil decode (session ~197k, leaf update)
+
+### SOLVED — the dead-`cmplwi` fossil (was the main wall, ~50 prior probes)
+`cmplwi ch,0xa` survives with NO branch via TWO mechanisms combined:
+1. **2-pred join** (o-tistr model): `if (mode == 3) { ia[1] = ia[0]; }` — a dead a2r
+   store (`u32 ia[2]` local array). `ia[0]` never written → both elements undef →
+   the store dies AT EMISSION but the if-block survives as a separate block →
+   the `cmplwi` block has 2 predecessors at every MergeAdjacentBlocks pass.
+2. **undef a2r read**: `if (ch == '\n') { i = ia[1]; }` — `i = ia[1]` reads an
+   undef array element → ZERO instructions emitted (undef web) but `i`'s phi
+   keeps a second reaching def → `input[i]` stays a symbolic index (no fold
+   to offsets) AND the `\n`-compare survives branch-free.
+   Compiler warns (10185) 'ia' is not initialized — warning only, not banned.
+
+### SOLVED — epilogue `clrlwi r0,r29` re-narrow (2 sites)
+`+ (u16)count` emits `clrlwi` iff count's phi has a NON-NARROW input. `count` u32
++ `count = i` (u32 index → `addi`/`mr` — non-narrow web) → emits at both sites.
+u16 count / `count = (u16)i` / u8-return / `&0xff` / `(s32)` / `(u32)` double-cast
+all produce narrow-flagged webs → `(u16)` folds → `add` only.
+u8-return: `KPRPutChar` returns u8 — `count = ret & 0xff` — narrow everywhere.
+
+### SOLVED — `input[0] = i` single-web zero
+`input[0] = i` (the VARIABLE) produces orig's ONE `li`/`sth`/`slwi` web shared
+by the store and the index. Literal `input[0] = 0` creates a second li web.
+
+### UNSOLVED — `clrlwi r29` def vs `addi r29` (~1 insn)
+`count = i` (u32,u32) emits `addi` — needed non-narrow for epilogue.
+`count = (u16)i` emits `clrlwi` but flags count narrow → epilogue clrlwi dies.
+Contradiction for one var; split-var models: `j = (u16)i` coalesces into the
+`addi` web or gets dead-eliminated (j unused); `u16 j` + `j = i` emits `clrlwi`
+but u16-var promotions elide the use-side too.
+Candidate left untried: `count` live via a use that keeps the `(u16)` def but
+adds no insns — not found.
+
+### UNSOLVED — `mr r4,r5` buf-copy (1 insn)
+Base: `addi r5,r1,0x10` buf→r5; `mr r4,r5` copies buf→r4 because `li r5,0`
+(zero-web for input[i]=0 + sth 0x42) then clobbers r5 → allocator copy-out.
+Mine: buf=r6, zero=r4 — no conflict → sthx uses r6 twice.
+- `wchar_t *q = input` mid-block → `addi r4,r1,0x10` remat (colors match, wrong
+  insn — remat not mr).
+- `wchar_t *q = p` → forward-substituted (VN merge) even with
+  `#pragma opt_propagation off` (forward-sub is a different pass).
+- `q = p` in the `\n` dead arm → arm non-empty → fossil breaks.
+Needs: buf + zero homing on same reg to force copy-out — allocator tie.
+
+### Diff state: 134v136 — real diffs: `addi r29`(→clrlwi), missing `mr r4,r5`,
+plus operand-color ties (r5/r6/r4 homes) elsewhere.
