@@ -19,6 +19,7 @@ namespace textinput {
 
         extern "C" const char* scCommonTextAnimName = scT_prdc_Text_00;
         extern "C" const char* scCommonScrollAnimName = scP_prdc_scrl_Left;
+        // MWCC must keep the empty text buffer in initialized data.
         #pragma explicit_zero_data on
         extern "C" wchar_t scEmptyWChars[4] = {0, 0, 0, 0};
         #pragma explicit_zero_data reset
@@ -272,6 +273,7 @@ namespace textinput {
         void Base::updateCandidate() {
             u32 i;
             wchar_t* text;
+            // MWCC needs the destination to advance as a candidate-struct view.
             CandidateBoxCaller::Candidates* current;
             CandidateBoxCaller::Candidates* candidates = mpCandidates;
             if (candidates != NULL) {
@@ -587,6 +589,7 @@ namespace textinput {
             mTextArea.StopScroll();
             u32 i;
             wchar_t* text;
+            // MWCC needs the destination to advance as a candidate-struct view.
             CandidateBoxCaller::Candidates* current;
             CandidateBoxCaller::Candidates* candidates = mpCandidates;
             if (candidates != NULL) {
@@ -730,7 +733,7 @@ namespace textinput {
 
         void LayoutByNW4R::onEvent(UIObj* obj, u32 id, void* data) {
             const char* base = scT_prdc_Text_00;
-            int tmp;
+            int candidateIdx;
 
             switch (id) {
                 case 0:
@@ -748,9 +751,9 @@ namespace textinput {
                     }
                     break;
                 case 0x102:
-                    tmp = reinterpret_cast<int>(data);
-                    if (tmp >= 0) {
-                        changeSelect(tmp);
+                    candidateIdx = reinterpret_cast<int>(data);
+                    if (candidateIdx >= 0) {
+                        changeSelect(candidateIdx);
                     } else {
                         changeSelectEmpty_compatible();
                     }
@@ -954,9 +957,6 @@ namespace textinput {
             mpTextsPane = NULL;
         }
 
-// HACK: Is there a way to automatically get the compiler to not pool this?
-#pragma push
-#pragma pool_data off
         void UITextArea::Create(nw4rmanager::Layout* layout) {
             // These could have been static...
             const char* textPanes[NUM_PANES] = {
@@ -983,7 +983,6 @@ namespace textinput {
             mSize = mpTextBoxPane[0]->getTextPane()->GetFontSize();
             mpTextAreaPane->setListener(this);
         }
-#pragma pop
 
         void UITextArea::Init() {
             for (u32 i = 0; i < NUM_PANES; i++) {
@@ -1364,13 +1363,12 @@ namespace textinput {
         void UITextArea::StartScrollPageToIdx(s32 idx) {
             if (idx > mnBaseIdx) {
                 int i = mnBaseIdx;
-                int next;
                 while (true) {
-                    int tmp = GetNextPageIdx_(i);
-                    if (tmp < 0 || tmp > idx) {
+                    int nextPageIdx = GetNextPageIdx_(i);
+                    if (nextPageIdx < 0 || nextPageIdx > idx) {
                         break;
                     }
-                    i = tmp;
+                    i = nextPageIdx;
                 }
                 StartScrollToIdx(i);
             } else if (idx < mnBaseIdx) {
@@ -1450,11 +1448,11 @@ namespace textinput {
 
         void UITextArea::onAnmEvent(AnmEvent ev, void* data) {
             if (ev == AE_1) {
-                s32 dat = reinterpret_cast<s32>(data);
-                if (mnBaseIdx + dat < 0) {
+                s32 scrollSteps = reinterpret_cast<s32>(data);
+                if (mnBaseIdx + scrollSteps < 0) {
                     ChangeBaseIdx_(0);
                 } else {
-                    ChangeBaseIdx_(mnBaseIdx + dat);
+                    ChangeBaseIdx_(mnBaseIdx + scrollSteps);
                 }
                 UIObj::riseEvent(0x100, NULL);
             }

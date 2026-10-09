@@ -259,6 +259,7 @@ namespace ipl {
                 if (util::is_valid_datap(VmParentObj)) {
                     pane = *static_cast<nw4r::lyt::Pane**>(*VmParentObj->value.ptr_v);
                     if (pane != NULL) {
+                        // MWCC needs the direct parent load to preserve instruction order.
                         parent = *reinterpret_cast<nw4r::lyt::Pane**>(reinterpret_cast<u8*>(pane) + 0xc);
                         if (parent != NULL) {
                             parent->RemoveChild(pane);

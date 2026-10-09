@@ -451,7 +451,7 @@ namespace ipl {
                     u8* workBuf = new (System::getCSManager()->getHeap(), 0x20) u8[workSize];
                     if (workBuf != NULL) {
                         int ret;
-                        if (format == 4) {
+                        if (format == GX_TF_RGB565) {
                             ret = ODHDecodeRGB565(src, bufSize, image->pData, image->size, workBuf, workSize);
                         } else {
                             ret = ODHDecodeRGBA8(src, bufSize, image->pData, image->size, workBuf, workSize);

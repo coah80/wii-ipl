@@ -541,7 +541,7 @@ static BOOL HasTitleInstalled(ESTitleId titleId, void* work, u32 workLen) {
     }
 
     // Setup ticket buffer in work area
-    ticketView = (ESTicketView*)((u32)work + workBufArea);
+    ticketView = (ESTicketView*)((u8*)work + workBufArea);
     workBufArea += OSRoundUp32B(tikCount * sizeof(ESTicketView));
     if (workLen < workBufArea) {
         goto fail;
@@ -567,7 +567,7 @@ static BOOL HasTitleInstalled(ESTitleId titleId, void* work, u32 workLen) {
     }
 
     // Setup TMD buffer in work area
-    tmdView = (ESTmdView*)((u32)work + workBufArea);
+    tmdView = (ESTmdView*)((u8*)work + workBufArea);
     workBufArea += OSRoundUp32B(tmdSize);
     if (workLen < workBufArea) {
         goto fail;
@@ -587,7 +587,7 @@ static BOOL HasTitleInstalled(ESTitleId titleId, void* work, u32 workLen) {
         goto fail;
     }
 
-    tmdContents = (ESContentId*)((u32)work + workBufArea);
+    tmdContents = (ESContentId*)((u8*)work + workBufArea);
     workBufArea += OSRoundUp32B(tmdContentCount * sizeof(ESContentId));
     if (workLen < workBufArea) {
         goto fail;

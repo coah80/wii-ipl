@@ -165,6 +165,7 @@ namespace textinput {
                         break;
                     }
 
+                    // MWCC needs one shared tail for point and move events.
                     hasTouched:
                         touched = true;
                         if (component->isTriggerTarget()) {
@@ -308,6 +309,7 @@ namespace textinput {
         }
 
         void PaneManager::setAllBoundingBoxComponentTriggerTarget(bool bEnable) {
+            // MWCC must reload the list count after each component update.
             const volatile u16& numObjects = mPaneComponents.numObjects;
             for (u32 i = 0; i < numObjects; i++) {
                 PaneToComponent* p = static_cast<PaneToComponent*>(nw4r::ut::List_GetNth(&mPaneComponents, (u16)i));
