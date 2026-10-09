@@ -412,18 +412,19 @@ extern "C" char scP_txtScrll_DOWN[] = "P_txtScrll_DOWN";
 struct ButtonAnimations {
     KeyType type;
     const char* paneName;
-    u32 count;
+    u16 _pad_0;
+    u16 count;
     const char* bindingName;
     const InputFormAnimationFile* files[12];
 };
 
 ButtonAnimations csButtonAnimations[] = {
-    {KT_NormalButton, scP_txtScrll_UP, 8, NULL, {
+    {KT_NormalButton, scP_txtScrll_UP, 0, 8, NULL, {
         &csAninationFile__Q29textinput9inputform[0], &csAninationFile__Q29textinput9inputform[1],
         &csAninationFile__Q29textinput9inputform[2], &csAninationFile__Q29textinput9inputform[3],
         &csAninationFile__Q29textinput9inputform[4], &csAninationFile__Q29textinput9inputform[5],
         &csAninationFile__Q29textinput9inputform[6], &csAninationFile__Q29textinput9inputform[7]}},
-    {KT_NormalButton, scP_txtScrll_DOWN, 8, csScrollButtonAnimationTarget, {
+    {KT_NormalButton, scP_txtScrll_DOWN, 0, 8, csScrollButtonAnimationTarget, {
         &csAninationFile__Q29textinput9inputform[0], &csAninationFile__Q29textinput9inputform[1],
         &csAninationFile__Q29textinput9inputform[2], &csAninationFile__Q29textinput9inputform[3],
         &csAninationFile__Q29textinput9inputform[4], &csAninationFile__Q29textinput9inputform[5],
@@ -1123,21 +1124,21 @@ inline void LayoutByNW4R::addButtonAnimation(MEMAllocator* allocator, nw4rmanage
 }
 
 void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
-    Info_* listEnd;
+    const char* bindingName;
+    void* handlerMemory;
     void* memory;
     nw4r::lyt::Pane* pane;
-    const char* bindingName;
+    u32 buttonIndex;
     u16 next;
     Info_* rows;
     u16 previous;
-    void* handlerMemory;
-    u32 count;
+    u16 count;
     u16 animationIndex;
     Info_* selected;
     nw4rmanager::AnmPane* animationPane;
     nw4r::lyt::TextBox* textBox;
     u16 selectedIndex;
-    u32 buttonIndex;
+    Info_* listEnd;
     mpAllocator = allocator;
     textdrawer::Base::create(allocator);
     mpString = static_cast<tistring::Decolated*>(editBuffer->mpString);
