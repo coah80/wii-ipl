@@ -342,8 +342,11 @@ static NWC24Err NWC24CommitMsgInternal(NWC24MsgObjPrivate* msg, NWC24MBoxType ty
         if (!(msg->type & 0x10000))
             msg->headerSize = msg->length;
         text.ptr = (const void*)msg->length;
-        { NWC24Err textResult = WritePlainText(msg);
-        err = textResult == NWC24_ERR_NULL ? NWC24_OK : textResult; }
+        /* MWCC needs the scoped result to preserve the write-error instruction order. */
+        {
+            NWC24Err textResult = WritePlainText(msg);
+            err = textResult == NWC24_ERR_NULL ? NWC24_OK : textResult;
+        }
         if (err != NWC24_OK) {
             NWC24FClose(&file);
             result = err;
@@ -395,6 +398,7 @@ finish:
         else if (type == NWC24_MBOX_TYPE_SEND)
             msg->type |= 0x10;
         err = NWC24iMBoxAddMsgObj(type, msg);
+        /* MWCC needs this status guard to retain the original error branches. */
         if (result != NWC24_OK)
             err = result;
         result = err;

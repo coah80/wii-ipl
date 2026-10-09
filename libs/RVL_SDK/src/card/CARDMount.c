@@ -43,7 +43,6 @@ static BOOL IsCard(u32 id) {
         }
         default: {
             return FALSE;
-            break;
         }
     }
 

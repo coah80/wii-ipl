@@ -44,7 +44,7 @@ typedef struct __sdCbArg {
     u32 cmd;  // 0x0C
     u32 SDDevRca;
     u32* resp;  // 0x14
-    u8* SDSectorSize;
+    u8* commandBuffer;
 } __sdCbArg;
 
 enum {
@@ -96,8 +96,8 @@ IOSError __sdCb(s32 result, void* arg) {
         data->cb(result, data->cbArg);
     }
 
-    if (data->SDSectorSize != NULL) {
-        iosFree(__sdHeapId[0], data->SDSectorSize);
+    if (data->commandBuffer != NULL) {
+        iosFree(__sdHeapId[0], data->commandBuffer);
     }
     iosFree(__sdHeapId[0], data);
 
@@ -195,7 +195,7 @@ static IOSError sduCommandv(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
                 data->cbArg = cbArg;
                 data->resp = resp;
                 data->cmd = cmd;
-                data->SDSectorSize = (u8*)sdCmd;
+                data->commandBuffer = (u8*)sdCmd;
 
                 ret = IOS_IoctlvAsync(fd, 7, readCount, writeCount, __sdVect, __sdCb, data);
             }
@@ -243,15 +243,15 @@ static ISD_Error sduCommand(s32 fd, u32 cmd, u32 cmdType, u32 respType, u32 arg,
                     data->resp = resp;
                     data->cmd = cmd;
                     data->SDDevRca = 1;
-                    data->SDSectorSize = (u8*)sdCmd;
+                    data->commandBuffer = (u8*)sdCmd;
 
-                    ret = IOS_IoctlAsync(fd, 7, sdCmd, SD_CMD_SIZE /*typo?*/, __sdResp, 0x10, __sdCb, data);
+                    ret = IOS_IoctlAsync(fd, 7, sdCmd, SD_CMD_SIZE, __sdResp, 0x10, __sdCb, data);
                     if (ret != IPC_RESULT_OK) {
                         ret = SD_ERROR_FATAL;
                     }
                 }
             } else {
-                ret = IOS_Ioctl(fd, 7, sdCmd, 0x24, __sdResp, 0x10);
+                ret = IOS_Ioctl(fd, 7, sdCmd, SD_CMD_SIZE, __sdResp, 0x10);
                 if (ret != IPC_RESULT_OK) {
                     if (cmd == 7) {
                         ret = SD_ERROR_SUCCESS;
@@ -382,7 +382,7 @@ ISD_Error ISD_ReadMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdRe
     }
 
     if (offset + cmdRespSize > dev->SDDevSize) {
-        return -4;
+        return IPC_RESULT_INVALID;
     }
 
     OSLockMutex(&__reqMutex);
@@ -466,7 +466,7 @@ ISD_Error ISD_WriteMultiBlockAsync(SDDev* dev, u32 offset, u8* cmdResp, u32 cmdR
     }
 
     if (offset + cmdRespSize > dev->SDDevSize) {
-        return -4;
+        return IPC_RESULT_INVALID;
     }
 
     OSLockMutex(&__reqMutex);
@@ -672,7 +672,7 @@ ISD_Error ISD_ReadCardRegister(SDDev* dev, u32 cmd, u32* cmdResp, u32 cmdRespSiz
     }
 
     if (cmdResp == NULL || cmdRespSize == 0) {
-        ret = -4;
+        ret = IPC_RESULT_INVALID;
         __sdReq = 0;
         goto out;
     }
@@ -699,7 +699,7 @@ ISD_Error ISD_ReadCardRegister(SDDev* dev, u32 cmd, u32* cmdResp, u32 cmdRespSiz
             goto out;
         }
         default: {
-            return -4;
+            return IPC_RESULT_INVALID;
         }
     }
 
@@ -793,7 +793,7 @@ ISD_Error ISD_GetCardSize(SDDev* dev, u32* outSize, u32* outSize2, u32* outSecto
     u32 resp[4];
     memset(resp, 0, sizeof(resp));
 
-    ret = ISD_ReadCardRegister(dev, 9, resp, 0x10);
+    ret = ISD_ReadCardRegister(dev, 9, resp, sizeof(resp));
     if (ret != SD_ERROR_SUCCESS) {
         return ret;
     }

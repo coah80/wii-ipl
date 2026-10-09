@@ -138,7 +138,7 @@ int NUP_GetStatus(void* instance, u64* status) {
 
     OSLockMutex(&context->mutex);
     if (status != 0) {
-        memcpy(status, &context->progress, 0x18);
+        memcpy(status, &context->progress, sizeof(NUPProgress));
     }
     s32 result = *(s32*)status;
     OSUnlockMutex(&context->mutex);
@@ -428,7 +428,7 @@ static s32 __nupGetTicketViews(ESTitleId titleId, ESTicketView** ticketViews, u3
 }
 
 /* MWCC must keep this helper out of line to match its callers. */
-#pragma dont_inline on
+static u32 __nupSetAuditState(u8 state) NO_INLINE;
 static u32 __nupSetAuditState(u8 state) {
     const char* auditPath = "NUPAUDIT";
     s32 result;
@@ -449,7 +449,6 @@ static u32 __nupSetAuditState(u8 state) {
     }
     return result;
 }
-#pragma dont_inline reset
 
 static inline unsigned long __nupBase64EncodedSize(unsigned long length) {
     return ((length + 2) / 3) * 4;
@@ -500,7 +499,7 @@ static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
     u32 auditFormat = 0;
     ESTicketView* ticketViews = 0;
     u32 viewCount;
-    void* auditRecord = 0;
+    NUPAuditRecord* auditRecord = 0;
     void* signatureCertificate = 0;
     void* deviceCertificate = 0;
     NUPSignedAuditData* signedData = 0;
@@ -550,25 +549,25 @@ static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
         }
         deviceInfo[0x20] = '\0';
 
-        auditRecord = nup::__nupMallocAlign(0xf8, 0x40);
+        auditRecord = (NUPAuditRecord*)nup::__nupMallocAlign(sizeof(NUPAuditRecord), 0x40);
         if (auditRecord == 0) {
             result = -5000;
         } else {
-            memcpy(((NUPAuditRecord*)auditRecord)->deviceInfo, deviceInfo, 0x20);
-            memcpy(&((NUPAuditRecord*)auditRecord)->ticketView, &ticketViews[selectedIndex], sizeof(ESTicketView));
-            signatureCertificate = nup::__nupMallocAlign(0x180, 0x40);
+            memcpy(auditRecord->deviceInfo, deviceInfo, sizeof(auditRecord->deviceInfo));
+            memcpy(&auditRecord->ticketView, &ticketViews[selectedIndex], sizeof(ESTicketView));
+            signatureCertificate = nup::__nupMallocAlign(sizeof(ESCertSignature), 0x40);
             if (signatureCertificate == 0) {
                 result = -5000;
             } else {
-                result = ES_Sign(auditRecord, 0xf8, signature, (ESCertSignature*)signatureCertificate);
+                result = ES_Sign(auditRecord, sizeof(NUPAuditRecord), signature, (ESCertSignature*)signatureCertificate);
                 if (result == 0) {
-                    deviceCertificate = nup::__nupMallocAlign(0x180, 0x40);
+                    deviceCertificate = nup::__nupMallocAlign(sizeof(ESCertSignature), 0x40);
                     if (deviceCertificate == 0) {
                         result = -5000;
                     } else {
                         result = ES_GetDeviceCert(deviceCertificate);
                         if (result == 0) {
-                            signedData = (NUPSignedAuditData*)nup::__nupMalloc(0x438);
+                            signedData = (NUPSignedAuditData*)nup::__nupMalloc(sizeof(NUPSignedAuditData));
                             if (signedData == 0) {
                                 result = -5000;
                             } else {
@@ -578,7 +577,7 @@ static s32 __nupGetAuditData(NUPContextInfo* context, char** auditData) {
                                 auditCursor += sizeof(NUPAuditRecord);
                                 memcpy(auditCursor, signature, sizeof(signature));
                                 auditCursor += sizeof(signature);
-                                memcpy(auditCursor, signatureCertificate, 0x180);
+                                memcpy(auditCursor, signatureCertificate, sizeof(signedData->signatureCertificate));
                                 memcpy(auditCursor + sizeof(signedData->signatureCertificate),
                                        deviceCertificate, sizeof(signedData->deviceCertificate));
                                 unsigned long auditSize = sizeof(NUPSignedAuditData);
@@ -623,7 +622,7 @@ done:
 }
 
 /* MWCC must keep this helper out of line to match its callers. */
-#pragma dont_inline on
+static s32 __nupGetTmdView(ESTitleId titleId, ESTmdView** tmdView) NO_INLINE;
 static s32 __nupGetTmdView(ESTitleId titleId, ESTmdView** tmdView) {
     u32 tmdViewSize;
     s32 result;
@@ -644,7 +643,6 @@ static s32 __nupGetTmdView(ESTitleId titleId, ESTmdView** tmdView) {
     *tmdView = view;
     return result;
 }
-#pragma dont_inline reset
 
 template <class Title>
 static inline BOOL __nupHasContent(const Title* title, ESContentId contentId) {
@@ -776,20 +774,20 @@ static s32 __nupGetTicket(NUPTitleInfo* title, char* contentPrefixUrl) {
         snprintf(url, urlSize, "%s/%016llx/cetk", contentPrefixUrl, title->titleId);
         result = __nupHttpGetFull(url, &response, &responseSize, 0, 0, 0);
         if (result == 0) {
-            if (responseSize <= 0x2a4) {
+            if (responseSize <= sizeof(ESTicket)) {
                 result = -0x138c;
             } else {
-                title->ticket = nup::__nupMalloc(0x2a4);
+                title->ticket = nup::__nupMalloc(sizeof(ESTicket));
                 if (title->ticket == 0) {
                     result = -5000;
                 } else {
-                    title->ticketCertificate = nup::__nupMalloc(responseSize - 0x2a4);
+                    title->ticketCertificate = nup::__nupMalloc(responseSize - sizeof(ESTicket));
                     if (title->ticketCertificate == 0) {
                         result = -5000;
                     } else {
-                        title->ticketCertificateSize = responseSize - 0x2a4;
-                        memcpy(title->ticket, response, 0x2a4);
-                        memcpy(title->ticketCertificate, response + 0x2a4, title->ticketCertificateSize);
+                        title->ticketCertificateSize = responseSize - sizeof(ESTicket);
+                        memcpy(title->ticket, response, sizeof(ESTicket));
+                        memcpy(title->ticketCertificate, response + sizeof(ESTicket), title->ticketCertificateSize);
                     }
                 }
             }
@@ -1092,7 +1090,6 @@ static s32 __nupUpdateTitle(NUPContextInfo* context, NUPTitleInfo* title, char* 
         if (result != 0) {
             goto done;
         }
-        goto cleanup;
     } else {
         result = __nupCheckTitleSpace(title);
         if (result == 0) {
@@ -1127,7 +1124,6 @@ static s32 __nupUpdateTitle(NUPContextInfo* context, NUPTitleInfo* title, char* 
             goto done;
         }
     }
-cleanup:
     __nupCleanupTitleInfo(title);
     title->updateRequired = 0;
 done:

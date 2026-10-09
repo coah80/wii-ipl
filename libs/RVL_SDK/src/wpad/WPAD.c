@@ -88,13 +88,11 @@ u16 _WPADGetStackBufferStatus(s32 chan);
 u16 _WPADGetModuleBufferStatus(s32 chan);
 
 static void* noAlloc(u32 size) {
-#pragma unused(size)
     DEBUGPrint("No Alloc: Nothing to do!!!\n");
     return NULL;
 }
 
 static BOOL noFree(void* pBlock) {
-#pragma unused(pBlock)
     DEBUGPrint("No Free: Nothing to do!!!\n");
     return FALSE;
 }
@@ -786,7 +784,7 @@ static void __ClearControlBlock(s32 chan) {
     _rumbleCnt[chan] = 0;
 }
 
-// TODO(kiwi) _wpd should be 32-byte aligned, but doing so breaks this function
+// MWCC needs this active array to preserve _wpd layout.
 static u8 FAKE_ALIGNMENT[0x10];
 DECOMP_FORCE_ACTIVE(WPAD_c, _dev_handle_index, FAKE_ALIGNMENT);
 

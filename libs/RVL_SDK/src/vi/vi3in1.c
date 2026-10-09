@@ -170,40 +170,39 @@ void __VISetVolume(u8 wd0, u8 wd1) {
 
 // MWCC needs the separate region-store blocks in this dispatch.
 void __VISetYUVSEL(u8 value) {
-    s32 region = *(s32*)0x800000cc;
+    s32 region = *(s32*)OSPhysicalToCached(OS_ADDR_TV_VIDEO_FORMAT);
     u8 data[2];
 
-    if (region != 2) {
-        if (region < 2) {
-            if (region == 0) {
-                goto region0;
+    if (region != VI_MPAL) {
+        if (region < VI_MPAL) {
+            if (region == VI_NTSC) {
+                goto ntscRegion;
             }
-            if (region >= 0) {
-                goto region2;
+            if (region >= VI_NTSC) {
+                goto palRegion;
             }
         } else {
             switch (region) {
-            case 5:
-                goto region2;
+            case VI_EURGB60:
+                goto palRegion;
             default:
-                goto regionDefault;
+                goto defaultRegion;
             }
         }
-        goto regionDefault;
+        goto defaultRegion;
     }
-    goto region1;
-region2:
+    goto mpalRegion;
+palRegion:
     Vdac_Flag_Region = 2;
     goto send;
-region1:
+mpalRegion:
     Vdac_Flag_Region = 1;
     goto send;
-region0:
+ntscRegion:
     Vdac_Flag_Region = 0;
     goto send;
-regionDefault:
+defaultRegion:
     Vdac_Flag_Region = 0;
-    goto send;
 send:
     data[0] = 1;
     data[1] = (value << 5) | Vdac_Flag_Region;
