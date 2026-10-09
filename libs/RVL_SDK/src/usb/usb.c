@@ -334,7 +334,8 @@ IOSError IUSB_GetDeviceList(const char* path, USBDeviceInfo* deviceList, u8 maxD
         rv = IPC_RESULT_INVALID;
         goto out;
     }
-    if ((fd = __openDevice(path)) < 0) {
+    fd = __openDevice(path);
+    if (fd < 0) {
         rv = fd;
         goto out;
     }
@@ -658,7 +659,8 @@ static void _GetStrCb(IOSError ret, void* ctxt) {
     buf = (char*)req->msg.buffer;
     buflen = req->msg.length;
     USB_LOG("GetStrCb: buf = 0x%x buflen = %u\n", buf, buflen);
-    if ((len = unicode2ascii(buf, buflen)) < 0)
+    len = unicode2ascii(buf, buflen);
+    if (len < 0)
         USB_ERR("Failed to convert buffer from unicode 2 ascii\n");
     else
         buf[len] = '\0';
@@ -684,7 +686,8 @@ IOSError IUSB_GetAsciiStr(IOSFd fd, u8 ep, u16 index, u16 langId, char* buf, u16
         USB_ERR("Failed __CtrlMsg: %d", rv);
         goto out;
     }
-    if ((len = unicode2ascii(buf, buflen)) < 0)
+    len = unicode2ascii(buf, buflen);
+    if (len < 0)
         USB_ERR("Failed to convert unicode 2 ascii\n");
     else
         buf[len] = '\0';
@@ -912,7 +915,8 @@ IOSError IUSB_DeviceInsertionNotifyAsync(const char* path, u16 vid, u16 pid, USB
         rv = IPC_RESULT_INVALID;
         goto done;
     }
-    if ((fd = IOS_Open(path, 0)) < 0) {
+    fd = IOS_Open(path, 0);
+    if (fd < 0) {
         rv = fd;
         USB_ERR("Open(%s) failed\n", path);
         goto done;
@@ -975,7 +979,8 @@ IOSError IUSB_DeviceClassInsertionNotifyAsync(const char* path, u8 devClass, USB
         rv = IPC_RESULT_INVALID;
         goto done;
     }
-    if ((fd = IOS_Open(path, 0)) < 0) {
+    fd = IOS_Open(path, 0);
+    if (fd < 0) {
         rv = fd;
         OSReport("Open(%s) failed\n", path);
         goto done;

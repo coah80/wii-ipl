@@ -35,9 +35,8 @@ size_t strnlen(const char* s, size_t maxlen) {
 }
 
 static inline IOSError ipcFree(IOSRpcRequest* rpc) {
-    IOSError ret = IPC_RESULT_OK;
     iosFree(hid, rpc);
-    return ret;
+    return IPC_RESULT_OK;
 }
 
 static inline void __ipcSendRequest() {

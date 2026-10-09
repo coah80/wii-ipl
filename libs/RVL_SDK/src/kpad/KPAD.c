@@ -198,17 +198,16 @@ static void* get_ring_buffer_by_kpad1_style(s32 chan, void* buffer, s32 style) {
     switch (style) {
     case WPAD_DEV_CORE:
         size = 0x2A;
-        goto process;
+        break;
     case WPAD_DEV_FREESTYLE:
         size = 0x32;
-        goto process;
+        break;
     case WPAD_DEV_CLASSIC:
         size = 0x36;
-        goto process;
+        break;
     default:
         return buffer;
     }
-process:
     enabled = OSDisableInterrupts();
     index = kpad->ringIndex - 1;
     latest = WPADGetLatestIndexInBuf(chan);
@@ -622,6 +621,7 @@ static void read_kpad_acc(KPADInside* kpad, KPADSample* status) {
     kpad->status.acc_speed = (f32)sqrt(previous.z * previous.z + (previous.x * previous.x + previous.y * previous.y));
     calc_acc_horizon(kpad);
     calc_acc_vertical(kpad);
+    // MWCC needs separate format exits to preserve both comparisons.
     if (status->error == WPAD_ERR_OK && status->device == WPAD_DEV_FREESTYLE) {
         if (status->dataFormat == WPAD_FMT_FS_BTN_ACC) {
             goto read_extension_acceleration;
@@ -664,7 +664,7 @@ static s8 select_2obj_first(KPADInside* kpad) {
     object = kpad->dpdState.objects;
     do {
         if ((s8)object->metadata.bytes.flags != 0) {
-            goto nextObject;
+            continue;
         }
         other = object + 1;
         do {
@@ -676,7 +676,7 @@ static s8 select_2obj_first(KPADInside* kpad) {
             f32 dot;
             f32 score;
             if ((s8)other->metadata.bytes.flags != 0) {
-                goto nextOther;
+                continue;
             }
             dx = other->x - object->x;
             dy = other->y - object->y;
@@ -687,7 +687,7 @@ static s8 select_2obj_first(KPADInside* kpad) {
             direction.y = kpad->horizonTangent.y * dx - kpad->horizonTangent.x * dy;
             dist = kpad->dpdDistanceScale * scale;
             if (dist <= kpad->minDpdDistance || dist >= kp_err_dist_max) {
-                goto nextOther;
+                continue;
             }
             dot = kpad->horizonAxis.x * direction.x + kpad->horizonAxis.y * direction.y;
             score = dot;
@@ -703,12 +703,8 @@ static s8 select_2obj_first(KPADInside* kpad) {
                 first = object;
                 second = other;
             }
-nextOther:
-            ++other;
-        } while (other <= kpad->dpdState.objects + 3);
-nextObject:
-        ++object;
-    } while (object < kpad->dpdState.objects + 3);
+        } while (++other <= kpad->dpdState.objects + 3);
+    } while (++object < kpad->dpdState.objects + 3);
     if (best == kp_err_first_inpr) {
         return 0;
     }
@@ -726,7 +722,7 @@ static s8 select_2obj_continue(KPADInside* kpad) {
     object = kpad->dpdState.objects;
     do {
         if ((s8)object->metadata.bytes.flags != 0) {
-            goto nextObject;
+            continue;
         }
         other = object + 1;
         do {
@@ -738,7 +734,7 @@ static s8 select_2obj_continue(KPADInside* kpad) {
             f32 dot;
             BOOL reverse;
             if ((s8)other->metadata.bytes.flags != 0) {
-                goto nextOther;
+                continue;
             }
             dx = other->x - object->x;
             dy = other->y - object->y;
@@ -747,7 +743,7 @@ static s8 select_2obj_continue(KPADInside* kpad) {
             direction.y = dy * scale;
             scale *= kpad->dpdDistanceScale;
             if (scale <= kpad->minDpdDistance || scale >= kp_err_dist_max) {
-                goto nextOther;
+                continue;
             }
             scale -= kpad->dpdReferenceDistance;
             if (scale < 0.0f) {
@@ -756,7 +752,7 @@ static s8 select_2obj_continue(KPADInside* kpad) {
                 scale *= kpad->invDistSpeed;
             }
             if (scale >= 1.0f) {
-                goto nextOther;
+                continue;
             }
             dot = kpad->dpdObjectDirection.x * direction.x + kpad->dpdObjectDirection.y * direction.y;
             if (dot < 0.0f) {
@@ -766,7 +762,7 @@ static s8 select_2obj_continue(KPADInside* kpad) {
                 reverse = FALSE;
             }
             if (dot <= kp_err_next_inpr) {
-                goto nextOther;
+                continue;
             }
             scale += ((1.0f - dot) / (1.0f - kp_err_next_inpr));
             if (scale < best) {
@@ -779,12 +775,8 @@ static s8 select_2obj_continue(KPADInside* kpad) {
                     second = other;
                 }
             }
-nextOther:
-            ++other;
-        } while (other <= kpad->dpdState.objects + 3);
-nextObject:
-        ++object;
-    } while (object < kpad->dpdState.objects + 3);
+        } while (++other <= kpad->dpdState.objects + 3);
+    } while (++object < kpad->dpdState.objects + 3);
     if (2.0f == best) {
         return 0;
     }
@@ -1092,50 +1084,51 @@ static void read_kpad_dpd(KPADInside* kpad, KPADSample* status) {
             break;
         }
     }
-    if (!(kpad->status.acc_vertical.x <= kp_err_up_inpr)) {
-        if (kpad->status.dpd_valid_fg == 2 || kpad->status.dpd_valid_fg == -2) {
-            if (kpad->dpdCount >= 2) {
-                selected = select_2obj_continue(kpad);
-                if (selected != 0) {
-                    goto updateSelection;
+    do {
+        if (!(kpad->status.acc_vertical.x <= kp_err_up_inpr)) {
+            if (kpad->status.dpd_valid_fg == 2 || kpad->status.dpd_valid_fg == -2) {
+                if (kpad->dpdCount >= 2) {
+                    selected = select_2obj_continue(kpad);
+                    if (selected != 0) {
+                        break;
+                    }
                 }
-            }
-            if (kpad->dpdCount >= 1) {
-                selected = select_1obj_continue(kpad);
-                if (selected != 0) {
-                    goto updateSelection;
+                if (kpad->dpdCount >= 1) {
+                    selected = select_1obj_continue(kpad);
+                    if (selected != 0) {
+                        break;
+                    }
                 }
-            }
-        } else if (kpad->status.dpd_valid_fg == 1 || kpad->status.dpd_valid_fg == -1) {
-            if (kpad->dpdCount >= 2) {
-                selected = select_2obj_first(kpad);
-                if (selected != 0) {
-                    goto updateSelection;
+            } else if (kpad->status.dpd_valid_fg == 1 || kpad->status.dpd_valid_fg == -1) {
+                if (kpad->dpdCount >= 2) {
+                    selected = select_2obj_first(kpad);
+                    if (selected != 0) {
+                        break;
+                    }
                 }
-            }
-            if (kpad->dpdCount >= 1) {
-                selected = select_1obj_continue(kpad);
-                if (selected != 0) {
-                    goto updateSelection;
+                if (kpad->dpdCount >= 1) {
+                    selected = select_1obj_continue(kpad);
+                    if (selected != 0) {
+                        break;
+                    }
                 }
-            }
-        } else {
-            if (kpad->dpdCount >= 2) {
-                selected = select_2obj_first(kpad);
-                if (selected != 0) {
-                    goto updateSelection;
+            } else {
+                if (kpad->dpdCount >= 2) {
+                    selected = select_2obj_first(kpad);
+                    if (selected != 0) {
+                        break;
+                    }
                 }
-            }
-            if (kpad->dpdCount == 1) {
-                selected = select_1obj_first(kpad);
-                if (selected != 0) {
-                    goto updateSelection;
+                if (kpad->dpdCount == 1) {
+                    selected = select_1obj_first(kpad);
+                    if (selected != 0) {
+                        break;
+                    }
                 }
             }
         }
-    }
-    selected = 0;
-updateSelection:
+        selected = 0;
+    } while (0);
     if (selected != 0) {
         f32 dy;
         f32 dx;
