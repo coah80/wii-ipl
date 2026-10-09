@@ -891,69 +891,64 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
 
 void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutput, u16 width, u16 height,
                            const long* conversionTable, int format) {
-    u32 planeSize = (u32)width * (u32)height;
-    const s32* table = conversionTable;
-    u32 pixelIndex = 0;
-
+    u8* cbSource = source + width * height;
+    u8* crSource = source + width * height * 2;
     for (int i = 0; i < width; i++) {
-            s32 red;
-            s32 green;
-            s32 blue;
+        s32 red;
+        s32 green;
+        s32 blue;
+        s32 cbValue;
+        s32 crValue;
 
-            if (format == ODH_FORMAT_RGB565) {
-                u8* pixelSource = source + (pixelIndex & 0x1FFFFFFC) * 8 + (pixelIndex & 3) * 2;
-                u16 pixel = pixelSource[1];
-                pixel |= (u16)pixelSource[0] << 8;
-                red = (pixel >> 11) & 0x1F;
-                green = (pixel >> 6) & 0x1F;
-                blue = pixel & 0x1F;
-            } else if (format == ODH_FORMAT_RGBA8) {
-                int blueOrPixelOffset = (pixelIndex & 0xFFFFFFFC) * 0x10 + (pixelIndex & 3) * 2;
-                u8* pixel = source + blueOrPixelOffset;
-                red = pixel[1] >> 3;
-                green = pixel[0x20] >> 3;
-                blue = pixel[0x21] >> 3;
-            } else {
-                int sourceOffset = (pixelIndex & 7) + (pixelIndex & 0x3FFFFFF8) * 4;
-                float y = (float)source[sourceOffset] - colorConvert16;
-                float cb = (float)source[planeSize + sourceOffset] - colorConvert128;
-                float cr = (float)source[planeSize * 2 + sourceOffset] - colorConvert128;
-                red = (int)(colorConvertY * y + colorConvertR * cr);
-                green = (int)(colorConvertY * y - colorConvertG1 * cb - colorConvertG2 * cr);
-                blue = (int)(colorConvertY * y + colorConvertB * cb);
-
-                if (red < 0) {
-                    red = 0;
-                }
-                if (0xFF < red) {
-                    red = 0xFF;
-                }
-                if (green < 0) {
-                    green = 0;
-                }
-                if (0xFF < green) {
-                    green = 0xFF;
-                }
-                if (blue < 0) {
-                    blue = 0;
-                }
-                if (0xFF < blue) {
-                    blue = 0xFF;
-                }
-
-                red >>= 3;
-                green >>= 3;
-                blue >>= 3;
+        if (format == ODH_FORMAT_RGB565) {
+            int offset = (i & ~3) * 8 + (i & 3) * 2;
+            u16 pixel = source[offset];
+            pixel <<= 8;
+            pixel |= source[offset + 1];
+            red = (pixel >> 11) & 0x1F;
+            green = (pixel >> 6) & 0x1F;
+            blue = pixel & 0x1F;
+        } else if (format == ODH_FORMAT_RGBA8) {
+            int offset = (i & ~3) * 16 + (i & 3) * 2;
+            red = source[offset + 1] >> 3;
+            green = source[offset + 0x20] >> 3;
+            blue = source[offset + 0x21] >> 3;
+        } else {
+            int offset = (i & 7) + (i & ~7) * 4;
+            float y = source[offset] - colorConvert16;
+            float cb = cbSource[offset] - colorConvert128;
+            float cr = crSource[offset] - colorConvert128;
+            red = colorConvertY * y + colorConvertR * cr;
+            green = colorConvertY * y - colorConvertG1 * cb - colorConvertG2 * cr;
+            blue = colorConvertY * y + colorConvertB * cb;
+            if (red < 0) {
+                red = 0;
             }
+            if (red > 0xFF) {
+                red = 0xFF;
+            }
+            if (green < 0) {
+                green = 0;
+            }
+            if (green > 0xFF) {
+                green = 0xFF;
+            }
+            if (blue < 0) {
+                blue = 0;
+            }
+            if (blue > 0xFF) {
+                blue = 0xFF;
+            }
+            red >>= 3;
+            green >>= 3;
+            blue >>= 3;
+        }
 
-            int cbValue = (table[red + 0x60] + table[green + 0x80] + table[blue + 0xA0]) >> 16;
-            int crValue = (table[red + 0xC0] + table[green + 0xE0] + table[blue + 0x100]) >> 16;
-            int luma = (table[red + 0] + table[green + 0x20] + table[blue + 0x40]) >> 16;
-
-            *lumaOutput++ = (u8)luma;
-            *cbOutput++ = (u8)cbValue;
-            *crOutput++ = (u8)crValue;
-            pixelIndex++;
+        cbValue = (conversionTable[red + 0x60] + conversionTable[green + 0x80] + conversionTable[blue + 0xA0]) >> 16;
+        crValue = (conversionTable[red + 0xC0] + conversionTable[green + 0xE0] + conversionTable[blue + 0x100]) >> 16;
+        *lumaOutput++ = (conversionTable[red] + conversionTable[green + 0x20] + conversionTable[blue + 0x40]) >> 16;
+        *cbOutput++ = cbValue;
+        *crOutput++ = crValue;
     }
 }
 void CArGBAOdh::fdct_fast(u32* coefficients, u8* samples, u32 stride, u32* quantizationTable) {
@@ -2007,208 +2002,206 @@ void CArGBAOdh::LineDeconv22(u8* dest, u8* y, u8* cb, u8* cr, u16 width, u16 hei
 }
 
 s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* request, u16** huffmanTables, int component, u32 sourceLimit) {
-    u32 bitBuffer;
-    u32 tableCount;
-    s32 decodeResult;
-    int bitIndex;
-    s32 maximumBitLength;
-    int maxHuffmanBits;
-    u16 tableEntry;
-    s32 valueCategory;
-    u32 tableIndex;
-    u32 magnitudeMask;
-    int bytesConsumed;
     u8* sourceCursor;
-    u32 decodedSymbol;
-    u32 bitCountAndMask;
+    u32 bitOffset;
+    int coefficient;
+    s32 category;
+    int bytesConsumed;
+    u32 bitBuffer;
+    int length;
+    u32 tableIndex;
+    int maxLength;
+    u32 value;
+    u32 mask;
+    u32 leafIndex;
+    u32 run;
+    u32 i;
 
     bytesConsumed = request->bytesConsumed;
     sourceCursor = request->bitstream;
-    u32 bitOffset = *request->bitCount;
+    bitOffset = *request->bitCount;
+
     if ((u32)(bytesConsumed + 4) > sourceLimit) {
-        decodeResult = ODH_ERROR_INVALID_BITSTREAM;
-    } else {
-        maximumBitLength = 0xB;
-        bitBuffer = ((u32)*sourceCursor << 0x18) | ((u32)sourceCursor[1] << 0x10) | ((u32)sourceCursor[2] << 8) | sourceCursor[3];
-        bitBuffer <<= bitOffset;
-        if (component == 0) {
-            maximumBitLength = 9;
-        }
-        bitIndex = 1;
-        tableIndex = 0;
-        maxHuffmanBits = (int)maximumBitLength;
-        for (; bitIndex <= maxHuffmanBits; bitIndex++) {
-                tableEntry = huffmanTables[0][tableIndex];
-                decodedSymbol = (u32)tableEntry & 0x3FFF;
-                if (((bitBuffer >> (0x20U - bitIndex)) & 1) == 0) {
-                    if ((tableEntry & 0x8000) != 0) {
-                        valueCategory = huffmanTables[0][tableIndex + decodedSymbol];
-                        break;
-                    }
-                    tableIndex = tableIndex + decodedSymbol;
-                } else {
-                    if ((tableEntry & 0x4000) != 0) {
-                        u32 leafIndex = tableIndex + decodedSymbol + 1;
-                        valueCategory = huffmanTables[0][leafIndex];
-                        break;
-                    }
-                    tableIndex = tableIndex + decodedSymbol + 1;
-                }
-        }
-        if (bitIndex > maxHuffmanBits) {
-            decodeResult = ODH_ERROR_INVALID_BITSTREAM;
+        return ODH_ERROR_INVALID_BITSTREAM;
+    }
+
+    bitBuffer = (sourceCursor[0] << 24 | sourceCursor[1] << 16 | sourceCursor[2] << 8 | sourceCursor[3]) << bitOffset;
+    maxLength = component == 0 ? 9 : 11;
+
+    length = 1;
+    tableIndex = 0;
+    for (; length <= maxLength; length++) {
+        u32 branch;
+        u16 node;
+
+        node = huffmanTables[0][tableIndex];
+        branch = node & 0x3FFF;
+        if (((bitBuffer >> (32 - length)) & 1) == 0) {
+            if (node & 0x8000) {
+                category = huffmanTables[0][tableIndex + branch];
+                break;
+            }
+            tableIndex += branch;
         } else {
-            if (valueCategory > 0) {
-                bitCountAndMask = (1 << (valueCategory)) - 1;
-                bitBuffer = bitCountAndMask & (bitBuffer >> ((0x20 - bitIndex) - valueCategory));
-                if ((bitBuffer & (1 << (valueCategory - 1))) == 0) {
-                    bitBuffer = bitBuffer + 1 | ~bitCountAndMask;
-                }
-            } else {
-                bitBuffer = 0;
+            if (node & 0x4000) {
+                leafIndex = tableIndex + branch + 1;
+                category = huffmanTables[0][leafIndex];
+                break;
             }
-            u32** predictors = request->predictors;
-            u32* predictor = predictors[component >> 1];
-            bitCountAndMask = bitOffset + bitIndex + valueCategory;
-            tableIndex = (bitCountAndMask >> 3);
-            decodedSymbol = 1;
-            bitIndex = (int)bitBuffer + *predictor;
-            *coefficientOutput = bitIndex;
-            *predictors[component >> 1] = bitIndex;
-            while (bitCountAndMask >= 8) {
-                sourceCursor++;
-                bytesConsumed++;
-                bitCountAndMask -= 8;
-            }
-            do {
-                if ((u32)(bytesConsumed + 4) > sourceLimit) {
-                    decodeResult = ODH_ERROR_INVALID_BITSTREAM;
-                    goto finishDecode;
-                }
-                bitIndex = 1;
-                tableIndex = 0;
-                bitBuffer = ((u32)*sourceCursor << 0x18) | ((u32)sourceCursor[1] << 0x10) | ((u32)sourceCursor[2] << 8) | sourceCursor[3];
-                bitBuffer <<= bitCountAndMask;
-                maximumBitLength = 6;
-                for (; maximumBitLength != 0; maximumBitLength--) {
-                    tableEntry = huffmanTables[1][tableIndex];
-                    tableCount = (u32)tableEntry & 0x3FFF;
-                    if (((bitBuffer >> (0x20U - bitIndex)) & 1) == 0) {
-                        if ((tableEntry & 0x8000) != 0) {
-                            valueCategory = huffmanTables[1][tableIndex + tableCount];
-                            break;
-                        }
-                        tableIndex = tableIndex + tableCount;
-                    } else {
-                        if ((tableEntry & 0x4000) != 0) {
-                            valueCategory = huffmanTables[1][tableIndex + tableCount + 1];
-                            break;
-                        }
-                        tableIndex = tableIndex + tableCount + 1;
-                    }
-                    bitIndex++;
-                }
-                if (bitIndex > 6) {
-                    decodeResult = ODH_ERROR_INVALID_BITSTREAM;
-                    goto finishDecode;
-                }
-                if (valueCategory == 7) {
-                    bitCountAndMask += bitIndex;
-                    tableIndex = (bitCountAndMask >> 3);
-                    while (bitCountAndMask >= 8) {
-                        sourceCursor++;
-                        bytesConsumed++;
-                        bitCountAndMask -= 8;
-                    }
-                    break;
-                }
-                if (valueCategory > 0) {
-                    tableIndex = (u32)(1 << (valueCategory)) - 1 &
-                             (bitBuffer >> ((0x20 - bitIndex) - valueCategory));
-                    if ((tableIndex & (u32)(1 << (valueCategory - 1))) == 0) {
-                        decodeResult = ODH_ERROR_INVALID_BITSTREAM;
-                        goto finishDecode;
-                    }
-                } else {
-                    tableIndex = 0;
-                }
-                for (u32 zeroIndex = 0; zeroIndex < tableIndex; zeroIndex++) {
-                    coefficientOutput[decodedSymbol] = 0;
-                    decodedSymbol++;
-                }
-                bitCountAndMask = bitCountAndMask + bitIndex + valueCategory;
-                tableIndex = (bitCountAndMask >> 3);
-                while (bitCountAndMask >= 8) {
-                    sourceCursor++;
-                    bytesConsumed++;
-                    bitCountAndMask -= 8;
-                }
-                if ((u32)(bytesConsumed + 4) > sourceLimit) {
-                    decodeResult = ODH_ERROR_INVALID_BITSTREAM;
-                    goto finishDecode;
-                }
-                maximumBitLength = 0xB;
-                bitBuffer = ((u32)*sourceCursor << 0x18) | ((u32)sourceCursor[1] << 0x10) | ((u32)sourceCursor[2] << 8) | sourceCursor[3];
-                bitBuffer <<= bitCountAndMask;
-                if (component == 0) {
-                    maximumBitLength = 9;
-                }
-                bitIndex = 1;
-                tableIndex = 0;
-                maxHuffmanBits = (int)maximumBitLength;
-                for (; bitIndex <= maxHuffmanBits; bitIndex++) {
-                                tableEntry = huffmanTables[0][tableIndex];
-                        tableCount = (u32)tableEntry & 0x3FFF;
-                        if (((bitBuffer >> (0x20U - bitIndex)) & 1) == 0) {
-                            if ((tableEntry & 0x8000) != 0) {
-                                valueCategory = huffmanTables[0][tableIndex + tableCount];
-                                break;
-                            }
-                            tableIndex = tableIndex + tableCount;
-                        } else {
-                            if ((tableEntry & 0x4000) != 0) {
-                                valueCategory = huffmanTables[0][tableIndex + tableCount + 1];
-                                break;
-                            }
-                            tableIndex = tableIndex + tableCount + 1;
-                        }
-                }
-                if (bitIndex > maxHuffmanBits) {
-                    decodeResult = ODH_ERROR_INVALID_BITSTREAM;
-                    goto finishDecode;
-                }
-                if (valueCategory > 0) {
-                    magnitudeMask = (1 << (valueCategory)) - 1;
-                    bitBuffer = magnitudeMask & (bitBuffer >> ((0x20 - bitIndex) - valueCategory));
-                    if ((bitBuffer & (1 << (valueCategory - 1))) == 0) {
-                        bitBuffer = bitBuffer + 1 | ~magnitudeMask;
-                    }
-                } else {
-                    bitBuffer = 0;
-                }
-                bitCountAndMask = bitCountAndMask + bitIndex + valueCategory;
-                coefficientOutput[decodedSymbol] = bitBuffer;
-                tableIndex = (bitCountAndMask >> 3);
-                decodedSymbol = decodedSymbol + 1;
-                while (bitCountAndMask >= 8) {
-                    sourceCursor++;
-                    bytesConsumed++;
-                    bitCountAndMask -= 8;
-                }
-            } while ((int)decodedSymbol < 0x40);
-            for (; (int)decodedSymbol < 0x40; decodedSymbol++) {
-                coefficientOutput[decodedSymbol] = 0;
-            }
-            request->bytesConsumed = bytesConsumed;
-            decodeResult = 0;
-            request->bitstream = sourceCursor;
-            *request->bitCount = bitCountAndMask;
+            tableIndex += branch + 1;
         }
     }
-finishDecode:
-    return decodeResult;
-}
 
+    if (length > maxLength) {
+        return ODH_ERROR_INVALID_BITSTREAM;
+    }
+
+    if (category > 0) {
+        mask = (1 << category) - 1;
+        value = mask & (bitBuffer >> (32 - length - category));
+        if ((value & (1 << (category - 1))) == 0) {
+            value = (value + 1) | ~mask;
+        }
+    } else {
+        value = 0;
+    }
+
+    bitOffset += length + category;
+    coefficient = 1;
+    coefficientOutput[0] = value + *request->predictors[component >> 1];
+    *request->predictors[component >> 1] = coefficientOutput[0];
+    while (bitOffset >= 8) {
+        sourceCursor++;
+        bytesConsumed++;
+        bitOffset -= 8;
+    }
+
+    do {
+        if ((u32)(bytesConsumed + 4) > sourceLimit) {
+            return ODH_ERROR_INVALID_BITSTREAM;
+        }
+
+        bitBuffer = (sourceCursor[0] << 24 | sourceCursor[1] << 16 | sourceCursor[2] << 8 | sourceCursor[3]) << bitOffset;
+        length = 1;
+        tableIndex = 0;
+        for (; length <= 6; length++) {
+            u32 branch;
+            u16 node;
+
+            node = huffmanTables[1][tableIndex];
+            branch = node & 0x3FFF;
+            if (((bitBuffer >> (32 - length)) & 1) == 0) {
+                if (node & 0x8000) {
+                    category = huffmanTables[1][tableIndex + branch];
+                    break;
+                }
+                tableIndex += branch;
+            } else {
+                if (node & 0x4000) {
+                    category = huffmanTables[1][tableIndex + branch + 1];
+                    break;
+                }
+                tableIndex += branch + 1;
+            }
+        }
+
+        if (length > 6) {
+            return ODH_ERROR_INVALID_BITSTREAM;
+        }
+
+        if (category == 7) {
+            bitOffset += length;
+            while (bitOffset >= 8) {
+                sourceCursor++;
+                bytesConsumed++;
+                bitOffset -= 8;
+            }
+            break;
+        }
+
+        if (category > 0) {
+            run = ((1 << category) - 1) & (bitBuffer >> (32 - length - category));
+            if ((run & (1 << (category - 1))) == 0) {
+                return ODH_ERROR_INVALID_BITSTREAM;
+            }
+        } else {
+            run = 0;
+        }
+
+        for (i = 0; i < run; i++) {
+            coefficientOutput[coefficient] = 0;
+            coefficient++;
+        }
+
+        bitOffset += length + category;
+        while (bitOffset >= 8) {
+            sourceCursor++;
+            bytesConsumed++;
+            bitOffset -= 8;
+        }
+
+        if ((u32)(bytesConsumed + 4) > sourceLimit) {
+            return ODH_ERROR_INVALID_BITSTREAM;
+        }
+
+        bitBuffer = (sourceCursor[0] << 24 | sourceCursor[1] << 16 | sourceCursor[2] << 8 | sourceCursor[3]) << bitOffset;
+        maxLength = component == 0 ? 9 : 11;
+
+        length = 1;
+        tableIndex = 0;
+        for (; length <= maxLength; length++) {
+            u32 branch;
+            u16 node;
+
+            node = huffmanTables[0][tableIndex];
+            branch = node & 0x3FFF;
+            if (((bitBuffer >> (32 - length)) & 1) == 0) {
+                if (node & 0x8000) {
+                    category = huffmanTables[0][tableIndex + branch];
+                    break;
+                }
+                tableIndex += branch;
+            } else {
+                if (node & 0x4000) {
+                    category = huffmanTables[0][tableIndex + branch + 1];
+                    break;
+                }
+                tableIndex += branch + 1;
+            }
+        }
+
+        if (length > maxLength) {
+            return ODH_ERROR_INVALID_BITSTREAM;
+        }
+
+        if (category > 0) {
+            mask = (1 << category) - 1;
+            value = mask & (bitBuffer >> (32 - length - category));
+            if ((value & (1 << (category - 1))) == 0) {
+                value = (value + 1) | ~mask;
+            }
+        } else {
+            value = 0;
+        }
+
+        coefficientOutput[coefficient++] = value;
+        bitOffset += length + category;
+        while (bitOffset >= 8) {
+            sourceCursor++;
+            bytesConsumed++;
+            bitOffset -= 8;
+        }
+    } while (coefficient < 64);
+
+    for (; coefficient < 64; coefficient++) {
+        coefficientOutput[coefficient] = 0;
+    }
+
+    request->bytesConsumed = bytesConsumed;
+    request->bitstream = sourceCursor;
+    *request->bitCount = bitOffset;
+    return 0;
+}
 void CArGBAOdh::idct_fast(const u8* rangeLimitTable, u32* coefficients, u32* quantizationTable, u8* destination, u32 stride) {
     int evenPart0, evenPart1, evenPart2, evenPart3, oddPart3, oddPart2, oddPart1, oddPart0;
     int butterflyTerm0, butterflyTerm1, butterflyTerm2, evenInnerSum;
