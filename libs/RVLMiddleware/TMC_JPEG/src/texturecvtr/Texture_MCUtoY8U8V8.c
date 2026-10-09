@@ -1,4 +1,3 @@
-#define TMC_JPEG_PLANAR_OUTPUT
 #include <tmc_jpeg_internal.h>
 
 static void TMCJPEG_814EFEAC(TMCCJPEGDecWork*, s32, s32);

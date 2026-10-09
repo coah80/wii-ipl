@@ -1,5 +1,6 @@
 #define TMC_JPEG_FRAME_PARSER
 #include <tmc_jpeg_internal.h>
+#include <stddef.h>
 
 extern void* memset(void* dest, s32 val, u32 count);
 
@@ -68,7 +69,7 @@ s32 TMCJPEGDEC_decompmcu(u32 maxMCU, u32 mcuCount, TMCCJPEGDecWork* work, void* 
         blockCountPtr = frameInfo + mcuIdx;
         blockIdx = 0;
 
-        while (blockIdx < *(blockCountPtr + 0x1c)) {
+        while (blockIdx < *(blockCountPtr + offsetof(TMCJpegFrameInfo, blockCount))) {
             s32 stackBlock[64];
             s32 ret;
 
@@ -146,7 +147,7 @@ s32 TMCJPEGDEC_imagestart(TMCCJPEGDecWork* work) {
 }
 
 s32 TMCJPEGDEC_imageend(TMCCJPEGDecWork* work) {
-    if (work->pState->unk_0x21 == 1)
+    if (work->pState->noEoiCheck == 1)
         return 0;
 
     if (work->scanCount == 0) {
@@ -816,7 +817,7 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
     s32 idx;
     TMCFrameComponents* components;
     TMCJpegTableInfo* scalePtr;
-    TMCFrameComponents* mapPtr;
+    u8* mapPtr;
 
     s32 dcTbl;
     s32 acTbl;
@@ -858,7 +859,7 @@ static s32 TMCJPEGDEC_parse_sos(TMCCJPEGDecWork* work) {
         for (ci = 0; ci < work->compCount; ci++) {
             if ((s32)scanByte == (s32)components->id[ci]) {
                 components->map[idx] = ci;
-                mapPtr = (TMCFrameComponents*)&components->map[idx];
+                mapPtr = &components->map[idx];
                 goto componentFound;
             }
         }
@@ -877,8 +878,8 @@ componentFound:
             return -0x51;
         }
 
-        components->dcTable[mapPtr->map[0]] = dcTbl;
-        components->acTable[mapPtr->map[0]] = acTbl;
+        components->dcTable[*mapPtr] = dcTbl;
+        components->acTable[*mapPtr] = acTbl;
 
         if (scalePtr->dcTblFlag[dcTbl] != 1) {
             return -0x40;
@@ -888,7 +889,7 @@ componentFound:
             return -0x40;
         }
 
-        if (scalePtr->quantTblFlag[mapPtr->quantTable[0]] != 1) {
+        if (scalePtr->quantTblFlag[components->quantTable[idx]] != 1) {
             return -0x41;
         }
     }
@@ -1002,18 +1003,15 @@ void TMCJPEGDEC_set_entropytbl(TMCJpegTableInfo* work, s32 idx, u8 data) {
         }
     }
 
-    if ((s32)data == 1) {
-        goto ac1;
+    if ((s32)data != 1) {
+        if ((s32)data < 1 && (s32)data >= 0) {
+            work->pACFast = work->huffDecTblAC0;
+            work->pACHuffSym = work->maxCodeAC0;
+            work->pACHuffTbl = work->valPtrAC0;
+        }
+    } else {
+        work->pACFast = work->huffDecTblAC1;
+        work->pACHuffSym = work->maxCodeAC1;
+        work->pACHuffTbl = work->valPtrAC1;
     }
-    if ((s32)data < 1 && (s32)data >= 0) {
-        work->pACFast = work->huffDecTblAC0;
-        work->pACHuffSym = work->maxCodeAC0;
-        work->pACHuffTbl = work->valPtrAC0;
-    }
-    return;
-
-ac1:
-    work->pACFast = work->huffDecTblAC1;
-    work->pACHuffSym = work->maxCodeAC1;
-    work->pACHuffTbl = work->valPtrAC1;
 }
