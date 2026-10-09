@@ -555,3 +555,12 @@ coloring. Unit fuzzy 99.54, data 100.
   (147 vs 150 baseline). Net: create restored to upstream baseline; the
   u16-numbering mechanism is documented but no usable form found — count's web
   must be u32-typed AND allocator-late, unproducible so far.
+
+- SOLVED (partial): count as `u16` field in the LOW half of the u32 slot
+  (`u16 _pad_0; u16 count;` + `0, 8` initializers) — identical .data bytes,
+  u16 web lands at base r22. + declsearch order = 73 normalized diffs.
+  `#pragma opt_propagation off` scoped to create: 176 (regresses).
+  Shared `memory` var across the two allocs: 150 (no-op — single-use defs
+  forward-substitute either way). Residual: rows-copy loop expression-temp
+  orderings (r5-r8 numbering) + callee-home perms (r18/r20 vs r25/r27) —
+  same volatile-temp tie family as before.
