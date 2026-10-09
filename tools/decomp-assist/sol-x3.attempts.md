@@ -2363,3 +2363,162 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## Round g MAX
+
+Assigned sol-med on agent/w1009/cardseq-max at e6837211, the merged round-f source. Full Ninja build ran first and passes with DOL SHA1 26116613f624061ba99c8d1a299aaa6efa85670d. Locked origin fetch completed without branch movement. Existing untracked perm5 and swe2ifd0 logs stay untouched. Read sol-common, brief-v2, all levers, actual AGENTS.md and the prior sol-x3, sol-card, rx7, lv19, agg, gk3 and opus-game evidence. Applied unslop and writing-for-agents. Baseline report and source are /tmp/sol-x3-g-baseline-report.json and /tmp/sol-x3-g-base.cpp.
+
+Do not repeat scalar permutations, u32/OSMessage/signed byte packet-view sweeps, command-first setters, const/reference packing parameters, stack-array layouts, scoped IRO1 diagnostics, whole-icon/banner/read helper boundaries or cached IconState views. The carried source already has separate company/game metadata buffers and initialized palette storage. No carrier or uninitialized palette is in scope. New trials study field-update operators, message temporaries across actual call boundaries and targeted icon block shape.
+
+### Reply instructions and neighbourhood
+
+Fresh odiff baseline is 2/301 at equal size 0x4B4. Zero-based indices and target object offsets:
+
+```text
+43 0xd20 li       r25,1
+44 0xd24 li       r4,1
+45 0xd28 crclr    cr1eq
+46 0xd2c bl       OSReport
+47 0xd30 lwz      r3,sThread
+48 0xd34 TARGET mr r4,r19                    SOURCE li r4,0x100
+49 0xd38 TARGET rlwimi r4,r25,8,0x10,0x17    SOURCE rlwimi r4,r19,0,0x18,0x1f
+50 0xd3c li       r5,1
+51 0xd40 addi     r3,r3,0xc20
+52 0xd44 bl       OSSendMessage
+53 0xd48 b        loopCheck
+```
+
+This is a value-construction and copy-coalescing difference, rather than an instruction scheduler reorder. r19 holds the command byte. r25 holds persistent validState. The target copies command into outgoing r4, then replaces reply bits 8..15 from validState. Current source shifts validState first; constant propagation changes that operand to 256 before allocation, then inserts command's low byte. A fresh mwdbg capture is queued using the existing private-port launcher with unchanged compiler and flags.
+- cardThreadMain: g-reply-field-or-whole: 256/303 differences; instructions 303/301; objdiff 98.704315%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-field-or-masked: 256/303 differences; instructions 303/301; objdiff 98.704315%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-field-add-whole: 256/303 differences; instructions 303/301; objdiff 98.704315%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-field-add-masked: 256/303 differences; instructions 303/301; objdiff 98.704315%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-field-xor-whole: 256/303 differences; instructions 303/301; objdiff 98.704315%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-field-xor-masked: 256/303 differences; instructions 303/301; objdiff 98.704315%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-nested-packer-u32: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-nested-packer-OSMessage: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-direct-packer-u32: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-direct-packer-OSMessage: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-packed-addition: 256/301 differences; instructions 300/301; objdiff 98.60465%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-packed-doubleword: 256/301 differences; instructions 300/301; objdiff 99.46844%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-word-s32-command-first: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-word-s32-valid-first: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-word-int-command-first: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-word-int-valid-first: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-word-long-command-first: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-word-long-valid-first: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-command-pointer-OSMessage: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-command-pointer-const-voidptr: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-inline-packet-before-case: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-inline-packet-after-case: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-case-order-C8-NONE-RGB5A3: 219/512 differences; instructions 512/512; objdiff 95.86719%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-case-order-NONE-C8-RGB5A3: 219/512 differences; instructions 512/512; objdiff 95.73828%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-case-order-RGB5A3-C8-NONE: 407/512 differences; instructions 511/512; objdiff 95.48828%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-if-linear: 409/512 differences; instructions 509/512; objdiff 93.990234%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-if-range: 409/512 differences; instructions 508/512; objdiff 94.18555%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-if-reverse-range: 411/512 differences; instructions 508/512; objdiff 94.490234%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-array-index: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-array-cursor: 409/513 differences; instructions 513/512; objdiff 96.78711%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-array-helper-ref: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-array-helper-pointer: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-format-bytes-helper: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-switch-default-zero: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-conditional-size: 401/517 differences; instructions 517/512; objdiff 94.50586%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-none-cursor-split-add: 409/513 differences; instructions 513/512; objdiff 96.78711%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-none-cursor-split-index: 409/513 differences; instructions 513/512; objdiff 96.78711%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-none-cursor-expression: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-none-cursor-c89: 409/513 differences; instructions 513/512; objdiff 96.78711%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-none-cursor-const-ref: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-none-cursor-frame-local: 409/513 differences; instructions 513/512; objdiff 96.78711%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-none-cursor-previous-local: 409/513 differences; instructions 513/512; objdiff 96.78711%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-none-format-previous-cursor: 409/513 differences; instructions 513/512; objdiff 96.77734%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-none-format-cursor-preincrement: 409/513 differences; instructions 513/512; objdiff 96.75781%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+
+### Fresh reply capture and icon block map
+
+/tmp/sol-x3-g-thread-capture reproduces 124/124 virtual registers. Every allocated and relocation section of its unit.o equals the independently built Ninja object. Before coloring B7 assigns validity v34=1. B8 already has li v76,256 and inserts command v32. Coalescing merges v76 into physical r4; validState v34 remains r25. The scheduler has no source-v34 packing operation to reorder.
+
+/tmp/sol-x3-g-command-capture uses the ordinary command-first returned OSMessage packet and the same compiler flags. Before coloring its B8 copies v32 to v76, inserts v75 and copies v76 to hard r4. The coalescing log accepts v76 into v32, then rejects v32 into r4 because of interference from command's other uses and earlier hard-r4 calls. After coloring the packet is inserted into command r19 using the hoisted constant-one web r29, then copied to r4. Thus both missed operands precede scheduling: constant propagation chooses v75 instead of persistent v34, and coalescing removes the initial packet copy. New compound-field, signed-word, nested-packer and pointer-command forms did not fix this.
+
+Icons baseline is 512/512 instructions. Register-normalized differences per 32-instruction range are zero except 192..223=9, 224..255=22 and 352..383=1. The densest pure-register range is 128..159, with 29 differences. First work targets the format switch at 215..248. Initialized palette contributes a zero assignment before dispatch; the original puts that assignment only in NONE and skips it on reserved format 3. New case-order, if/range and initialized-all-cases shapes do not improve the equal-sized seed. The two-statement previous-format cursor improves objdiff but has one extra instruction; further cursor forms are being measured before retaining anything.
+- loadCardFileIcons: g-animation-native-order-iconCount-shift-icon: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-native-order-icon-shift-iconCount: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-native-order-shift-icon-iconCount: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-native-order-iconCount-icon-shift: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-shift-while: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-count-while: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-reused-frame: 219/512 differences; instructions 512/512; objdiff 96.34961%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-count-bit-index: 237/512 differences; instructions 512/512; objdiff 95.40625%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-asymmetric-speed-else: 419/512 differences; instructions 511/512; objdiff 91.51953%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-scoped-speed: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-parameter-const-slot: 439/514 differences; instructions 514/512; objdiff 94.44531%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-parameter-const-file: 440/514 differences; instructions 514/512; objdiff 94.78125%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-parameters-const: 429/515 differences; instructions 515/512; objdiff 94.00586%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-compound-frame-total: 214/512 differences; instructions 512/512; objdiff 96.38281%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-speed-plus-frame-total: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-frame-total-local: 214/512 differences; instructions 512/512; objdiff 96.36328%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-frame-speed-local: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-frame-total-increment: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-iconSpeed-u32: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-iconSpeed-u16: 213/512 differences; instructions 512/512; objdiff 96.30469%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-shift-u32: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-shift-u16: 425/513 differences; instructions 513/512; objdiff 96.17383%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-iconCount-u32: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-iconCount-u16: 424/513 differences; instructions 513/512; objdiff 96.20703%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-dir-const-CARDDirptr: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-dir-const-CARDDirref: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-animation-dir-CARDDirref: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-native-bannerImageSize-u32: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-native-iconImageSize-u32: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-native-paletteSize-u32: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-native-iconCount-u32: 406/512 differences; instructions 509/512; objdiff 94.52344%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-native-shift-u32: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-single-frame-index: 214/512 differences; instructions 512/512; objdiff 96.40625%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-shift-before-frame: 214/512 differences; instructions 512/512; objdiff 96.40625%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-compound-shift: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-compound-count: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-frame-plus-size: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: g-icon-size-plus-frame: 213/512 differences; instructions 512/512; objdiff 96.41211%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: g-reply-statement-macro-command-first: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+
+### Retained source and final gate
+
+The retained diff swaps only the two initialized declarations in updateCardIconAnimation: iconCount first, shift second. The loop body, bounds, metadata writes and palette handling stay identical. Fresh disassembly shows eight changed instructions at indices 158, 169..173 and 179..180; six positions now match exactly, while two still differ in the directory-speed temporary. No other instruction changes. This assigns count r4 and bit shift r3, matching the target roles. The largest format-switch control-flow difference remains open.
+
+Fresh Ninja output equals the independent winning trial in every allocated and relocation section. Pool identical at all 43 entries. odiff and ctxdiff independently agree on cardThreadMain 301/301 instructions, diffs 2, and loadCardFileIcons 512/512, diffs 213. Exact-name objdiff is respectively 99.73422% and 96.41211%, up from 96.31445% for icons. Unit fuzzy is 99.22168%, up from 99.20138%. All 28 exact baseline functions remain exact. Data stays 1496/1496 with .bss, .data, .sbss and .sdata all 100%. There is no new exact function and the unit remains NonMatching/unlinked.
+
+83 new compiled and scored candidates: 23 thread and 60 icon variants. Full trial source, object, compile output, score and source hash evidence is under /tmp/sol-x3-g-trials. Compound field updates, returned packet/OSMessage forms, native signed/pointer views and the statement macro failed to repair reply packing. Icon case order/ranges, fully initialized palette joins, previous-format cursor views, animation lifetimes/types and offset-update spellings were measured block by block. The higher fuzzy cursor result is 513 instructions and is rejected in favour of the smaller equal-size 213-difference gain. No cursor, pragma, packet view, scalar-type change or helper extraction is retained.
+
+The required final quick gate ran once: GATE PASS. Full 43U build passes. DOL SHA1 independently confirmed as 26116613f624061ba99c8d1a299aaa6efa85670d. Zero baseline regressions, forbidden-pattern additions and readability warnings. Gate output is /tmp/sol-x3-g-gate.log. The initial report extractor expected an unprefixed unit name and found no row; corrected to the actual main/src/... name, then independently verified the frozen beginning-of-round report against the final live report.
+
+Best diff is /mnt/drive2/projects/wii-ipl-workers/_luna-runs/best/sol-x3.iplCardSequence.diff, now against merged PR 1290 at e6837211. The incoming round-f patch was preserved in /tmp/sol-x3-g-incoming-best.diff. Source review contains only the declaration swap, with no carrier, uninitialized value, assembly, raw offset cast, dummy object, code comment, header or configure edit. Only the owned source and this log will be committed. Existing untracked logs stay untouched. No push, PR, merge, rebase or other-worktree edit.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/scene/cardSequence/iplCardSequence] pool: IDENTICAL
+[src/scene/cardSequence/iplCardSequence] objdiff: code 6600/9852 data 1496/1496 functions 28/30 fuzzy 99.2217 linked code 0
+[src/scene/cardSequence/iplCardSequence] instruction-exact functions: 28/30
+[src/scene/cardSequence/iplCardSequence]   section .bss size 16 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .data size 1464 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .sbss size 8 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .sdata size 8 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .text size 9852 match 99.22168
+[src/scene/cardSequence/iplCardSequence]   below 100: cardThreadMain 99.73422
+[src/scene/cardSequence/iplCardSequence]   below 100: loadCardFileIcons 96.41211
+[src/scene/cardSequence/iplCardSequence] baseline: code 6600/9852 data 1496 functions 28 fuzzy 99.2014
+regressions vs baseline: 0
+global matched_code_percent: 98.11310 -> 98.11310
+global fuzzy_match_percent: 99.92565 -> 99.92571
+global complete_code_percent: 91.03011 -> 91.03011
+global matched_data_percent: 100.00000 -> 100.00000
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
+
+Final retained capture /tmp/sol-x3-g-icon-retained-capture completes with all five backend dumps, reproduces 381/381 virtual registers and matches every allocated/relocation section of the fresh Ninja object. Source SHA256 matches command.json. The dominant vmap2 mappings now align inline animation count v90 with target r4 and bit shift v91 with target r3. vmap2 also reports one transient use for each node at another target color, so it does not prove complete virtual-register alignment. The eight changed instructions and six newly exact positions were checked directly in the independently compiled disassembly. The compiler capture confirms the counter roles, while the function remains nonexact.
+
+The failed command-first capture also matches its separate compiler trial in every allocated and relocation section. Its packet v76 is coalesced into command v32, so declaration order cannot independently assign them outgoing r4 and saved r19. The constant-one web v75 and persistent validity v34 interfere; choosing both r25 in this graph is impossible. A new source shape must change propagation/coalescing before scheduling. The existing 2-difference source is retained. Icons still need separate parameter/address lifetime and initialized format-dispatch reconstruction. These are explicit nonexact blockers.
+
+Final best diff SHA256 bcd5aecef462d45adf2018024d092536db344ee999cfccfd731c0272bba692f2. Branch remains based on e6837211 and is now two commits behind fetched origin/main; no rebase or source outside this unit is attempted. Parent integration must verify on its current main. The authorized local commit retains only the clean 219-to-213 counter-order improvement and the attempt evidence.
