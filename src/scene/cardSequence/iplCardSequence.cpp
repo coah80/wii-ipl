@@ -135,7 +135,7 @@ extern "C" void pollCardSlot(u8 slot) {
                     sThread->slots[slot].state = 3;
                     sThread->slots[slot].changed = 0;
                 }
-                goto done;
+                return;
             }
         }
         if (result == 0) {
@@ -144,7 +144,6 @@ extern "C" void pollCardSlot(u8 slot) {
             }
         }
     }
-done:
     return;
 }
 
@@ -526,6 +525,7 @@ mountError:
     reportCardThreadError(slot, 0, result);
 }
 
+// MWCC must keep validState in a register for the response bit insert.
 #pragma push
 #pragma opt_propagation off
 extern "C" void* cardThreadMain(void*) {
@@ -654,11 +654,13 @@ reportError:
 }
 
 extern "C" s32 reportCardThreadError(s32 slot, s32 state, s32 result) {
-    if (result != CARD_RESULT_EXIST && result != -27 && result != CARD_RESULT_NOENT && result != CARD_RESULT_INSSPACE &&
-        (clearAllCardFileEntries(slot), result != CARD_RESULT_BROKEN) && result != CARD_RESULT_ENCODING) {
-        OSReport("DEBUG: UnmountCard %d \n", slot);
-        CARDUnmount(slot);
-        sThread->mounted[slot & 0xFF] = 0;
+    if (result != CARD_RESULT_EXIST && result != -27 && result != CARD_RESULT_NOENT && result != CARD_RESULT_INSSPACE) {
+        clearAllCardFileEntries(slot);
+        if (result != CARD_RESULT_BROKEN && result != CARD_RESULT_ENCODING) {
+            OSReport("DEBUG: UnmountCard %d \n", slot);
+            CARDUnmount(slot);
+            sThread->mounted[slot & 0xFF] = 0;
+        }
     }
     OSReport("DEBUG: CardThread error %d %d\n", state, result);
     markAllCardFilesDirty();
@@ -807,7 +809,7 @@ static inline s32 loadCardIconImages(s32 slot, s32 fileNo, CARDDir* dir, CARDFil
     }
 
     s32 iconImageSize;
-    s32 paletteSize;
+    s32 iconFrameSize;
     s32 icon;
     BOOL hasTlut;
     s32 iconCount;
@@ -820,7 +822,9 @@ static inline s32 loadCardIconImages(s32 slot, s32 fileNo, CARDDir* dir, CARDFil
     sThread->icons[slot][fileNo].anmMax = 0;
     sThread->icons[slot][fileNo].anmFrameBits = dir->iconSpeed;
     sThread->icons[slot][fileNo].unk_0x06 = (dir->iconSpeed & CARD_STAT_SPEED_MASK) << 2;
-    for (iconCount = icon = 0; icon < CARD_ICON_MAX; ++icon) {
+    icon = 0;
+    iconCount = 0;
+    while (icon < CARD_ICON_MAX) {
         s32 iconSpeed = (dir->iconSpeed >> shift) & CARD_STAT_SPEED_MASK;
         if (iconSpeed != 0) {
             sThread->icons[slot][fileNo].anmMax += iconSpeed << 2;
@@ -831,6 +835,7 @@ static inline s32 loadCardIconImages(s32 slot, s32 fileNo, CARDDir* dir, CARDFil
         }
         iconCount = iconCount + 1;
         shift = shift + 2;
+        ++icon;
     }
     sThread->icons[slot][fileNo].unk_0x07 = (dir->iconSpeed >> 0xC) & 0xC;
 animationDone:
@@ -843,16 +848,16 @@ animationDone:
                 s32 iconFormat = (dir->iconFormat >> (iconCount * 2)) & CARD_STAT_ICON_MASK;
                 switch (iconFormat) {
                 case CARD_STAT_ICON_C8:
-                    paletteSize = 0x400;
+                    iconFrameSize = 0x400;
                     hasTlut = TRUE;
                     sThread->icons[slot][fileNo].iconFmt[iconCount] = GX_TF_C8;
                     break;
                 case CARD_STAT_ICON_RGB5A3:
-                    paletteSize = 0x800;
+                    iconFrameSize = 0x800;
                     sThread->icons[slot][fileNo].iconFmt[iconCount] = GX_TF_RGB5A3;
                     break;
                 case CARD_STAT_ICON_NONE: {
-                    paletteSize = 0;
+                    iconFrameSize = 0;
                     u8* previous = &sThread->icons[slot][fileNo].iconFmt[iconCount - 1];
                     sThread->icons[slot][fileNo].iconFmt[iconCount] = *previous;
                     break;
@@ -860,14 +865,14 @@ animationDone:
                 default:
                     break;
                 }
-                if (iconCount < 7) {
+                if (iconCount < CARD_ICON_MAX - 1) {
                     sThread->icons[slot][fileNo].iconOffset[(u32)(iconCount + 1)] =
-                        paletteSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
+                        iconFrameSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
                 } else {
                     sThread->icons[slot][fileNo].iconTlutOffset =
-                        paletteSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
+                        iconFrameSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
                 }
-                iconImageSize += paletteSize;
+                iconImageSize += iconFrameSize;
                 sThread->icons[slot][fileNo].unk_0x02 =
                     sThread->icons[slot][fileNo].unk_0x02 + 1;
             } else {

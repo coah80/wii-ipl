@@ -6369,11 +6369,10 @@ CHANSVmErr CHANSVmAddExe(CHANSVm* vm, vmS32 reserved, CHANSVm* execCtx) {
     CHECK_TABLE_REGION(header->methodCount, header->pMethodRefTbl, sizeof(u32))
     CHECK_TABLE_REGION(header->stringCount, header->pStringDataTbl, sizeof(u16))
     if (header->pLineTbl) {
-        u32 clsSize = (header->codeSize + 255) / 256;
+        u32 lineBlockCount = (header->codeSize + 255) / 256;
         if ((u32)header->pLineTbl >= maxEnd && header->regionSize >= (u32)header->pLineTbl) {
-            // TODO: 0x24 should be sizeof(...)
-            clsSize = (u32)header->pLineTbl + clsSize * 0x24;
-            if (header->regionSize < clsSize) {
+            u32 lineTableEnd = (u32)header->pLineTbl + lineBlockCount * sizeof(SrcLineEntry);
+            if (header->regionSize < lineTableEnd) {
                 goto fail_format;
             }
         } else {
@@ -7086,6 +7085,7 @@ void CHANSVmSetSignal(CHANSVm* vm, vmBool* signal) {
     pVm->bSignalUpdated = vmTrue;
 }
 
+// MWCC needs unsplit local lifetimes to preserve the interpreter's registers.
 #pragma push
 #pragma opt_lifetimes off
 CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
@@ -7372,15 +7372,17 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
 
                     if (result == CHANS_VM_OK) {
                         result = CHANSVmDeleteObject(vm, &operand);
-                        if (result == CHANS_VM_OK && leftOp != &pVm->accumulator && leftOp != &operand && (leftOp->flags.raw & CHANSVM_OBJ_FLAG_READONLY) == 0 &&
-                            (result = CHANSVmDeleteObject(vm, leftOp)) == CHANS_VM_OK) {
-                            // TODO: find the correct sizeof(...) expression
-                            CHANSVmFree(vm, leftOp, 0x20);
+                        if (result == CHANS_VM_OK && leftOp != &pVm->accumulator && leftOp != &operand && (leftOp->flags.raw & CHANSVM_OBJ_FLAG_READONLY) == 0) {
+                            result = CHANSVmDeleteObject(vm, leftOp);
+                            if (result == CHANS_VM_OK) {
+                                CHANSVmFree(vm, leftOp, VM_ALIGN(sizeof(CHANSVmObjHdr)));
+                            }
                         }
-                        if (result == CHANS_VM_OK && rightOp != &pVm->accumulator && rightOp != &operand && (rightOp->flags.raw & CHANSVM_OBJ_FLAG_READONLY) == 0 &&
-                            (result = CHANSVmDeleteObject(vm, rightOp)) == CHANS_VM_OK) {
-                            // TODO: find the correct sizeof(...) expression
-                            CHANSVmFree(vm, rightOp, 0x20);
+                        if (result == CHANS_VM_OK && rightOp != &pVm->accumulator && rightOp != &operand && (rightOp->flags.raw & CHANSVM_OBJ_FLAG_READONLY) == 0) {
+                            result = CHANSVmDeleteObject(vm, rightOp);
+                            if (result == CHANS_VM_OK) {
+                                CHANSVmFree(vm, rightOp, VM_ALIGN(sizeof(CHANSVmObjHdr)));
+                            }
                         }
                     }
 
@@ -7898,7 +7900,6 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                 }
                 default: {
                     return 0x1162;
-                    break;
                 }
             }
         } else {  // VM_OPCLASS_BRANCH (0x80-0xFF)
