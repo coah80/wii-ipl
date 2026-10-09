@@ -1332,6 +1332,7 @@ BS2State BS2Tick() {
     s32 titlePrefix;
     u8 titleCharacters[4];
     DVDFileInfo bannerFile;
+    u32 bannerAddress;
     u32 discRegion;
     s32 status;
     u64 currentTime;
@@ -1340,7 +1341,7 @@ BS2State BS2Tick() {
     u32 iosHigh;
     char *ticketByte;
     u32 entryCount;
-    u32 readInterruptsEnabled;
+    DVDGameTOC *dataToc;
     u32 readAddress;
     const char *discTitle;
     const DVDDiskID *bootDisc;
@@ -1572,8 +1573,9 @@ invalidGcRegion:
         BS2Report("length            ... 0x%08X\n", 0x20);
         BS2Report("numGamePartitions ... 0x%08X\n", (*(DVDGameTOC **)&GameToc)->partitionCount);
         BS2Report("partitionInfos    ... 0x%08X\n", (u32)(*(DVDGameTOC **)&GameToc)->partitionInfo);
-        DataToc = (u32)((DVDGameTOC *)GameTOCBuf + 1);
-        BS2Report("numGamePartitions ... 0x%08X\n", ((DVDGameTOC *)GameTOCBuf)[1].partitionCount);
+        dataToc = (DVDGameTOC *)GameTOCBuf + 1;
+        DataToc = (u32)dataToc;
+        BS2Report("numGamePartitions ... 0x%08X\n", dataToc->partitionCount);
         BS2Report("partitionInfos    ... 0x%08X\n", ((DVDGameTOC *)DataToc)->partitionInfo);
         State = BS2_STT_17;
     case 0x11:
@@ -1730,7 +1732,8 @@ invalidRvlRegion:
         ((void (*)(void *))((*(void **)&LoaderInit)))((void *)BS2Report);
         BS2Report("\nApploader Initialized\n");
         State = BS2_STT_29;
-    case 0x1d:
+    case 0x1d: {
+        u32 readInterruptsEnabled;
         status = ((int (*)(u32 *, u32 *, u32 *))((*(void **)&LoaderMain)))(&loaderAddress, &loaderLength, &loaderOffset);
         if (status != 0) {
             BS2Report("Addr [0x%x] length [0x%x] offset [0x%x]\n", loaderAddress, loaderLength, loaderOffset);
@@ -1745,6 +1748,7 @@ invalidRvlRegion:
         } else
             State = BS2_STT_31;
         break;
+    }
     case 0x1e:
         status = CheckDVDCommandStatus(&Block);
         if (status != 0)
@@ -2018,7 +2022,8 @@ invalidRvlRegion:
         ((void (*)(void *))((*(void **)&LoaderInit)))((void *)OSReport);
         BS2Report("\nApploader Initialized\n");
         State = BS2_STT_43;
-    case 0x2b:
+    case 0x2b: {
+        u32 readInterruptsEnabled;
         status = ((int (*)(u32 *, u32 *, u32 *))((*(void **)&LoaderMain)))(&loaderAddress, &loaderLength, &loaderOffset);
         if (status != 0) {
             BS2Report("Addr [0x%x] length [0x%x] offset [0x%x]\n", loaderAddress, loaderLength, loaderOffset);
@@ -2037,6 +2042,7 @@ invalidRvlRegion:
         } else
             State = BS2_STT_45;
         break;
+    }
     case 0x2c:
         status = CheckBS2CommandStatus();
         if (status != 0)
@@ -2059,8 +2065,9 @@ invalidRvlRegion:
                     BannerAllocation = status;
                     if (status == 0)
                         OSPanic("BS2Mach.c", 0x12c8, "BS2 ERROR >>> Cannnot alloc 0x%08x from MEMAllocator", bannerFile.length);
+                    bannerAddress = BannerAllocation + 32 - BannerAllocation % 32;
                     BannerLength = bannerFile.length;
-                    BannerBuffer = BannerAllocation + 32 - BannerAllocation % 32;
+                    BannerBuffer = bannerAddress;
                     BS2Report("BannerBufferAddr : %08X\n", BannerBuffer);
                 } else {
                     if ((BannerBuffer != 0) && (BannerLength != 0)) {
