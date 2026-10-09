@@ -1,7 +1,7 @@
 # Assembly inventory
 
-4.3U, 2026-10-09. 165 functions contain 167 assembly
-bodies/blocks: 162 ORIGINAL functions and 3 PLACEHOLDER functions.
+4.3U, 2026-10-09. 164 functions contain 166 assembly
+bodies/blocks: 162 ORIGINAL functions and 2 PLACEHOLDER functions.
 
 Run `python3 tools/check_asm_inventory.py`. Completion requires exit 0, complete
 coverage and zero placeholders. The checker also rejects stale/duplicate rows,
@@ -88,7 +88,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `libs/RVL_SDK/src/base/PPCArch.c` | `PPCSetFpIEEEMode` | ORIGINAL | Special-register or synchronization operation: `mtfsb0 FPSCR_NI_BIT`. |
 | `libs/RVL_SDK/src/base/PPCArch.c` | `PPCSetFpNonIEEEMode` | ORIGINAL | Special-register or synchronization operation: `mtfsb1 FPSCR_NI_BIT`. |
 | `libs/RVL_SDK/src/base/PPCArch.c` | `PPCMthid4` | ORIGINAL | Both branches write HID4 with mtspr; the fallback preserves the Broadway H4A bit. |
-| `libs/RVL_SDK/src/cntcache/cntcache.c` | `CNTCACHEClear` | PLACEHOLDER | NAND/token logic; best C 47/151 differing, 149/151 instructions; pool solved with stripped writer literals, two post-delete compares missing, [rx30][rx30], [opus-cntc](../tools/decomp-assist/opus-cntc.attempts.md). |
 | `libs/RVL_SDK/src/db/db.c` | `__DBExceptionDestination` | ORIGINAL | mfmsr/mtmsr enable address translation before the exception-handler tail branch. |
 | `libs/RVL_SDK/src/gx/GXLight.c` | `PushLight` | ORIGINAL | psq_l/psq_st transfers paired-single values for the GX command stream. |
 | `libs/RVL_SDK/src/gx/GXTransform.c` | `WriteProjPS` | ORIGINAL | psq_l/psq_st transfers paired-single values for the GX command stream. |
@@ -194,7 +193,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 
 [rx17]: ../tools/decomp-assist/rx36.attempts.md#rx17
 [rx24]: ../tools/decomp-assist/rx36.attempts.md#rx24
-[rx30]: ../tools/decomp-assist/rx36.attempts.md#rx30
 [rx36-osinit]: ../tools/decomp-assist/rx36.attempts.md#osinit
 [sdk-init]: https://github.com/doldecomp/ogws/blob/master/src/revolution/OS/__ppc_eabi_init.c
 [runtime]: https://github.com/doldecomp/ogws/blob/master/src/runtime/runtime.c
