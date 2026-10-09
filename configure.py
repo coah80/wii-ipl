@@ -876,7 +876,7 @@ config.libs = [
             Object(Matching,    "scene/setting/iplUSBAP.cpp"),
             Object(Matching, "scene/setting/iplUSBAPThread.cpp"),
             Object(Matching,    "scene/setting/iplAOSSThread.cpp"),
-            Object(NonMatching, "scene/setting/AOSSLink.c"),
+            Object(Matching,    "scene/setting/AOSSLink.c"),
             Object(Matching,    "scene/setting/iplRakuRakuThread.cpp"),
             Object(Matching,    "scene/setting/AOSS.c", extra_cflags=["-O4,p", "-inline on,noauto"]),
             Object(Matching,    "scene/setting/AOSSData.c"),

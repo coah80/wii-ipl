@@ -290,20 +290,22 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
     interfaceConfig->netif.wireless.config.manual.ssidLength = (u8)connection->ssidLength;
     memcpy(interfaceConfig->netif.wireless.config.manual.ssid, connection->ssid, connection->ssidLength);
     result = 0;
-    ipConfig = &AOSSi_NcdIpConfig;
-    memset(ipConfig, 0, sizeof(*ipConfig));
-    ipConfig->adjust.maxTransferUnit = 1300;
-    ipConfig->adjust.tcpRetransTimeout = 100;
-    ipConfig->adjust.dhcpRetransCount = 4;
-    ipConfig->useDhcp = 0;
-    ipConfig->useProxy = 0;
-    memcpy(ipConfig->ip.addr, ipAddress, 4);
-    memcpy(ipConfig->ip.netmask, ipNetmask, 4);
-    memcpy(ipConfig->ip.gateway, ipGateway, 4);
-    memcpy(ipConfig->ip.dns1, primaryDns, 4);
-    memcpy(ipConfig->ip.dns2, secondaryDns, 4);
-    if (NCDSetIpConfig(ipConfig) != 0) {
-        result = -1;
+    if (result == 0) {
+        ipConfig = &AOSSi_NcdIpConfig;
+        memset(ipConfig, 0, sizeof(*ipConfig));
+        ipConfig->adjust.maxTransferUnit = 1300;
+        ipConfig->adjust.tcpRetransTimeout = 100;
+        ipConfig->adjust.dhcpRetransCount = 4;
+        ipConfig->useDhcp = 0;
+        ipConfig->useProxy = 0;
+        memcpy(ipConfig->ip.addr, ipAddress, 4);
+        memcpy(ipConfig->ip.netmask, ipNetmask, 4);
+        memcpy(ipConfig->ip.gateway, ipGateway, 4);
+        memcpy(ipConfig->ip.dns1, primaryDns, 4);
+        memcpy(ipConfig->ip.dns2, secondaryDns, 4);
+        if (NCDSetIpConfig(ipConfig) != 0) {
+            result = -1;
+        }
     }
     if (result == 0 && NCDSetIfConfig(&AOSSi_NcdIfConfig) != 0) {
         result = -1;
