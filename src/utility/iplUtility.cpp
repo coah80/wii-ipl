@@ -293,7 +293,7 @@ namespace ipl {
             mState = 0;
             mDownLimit = 0.0f;
             mUpLimit = 0.0f;
-            unk_0x3C = 0.0f;
+            mScrollVelocity = 0.0f;
             mScroll = 0.0f;
             mButtonScrollOrigin = 0.0f;
             mVelocityDecay = 0.6f;
@@ -321,21 +321,21 @@ namespace ipl {
 
             switch (mState) {
                 case Pointer::SCROLL_CON_UP: {
-                    unk_0x3C = unk_0x3C * mVelocityDecay - mScrollAcceleration;
-                    if (unk_0x3C > 0.0f) {
-                        unk_0x3C = 0.0f;
+                    mScrollVelocity = mScrollVelocity * mVelocityDecay - mScrollAcceleration;
+                    if (mScrollVelocity > 0.0f) {
+                        mScrollVelocity = 0.0f;
                     }
-                    mScroll += unk_0x3C;
+                    mScroll += mScrollVelocity;
                     mState = Pointer::SCROLL;
                     break;
                 }
                 case Pointer::SCROLL_CON_DOWN: {
-                    unk_0x3C = unk_0x3C * mVelocityDecay;
-                    unk_0x3C += mScrollAcceleration;
-                    if (unk_0x3C < 0.0f) {
-                        unk_0x3C = 0.0f;
+                    mScrollVelocity = mScrollVelocity * mVelocityDecay;
+                    mScrollVelocity += mScrollAcceleration;
+                    if (mScrollVelocity < 0.0f) {
+                        mScrollVelocity = 0.0f;
                     }
-                    mScroll += unk_0x3C;
+                    mScroll += mScrollVelocity;
                     mState = Pointer::SCROLL;
                     break;
                 }
@@ -360,7 +360,7 @@ namespace ipl {
                     mScroll = mButtonScrollOrigin + anim.get();
 
                     if (!anim.isPlaying()) {
-                        unk_0x3C = 0.0f;
+                        mScrollVelocity = 0.0f;
                         anim.initFrame();
                         anim.calc();
                         mState = Pointer::SCROLL;

@@ -152,8 +152,8 @@ bool MemoryCardManager::isMoveEnable(u8 slot, u32 index, long* code) {
     if (isDistSlot(slot, NULL) &&
         dirs[slot][file].canMove != 0 &&
         states[slot].key == states[slot ^ 1].key &&
-        states[slot ^ 1].freeBlocks >= dirs[slot][file].size && states[slot ^ 1].unk_0x0E != 0 &&
-        dirs[slot][file].unk_0x06 == 0) {
+        states[slot ^ 1].freeBlocks >= dirs[slot][file].size && states[slot ^ 1].freeFiles != 0 &&
+        dirs[slot][file].transferBlocked == 0) {
         result = -0x15;
         enabled = true;
     } else {
@@ -170,9 +170,9 @@ bool MemoryCardManager::isMoveEnable(u8 slot, u32 index, long* code) {
             result = -0x1a;
         } else if (states[slot].key != states[slot ^ 1].key) {
             result = -0x1b;
-        } else if (states[slot ^ 1].freeBlocks < dirs[slot][file].size || states[slot ^ 1].unk_0x0E == 0) {
+        } else if (states[slot ^ 1].freeBlocks < dirs[slot][file].size || states[slot ^ 1].freeFiles == 0) {
             result = -0x19;
-        } else if (dirs[slot][file].unk_0x06 != 0) {
+        } else if (dirs[slot][file].transferBlocked != 0) {
             result = -0x18;
         }
     }
@@ -191,8 +191,8 @@ bool MemoryCardManager::isCopyEnable(u8 slot, u32 index, long* code) {
     if (isDistSlot(slot, NULL) &&
         dirs[slot][file].canCopy != 0 &&
         states[slot].key == states[slot ^ 1].key &&
-        states[slot ^ 1].freeBlocks >= dirs[slot][file].size && states[slot ^ 1].unk_0x0E != 0 &&
-        dirs[slot][file].unk_0x06 == 0) {
+        states[slot ^ 1].freeBlocks >= dirs[slot][file].size && states[slot ^ 1].freeFiles != 0 &&
+        dirs[slot][file].transferBlocked == 0) {
         result = -0x15;
         enabled = true;
     } else {
@@ -209,9 +209,9 @@ bool MemoryCardManager::isCopyEnable(u8 slot, u32 index, long* code) {
             result = -0x1a;
         } else if (states[slot].key != states[slot ^ 1].key) {
             result = -0x1b;
-        } else if (states[slot ^ 1].freeBlocks < dirs[slot][file].size || states[slot ^ 1].unk_0x0E == 0) {
+        } else if (states[slot ^ 1].freeBlocks < dirs[slot][file].size || states[slot ^ 1].freeFiles == 0) {
             result = -0x19;
-        } else if (dirs[slot][file].unk_0x06 != 0) {
+        } else if (dirs[slot][file].transferBlocked != 0) {
             result = -0x18;
         }
     }
@@ -254,7 +254,7 @@ void MemoryCardManager::update_icon_anm() {
                 mFileCell[slot][file].iconAnmCounter = frame;
                 if ((s16)frame >= icons[slot][file].anmMax) {
                     if (icon->anmType == 4) {
-                        mFileCell[slot][file].iconAnmCounter = icons[slot][file].anmMax - icon->unk_0x07 - 1;
+                        mFileCell[slot][file].iconAnmCounter = icons[slot][file].anmMax - icon->anmLastFrameDuration - 1;
                         icon->anmDelta = -1;
                     } else {
                         mFileCell[slot][file].iconAnmCounter = 0;
@@ -263,7 +263,7 @@ void MemoryCardManager::update_icon_anm() {
                 }
                 if (mFileCell[slot][file].iconAnmCounter < 0) {
                     if (icon->anmType == 4) {
-                        mFileCell[slot][file].iconAnmCounter = icon->unk_0x06;
+                        mFileCell[slot][file].iconAnmCounter = icon->anmFirstFrameDuration;
                     } else {
                         mFileCell[slot][file].iconAnmCounter = 0;
                     }

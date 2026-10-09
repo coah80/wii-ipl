@@ -10,7 +10,7 @@ namespace ipl {
             volatile u16 size; // 0x02
             u8  canCopy;   // 0x04
             u8  canMove;   // 0x05
-            u16 unk_0x06;  // 0x06
+            u16 transferBlocked;  // 0x06
             u32 key;       // 0x08
         } FileInfo;            // 0x0C
 
@@ -21,21 +21,21 @@ namespace ipl {
             vu16 reservedSlot;    // 0x04
             vu16 reservedCommand;    // 0x06
             vu32 key;         // 0x08
-            vu16 unk_0x0C;    // 0x0C
-            vu16 unk_0x0E;    // 0x0E
+            vu16 totalBlocks;    // 0x0C
+            vu16 freeFiles;    // 0x0E
             vu16 freeBlocks;  // 0x10
-            vu16 unk_0x12;    // 0x12
+            vu16 titleBlocks;    // 0x12
         } CardState;              // 0x14
 
         typedef struct IconState {
             volatile u8 bannerEnable; // 0x00
-            u8  unk_0x01;          // 0x01
-            u8  unk_0x02;          // 0x02
+            u8  iconEnable;          // 0x01
+            u8  iconCount;          // 0x02
             u8  bannerType;        // 0x03
             s8  anmDelta;          // 0x04
             u8  anmType;           // 0x05
-            u8  unk_0x06;          // 0x06
-            u8  unk_0x07;          // 0x07
+            u8  anmFirstFrameDuration;          // 0x06
+            u8  anmLastFrameDuration;          // 0x07
             u8  iconFmt[8];        // 0x08
 #ifdef IPL_MEMORY_CARD_MANAGER_CPP
             volatile u16 anmFrameBits;
