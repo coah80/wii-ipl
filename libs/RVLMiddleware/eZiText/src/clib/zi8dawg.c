@@ -64,6 +64,7 @@ ziU32 Zi8MatchROMdata0(ziWChar* elements, ziU8 count, ziU8 language,
             key = Zi8GetTableSize(language, keyTable, ZI_WORK);
             if (key != 0 && ZI_WORK->userKeys[language] == 0) {
                 index = 0;
+                /* MWCC needs the key-count branch in the loop test block. */
                 goto check_keys;
 next_key:
                 {
@@ -99,7 +100,7 @@ check_keys:
     searching = 1;
     current = &records[context->cnt - 1];
     while (searching && context->cnt != 0 && current->node != (ziU8*)context->endNode) {
-        if (capacity < context->cnt) goto finish_graph;
+        if (capacity < context->cnt) break;
         current->attr = ZiDAWGgetCHARattribute(context, current->node, ZI_WORK);
         if (context->cnt <= count) {
             if (context->keyCodes == 0) {
@@ -134,17 +135,17 @@ check_keys:
         if (search[0] != 0 && context->cnt >= search[1]) goto next_sibling;
 descend:
         records[context->cnt].node = ZiDAWGGetChild(records[context->cnt - 1].node);
-        if (records[context->cnt].node == (ziU8*)0) goto next_sibling;
-        context->cnt++;
-        if (ZI_WORK->maxCnt < context->cnt) ZI_WORK->maxCnt = context->cnt;
-        goto update_current;
+        if (records[context->cnt].node != (ziU8*)0) {
+            context->cnt++;
+            if (ZI_WORK->maxCnt < context->cnt) ZI_WORK->maxCnt = context->cnt;
+        } else {
 next_sibling:
-        while (context->cnt != 0) {
-            records[context->cnt - 1].node = ZiDAWGGetSibling(records[context->cnt - 1].node);
-            if (records[context->cnt - 1].node != (ziU8*)0) break;
-            context->cnt--;
+            while (context->cnt != 0) {
+                records[context->cnt - 1].node = ZiDAWGGetSibling(records[context->cnt - 1].node);
+                if (records[context->cnt - 1].node != (ziU8*)0) break;
+                context->cnt--;
+            }
         }
-update_current:
         current = &records[context->cnt - 1];
     }
 finish_graph:

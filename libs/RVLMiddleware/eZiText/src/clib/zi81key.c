@@ -213,6 +213,7 @@ Zi8UInt Zi8SpellingZY(ziU16 *output,Zi8UInt key,ziU8 includeTone)
   initialIndex = (ziU16)(((key & 0xffff) >> 9) & 0x3f);
   finalIndex = (ziU16)(((key & 0xffff) >> 3) & 0x3f);
   tone = (ziU16)(key & 7);
+  /* MWCC needs the stored initial character as the branch value. */
   if ((output[0] = zi8ZYinitialSpelling[initialIndex]) != 0) {
     length = 1;
   }
@@ -250,7 +251,7 @@ Zi8UInt Zi8SpellingPY(ziU16 *output,Zi8UInt key,ziU8 includeTone)
   Zi8UInt length = 0;
   ziU16 initialIndex = (ziU16)(((key & 0xffff) >> 9) & 0x3f);
   ziU16 finalIndex = (ziU16)(((key & 0xffff) >> 3) & 0x3f);
-  volatile ziU16 tone = (ziU16)(key & 7);
+  ziU16 tone = (ziU16)(key & 7);
 
   output[0] = zi8PYinitialSpelling[initialIndex][0];
   output[1] = zi8PYinitialSpelling[initialIndex][1];
@@ -363,7 +364,6 @@ ziU8 MatchAltSound1Key(ziU16 *spelling,Zi8UInt spellingLength,Zi8UInt requireFul
     goto BINARY_SEARCH;
 START_PROCESS:
     recordIndex = searchIndex;
-PROCESS:
     do {
       if (((records[recordIndex].flags & 0xeU) == 0) ||
           ((modifierFlags & records[recordIndex].flags) != 0)) {
@@ -402,7 +402,6 @@ BACKWARD_PROCESS:
         }
       }
     }
-    goto BACKWARD_TEST;
 BACKWARD_TEST:
     recordIndex = recordIndex - 1;
     if ((((int)recordIndex < 0) || (keyHigh != records[recordIndex].keyHigh)) ||
@@ -458,30 +457,25 @@ static int ZiIsSupportedPhonetic(ziU8 language,ziPtr work)
     return 1;
   }
   switch (language) {
-    case 0x79:
-    case 0x7a:
-    case 0x7d:
-      goto LAB_group_b;
     case 0x77:
     case 0x78:
     case 0x7c:
-      goto LAB_group_a;
+      if ((Zi8LangSupported(0x77,work) != 0) || (Zi8LangSupported(0x78,work) != 0) ||
+          (Zi8LangSupported(0x7c,work) != 0)) {
+        return 1;
+      }
+    case 0x79:
+    case 0x7a:
+    case 0x7d:
+      if ((Zi8LangSupported(0x79,work) == 0) && (Zi8LangSupported(0x7a,work) == 0) &&
+          (Zi8LangSupported(0x7d,work) == 0)) {
+        break;
+      }
+      return 1;
     default:
-      goto LAB_return_false;
+      break;
   }
-LAB_group_a:
-  if ((Zi8LangSupported(0x77,work) != 0) || (Zi8LangSupported(0x78,work) != 0) ||
-      (Zi8LangSupported(0x7c,work) != 0)) {
-    return 1;
-  }
-LAB_group_b:
-  if ((Zi8LangSupported(0x79,work) == 0) && (Zi8LangSupported(0x7a,work) == 0) &&
-      (Zi8LangSupported(0x7d,work) == 0)) {
-    goto LAB_return_false;
-  }
-  return 1;
-LAB_return_false:
-    return 0;
+  return 0;
 }
 
 ziU32 Zi8Get1KeyPressSpelling(ziGetParam *params,Zi8OneKeyOptions *options,Zi8OneKeyWork *work)
@@ -938,6 +932,7 @@ ziU32 Zi8Get1KeyPressSpelling(ziGetParam *params,Zi8OneKeyOptions *options,Zi8On
       for (;;) {
         if (tableCount == 0) break;
         spellingEntry = (ziU8 *)Zi8GetTableAddress(1,0xc,work);
+        /* MWCC needs the spelling-entry advance in the loop body. */
         for (tableIndex = 0; tableIndex < tableCount; tableIndex++) {
           if ((*spellingEntry & languageMask) != 0) {
             if (usePinyin) entryLength = *spellingEntry & 0xf;
@@ -1557,7 +1552,7 @@ finishPhrases:
           for (index = 0; index < 4; index++) {
             if (keyValues[index] != (keyMasks[index] & phraseTable[index])) break;
           }
-          if (index < 4) goto nextSortedOrdinal;
+          if (index < 4) continue;
         }
         entryFlags = false;
         if (work->phoneticFilter != 0) {
@@ -1574,17 +1569,17 @@ finishPhrases:
           elementIndex = MatchAltSound1Key(spelling,inputLimit,matchFull,(Zi8AltSoundRecord *)alternateTable,phoneticMask,phoneticTable,ordinal,
                                         tone,includeTone,languageMask,work);
         }
-        if (elementIndex == 0) goto nextSortedOrdinal;
+        if (elementIndex == 0) continue;
         if (!emitWords) {
-          if (trackDuplicates && (ziU8)Zi8SetFindCand(params->scratch,ordinal,work) != 0) goto nextSortedOrdinal;
+          if (trackDuplicates && (ziU8)Zi8SetFindCand(params->scratch,ordinal,work) != 0) continue;
           ordinal = Zi8Ord2Uni(ordinal,work);
           for (index = 0; index < candidateCount; index++) {
             if (ordinal == output[index]) break;
           }
-          if (index < candidateCount) goto nextSortedOrdinal;
+          if (index < candidateCount) continue;
         } else {
           ordinal = Zi8Ord2Uni(ordinal,work);
-          if (Zi8IsDupWordW(&ordinal,1,work) != 0) goto nextSortedOrdinal;
+          if (Zi8IsDupWordW(&ordinal,1,work) != 0) continue;
         }
         if (remaining == 0) {
           totalCandidates++;
@@ -1600,12 +1595,11 @@ finishPhrases:
           remaining--;
         }
       }
-nextSortedOrdinal:
-    ;
     }
   }
   if ((options->countOnly == '\0') && (ziU8)Zi8GetZHuwdPtr(&userEntriesAddress,&userCount,work) != 0)
   {
+    /* MWCC needs both user-entry cursor advances in the loop body. */
     for (phraseOrdinal = 0; phraseOrdinal < userCount;) {
       if ((params->elementCount == '\0') || ((((ziU8*)userEntriesAddress)[1] & 0x80) != 0)) {
         userOrdinal = (ziU16)(((ziU8*)userEntriesAddress)[1] & 0x7f) << 8 | (ziU16)((ziU8*)userEntriesAddress)[2];
@@ -1657,6 +1651,7 @@ nextUserOrdinal:
   }
   phraseTable = syllableTable;
   previousCharacter = 0;
+  /* MWCC needs both ordinal cursor advances in the loop body. */
   for (ordinal = 0; ordinal < ordinalCount;) {
     if (((*phraseTable & languageMask) != 0) &&
        ((characterSetTable == 0 || ((characterSet & characterSetTable[(Zi8UInt)ordinal]) != 0)))) {
@@ -1784,23 +1779,22 @@ ziBool Zi8ZHCheckSpelling(ziWChar *input,ziWChar *spelling,ziU8 inputLength,ziPt
       switch (spelling[index]) {
       case 0xf331:
         toneMask = 1;
-        goto validateTone;
+        break;
       case 0xf332:
         toneMask = 2;
-        goto validateTone;
+        break;
       case 0xf333:
         toneMask = 4;
-        goto validateTone;
+        break;
       case 0xf334:
         toneMask = 8;
-        goto validateTone;
+        break;
       case 0xf335:
         toneMask = 0x10;
-        goto validateTone;
+        break;
       default:
-        goto nextInputCharacter;
+        continue;
       }
-validateTone:
       if (toneTable != 0) {
         while( true ) {
           syllableLength = (index - syllableStart) + 1;
@@ -1842,8 +1836,6 @@ validateTone:
       }
       input[index] = spelling[index];
       syllableStart = index + 1;
-nextInputCharacter:
-    ;
     }
     for (index = 0; input[index] != 0; index = index + 1) {
       if ((input[index] >= 0x61) && (input[index] <= 0x7a)) {

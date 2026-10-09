@@ -318,11 +318,11 @@ ziBool Zi8MatchPhonetic(ziU8* pCodeTable, ziU8* dictionary, ziPtr soundTable, zi
         altMode = 1;
     }
     while (remaining-- != 0) {
-        if ((node[0] & flag) != 0) goto decode_node;
+        if ((node[0] & flag) == 0) {
 next_node:
-        node += 0xC;
-        continue;
-decode_node:
+            node += 0xC;
+            continue;
+        }
         code = Zi8GetPCode(pCodeTable, node);
         if ((*values != (code & *masks)) && (altMode == 0) && ((node[0] & 0x80) != 0)) {
             if (*count != 0) {
@@ -370,6 +370,7 @@ match_code:
             *count = remaining;
             return 1;
         }
+        /* MWCC needs the group-end branch before the backward group jump. */
 next_group:
         {
             nextCode = *sound++;
@@ -520,23 +521,23 @@ pinyin_initial:
                     final[outputIndex] &= 0xfdff;
                 }
                 value = *current;
-                if (value != 0x68 && value != 0xF368) goto scan_final;
-                if (outputIndex == 0) {
-                    *resultCount += 1;
+                if (value == 0x68 || value == 0xF368) {
+                    if (outputIndex == 0) {
+                        *resultCount += 1;
+                    }
+                    final[outputIndex] += 0x200;
+                    *bestInitial = initial[0];
+                    *bestFinal = final[0];
+                    count--;
+                    if (count == 0) {
+                        break;
+                    }
+                    current += 1;
                 }
-                final[outputIndex] += 0x200;
-                *bestInitial = initial[0];
-                *bestFinal = final[0];
-                count--;
-                if (count == 0) {
-                    break;
-                }
-                current += 1;
             }
         } else if ((*current == 0xF369) || (*current == 0x69)) {
             goto invalid_pinyin;
         }
-scan_final:
         partial = 0;
         for (index = 0; index < 4; index++) {
             pinyin[index] = 0;
@@ -548,41 +549,41 @@ scan_final:
                 if (index != 0) {
                     partial = 1;
                 }
-                goto finish_final;
+                break;
             }
             if ((value >= 0xF331) && (value < 0xF336)) {
                 if (index != 0) {
                     partial = 1;
                 }
-                goto finish_final;
+                break;
             }
             if ((value < 0x61) || (value > 0x7A)) {
                 if (value < 0xF361) {
-                    goto finish_final;
+                    break;
                 }
                 value -= 0xF361;
                 if (value > 0x19) {
                     if (outputIndex == 0) {
                         *resultCount += 1;
                     }
-                    goto finish_final;
+                    break;
                 }
             } else {
                 value -= 0x61;
             }
             pinyin[index] = (ziU8)value + 1;
-            if (!Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal)) goto try_final_extension;
-            if (outputIndex == 0) {
-                *resultCount += 1;
+            if (Zi8GetPyFinal(pinyin, &pyInitial, &pyFinal)) {
+                if (outputIndex == 0) {
+                    *resultCount += 1;
+                }
+                current++;
+                index++;
+                count--;
+                if (count == 0) {
+                    break;
+                }
+                continue;
             }
-            current++;
-            index++;
-            count--;
-            if (count == 0) {
-                goto finish_final;
-            }
-            continue;
-try_final_extension:
 
             if (index < 3) {
                 pinyin[index + 1] = 0xFF;
@@ -608,13 +609,15 @@ try_final_extension:
             }
         }
 
-finish_final:
-        if ((index > 3) && (count != 0) && (((value = *current) == 0x27) || (value == 0xF360) || (value == 0x20))) {
-            if (outputIndex == 0) {
-                *resultCount += 1;
+        if (index > 3 && count != 0) {
+            value = *current;
+            if (value == 0x27 || value == 0xF360 || value == 0x20) {
+                if (outputIndex == 0) {
+                    *resultCount += 1;
+                }
+                current++;
+                count--;
             }
-            current++;
-            count--;
         }
         if (index > 3) {
             partial = 1;
@@ -681,22 +684,28 @@ finish_final:
                 if (outputIndex == 0) {
                     *resultCount = *resultCount + 1;
                 }
-            } else if ((value >= 0xF331) && ((value -= 0xF331) <= 4)) {
-                value++;
-                initial[outputIndex] |= 7;
-                final[outputIndex] |= value;
-                *bestInitial = initial[0];
-                *bestFinal = final[0];
-                count--;
-                current++;
-                if (outputIndex == 0) {
-                    *resultCount = *resultCount + 1;
-                }
-                if ((count != 0) && (((value = *current) == 0x27) || (value == 0xF360) || (value == 0x20))) {
+            } else if (value >= 0xF331) {
+                value -= 0xF331;
+                if (value <= 4) {
+                    value++;
+                    initial[outputIndex] |= 7;
+                    final[outputIndex] |= value;
+                    *bestInitial = initial[0];
+                    *bestFinal = final[0];
                     count--;
                     current++;
                     if (outputIndex == 0) {
                         *resultCount = *resultCount + 1;
+                    }
+                    if (count != 0) {
+                        value = *current;
+                        if (value == 0x27 || value == 0xF360 || value == 0x20) {
+                            count--;
+                            current++;
+                            if (outputIndex == 0) {
+                                *resultCount = *resultCount + 1;
+                            }
+                        }
                     }
                 }
             }
@@ -714,26 +723,20 @@ ziBool Zi8GetPyFinal(ziU8* pinyin, ziU8* initial, ziU8* final) {
     ziU8 index = 0;
     ziU8 row;
     row = 0;
-    goto check_row;
-scan_row:
-    while (index < 4) {
-        if (pinyin[index] != Zi8PinyinFinals[row][index]) {
-            break;
+    while (row < 0x36) {
+        while (index < 4) {
+            if (pinyin[index] != Zi8PinyinFinals[row][index]) {
+                break;
+            }
+            index++;
         }
-        index++;
-    }
-    if (index < 4) {
-        goto next_row;
-    }
-    *initial = Zi8PinyinFinals[row][4];
-    *final = Zi8PinyinFinals[row][5];
-    return 1;
-next_row:
-    row++;
-    index = 0;
-check_row:
-    if (row < 0x36) {
-        goto scan_row;
+        if (index >= 4) {
+            *initial = Zi8PinyinFinals[row][4];
+            *final = Zi8PinyinFinals[row][5];
+            return 1;
+        }
+        row++;
+        index = 0;
     }
     return 0;
 }
@@ -787,52 +790,43 @@ ziU8 Zi8GetBpmfPhonetic(ziWChar* text, ziU8 count, ziU16* initial, ziU16* final,
     value = *text - 0xF305;
     switch ((ziS32)value) {
     case 0x22:
-        goto bpmf_value_22;
-    case 0x23:
-        goto bpmf_value_23;
-    case 0x24:
-        goto bpmf_value_24;
-    default:
-        goto set_bpmf_initial;
-    }
-bpmf_value_22:
-    *final |= 0x80;
-    *initial |= 0x180;
-    resultCount++;
-    if (--count == 0) {
-        *bestInitial = *initial | 0x78;
-        *bestFinal = *final | 0x38;
-        return resultCount;
-    }
-    text++;
-    goto after_bpmf_initial;
-bpmf_value_23:
-    *final |= 0x100;
-    *initial |= 0x180;
-    resultCount++;
-    if (--count == 0) {
-        *bestInitial = *initial | 0x78;
-        *bestFinal = *final | 0x38;
-        return resultCount;
-    }
-    text++;
-    goto after_bpmf_initial;
-bpmf_value_24:
-    *final |= 0x180;
-    *initial |= 0x180;
-    resultCount++;
-    if (--count == 0) {
-        *bestInitial = *initial | 0x78;
-        *bestFinal = *final | 0x38;
-        return resultCount;
-    }
-    text++;
-    goto after_bpmf_initial;
-set_bpmf_initial:
-    if ((*text < 0xF331) || (*text > 0xF335)) {
+        *final |= 0x80;
         *initial |= 0x180;
+        resultCount++;
+        if (--count == 0) {
+            *bestInitial = *initial | 0x78;
+            *bestFinal = *final | 0x38;
+            return resultCount;
+        }
+        text++;
+        break;
+    case 0x23:
+        *final |= 0x100;
+        *initial |= 0x180;
+        resultCount++;
+        if (--count == 0) {
+            *bestInitial = *initial | 0x78;
+            *bestFinal = *final | 0x38;
+            return resultCount;
+        }
+        text++;
+        break;
+    case 0x24:
+        *final |= 0x180;
+        *initial |= 0x180;
+        resultCount++;
+        if (--count == 0) {
+            *bestInitial = *initial | 0x78;
+            *bestFinal = *final | 0x38;
+            return resultCount;
+        }
+        text++;
+        break;
+    default:
+        if ((*text < 0xF331) || (*text > 0xF335)) {
+            *initial |= 0x180;
+        }
     }
-after_bpmf_initial:
 
     value = *text - 0xF305;
     if ((value > 0x14) && (value < 0x22)) {
