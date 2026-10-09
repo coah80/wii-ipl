@@ -1479,3 +1479,30 @@ forbidden patterns added (net, per file): 0
 readability warnings (net, per file; must be 0 in the final result): 0
 GATE PASS
 ```
+
+## CHANSVmStep objs[4] frame decode (w1009/update)
+
+- Base places operand@r1+0x60, load@0x30, copies elems @0x40/0x50 = a single `CHANSVmObjHdr objs[4]` array (objs[0]=load, objs[1..2]=copies, objs[3]=operand). Declaring separate `operand/load/copies[2]` packs operand first at 0x40. Rewriting uses as `&objs[N]`/`objs[N].` fixed the frame (263->259 diffs).
+- `ppc_iro_level 0` around CHANSVmStep: +11 insns (unfuses the stepCount select but adds mrs) — rejected.
+- stepCount head: `stepCount += (stepCount == 0)` folds to cntlzw+srwi+add (1253 insns, 259 diffs); `if (stepCount == 0) { stepCount = 1; }` emits base's cmpwi+bne+li but 1254 insns and shifts every downstream block target — rejected. Base's extra `b 0xd0fc` is a test-first loop entry: `while (stepCount-- != 1)` reproduces it but emits +3 insns (1256) — rejected. Orig plausibly used if-clamp + while-loop; neither form converges alone.
+- insnClass==0 guard: `(raw & 0xC0)`/((u8)raw) emit mask-only rlwinm like base but +1 insn (fields.bitfield access keeps union web differently); kept `fields.instructionClass`.
+- `lis r28/addi r28` symbol-materialization at head = `&VmResultTypeTbl` pointer web, NOT a static copies[].
+- Residual 259 diffs: head select-fold + callee web-homing ties (r26/r21, r23/r17, r24 rotations).
+
+## aes-lever sweep (w1009/update, post-#1315 rebase)
+
+Leaf reduced to CHANSVmStep + nup __nupParseServerInfo (VmWinEmuWrite/VmBlobGetHexString/VmBlobPackCommon landed upstream #1315).
+
+- declsearch.py (needed a __-symbol fix — patched copy at /tmp): nup decl block (6 decls, 36 evals) and CHANSVmStep block (8 decls, 50 evals) — current order is optimal in both; rotations are web-priority, not decl order.
+- nup all-static locals (`static` on all 5 shared decls): 507 insns, frame -0x40 + savegpr_20 — rejected. (Base's r28+off materializations are the .data tag-string pool, present in mine identically.)
+- nup `char*&`/`size_t&` reference params on __nupFindTag: 79 diffs — rejected.
+- nup FindTag `start += strlen(tag); *value = start;` (self-add web merge): +8 insns — rejected.
+- CHANSVmStep `__rlwinm(raw,0,24,25)==0` and `(raw & 0xC0)==0` for instructionClass: both +1 insn (1254) — bitfield access kept (1253/259).
+
+## o2-chansvm roadmap transfer (w1009/update)
+
+Their Step findings (o2-chansvm.attempts.md) applied and measured on this leaf:
+- `if (stepCount==0) stepCount=1;` + `while (stepCount-- != 0)`: loop tail matches byte-exact (cmpwi r16,0;addi r16,-1;bne) and base's entry `b` to the test site is reproduced — but net +2 insns (1255), so it needs the rest of their restructure to converge.
+- Frame decode retained: `CHANSVmObjHdr objs[4]` gives exact base slots (operand@0x60 etc.) — their map: 0x30=stackPtr obj, 0x40=STORE_INDIRECT obj, 0x50=load, 0x60=operand (separate decls in orig; frame identical either way).
+- Batched application of their remaining items (operandTypes[indexed] + BRANCH_CASE early stackTop + GET_PROPERTY_NAME foundEntry/shouldBranch) → 1260 insns, reverted. These must land as a set with their numbering context, not piecemeal.
+- Their meta-levers: copy-use (`mr` copy keeps a named local's web), static-inline helper numbering, signedness mixing (int index over u32 counter), pass 10=SR / pass 14=CTR conversion — all relevant to the residual 259 web-coloring diffs; apply with a score.py whole-unit harness.
