@@ -170,7 +170,7 @@ s32 ConvertDateToDays(u16 year, u8 month, u8 day) {
             if (day < 1 || day > 29) {
                 return -1;
             }
-            goto validDate;
+            goto validDate; // MWCC needs the leap-day branch to skip the common day check.
         }
     }
     if (day < 1 || DAYS_OF_MONTH[month - 1] < day) {

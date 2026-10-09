@@ -135,7 +135,7 @@ CDBRecordKey* CDBRecordKeyArrayEnd(CDBRecordKeyArray* recordArray) {
     return recordArray->records + recordArray->size;
 }
 
-#pragma dont_inline on
+#pragma dont_inline on // MWCC must keep dictionary search and insertion calls out of line.
 
 int CDBRecordKeyArrayDicInsertR(CDBRecordKeyArray* recordArray, CDBRecordKey* recordKey, int first, int last) {
     int index;

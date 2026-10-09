@@ -13,7 +13,7 @@ typedef struct SOSysWork {
     SOFree freeFunc;
     s32 rmState;
     s32 rmFd;
-    u32 unk10;
+    u32 hostReplyAddr;
     s32 allocCount;
 } SOSysWork;
 
@@ -111,7 +111,7 @@ int SOInit(SOLibraryConfig* config) {
         work->rmState = SO_INTERNAL_RM_STATE_CLOSED;
         work->rmFd = -1;
         ptr = SOiAlloc(0xB, 0x460);
-        soWork.unk10 = (u32)ptr;
+        soWork.hostReplyAddr = (u32)ptr;
         if (ptr == NULL) {
             result = SO_ENOMEM;
         } else {
@@ -146,9 +146,9 @@ int SOFinish(void) {
       break;
     }
     soState = SO_INTERNAL_STATE_TERMINATED;
-    if (soWork.unk10 != 0 && soWork.freeFunc) {
+    if (soWork.hostReplyAddr != 0 && soWork.freeFunc) {
       soWork.allocCount--;
-      soWork.freeFunc(0x0b, (void*)soWork.unk10, 0x460);
+      soWork.freeFunc(0x0b, (void*)soWork.hostReplyAddr, 0x460);
     }
     break;
   case SO_INTERNAL_STATE_ACTIVE:
@@ -203,153 +203,155 @@ int SOStartupEx(int timeout) {
 
   linkupRetryCount = 4;
 
-begin_startup:
-  result = SO_SUCCESS;
+  for (;;) {
+    result = SO_SUCCESS;
 
-  enabled = OSDisableInterrupts();
+    enabled = OSDisableInterrupts();
 
-  switch (soState) {
-  case SO_INTERNAL_STATE_TERMINATED:
-  default:
-    result = SO_ENETRESET;
-    break;
-  case SO_INTERNAL_STATE_ACTIVE:
-    result = SO_EALREADY;
-    break;
-  case SO_INTERNAL_STATE_READY:
-    if (soWork.rmState > SO_INTERNAL_RM_STATE_CLOSED) {
-      result = SO_EBUSY;
+    switch (soState) {
+    case SO_INTERNAL_STATE_TERMINATED:
+    default:
+      result = SO_ENETRESET;
       break;
-    } else if (!OSGetCurrentThread()) {
-      result = SO_EFATAL;
+    case SO_INTERNAL_STATE_ACTIVE:
+      result = SO_EALREADY;
       break;
-    } else {
-      int resultNCD;
-
-      soWork.rmState = SO_INTERNAL_RM_STATE_WORKING;
-      (void)OSRestoreInterrupts(enabled);
-
-      while (1) {
-        resultNCD = NCDGetLinkStatus();
-        if (resultNCD != NCD_RESULT_INPROGRESS &&
-            resultNCD != NCD_LINKSTATUS_WORKING)
-          break;
-        OSSleepTicks((((s64)100) * ((__OSBusClock / 4) / 1000)));
-        if (limitTime != 0 && limitTime < __OSGetSystemTime()) {
-          if (resultNCD == NCD_LINKSTATUS_WORKING)
-            result = SO_ERR_LINK_UP_TIMEOUT;
-          else
-            result = SO_EFATAL;
-          goto change_state;
-        }
-      }
-      if (resultNCD < NCD_RESULT_SUCCESS) {
+    case SO_INTERNAL_STATE_READY:
+      if (soWork.rmState > SO_INTERNAL_RM_STATE_CLOSED) {
+        result = SO_EBUSY;
+        break;
+      } else if (!OSGetCurrentThread()) {
         result = SO_EFATAL;
-        goto change_state;
-      } else if (resultNCD == NCD_LINKSTATUS_NONE) {
-        result = SO_ENOENT;
-        goto change_state;
-      }
-
-      while (1) {
-        soWork.rmFd = IOS_Open(NET_RM_SOCK, 0);
-        if (soWork.rmFd != -6)
-          break;
-        OSSleepTicks((((s64)100) * ((__OSBusClock / 4) / 1000)));
-        if (limitTime != 0 && limitTime < __OSGetSystemTime()) {
-          result = SO_EFATAL;
-          goto change_state;
-        }
-      };
-
-      if (soWork.rmFd < 0) {
-        result = SO_EFATAL;
-        goto change_state;
+        break;
       } else {
-        s32 errNwc24;
+        int resultNCD;
 
-        result = SO_SUCCESS;
-        exErr = SO_SUCCESS;
+        soWork.rmState = SO_INTERNAL_RM_STATE_WORKING;
+        (void)OSRestoreInterrupts(enabled);
 
         while (1) {
-          errNwc24 = NWC24iStartupSocket(&exErr);
-          if (errNwc24 != NWC24_ERR_INPROGRESS)
+          resultNCD = NCDGetLinkStatus();
+          if (resultNCD != NCD_RESULT_INPROGRESS &&
+              resultNCD != NCD_LINKSTATUS_WORKING)
+            break;
+          OSSleepTicks((((s64)100) * ((__OSBusClock / 4) / 1000)));
+          if (limitTime != 0 && limitTime < __OSGetSystemTime()) {
+            if (resultNCD == NCD_LINKSTATUS_WORKING)
+              result = SO_ERR_LINK_UP_TIMEOUT;
+            else
+              result = SO_EFATAL;
+            goto change_state;
+          }
+        }
+        if (resultNCD < NCD_RESULT_SUCCESS) {
+          result = SO_EFATAL;
+          goto change_state;
+        } else if (resultNCD == NCD_LINKSTATUS_NONE) {
+          result = SO_ENOENT;
+          goto change_state;
+        }
+
+        while (1) {
+          soWork.rmFd = IOS_Open(NET_RM_SOCK, 0);
+          if (soWork.rmFd != -6)
             break;
           OSSleepTicks((((s64)100) * ((__OSBusClock / 4) / 1000)));
           if (limitTime != 0 && limitTime < __OSGetSystemTime()) {
             result = SO_EFATAL;
-            break;
+            goto change_state;
+          }
+        };
+
+        if (soWork.rmFd < 0) {
+          result = SO_EFATAL;
+          goto change_state;
+        } else {
+          s32 errNwc24;
+
+          result = SO_SUCCESS;
+          exErr = SO_SUCCESS;
+
+          while (1) {
+            errNwc24 = NWC24iStartupSocket(&exErr);
+            if (errNwc24 != NWC24_ERR_INPROGRESS)
+              break;
+            OSSleepTicks((((s64)100) * ((__OSBusClock / 4) / 1000)));
+            if (limitTime != 0 && limitTime < __OSGetSystemTime()) {
+              result = SO_EFATAL;
+              break;
+            }
+          }
+          if (result == SO_SUCCESS)
+            result = SOStartupErr(errNwc24, exErr);
+          if (result != SO_SUCCESS) {
+            if (IOS_Close(soWork.rmFd) < 0) {
+              result = SO_EFATAL;
+              goto change_state;
+            } else {
+              soWork.rmFd = -1;
+            }
           }
         }
-        if (result == SO_SUCCESS)
-          result = SOStartupErr(errNwc24, exErr);
-        if (result != SO_SUCCESS) {
-          if (IOS_Close(soWork.rmFd) < 0) {
-            result = SO_EFATAL;
-            goto change_state;
-          } else {
-            soWork.rmFd = -1;
-          }
+
+      change_state:
+        enabled = OSDisableInterrupts();
+        if (result == SO_SUCCESS) {
+          soState = SO_INTERNAL_STATE_ACTIVE;
+          soWork.rmState = SO_INTERNAL_RM_STATE_OPENED;
+        } else {
+          soState = SO_INTERNAL_STATE_READY;
+          if (result != SO_EFATAL)
+            soWork.rmState = SO_INTERNAL_RM_STATE_CLOSED;
         }
       }
+      break;
+    }
 
-    change_state:
-      enabled = OSDisableInterrupts();
-      if (result == SO_SUCCESS) {
-        soState = SO_INTERNAL_STATE_ACTIVE;
-        soWork.rmState = SO_INTERNAL_RM_STATE_OPENED;
+    {
+      OSThread* cur = OSGetCurrentThread();
+      if (cur)
+        cur->error = result;
+      else
+        soError = result;
+    }
+
+    (void)OSRestoreInterrupts(enabled);
+
+    if (result == 0) {
+      s64 dhcpTimeOutTicks;
+
+      if (limitTime != 0) {
+        dhcpTimeOutTicks = limitTime - __OSGetSystemTime();
       } else {
-        soState = SO_INTERNAL_STATE_READY;
-        if (result != SO_EFATAL)
-          soWork.rmState = SO_INTERNAL_RM_STATE_CLOSED;
+        dhcpTimeOutTicks = 0;
+      }
+      if (limitTime != 0 && dhcpTimeOutTicks <= 0) {
+        result = SO_ETIMEDOUT;
+      } else {
+        result = SOiWaitForDHCPEx(
+            (int)((dhcpTimeOutTicks) / ((__OSBusClock / 4) / 1000)));
+      }
+
+      if (result != 0) {
+        (void)SOCleanup();
+      }
+    }
+
+    {
+      OSThread* cur = OSGetCurrentThread();
+      if (cur)
+        cur->error = result;
+      else
+        soError = result;
+    }
+
+    if (result == -112) {
+      linkupRetryCount--;
+      if (linkupRetryCount >= 0) {
+        continue;
       }
     }
     break;
-  }
-
-  {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-
-  (void)OSRestoreInterrupts(enabled);
-
-  if (result == 0) {
-    s64 dhcpTimeOutTicks;
-
-    if (limitTime != 0) {
-      dhcpTimeOutTicks = limitTime - __OSGetSystemTime();
-    } else {
-      dhcpTimeOutTicks = 0;
-    }
-    if (limitTime != 0 && dhcpTimeOutTicks <= 0) {
-      result = SO_ETIMEDOUT;
-    } else {
-      result = SOiWaitForDHCPEx(
-          (int)((dhcpTimeOutTicks) / ((__OSBusClock / 4) / 1000)));
-    }
-
-    if (result != 0) {
-      (void)SOCleanup();
-    }
-  }
-
-  {
-    OSThread* cur = OSGetCurrentThread();
-    if (cur)
-      cur->error = result;
-    else
-      soError = result;
-  }
-
-  if (result == -112) {
-    linkupRetryCount--;
-    if (linkupRetryCount >= 0) {
-      goto begin_startup;
-    }
   }
 
   return result;
@@ -684,7 +686,7 @@ int SOiWaitForDHCPEx(int timeout) {
   return result;
 }
 
-#pragma dont_inline on
+#pragma dont_inline on // MWCC must preserve the socket-creation call boundary.
 int __SOCreateSocket(int pf, int type, int protocol) {
     int result;
     s32 rmId;

@@ -716,14 +716,12 @@ pf_s32 VFiPFENT_RemoveEntry(PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter) {
     if (success_size != 1) {
         return 17;
     }
-    if (!(p_vol->cache.mode & 4)) {
-        goto success;
+    if (p_vol->cache.mode & 4) {
+        err = VFiPFCACHE_FlushDataCacheSpecific(p_vol, PF_NULL);
+        if (err != 0) {
+            return err;
+        }
     }
-    err = VFiPFCACHE_FlushDataCacheSpecific(p_vol, PF_NULL);
-    if (err != 0) {
-        return err;
-    }
-success:
     return 0;
 }
 

@@ -233,7 +233,6 @@ static pf_s32 VFiPFENT_ITER_DoFindEntry(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, 
     return 0;
 }
 
-// I'm tired
 static pf_s32 VFiPFENT_ITER_DoAllocateEntry(PF_DIR_ENT* p_ent, pf_u8 num_entries, PF_FFD* p_ffd, pf_u32* p_prev_chain, PF_STR* p_filename,
                                             pf_u8 attr_required, pf_u32* p_pos) {
     pf_s32 err;
@@ -261,67 +260,64 @@ static pf_s32 VFiPFENT_ITER_DoAllocateEntry(PF_DIR_ENT* p_ent, pf_u8 num_entries
     p_prev_chain[0] = p_prev_chain[1] = -1U;
     iter.ffd = *p_ffd;
     err = VFiPFENT_ITER_IteratorInitialize(&iter, 0U);
-loop_3:
-    if (err != 0) {
-        if (err != 0x10) {
-            return err;
+    while (PF_TRUE) {
+        if (err != 0) {
+            if (err != 0x10) {
+                return err;
+            }
+            break;
         }
-        goto block_33;
-    }
-    if (is_found == 0) {
-        if (num_free_entries == 0) {
-            current_sector = iter.sector;
-        }
-        if ((iter.buf[0] == 0) || (iter.buf[0] == 0xE5)) {
-            if (current_sector != iter.sector) {
-                prev_sector1 = prev_sector0;
-                prev_sector0 = current_sector;
+        if (is_found == 0) {
+            if (num_free_entries == 0) {
                 current_sector = iter.sector;
             }
-            num_free_entries += 1;
-            if (num_free_entries >= num_entries) {
-                if (p_pos != PF_NULL) {
-                    *p_pos = iter.index;
+            if ((iter.buf[0] == 0) || (iter.buf[0] == 0xE5)) {
+                if (current_sector != iter.sector) {
+                    prev_sector1 = prev_sector0;
+                    prev_sector0 = current_sector;
+                    current_sector = iter.sector;
                 }
-                wk_sector = iter.sector;
-                wk_offset = iter.offset;
-                is_found = 1;
+                num_free_entries += 1;
+                if (num_free_entries >= num_entries) {
+                    if (p_pos != PF_NULL) {
+                        *p_pos = iter.index;
+                    }
+                    wk_sector = iter.sector;
+                    wk_offset = iter.offset;
+                    is_found = 1;
+                }
+            } else {
+                num_free_entries = 0;
+                prev_sector0 = -1U;
+                prev_sector1 = -1U;
             }
-        } else {
-            num_free_entries = 0;
-            prev_sector0 = -1U;
-            prev_sector1 = -1U;
         }
-    }
-    if (p_filename != PF_NULL) {
-        if ((is_found == 0) || (iter.buf[0] != 0)) {
-            if ((iter.buf[0] != 0) && (iter.buf[0] != 0xE5) &&
-                (VFiPFENT_ITER_GetEntry(&wk_ent, &iter, p_filename, attr_required, PF_NULL, 0U) == 0)) {
-                *p_ent = wk_ent;
-                p_ent->p_vol = p_ffd->p_vol;
+        if (p_filename != PF_NULL) {
+            if ((is_found == 0) || (iter.buf[0] != 0)) {
+                if ((iter.buf[0] != 0) && (iter.buf[0] != 0xE5) &&
+                    (VFiPFENT_ITER_GetEntry(&wk_ent, &iter, p_filename, attr_required, PF_NULL, 0U) == 0)) {
+                    *p_ent = wk_ent;
+                    p_ent->p_vol = p_ffd->p_vol;
 
-                return 8;
-            }
-            if ((is_found != 0) && ((iter.offset + 0x20) == p_ffd->p_vol->bpb.bytes_per_sector)) {
-                err = VFiPFFAT_GetSectorSpecified(p_ffd, iter.file_sector_index + 1, 0U, &sector);
-                if (err != 0) {
-                    return err;
+                    return 8;
                 }
-                if (sector == -1U) {
-                    goto block_33;
+                if ((is_found != 0) && ((iter.offset + 0x20) == p_ffd->p_vol->bpb.bytes_per_sector)) {
+                    err = VFiPFFAT_GetSectorSpecified(p_ffd, iter.file_sector_index + 1, 0U, &sector);
+                    if (err != 0) {
+                        return err;
+                    }
+                    if (sector == -1U) {
+                        break;
+                    }
                 }
-                goto block_32;
+            } else {
+                break;
             }
-            goto block_32;
+        } else if (is_found != 0) {
+            break;
         }
-        goto block_33;
-    }
-    if (is_found == 0) {
-    block_32:
         err = VFiPFENT_ITER_Advance(&iter, 1U);
-        goto loop_3;
     }
-block_33:
     if (is_found == 0) {
         return 5;
     }
@@ -358,13 +354,12 @@ static pf_s32 VFiPFENT_ITER_DoGetEntryOfPath(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_
         if ((VFiPFSTR_StrNumChar(p_path, 1U) == 1) && (VFiPFSTR_StrNCmp(p_path, (pf_s8*)"\0", 2U, 0, 1U) == 0)) {
             return 0;
         }
-        goto block_11;
+    } else {
+        err = VFiPFVOL_GetCurrentDir(p_vol, p_ent);
+        if (err != 0) {
+            return err;
+        }
     }
-    err = VFiPFVOL_GetCurrentDir(p_vol, p_ent);
-    if (err != 0) {
-        return err;
-    }
-block_11:
     p = VFiPFSTR_GetStrPos(p_path, 1U);
     VFiPFFAT_InitFFD(&p_iter->ffd, &hint, p_vol, &p_iter->ffd.start_cluster);
     p_iter->ffd.start_cluster = p_ent->start_cluster;

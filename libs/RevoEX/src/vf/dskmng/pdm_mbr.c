@@ -65,12 +65,10 @@ pf_s32 VFipdm_mbr_get_mbr_part_table(PDM_DISK* p_disk, PDM_MBR* p_mbr_tbl) {
     VFipdm_mbr_check_master_boot_record(p_disk, (pf_u8*)&buf, &is_master_boot);
     if (is_master_boot != 0) {
         VFipdm_mbr_get_table((pf_u8*)&buf, 0, p_mbr_tbl);
-        goto success;
+    } else {
+        return 5;
     }
 
-    return 5;
-
-success:
     return 0;
 }
 
@@ -116,12 +114,10 @@ pf_s32 VFipdm_mbr_get_epbr_part_table(PDM_DISK* p_disk, PDM_MBR* p_mbr_tbl) {
     VFipdm_mbr_check_master_boot_record(p_disk, (pf_u8*)&buf, &is_master_boot);
     if (is_master_boot) {
         VFipdm_mbr_get_table((pf_u8*)&buf, extend_start_sector, p_mbr_tbl);
-        goto success;
     } else {
         return 6;
     }
 
-success:
     return 0;
 }
 

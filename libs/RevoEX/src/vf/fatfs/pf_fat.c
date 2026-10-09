@@ -152,7 +152,7 @@ static pf_s32 VFiPFFAT_ReadFATSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** p_page, p
     } else {
         current_fat = 1;
     }
-    while (PF_TRUE) {
+    do {
         err = VFiPFCACHE_ReadFATPage(p_vol, sector, p_page);
         if (err == 0x1000 && p_vol->p_callback != PF_NULL) {
             result = ((PF_VOLUME_CB)p_vol->p_callback)(p_vol->last_driver_error);
@@ -160,20 +160,17 @@ static pf_s32 VFiPFFAT_ReadFATSector(PF_VOLUME* p_vol, PF_CACHE_PAGE** p_page, p
                 if (result == 1 && p_vol->bpb.num_active_FATs >= 2 && current_fat < p_vol->bpb.num_active_FATs) {
                     current_fat++;
                     sector += p_vol->bpb.sectors_per_FAT;
-                    goto block_22;
+                    continue;
                 }
             } else {
-                goto block_22;
+                continue;
             }
         }
         if (err != 0) {
             return err;
         }
-    block_22:
-        if (err == 0) {
-            return err;
-        }
-    }
+    } while (err != 0);
+    return err;
 }
 
 static pf_s32 VFiPFFAT_SearchForNumFreeClusters(PF_VOLUME* p_vol, pf_u32 start_cluster, pf_u32 end_cluster, pf_u32 num_cluster,
@@ -185,7 +182,7 @@ static pf_s32 VFiPFFAT_SearchForNumFreeClusters(PF_VOLUME* p_vol, pf_u32 start_c
     pf_u32 save_success_num;
     pf_s32 err;
     pf_u32 search_flg = 0;
-    pf_u32 temp_start_cluster = 0;
+    pf_u32 initial_search_cluster = 0;
     PF_CACHE_PAGE* p_page;
 
     *p_start_free_cluster = -1;
@@ -202,7 +199,7 @@ static pf_s32 VFiPFFAT_SearchForNumFreeClusters(PF_VOLUME* p_vol, pf_u32 start_c
     if (end_cluster < 2 || end_cluster >= (p_vol->bpb.num_clusters + 2)) {
         end_cluster = upper_bound_cluster - 1;
     }
-    temp_start_cluster = start_cluster;
+    initial_search_cluster = start_cluster;
     err = VFiPFFAT_ReadFATSector(p_vol, &p_page, start_cluster);
     if (err != 0) {
         return err;
@@ -235,7 +232,7 @@ static pf_s32 VFiPFFAT_SearchForNumFreeClusters(PF_VOLUME* p_vol, pf_u32 start_c
         }
         start_cluster++;
         if (search_flg == 0 && success_num == 0 && start_cluster > 2 && start_cluster == upper_bound_cluster) {
-            end_cluster = temp_start_cluster;
+            end_cluster = initial_search_cluster;
             start_cluster = 2;
             search_flg = 1;
         }
@@ -348,46 +345,37 @@ static pf_s32 VFiPFFAT_FindClusterLinkPage(PF_FFD* p_ffd, pf_u32 chain_index, pf
     if (p_ffd->cluster_link.position == 0) {
         return 0;
     }
-    if (p_ffd->cluster_link.save_index < chain_index) {
-        goto out1;
-    }
-    position = chain_index / (p_ffd->cluster_link.interval + 1);
-    offset = chain_index % (p_ffd->cluster_link.interval + 1);
-    if (offset == 0) {
-        *p_cluster = p_ffd->cluster_link.buffer[position];
-        *is_found = PF_TRUE;
-        goto out2;
-    } else {
-        current_cluster = p_ffd->cluster_link.buffer[position];
-        for (i = offset; i != 0; i--) {
-            err = VFiPFFAT_ReadFATEntryPage(p_ffd->p_vol, current_cluster, &next_cluster, &p_page);
-            if (err != 0) {
-                return err;
+    if (p_ffd->cluster_link.save_index >= chain_index) {
+        position = chain_index / (p_ffd->cluster_link.interval + 1);
+        offset = chain_index % (p_ffd->cluster_link.interval + 1);
+        if (offset == 0) {
+            *p_cluster = p_ffd->cluster_link.buffer[position];
+            *is_found = PF_TRUE;
+        } else {
+            current_cluster = p_ffd->cluster_link.buffer[position];
+            for (i = offset; i != 0; i--) {
+                err = VFiPFFAT_ReadFATEntryPage(p_ffd->p_vol, current_cluster, &next_cluster, &p_page);
+                if (err != 0) {
+                    return err;
+                }
+                if (next_cluster == 0) {
+                    return 13;
+                }
+                current_cluster = next_cluster;
             }
+
             if (next_cluster == 0) {
                 return 13;
             }
-            current_cluster = next_cluster;
+            if (next_cluster == fat_special_values[p_ffd->p_vol->bpb.fat_type].eoc2) {
+                return 0;
+            }
+            *p_cluster = next_cluster;
+            *is_found = PF_TRUE;
         }
-
-        if (next_cluster == 0) {
-            return 13;
-        }
-        if (next_cluster == fat_special_values[p_ffd->p_vol->bpb.fat_type].eoc2) {
-            return 0;
-        }
-        *p_cluster = next_cluster;
-        *is_found = PF_TRUE;
+    } else {
+        return 0;
     }
-
-    // what
-
-    goto out2;
-
-out1:
-    return 0;
-
-out2:
     return 0;
 }
 
@@ -791,13 +779,12 @@ static pf_s32 VFiPFFAT_GetClusterAllocatedInChain(PF_FFD* p_ffd, pf_u32 initial_
         if (next_cluster == fat_special_values[p_vol->bpb.fat_type].eoc2) {
             p_ffd->last_cluster.num_last_cluster = cluster;
             p_ffd->last_cluster.max_chain_index = chain_index - 1;
-            goto block_9;
+            break;
         } else {
             cluster = next_cluster;
             chain_index++;
         }
     }
-block_9:
     return 0;
 }
 

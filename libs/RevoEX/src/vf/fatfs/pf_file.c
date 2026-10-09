@@ -684,37 +684,34 @@ static pf_s32 VFiPFFILE_p_fopen(PF_VOLUME* p_vol, PF_STR* p_path_str, pf_s32 mod
             return 0xA;
         }
         VFiPFENT_getcurrentDateTimeForEnt(&ent.access_date, &access_time);
-        goto block_35;
+    } else {
+        if ((namelength + parent_ent.path_len) > 0x103U) {
+            return 1;
+        }
+        err = VFiPFFILE_createEmptyFile(p_vol, &ent, &file_str, &parent_ent, namelength);
+        if (err == 8) {
+            if ((mode & 0x10) != 0) {
+                return 8;
+            }
+            if (((mode & 1) != 0) && (VFiPFFILE_IsOpened(&ent) != 0)) {
+                return 8;
+            }
+            if (((ent.attr & 1) != 0) && (((mode & 1) != 0) || ((mode & 4) != 0) || ((mode & 8) != 0))) {
+                return 0xA;
+            }
+            if ((ent.attr & 0x10) != 0) {
+                return 0x17;
+            }
+            if ((mode & 1) != 0) {
+                VFiPFFAT_InitFFD(&ffd, &hint, ent.p_vol, &ent.start_cluster);
+                VFiPFFILE_EmptyFile(&ffd, &ent);
+            } else {
+                VFiPFENT_getcurrentDateTimeForEnt(&ent.access_date, &access_time);
+            }
+        } else if (err != 0) {
+            return err;
+        }
     }
-    if ((namelength + parent_ent.path_len) > 0x103U) {
-        return 1;
-    }
-    err = VFiPFFILE_createEmptyFile(p_vol, &ent, &file_str, &parent_ent, namelength);
-    if (err == 8) {
-        if ((mode & 0x10) != 0) {
-            return 8;
-        }
-        if (((mode & 1) != 0) && (VFiPFFILE_IsOpened(&ent) != 0)) {
-            return 8;
-        }
-        if (((ent.attr & 1) != 0) && (((mode & 1) != 0) || ((mode & 4) != 0) || ((mode & 8) != 0))) {
-            return 0xA;
-        }
-        if ((ent.attr & 0x10) != 0) {
-            return 0x17;
-        }
-        if ((mode & 1) != 0) {
-            VFiPFFAT_InitFFD(&ffd, &hint, ent.p_vol, &ent.start_cluster);
-            VFiPFFILE_EmptyFile(&ffd, &ent);
-        } else {
-            VFiPFENT_getcurrentDateTimeForEnt(&ent.access_date, &access_time);
-        }
-        goto block_35;
-    }
-    if (err != 0) {
-        return err;
-    }
-block_35:
     p_vol = ent.p_vol;
     p_sfd = VFiPFFILE_GetSFD(p_vol, &ent);
     if (p_sfd == PF_NULL) {

@@ -383,19 +383,16 @@ pf_s32 VFiPFDRV_lerase(PF_VOLUME* p_vol, pf_u32 sector, pf_u32 num_sectors) {
 
     err = VFipdm_part_logical_erase(p_vol->p_part, sector, num_sectors, p_vol->bpb.bytes_per_sector);
 
-    if (err == 0) {
-        goto success;
+    if (err != 0) {
+        if (err == 21) {
+            err = VFipdm_part_get_driver_error_code((struct PDM_PARTITION*)p_vol->p_part);
+            VFipf_vol_set.last_driver_error = err;
+            p_vol->last_driver_error = err;
+            return 0x1000;
+        }
+
+        return -1;
     }
 
-    if (err == 21) {
-        err = VFipdm_part_get_driver_error_code((struct PDM_PARTITION*)p_vol->p_part);
-        VFipf_vol_set.last_driver_error = err;
-        p_vol->last_driver_error = err;
-        return 0x1000;
-    }
-
-    return -1;
-
-success:
     return 0;
 }
