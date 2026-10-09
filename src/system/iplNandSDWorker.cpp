@@ -1069,107 +1069,105 @@ namespace ipl {
             OSReport("NandSDWorker: nand save num = %d\n", myWork->nandSaveNum);
         }
 
-        if (myWork->saveCacheHeap == NULL) {
-            goto clean_up;
-        }
-
-        if (nand_get_length(c_transferid_path) != (int)OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH)) {  // If transfer.id is invalid
-            // Delete old one
-            err = nand::wrapper::PrivateDelete(c_transferid_path);
-            if (err != NAND_RESULT_OK) {
-                OSReport("NandSDWorker: NANDPrivateDelete %s failed.[%d]\n", c_transferid_path, err);
-                if (err == NAND_RESULT_CORRUPT) {
-                    myWork->asyncResult = RESULT_NAND_CORRUPT;
-                    goto clean_up;
-                }
-            }
-
-            u8 type;
-            err = nand::wrapper::PrivateGetType(c_succession_path, &type);
-            if (err != NAND_RESULT_OK || type != NAND_TYPE_DIR) {
-                // Is "succession" a file?
-                if (err == NAND_RESULT_OK && type != NAND_TYPE_DIR) {
-                    // Delete file. It's supposed to be a directory.
-                    err = nand::wrapper::PrivateDelete(c_succession_path);
-                    if (err != NAND_RESULT_OK) {
-                        OSReport("NandSDWorker: NANDPrivateDelete %s failed.[%d]\n", c_succession_path, err);
-                        if (err == NAND_RESULT_CORRUPT) {
-                            myWork->asyncResult = RESULT_NAND_CORRUPT;
-                            goto clean_up;
-                        }
-                    }
-                } else {
-                    if (check_nand_free_area(1, 0, 0, 0) != RESULT_OK) {
-                        OSReport("NandSDWorker: cannot make %s because of system area shortage.\n", c_succession_path);
+        if (myWork->saveCacheHeap != NULL) {
+            if (nand_get_length(c_transferid_path) != (int)OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH)) {  // If transfer.id is invalid
+                // Delete old one
+                err = nand::wrapper::PrivateDelete(c_transferid_path);
+                if (err != NAND_RESULT_OK) {
+                    OSReport("NandSDWorker: NANDPrivateDelete %s failed.[%d]\n", c_transferid_path, err);
+                    if (err == NAND_RESULT_CORRUPT) {
+                        myWork->asyncResult = RESULT_NAND_CORRUPT;
                         goto clean_up;
                     }
                 }
 
-                // Recreate directory
-                err = nand::wrapper::PrivateCreateDir(c_succession_path, NAND_PERM_ALL_RW, 0);
+                u8 type;
+                err = nand::wrapper::PrivateGetType(c_succession_path, &type);
+                if (err != NAND_RESULT_OK || type != NAND_TYPE_DIR) {
+                    // Is "succession" a file?
+                    if (err == NAND_RESULT_OK && type != NAND_TYPE_DIR) {
+                        // Delete file. It's supposed to be a directory.
+                        err = nand::wrapper::PrivateDelete(c_succession_path);
+                        if (err != NAND_RESULT_OK) {
+                            OSReport("NandSDWorker: NANDPrivateDelete %s failed.[%d]\n", c_succession_path, err);
+                            if (err == NAND_RESULT_CORRUPT) {
+                                myWork->asyncResult = RESULT_NAND_CORRUPT;
+                                goto clean_up;
+                            }
+                        }
+                    } else {
+                        if (check_nand_free_area(1, 0, 0, 0) != RESULT_OK) {
+                            OSReport("NandSDWorker: cannot make %s because of system area shortage.\n", c_succession_path);
+                            goto clean_up;
+                        }
+                    }
+
+                    // Recreate directory
+                    err = nand::wrapper::PrivateCreateDir(c_succession_path, NAND_PERM_ALL_RW, 0);
+                    if (err != NAND_RESULT_OK) {
+                        OSReport("NandSDWorker: NANDPrivateCreateDir %s failed.[%d]\n", c_succession_path, err);
+                        if (err == NAND_RESULT_CORRUPT) {
+                            myWork->asyncResult = RESULT_NAND_CORRUPT;
+                        }
+                        goto clean_up;
+                    }
+                }
+
+                if (check_nand_free_area(1, 1, 0, 0) != RESULT_OK) {
+                    OSReport("NandSDWorker: cannot make %s because of system area shortage.\n", c_transferid_path);
+                    goto clean_up;
+                }
+
+                // Recreate transfer.id
+                err = nand::wrapper::PrivateCreate(c_transferid_path, NAND_PERM_ALL_RW, 0);
                 if (err != NAND_RESULT_OK) {
-                    OSReport("NandSDWorker: NANDPrivateCreateDir %s failed.[%d]\n", c_succession_path, err);
+                    OSReport("NandSDWorker: NANDPrivateCreate %s failed.[%d]\n", c_transferid_path, err);
                     if (err == NAND_RESULT_CORRUPT) {
                         myWork->asyncResult = RESULT_NAND_CORRUPT;
                     }
                     goto clean_up;
                 }
-            }
 
-            if (check_nand_free_area(1, 1, 0, 0) != RESULT_OK) {
-                OSReport("NandSDWorker: cannot make %s because of system area shortage.\n", c_transferid_path);
-                goto clean_up;
-            }
-
-            // Recreate transfer.id
-            err = nand::wrapper::PrivateCreate(c_transferid_path, NAND_PERM_ALL_RW, 0);
-            if (err != NAND_RESULT_OK) {
-                OSReport("NandSDWorker: NANDPrivateCreate %s failed.[%d]\n", c_transferid_path, err);
-                if (err == NAND_RESULT_CORRUPT) {
-                    myWork->asyncResult = RESULT_NAND_CORRUPT;
+                // Let's write some stuff to the file...
+                NANDFileInfo fileInfo;
+                err = nand::wrapper::PrivateOpen(c_transferid_path, &fileInfo, NAND_ACCESS_WRITE);
+                if (err != NAND_RESULT_OK) {
+                    OSReport("NandSDWorker: NANDPrivateOpen %s failed.[%d]\n", c_transferid_path, err);
+                    goto clean_up;
                 }
-                goto clean_up;
-            }
 
-            // Let's write some stuff to the file...
-            NANDFileInfo fileInfo;
-            err = nand::wrapper::PrivateOpen(c_transferid_path, &fileInfo, NAND_ACCESS_WRITE);
-            if (err != NAND_RESULT_OK) {
-                OSReport("NandSDWorker: NANDPrivateOpen %s failed.[%d]\n", c_transferid_path, err);
-                goto clean_up;
-            }
+                // Let's write the MAC address...
+                buf = (u8*)MEMAllocFromExpHeapEx(myWork->mainHeap, OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH), 32);
+                memset(buf, 0, OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH));
+                NETGetWirelessMacAddress(buf);
 
-            // Let's write the MAC address...
-            buf = (u8*)MEMAllocFromExpHeapEx(myWork->mainHeap, OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH), 32);
-            memset(buf, 0, OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH));
-            NETGetWirelessMacAddress(buf);
+                // and that's it.
 
-            // and that's it.
-
-            // Write the buffer to the file!
-            err = nand::wrapper::Write(&fileInfo, buf, OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH));
-            if (err != (s32)OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH)) {
-                OSReport("NandSDWorker: NANDWrite %s failed.[%d]\n", c_transferid_path, err);
-                if (err == NAND_RESULT_CORRUPT) {
-                    myWork->asyncResult = RESULT_NAND_CORRUPT;
+                // Write the buffer to the file!
+                err = nand::wrapper::Write(&fileInfo, buf, OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH));
+                if (err != (s32)OSRoundUp32B(NCD_MAC_ADDRESS_LENGTH)) {
+                    OSReport("NandSDWorker: NANDWrite %s failed.[%d]\n", c_transferid_path, err);
+                    if (err == NAND_RESULT_CORRUPT) {
+                        myWork->asyncResult = RESULT_NAND_CORRUPT;
+                    }
+                    nand::wrapper::Close(&fileInfo);
+                    goto clean_up;
                 }
-                nand::wrapper::Close(&fileInfo);
-                goto clean_up;
-            }
 
-            // We're done with the file now. Close...
-            err = nand::wrapper::Close(&fileInfo);
-            if (err != NAND_RESULT_OK) {
-                OSReport("NandSDWorker: NANDClose %s failed.[%d]\n", c_transferid_path, err);
-                if (err == NAND_RESULT_CORRUPT) {
-                    myWork->asyncResult = RESULT_NAND_CORRUPT;
+                // We're done with the file now. Close...
+                err = nand::wrapper::Close(&fileInfo);
+                if (err != NAND_RESULT_OK) {
+                    OSReport("NandSDWorker: NANDClose %s failed.[%d]\n", c_transferid_path, err);
+                    if (err == NAND_RESULT_CORRUPT) {
+                        myWork->asyncResult = RESULT_NAND_CORRUPT;
+                    }
+                } else {
+                    OSReport("NandSDWorker: %s created.[%02x%02x%02x%02x%02x%02x]\n", c_transferid_path, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
                 }
-                goto clean_up;
+            } else {
+                // transfer.id is valid. Do nothing.
+                OSReport("NandSDWorker: %s already exist.\n", c_transferid_path);
             }
-            OSReport("NandSDWorker: %s created.[%02x%02x%02x%02x%02x%02x]\n", c_transferid_path, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
-        } else {
-            // transfer.id is valid. Do nothing.
-            OSReport("NandSDWorker: %s already exist.\n", c_transferid_path);
         }
 
     clean_up:
@@ -1599,16 +1597,16 @@ namespace ipl {
                 if (err != NAND_RESULT_OK) {
                     OSReport("NandSDWorker: failed to close %s [%d]\n", path, err);
                     ret = RESULT_FATAL_SD_ERROR;
-                    goto clean_up;
-                }
-                fileOpened = false;
-
-                // Verify signature in file
-                if (bannerFile->signature != WII_SAVE_BANNER_SIGNATURE) {
-                    OSReport("NandSDWorker: banner file %s signature is not correct\n", path);
-                    ret = RESULT_BAD_FILE;
                 } else {
-                    ret = RESULT_OK;
+                    fileOpened = false;
+
+                    // Verify signature in file
+                    if (bannerFile->signature != WII_SAVE_BANNER_SIGNATURE) {
+                        OSReport("NandSDWorker: banner file %s signature is not correct\n", path);
+                        ret = RESULT_BAD_FILE;
+                    } else {
+                        ret = RESULT_OK;
+                    }
                 }
 
             clean_up:
@@ -1954,60 +1952,58 @@ namespace ipl {
         if (err == WAD_ERROR_INCORRECT_DEVICE) {
             OSReport("NandSDWorker: WADImportGetBlocks failed, not original Wii.[%d]\n", err);
             myWork->asyncResult = RESULT_NOT_TRANSFERRABLE;
-            goto clean_up;
         } else if (err != WAD_ERROR_OK) {
             OSReport("NandSDWorker: WADImportGetBlocks failed.[%d]\n", err);
             myWork->asyncResult = RESULT_BAD_FILE;
-            goto clean_up;
-        }
+        } else {
+            // Calculate required blocks
+            ((AppBlocksInfo*)myWork->paramA)->bytes = NAND_BLOCKS_TO_BYTES(wadBlocks.privateBlocks + wadBlocks.unkBlocks);
+            ((AppBlocksInfo*)myWork->paramA)->blocks = wadBlocks.privateInodes + wadBlocks.unkInodes;
 
-        // Calculate required blocks
-        ((AppBlocksInfo*)myWork->paramA)->bytes = NAND_BLOCKS_TO_BYTES(wadBlocks.privateBlocks + wadBlocks.unkBlocks);
-        ((AppBlocksInfo*)myWork->paramA)->blocks = wadBlocks.privateInodes + wadBlocks.unkInodes;
+            // Calculate free blocks
+            if (myWork->paramB != NULL) {
+                u32 sysNodes, sysBlocks;
+                s32 userNodes, userBlocks;
+                err = get_nand_free_area(&sysNodes, &sysBlocks, &userNodes, &userBlocks);
+                if (err != RESULT_OK) {
+                    myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                    goto clean_up;
+                }
+                ((AppBlocksInfo*)myWork->paramB)->bytes = NAND_BLOCKS_TO_BYTES(userBlocks);
+                ((AppBlocksInfo*)myWork->paramB)->blocks = userNodes;
+            }
 
-        // Calculate free blocks
-        if (myWork->paramB != NULL) {
-            u32 sysNodes, sysBlocks;
-            s32 userNodes, userBlocks;
-            err = get_nand_free_area(&sysNodes, &sysBlocks, &userNodes, &userBlocks);
-            if (err != RESULT_OK) {
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+            // MWCC needs the banner result to remain live through the free-area query.
+            if (result != RESULT_OK) {
+                myWork->asyncResult = result;
                 goto clean_up;
             }
-            ((AppBlocksInfo*)myWork->paramB)->bytes = NAND_BLOCKS_TO_BYTES(userBlocks);
-            ((AppBlocksInfo*)myWork->paramB)->blocks = userNodes;
+
+            // If the file already exists
+            if (nand_app_exist_ex(sdAppBanner->titleId) == EXISTENCE_COMPLETE) {
+                OSReport("NandSDWorker: titleid = 0x%016llx is already in nand.\n", sdAppBanner->titleId);
+                myWork->asyncResult = RESULT_ALREADY_EXISTS;
+                goto clean_up;
+            }
+
+            err = get_nand_title_version(sdAppBanner->titleId, &nandTitleVersion);
+            if (err != RESULT_OK) {
+                myWork->asyncResult = err;
+            } else {
+                // Compare version
+                int nandTitleMajor, sdTitleMajor;
+                nandTitleMajor = (u16)(nandTitleVersion >> 8);
+                sdTitleMajor = (u16)(sdTitleVersion >> 8);
+                if (nandTitleMajor > sdTitleMajor) {
+                    OSReport("NandSDWorker: titleid %016llx has higher version than that of sd (%d vs %d)\n", sdAppBanner->titleId, nandTitleVersion,
+                             sdTitleVersion);
+                    myWork->asyncResult = RESULT_VERSION_ERR;
+                } else {
+                    myWork->asyncResult = RESULT_OK;
+                }
+            }
         }
 
-        // MWCC needs the banner result to remain live through the free-area query.
-        if (result != RESULT_OK) {
-            myWork->asyncResult = result;
-            goto clean_up;
-        }
-
-        // If the file already exists
-        if (nand_app_exist_ex(sdAppBanner->titleId) == EXISTENCE_COMPLETE) {
-            OSReport("NandSDWorker: titleid = 0x%016llx is already in nand.\n", sdAppBanner->titleId);
-            myWork->asyncResult = RESULT_ALREADY_EXISTS;
-            goto clean_up;
-        }
-
-        err = get_nand_title_version(sdAppBanner->titleId, &nandTitleVersion);
-        if (err != RESULT_OK) {
-            myWork->asyncResult = err;
-            goto clean_up;
-        }
-
-        // Compare version
-        int nandTitleMajor, sdTitleMajor;
-        nandTitleMajor = (u16)(nandTitleVersion >> 8);
-        sdTitleMajor = (u16)(sdTitleVersion >> 8);
-        if (nandTitleMajor > sdTitleMajor) {
-            OSReport("NandSDWorker: titleid %016llx has higher version than that of sd (%d vs %d)\n", sdAppBanner->titleId, nandTitleVersion,
-                     sdTitleVersion);
-            myWork->asyncResult = RESULT_VERSION_ERR;
-        } else {
-            myWork->asyncResult = RESULT_OK;
-        }
     clean_up:
         MEMFreeToAllocator(&myWork->scratchAllocator, sdAppBanner);
     }
@@ -2023,95 +2019,94 @@ namespace ipl {
         s64 sdFreeArea = get_sd_free_area();
         if (sdFreeArea < 0) {
             myWork->asyncResult = sdFreeArea;
-            goto clean_up;
-        }
+        } else {
+            u64 totalBackupSize;
+            totalBackupSize = 0;
+            for (int i = 0; i < newTitleCount; i++) {
+                if (s_sd_state != SD_STATE_READY) {
+                    myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                    goto clean_up;
+                }
 
-        u64 totalBackupSize;
-        totalBackupSize = 0;
-        for (int i = 0; i < newTitleCount; i++) {
-            if (s_sd_state != SD_STATE_READY) {
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                goto clean_up;
+                // Get app banner
+                int result = get_app_banner_from_meta(newTitleIds[i], backupData);
+                if (result != RESULT_OK) {
+                    myWork->asyncResult = result;
+                    goto clean_up;
+                }
+
+                u32 backupSize = 0;
+                u32 wadOffset = sizeof(SDAppBanner) + ROUNDUP(backupData->head.thumbSize, 64);
+
+                s32 err = WADBackupEx(newTitleIds[i], 1, &myWork->scratchAllocator, NULL, &backupSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
+                if (err != WAD_ERROR_OK) {
+                    OSReport("NandSDWorker: WADBackup failed.[%d]\n", err);
+                    myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                    goto clean_up;
+                }
+                totalBackupSize += wadOffset;
+                totalBackupSize += backupSize;
             }
 
-            // Get app banner
-            int result = get_app_banner_from_meta(newTitleIds[i], backupData);
-            if (result != RESULT_OK) {
-                myWork->asyncResult = result;
-                goto clean_up;
+            for (int i = 0; i < replacingTitleCount; i++) {
+                if (s_sd_state != SD_STATE_READY) {
+                    myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                    goto clean_up;
+                }
+
+                int result = get_app_banner_from_meta(replacingTitleIds[i], backupData);
+                if (result != RESULT_OK) {
+                    myWork->asyncResult = result;
+                    goto clean_up;
+                }
+
+                u32 backupSize = 0;
+                u32 wadOffset = sizeof(SDAppBanner) + ROUNDUP(backupData->head.thumbSize, 64);
+
+                s32 err = WADBackupEx(replacingTitleIds[i], 1, &myWork->scratchAllocator, NULL, &backupSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
+                if (err != WAD_ERROR_OK) {
+                    OSReport("NandSDWorker: WADBackup failed.[%d]\n", err);
+                    myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                    goto clean_up;
+                }
+
+                totalBackupSize += wadOffset;
+                totalBackupSize += backupSize;
             }
 
-            u32 backupSize = 0;
-            u32 wadOffset = sizeof(SDAppBanner) + ROUNDUP(backupData->head.thumbSize, 64);
+            u64 totalDeletableSize;
+            totalDeletableSize = 0;
+            for (int i = 0; i < replacingTitleCount; i++) {
+                if (s_sd_state != SD_STATE_READY) {
+                    myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                    goto clean_up;
+                }
 
-            s32 err = WADBackupEx(newTitleIds[i], 1, &myWork->scratchAllocator, NULL, &backupSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
-            if (err != WAD_ERROR_OK) {
-                OSReport("NandSDWorker: WADBackup failed.[%d]\n", err);
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                goto clean_up;
-            }
-            totalBackupSize += wadOffset;
-            totalBackupSize += backupSize;
-        }
+                char sdAppPath[NAND_MAX_PATH];
+                get_sd_app_path(replacingTitleIds[i], sdAppPath);
 
-        for (int i = 0; i < replacingTitleCount; i++) {
-            if (s_sd_state != SD_STATE_READY) {
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                goto clean_up;
-            }
-
-            int result = get_app_banner_from_meta(replacingTitleIds[i], backupData);
-            if (result != RESULT_OK) {
-                myWork->asyncResult = result;
-                goto clean_up;
-            }
-
-            u32 backupSize = 0;
-            u32 wadOffset = sizeof(SDAppBanner) + ROUNDUP(backupData->head.thumbSize, 64);
-
-            s32 err = WADBackupEx(replacingTitleIds[i], 1, &myWork->scratchAllocator, NULL, &backupSize, WAD_LOCATION_SD_CARD, wadOffset, NULL);
-            if (err != WAD_ERROR_OK) {
-                OSReport("NandSDWorker: WADBackup failed.[%d]\n", err);
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                goto clean_up;
-            }
-
-            totalBackupSize += wadOffset;
-            totalBackupSize += backupSize;
-        }
-
-        u64 totalDeletableSize;
-        totalDeletableSize = 0;
-        for (int i = 0; i < replacingTitleCount; i++) {
-            if (s_sd_state != SD_STATE_READY) {
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                goto clean_up;
-            }
-
-            char sdAppPath[NAND_MAX_PATH];
-            get_sd_app_path(replacingTitleIds[i], sdAppPath);
-
-            FAFileStat fileStat;
-            if (FAFstat(sdAppPath, &fileStat) == FA_ERR_SUCCESS) {
-                if (is_fa_file(fileStat.stat)) {
-                    totalDeletableSize += fileStat.size;
+                FAFileStat fileStat;
+                if (FAFstat(sdAppPath, &fileStat) == FA_ERR_SUCCESS) {
+                    if (is_fa_file(fileStat.stat)) {
+                        totalDeletableSize += fileStat.size;
+                    } else {
+                        myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                        goto clean_up;
+                    }
                 } else {
                     myWork->asyncResult = RESULT_FATAL_SD_ERROR;
                     goto clean_up;
                 }
-            } else {
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                goto clean_up;
             }
-        }
 
-        u64 netSize;
-        netSize = totalBackupSize - totalDeletableSize;
-        if (netSize + 0x19000 > sdFreeArea) {
-            OSReport("NandSDWorker: total backup size [%d] is too large for SD card. \n", netSize + 0x19000);
-            myWork->asyncResult = netSize + 0x19000;
-        } else {
-            myWork->asyncResult = RESULT_OK;
+            u64 netSize;
+            netSize = totalBackupSize - totalDeletableSize;
+            if (netSize + 0x19000 > sdFreeArea) {
+                OSReport("NandSDWorker: total backup size [%d] is too large for SD card. \n", netSize + 0x19000);
+                myWork->asyncResult = netSize + 0x19000;
+            } else {
+                myWork->asyncResult = RESULT_OK;
+            }
         }
 
     clean_up:
@@ -2553,41 +2548,38 @@ namespace ipl {
         if (esErr != ES_ERR_OK) {
             OSReport("NandSDWorker: ES_ListOwnedTitles failed [%d]\n", esErr);
             ret = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
+        } else {
+            // Get title ID list
+            titleIds = (ESTitleId*)MEMAllocFromExpHeapEx(myWork->mainHeap, titleIdCount * sizeof(ESTitleId), 32);
+            esErr = ES_ListOwnedTitles(titleIds, &titleIdCount);
+            if (esErr != ES_ERR_OK) {
+                OSReport("NandSDWorker: ES_ListOwnedTitles failed [%d]\n", esErr);
+                ret = RESULT_FATAL_SD_ERROR;
+            } else {
+                for (int i = 0; i < titleIdCount; i++) {
+                    // Check if it's a disc title (title type 00010000 and only has "data" folder)
+                    if (!is_disk_or_user_nand_app(titleIds[i]) && !is_data_only_title(titleIds[i])) {
+                        continue;
+                    }
+
+                    // Goodbye ticket!
+                    int result = delete_ticket(titleIds[i]);
+                    if (result != RESULT_OK && result != RESULT_ES_ERROR) {
+                        OSReport("NandSDWorker: delete ticket 0x%016llx failed [%d]\n", titleIds[i], result);
+                    }
+
+                    // Goodbye title!
+                    esErr = utility::ESMisc::DeleteTitle(System::getMem2Sys(), titleIds[i]);
+                    if (esErr != ES_ERR_OK && esErr != ES_ERR_DONT_EXISTS) {
+                        OSReport("NandSDWorker: ESMisc::DeleteTitle 0x%016llx failed [%d]\n", titleIds[i], esErr);
+                    }
+
+                    OSReport("NandSDWorker: delete title [0x%016llx]\n", titleIds[i]);
+                }
+                ret = RESULT_OK;
+            }
         }
 
-        // Get title ID list
-        titleIds = (ESTitleId*)MEMAllocFromExpHeapEx(myWork->mainHeap, titleIdCount * sizeof(ESTitleId), 32);
-        esErr = ES_ListOwnedTitles(titleIds, &titleIdCount);
-        if (esErr != ES_ERR_OK) {
-            OSReport("NandSDWorker: ES_ListOwnedTitles failed [%d]\n", esErr);
-            ret = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-
-        for (int i = 0; i < titleIdCount; i++) {
-            // Check if it's a disc title (title type 00010000 and only has "data" folder)
-            if (!is_disk_or_user_nand_app(titleIds[i]) && !is_data_only_title(titleIds[i])) {
-                continue;
-            }
-
-            // Goodbye ticket!
-            int result = delete_ticket(titleIds[i]);
-            if (result != RESULT_OK && result != RESULT_ES_ERROR) {
-                OSReport("NandSDWorker: delete ticket 0x%016llx failed [%d]\n", titleIds[i], result);
-            }
-
-            // Goodbye title!
-            esErr = utility::ESMisc::DeleteTitle(System::getMem2Sys(), titleIds[i]);
-            if (esErr != ES_ERR_OK && esErr != ES_ERR_DONT_EXISTS) {
-                OSReport("NandSDWorker: ESMisc::DeleteTitle 0x%016llx failed [%d]\n", titleIds[i], esErr);
-            }
-
-            OSReport("NandSDWorker: delete title [0x%016llx]\n", titleIds[i]);
-        }
-        ret = RESULT_OK;
-
-    clean_up:
         if (titleIds != NULL) {
             MEMFreeToExpHeap(myWork->mainHeap, titleIds);
         }
@@ -2697,59 +2689,58 @@ namespace ipl {
         if (esErr != ES_ERR_OK) {
             OSReport("NandSDWorker: ES_ListTitlesOnCard failed [%d]\n", esErr);
             ret = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-
-        // Now let's delete all titles! Except the system titles of course
-        for (int i = 0; i < titleCount; i++) {
-            switch ((u32)ES_TITLE_TYPE_NOMASK(titleIds[i])) {
-                case ES_TITLE_TYPE(SYSMENU_TITLE_ID): {
-                    // Delete Wii Menu save data.
-                    if ((u32)ES_TITLE_CODE(titleIds[i]) == (u32)ES_TITLE_CODE(SYSMENU_TITLE_ID)) {
-                        ret = recursion_nand_save(titleIds[i], RECURSIVE_DELETE, c_ignore_list_for_wiimenu, ARRAY_LENGTH(c_ignore_list_for_wiimenu));
-                        if (ret != RESULT_OK && ret != RESULT_FATAL_SD_ERROR) {
-                            OSReport("NandSDWorker: failed to delete wii menu data.\n");
+        } else {
+            // Now let's delete all titles! Except the system titles of course
+            for (int i = 0; i < titleCount; i++) {
+                switch ((u32)ES_TITLE_TYPE_NOMASK(titleIds[i])) {
+                    case ES_TITLE_TYPE(SYSMENU_TITLE_ID): {
+                        // Delete Wii Menu save data.
+                        if ((u32)ES_TITLE_CODE(titleIds[i]) == (u32)ES_TITLE_CODE(SYSMENU_TITLE_ID)) {
+                            ret = recursion_nand_save(titleIds[i], RECURSIVE_DELETE, c_ignore_list_for_wiimenu, ARRAY_LENGTH(c_ignore_list_for_wiimenu));
+                            if (ret != RESULT_OK && ret != RESULT_FATAL_SD_ERROR) {
+                                OSReport("NandSDWorker: failed to delete wii menu data.\n");
+                                goto clean_up;
+                            }
+                            OSReport("NandSDWorker: successfully initialize wii menu data.\n");
+                        }
+                        break;
+                    }
+                    case TITLE_TYPE_DISC:
+                    case TITLE_TYPE_CHANNEL:
+                    case TITLE_TYPE_DISC_CHANNEL:
+                    case TITLE_TYPE_SHARED:
+                    case TITLE_TYPE_UNK6:
+                    case TITLE_TYPE_USER_APP7: {
+                        // Delete user installed titles
+                        ret = utility::ESMisc::DeleteTitle(System::getMem2Sys(), titleIds[i]);
+                        if (ret != ES_ERR_OK && ret != ES_ERR_DONT_EXISTS) {
+                            OSReport("NandSDWorker: ESMisc::DeleteTitle 0x%016llx failed [%d]\n", titleIds[i], ret);
+                            ret = RESULT_FATAL_SD_ERROR;
                             goto clean_up;
                         }
-                        OSReport("NandSDWorker: successfully initialize wii menu data.\n");
+                        OSReport("NandSDWorker: successfully delete app [0x%016llx].\n", titleIds[i]);
+                        break;
                     }
-                    break;
-                }
-                case TITLE_TYPE_DISC:
-                case TITLE_TYPE_CHANNEL:
-                case TITLE_TYPE_DISC_CHANNEL:
-                case TITLE_TYPE_SHARED:
-                case TITLE_TYPE_UNK6:
-                case TITLE_TYPE_USER_APP7: {
-                    // Delete user installed titles
-                    ret = utility::ESMisc::DeleteTitle(System::getMem2Sys(), titleIds[i]);
-                    if (ret != ES_ERR_OK && ret != ES_ERR_DONT_EXISTS) {
-                        OSReport("NandSDWorker: ESMisc::DeleteTitle 0x%016llx failed [%d]\n", titleIds[i], ret);
-                        ret = RESULT_FATAL_SD_ERROR;
-                        goto clean_up;
+                    case TITLE_TYPE_SYSTEM_CHANNEL:
+                    case TITLE_TYPE_UNK3:
+                    case TITLE_TYPE_HIDDEN_CHANNEL: {
+                        // Delete save data for hidden and system channels.
+                        ret = recursion_nand_save(titleIds[i], RECURSIVE_DELETE, NULL, 0);
+                        if (ret != RESULT_OK && ret != RESULT_FATAL_SD_ERROR) {
+                            OSReport("NandSDWorker: failed to delete 0x%016llx save data.\n", titleIds[i]);
+                            goto clean_up;
+                        }
+                        break;
                     }
-                    OSReport("NandSDWorker: successfully delete app [0x%016llx].\n", titleIds[i]);
-                    break;
-                }
-                case TITLE_TYPE_SYSTEM_CHANNEL:
-                case TITLE_TYPE_UNK3:
-                case TITLE_TYPE_HIDDEN_CHANNEL: {
-                    // Delete save data for hidden and system channels.
-                    ret = recursion_nand_save(titleIds[i], RECURSIVE_DELETE, NULL, 0);
-                    if (ret != RESULT_OK && ret != RESULT_FATAL_SD_ERROR) {
-                        OSReport("NandSDWorker: failed to delete 0x%016llx save data.\n", titleIds[i]);
-                        goto clean_up;
+                    default: {
+                        // Unknown channel type. Don't bother to do anything with it.
+                        OSReport("NandSDWorker: don't process for 0x%016llx\n", titleIds[i]);
+                        break;
                     }
-                    break;
-                }
-                default: {
-                    // Unknown channel type. Don't bother to do anything with it.
-                    OSReport("NandSDWorker: don't process for 0x%016llx\n", titleIds[i]);
-                    break;
                 }
             }
+            ret = RESULT_OK;
         }
-        ret = RESULT_OK;
 
     clean_up:
         if (titleIds != NULL) {
@@ -2935,88 +2926,85 @@ namespace ipl {
         if (wadErr == WAD_ERROR_NOCOPY) {
             OSReport("NandSDWorker: WADBackup 0x%016llx failed, this save data has nocopy only.[%d]\n", myWork->curTitleId, wadErr);
             myWork->asyncResult = RESULT_NOCOPY;
-            goto clean_up;
         } else if (wadErr != 0) {
             OSReport("NandSDWorker: WADBackup %s failed.[%d]\n", bnrPath, wadErr);
             myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-
-        if (backupWadSize + sizeof(SDSaveBanner) > sdFreeArea) {
-            OSReport("NandSDWorker: backup size [%d] is too large for SD card.\n", backupWadSize);
-            myWork->asyncResult = RESULT_OUT_OF_SPACE;
-            goto clean_up;
-        }
-        memcpy(sdSaveBnr->MD5Sum, c_md5_secret_key, NET_MD5_DIGEST_SIZE);
-
-        NETMD5Sum MD5Sum;
-        NETCalcMD5(MD5Sum, sdSaveBnr, sizeof(SDSaveBanner));
-
-        memcpy(sdSaveBnr->MD5Sum, MD5Sum, NET_MD5_DIGEST_SIZE);
-        encSaveBnr = MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDSaveBanner));
-        if (encrypt(sdSaveBnr, sizeof(SDSaveBanner), encSaveBnr) != RESULT_OK) {
-            myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-
-        backedUp = true;
-        if (isDataOnlyTitle) {
-            wadErr = WADBackupEx(myWork->curTitleId, 1, &myWork->scratchAllocator, savePath, &backupWadSize, WAD_LOCATION_SD_CARD, 0xf0c0, NULL);
         } else {
-            wadErr = WADBackupEx(myWork->curTitleId, 14, &myWork->scratchAllocator, savePath, &backupWadSize, WAD_LOCATION_SD_CARD, 0xf0c0, NULL);
-        }
-        if (wadErr == WAD_ERROR_NOCOPY) {
-            OSReport("NandSDWorker: WADBackup 0x%016llx failed, this save data has nocopy only.[%d]\n", myWork->curTitleId, wadErr);
-            myWork->asyncResult = RESULT_NOCOPY;
-            goto clean_up;
-        } else if (wadErr != 0) {
-            OSReport("NandSDWorker: WADBackup %s failed.[%d]\n", bnrPath, wadErr);
-            myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-        OSReport("NandSDWorker: make wad backup, size = [%d].\n", backupWadSize);
+            if (backupWadSize + sizeof(SDSaveBanner) > sdFreeArea) {
+                OSReport("NandSDWorker: backup size [%d] is too large for SD card.\n", backupWadSize);
+                myWork->asyncResult = RESULT_OUT_OF_SPACE;
+                goto clean_up;
+            }
+            memcpy(sdSaveBnr->MD5Sum, c_md5_secret_key, NET_MD5_DIGEST_SIZE);
 
-        FAFILE* stream;
-        stream = FAFopen(savePath, "r+");
-        if (stream == NULL) {
-            OSReport("NandSDWorker: FAFopen %s failed.\n", savePath);
-            handle_sd_error(FA_ERR_SYSTEM, &myWork->asyncResult);
-            goto clean_up;
-        }
-        OSReport("NandSDWorker: create %s in sd.\n", savePath);
+            NETMD5Sum MD5Sum;
+            NETCalcMD5(MD5Sum, sdSaveBnr, sizeof(SDSaveBanner));
 
-        if (handle_sd_error(FAFseek(stream, 0, FA_SEEK_ORIGIN_BEGIN), &myWork->asyncResult) != RESULT_OK) {
-            OSReport("NandSDWorker: FAFseek %s failed.\n", savePath);
-            FAFclose(stream);
-            goto clean_up;
-        }
+            memcpy(sdSaveBnr->MD5Sum, MD5Sum, NET_MD5_DIGEST_SIZE);
+            encSaveBnr = MEMAllocFromAllocator(&myWork->scratchAllocator, sizeof(SDSaveBanner));
+            if (encrypt(sdSaveBnr, sizeof(SDSaveBanner), encSaveBnr) != RESULT_OK) {
+                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                goto clean_up;
+            }
 
-        size_t fwriteRes;
-        fwriteRes = FAFwrite(encSaveBnr, sizeof(SDSaveBanner), 1, stream);
-        if (fwriteRes != 1) {
-            OSReport("NandSDWorker: FAFwrite %s failed.[%d]\n", savePath, fwriteRes);
-            handle_sd_error(FA_ERR_SYSTEM, &myWork->asyncResult);
-            FAFclose(stream);
-            goto clean_up;
-        }
+            backedUp = true;
+            if (isDataOnlyTitle) {
+                wadErr = WADBackupEx(myWork->curTitleId, 1, &myWork->scratchAllocator, savePath, &backupWadSize, WAD_LOCATION_SD_CARD, 0xf0c0, NULL);
+            } else {
+                wadErr = WADBackupEx(myWork->curTitleId, 14, &myWork->scratchAllocator, savePath, &backupWadSize, WAD_LOCATION_SD_CARD, 0xf0c0, NULL);
+            }
+            if (wadErr == WAD_ERROR_NOCOPY) {
+                OSReport("NandSDWorker: WADBackup 0x%016llx failed, this save data has nocopy only.[%d]\n", myWork->curTitleId, wadErr);
+                myWork->asyncResult = RESULT_NOCOPY;
+                goto clean_up;
+            } else if (wadErr != 0) {
+                OSReport("NandSDWorker: WADBackup %s failed.[%d]\n", bnrPath, wadErr);
+                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                goto clean_up;
+            }
+            OSReport("NandSDWorker: make wad backup, size = [%d].\n", backupWadSize);
 
-        if (handle_sd_error(FAFclose(stream), &myWork->asyncResult) != RESULT_OK) {
-            OSReport("NandSDWorker: FAFclose %s failed.\n", savePath);
-            goto clean_up;
-        }
+            FAFILE* stream;
+            stream = FAFopen(savePath, "r+");
+            if (stream == NULL) {
+                OSReport("NandSDWorker: FAFopen %s failed.\n", savePath);
+                handle_sd_error(FA_ERR_SYSTEM, &myWork->asyncResult);
+                goto clean_up;
+            }
+            OSReport("NandSDWorker: create %s in sd.\n", savePath);
 
-        int nocopyExists, notransferExists;
-        nocopyExists = item_exist_nand_save_folder(myWork->curTitleId, c_nocopy_folder_name);
-        notransferExists = item_exist_nand_save_folder(myWork->curTitleId, c_notransfer_folder_name);
+            if (handle_sd_error(FAFseek(stream, 0, FA_SEEK_ORIGIN_BEGIN), &myWork->asyncResult) != RESULT_OK) {
+                OSReport("NandSDWorker: FAFseek %s failed.\n", savePath);
+                FAFclose(stream);
+                goto clean_up;
+            }
 
-        // MWCC needs this separate boolean conversion when packing the copy flags.
-        bool dataOnlyTitle;
-        dataOnlyTitle = false;
-        if (isDataOnlyTitle) {
-            dataOnlyTitle = true;
+            size_t fwriteRes;
+            fwriteRes = FAFwrite(encSaveBnr, sizeof(SDSaveBanner), 1, stream);
+            if (fwriteRes != 1) {
+                OSReport("NandSDWorker: FAFwrite %s failed.[%d]\n", savePath, fwriteRes);
+                handle_sd_error(FA_ERR_SYSTEM, &myWork->asyncResult);
+                FAFclose(stream);
+                goto clean_up;
+            }
+
+            if (handle_sd_error(FAFclose(stream), &myWork->asyncResult) != RESULT_OK) {
+                OSReport("NandSDWorker: FAFclose %s failed.\n", savePath);
+            } else {
+                int nocopyExists, notransferExists;
+                nocopyExists = item_exist_nand_save_folder(myWork->curTitleId, c_nocopy_folder_name);
+                notransferExists = item_exist_nand_save_folder(myWork->curTitleId, c_notransfer_folder_name);
+
+                // MWCC needs this separate boolean conversion when packing the copy flags.
+                bool dataOnlyTitle;
+                dataOnlyTitle = false;
+                if (isDataOnlyTitle) {
+                    dataOnlyTitle = true;
+                }
+                myWork->asyncResult = nocopyExists | (notransferExists << 1) | (dataOnlyTitle << 2);
+                myWork->sdSaveNum++;
+            }
         }
-        myWork->asyncResult = nocopyExists | (notransferExists << 1) | (dataOnlyTitle << 2);
-        myWork->sdSaveNum++;
 
     clean_up:
         if (sdSaveBnr != NULL) {
@@ -3253,124 +3241,122 @@ namespace ipl {
         if (wadErr == WAD_ERROR_INCORRECT_DEVICE) {
             OSReport("NandSDWorker: WADImportGetBlocks failed, not original Wii.[%d]\n", wadErr);
             myWork->asyncResult = RESULT_NOT_TRANSFERRABLE;
-            goto clean_up;
         } else if (wadErr != WAD_ERROR_OK) {
             OSReport("NandSDWorker: WADImportGetBlocks failed.[%d]\n", wadErr);
             myWork->asyncResult = RESULT_BAD_FILE;
-            goto clean_up;
-        }
-
-        OSReport("NandSDWorker: shared content inodes/blocks = %d/%d\n", wadBlocks.sharedInodes, wadBlocks.sharedBlocks);
-        OSReport("NandSDWorker: private content inodes/blocks = %d/%d\n", wadBlocks.privateInodes, wadBlocks.privateBlocks);
-        OSReport("NandSDWorker: file inodes/blocks = %d/%d\n", wadBlocks.fileInodes, wadBlocks.fileBlocks);
-        int result;
-        result =
-            check_nand_free_area(wadBlocks.sharedInodes, wadBlocks.sharedBlocks, wadBlocks.privateInodes + wadBlocks.fileInodes + 1,
-                                 (saveBanner->headerSize + NAND_BLOCK_SIZE - 1) / NAND_BLOCK_SIZE + wadBlocks.fileBlocks + wadBlocks.privateBlocks);
-        if (result != RESULT_OK) {
-            myWork->asyncResult = result;
-            goto clean_up;
-        }
-
-        if (!isDataOnlyTitle) {
-            WADBackupHeader wadBackupHeader;
-            result = get_sd_wad_header(myWork->curTitleId, &wadBackupHeader, 0);
+        } else {
+            OSReport("NandSDWorker: shared content inodes/blocks = %d/%d\n", wadBlocks.sharedInodes, wadBlocks.sharedBlocks);
+            OSReport("NandSDWorker: private content inodes/blocks = %d/%d\n", wadBlocks.privateInodes, wadBlocks.privateBlocks);
+            OSReport("NandSDWorker: file inodes/blocks = %d/%d\n", wadBlocks.fileInodes, wadBlocks.fileBlocks);
+            int result;
+            result =
+                check_nand_free_area(wadBlocks.sharedInodes, wadBlocks.sharedBlocks, wadBlocks.privateInodes + wadBlocks.fileInodes + 1,
+                                     (saveBanner->headerSize + NAND_BLOCK_SIZE - 1) / NAND_BLOCK_SIZE + wadBlocks.fileBlocks + wadBlocks.privateBlocks);
             if (result != RESULT_OK) {
                 myWork->asyncResult = result;
-                goto clean_up;
-            }
-
-            if (wadBlocks.fileInodes == 0) {
-                if (wadBackupHeader.numFiles != 0) {
-                    OSReport("NandSDWorker: this save data includes only notransfer.\n");
-                    myWork->asyncResult = RESULT_NOT_TRANSFERRABLE;
-                    goto clean_up;
-                }
-            }
-            if (wadBlocks.fileInodes < wadBackupHeader.numFiles - 1) {
-                OSReport("NandSDWorker: this save data includes notransfer, %d files/directries not copied.\n",
-                         wadBackupHeader.numFiles - wadBlocks.fileInodes);
-                hasNotransfer = true;
-            }
-        }
-
-        wadErr = WADImportEx(sdSavePath, &myWork->scratchAllocator, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), 8, NULL);
-        if (wadErr != WAD_ERROR_OK) {
-            OSReport("NandSDWorker: WADRestoreSDEx failed.[%d]\n", wadErr);
-            if (isDataOnlyTitle) {
-                if (nand_app_exist_ex(saveBanner->curTitleId) != EXISTENCE_COMPLETE) {
-                    int delNandAppContentRes = delete_nand_app_content(saveBanner->curTitleId);
-                    if (delNandAppContentRes == RESULT_NAND_CORRUPT) {
-                        myWork->asyncResult = RESULT_NAND_CORRUPT;
+            } else {
+                if (!isDataOnlyTitle) {
+                    WADBackupHeader wadBackupHeader;
+                    result = get_sd_wad_header(myWork->curTitleId, &wadBackupHeader, 0);
+                    if (result != RESULT_OK) {
+                        myWork->asyncResult = result;
                         goto clean_up;
                     }
-                    if (delNandAppContentRes != RESULT_OK) {
-                        OSReport("NandSDWorker: delete title 0x%016llx content failed.[%d]\n", saveBanner->curTitleId, delNandAppContentRes);
+
+                    if (wadBlocks.fileInodes == 0) {
+                        if (wadBackupHeader.numFiles != 0) {
+                            OSReport("NandSDWorker: this save data includes only notransfer.\n");
+                            myWork->asyncResult = RESULT_NOT_TRANSFERRABLE;
+                            goto clean_up;
+                        }
+                    }
+                    if (wadBlocks.fileInodes < wadBackupHeader.numFiles - 1) {
+                        OSReport("NandSDWorker: this save data includes notransfer, %d files/directries not copied.\n",
+                                 wadBackupHeader.numFiles - wadBlocks.fileInodes);
+                        hasNotransfer = true;
                     }
                 }
+
+                wadErr = WADImportEx(sdSavePath, &myWork->scratchAllocator, WAD_LOCATION_SD_CARD, sizeof(SDSaveBanner), 8, NULL);
+                if (wadErr != WAD_ERROR_OK) {
+                    OSReport("NandSDWorker: WADRestoreSDEx failed.[%d]\n", wadErr);
+                    if (isDataOnlyTitle) {
+                        if (nand_app_exist_ex(saveBanner->curTitleId) != EXISTENCE_COMPLETE) {
+                            int delNandAppContentRes = delete_nand_app_content(saveBanner->curTitleId);
+                            if (delNandAppContentRes == RESULT_NAND_CORRUPT) {
+                                myWork->asyncResult = RESULT_NAND_CORRUPT;
+                                goto clean_up;
+                            }
+                            if (delNandAppContentRes != RESULT_OK) {
+                                OSReport("NandSDWorker: delete title 0x%016llx content failed.[%d]\n", saveBanner->curTitleId, delNandAppContentRes);
+                            }
+                        }
+                    }
+                    myWork->asyncResult = RESULT_BAD_FILE;
+                    goto clean_up;
+                }
+
+                if (!isDataOnlyTitle) {
+                    strncpy(tmpPath, c_tmp_work_path, NAND_MAX_PATH);
+                    strncat(tmpPath, "/", NAND_MAX_PATH);
+                    strncat(tmpPath, c_banner_file_name, NAND_MAX_PATH);
+
+                    s32 nandErr = nand::wrapper::Create(tmpPath, saveBanner->perms, saveBanner->attr);
+                    if (check_nand_corrupt(nandErr, &myWork->asyncResult)) {
+                        goto clean_up;
+                    }
+                    if (nandErr != NAND_RESULT_OK) {
+                        OSReport("NandSDWorker: NANDCreate %s failed [%d]\n", tmpPath, nandErr);
+                        myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                        goto clean_up;
+                    }
+
+                    NANDFileInfo fileInfo;
+                    s32 err = nand::wrapper::Open(tmpPath, &fileInfo, NAND_ACCESS_WRITE);
+                    if (err != NAND_RESULT_OK) {
+                        OSReport("NandSDWorker: NANDOpen %s failed [%d]\n", tmpPath, err);
+                        myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                        goto clean_up;
+                    }
+
+                    nandErr = nand::wrapper::Write(&fileInfo, &saveBanner->banner, saveBanner->headerSize);
+                    if (check_nand_corrupt(nandErr, &myWork->asyncResult)) {
+                        nand::wrapper::Close(&fileInfo);
+                        goto clean_up;
+                    }
+                    if (nandErr < saveBanner->headerSize) {
+                        OSReport("NandSDWorker: NANDWrite %s failed [%d]\n", tmpPath, nandErr);
+                        myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                        nand::wrapper::Close(&fileInfo);
+                        goto clean_up;
+                    }
+
+                    nandErr = nand::wrapper::Close(&fileInfo);
+                    if (check_nand_corrupt(nandErr, &myWork->asyncResult))
+                        goto clean_up;
+                    if (nandErr != NAND_RESULT_OK) {
+                        OSReport("NandSDWorker: NANDClose %s failed [%d]\n", tmpPath, nandErr);
+                        myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                        goto clean_up;
+                    }
+
+                    result = recursion_nand(c_tmp_work_path, targetPath, RECURSIVE_MOVE, NULL, 0);
+                    if (result != RESULT_OK) {
+                        OSReport("NandSDWorker: failed to move files from %s to %s.\n", c_tmp_work_path, targetPath);
+                        myWork->asyncResult = result;
+                        goto clean_up;
+                    }
+                    OSReport("NandSDWorker: import save data titleid = 0x%016llx.\n", saveBanner->curTitleId);
+                    if (hasNotransfer) {
+                        myWork->asyncResult = 1;
+                    } else {
+                        myWork->asyncResult = 0;
+                    }
+                }
+                myWork->nandSaveNum++;
             }
-            myWork->asyncResult = RESULT_BAD_FILE;
-            goto clean_up;
         }
 
-        if (!isDataOnlyTitle) {
-            strncpy(tmpPath, c_tmp_work_path, NAND_MAX_PATH);
-            strncat(tmpPath, "/", NAND_MAX_PATH);
-            strncat(tmpPath, c_banner_file_name, NAND_MAX_PATH);
-
-            s32 nandErr = nand::wrapper::Create(tmpPath, saveBanner->perms, saveBanner->attr);
-            if (check_nand_corrupt(nandErr, &myWork->asyncResult)) {
-                goto clean_up;
-            }
-            if (nandErr != NAND_RESULT_OK) {
-                OSReport("NandSDWorker: NANDCreate %s failed [%d]\n", tmpPath, nandErr);
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                goto clean_up;
-            }
-
-            NANDFileInfo fileInfo;
-            s32 err = nand::wrapper::Open(tmpPath, &fileInfo, NAND_ACCESS_WRITE);
-            if (err != NAND_RESULT_OK) {
-                OSReport("NandSDWorker: NANDOpen %s failed [%d]\n", tmpPath, err);
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                goto clean_up;
-            }
-
-            nandErr = nand::wrapper::Write(&fileInfo, &saveBanner->banner, saveBanner->headerSize);
-            if (check_nand_corrupt(nandErr, &myWork->asyncResult)) {
-                nand::wrapper::Close(&fileInfo);
-                goto clean_up;
-            }
-            if (nandErr < saveBanner->headerSize) {
-                OSReport("NandSDWorker: NANDWrite %s failed [%d]\n", tmpPath, nandErr);
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                nand::wrapper::Close(&fileInfo);
-                goto clean_up;
-            }
-
-            nandErr = nand::wrapper::Close(&fileInfo);
-            if (check_nand_corrupt(nandErr, &myWork->asyncResult))
-                goto clean_up;
-            if (nandErr != NAND_RESULT_OK) {
-                OSReport("NandSDWorker: NANDClose %s failed [%d]\n", tmpPath, nandErr);
-                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-                goto clean_up;
-            }
-
-            result = recursion_nand(c_tmp_work_path, targetPath, RECURSIVE_MOVE, NULL, 0);
-            if (result != RESULT_OK) {
-                OSReport("NandSDWorker: failed to move files from %s to %s.\n", c_tmp_work_path, targetPath);
-                myWork->asyncResult = result;
-                goto clean_up;
-            }
-            OSReport("NandSDWorker: import save data titleid = 0x%016llx.\n", saveBanner->curTitleId);
-            if (hasNotransfer) {
-                myWork->asyncResult = 1;
-            } else {
-                myWork->asyncResult = 0;
-            }
-        }
-        myWork->nandSaveNum++;
     clean_up:
         if (!isDataOnlyTitle) {
             check_nand_corrupt(nand::wrapper::Delete(c_tmp_work_path), &myWork->asyncResult);
@@ -3418,25 +3404,24 @@ namespace ipl {
 
         if (handle_sd_error_for_entry(FAFclose(fStream), &ret) != RESULT_OK) {
             OSReport("NandSDWorker: FAFclose failed.\n");
-            goto clean_up;
-        }
-
-        if (decrypt(encBanner, sizeof(SDSaveBanner), banner) != RESULT_OK) {
-            ret = RESULT_BAD_FILE;
-            goto clean_up;
-        }
-        NETMD5Sum MD5Sum;
-        memcpy(MD5Sum, banner->MD5Sum, NET_MD5_DIGEST_SIZE);
-        memcpy(banner->MD5Sum, &c_md5_secret_key, NET_MD5_DIGEST_SIZE);
-
-        if (!check_md5(MD5Sum, (u8*)banner, sizeof(SDSaveBanner))) {
-            OSReport("NandSDWorker: banner file %s md5 digest is not correct.\n", sdSavePath);
-            ret = RESULT_BAD_FILE;
-        } else if (titleId == (ESTitleId32)ES_TITLE_CODE(banner->curTitleId) && banner->banner.signature == WII_SAVE_BANNER_SIGNATURE) {
-            ret = RESULT_OK;
         } else {
-            OSReport("NandSDWorker: banner file %s signature is not correct\n", sdSavePath);
-            ret = RESULT_BAD_FILE;
+            if (decrypt(encBanner, sizeof(SDSaveBanner), banner) != RESULT_OK) {
+                ret = RESULT_BAD_FILE;
+            } else {
+                NETMD5Sum MD5Sum;
+                memcpy(MD5Sum, banner->MD5Sum, NET_MD5_DIGEST_SIZE);
+                memcpy(banner->MD5Sum, &c_md5_secret_key, NET_MD5_DIGEST_SIZE);
+
+                if (!check_md5(MD5Sum, (u8*)banner, sizeof(SDSaveBanner))) {
+                    OSReport("NandSDWorker: banner file %s md5 digest is not correct.\n", sdSavePath);
+                    ret = RESULT_BAD_FILE;
+                } else if (titleId == (ESTitleId32)ES_TITLE_CODE(banner->curTitleId) && banner->banner.signature == WII_SAVE_BANNER_SIGNATURE) {
+                    ret = RESULT_OK;
+                } else {
+                    OSReport("NandSDWorker: banner file %s signature is not correct\n", sdSavePath);
+                    ret = RESULT_BAD_FILE;
+                }
+            }
         }
 
     clean_up:
@@ -3461,31 +3446,27 @@ namespace ipl {
         if (fStream == NULL) {
             OSReport("NandSDWorker: FAFopen %s failed.\n", path);
             handle_sd_error_for_entry(FA_ERR_SYSTEM, &ret);
-            goto ret;
-        }
-
-        if (handle_sd_error_for_entry(FAFseek(fStream, fileOffset, FA_SEEK_ORIGIN_BEGIN), &ret) != RESULT_OK) {
-            OSReport("NandSDWorker: FAFseek %s failed.\n", path);
-            FAFclose(fStream);
-            goto ret;
-        }
-
-        if (FAFread(wadBackupHeader, sizeof(WADBackupHeader), 1, fStream) != 1) {
-            ret = handle_sd_error_for_entry(FA_ERR_SYSTEM, NULL);
-            if (ret == RESULT_OK) {
-                ret = RESULT_BAD_FILE;
+        } else {
+            if (handle_sd_error_for_entry(FAFseek(fStream, fileOffset, FA_SEEK_ORIGIN_BEGIN), &ret) != RESULT_OK) {
+                OSReport("NandSDWorker: FAFseek %s failed.\n", path);
+                FAFclose(fStream);
+            } else {
+                if (FAFread(wadBackupHeader, sizeof(WADBackupHeader), 1, fStream) != 1) {
+                    ret = handle_sd_error_for_entry(FA_ERR_SYSTEM, NULL);
+                    if (ret == RESULT_OK) {
+                        ret = RESULT_BAD_FILE;
+                    }
+                    FAFclose(fStream);
+                } else {
+                    if (handle_sd_error_for_entry(FAFclose(fStream), &ret) != RESULT_OK) {
+                        OSReport("NandSDWorker: FAFclose failed.\n");
+                    } else {
+                        ret = RESULT_OK;
+                    }
+                }
             }
-            FAFclose(fStream);
-            goto ret;
         }
 
-        if (handle_sd_error_for_entry(FAFclose(fStream), &ret) != RESULT_OK) {
-            OSReport("NandSDWorker: FAFclose failed.\n");
-            goto ret;
-        }
-
-        ret = RESULT_OK;
-    ret:
         return ret;
     }
 
@@ -3731,14 +3712,13 @@ namespace ipl {
             OSReport("NandSDWorker: FAFwrite %s failed.[%d]\n", sdAppPath, wadOffset);
             handle_sd_error(FA_ERR_SYSTEM, &myWork->asyncResult);
             FAFclose(fStream);
-            goto clean_up;
-        }
-
-        if (handle_sd_error(FAFclose(fStream), &myWork->asyncResult) != RESULT_OK) {
-            OSReport("NandSDWorker: FAFclose %s failed.\n", sdAppPath);
         } else {
-            myWork->sdAppNum++;
-            myWork->asyncResult = RESULT_OK;
+            if (handle_sd_error(FAFclose(fStream), &myWork->asyncResult) != RESULT_OK) {
+                OSReport("NandSDWorker: FAFclose %s failed.\n", sdAppPath);
+            } else {
+                myWork->sdAppNum++;
+                myWork->asyncResult = RESULT_OK;
+            }
         }
 
     clean_up:
@@ -3773,30 +3753,28 @@ namespace ipl {
         if (contentSize < WII_SAVE_BANNER_NORMAL_SIZE) {
             OSReport("NandSDWorker: banner file is too small [%d]\n", contentSize);
             ret = RESULT_BAD_FILE;
-            goto clean_up;
         } else if (contentSize > WII_SAVE_BANNER_FULL_SIZE) {
             OSReport("NandSDWorker: banner file is too large [%d]\n", contentSize);
             ret = RESULT_BAD_FILE;
-            goto clean_up;
-        }
+        } else {
+            if (sizeOut != NULL) {
+                *sizeOut = contentSize;
+            }
 
-        if (sizeOut != NULL) {
-            *sizeOut = contentSize;
-        }
+            ret = read_file(fd, FILEKIND_ES_CONTENT, 0x40, contentSize, fileOut);
+            if (ret != RESULT_OK) {
+                OSReport("NandSDWorker: failed to read from content.\n");
+                ret = RESULT_FATAL_SD_ERROR;
+                goto clean_up;
+            }
 
-        ret = read_file(fd, FILEKIND_ES_CONTENT, 0x40, contentSize, fileOut);
-        if (ret != RESULT_OK) {
-            OSReport("NandSDWorker: failed to read from content.\n");
-            ret = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
+            if (fileOut->signature != WII_SAVE_BANNER_SIGNATURE) {
+                OSReport("NandSDWorker: banner file signature is not correct\n");
+                ret = RESULT_BAD_FILE;
+            } else {
+                ret = RESULT_OK;
+            }
         }
-
-        if (fileOut->signature != WII_SAVE_BANNER_SIGNATURE) {
-            OSReport("NandSDWorker: banner file signature is not correct\n");
-            ret = RESULT_BAD_FILE;
-            goto clean_up;
-        }
-        ret = RESULT_OK;
 
     clean_up:
         ES_CloseContentFile((ESFd)fd);
@@ -3914,17 +3892,17 @@ namespace ipl {
         if (OSRoundUp32B(thumbnailSize) > SD_APP_BACKUP_THUMBNAIL_LENGTH) {
             OSReport("NandSDWorker: illegal thumbnail size.[%d]\n", thumbnailSize);
             ret = RESULT_BAD_FILE;
-            goto clean_up;
-        }
-        appBnrOut->head.thumbSize = thumbnailSize;
-        OSReport("NandSDWorker: thumbnail size = %d\n", thumbnailSize);
+        } else {
+            appBnrOut->head.thumbSize = thumbnailSize;
+            OSReport("NandSDWorker: thumbnail size = %d\n", thumbnailSize);
 
-        u32 iconBinOffset;
-        iconBinOffset = hdrOffset + headerSize + ARCGetStartOffset(&arcFile);
+            u32 iconBinOffset;
+            iconBinOffset = hdrOffset + headerSize + ARCGetStartOffset(&arcFile);
 
-        ret = read_file(fd, fileKind, iconBinOffset, thumbnailSize, appBnrOut->thumbnail);
-        if (ret == RESULT_OK) {
-            ret = RESULT_OK;
+            ret = read_file(fd, fileKind, iconBinOffset, thumbnailSize, appBnrOut->thumbnail);
+            if (ret == RESULT_OK) {
+                ret = RESULT_OK;
+            }
         }
 
     clean_up:
@@ -3971,35 +3949,30 @@ namespace ipl {
         if (ret != ES_ERR_OK) {
             OSReport("NandSDWorker: ES_GetTicketViews titleid 0x%016llx failed.\n", titleId);
             ret = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-
-        if (ticketViewCount == 0) {
+        } else if (ticketViewCount == 0) {
             OSReport("NandSDWorker: titleid 0x%016llx has no ticket.\n", titleId);
             ret = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-
-        ESTicketView* ticketViewList;
-        ticketViewList = (ESTicketView*)MEMAllocFromExpHeapEx(myWork->mainHeap, OSRoundUp32B(ticketViewCount * sizeof(ESTicketView)), 32);
-        *ticketViewOut = ticketViewList;
-        ret = ES_GetTicketViews(titleId, ticketViewList, &ticketViewCount);
-        if (ret != ES_ERR_OK) {
-            OSReport("NandSDWorker: ES_GetTicketViews titleid 0x%016llx failed.\n", titleId);
-            ret = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-
-        s32 err;
-        err = ES_OpenTitleContentFile(titleId, *ticketViewOut, contentIdx);
-        if (err < ES_ERR_OK) {
-            OSReport("NandSDWorker: ES_OpenTitleContentFile titleid 0x%016llx cidx %d failed.[%d]\n", titleId, contentIdx, err);
-            ret = RESULT_FATAL_SD_ERROR;
         } else {
-            ret = err;
+            ESTicketView* ticketViewList;
+            ticketViewList = (ESTicketView*)MEMAllocFromExpHeapEx(myWork->mainHeap, OSRoundUp32B(ticketViewCount * sizeof(ESTicketView)), 32);
+            *ticketViewOut = ticketViewList;
+            ret = ES_GetTicketViews(titleId, ticketViewList, &ticketViewCount);
+            if (ret != ES_ERR_OK) {
+                OSReport("NandSDWorker: ES_GetTicketViews titleid 0x%016llx failed.\n", titleId);
+                ret = RESULT_FATAL_SD_ERROR;
+            } else {
+                s32 err;
+                err = ES_OpenTitleContentFile(titleId, *ticketViewOut, contentIdx);
+                if (err < ES_ERR_OK) {
+                    OSReport("NandSDWorker: ES_OpenTitleContentFile titleid 0x%016llx cidx %d failed.[%d]\n", titleId, contentIdx, err);
+                    ret = RESULT_FATAL_SD_ERROR;
+                } else {
+                    ret = err;
 
-            *contentSizeOut = tmdView->contents[contentIdx].size;
-            OSReport("NandSDWorker: successfully open titleid 0x%016llx cidx %d. fd = %d, size = %d.\n", titleId, contentIdx, ret, *contentSizeOut);
+                    *contentSizeOut = tmdView->contents[contentIdx].size;
+                    OSReport("NandSDWorker: successfully open titleid 0x%016llx cidx %d. fd = %d, size = %d.\n", titleId, contentIdx, ret, *contentSizeOut);
+                }
+            }
         }
 
     clean_up:
@@ -4197,50 +4170,47 @@ namespace ipl {
         if (wadErr == WAD_ERROR_INCORRECT_DEVICE) {
             OSReport("NandSDWorker: WADImportGetBlocks failed, not original Wii.[%d]\n", wadErr);
             myWork->asyncResult = RESULT_NOT_TRANSFERRABLE;
-            goto clean_up;
         } else if (wadErr != WAD_ERROR_OK) {
             OSReport("NandSDWorker: WADImportGetBlocks failed.[%d]\n", wadErr);
             myWork->asyncResult = RESULT_BAD_FILE;
-            goto clean_up;
-        }
-
-        OSReport("NandSDWorker: shared content inodes/blocks = %d/%d\n", wadBlocks.sharedInodes, wadBlocks.sharedBlocks);
-        OSReport("NandSDWorker: private content inodes/blocks = %d/%d\n", wadBlocks.privateInodes, wadBlocks.privateBlocks);
-        OSReport("NandSDWorker: file inodes/blocks = %d/%d\n", wadBlocks.fileInodes, wadBlocks.fileBlocks);
-
-        result = check_nand_free_area(wadBlocks.sharedInodes, wadBlocks.sharedBlocks, wadBlocks.privateInodes + wadBlocks.fileInodes,
-                                      wadBlocks.privateBlocks + wadBlocks.fileBlocks);
-        if (result != RESULT_OK) {
-            myWork->asyncResult = result;
-            goto clean_up;
-        }
-
-        wadErr = WADImportEx(sdAppPath, &myWork->scratchAllocator, WAD_LOCATION_SD_CARD, ROUNDUP(sdAppBanner->thumbSize, 64) + sizeof(SDAppBanner), 8,
-                             wad_backup_progress_callback);
-        if (wadErr == WAD_ERROR_INCORRECT_DEVICE) {
-            OSReport("NandSDWorker: WADRestoreSDEx failed, not original Wii.[%d]\n", wadErr);
-            myWork->asyncResult = RESULT_NOT_TRANSFERRABLE;
-        } else if (wadErr != WAD_ERROR_OK) {
-            OSReport("NandSDWorker: WADRestoreSDEx failed.[%d]\n", wadErr);
-            if (nand_app_exist_ex(sdAppBanner->titleId) == 1) {
-                result = delete_nand_app_content(sdAppBanner->titleId);
-                if (result == RESULT_NAND_CORRUPT) {
-                    myWork->asyncResult = RESULT_NAND_CORRUPT;
-                    goto clean_up;
-                }
-                if (result != RESULT_OK) {
-                    OSReport("NandSDWorker: delete title 0x%016llx content failed.[%d]\n", sdAppBanner->titleId, result);
-                }
-            }
-            myWork->asyncResult = RESULT_BAD_FILE;
         } else {
-            OSReport("NandSDWorker: import app data titleid = 0x%016llx.\n", sdAppBanner->titleId);
-            myWork->nandAppNum++;
-            if (!changeAppCount) {
-                change_nand_app_count(1);
-            }
+            OSReport("NandSDWorker: shared content inodes/blocks = %d/%d\n", wadBlocks.sharedInodes, wadBlocks.sharedBlocks);
+            OSReport("NandSDWorker: private content inodes/blocks = %d/%d\n", wadBlocks.privateInodes, wadBlocks.privateBlocks);
+            OSReport("NandSDWorker: file inodes/blocks = %d/%d\n", wadBlocks.fileInodes, wadBlocks.fileBlocks);
 
-            myWork->asyncResult = RESULT_OK;
+            result = check_nand_free_area(wadBlocks.sharedInodes, wadBlocks.sharedBlocks, wadBlocks.privateInodes + wadBlocks.fileInodes,
+                                          wadBlocks.privateBlocks + wadBlocks.fileBlocks);
+            if (result != RESULT_OK) {
+                myWork->asyncResult = result;
+            } else {
+                wadErr = WADImportEx(sdAppPath, &myWork->scratchAllocator, WAD_LOCATION_SD_CARD, ROUNDUP(sdAppBanner->thumbSize, 64) + sizeof(SDAppBanner), 8,
+                                     wad_backup_progress_callback);
+                if (wadErr == WAD_ERROR_INCORRECT_DEVICE) {
+                    OSReport("NandSDWorker: WADRestoreSDEx failed, not original Wii.[%d]\n", wadErr);
+                    myWork->asyncResult = RESULT_NOT_TRANSFERRABLE;
+                } else if (wadErr != WAD_ERROR_OK) {
+                    OSReport("NandSDWorker: WADRestoreSDEx failed.[%d]\n", wadErr);
+                    if (nand_app_exist_ex(sdAppBanner->titleId) == 1) {
+                        result = delete_nand_app_content(sdAppBanner->titleId);
+                        if (result == RESULT_NAND_CORRUPT) {
+                            myWork->asyncResult = RESULT_NAND_CORRUPT;
+                            goto clean_up;
+                        }
+                        if (result != RESULT_OK) {
+                            OSReport("NandSDWorker: delete title 0x%016llx content failed.[%d]\n", sdAppBanner->titleId, result);
+                        }
+                    }
+                    myWork->asyncResult = RESULT_BAD_FILE;
+                } else {
+                    OSReport("NandSDWorker: import app data titleid = 0x%016llx.\n", sdAppBanner->titleId);
+                    myWork->nandAppNum++;
+                    if (!changeAppCount) {
+                        change_nand_app_count(1);
+                    }
+
+                    myWork->asyncResult = RESULT_OK;
+                }
+            }
         }
 
     clean_up:
@@ -4306,32 +4276,29 @@ namespace ipl {
 
         if (decrypt(encBuffer, sizeof(SDAppBanner), appBanner) != RESULT_OK) {
             ret = RESULT_BAD_FILE;
-            goto clean_up;
-        }
-
-        NETMD5Sum MD5Sum;
-        memcpy(MD5Sum, appBanner->headerMD5, NET_MD5_DIGEST_SIZE);
-        memcpy(appBanner->headerMD5, &c_md5_secret_key, NET_MD5_DIGEST_SIZE);
-        if (!check_md5(MD5Sum, (u8*)appBanner, sizeof(SDAppBanner))) {
-            OSReport("NandSDWorker: banner file %s md5 digest is not correct.\n", appPath);
-            ret = RESULT_BAD_FILE;
-            goto clean_up;
-        }
-
-        if (titleId == (u32)ES_TITLE_CODE(appBanner->titleId)) {
-            ret = RESULT_OK;
         } else {
-            ret = RESULT_BAD_FILE;
-        }
+            NETMD5Sum MD5Sum;
+            memcpy(MD5Sum, appBanner->headerMD5, NET_MD5_DIGEST_SIZE);
+            memcpy(appBanner->headerMD5, &c_md5_secret_key, NET_MD5_DIGEST_SIZE);
+            if (!check_md5(MD5Sum, (u8*)appBanner, sizeof(SDAppBanner))) {
+                OSReport("NandSDWorker: banner file %s md5 digest is not correct.\n", appPath);
+                ret = RESULT_BAD_FILE;
+            } else {
+                if (titleId == (u32)ES_TITLE_CODE(appBanner->titleId)) {
+                    ret = RESULT_OK;
+                } else {
+                    ret = RESULT_BAD_FILE;
+                }
 
-        FAFileStat fileStat;
-        memset(&fileStat, 0, sizeof(FAFileStat));
-        if (handle_sd_error_for_entry(FAFstat(appPath, &fileStat), &ret) != RESULT_OK) {
-            // @bug this should say FAFstat, looks like it was copy-pasted from above
-            OSReport("NandSDWorker: FAFclose failed.\n");
-
-        } else if (fileStat.size <= ROUNDUP(appBanner->thumbSize, 64) + sizeof(SDAppBanner)) {
-            ret = RESULT_BAD_FILE;
+                FAFileStat fileStat;
+                memset(&fileStat, 0, sizeof(FAFileStat));
+                if (handle_sd_error_for_entry(FAFstat(appPath, &fileStat), &ret) != RESULT_OK) {
+                    // @bug this should say FAFstat, looks like it was copy-pasted from above
+                    OSReport("NandSDWorker: FAFclose failed.\n");
+                } else if (fileStat.size <= ROUNDUP(appBanner->thumbSize, 64) + sizeof(SDAppBanner)) {
+                    ret = RESULT_BAD_FILE;
+                }
+            }
         }
 
     clean_up:
@@ -4384,21 +4351,19 @@ namespace ipl {
 
         if (decrypt(encBanner, ROUNDUP(appBanner->thumbSize, 64), cmprBuf) != RESULT_OK) {
             ret = RESULT_BAD_FILE;
-            goto clean_up;
-        }
-
-        if (!check_md5(appBanner->iconMD5, cmprBuf, ROUNDUP(appBanner->thumbSize, 64))) {
-            OSReport("NandSDWorker: banner file %s md5 digest is not correct.\n", appPath);
-            ret = RESULT_BAD_FILE;
-            goto clean_up;
-        }
-
-        ret = uncompress_app_thumbnail(cmprBuf, appBanner->thumbSize, thumbnailBuf);
-        if (ret < RESULT_OK) {
-            OSReport("NandSDWorker: cannot uncompress thumbnail of %016llx [%d].\n", appBanner->titleId, ret);
-            ret = RESULT_BAD_FILE;
         } else {
-            OSReport("NandSDWorker: uncompress thumbnail size = %d.\n", ret);
+            if (!check_md5(appBanner->iconMD5, cmprBuf, ROUNDUP(appBanner->thumbSize, 64))) {
+                OSReport("NandSDWorker: banner file %s md5 digest is not correct.\n", appPath);
+                ret = RESULT_BAD_FILE;
+            } else {
+                ret = uncompress_app_thumbnail(cmprBuf, appBanner->thumbSize, thumbnailBuf);
+                if (ret < RESULT_OK) {
+                    OSReport("NandSDWorker: cannot uncompress thumbnail of %016llx [%d].\n", appBanner->titleId, ret);
+                    ret = RESULT_BAD_FILE;
+                } else {
+                    OSReport("NandSDWorker: uncompress thumbnail size = %d.\n", ret);
+                }
+            }
         }
 
     clean_up:
@@ -4465,51 +4430,50 @@ namespace ipl {
         if (esErr != ES_ERR_OK) {
             OSReport("NandSDWorker: ES_ListTitleContentsOnCard failed.[%d]\n", esErr);
             ret = EXISTENCE_NOEXIST;
-            goto clean_up;
-        }
-        if (numContents == 0) {
-            OSReport("NandSDWorker: no content for 0x%016llx.\n", titleId);
-            ret = EXISTENCE_NOEXIST;
-            goto clean_up;
-        }
-
-        esErr = ES_ListTitleContentsOnCard(titleId, contentIds, &numContents);
-        if (esErr == ES_ERR_OK) {
-            bool foundNonOptionalMatch = false;
-            for (u32 i = 0; i < numContents && !foundNonOptionalMatch; i++) {
-                for (u32 j = 0; j < tmdView->head.numContents; j++) {
-                    if (contentIds[i] == tmdView->contents[j].cid && (tmdView->contents[j].type & 0x8000) == 0) {
-                        foundNonOptionalMatch = true;
-                        break;
-                    }
-                }
-            }
-            if (!foundNonOptionalMatch) {
-                OSReport("NandSDWorker: 0x%016llx is already deleted.\n", titleId);
-                ret = EXISTENCE_NOEXIST;
-                goto clean_up;
-            }
-
-            ret = EXISTENCE_NOEXIST;
-            u32 count;
-            for (u32 i = 0; i < tmdView->head.numContents; i++) {
-                count = 0;
-                for (u32 j = 0; j < numContents; j++) {
-                    if (contentIds[j] == tmdView->contents[i].cid)
-                        break;
-                    count++;
-                }
-                if (count == numContents && (tmdView->contents[i].type & 0x4000) == 0) {
-                    OSReport("NandSDWorker: not complete: non-optional cidx %d missing for 0x%016llx.\n", tmdView->contents[i].index, titleId);
-                    ret = EXISTENCE_INCOMPLETE;
-                    goto clean_up;
-                }
-            }
-            OSReport("NandSDWorker: complete: only missing non-optional contents for 0x%016llx.\n", titleId);
-            ret = EXISTENCE_COMPLETE;
         } else {
-            OSReport("NandSDWorker: ES_ListTitleContentsOnCard failed.[%d]\n", esErr);
-            ret = EXISTENCE_NOEXIST;
+            if (numContents == 0) {
+                OSReport("NandSDWorker: no content for 0x%016llx.\n", titleId);
+                ret = EXISTENCE_NOEXIST;
+            } else {
+                esErr = ES_ListTitleContentsOnCard(titleId, contentIds, &numContents);
+                if (esErr == ES_ERR_OK) {
+                    bool foundNonOptionalMatch = false;
+                    for (u32 i = 0; i < numContents && !foundNonOptionalMatch; i++) {
+                        for (u32 j = 0; j < tmdView->head.numContents; j++) {
+                            if (contentIds[i] == tmdView->contents[j].cid && (tmdView->contents[j].type & 0x8000) == 0) {
+                                foundNonOptionalMatch = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!foundNonOptionalMatch) {
+                        OSReport("NandSDWorker: 0x%016llx is already deleted.\n", titleId);
+                        ret = EXISTENCE_NOEXIST;
+                        goto clean_up;
+                    }
+
+                    ret = EXISTENCE_NOEXIST;
+                    u32 count;
+                    for (u32 i = 0; i < tmdView->head.numContents; i++) {
+                        count = 0;
+                        for (u32 j = 0; j < numContents; j++) {
+                            if (contentIds[j] == tmdView->contents[i].cid)
+                                break;
+                            count++;
+                        }
+                        if (count == numContents && (tmdView->contents[i].type & 0x4000) == 0) {
+                            OSReport("NandSDWorker: not complete: non-optional cidx %d missing for 0x%016llx.\n", tmdView->contents[i].index, titleId);
+                            ret = EXISTENCE_INCOMPLETE;
+                            goto clean_up;
+                        }
+                    }
+                    OSReport("NandSDWorker: complete: only missing non-optional contents for 0x%016llx.\n", titleId);
+                    ret = EXISTENCE_COMPLETE;
+                } else {
+                    OSReport("NandSDWorker: ES_ListTitleContentsOnCard failed.[%d]\n", esErr);
+                    ret = EXISTENCE_NOEXIST;
+                }
+            }
         }
 
     clean_up:
@@ -5363,51 +5327,34 @@ namespace ipl {
         fileOut = (WIISaveBannerFile*)MEMAllocFromExpHeapEx(this->myWork->mainHeap, 0xf0a0, 0x20);
 
         ret = get_nand_save_banner(titleId, fileOut, NULL);
-        if (ret != RESULT_OK) {
-            goto clean_up;
-        }
-
-        if (is_data_only_title(titleId)) {
-            ret = 5;
-            goto clean_up;
-        }
-
-        if ((fileOut->flags & WII_SAVE_BANNER_FLAG_NOCOPY) != 0) {
-            ret = 1;
-            goto clean_up;
-        }
-
-        if (item_exist_nand_save_folder(titleId, c_nocopy_folder_name)) {
-            ret = get_num_nand_data_only_title_save_files(titleId, &numTitleFiles);
-            if (ret != RESULT_OK) {
-                goto clean_up;
-            }
-
-            if (numTitleFiles == 2) {
+        if (ret == RESULT_OK) {
+            if (is_data_only_title(titleId)) {
+                ret = 5;
+            } else if ((fileOut->flags & WII_SAVE_BANNER_FLAG_NOCOPY) != 0) {
                 ret = 1;
+            } else if (item_exist_nand_save_folder(titleId, c_nocopy_folder_name)) {
+                ret = get_num_nand_data_only_title_save_files(titleId, &numTitleFiles);
+                if (ret == RESULT_OK) {
+                    if (numTitleFiles == 2) {
+                        ret = 1;
+                    } else {
+                        ret = 2;
+                    }
+                }
+            } else if (item_exist_nand_save_folder(titleId, c_notransfer_folder_name)) {
+                ret = get_num_nand_data_only_title_save_files(titleId, &numTitleFiles);
+                if (ret == RESULT_OK) {
+                    if (numTitleFiles == 2) {
+                        ret = 3;
+                    } else {
+                        ret = 4;
+                    }
+                }
             } else {
-                ret = 2;
+                ret = 0;
             }
-            goto clean_up;
         }
 
-        if (item_exist_nand_save_folder(titleId, c_notransfer_folder_name)) {
-            ret = get_num_nand_data_only_title_save_files(titleId, &numTitleFiles);
-            if (ret != RESULT_OK) {
-                goto clean_up;
-            }
-
-            if (numTitleFiles == 2) {
-                ret = 3;
-            } else {
-                ret = 4;
-            }
-            goto clean_up;
-        }
-
-        ret = 0;
-
-    clean_up:
         if (fileOut != NULL) {
             MEMFreeToExpHeap(myWork->mainHeap, fileOut);
         }
@@ -5607,20 +5554,17 @@ namespace ipl {
         WADBackupHeader wadBakHdr;
         ESDeviceId deviceId;
         ret = get_sd_wad_header(titleId, &wadBakHdr, ROUNDUP(sdAppBanner->thumbSize, 64));
-        if (ret != RESULT_OK) {
-            goto clean_up;
-        }
-
-        ret = ES_GetDeviceId(&deviceId);
-        if (ret != ES_ERR_OK) {
-            OSReport("NandSDWorker: ES_GetDeviceId failed: %d\n", ret);
-            ret = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-
-        if (wadBakHdr.deviceId != deviceId) {
-            OSReport("NandSDWorker: device id is different: %d vs %d\n", wadBakHdr.deviceId, deviceId);
-            ret = RESULT_NOT_TRANSFERRABLE;
+        if (ret == RESULT_OK) {
+            ret = ES_GetDeviceId(&deviceId);
+            if (ret != ES_ERR_OK) {
+                OSReport("NandSDWorker: ES_GetDeviceId failed: %d\n", ret);
+                ret = RESULT_FATAL_SD_ERROR;
+            } else {
+                if (wadBakHdr.deviceId != deviceId) {
+                    OSReport("NandSDWorker: device id is different: %d vs %d\n", wadBakHdr.deviceId, deviceId);
+                    ret = RESULT_NOT_TRANSFERRABLE;
+                }
+            }
         }
 
     clean_up:
