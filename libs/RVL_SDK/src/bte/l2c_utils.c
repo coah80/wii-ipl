@@ -162,7 +162,8 @@ BT_HDR *l2cu_build_header(UINT16 hci_handle, UINT16 len, UINT8 cmd, UINT8 id)
 	BT_HDR *p_buf;
 	UINT8 *p;
 
-	if ((p_buf = GKI_getpoolbuf(L2CAP_CMD_POOL_ID)) == NULL)
+	p_buf = GKI_getpoolbuf(L2CAP_CMD_POOL_ID);
+	if (p_buf == NULL)
 		return NULL;
 
 	p_buf->offset = L2CAP_SEND_CMD_OFFSET;
@@ -1097,7 +1098,8 @@ BOOLEAN l2cu_create_conn_after_switch(tL2C_LCB *p_lcb)
 
 	p_lcb->link_state = LST_CONNECTING;
 
-	if ((p_inq_info = BTM_InqDbRead(p_lcb->remote_bd_addr)) != NULL)
+	p_inq_info = BTM_InqDbRead(p_lcb->remote_bd_addr);
+	if (p_inq_info != NULL)
 	{
 		page_scan_rep_mode = p_inq_info->results.page_scan_rep_mode;
 		page_scan_mode = p_inq_info->results.page_scan_mode;

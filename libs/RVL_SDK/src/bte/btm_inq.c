@@ -101,7 +101,8 @@ tBTM_STATUS BTM_SetDiscoverability(tBTM_DISC_MODE inq_mode, UINT16 window,
 
 	if (inq_mode != BTM_NON_DISCOVERABLE)
 	{
-		if ((p_buf = HCI_GET_CMD_BUF(1 + LAP_LEN * 2)) != NULL)
+		p_buf = HCI_GET_CMD_BUF(1 + LAP_LEN * 2);
+		if (p_buf != NULL)
 		{
 			if (inq_mode & BTM_LIMITED_DISCOVERABLE)
 			{
@@ -139,7 +140,8 @@ tBTM_STATUS BTM_SetDiscoverability(tBTM_DISC_MODE inq_mode, UINT16 window,
 		}
 	}
 
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1);
+	if (p_buf != NULL)
 	{
 		if (btm_cb.btm_inq_vars.connectable_mode != BTM_NON_CONNECTABLE)
 			scan_mode |= HCI_PAGE_SCAN_ENABLED;
@@ -193,7 +195,8 @@ tBTM_STATUS BTM_SetInquiryScanType(tBTM_INQ_SCAN_TYPE scan_type)
 	{
 		if (BTM_IsDeviceUp())
 		{
-			if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1)) != NULL)
+			p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1);
+			if (p_buf != NULL)
 			{
 				btsnd_hcic_write_inqscan_type(p_buf, scan_type);
 				btm_cb.btm_inq_vars.inq_scan_type = scan_type;
@@ -229,7 +232,8 @@ tBTM_STATUS BTM_SetPageScanType(UINT16 scan_type)
 	{
 		if (BTM_IsDeviceUp())
 		{
-			if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1)) != NULL)
+			p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1);
+			if (p_buf != NULL)
 			{
 				btsnd_hcic_write_pagescan_type(p_buf, scan_type);
 				btm_cb.btm_inq_vars.page_scan_type = scan_type;
@@ -261,7 +265,8 @@ tBTM_STATUS BTM_SetInquiryMode(tBTM_INQ_RESULT_TYPE mode)
 	if (!BTM_IsDeviceUp())
 		return BTM_WRONG_MODE;
 
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1);
+	if (p_buf != NULL)
 		btsnd_hcic_write_inquiry_mode(p_buf, mode);
 	else
 		return BTM_NO_RESOURCES;
@@ -428,7 +433,8 @@ tBTM_STATUS BTM_SetConnectability(tBTM_CONN_MODE page_mode, UINT16 window,
 		}
 	}
 
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM1);
+	if (p_buf != NULL)
 	{
 		if (p_inq->discoverable_mode != BTM_NON_DISCOVERABLE)
 			scan_mode |= HCI_INQUIRY_SCAN_ENABLED;
@@ -564,7 +570,8 @@ tBTM_STATUS BTM_ReadRemoteDeviceName(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb)
 	          remote_bda[0], remote_bda[1], remote_bda[2], remote_bda[3],
 	          remote_bda[4], remote_bda[5]);
 
-	if ((p_i = btm_inq_db_find(remote_bda)) != NULL)
+	p_i = btm_inq_db_find(remote_bda);
+	if (p_i != NULL)
 		p_cur = &p_i->inq_info;
 
 	return btm_initiate_rem_name(remote_bda, p_cur, BTM_RMT_NAME_EXT,
@@ -1092,7 +1099,8 @@ static void btm_initiate_inquiry(tBTM_INQUIRY_VAR_ST *p_inq)
 	{
 		btm_clr_inq_result_flt();
 
-		if ((p_inq->p_bd_db = GKI_getbuf(GKI_MAX_BUF_SIZE)) != NULL)
+		p_inq->p_bd_db = GKI_getbuf(GKI_MAX_BUF_SIZE);
+		if (p_inq->p_bd_db != NULL)
 		{
 			p_inq->max_bd_entries = GKI_MAX_BUF_SIZE / sizeof *p_inq->p_bd_db;
 			memset(p_inq->p_bd_db, 0, GKI_MAX_BUF_SIZE);

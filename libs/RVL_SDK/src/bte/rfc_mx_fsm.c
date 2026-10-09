@@ -100,7 +100,8 @@ static void rfc_mx_sm_state_idle(tRFC_MCB *p_mcb, UINT16 event, void *p_data)
 	case RFC_MX_EVENT_START_REQ:
 		p_mcb->peer_l2cap_mtu = L2CAP_DEFAULT_MTU - RFCOMM_MIN_OFFSET - 1;
 
-		if ((p_mcb->lcid = L2CA_ConnectReq(BT_PSM_RFCOMM, p_mcb->bd_addr)) == 0)
+		p_mcb->lcid = L2CA_ConnectReq(BT_PSM_RFCOMM, p_mcb->bd_addr);
+		if (p_mcb->lcid == 0)
 		{
 			PORT_StartCnf(p_mcb, RFCOMM_ERROR);
 			return;

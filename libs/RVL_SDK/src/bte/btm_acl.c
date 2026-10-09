@@ -87,7 +87,8 @@ void btm_acl_created(BD_ADDR bda, DEV_CLASS dc, BD_NAME bdn, UINT16 hci_handle,
 	UINT8 xx;
 	UINT8 yy;
 
-	if ((p = btm_bda_to_acl(bda)) != (tACL_CONN *)NULL)
+	p = btm_bda_to_acl(bda);
+	if (p != (tACL_CONN *)NULL)
 	{
 		p->hci_handle = hci_handle;
 		p->link_role = link_role;
@@ -151,7 +152,8 @@ void btm_acl_removed(BD_ADDR bda)
 {
 	tACL_CONN *p;
 
-	if ((p = btm_bda_to_acl(bda)) != (tACL_CONN *)NULL)
+	p = btm_bda_to_acl(bda);
+	if (p != (tACL_CONN *)NULL)
 	{
 		p->in_use = FALSE;
 
@@ -179,7 +181,8 @@ tBTM_STATUS BTM_GetRole(BD_ADDR remote_bd_addr, tBTM_ROLE *p_role)
 {
 	tACL_CONN *p;
 
-	if ((p = btm_bda_to_acl(remote_bd_addr)) == NULL)
+	p = btm_bda_to_acl(remote_bd_addr);
+	if (p == NULL)
 	{
 		*p_role = BTM_ROLE_UNDEFINED;
 		return BTM_UNKNOWN_ADDR;
@@ -202,7 +205,8 @@ tBTM_STATUS BTM_SwitchRole(BD_ADDR remote_bd_addr, tBTM_ROLE new_role,
 	if (!HCI_SWITCH_SUPPORTED(btm_cb.devcb.local_features))
 		return BTM_MODE_UNSUPPORTED;
 
-	if ((p = btm_bda_to_acl(remote_bd_addr)) == NULL)
+	p = btm_bda_to_acl(remote_bd_addr);
+	if (p == NULL)
 		return BTM_UNKNOWN_ADDR;
 
 	if (p->link_role == new_role)
@@ -223,7 +227,8 @@ tBTM_STATUS BTM_SwitchRole(BD_ADDR remote_bd_addr, tBTM_ROLE new_role,
 	memset(&btm_cb.devcb.switch_role_ref_data, 0,
 	       sizeof btm_cb.devcb.switch_role_ref_data);
 
-	if ((status = BTM_ReadPowerMode(p->remote_addr, &pwr_mode)) != BTM_SUCCESS)
+	status = BTM_ReadPowerMode(p->remote_addr, &pwr_mode);
+	if (status != BTM_SUCCESS)
 		return status;
 
 	if (pwr_mode == BTM_PM_MD_PARK || pwr_mode == BTM_PM_MD_SNIFF)
@@ -356,7 +361,8 @@ tBTM_STATUS BTM_SetLinkPolicy(BD_ADDR remote_bda, tHCI_LINK_POLICY *settings)
 		}
 	}
 
-	if ((p = btm_bda_to_acl(remote_bda)) != NULL)
+	p = btm_bda_to_acl(remote_bda);
+	if (p != NULL)
 	{
 		return btsnd_hcic_write_policy_set(p->hci_handle, *settings)
 		         ? BTM_CMD_STARTED
@@ -382,7 +388,8 @@ tBTM_STATUS BTM_ReadLinkPolicy(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb)
 	if (btm_cb.devcb.p_rlinkp_cmpl_cb)
 		return BTM_BUSY;
 
-	if ((p = btm_bda_to_acl(remote_bda)) != (tACL_CONN *)NULL)
+	p = btm_bda_to_acl(remote_bda);
+	if (p != (tACL_CONN *)NULL)
 	{
 		btu_start_timer(&btm_cb.devcb.rlinkp_timer, BTU_TTYPE_BTM_ACL,
 		                BTM_DEV_REPLY_TIMEOUT);
@@ -534,7 +541,8 @@ tBTM_STATUS BTM_SetLinkSuperTout(BD_ADDR remote_bda, UINT16 timeout)
 {
 	tACL_CONN *p;
 
-	if ((p = btm_bda_to_acl(remote_bda)) != (tACL_CONN *)NULL)
+	p = btm_bda_to_acl(remote_bda);
+	if (p != (tACL_CONN *)NULL)
 	{
 		p->link_super_tout = timeout;
 
@@ -559,7 +567,8 @@ tBTM_STATUS BTM_SetPacketTypes(BD_ADDR remote_bda,
 {
 	tACL_CONN *p;
 
-	if ((p = btm_bda_to_acl(remote_bda)) != NULL)
+	p = btm_bda_to_acl(remote_bda);
+	if (p != NULL)
 		return btm_set_packet_types(p, pkt_types);
 
 	return BTM_UNKNOWN_ADDR;
@@ -569,7 +578,8 @@ UINT16 BTM_ReadPacketTypes(BD_ADDR remote_bda)
 {
 	tACL_CONN *p;
 
-	if ((p = btm_bda_to_acl(remote_bda)) != (tACL_CONN *)NULL)
+	p = btm_bda_to_acl(remote_bda);
+	if (p != (tACL_CONN *)NULL)
 		return p->pkt_types_mask;
 
 	return 0;
@@ -583,7 +593,8 @@ UINT16 BTM_ReadClockOffset(BD_ADDR remote_bda)
 	          remote_bda[0], remote_bda[1], remote_bda[2], remote_bda[3],
 	          remote_bda[4], remote_bda[5]);
 
-	if ((p = btm_bda_to_acl(remote_bda)) != NULL)
+	p = btm_bda_to_acl(remote_bda);
+	if (p != NULL)
 		return p->clock_offset;
 
 	return 0;
@@ -632,7 +643,8 @@ tHCI_HANDLE BTM_GetHCIConnHandle(BD_ADDR remote_bda)
 {
 	tACL_CONN *p;
 
-	if ((p = btm_bda_to_acl(remote_bda)) != (tACL_CONN *)NULL)
+	p = btm_bda_to_acl(remote_bda);
+	if (p != (tACL_CONN *)NULL)
 		return p->hci_handle;
 
 	return HCI_HANDLE_INVALID;
@@ -642,7 +654,8 @@ void btm_process_clk_off_comp_evt(tHCI_HANDLE hci_handle, UINT16 clock_offset)
 {
 	UINT8 xx;
 
-	if ((xx = btm_handle_to_acl_index(hci_handle)) < MAX_L2CAP_LINKS)
+	xx = btm_handle_to_acl_index(hci_handle);
+	if (xx < MAX_L2CAP_LINKS)
 		btm_cb.acl_db[xx].clock_offset = clock_offset;
 }
 
@@ -856,7 +869,8 @@ tBTM_STATUS BTM_SetQoS(BD_ADDR bd, FLOW_SPEC *p_flow, tBTM_CMPL_CB *p_cb)
 	if (btm_cb.devcb.p_qossu_cmpl_cb)
 		return BTM_BUSY;
 
-	if ((p = btm_bda_to_acl(bd)) != NULL)
+	p = btm_bda_to_acl(bd);
+	if (p != NULL)
 	{
 		btu_start_timer(&btm_cb.devcb.qossu_timer, BTU_TTYPE_BTM_ACL,
 		                BTM_DEV_REPLY_TIMEOUT);
@@ -923,7 +937,8 @@ tBTM_STATUS BTM_ReadRSSI(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb)
 	if (btm_cb.devcb.p_rssi_cmpl_cb)
 		return BTM_BUSY;
 
-	if ((p = btm_bda_to_acl(remote_bda)) != (tACL_CONN *)NULL)
+	p = btm_bda_to_acl(remote_bda);
+	if (p != (tACL_CONN *)NULL)
 	{
 		btu_start_timer(&btm_cb.devcb.rssi_timer, BTU_TTYPE_BTM_ACL,
 		                BTM_DEV_REPLY_TIMEOUT);
@@ -956,7 +971,8 @@ tBTM_STATUS BTM_ReadLinkQuality(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb)
 	if (btm_cb.devcb.p_lnk_qual_cmpl_cb)
 		return BTM_BUSY;
 
-	if ((p = btm_bda_to_acl(remote_bda)) != (tACL_CONN *)NULL)
+	p = btm_bda_to_acl(remote_bda);
+	if (p != (tACL_CONN *)NULL)
 	{
 		btu_start_timer(&btm_cb.devcb.lnk_quality_timer, BTU_TTYPE_BTM_ACL,
 		                BTM_DEV_REPLY_TIMEOUT);

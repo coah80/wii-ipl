@@ -55,12 +55,6 @@ enum
 };
 
 typedef UINT32 tBTA_SERVICE_MASK;
-#if 0
-enum
-{
-	/* ... */
-};
-#endif
 
 // Added constants for tBTA_SEC
 typedef UINT8 tBTA_SEC;
@@ -74,36 +68,12 @@ enum
 
 
 typedef UINT8 tBTA_DM_DISC;
-#if 0
-enum
-{
-	/* ... */
-};
-#endif
 
 typedef UINT8 tBTA_DM_CONN;
-#if 0
-enum
-{
-	/* ... */
-};
-#endif
 
 typedef UINT8 tBTA_DM_INQ_MODE;
-#if 0
-enum
-{
-	/* ... */
-};
-#endif
 
 typedef UINT8 tBTA_DM_INQ_FILT;
-#if 0
-enum
-{
-	/* ... */
-};
-#endif
 
 typedef UINT8 tBTA_AUTH_RESP;
 enum
