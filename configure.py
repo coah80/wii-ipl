@@ -1886,7 +1886,7 @@ config.libs = [
         ]
     ),
     RVLSDKLib("kbd", [
-            Object(NonMatching, "kbd/kbd_lib.c"),
+            Object(Matching, "kbd/kbd_lib.c"),
             Object(NonMatching, "kbd/kbd_lib_map_jp.c"),
             Object(Matching,    "kbd/kbd_lib_map_us.c"),
             Object(NonMatching, "kbd/kbd_lib_map_eu.c"),
