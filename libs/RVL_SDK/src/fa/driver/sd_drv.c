@@ -136,6 +136,7 @@ typedef union PFD_SDDRV_U16_BYTES {
     u8 bytes[2];
 } PFD_SDDRV_U16_BYTES;
 
+/* MWCC needs buffer-relative word stores to preserve boot-sector address calculations. */
 #define pfd_sddrv_store_le16(buffer, field, offset, value) \
     do { \
         if (((u32)(field) & 1) != 0) { \
@@ -292,8 +293,6 @@ s32 pfd_st_removal_callback(s32 status, void* data) {
     return 0;
 }
 
-#pragma push
-#pragma ppc_iro_level 0
 s32 pfd_sddrv_init(FADisk* disk) {
     s32 sd_result;
     SDDev* device;
@@ -311,7 +310,7 @@ s32 pfd_sddrv_init(FADisk* disk) {
     } else {
         if ((g_pfd_sddrv_info.flags & 4) == 0) {
             g_pfd_sddrv_info.bytes_per_sector = 0x200;
-            pf_memset(&g_pfd_sddev, 0, 0x28);
+            pf_memset(&g_pfd_sddev, 0, sizeof(g_pfd_sddev.device));
             sd_result = ISD_InitCard();
             if (sd_result != 0) {
                 OSReport("ERR:Failed to init SD Card Driver in pfd_sddrv_init()\n");
@@ -319,7 +318,7 @@ s32 pfd_sddrv_init(FADisk* disk) {
             }
             g_pfd_sddrv_info.flags |= 4;
         }
-        pf_memset(&g_pfd_sddev, 0, 0x28);
+        pf_memset(&g_pfd_sddev, 0, sizeof(g_pfd_sddev.device));
         device = &g_pfd_sddev.device;
         sd_result = ISD_MountCard(0, &device);
         if (sd_result != 0) {
@@ -359,7 +358,6 @@ s32 pfd_sddrv_init(FADisk* disk) {
     }
     return 0;
 }
-#pragma pop
 
 s32 pfd_sddrv_mount(FADisk* disk) {
     s32 result;
@@ -885,7 +883,7 @@ s32 pfd_sddrv_store_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     if (format_data == 0) {
         return -30;
     }
-    pf_memset(&settings, 0, 0x10);
+    pf_memset(&settings, 0, sizeof(settings));
     requested_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
@@ -967,7 +965,7 @@ s32 pfd_sddrv_store_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector_buffe
     if (format_data == 0) {
         return -30;
     }
-    pf_memset(&settings, 0, 0x10);
+    pf_memset(&settings, 0, sizeof(settings));
     requested_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
@@ -1028,7 +1026,7 @@ s32 pfd_sddrv_build_mbr_bpb(u32 total_sectors) {
     s32 result;
     u32 partition_start_sector;
 
-    pf_memset(&format_data, 0, 0x20);
+    pf_memset(&format_data, 0, sizeof(format_data));
     format_data.total_sectors = total_sectors;
     result = pfd_sddrv_calc_mbr_bpb(&format_data);
     if (result != 0) {
@@ -1093,7 +1091,7 @@ s32 pfd_sddrv_calc_fat32_mbr_bpb(PFD_SDDRV_FORMAT_DATA* format_data) {
     if (format_data == 0) {
         return -30;
     }
-    pf_memset(&settings, 0, 0x10);
+    pf_memset(&settings, 0, sizeof(settings));
     requested_sectors = format_data->total_sectors;
     total_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
@@ -1191,7 +1189,7 @@ s32 pfd_sddrv_store_fat32_mbr_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     if (format_data == 0 || sector_buffer == 0) {
         return -30;
     }
-    pf_memset(&settings, 0, 0x10);
+    pf_memset(&settings, 0, sizeof(settings));
     requested_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
@@ -1306,7 +1304,7 @@ s32 pfd_sddrv_store_fat32_bpb_buf(PFD_SDDRV_FORMAT_DATA* format_data, u8* sector
     if (format_data == 0 || sector_buffer == 0) {
         return -30;
     }
-    pf_memset(&settings, 0, 0x10);
+    pf_memset(&settings, 0, sizeof(settings));
     requested_sectors = format_data->total_sectors;
     size_entry = sddrv_size_depend_tbl;
     for (entry_index = 0; entry_index < 14; size_entry++, entry_index++) {
@@ -1375,12 +1373,13 @@ static inline s32 pfd_sddrv_write_sector(u32 sector) {
     return ISD_WriteBlock(g_pfd_sddrv_info.device, sector, g_pfd_sddrv_buf, 1);
 }
 
+/* MWCC needs IRO 0 to retain the reserved-sector error path. */
 #pragma push
 #pragma ppc_iro_level 0
 s32 pfd_sddrv_build_fat32_mbr_bpb(u32 total_sectors) {
     PFD_SDDRV_FORMAT_DATA format_data;
     s32 result;
-    pf_memset(&format_data, 0, 0x20);
+    pf_memset(&format_data, 0, sizeof(format_data));
     format_data.total_sectors = total_sectors;
     result = pfd_sddrv_calc_fat32_mbr_bpb(&format_data);
     if (result != 0) {

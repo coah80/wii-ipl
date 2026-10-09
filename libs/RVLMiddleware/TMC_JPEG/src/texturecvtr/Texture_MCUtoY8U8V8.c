@@ -14,6 +14,7 @@ static void TMCJPEG_814F32E4(TMCCJPEGDecWork*, s32, s32);
 static void TMCJPEG_814F34A4(TMCCJPEGDecWork*, s32, s32);
 static void TMCJPEG_814F372C(TMCCJPEGDecWork*, s32, s32);
 
+/* MWCC needs level 1 to preserve the shared conversion-buffer base. */
 #pragma push
 #pragma optimization_level 1
 s32 TMCJPEGDEC_set_converterY8U8V8(TMCCJPEGDecWork* work) {

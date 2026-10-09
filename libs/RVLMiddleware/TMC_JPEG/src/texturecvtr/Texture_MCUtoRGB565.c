@@ -14,6 +14,7 @@ static void TMCJPEGDEC_converterYUV444toRGB565edge(TMCCJPEGDecWork*, s32, s32);
 static void TMCJPEGDEC_converterYUV400toRGB565(TMCCJPEGDecWork*, s32, s32);
 static void TMCJPEGDEC_converterYUV400toRGB565edge(TMCCJPEGDecWork*, s32, s32);
 
+/* MWCC needs level 1 to preserve the shared conversion-buffer base. */
 #pragma push
 #pragma optimization_level 1
 s32 TMCJPEGDEC_set_converterRGB565(TMCCJPEGDecWork* work) {

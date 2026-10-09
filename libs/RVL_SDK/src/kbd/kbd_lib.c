@@ -171,7 +171,6 @@ static void kbd_led_handler(BOOL success, void* callbackArg);
 
 static void kbdAttachHandler(void* device) {
     u32 channel;
-    channel = 0;
 
     for (channel = 0; channel < 4; channel++) {
         if (kbdData[(u8)channel].device == NULL) {
@@ -196,7 +195,6 @@ static void kbdAttachHandler(void* device) {
 
 static void kbdDetachHandler(void* device) {
     u32 channel;
-    channel = 0;
 
     for (channel = 0; channel < 4; channel++) {
         if (device == kbdData[(u8)channel].device) {
@@ -221,7 +219,6 @@ static void kbdDetachHandler(void* device) {
 
 static void kbdEventHandler(void* device, char* report) {
     u32 channel;
-    channel = 0;
 
     for (channel = 0; channel < 4; channel++) {
         if (device == kbdData[(u8)channel].device) {
@@ -396,6 +393,7 @@ static void kbdProcKey(u32 key, u32 pressed, u32 channel) {
     kbdSendKey(&event);
 }
 
+/* MWCC needs propagation disabled to preserve the inlined modifier-state registers. */
 #pragma push
 #pragma opt_propagation off
 static void kbdProcMod(u32 key, u32 pressed, u32 channel) {
@@ -403,8 +401,6 @@ static void kbdProcMod(u32 key, u32 pressed, u32 channel) {
     u32 modState;
     s32 delta;
     u8 flags;
-
-    u32 finalState;
     s8 value;
     data = &kbdData[channel];
     delta = (pressed & 1) != 0 ? 1 : -1;
@@ -523,8 +519,7 @@ static void kbdProcMod(u32 key, u32 pressed, u32 channel) {
         }
         break;
     }
-    finalState = modState | 0x1000;
-    KBDSetModState(channel, finalState);
+    KBDSetModState(channel, modState | 0x1000);
 }
 #pragma pop
 
@@ -557,6 +552,7 @@ static void kbdSendKey(KBDKeyEventData* event) {
     }
 }
 
+/* MWCC needs IRO 0 to reload the callback and retain the success branch. */
 #pragma push
 #pragma ppc_iro_level 0
 static void kbd_led_handler(BOOL success, void* callbackArg) {
@@ -824,6 +820,7 @@ USBKBDErr KBDSetLockProcessing(u32 channel, u32 value) {
     return 0;
 }
 
+/* MWCC needs IRO 1 to preserve the modifier-state load and store registers. */
 #pragma push
 #pragma ppc_iro_level 1
 USBKBDErr KBDSetModState(u32 channel, u32 value) {
@@ -837,12 +834,12 @@ USBKBDErr KBDSetModState(u32 channel, u32 value) {
         kbdData[channel].modState = value & ~0x1000;
     } else {
         BOOL interrupts;
-        KBDModifierState oldState;
+        u32 oldState;
         KBDModifierState newState;
         interrupts = OSDisableInterrupts();
         newState.value = value & 0xfc0;
-        oldState.value = kbdData[channel].modState;
-        newState.bits.physical = oldState.value;
+        oldState = kbdData[channel].modState;
+        newState.bits.physical = oldState;
         kbdData[channel].modState = newState.value;
         OSRestoreInterrupts(interrupts);
     }
