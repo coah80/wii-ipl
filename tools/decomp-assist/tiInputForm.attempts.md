@@ -548,3 +548,10 @@ coloring. Unit fuzzy 99.54, data 100.
   stmt-order swaps on previous/next/selectedIndex: all no-ops or worse.
 - Residual ~86 renames: mriManager rows/selected/previous/next expression-temp band
   (r4-r8 volatile order) + residual saved-reg permutations — same tie family.
+
+- REVERTED: the u16-field form shrinks csButtonAnimations .data bytes (00 08 vs
+  00 00 00 08) — unit matched_data 100 -> 27.5. u32 field + u16 local emits
+  lhz+clrlwi (171). declsearch order alone scored worse under normalized diff
+  (147 vs 150 baseline). Net: create restored to upstream baseline; the
+  u16-numbering mechanism is documented but no usable form found — count's web
+  must be u32-typed AND allocator-late, unproducible so far.
