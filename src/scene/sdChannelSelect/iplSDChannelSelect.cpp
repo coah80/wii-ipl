@@ -352,7 +352,7 @@ namespace ipl {
             return true;
         }
 
-        bool SDChannelSelect::enqueueMoveNotice(u32 controller, u32 page, u32 index) {
+        bool SDChannelSelect::enqueueMoveNotice(ESTitleId titleId) {
             if (mCurrentSDState != 6) {
                 return false;
             }
@@ -361,7 +361,7 @@ namespace ipl {
             command.type = 6;
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
-            command.titleId = ((u64)page << 32) | index;
+            command.titleId = titleId;
             mCommandQueue.push(command);
             return true;
         }
@@ -380,36 +380,39 @@ namespace ipl {
             return true;
         }
 
-        bool SDChannelSelect::enqueueErrorNotice(u32 page, u32 index) {
+        bool SDChannelSelect::enqueueErrorNotice(NandSDWorker::TitleIdList* newTitles,
+                                                 NandSDWorker::TitleIdList* replacingTitles) {
             if (mCurrentSDState != 6) {
                 return false;
             }
 
             SDChannelSelectCommand command;
             command.type = 11;
-            command.arguments.values[0] = page;
-            command.arguments.values[1] = index;
+            command.arguments.titleLists[0] = newTitles;
+            command.arguments.titleLists[1] = replacingTitles;
             command.titleId = 0;
             mCommandQueue.push(command);
             return true;
         }
 
-        bool SDChannelSelect::enqueueCommandNotice(u32 page, u32 index, u32 commandType) {
+        bool SDChannelSelect::enqueueCommandNotice(NandSDWorker::TitleIdList* titles,
+                                                   NandSDWorker::TitleIdList* foundTitles,
+                                                   NandSDWorker::TitleIdList* badTitles) {
             if (mCurrentSDState != 6) {
                 return false;
             }
 
             SDChannelSelectCommand command;
-            command.arguments.values[0] = page;
+            command.arguments.titleLists[0] = titles;
             command.type = 12;
-            command.arguments.values[1] = index;
-            command.arguments.values[2] = commandType;
+            command.arguments.titleLists[1] = foundTitles;
+            command.arguments.titleLists[2] = badTitles;
             command.titleId = 0;
             mCommandQueue.push(command);
             return true;
         }
 
-        bool SDChannelSelect::enqueueDeleteNotice(u32 controller, u32 page, u32 index) {
+        bool SDChannelSelect::enqueueDeleteNotice(ESTitleId titleId) {
             if (mCurrentSDState != 6) {
                 return false;
             }
@@ -419,7 +422,7 @@ namespace ipl {
             command.arguments.values[0] = 0;
             command.arguments.values[1] = 0;
             command.arguments.values[2] = 0;
-            command.titleId = ((u64)page << 32) | index;
+            command.titleId = titleId;
             mCommandQueue.push(command);
             return true;
         }
@@ -1326,7 +1329,7 @@ namespace ipl {
 
         bool SDChannelSelect::collectTitlesByUsage(
             s32* firstUsage, s32* secondUsage, ESTitleId* titleIds,
-            char* titleNames, u32* titleCount) {
+            wchar_t (*titleNames)[21], u32* titleCount) {
             s32 bytes;
             s32 blocks;
             getCurrentTitleUsage(&bytes, &blocks);
@@ -1343,7 +1346,7 @@ namespace ipl {
                         titleIds[*titleCount] = mpNandTitleInfo[index].curTitleId;
                         wchar_t* titleName = System::getChannelManager()->getTitleName(
                             page, channelIndex, 0);
-                        memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
+                        memcpy(titleNames[*titleCount], titleName, sizeof(*titleNames));
                         ++*titleCount;
 
                         if (bytes >= secondUsage[0] && blocks >= secondUsage[1]) {
@@ -1361,7 +1364,7 @@ namespace ipl {
 
         bool SDChannelSelect::collectTitlesFromNandUsage(
             s32* firstUsage, s32* secondUsage,
-            ESTitleId* titleIds, char* titleNames, u32* titleCount) {
+            ESTitleId* titleIds, wchar_t (*titleNames)[21], u32* titleCount) {
             s32 bytes;
             s32 blocks;
             getCurrentTitleUsage(&bytes, &blocks);
@@ -1384,7 +1387,7 @@ namespace ipl {
                 titleIds[*titleCount] = mpNandTitleInfo[index].curTitleId;
                 wchar_t* titleName = System::getChannelManager()->getTitleName(
                     page, channelIndex, 0);
-                memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
+                memcpy(titleNames[*titleCount], titleName, sizeof(*titleNames));
                 ++*titleCount;
 
                 if (bytes >= secondUsage[0] && blocks >= secondUsage[1]) {
@@ -1400,7 +1403,7 @@ namespace ipl {
 
         bool SDChannelSelect::collectTitlesByChannelOrder(
             s32* firstUsage, s32* secondUsage, ESTitleId* titleIds,
-            char* titleNames, u32* titleCount) {
+            wchar_t (*titleNames)[21], u32* titleCount) {
             static const int channelOrder[MAX_CHANNEL_INDEX] = {
                 11, 7, 3, 10, 6, 2, 9, 5, 1, 8, 4, 0,
             };
@@ -1427,7 +1430,7 @@ namespace ipl {
                         titleIds[*titleCount] = mpNandTitleInfo[usageIndex].curTitleId;
                         wchar_t* titleName =
                             System::getChannelManager()->getTitleName(page, channelOrder[order], 0);
-                        memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
+                        memcpy(titleNames[*titleCount], titleName, sizeof(*titleNames));
                         ++*titleCount;
 
                         if (bytes >= secondUsage[0] && blocks >= secondUsage[1]) {
@@ -1445,7 +1448,7 @@ namespace ipl {
 
         bool SDChannelSelect::collectTitlesBySpecialChannels(
             s32* firstUsage, s32* secondUsage, ESTitleId* titleIds,
-            char* titleNames, u32* titleCount) {
+            wchar_t (*titleNames)[21], u32* titleCount) {
             s32 bytes;
             s32 blocks;
             getCurrentTitleUsage(&bytes, &blocks);
@@ -1502,7 +1505,7 @@ namespace ipl {
                 titleIds[*titleCount] = mpNandTitleInfo[usageIndex].curTitleId;
                 wchar_t* titleName = System::getChannelManager()->getTitleName(
                     page, channelIndex, 0);
-                memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
+                memcpy(titleNames[*titleCount], titleName, sizeof(*titleNames));
                 ++*titleCount;
 
                 if (bytes >= secondUsage[0] && blocks >= secondUsage[1]) {
@@ -1528,7 +1531,7 @@ namespace ipl {
                     titleIds[*titleCount] = mpNandTitleInfo[usageIndex].curTitleId;
                     wchar_t* titleName = System::getChannelManager()->getTitleName(
                         page, channelIndex, 0);
-                    memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
+                    memcpy(titleNames[*titleCount], titleName, sizeof(*titleNames));
                     ++*titleCount;
 
                     if (bytes >= secondUsage[0] && blocks >= secondUsage[1]) {
@@ -1544,7 +1547,7 @@ namespace ipl {
                 wchar_t* titleName =
                     System::getChannelManager()->getTitleName(
                         hadePage, hadeChannelIndex, 0);
-                memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
+                memcpy(titleNames[*titleCount], titleName, sizeof(*titleNames));
                 ++*titleCount;
 
                 if (bytes >= secondUsage[0] && blocks >= secondUsage[1]) {
@@ -1559,7 +1562,7 @@ namespace ipl {
                 wchar_t* titleName =
                     System::getChannelManager()->getTitleName(
                         hatePage, hateChannelIndex, 0);
-                memcpy(titleNames + *titleCount * 0x2a, titleName, 0x2a);
+                memcpy(titleNames[*titleCount], titleName, sizeof(*titleNames));
                 ++*titleCount;
 
                 if (bytes >= secondUsage[0] && blocks >= secondUsage[1]) {
@@ -1575,7 +1578,7 @@ namespace ipl {
 
         bool SDChannelSelect::collectTitlesForMode(
             s32* requiredBytes, s32* requiredBlocks,
-            ESTitleId* titleIds, char* titleNames, u32* titleCount, int searchMode) {
+            ESTitleId* titleIds, wchar_t (*titleNames)[21], u32* titleCount, int searchMode) {
             switch (searchMode) {
             case 0:
                 return collectTitlesBySpecialChannels(

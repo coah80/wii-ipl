@@ -178,7 +178,7 @@ namespace ipl {
             BOOL onEventDerived(const char* paneName, u32 event,
                                 controller::Interface* controller);
             bool collectTitlesByUsage(s32* firstUsage, s32* secondUsage,
-                                      ESTitleId* titleIds, char* titleNames,
+                                      ESTitleId* titleIds, wchar_t (*titleNames)[21],
                                       u32* titleCount);
 
             static const char* mscChannelPaneNames[PAGE_COUNT][MAX_CHANNEL_INDEX];
@@ -197,6 +197,8 @@ namespace ipl {
             friend class SDChannelSelectEventHandler;
             friend class SDChannelSelectButtonEventHandler;
 #endif
+            friend class SDMemory;
+
             void enqueueStartNotice();
             bool enqueueFinishNotice();
             bool enqueueNotice(u32 highTitleId, u32 lowTitleId, u32 result);
@@ -204,11 +206,14 @@ namespace ipl {
             bool enqueuePageNotice();
             bool enqueueResultNotice(u32 result);
             bool enqueueChannelNotice(u64 titleId, u32 value);
-            bool enqueueMoveNotice(u32 controller, u32 page, u32 index);
+            bool enqueueMoveNotice(ESTitleId titleId);
             bool enqueueStateNotice(u64 titleId, u32 state);
-            bool enqueueErrorNotice(u32 page, u32 index);
-            bool enqueueCommandNotice(u32 page, u32 index, u32 command);
-            bool enqueueDeleteNotice(u32 controller, u32 page, u32 index);
+            bool enqueueErrorNotice(NandSDWorker::TitleIdList* newTitles,
+                                    NandSDWorker::TitleIdList* replacingTitles);
+            bool enqueueCommandNotice(NandSDWorker::TitleIdList* titles,
+                                      NandSDWorker::TitleIdList* foundTitles,
+                                      NandSDWorker::TitleIdList* badTitles);
+            bool enqueueDeleteNotice(ESTitleId titleId);
             void clearCommandQueue();
             void clearNoticeQueue();
             void calcChannelObjects();
@@ -233,16 +238,16 @@ namespace ipl {
             bool isCurrentTitleUsageEnough(const s32* usage) const;
             void getCurrentTitleUsage(s32* bytes, s32* blocks) const;
             bool collectTitlesByChannelOrder(s32* firstUsage, s32* secondUsage,
-                                             ESTitleId* titleIds, char* titleNames,
+                                             ESTitleId* titleIds, wchar_t (*titleNames)[21],
                                              u32* titleCount);
             bool collectTitlesFromNandUsage(s32* firstUsage, s32* secondUsage,
-                                            ESTitleId* titleIds, char* titleNames,
+                                            ESTitleId* titleIds, wchar_t (*titleNames)[21],
                                             u32* titleCount);
             bool collectTitlesBySpecialChannels(s32* firstUsage, s32* secondUsage,
-                                                ESTitleId* titleIds, char* titleNames,
+                                                ESTitleId* titleIds, wchar_t (*titleNames)[21],
                                                 u32* titleCount);
             bool collectTitlesForMode(s32* firstUsage, s32* secondUsage,
-                                      ESTitleId* titleIds, char* titleNames,
+                                      ESTitleId* titleIds, wchar_t (*titleNames)[21],
                                       u32* titleCount, int searchMode);
             bool findAdjacentChannel(int direction, int* page, int* index) const;
             void setStateAndPlaySelectSound(int state) NO_INLINE;

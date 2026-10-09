@@ -707,49 +707,75 @@ extern "C" void clearAllCardFileEntries(s32 slot) {
     } while (file < CARD_MAX_FILE);
 }
 
-static inline void updateCardIconAnimation(s32 slot, s32 fileNo, CARDDir* dir) {
-    s32 iconCount = 0;
-    s32 shift = 0;
-    s32 icon;
-    sThread->icons[slot][fileNo].unk_0x02 = 0;
-    sThread->icons[slot][fileNo].anmMax = 0;
-    sThread->icons[slot][fileNo].anmFrameBits = dir->iconSpeed;
-    sThread->icons[slot][fileNo].unk_0x06 =
-        (dir->iconSpeed & CARD_STAT_SPEED_MASK) << 2;
-    for (icon = 0; icon < CARD_ICON_MAX; ++icon) {
-        s32 iconSpeed = (dir->iconSpeed >> shift) & CARD_STAT_SPEED_MASK;
-        if (iconSpeed != 0) {
-            sThread->icons[slot][fileNo].anmMax =
-                sThread->icons[slot][fileNo].anmMax + (iconSpeed << 2);
-        } else {
-            sThread->icons[slot][fileNo].unk_0x07 =
-                (u8)(((dir->iconSpeed >> ((iconCount - 1) * 2)) << 2) & 0xC);
-            return;
-        }
-        iconCount = iconCount + 1;
-        shift = shift + 2;
+static inline s32 readCardImages(s32 slot, s32 fileNo, CARDDir* dir, CARDFileInfo* fileInfo,
+                                 u32 address, s32 offset, s32 imageSize) {
+    s32 sectorSize;
+    u32 transferSize = (imageSize + offset + 0x1FF) & 0xFFFFFE00;
+    if (CARDGetSectorSize(slot, (u32*)&sectorSize) < CARD_RESULT_READY) {
+        sThread->icons[slot][fileNo].bannerEnable = 0;
+        sThread->icons[slot][fileNo].unk_0x01 = 0;
+        return 0;
     }
-    sThread->icons[slot][fileNo].unk_0x07 =
-        (dir->iconSpeed >> 0xC) & 0xC;
+
+    u32 fileSize = (u32)dir->length * sectorSize;
+    if (address > fileSize) {
+        sThread->icons[slot][fileNo].bannerEnable = 0;
+        sThread->icons[slot][fileNo].unk_0x01 = 0;
+        return 0;
+    }
+    if (address + transferSize > fileSize) {
+        sThread->icons[slot][fileNo].bannerEnable = 0;
+        sThread->icons[slot][fileNo].unk_0x01 = 0;
+        return 0;
+    }
+
+    if (imageSize > 0) {
+        s32 result = CARDRead(fileInfo, sThread->imageReadBuffer, transferSize, address);
+        if (result < CARD_RESULT_READY) {
+            return result;
+        }
+        memcpy(sThread->images[slot][fileNo], sThread->imageReadBuffer + offset, imageSize);
+        DCStoreRange(sThread->images[slot][fileNo], transferSize);
+    }
+    return 0;
 }
 
-extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
+static inline s32 readCardComment(s32 slot, s32 fileNo, CARDDir* dir, CARDFileInfo* fileInfo) {
+    u32 address = dir->commentAddr;
+    u32 base = address & 0xFFFFFE00;
+    s32 offset = address - base;
+    s32 readSize = ((address + 0x23F) & 0xFFFFFE00) - base;
     s32 sectorSize;
-    s32 commentSectorSize;
-    CARDFileInfo fileInfo;
-    u32 iconAddressBase;
-    s32 result;
-    s32 iconAddressOffset;
-    result = CARDFastOpen(slot, fileNo, &fileInfo);
-    if (result < CARD_RESULT_READY) {
-        return result;
+    s32 result = CARDGetSectorSize(slot, (u32*)&sectorSize);
+    if (result >= CARD_RESULT_READY) {
+        u32 fileSize;
+        if ((s32)base < 0 || base > (fileSize = (u32)dir->length * sectorSize)) {
+            result = 0;
+        } else {
+            u32 end = base + readSize;
+            if ((s32)end < 0 || end > fileSize) {
+                result = 0;
+            } else {
+                result = CARDRead(fileInfo, sThread->commentBuffer, readSize, base);
+                if (result >= CARD_RESULT_READY) {
+                    memset(sThread->comments[slot][fileNo], 0, CARD_COMMENT_SIZE);
+                    memcpy(sThread->comments[slot][fileNo], sThread->commentBuffer + offset,
+                           CARD_COMMENT_SIZE);
+                    return 0;
+                }
+            }
+        }
     }
 
+    memset(sThread->comments[slot][fileNo], 0, CARD_COMMENT_SIZE);
+    return result;
+}
+
+static inline s32 loadCardIconImages(s32 slot, s32 fileNo, CARDDir* dir, CARDFileInfo* fileInfo) {
     s32 bannerImageSize = 0;
     u8 format = dir->bannerFormat & CARD_STAT_BANNER_MASK;
     u32 iconAddress = dir->iconAddr;
-    iconAddressBase = iconAddress & 0xFFFFFE00;
-    iconAddressOffset = iconAddress - iconAddressBase;
+    s32 iconAddressOffset = iconAddress - (iconAddress & 0xFFFFFE00);
 
     switch (format) {
     case CARD_STAT_BANNER_C8: {
@@ -786,12 +812,33 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
     }
     }
 
-    s32 shift = 0;
-    BOOL hasTlut = FALSE;
-    s32 iconImageSize = 0;
+    s32 shift;
+    BOOL hasTlut;
+    s32 iconImageSize;
     s32 icon;
-    s32 iconCount = 0;
-    updateCardIconAnimation(slot, fileNo, dir);
+    s32 iconCount;
+    shift = 0;
+    iconCount = 0;
+    hasTlut = FALSE;
+    iconImageSize = 0;
+    sThread->icons[slot][fileNo].unk_0x02 = 0;
+    sThread->icons[slot][fileNo].anmMax = 0;
+    sThread->icons[slot][fileNo].anmFrameBits = dir->iconSpeed;
+    sThread->icons[slot][fileNo].unk_0x06 = (dir->iconSpeed & CARD_STAT_SPEED_MASK) << 2;
+    for (icon = 0; icon < CARD_ICON_MAX; ++icon) {
+        s32 iconSpeed = (dir->iconSpeed >> shift) & CARD_STAT_SPEED_MASK;
+        if (iconSpeed != 0) {
+            sThread->icons[slot][fileNo].anmMax = sThread->icons[slot][fileNo].anmMax + (iconSpeed << 2);
+        } else {
+            sThread->icons[slot][fileNo].unk_0x07 =
+                (u8)(((dir->iconSpeed >> ((iconCount - 1) * 2)) << 2) & 0xC);
+            goto animationDone;
+        }
+        iconCount = iconCount + 1;
+        shift = shift + 2;
+    }
+    sThread->icons[slot][fileNo].unk_0x07 = (dir->iconSpeed >> 0xC) & 0xC;
+animationDone:
     if ((dir->iconSpeed & CARD_STAT_SPEED_MASK) == 0 || (dir->iconFormat & CARD_STAT_ICON_MASK) == 0) {
         sThread->icons[slot][fileNo].unk_0x01 = 0;
         iconImageSize = 0;
@@ -801,7 +848,7 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
         for (icon = 0; icon < CARD_ICON_MAX; ++icon) {
             if (((dir->iconSpeed >> shift) & CARD_STAT_SPEED_MASK) != 0) {
                 s32 iconFormat = (dir->iconFormat >> shift) & CARD_STAT_ICON_MASK;
-                s32 paletteSize = 0;
+                s32 paletteSize;
                 switch (iconFormat) {
                 case CARD_STAT_ICON_C8:
                     paletteSize = 0x400;
@@ -813,9 +860,9 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
                     sThread->icons[slot][fileNo].iconFmt[iconCount] = GX_TF_RGB5A3;
                     break;
                 case CARD_STAT_ICON_NONE: {
-                    u8* iconPalette =
-                        &sThread->icons[slot][fileNo].iconFmt[iconCount];
-                    *iconPalette = iconPalette[-1];
+                    paletteSize = 0;
+                    u8* previous = &sThread->icons[slot][fileNo].iconFmt[iconCount - 1];
+                    sThread->icons[slot][fileNo].iconFmt[iconCount] = *previous;
                     break;
                 }
                 default:
@@ -847,79 +894,23 @@ extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
         sThread->icons[slot][fileNo].anmDelta = 1;
     }
 
-    s32 totalImageSize = iconImageSize + bannerImageSize;
-    u32 transferSize = (totalImageSize + iconAddressOffset + 0x1FF) & 0xFFFFFE00;
-    result = CARDGetSectorSize(slot, (u32*)&sectorSize);
-    if (result < CARD_RESULT_READY) {
-        result = 0;
-        sThread->icons[slot][fileNo].bannerEnable = 0;
-        sThread->icons[slot][fileNo].unk_0x01 = 0;
-    } else {
-        u32 fileSize = (u32)dir->length * sectorSize;
-        if (iconAddressBase > fileSize) {
-            result = 0;
-            sThread->icons[slot][fileNo].bannerEnable = 0;
-            sThread->icons[slot][fileNo].unk_0x01 = 0;
-        } else if (iconAddressBase + transferSize > fileSize) {
-            result = 0;
-            sThread->icons[slot][fileNo].bannerEnable = 0;
-            sThread->icons[slot][fileNo].unk_0x01 = 0;
-        } else {
-            if (totalImageSize > 0) {
-                result = CARDRead(&fileInfo, sThread->imageReadBuffer,
-                                  transferSize, iconAddressBase);
-                if (result < CARD_RESULT_READY) {
-                    return result;
-                }
-                memcpy(sThread->images[slot][fileNo],
-                       sThread->imageReadBuffer + iconAddressOffset,
-                       totalImageSize);
-                DCStoreRange(sThread->images[slot][fileNo], transferSize);
-            }
-            result = 0;
-        }
-    }
+    return readCardImages(slot, fileNo, dir, fileInfo, iconAddress & 0xFFFFFE00, iconAddressOffset,
+                          bannerImageSize + iconImageSize);
+}
 
+extern "C" s32 loadCardFileIcons(s32 slot, s32 fileNo, CARDDir* dir) {
+    CARDFileInfo fileInfo;
+    s32 result = CARDFastOpen(slot, fileNo, &fileInfo);
     if (result < CARD_RESULT_READY) {
         return result;
     }
 
-    iconAddress = dir->commentAddr;
-    iconAddressBase = iconAddress & 0xFFFFFE00;
-    s32 commentDataOffset = iconAddress - iconAddressBase;
-    s32 imageSize = ((iconAddress + 0x23F) & 0xFFFFFE00) - iconAddressBase;
-    result = CARDGetSectorSize(slot, (u32*)&commentSectorSize);
+    result = loadCardIconImages(slot, fileNo, dir, &fileInfo);
     if (result < CARD_RESULT_READY) {
-        goto clearComment;
-    }
-    {
-        u32 fileSize;
-        if ((s32)iconAddressBase < 0 ||
-            iconAddressBase > (fileSize = (u32)dir->length * commentSectorSize)) {
-            result = 0;
-        } else {
-            u32 endOffset = iconAddressBase + imageSize;
-            if ((s32)endOffset < 0 || endOffset > fileSize) {
-                result = 0;
-                goto clearComment;
-            }
-            result = CARDRead(&fileInfo, sThread->commentBuffer, imageSize,
-                              iconAddressBase);
-            if (result < CARD_RESULT_READY) {
-                goto clearComment;
-            }
-            memset(sThread->comments[slot][fileNo], 0, CARD_COMMENT_SIZE);
-            memcpy(sThread->comments[slot][fileNo],
-                   sThread->commentBuffer + commentDataOffset, CARD_COMMENT_SIZE);
-            result = 0;
-            goto commentDone;
-        }
+        return result;
     }
 
-clearComment:
-    memset(sThread->comments[slot][fileNo], 0, CARD_COMMENT_SIZE);
-
-commentDone:
+    result = readCardComment(slot, fileNo, dir, &fileInfo);
     if (result < CARD_RESULT_READY) {
         return result;
     }
