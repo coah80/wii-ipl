@@ -108,7 +108,7 @@ namespace {
                 } else if (operation == ut::OPERATION_CHAR_SPACE) {
                     bCharSpace = true;
                 } else if (operation == ut::OPERATION_NEXT_LINE) {
-                    goto end_draw;
+                    break;
                 }
             } else {
                 if (bCharSpace) {
@@ -128,12 +128,11 @@ namespace {
 
                 if (pRect->GetWidth() > maxWidth) {
                     *pbOver = true;
-                    goto end_draw;
+                    break;
                 }
             }
         }
 
-    end_draw:
         if (*pbOver && prStrPos) {
             *pRect = prMaxRect;
             return prStrPos - str;
@@ -223,7 +222,7 @@ namespace nw4r {
             } else if (void* fontRes = resBlockSet.pResAccessor->GetResource('font', fontName, NULL)) {
                 if (void* pMemFont = Layout::AllocMemory(sizeof(ut::ResFont))) {
                     ut::ResFont* pResFont = new (pMemFont) ut::ResFont();
-                    bool bSuccess = pResFont->SetResource(fontRes);
+                    pResFont->SetResource(fontRes);
 
                     mpFont = pResFont;
                     mTextBoxFlag.allocFont = true;

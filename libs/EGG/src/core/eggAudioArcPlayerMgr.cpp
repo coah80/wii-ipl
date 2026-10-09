@@ -4,7 +4,7 @@
 #include <nw4r/snd.h>
 
 #include <revolution/os.h>
-#pragma sym on
+
 namespace EGG {
     ArcPlayer::ArcPlayer(nw4r::snd::SoundHeap* pHeap) : mpSoundHeap(pHeap) {
         mStorage = SARC_STORAGE_NONE;

@@ -18,14 +18,15 @@ extern "C" const u8 scLytFatalColorA;
 extern "C" char scLytFatalMsg[];
 
 #undef NW4R_ASSERT
-#define NW4R_GLOBAL_ASSERT(x)                                                                                                                               \
-    {                                                                                                                                                \
-        if (!(x)) {                                                                                                                                  \
-            GXColor front = {*((volatile const u8*)&::scLytFatalColorR), *((volatile const u8*)&::scLytFatalColorG),                                        \
-                             *((volatile const u8*)&::scLytFatalColorB), *((volatile const u8*)&::scLytFatalColorA)};                                        \
-            GXColor back = {0, 0, 0, 0};                                                                                                             \
-            OSFatal(front, back, ::scLytFatalMsg);                                                                                  \
-        }                                                                                                                                            \
+// MWCC needs byte loads from the named color constants instead of folding their values.
+#define NW4R_GLOBAL_ASSERT(x) \
+    { \
+        if (!(x)) { \
+            GXColor front = {*((volatile const u8*)&::scLytFatalColorR), *((volatile const u8*)&::scLytFatalColorG), \
+                             *((volatile const u8*)&::scLytFatalColorB), *((volatile const u8*)&::scLytFatalColorA)}; \
+            GXColor back = {0, 0, 0, 0}; \
+            OSFatal(front, back, ::scLytFatalMsg); \
+        } \
     }
 
 #define NW4R_ASSERT(x) \

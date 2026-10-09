@@ -20,25 +20,24 @@ namespace nw4r {
             const HeaderedGlyphGroups* pGlgr;
             const ArchiveFontBinaryLayout* font;
 
-            u16 countName, countSheet, count0A, count0C;
+            u16 countName, countSheet, countCWDH, countCMAP;
 
-            u32 stepSheets, step0A, step0C;
+            u32 stepSheets, stepCWDH, stepCMAP;
 
-            u32 dataSheetsOff, data0AOff, data0COff;
-            const u32* dataSheets;
-            const u32* data0A;
-            const u32* data0C;
+            u32 dataSheetsOff, dataCWDHOff, dataCMAPOff;
+            const u32* dataCWDH;
+            const u32* dataCMAP;
 
-            u32 flagsSheetsOff, flags0AOff, flags0COff;
+            u32 flagsSheetsOff, flagsCWDHOff, flagsCMAPOff;
             const u32* flagsSheets;
-            const u32* flags0A;
-            const u32* flags0C;
+            const u32* flagsCWDH;
+            const u32* flagsCMAP;
 
             int i;
             int entryI;
-            const HeaderedGlyphGroups* offsetPGlgr;
+            const HeaderedGlyphGroups* groupHeaderCursor;
             const u8* offsetFlags;
-            u32 loadedSheetCount, loadedSmth0ASize, loadedSmth0CSize;
+            u32 loadedSheetCount, loadedCWDHSize, loadedCMAPSize;
             u32 flagWord;
             const char* groupName;
             const u32* offsetData;
@@ -49,11 +48,10 @@ namespace nw4r {
             u32 neededCharacterSize;
             u32 baseSize;
 
-            u32 count0CWork;
+            // MWCC needs this widened CMAP count for the original temporary allocation.
+            u32 cmapCountForLayout;
 
-            u32& neededCharacterSizeRef = neededCharacterSize;
-
-            u32 loadedSizeRef;
+            u32 loadedCharacterSize;
 
             u32 groupOffset;
 
@@ -61,46 +59,45 @@ namespace nw4r {
                 return 0;
             }
 
-            font = (ArchiveFontBinaryLayout*)fontData;
+            font = static_cast<const ArchiveFontBinaryLayout*>(fontData);
             pGlgr = &font->glgr;
 
             countName = pGlgr->inner.nameCount;
             countSheet = pGlgr->inner.sheetCount;
-            count0A = pGlgr->inner.smthCount_0x0a;
-            count0C = pGlgr->inner.smthCount_0x0c;
-            count0CWork = count0C;
+            countCWDH = pGlgr->inner.cwdhCount;
+            countCMAP = pGlgr->inner.cmapCount;
+            cmapCountForLayout = countCMAP;
 
             stepSheets = ((s32)countSheet + 0x1f) / 32 * 4;
-            step0A = ((s32)count0A + 0x1f) / 32 * 4;
-            step0C = ((s32)count0CWork + 0x1f) / 32 * 4;
+            stepCWDH = ((s32)countCWDH + 0x1f) / 32 * 4;
+            stepCMAP = ((s32)cmapCountForLayout + 0x1f) / 32 * 4;
 
             dataSheetsOff = ROUNDUP(offsetof(ArchiveFontBinaryLayout, glgr.inner.nameOffsets) + countName * sizeof(u16), 4);
-            data0AOff = ROUNDUP(dataSheetsOff + countSheet * sizeof(u32), 4);
-            data0COff = ROUNDUP(data0AOff + count0A * sizeof(u32), 4);
-            dataSheets = (const u32*)(dataSheetsOff + (u32)fontData);
-            data0A = (const u32*)(data0AOff + (u32)fontData);
-            data0C = (const u32*)(data0COff + (u32)fontData);
+            dataCWDHOff = ROUNDUP(dataSheetsOff + countSheet * sizeof(u32), 4);
+            dataCMAPOff = ROUNDUP(dataCWDHOff + countCWDH * sizeof(u32), 4);
+            dataCWDH = (const u32*)(dataCWDHOff + (u32)fontData);
+            dataCMAP = (const u32*)(dataCMAPOff + (u32)fontData);
 
-            flagsSheetsOff = ROUNDUP(data0COff + count0CWork * sizeof(u32), 4);
-            flags0AOff = ROUNDUP(flagsSheetsOff + stepSheets * countName, 4);
-            flags0COff = ROUNDUP(flags0AOff + step0A * countName, 4);
+            flagsSheetsOff = ROUNDUP(dataCMAPOff + cmapCountForLayout * sizeof(u32), 4);
+            flagsCWDHOff = ROUNDUP(flagsSheetsOff + stepSheets * countName, 4);
+            flagsCMAPOff = ROUNDUP(flagsCWDHOff + stepCWDH * countName, 4);
 
             flagsSheets = (const u32*)(flagsSheetsOff + (u32)fontData);
-            flags0A = (const u32*)(flags0AOff + (u32)fontData);
-            flags0C = (const u32*)(flags0COff + (u32)fontData);
+            flagsCWDH = (const u32*)(flagsCWDHOff + (u32)fontData);
+            flagsCMAP = (const u32*)(flagsCMAPOff + (u32)fontData);
 
             loadedSheetCount = 0;
-            loadedSmth0ASize = 0;
-            loadedSmth0CSize = 0;
+            loadedCWDHSize = 0;
+            loadedCMAPSize = 0;
 
-            // Get the NUMBER of sheets that should be loaded
             for (i = 0, entryI = 0; entryI < pGlgr->inner.sheetCount; entryI += 0x20, i++) {
                 offsetFlags = (const u8*)flagsSheets + i * sizeof(u32);
 
                 flagWord = 0;
-                for (j = 0, offsetPGlgr = pGlgr; j < pGlgr->inner.nameCount;
-                     offsetPGlgr = (const HeaderedGlyphGroups*)((const u8*)offsetPGlgr + 2), j++) {
-                    groupName = (const char*)((u32)offsetPGlgr->inner.nameOffsets[0] + (u32)fontData);
+                // MWCC needs the header as the induction base for the name-offset loads.
+                for (j = 0, groupHeaderCursor = pGlgr; j < pGlgr->inner.nameCount;
+                     groupHeaderCursor = (const HeaderedGlyphGroups*)((const u8*)groupHeaderCursor + 2), j++) {
+                    groupName = (const char*)((u32)groupHeaderCursor->inner.nameOffsets[0] + (u32)fontData);
                     if (*includedGroups == '\0' || detail::ArchiveFontBase::IncludeName(includedGroups, groupName)) {
                         flagWord |= *(const u32*)(offsetFlags + ROUNDDOWN(j * stepSheets, 4));
                     }
@@ -108,60 +105,52 @@ namespace nw4r {
 
                 loadedSheetCount += math::CntBit1(flagWord);
             }
-            // getLoadedSheetCount(pGlgr, flagsSheets, stepSheets, fontData, includedGroups, &loadedSheetCount);
 
-            // Get the SIZE of unk_0x0a that should be loaded
-            for (i = 0; i * 32 < pGlgr->inner.smthCount_0x0a; i++) {
-                offsetFlags = (const u8*)flags0A + i * sizeof(u32);
+            for (i = 0; i * 32 < pGlgr->inner.cwdhCount; i++) {
+                offsetFlags = (const u8*)flagsCWDH + i * sizeof(u32);
 
                 flagWord = 0;
                 for (j = 0; j < pGlgr->inner.nameCount; j++) {
                     groupOffset = pGlgr->inner.nameOffsets[j];
                     groupName = (const char*)(groupOffset + (u32)fontData);
                     if (*includedGroups == '\0' || detail::ArchiveFontBase::IncludeName(includedGroups, groupName)) {
-                        flagWord |= *(const u32*)(offsetFlags + ROUNDDOWN(j * step0A, 4));
+                        flagWord |= *(const u32*)(offsetFlags + ROUNDDOWN(j * stepCWDH, 4));
                     }
                 }
 
-                offsetData = data0A + i * 32;
+                offsetData = dataCWDH + i * 32;
                 for (j = 0; j < 32; j++) {
                     if ((flagWord << j) & 0x80000000U) {
-                        loadedSmth0ASize += offsetData[j] - sizeof(BinaryBlockHeader);
+                        loadedCWDHSize += offsetData[j] - sizeof(BinaryBlockHeader);
                     }
                 }
             }
 
-            // Get the SIZE of unk_0x0C that should be loaded
-            for (i = 0; i * 32 < pGlgr->inner.smthCount_0x0c; i++) {
-                offsetFlags = (const u8*)flags0C + i * sizeof(u32);
+            for (i = 0; i * 32 < pGlgr->inner.cmapCount; i++) {
+                offsetFlags = (const u8*)flagsCMAP + i * sizeof(u32);
 
                 flagWord = 0;
                 for (j = 0; j < pGlgr->inner.nameCount; j++) {
                     groupOffset = pGlgr->inner.nameOffsets[j];
                     groupName = (const char*)(groupOffset + (u32)fontData);
                     if (*includedGroups == '\0' || detail::ArchiveFontBase::IncludeName(includedGroups, groupName)) {
-                        flagWord |= *(const u32*)(offsetFlags + ROUNDDOWN(j * step0C, 4));
+                        flagWord |= *(const u32*)(offsetFlags + ROUNDDOWN(j * stepCMAP, 4));
                     }
                 }
 
-                offsetData = data0C + i * 32;
+                offsetData = dataCMAP + i * 32;
                 for (j = 0; j < 32; j++) {
                     if ((flagWord << j) & 0x80000000U) {
-                        loadedSmth0CSize += offsetData[j] - sizeof(BinaryBlockHeader);
+                        loadedCMAPSize += offsetData[j] - sizeof(BinaryBlockHeader);
                     }
                 }
             }
 
-            // Calculate the final buffer size based on the three previously
-            // accessed components
             sheetOffsetsSize = ROUNDUP(pGlgr->inner.sheetCount * 2, 4);
             loadedSheetsSize = ROUNDUP(loadedSheetCount * pGlgr->inner.uncompSheetSize, 4);
 
-            loadedSizeRef = loadedSmth0ASize + loadedSmth0CSize;
-            neededCharacterSizeRef = sizeof(CXUncompContextHuffman);
-            if (loadedSizeRef >= sizeof(CXUncompContextHuffman)) {
-                neededCharacterSize = loadedSizeRef;
-            }
+            loadedCharacterSize = loadedCWDHSize + loadedCMAPSize;
+            neededCharacterSize = ut::Max<u32>(loadedCharacterSize, sizeof(CXUncompContextHuffman));
 
             baseSize = OSRoundUp32B(sizeof(FontInformation) + sizeof(FontTextureGlyph) + sheetOffsetsSize);
             return (baseSize + loadedSheetsSize) + neededCharacterSize;

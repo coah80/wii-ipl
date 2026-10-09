@@ -207,56 +207,50 @@ namespace nw4r {
         }
 
         static void DoDrawConsole_(ConsoleHandle console, ut::TextWriter* writer) {
-            {
-                s32 viewOffset;
-                u16 line;
-                u16 printLines;
+            s32 viewOffset;
+            u16 line;
+            u16 printLines;
 
-                viewOffset = console->viewTopLine - console->ringTopLineCnt;
-                printLines = 0;
+            viewOffset = console->viewTopLine - console->ringTopLineCnt;
+            printLines = 0;
 
-                if (viewOffset < 0) {
-                    viewOffset = 0;
-                } else if (viewOffset > GetActiveLines_(console)) {
-                    goto end;
-                }
-
-                line = static_cast<u16>(console->ringTop + viewOffset);
-
-                if (line >= console->height) {
-                    line -= console->height;
-                }
-
-                while (true) {
-                    if (line == console->printTop && !console->printTopUsed) {
-                        goto end;
-                    }
-
-                    DoDrawString_(console, printLines, GetTextPtr_(console, line, 0), writer);
-                    printLines++;
-
-                    if (line == console->printTop) {
-                        goto end;
-                    }
-
-                    line++;
-
-                    if (line == console->height) {
-                        if (console->attr & (1 << 1)) {
-                            goto end;
-                        }
-                        line = 0;
-                    }
-
-                    if (printLines >= console->viewLines) {
-                        goto end;
-                    }
-                }
+            if (viewOffset < 0) {
+                viewOffset = 0;
+            } else if (viewOffset > GetActiveLines_(console)) {
+                return;
             }
 
-            // maybe not, with this end label?
-        end:
-            return;
+            line = static_cast<u16>(console->ringTop + viewOffset);
+
+            if (line >= console->height) {
+                line -= console->height;
+            }
+
+            while (true) {
+                if (line == console->printTop && !console->printTopUsed) {
+                    break;
+                }
+
+                DoDrawString_(console, printLines, GetTextPtr_(console, line, 0), writer);
+                printLines++;
+
+                if (line == console->printTop) {
+                    break;
+                }
+
+                line++;
+
+                if (line == console->height) {
+                    if (console->attr & (1 << 1)) {
+                        break;
+                    }
+                    line = 0;
+                }
+
+                if (printLines >= console->viewLines) {
+                    break;
+                }
+            }
         }
 
         void Console_DrawDirect(ConsoleHandle console) {

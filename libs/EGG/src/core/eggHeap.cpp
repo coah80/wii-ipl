@@ -36,8 +36,6 @@ namespace EGG {
     }
 
     void* Heap::alloc(u32 size, int align, Heap* heap) {
-        void* ptr = NULL;
-
         if (sAllocatableHeap != NULL) {
             if (sCurrentHeap != NULL && heap == NULL) {
                 heap = sCurrentHeap;
@@ -53,13 +51,7 @@ namespace EGG {
         }
 
         if (sCurrentHeap != NULL) {
-            ptr = sCurrentHeap->alloc(size, align);
-
-            if (ptr == NULL) {
-                // stripped out EGG_PRINT
-            }
-
-            return ptr;
+            return sCurrentHeap->alloc(size, align);
         }
 
         return NULL;
@@ -170,7 +162,7 @@ void* operator new[](size_t size, EGG::Heap* heap, int align) {
 
 void operator delete(void* ptr) {
     EGG::Heap::free(ptr, NULL);
-    // don't inline. (NO_INLINE did not want to work)
+    // MWCC needs these no-op statements to keep operator delete out of Heap's destructor.
     (void)0;
     (void)0;
     (void)0;
