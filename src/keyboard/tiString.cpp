@@ -14,7 +14,6 @@ void KPRSetMode(KPRQueue*, u32);
 
 namespace textinput {
 namespace tistring {
-Decolated::~Decolated() {}
 void StringBase::create(MEMAllocator* allocator) {
     mpAllocator = allocator;
     mpszString = static_cast<wchar_t*>(MEMAllocFromAllocator(allocator, muMaxLength << 1));
@@ -142,27 +141,13 @@ wchar_t StringBase::getLastWChar() {
 }
 
 namespace {
-class CharacterOutput {
-public:
-    CharacterOutput(wchar_t* output) : mpOutput(output), mCount(0) {
-        mpOutput[0] = 0;
-    }
+// State of a Hangul syllable under composition. This build has no Hangul
+// composer, so the state is always empty and each key is committed as typed.
+struct HangulSyllable {
+    u32 length;
 
-    void append(wchar_t ch) {
-        if (ch == L'\n') {
-            mCount = 0;
-        }
-        mpOutput[mCount++] = ch;
-    }
-
-    u16 finish() {
-        mpOutput[mCount] = 0;
-        return mCount;
-    }
-
-private:
-    wchar_t* mpOutput;
-    u16 mCount;
+    bool isEmpty() const { return length == 0; }
+    void clear() { length = 0; }
 };
 }
 
@@ -192,9 +177,23 @@ void Decolated::inputChar(wchar_t ch) {
             }
             KPRLookAhead(&mKanaStream.mQueue, mKanaStream.mOutput, 5);
         } else if (mTranslateMode == TM_Hangul) {
-            CharacterOutput output(input);
-            output.append(ch);
-            count = output.finish();
+            u32 outputLength = 0;
+            HangulSyllable composing = {0};
+            input[outputLength] = 0;
+            if (!composing.isEmpty()) {
+                outputLength += composing.length;
+            }
+            if (ch == L'\n') {
+                composing.clear();
+            }
+            input[outputLength++] = ch;
+            HangulSyllable next = {0};
+            if (next.isEmpty()) {
+                next.length = 1;
+            }
+            input[outputLength] = 0;
+            composing.length = static_cast<u16>(outputLength);
+            count = outputLength;
             mKanaStream.mOutput[0] = 0;
         } else {
             count = 1;
