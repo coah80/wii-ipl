@@ -34,11 +34,11 @@ typedef struct WADBroadOnHeader {
     u32 headerSize;
     u32 contentOffset;
     u32 certSize;
-    u32 crlSize;
     u32 ticketSize;
     u32 titleMetaSize;
+    u32 metaSize;
     u32 contentSize;
-    u32 fileListSize;
+    u32 crlSize;
 } WADBroadOnHeader;
 
 typedef struct WADUnpackInfo {
@@ -46,22 +46,22 @@ typedef struct WADUnpackInfo {
     s32 headerInfo;
     u16 cidxMode;
     u8 reserved_0x0a[2];
-    u32 size_0x0c;
-    u32 offset_0x10;
-    void* buffer_0x14;
-    u32 size_0x18;
-    u32 size_0x1c;
-    u32 offset_0x20;
-    void* buffer_0x24;
-    u32 size_0x28;
-    u32 size_0x2c;
-    u32 offset_0x30;
-    void* buffer_0x34;
-    u32 size_0x38;
-    u32 sectionSize;
-    u32 sectionOffset;
-    ESTitleMeta* titleMeta;
+    u32 certificateSize;
+    u32 certificateOffset;
+    void* certificates;
+    u32 certificatesAllocated;
+    u32 crlSize;
+    u32 crlOffset;
+    void* crls;
+    u32 crlsAllocated;
+    u32 ticketSize;
+    u32 ticketOffset;
+    void* ticket;
+    u32 ticketAllocated;
     u32 titleMetaSize;
+    u32 titleMetaOffset;
+    ESTitleMeta* titleMeta;
+    u32 titleMetaAllocated;
     u32 contentSize;
     u32 contentOffset;
     u32 metaSize;
@@ -69,7 +69,7 @@ typedef struct WADUnpackInfo {
     u32 fileListSize;
     u32 fileOffset;
     u32 fileCount;
-    void* contentIndex;
+    ESContentMask* contentIndex;
     void* fileNames;
 } WADUnpackInfo;
 
@@ -401,6 +401,7 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
     s32 result;
     BOOL streamOpened;
     u32 index;
+    /* MWCC needs these buffer lifetimes to preserve the original cleanup branches. */
     void* secondBuffer;
     void* firstBuffer;
     WADFileEntry* allocatedFiles;
@@ -439,7 +440,7 @@ s32 WADImportGetBlocks(char* path, MEMAllocator* allocator, WADLocation location
                     titleMeta = workspace.unpackInfo.titleMeta;
                     if (titleMeta != 0) {
                         if (skipTitleMeta == 0) {
-                            blocks->unkBlocks += (workspace.unpackInfo.sectionSize + 0x3FFF) >> 14;
+                            blocks->unkBlocks += (workspace.unpackInfo.titleMetaSize + 0x3FFF) >> 14;
                             blocks->unkInodes = 1;
                         }
                         if (workspace.unpackInfo.cidxMode >= 1) {
@@ -691,24 +692,24 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
             goto cleanup;
         }
         result = 0;
-        result = ES_ImportBoot(unpackInfo.buffer_0x34,
-                               unpackInfo.buffer_0x14,
-                               unpackInfo.size_0x0c,
+        result = ES_ImportBoot(unpackInfo.ticket,
+                               unpackInfo.certificates,
+                               unpackInfo.certificateSize,
                                unpackInfo.titleMeta,
-                               unpackInfo.sectionSize,
-                               unpackInfo.buffer_0x14,
-                               unpackInfo.size_0x0c,
-                               unpackInfo.buffer_0x24,
-                               unpackInfo.size_0x1c, readBuffer,
+                               unpackInfo.titleMetaSize,
+                               unpackInfo.certificates,
+                               unpackInfo.certificateSize,
+                               unpackInfo.crls,
+                               unpackInfo.crlSize, readBuffer,
                                size);
         goto cleanup;
     }
-    if (unpackInfo.buffer_0x34 != 0) {
-        result = ES_ImportTicket(unpackInfo.buffer_0x34,
-                                 unpackInfo.buffer_0x14,
-                                 unpackInfo.size_0x0c,
-                                 unpackInfo.buffer_0x24,
-                                 unpackInfo.size_0x1c, unpackInfo.headerInfo);
+    if (unpackInfo.ticket != 0) {
+        result = ES_ImportTicket(unpackInfo.ticket,
+                                 unpackInfo.certificates,
+                                 unpackInfo.certificateSize,
+                                 unpackInfo.crls,
+                                 unpackInfo.crlSize, unpackInfo.headerInfo);
         if (result != 0) {
             goto cleanup;
         }
@@ -728,7 +729,7 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
             contentCount = titleMeta->head.numContents;
         }
         result = ES_ListTmdContentsOnCard(titleMeta,
-                                          unpackInfo.sectionSize, 0,
+                                          unpackInfo.titleMetaSize, 0,
                                           &installedContentCount);
         if ((result == 0) && (installedContentCount != 0)) {
             installedContentIds = _WADMemAlloc(allocator, installedContentCount * sizeof(ESContentId));
@@ -737,21 +738,22 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
                 goto cleanup;
             }
             result = ES_ListTmdContentsOnCard(titleMeta,
-                                              unpackInfo.sectionSize,
+                                              unpackInfo.titleMetaSize,
                                               installedContentIds, &installedContentCount);
-            if ((result == 0) &&
-                ((result = ES_GetTmd(titleMeta->head.titleId, 0,
-                                    &installedTmdSize)) == 0)) {
-                alignedSize = (installedTmdSize + 0x1F) & ~0x1F;
-                installedTitleMeta = _WADMemAlloc(allocator, alignedSize);
-                if (installedTitleMeta == 0) {
-                    result = -3003;
-                    goto cleanup;
-                }
-                result = ES_GetTmd(titleMeta->head.titleId,
-                                   installedTitleMeta, &installedTmdSize);
+            if (result == 0) {
+                result = ES_GetTmd(titleMeta->head.titleId, 0, &installedTmdSize);
                 if (result == 0) {
-                    importExistingTitle = FALSE;
+                    alignedSize = (installedTmdSize + 0x1F) & ~0x1F;
+                    installedTitleMeta = _WADMemAlloc(allocator, alignedSize);
+                    if (installedTitleMeta == 0) {
+                        result = -3003;
+                        goto cleanup;
+                    }
+                    result = ES_GetTmd(titleMeta->head.titleId,
+                                       installedTitleMeta, &installedTmdSize);
+                    if (result == 0) {
+                        importExistingTitle = FALSE;
+                    }
                 }
             }
         }
@@ -789,11 +791,11 @@ s32 WADImportEx(char* path, MEMAllocator* allocator, WADLocation location, u32 o
             }
         }
         result = ES_ImportTitleInit(titleMeta,
-                                    unpackInfo.sectionSize,
-                                    unpackInfo.buffer_0x14,
-                                    unpackInfo.size_0x0c,
-                                    unpackInfo.buffer_0x24,
-                                    unpackInfo.size_0x1c,
+                                    unpackInfo.titleMetaSize,
+                                    unpackInfo.certificates,
+                                    unpackInfo.certificateSize,
+                                    unpackInfo.crls,
+                                    unpackInfo.crlSize,
                                     unpackInfo.headerInfo, 1);
         if (result != 0) {
             goto cleanup;
@@ -1646,7 +1648,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
             streamResult = WADWriteStream(&stream, fileHeaderBuffer, size);
             if ((u32)streamResult != size) {
                 result = -3006;
-                goto file_done;
+                goto cleanupFile;
             }
             result = 0;
             importedSize += sizeof(WADBackupHeaderBlock);
@@ -1657,7 +1659,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
                 result = NANDPrivateOpen(fileHeaderBuffer->name, &savedFile, NAND_ACCESS_READ);
                 fileOpened = TRUE;
                 if (result != 0) {
-                    goto file_done;
+                    goto cleanupFile;
                 }
                 byteCount = (fileHeaderBuffer->fileSize + 0x1F) & ~0x1F;
                 while (byteCount != 0) {
@@ -1669,13 +1671,13 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
                     length = NANDRead(&savedFile, encryptionBuffer, size);
                     if (((length + 0x1F) & ~0x1F) != size) {
                         result = -3005;
-                        goto file_done;
+                        goto cleanupFile;
                     }
                     result = 0;
                     result = ES_Encrypt(6, fileHeaderBuffer->iv, encryptionBuffer, size,
                                         outputBuffer);
                     if (result != 0) {
-                        goto file_done;
+                        goto cleanupFile;
                     }
                     result = SHA1Input(hashContext, outputBuffer, size);
                     if (result != 0) {
@@ -1684,7 +1686,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
                     streamResult = WADWriteStream(&stream, outputBuffer, size);
                     if ((u32)streamResult != size) {
                         result = -3006;
-                        goto file_done;
+                        goto cleanupFile;
                     }
                     result = 0;
                     importedSize += size;
@@ -1696,7 +1698,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
                 result = NANDClose(&savedFile);
                 fileOpened = FALSE;
                 if (result != 0) {
-                    goto file_done;
+                    goto cleanupFile;
                 }
                 {
                     u32 roundedSize = (fileHeaderBuffer->fileSize + 0x1F) & ~0x1F;
@@ -1713,7 +1715,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
                                             size);
                     if ((u32)streamResult != size) {
                         result = -3006;
-                        goto file_done;
+                        goto cleanupFile;
                     }
                     result = 0;
                     importedSize += size;
@@ -1725,7 +1727,7 @@ s32 WADBackupEx(u64 titleId, u32 flags, MEMAllocator* allocator, char* path, u32
             } else if (fileHeaderBuffer->flags[2] == NAND_TYPE_FILE) {
                 byteCount = 0;
             }
-file_done:
+cleanupFile:
             if (fileOpened) {
                 NANDClose(&savedFile);
             }
@@ -1865,7 +1867,7 @@ static s32 _WADCheckContents(ESTmdView* titleMeta, ESContentMask* contentMask) {
                     if (installedIndex == installedContentCount) {
                         if ((titleMeta->contents[contentIndex].type & 0x4000) == 0) {
                             result = -3002;
-                            goto done;
+                            break;
                         }
                         result = 0;
                     }
@@ -1873,10 +1875,10 @@ static s32 _WADCheckContents(ESTmdView* titleMeta, ESContentMask* contentMask) {
             }
         }
     }
-done:
     return result;
 }
 
+/* MWCC keeps allocator calls out of line in the original callers. */
 #pragma dont_inline on
 static void* _WADMemAlloc(MEMAllocator* allocator, u32 size) {
     s32 allocationKind;
@@ -1994,7 +1996,6 @@ s32 WADOpenStream(WADLocation location, const char* path, WADStream* stream, u32
 
     case WAD_LOCATION_DVD:
         {
-            s32 result;
             if (write != 0) {
                 return -3004;
             }
@@ -2300,7 +2301,6 @@ static s32 WAD_815C2F44(WADHeader* header, s32* headerInfo) {
     return 0;
 }
 
-#pragma dont_inline on
 static s32 _WADUnpack(void* header, WADStream* stream, WADUnpackInfo* info, MEMAllocator* allocator,
                       u32 offset, u32 flags, u32 mode) {
     s32 result;
@@ -2327,7 +2327,6 @@ static s32 _WADUnpack(void* header, WADStream* stream, WADUnpackInfo* info, MEMA
     }
     return result;
 }
-#pragma dont_inline reset
 
 static s32 _WADUnpackIRD(WADHeader* header, WADStream* stream, WADUnpackInfo* info,
                          MEMAllocator* allocator, u32 offset, u32 mode) {
@@ -2358,17 +2357,17 @@ static s32 _WADUnpackIRD(WADHeader* header, WADStream* stream, WADUnpackInfo* in
 
     sectionSize = header->certSize;
     if (sectionSize != 0) {
-        info->size_0x0c = sectionSize;
-        info->offset_0x10 = sectionOffset;
+        info->certificateSize = sectionSize;
+        info->certificateOffset = sectionOffset;
         if (mode == 0) {
             alignedSize = WAD_ALIGN32(sectionSize);
-            info->buffer_0x14 = _WADMemAlloc(allocator, alignedSize);
-            if (info->buffer_0x14 == 0) {
+            info->certificates = _WADMemAlloc(allocator, alignedSize);
+            if (info->certificates == 0) {
                 return -3003;
             }
-            info->size_0x18 = 1;
-            bytesRead = WADReadStream(stream, &info->buffer_0x14, alignedSize,
-                                      offset + info->offset_0x10);
+            info->certificatesAllocated = 1;
+            bytesRead = WADReadStream(stream, &info->certificates, alignedSize,
+                                      offset + info->certificateOffset);
             if (bytesRead != alignedSize) {
                 return -3005;
             }
@@ -2377,17 +2376,17 @@ static s32 _WADUnpackIRD(WADHeader* header, WADStream* stream, WADUnpackInfo* in
     }
     sectionSize = header->crlSize;
     if (sectionSize != 0) {
-        info->size_0x1c = sectionSize;
-        info->offset_0x20 = sectionOffset;
+        info->crlSize = sectionSize;
+        info->crlOffset = sectionOffset;
         if (mode == 0) {
             alignedSize = WAD_ALIGN32(sectionSize);
-            info->buffer_0x24 = _WADMemAlloc(allocator, alignedSize);
-            if (info->buffer_0x24 == 0) {
+            info->crls = _WADMemAlloc(allocator, alignedSize);
+            if (info->crls == 0) {
                 return -3003;
             }
-            info->size_0x28 = 1;
-            bytesRead = WADReadStream(stream, &info->buffer_0x24, alignedSize,
-                                      offset + info->offset_0x20);
+            info->crlsAllocated = 1;
+            bytesRead = WADReadStream(stream, &info->crls, alignedSize,
+                                      offset + info->crlOffset);
             if (bytesRead != alignedSize) {
                 return -3005;
             }
@@ -2396,17 +2395,17 @@ static s32 _WADUnpackIRD(WADHeader* header, WADStream* stream, WADUnpackInfo* in
     }
     sectionSize = header->ticketSize;
     if (sectionSize != 0) {
-        info->size_0x2c = sectionSize;
-        info->offset_0x30 = sectionOffset;
+        info->ticketSize = sectionSize;
+        info->ticketOffset = sectionOffset;
         if (mode == 0) {
             alignedSize = WAD_ALIGN32(sectionSize);
-            info->buffer_0x34 = _WADMemAlloc(allocator, alignedSize);
-            if (info->buffer_0x34 == 0) {
+            info->ticket = _WADMemAlloc(allocator, alignedSize);
+            if (info->ticket == 0) {
                 return -3003;
             }
-            info->size_0x38 = 1;
-            bytesRead = WADReadStream(stream, &info->buffer_0x34, alignedSize,
-                                      offset + info->offset_0x30);
+            info->ticketAllocated = 1;
+            bytesRead = WADReadStream(stream, &info->ticket, alignedSize,
+                                      offset + info->ticketOffset);
             if (bytesRead != alignedSize) {
                 return -3005;
             }
@@ -2415,16 +2414,16 @@ static s32 _WADUnpackIRD(WADHeader* header, WADStream* stream, WADUnpackInfo* in
     }
     sectionSize = header->tmdSize;
     if (sectionSize != 0) {
-        info->sectionSize = sectionSize;
-        info->sectionOffset = sectionOffset;
+        info->titleMetaSize = sectionSize;
+        info->titleMetaOffset = sectionOffset;
         alignedSize = WAD_ALIGN32(sectionSize);
         info->titleMeta = _WADMemAlloc(allocator, alignedSize);
         if (info->titleMeta == 0) {
             return -3003;
         }
-        info->titleMetaSize = 1;
+        info->titleMetaAllocated = 1;
         bytesRead = WADReadStream(stream, (void**)&info->titleMeta, alignedSize,
-                                  offset + info->sectionOffset);
+                                  offset + info->titleMetaOffset);
         if (bytesRead != alignedSize) {
             return -3005;
         }
@@ -2449,24 +2448,24 @@ static s32 _WADUnpackBroadOn(WADBroadOnHeader* header, WADStream* stream, WADUnp
     s32 alignedSize;
     s32 bytesRead;
 
-    if ((header->crlSize == 0) && (header->ticketSize == 0)) {
+    if ((header->ticketSize == 0) && (header->titleMetaSize == 0)) {
         return -3001;
     }
 
     currentOffset = header->headerSize;
     sectionSize = header->certSize;
     if (sectionSize != 0) {
-        info->size_0x0c = sectionSize;
-        info->offset_0x10 = currentOffset;
+        info->certificateSize = sectionSize;
+        info->certificateOffset = currentOffset;
         if (mode == 0) {
             alignedSize = WAD_ALIGN32(sectionSize);
-            info->buffer_0x14 = _WADMemAlloc(allocator, alignedSize);
-            if (info->buffer_0x14 == 0) {
+            info->certificates = _WADMemAlloc(allocator, alignedSize);
+            if (info->certificates == 0) {
                 return -3003;
             }
-            info->size_0x18 = 1;
-            bytesRead = WADReadStream(stream, &info->buffer_0x14, alignedSize,
-                                      offset + info->offset_0x10);
+            info->certificatesAllocated = 1;
+            bytesRead = WADReadStream(stream, &info->certificates, alignedSize,
+                                      offset + info->certificateOffset);
             if (bytesRead != alignedSize) {
                 return -3005;
             }
@@ -2474,64 +2473,64 @@ static s32 _WADUnpackBroadOn(WADBroadOnHeader* header, WADStream* stream, WADUnp
         currentOffset += header->certSize;
     }
 
-    sectionSize = header->crlSize;
+    sectionSize = header->ticketSize;
     if (sectionSize != 0) {
-        info->size_0x2c = sectionSize;
-        info->offset_0x30 = currentOffset;
+        info->ticketSize = sectionSize;
+        info->ticketOffset = currentOffset;
         if (mode == 0) {
             alignedSize = WAD_ALIGN32(sectionSize);
-            info->buffer_0x34 = _WADMemAlloc(allocator, alignedSize);
-            if (info->buffer_0x34 == 0) {
+            info->ticket = _WADMemAlloc(allocator, alignedSize);
+            if (info->ticket == 0) {
                 return -3003;
             }
-            info->size_0x38 = 1;
-            bytesRead = WADReadStream(stream, &info->buffer_0x34, alignedSize,
-                                      offset + info->offset_0x30);
+            info->ticketAllocated = 1;
+            bytesRead = WADReadStream(stream, &info->ticket, alignedSize,
+                                      offset + info->ticketOffset);
             if (bytesRead != alignedSize) {
                 return -3005;
             }
-        }
-        currentOffset += header->crlSize;
-    }
-
-    sectionSize = header->ticketSize;
-    if (sectionSize != 0) {
-        info->sectionSize = sectionSize;
-        info->sectionOffset = currentOffset;
-        alignedSize = WAD_ALIGN32(sectionSize);
-        info->titleMeta = _WADMemAlloc(allocator, alignedSize);
-        if (info->titleMeta == 0) {
-            return -3003;
-        }
-        info->titleMetaSize = 1;
-        bytesRead = WADReadStream(stream, (void**)&info->titleMeta, alignedSize,
-                                  offset + info->sectionOffset);
-        if (bytesRead != alignedSize) {
-            return -3005;
         }
         currentOffset += header->ticketSize;
     }
 
     sectionSize = header->titleMetaSize;
     if (sectionSize != 0) {
-        info->metaSize = sectionSize;
-        info->metaOffset = currentOffset;
+        info->titleMetaSize = sectionSize;
+        info->titleMetaOffset = currentOffset;
+        alignedSize = WAD_ALIGN32(sectionSize);
+        info->titleMeta = _WADMemAlloc(allocator, alignedSize);
+        if (info->titleMeta == 0) {
+            return -3003;
+        }
+        info->titleMetaAllocated = 1;
+        bytesRead = WADReadStream(stream, (void**)&info->titleMeta, alignedSize,
+                                  offset + info->titleMetaOffset);
+        if (bytesRead != alignedSize) {
+            return -3005;
+        }
         currentOffset += header->titleMetaSize;
     }
 
-    sectionSize = header->fileListSize;
+    sectionSize = header->metaSize;
     if (sectionSize != 0) {
-        info->size_0x1c = sectionSize;
-        info->offset_0x20 = currentOffset;
+        info->metaSize = sectionSize;
+        info->metaOffset = currentOffset;
+        currentOffset += header->metaSize;
+    }
+
+    sectionSize = header->crlSize;
+    if (sectionSize != 0) {
+        info->crlSize = sectionSize;
+        info->crlOffset = currentOffset;
         if (mode == 0) {
             alignedSize = WAD_ALIGN32(sectionSize);
-            info->buffer_0x24 = _WADMemAlloc(allocator, alignedSize);
-            if (info->buffer_0x24 == 0) {
+            info->crls = _WADMemAlloc(allocator, alignedSize);
+            if (info->crls == 0) {
                 return -3003;
             }
-            info->size_0x28 = 1;
-            bytesRead = WADReadStream(stream, &info->buffer_0x24, alignedSize,
-                                      offset + info->offset_0x20);
+            info->crlsAllocated = 1;
+            bytesRead = WADReadStream(stream, &info->crls, alignedSize,
+                                      offset + info->crlOffset);
             if (bytesRead != alignedSize) {
                 return -3005;
             }
@@ -2580,16 +2579,16 @@ static s32 _WADUnpackBackup(WADHeader* header, WADStream* stream, WADUnpackInfo*
 
     if (titleMetaSize != 0) {
         if ((flags & 4) == 0) {
-            info->sectionSize = titleMetaSize;
-            info->sectionOffset = sectionOffset;
+            info->titleMetaSize = titleMetaSize;
+            info->titleMetaOffset = sectionOffset;
             alignedSize = WAD_ALIGN32(titleMetaSize);
             info->titleMeta = _WADMemAlloc(allocator, alignedSize);
             if (info->titleMeta == 0) {
                 return -3003;
             }
-            info->titleMetaSize = 1;
+            info->titleMetaAllocated = 1;
             result = WADReadStream(stream, (void**)&info->titleMeta, alignedSize,
-                                   offset + info->sectionOffset);
+                                   offset + info->titleMetaOffset);
             if (result != (s32)alignedSize) {
                 return -3005;
             }
@@ -2624,6 +2623,7 @@ done:
     return result;
 }
 
+/* MWCC needs these content and backup helpers out of line to preserve caller code. */
 #pragma dont_inline on
 s32 _WADGetCidxCount(const ESContentMask* contentMask) {
     u32 bitIndex;
@@ -2733,6 +2733,7 @@ static s32 _WADBackupGetFiles(const char* directoryPath, u32 flags, MEMAllocator
         result = -3003;
         goto cleanup;
     }
+    /* MWCC needs the repeated check to preserve the original error path. */
     if (nameList == 0) {
         result = -3003;
         goto cleanup;
@@ -2767,24 +2768,24 @@ static s32 _WADBackupGetFiles(const char* directoryPath, u32 flags, MEMAllocator
         }
         result = NANDPrivateGetType(fullFilePath, &fileType);
         if (result != 0) {
-            goto nextName;
+            goto cleanupName;
         }
         if ((flags & 0x10) == 0) {
             if (absolutePaths && strcmp(directoryPath, ".") == 0) {
                 snprintf(noCopyPath, sizeof(noCopyPath), "%s/%s", currentDirectory, "nocopy");
                 snprintf(bannerPath, sizeof(bannerPath), "%s/%s", currentDirectory, "banner.bin");
                 if (strcmp(fullFilePath, noCopyPath) == 0 && fileType == NAND_TYPE_DIR) {
-                    goto nextName;
+                    goto cleanupName;
                 }
                 if (strcmp(fullFilePath, bannerPath) == 0 && fileType == NAND_TYPE_FILE) {
-                    goto nextName;
+                    goto cleanupName;
                 }
             } else {
                 if (strcmp(fullFilePath, "nocopy") == 0 && fileType == NAND_TYPE_DIR) {
-                    goto nextName;
+                    goto cleanupName;
                 }
                 if (strcmp(fullFilePath, "banner.bin") == 0 && fileType == NAND_TYPE_FILE) {
-                    goto nextName;
+                    goto cleanupName;
                 }
             }
         }
@@ -2792,20 +2793,20 @@ static s32 _WADBackupGetFiles(const char* directoryPath, u32 flags, MEMAllocator
             result = NANDPrivateOpen(fullFilePath, &fileInfo, NAND_ACCESS_READ);
             closeFile = TRUE;
             if (result != 0) {
-                goto nextName;
+                goto cleanupName;
             }
             result = NANDGetLength(&fileInfo, &fileSize);
             if (result != 0) {
-                goto nextName;
+                goto cleanupName;
             }
             result = NANDClose(&fileInfo);
             closeFile = FALSE;
             if (result != 0) {
-                goto nextName;
+                goto cleanupName;
             }
         } else if (fileType == NAND_TYPE_DIR) {
             if ((flags & 8) == 0) {
-                goto nextName;
+                goto cleanupName;
             }
             fileSize = 0;
             if (files != 0) {
@@ -2814,7 +2815,7 @@ static s32 _WADBackupGetFiles(const char* directoryPath, u32 flags, MEMAllocator
         }
         result = NANDPrivateGetStatus(fullFilePath, &status);
         if (result != 0) {
-            goto nextName;
+            goto cleanupName;
         }
         if (files != 0) {
             file->magic = 0x3ADF17E;
@@ -2844,7 +2845,7 @@ static s32 _WADBackupGetFiles(const char* directoryPath, u32 flags, MEMAllocator
             }
             result = _WADBackupGetFiles(fullFilePath, flags, allocator, &childFileCount, children);
             if (result != 0) {
-                goto nextName;
+                goto cleanupName;
             }
             if (childFileCount != 0) {
                 if (files != 0) {
@@ -2853,7 +2854,7 @@ static s32 _WADBackupGetFiles(const char* directoryPath, u32 flags, MEMAllocator
                 totalFiles += childFileCount;
             }
         }
-nextName:
+cleanupName:
         nameIndex++;
         name += strlen(name) + 1;
         if (closeFile) {
@@ -2923,19 +2924,19 @@ static s32 _WADBackupGetSize(u32 flags, ESTmdView* titleMeta, ESContentMask* con
 
 
 static void _WADFreeMemory(WADUnpackInfo* info, MEMAllocator* allocator) {
-    if ((info->size_0x18 != 0) && (info->buffer_0x14 != 0)) {
-        _WADMemFree(allocator, info->buffer_0x14);
-        info->buffer_0x14 = 0;
+    if ((info->certificatesAllocated != 0) && (info->certificates != 0)) {
+        _WADMemFree(allocator, info->certificates);
+        info->certificates = 0;
     }
-    if ((info->size_0x28 != 0) && (info->buffer_0x24 != 0)) {
-        _WADMemFree(allocator, info->buffer_0x24);
-        info->buffer_0x24 = 0;
+    if ((info->crlsAllocated != 0) && (info->crls != 0)) {
+        _WADMemFree(allocator, info->crls);
+        info->crls = 0;
     }
-    if ((info->size_0x38 != 0) && (info->buffer_0x34 != 0)) {
-        _WADMemFree(allocator, info->buffer_0x34);
-        info->buffer_0x34 = 0;
+    if ((info->ticketAllocated != 0) && (info->ticket != 0)) {
+        _WADMemFree(allocator, info->ticket);
+        info->ticket = 0;
     }
-    if ((info->titleMetaSize != 0) && (info->titleMeta != 0)) {
+    if ((info->titleMetaAllocated != 0) && (info->titleMeta != 0)) {
         _WADMemFree(allocator, info->titleMeta);
         info->titleMeta = 0;
     }
@@ -3167,6 +3168,7 @@ cleanup:
     return result;
 }
 
+/* MWCC keeps transfer initialization out of line in the original callers. */
 #pragma dont_inline on
 void WAD_815C4A2C(WADImportTransfer* transfer, void* firstBuffer, void* secondBuffer,
                   u32 chunkSize) {
@@ -3185,6 +3187,7 @@ void WAD_815C4A2C(WADImportTransfer* transfer, void* firstBuffer, void* secondBu
 }
 #pragma dont_inline reset
 
+/* MWCC needs separate termination checks to preserve the savedata validation loops. */
 #pragma dont_inline on
 static u32 _WADIsTerminated(const char* text, u32 maxLength) {
     u32 index;
@@ -3228,22 +3231,12 @@ s32 WADCheckSavedataZD(const WADSaveDataFile* saveData) {
     record = saveData->primary;
     index = 0;
     do {
-        if (!_WADIsTerminated(record->fileName, 8)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->bannerName, 8)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->saveName, 8)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->titleName, 8)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->description, 0x11)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->subtitle, 0x11)) {
+        if (!_WADIsTerminated(record->fileName, 8) ||
+            !_WADIsTerminated(record->bannerName, 8) ||
+            !_WADIsTerminated(record->saveName, 8) ||
+            !_WADIsTerminated(record->titleName, 8) ||
+            !_WADIsTerminated(record->description, 0x11) ||
+            !_WADIsTerminated(record->subtitle, 0x11)) {
             goto done;
         }
         index++;
@@ -3251,22 +3244,12 @@ s32 WADCheckSavedataZD(const WADSaveDataFile* saveData) {
     } while (index < 3);
     record = saveData->secondary;
     for (index = 0; index < 3; index++, record++) {
-        if (!_WADIsTerminated(record->fileName, 8)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->bannerName, 8)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->saveName, 8)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->titleName, 8)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->description, 0x11)) {
-            goto done;
-        }
-        if (!_WADIsTerminated(record->subtitle, 0x11)) {
+        if (!_WADIsTerminated(record->fileName, 8) ||
+            !_WADIsTerminated(record->bannerName, 8) ||
+            !_WADIsTerminated(record->saveName, 8) ||
+            !_WADIsTerminated(record->titleName, 8) ||
+            !_WADIsTerminated(record->description, 0x11) ||
+            !_WADIsTerminated(record->subtitle, 0x11)) {
             goto done;
         }
     }
@@ -3521,6 +3504,7 @@ s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
         return -3004;
     }
     fileOpened = TRUE;
+    /* MWCC needs this repeated check to preserve the DVD import error path. */
     if (buffer == NULL) {
         result = -3003;
         goto cleanup;
