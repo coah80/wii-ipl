@@ -66,18 +66,17 @@ retry:
     getParam.getMode = 0;
     if (_Zi8GetCandidates(&getParam, __zi8_work_data) != 0) {
         charSet |= getParam.subLanguage;
-        goto next;
+    } else {
+        getParam.getMode = 1;
+        if (_Zi8GetCandidates(&getParam, __zi8_work_data) != 0) {
+            charSet |= getParam.subLanguage;
+        } else {
+            getParam.getMode = 2;
+            if (_Zi8GetCandidates(&getParam, __zi8_work_data) != 0) {
+                charSet |= getParam.subLanguage;
+            }
+        }
     }
-    getParam.getMode = 1;
-    if (_Zi8GetCandidates(&getParam, __zi8_work_data) != 0) {
-        charSet |= getParam.subLanguage;
-        goto next;
-    }
-    getParam.getMode = 2;
-    if (_Zi8GetCandidates(&getParam, __zi8_work_data) != 0) {
-        charSet |= getParam.subLanguage;
-    }
-next:
     if (getParam.subLanguage == 1) {
         getParam.subLanguage = 4;
         goto retry;

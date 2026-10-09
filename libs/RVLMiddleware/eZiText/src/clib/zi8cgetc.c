@@ -1254,61 +1254,63 @@ context_word_lookup:
                     break;
                 }
             } else isFirstCandidate = Zi8Ord2Uni(character, work);
-            if (!emitWords && isFirstCandidate == previousOrdinal) goto context_phrase_next;
-            previousOrdinal = isFirstCandidate;
-            if (!candidateStatus) goto context_phrase_next;
-            ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = character;
-            ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = isFirstCandidate;
-            if (charsetTable) {
-                index = 0;
-                while (1) {
-                    isFirstCandidate = (ziU16)frequencyTable[index * 2 + 1] << 8 | frequencyTable[index * 2];
-                    charsetEntry = charsetTable + (isFirstCandidate & 0x7FFF);
-                    if (!(charsetEntry[0] & charsetFilter)) { isFirstCandidate = 0; break; }
-                    if (isFirstCandidate & 0x8000) break;
-                    ++index;
-                }
-                if (!(isFirstCandidate & 0x8000)) goto context_phrase_next;
-            }
-            if (!emitWords) {
-                if (trackDuplicates) {
-                    if ((ziU8)Zi8SetFindCand(request->scratch, character, work)) goto context_phrase_next;
-                } else if (Zi8IsDupWChar(character, work)) goto context_phrase_next;
-            } else {
-                emittedWords = 0;
-                do {
-                    character = (ziU16)frequencyTable[1] << 8 | frequencyTable[0];
-                    frequencyTable += 2;
-                    output[outputIndex + emittedWords++] = Zi8Ord2Uni(character & 0x7FFF, work);
-                } while (!(character & 0x8000));
-                if (request->elementCount) {
-                    if ((getMode == 1 || getMode == 2) && match.nCand) emittedWords = match.nCand;
-                    else if (getMode == 0 && match.nSeg > 1) emittedWords = match.nSeg;
-                    else emittedWords = 1;
-                } else if (prefixSearch) emittedWords = 1;
-                if (Zi8IsDupWordW(output + outputIndex, emittedWords, work)) goto context_phrase_next;
-            }
-            if (skipCount) --skipCount;
-            else {
-                ++totalResults;
-                if (getOptions == 5) {
-                    if (totalResults >= options->maxResults) goto engine_finish;
-                } else {
-                    if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
-                    if (emitWords) {
-                        ++emittedCount;
-                        outputIndex += emittedWords;
-                        output[outputIndex++] = ' ';
-                        if (outputIndex > outputLimit) {
-                            request->letters = emittedCount;
-                            request->count = emittedCount;
-                            goto engine_finish;
+            if (emitWords || isFirstCandidate != previousOrdinal) {
+                previousOrdinal = isFirstCandidate;
+                if (candidateStatus) {
+                    ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = character;
+                    ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = isFirstCandidate;
+                    if (charsetTable) {
+                        index = 0;
+                        while (1) {
+                            isFirstCandidate = (ziU16)frequencyTable[index * 2 + 1] << 8 | frequencyTable[index * 2];
+                            charsetEntry = charsetTable + (isFirstCandidate & 0x7FFF);
+                            if (!(charsetEntry[0] & charsetFilter)) { isFirstCandidate = 0; break; }
+                            if (isFirstCandidate & 0x8000) break;
+                            ++index;
                         }
-                    } else output[emittedCount++] = previousOrdinal;
-                    if (emittedCount >= request->maxCandidates) {
-                        request->letters = emittedCount;
-                        request->count = emittedCount;
-                        goto engine_finish;
+                        if (!(isFirstCandidate & 0x8000)) goto context_phrase_next;
+                    }
+                    if (!emitWords) {
+                        if (trackDuplicates) {
+                            if ((ziU8)Zi8SetFindCand(request->scratch, character, work)) goto context_phrase_next;
+                        } else if (Zi8IsDupWChar(character, work)) goto context_phrase_next;
+                    } else {
+                        emittedWords = 0;
+                        do {
+                            character = (ziU16)frequencyTable[1] << 8 | frequencyTable[0];
+                            frequencyTable += 2;
+                            output[outputIndex + emittedWords++] = Zi8Ord2Uni(character & 0x7FFF, work);
+                        } while (!(character & 0x8000));
+                        if (request->elementCount) {
+                            if ((getMode == 1 || getMode == 2) && match.nCand) emittedWords = match.nCand;
+                            else if (getMode == 0 && match.nSeg > 1) emittedWords = match.nSeg;
+                            else emittedWords = 1;
+                        } else if (prefixSearch) emittedWords = 1;
+                        if (Zi8IsDupWordW(output + outputIndex, emittedWords, work)) goto context_phrase_next;
+                    }
+                    if (skipCount) --skipCount;
+                    else {
+                        ++totalResults;
+                        if (getOptions == 5) {
+                            if (totalResults >= options->maxResults) goto engine_finish;
+                        } else {
+                            if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
+                            if (emitWords) {
+                                ++emittedCount;
+                                outputIndex += emittedWords;
+                                output[outputIndex++] = ' ';
+                                if (outputIndex > outputLimit) {
+                                    request->letters = emittedCount;
+                                    request->count = emittedCount;
+                                    goto engine_finish;
+                                }
+                            } else output[emittedCount++] = previousOrdinal;
+                            if (emittedCount >= request->maxCandidates) {
+                                request->letters = emittedCount;
+                                request->count = emittedCount;
+                                goto engine_finish;
+                            }
+                        }
                     }
                 }
             }
@@ -1365,7 +1367,7 @@ prediction_next:
                     ++rangeIndex;
                     phoneticGroups += 2;
                 }
-                goto numeric_setup;
+                break;
             }
             ++rangeIndex;
             phoneticGroups += 10;
@@ -1797,29 +1799,30 @@ user_character_search:
                 }
                 break;
             }
-            if (!candidateStatus) goto user_character_next;
-            if (charsetTable) {
-                charsetEntry = charsetTable + candidateOrdinal;
-                if (!(charsetEntry[0] & charsetFilter)) goto user_character_next;
-            }
-            ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = candidateOrdinal;
-            ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = character;
-            if (!emitWords) {
-                if (trackDuplicates) {
-                    if ((ziU8)Zi8SetFindCand(request->scratch, candidateOrdinal, work)) goto user_character_next;
-                } else if (Zi8IsDupWChar(candidateOrdinal, work)) goto user_character_next;
-            } else if (Zi8IsDupWordW(&character, 1, work)) goto user_character_next;
-            if (skipCount) --skipCount;
-            else {
-                if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
-                ++totalResults;
-                if (emitWords) {
-                    ++emittedCount;
-                    output[outputIndex++] = character;
-                    output[outputIndex++] = ' ';
-                    if (outputIndex > outputLimit) goto engine_finish;
-                } else output[emittedCount++] = character;
-                if (emittedCount >= request->maxCandidates) goto engine_finish;
+            if (candidateStatus) {
+                if (charsetTable) {
+                    charsetEntry = charsetTable + candidateOrdinal;
+                    if (!(charsetEntry[0] & charsetFilter)) goto user_character_next;
+                }
+                ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = candidateOrdinal;
+                ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = character;
+                if (!emitWords) {
+                    if (trackDuplicates) {
+                        if ((ziU8)Zi8SetFindCand(request->scratch, candidateOrdinal, work)) goto user_character_next;
+                    } else if (Zi8IsDupWChar(candidateOrdinal, work)) goto user_character_next;
+                } else if (Zi8IsDupWordW(&character, 1, work)) goto user_character_next;
+                if (skipCount) --skipCount;
+                else {
+                    if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
+                    ++totalResults;
+                    if (emitWords) {
+                        ++emittedCount;
+                        output[outputIndex++] = character;
+                        output[outputIndex++] = ' ';
+                        if (outputIndex > outputLimit) goto engine_finish;
+                    } else output[emittedCount++] = character;
+                    if (emittedCount >= request->maxCandidates) goto engine_finish;
+                }
             }
 user_character_next:
             ++userIndex;
@@ -1831,55 +1834,58 @@ user_character_next:
         record = records;
         ordinalIndex = 0;
         while (ordinalIndex < recordCount) {
-            if (!(record[0] & charset)) goto global_character_next;
-            if (charsetTable) {
-                charsetEntry = charsetTable + ordinalIndex;
-                if (!(charsetEntry[0] & charsetFilter)) goto global_character_next;
-            }
-            character = ((ziU16)record[6] << 8) + record[7];
-            ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = ordinalIndex;
-            ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = character;
-            if (character == previousOrdinal) goto global_character_next;
-            previousOrdinal = character;
-            candidateStatus = 0;
-            phraseEntry = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
-            if (getMode != 7) {
-                index = phraseEntry[0] & 7;
-                if ((phraseEntry[0] & phraseMasks[index].bytes[0]) == phraseValues[index].bytes[0] &&
-                    (phraseEntry[1] & phraseMasks[index].bytes[1]) == phraseValues[index].bytes[1] &&
-                    (phraseEntry[2] & phraseMasks[index].bytes[2]) == phraseValues[index].bytes[2] &&
-                    (phraseEntry[3] & phraseMasks[index].bytes[3]) == phraseValues[index].bytes[3]) {
-                    if ((resultFallback && index == match.length) || (!resultFallback && index > match.length)) {
-                        candidateStatus = 1;
-                    } else if (getMode == 9) goto global_character_next;
-                } else if (getMode == 9) goto global_character_next;
-            }
-            if (!candidateStatus && !((phraseEntry[0] & 7) >= match.length &&
-                match.prefixValues[0] == (match.prefixMasks[0] & phraseEntry[0]) &&
-                match.prefixValues[1] == (match.prefixMasks[1] & phraseEntry[1]) &&
-                match.prefixValues[2] == (match.prefixMasks[2] & phraseEntry[2]) &&
-                match.prefixValues[3] == (match.prefixMasks[3] & phraseEntry[3]) &&
-                ((resultFallback && (phraseEntry[0] & 7) == match.length) || (!resultFallback && (phraseEntry[0] & 7) > match.length)))) goto global_character_next;
-            if (!emitWords) {
-                if (trackDuplicates) {
-                    if ((ziU8)Zi8SetFindCand(request->scratch, ordinalIndex, work)) goto global_character_next;
-                } else if (Zi8IsDupWChar(ordinalIndex, work)) goto global_character_next;
-            } else if (Zi8IsDupWordW(&character, 1, work)) goto global_character_next;
+            if (record[0] & charset) {
+                if (charsetTable) {
+                    charsetEntry = charsetTable + ordinalIndex;
+                    if (!(charsetEntry[0] & charsetFilter)) goto global_character_next;
+                }
+                character = ((ziU16)record[6] << 8) + record[7];
+                ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = ordinalIndex;
+                ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = character;
+                if (character != previousOrdinal) {
+                    previousOrdinal = character;
+                    candidateStatus = 0;
+                    phraseEntry = phraseTable + ((record[9] & 15) << 16 | (record[11] | record[10] << 8));
+                    if (getMode != 7) {
+                        index = phraseEntry[0] & 7;
+                        if ((phraseEntry[0] & phraseMasks[index].bytes[0]) == phraseValues[index].bytes[0] &&
+                            (phraseEntry[1] & phraseMasks[index].bytes[1]) == phraseValues[index].bytes[1] &&
+                            (phraseEntry[2] & phraseMasks[index].bytes[2]) == phraseValues[index].bytes[2] &&
+                            (phraseEntry[3] & phraseMasks[index].bytes[3]) == phraseValues[index].bytes[3]) {
+                            if ((resultFallback && index == match.length) || (!resultFallback && index > match.length)) {
+                                candidateStatus = 1;
+                            } else if (getMode == 9) goto global_character_next;
+                        } else if (getMode == 9) goto global_character_next;
+                    }
+                    if (candidateStatus || (phraseEntry[0] & 7) >= match.length &&
+                        match.prefixValues[0] == (match.prefixMasks[0] & phraseEntry[0]) &&
+                        match.prefixValues[1] == (match.prefixMasks[1] & phraseEntry[1]) &&
+                        match.prefixValues[2] == (match.prefixMasks[2] & phraseEntry[2]) &&
+                        match.prefixValues[3] == (match.prefixMasks[3] & phraseEntry[3]) &&
+                        ((resultFallback && (phraseEntry[0] & 7) == match.length) || (!resultFallback && (phraseEntry[0] & 7) > match.length))) {
+                        if (!emitWords) {
+                            if (trackDuplicates) {
+                                if ((ziU8)Zi8SetFindCand(request->scratch, ordinalIndex, work)) goto global_character_next;
+                            } else if (Zi8IsDupWChar(ordinalIndex, work)) goto global_character_next;
+                        } else if (Zi8IsDupWordW(&character, 1, work)) goto global_character_next;
 
-            if (skipCount) --skipCount;
-            else {
-                ++totalResults;
-                if (options->countOnly) {
-                    if (totalResults >= options->maxResults) goto engine_finish;
-                } else {
-                    if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
-                    if (emitWords) {
-                        ++emittedCount;
-                        output[outputIndex++] = character;
-                        output[outputIndex++] = ' ';
-                        if (outputIndex > outputLimit) goto engine_finish;
-                    } else output[emittedCount++] = character;
-                    if (emittedCount >= request->maxCandidates) goto engine_finish;
+                        if (skipCount) --skipCount;
+                        else {
+                            ++totalResults;
+                            if (options->countOnly) {
+                                if (totalResults >= options->maxResults) goto engine_finish;
+                            } else {
+                                if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
+                                if (emitWords) {
+                                    ++emittedCount;
+                                    output[outputIndex++] = character;
+                                    output[outputIndex++] = ' ';
+                                    if (outputIndex > outputLimit) goto engine_finish;
+                                } else output[emittedCount++] = character;
+                                if (emittedCount >= request->maxCandidates) goto engine_finish;
+                            }
+                        }
+                    }
                 }
             }
 global_character_next:
@@ -1988,49 +1994,52 @@ component_retry:
                 duplicateIndex = 1;
 component_phrase_word:
                 relatedRecord = records + (candidateOrdinal & 0x7FFF) * 12;
-                if (duplicateIndex < match.nSeg &&
-                    (match.segmentValues[duplicateIndex][0] != (relatedRecord[0] & match.segmentMasks[duplicateIndex][0]) ||
-                     match.segmentValues[duplicateIndex][1] != (relatedRecord[1] & match.segmentMasks[duplicateIndex][1]) ||
-                     match.segmentValues[duplicateIndex][2] != (relatedRecord[2] & match.segmentMasks[duplicateIndex][2]) ||
-                     match.segmentValues[duplicateIndex][3] != (relatedRecord[3] & match.segmentMasks[duplicateIndex][3]))) goto component_phrase_next;
-                currentSpelling[duplicateIndex] = ((ziU16)relatedRecord[6] << 8) + relatedRecord[7];
-                if (++duplicateIndex >= match.nSeg) {
-                    if (switchedPhonetic) {
-                        if (!(candidateOrdinal & 0x8000)) goto component_phrase_next;
-                        goto component_phrase_charset;
+                if (duplicateIndex >= match.nSeg ||
+                    match.segmentValues[duplicateIndex][0] == (relatedRecord[0] & match.segmentMasks[duplicateIndex][0]) &&
+                    match.segmentValues[duplicateIndex][1] == (relatedRecord[1] & match.segmentMasks[duplicateIndex][1]) &&
+                    match.segmentValues[duplicateIndex][2] == (relatedRecord[2] & match.segmentMasks[duplicateIndex][2]) &&
+                    match.segmentValues[duplicateIndex][3] == (relatedRecord[3] & match.segmentMasks[duplicateIndex][3])) {
+                    currentSpelling[duplicateIndex] = ((ziU16)relatedRecord[6] << 8) + relatedRecord[7];
+                    if (++duplicateIndex >= match.nSeg) {
+                        if (switchedPhonetic) {
+                            if (!(candidateOrdinal & 0x8000)) goto component_phrase_next;
+                            goto component_phrase_charset;
+                        }
+                        if (duplicateIndex == match.nSeg && (candidateOrdinal & 0x8000)) goto component_phrase_next;
+                        if (prefixSearch) goto component_phrase_charset;
+                    } else if (candidateOrdinal & 0x8000) goto component_phrase_next;
+                    if (!(candidateOrdinal & 0x8000)) {
+                        candidateOrdinal = (ziU16)phoneticGroups[1] << 8 | phoneticGroups[0];
+                        phoneticGroups += 2;
+                        goto component_phrase_word;
                     }
-                    if (duplicateIndex == match.nSeg && (candidateOrdinal & 0x8000)) goto component_phrase_next;
-                    if (prefixSearch) goto component_phrase_charset;
-                } else if (candidateOrdinal & 0x8000) goto component_phrase_next;
-                if (candidateOrdinal & 0x8000) goto component_phrase_charset;
-                candidateOrdinal = (ziU16)phoneticGroups[1] << 8 | phoneticGroups[0];
-                phoneticGroups += 2;
-                goto component_phrase_word;
 component_phrase_charset:
-                if (charsetTable) {
-                    index = 0;
-                    while (1) {
-                        isFirstCandidate = (ziU16)frequencyTable[index * 2 + 1] << 8 | frequencyTable[index * 2];
-                        charsetEntry = charsetTable + (isFirstCandidate & 0x7FFF);
-                        if (!(charsetEntry[0] & charsetFilter)) { isFirstCandidate = 0; break; }
-                        if (isFirstCandidate & 0x8000) break;
-                        ++index;
+                    if (charsetTable) {
+                        index = 0;
+                        while (1) {
+                            isFirstCandidate = (ziU16)frequencyTable[index * 2 + 1] << 8 | frequencyTable[index * 2];
+                            charsetEntry = charsetTable + (isFirstCandidate & 0x7FFF);
+                            if (!(charsetEntry[0] & charsetFilter)) { isFirstCandidate = 0; break; }
+                            if (isFirstCandidate & 0x8000) break;
+                            ++index;
+                        }
+                        if (!(isFirstCandidate & 0x8000)) goto component_phrase_next;
                     }
-                    if (!(isFirstCandidate & 0x8000)) goto component_phrase_next;
-                }
-                if (Zi8IsDupWordW(currentSpelling, duplicateIndex, work)) goto component_phrase_next;
-                if (skipCount) --skipCount;
-                else {
-                    ++totalResults;
-                    if (options->countOnly) {
-                        if (totalResults >= options->maxResults) goto engine_finish;
-                    } else {
-                        if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
-                        currentSpelling[duplicateIndex++] = ' ';
-                        if (outputIndex + duplicateIndex >= outputLimit) goto engine_finish;
-                        Zi8Memcpy(output + outputIndex, currentSpelling, duplicateIndex * 2);
-                        outputIndex += duplicateIndex;
-                        if (++emittedCount >= request->maxCandidates) goto engine_finish;
+                    if (!Zi8IsDupWordW(currentSpelling, duplicateIndex, work)) {
+                        if (skipCount) --skipCount;
+                        else {
+                            ++totalResults;
+                            if (options->countOnly) {
+                                if (totalResults >= options->maxResults) goto engine_finish;
+                            } else {
+                                if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
+                                currentSpelling[duplicateIndex++] = ' ';
+                                if (outputIndex + duplicateIndex >= outputLimit) goto engine_finish;
+                                Zi8Memcpy(output + outputIndex, currentSpelling, duplicateIndex * 2);
+                                outputIndex += duplicateIndex;
+                                if (++emittedCount >= request->maxCandidates) goto engine_finish;
+                            }
+                        }
                     }
                 }
 component_phrase_next:
@@ -2070,28 +2079,28 @@ frequency_range_retry:
 frequency_accept:
                 ordinalIndex = firstOrdinal + (remainingOrdinals - candidateCount - 1);
                 if (charsetTable) charsetEntry = charsetTable + ordinalIndex;
-                if (charsetTable && !(charsetEntry[0] & charsetFilter)) goto frequency_record_next;
-                ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = ordinalIndex;
-                ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = candidateOrdinal;
-                if (emitWords) {
-                    if (!Zi8IsDupWordW(&candidateOrdinal, 1, work)) {
-                        exactPhrase = 0;
-                        recordFrequency = (record[4] & 0xFC) >> 2;
-                    }
-                } else {
-                    if (trackDuplicates) {
-                        if ((ziU8)Zi8SetFindCand(request->scratch, ordinalIndex, work)) {
+                if (!charsetTable || charsetEntry[0] & charsetFilter) {
+                    ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = ordinalIndex;
+                    ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = candidateOrdinal;
+                    if (emitWords) {
+                        if (!Zi8IsDupWordW(&candidateOrdinal, 1, work)) {
+                            exactPhrase = 0;
+                            recordFrequency = (record[4] & 0xFC) >> 2;
+                        }
+                    } else {
+                        if (trackDuplicates) {
+                            if ((ziU8)Zi8SetFindCand(request->scratch, ordinalIndex, work)) {
+                                record += 12;
+                                continue;
+                            }
+                        } else if (Zi8IsDupWChar(ordinalIndex, work)) {
                             record += 12;
                             continue;
                         }
-                    } else if (Zi8IsDupWChar(ordinalIndex, work)) {
-                        record += 12;
-                        continue;
+                        exactPhrase = 0;
+                        recordFrequency = (record[4] & 0xFC) >> 2;
                     }
-                    exactPhrase = 0;
-                    recordFrequency = (record[4] & 0xFC) >> 2;
                 }
-frequency_record_next:
                 record += 12;
             }
         }
@@ -2241,50 +2250,51 @@ phonetic_filtered_done:
             index = rangeIndex;
             while (index < rangeCount) {
                 alternateEntry = alternateCursor;
-                if (!(((alternateEntry[0] & 0x80) && (charset & 0x10)) ||
-                      ((alternateEntry[2] & 0x80) && (charset & 0x60)))) goto phonetic_pair_next;
-                character = (ziU16)(alternateEntry[0] & 0x7F) << 8 | alternateEntry[1];
-                relatedOrdinal = (ziU16)(alternateEntry[2] & 0x7F) << 8 | alternateEntry[3];
-                if (charsetTable) {
-                    charsetEntry = charsetTable + character;
-                    if (!(charsetEntry[0] & charsetFilter)) goto phonetic_pair_next;
-                    charsetEntry = charsetTable + relatedOrdinal;
-                    if (!(charsetEntry[0] & charsetFilter)) goto phonetic_pair_next;
-                } else {
-                    record = records + character * 12;
-                    if (!(record[0] & charset)) goto phonetic_pair_next;
-                    record = records + relatedOrdinal * 12;
-                    if (!(record[0] & charset)) goto phonetic_pair_next;
-                }
-                if (isFirstCandidate || phoneticGroupWildcard) {
-                    record = records + character * 12;
-                    candidateStatus = (Zi8GetPCode(phoneticTable, record) & match.phon[0]) == match.phon2[0];
-                    if (!candidateStatus && (record[0] & 0x80) && !requireFull &&
-                        Zi8MatchAltSound(alternateTable, alternateCount, phoneticTable, character,
-                                         match.phon[0], match.phon2[0], charset, work)) candidateStatus = 1;
-                    if (!candidateStatus) goto phonetic_pair_next;
-                    record = records + relatedOrdinal * 12;
-                    candidateStatus = (Zi8GetPCode(phoneticTable, record) & match.phon[1]) == match.phon2[1];
-                    if (!candidateStatus && (record[0] & 0x80) && !requireFull &&
-                        Zi8MatchAltSound(alternateTable, alternateCount, phoneticTable, relatedOrdinal,
-                                         match.phon[1], match.phon2[1], charset, work)) candidateStatus = 1;
-                    if (!candidateStatus) goto phonetic_pair_next;
-                }
-                output[outputIndex] = Zi8Ord2Uni(character, work);
-                output[outputIndex + 1] = Zi8Ord2Uni(relatedOrdinal, work);
-                output[outputIndex + 2] = ' ';
-                if (!Zi8IsDupWordW(output + outputIndex, 2, work)) {
-                    if (skipCount) --skipCount;
-                    else {
-                        ++totalResults;
-                        if (!options->countOnly) {
-                            ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = character;
-                            ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = output[outputIndex];
-                            if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
-                            outputIndex += 3;
-                            ++emittedCount;
-                            if (emittedCount >= request->maxCandidates || outputIndex > outputLimit) goto engine_finish;
-                        } else if (totalResults >= options->maxResults) goto engine_finish;
+                if (((alternateEntry[0] & 0x80) && (charset & 0x10)) ||
+                      ((alternateEntry[2] & 0x80) && (charset & 0x60))) {
+                    character = (ziU16)(alternateEntry[0] & 0x7F) << 8 | alternateEntry[1];
+                    relatedOrdinal = (ziU16)(alternateEntry[2] & 0x7F) << 8 | alternateEntry[3];
+                    if (charsetTable) {
+                        charsetEntry = charsetTable + character;
+                        if (!(charsetEntry[0] & charsetFilter)) goto phonetic_pair_next;
+                        charsetEntry = charsetTable + relatedOrdinal;
+                        if (!(charsetEntry[0] & charsetFilter)) goto phonetic_pair_next;
+                    } else {
+                        record = records + character * 12;
+                        if (!(record[0] & charset)) goto phonetic_pair_next;
+                        record = records + relatedOrdinal * 12;
+                        if (!(record[0] & charset)) goto phonetic_pair_next;
+                    }
+                    if (isFirstCandidate || phoneticGroupWildcard) {
+                        record = records + character * 12;
+                        candidateStatus = (Zi8GetPCode(phoneticTable, record) & match.phon[0]) == match.phon2[0];
+                        if (!candidateStatus && (record[0] & 0x80) && !requireFull &&
+                            Zi8MatchAltSound(alternateTable, alternateCount, phoneticTable, character,
+                                             match.phon[0], match.phon2[0], charset, work)) candidateStatus = 1;
+                        if (!candidateStatus) goto phonetic_pair_next;
+                        record = records + relatedOrdinal * 12;
+                        candidateStatus = (Zi8GetPCode(phoneticTable, record) & match.phon[1]) == match.phon2[1];
+                        if (!candidateStatus && (record[0] & 0x80) && !requireFull &&
+                            Zi8MatchAltSound(alternateTable, alternateCount, phoneticTable, relatedOrdinal,
+                                             match.phon[1], match.phon2[1], charset, work)) candidateStatus = 1;
+                        if (!candidateStatus) goto phonetic_pair_next;
+                    }
+                    output[outputIndex] = Zi8Ord2Uni(character, work);
+                    output[outputIndex + 1] = Zi8Ord2Uni(relatedOrdinal, work);
+                    output[outputIndex + 2] = ' ';
+                    if (!Zi8IsDupWordW(output + outputIndex, 2, work)) {
+                        if (skipCount) --skipCount;
+                        else {
+                            ++totalResults;
+                            if (!options->countOnly) {
+                                ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = character;
+                                ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = output[outputIndex];
+                                if (++((ZiChineseWork*)work)->duplicateIndex >= 64) ((ZiChineseWork*)work)->duplicateIndex = 0;
+                                outputIndex += 3;
+                                ++emittedCount;
+                                if (emittedCount >= request->maxCandidates || outputIndex > outputLimit) goto engine_finish;
+                            } else if (totalResults >= options->maxResults) goto engine_finish;
+                        }
                     }
                 }
 phonetic_pair_next:
@@ -2584,7 +2594,6 @@ filtered_next:
     case 5: goto cangjie_filtered_done;
     }
     goto engine_finish;
-
 }
 
 static int Zi8NewMatchPhonetic(ziGetParam* request, ZiChineseRecord* records,
@@ -2671,72 +2680,69 @@ static int Zi8NewMatchPhonetic(ziGetParam* request, ZiChineseRecord* records,
             /* MWCC needs both candidate cursor advances in the loop body. */
             while (candidateIndex < groupSize) {
                 character = groupCandidates[0] | (ziU16)groupCandidates[1] << 8;
-                if (!(charset & records[character].flags)) {
-                    goto next_group_candidate;
-                }
-                if (charsetTable) {
-                    charsetEntry = charsetTable + character;
-                    if (!(*charsetEntry & charsetFilter)) {
-                        goto next_group_candidate;
-                    }
-                }
-                if (!wordMode) {
-                    if (useFoundCandidates) {
-                        if ((ziU8)Zi8SetFindCand(request->scratch, character, work)) {
+                if (charset & records[character].flags) {
+                    if (charsetTable) {
+                        charsetEntry = charsetTable + character;
+                        if (!(*charsetEntry & charsetFilter)) {
                             goto next_group_candidate;
                         }
-                    } else if (Zi8IsDupWChar(character, work)) {
-                        goto next_group_candidate;
                     }
-                }
-                ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = character;
-                character = Zi8Ord2Uni(character, work);
-                ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = character;
-                if (character == previousCharacter) {
-                    goto next_group_candidate;
-                }
-                previousCharacter = character;
-                if (wordMode && Zi8IsDupWordW(&character, 1, work)) {
-                    goto next_group_candidate;
-                }
-                if (remainingSkip) {
-                    --remainingSkip;
-                } else {
-                    ++totalResults;
-                    if (!options->countOnly) {
-                        if (++((ZiChineseWork*)work)->duplicateIndex >= 64) {
-                            ((ZiChineseWork*)work)->duplicateIndex = 0;
-                        }
-                        if (wordMode) {
-                            ++emittedCount;
-                            output[emittedCharacters++] = character;
-                            output[emittedCharacters++] = 0x20;
-                            if (emittedCharacters > capacity) {
-                                *skipCount = remainingSkip;
-                                *resultCount = totalResults;
-                                *candidateCount = emittedCount;
-                                *outputCount = emittedCharacters;
-                                Zi8ReplaceLastError(0xB54, work);
-                                return 0;
+                    if (!wordMode) {
+                        if (useFoundCandidates) {
+                            if ((ziU8)Zi8SetFindCand(request->scratch, character, work)) {
+                                goto next_group_candidate;
                             }
-                        } else {
-                            output[emittedCount++] = character;
+                        } else if (Zi8IsDupWChar(character, work)) {
+                            goto next_group_candidate;
                         }
-                        if (emittedCount >= request->maxCandidates) {
-                            *skipCount = remainingSkip;
-                            *resultCount = totalResults;
-                            *candidateCount = emittedCount;
-                            *outputCount = emittedCharacters;
-                            Zi8ReplaceLastError(0xB55, work);
-                            return 0;
+                    }
+                    ((ZiChineseWork*)work)->duplicateOrdinals[((ZiChineseWork*)work)->duplicateIndex] = character;
+                    character = Zi8Ord2Uni(character, work);
+                    ((ZiChineseWork*)work)->duplicateCharacters[((ZiChineseWork*)work)->duplicateIndex] = character;
+                    if (character != previousCharacter) {
+                        previousCharacter = character;
+                        if (!wordMode || !(Zi8IsDupWordW(&character, 1, work))) {
+                            if (remainingSkip) {
+                                --remainingSkip;
+                            } else {
+                                ++totalResults;
+                                if (!options->countOnly) {
+                                    if (++((ZiChineseWork*)work)->duplicateIndex >= 64) {
+                                        ((ZiChineseWork*)work)->duplicateIndex = 0;
+                                    }
+                                    if (wordMode) {
+                                        ++emittedCount;
+                                        output[emittedCharacters++] = character;
+                                        output[emittedCharacters++] = 0x20;
+                                        if (emittedCharacters > capacity) {
+                                            *skipCount = remainingSkip;
+                                            *resultCount = totalResults;
+                                            *candidateCount = emittedCount;
+                                            *outputCount = emittedCharacters;
+                                            Zi8ReplaceLastError(0xB54, work);
+                                            return 0;
+                                        }
+                                    } else {
+                                        output[emittedCount++] = character;
+                                    }
+                                    if (emittedCount >= request->maxCandidates) {
+                                        *skipCount = remainingSkip;
+                                        *resultCount = totalResults;
+                                        *candidateCount = emittedCount;
+                                        *outputCount = emittedCharacters;
+                                        Zi8ReplaceLastError(0xB55, work);
+                                        return 0;
+                                    }
+                                } else if (totalResults >= options->maxResults) {
+                                    *skipCount = remainingSkip;
+                                    *resultCount = totalResults;
+                                    *candidateCount = emittedCount;
+                                    *outputCount = emittedCharacters;
+                                    Zi8ReplaceLastError(0xB56, work);
+                                    return 0;
+                                }
+                            }
                         }
-                    } else if (totalResults >= options->maxResults) {
-                        *skipCount = remainingSkip;
-                        *resultCount = totalResults;
-                        *candidateCount = emittedCount;
-                        *outputCount = emittedCharacters;
-                        Zi8ReplaceLastError(0xB56, work);
-                        return 0;
                     }
                 }
 next_group_candidate:

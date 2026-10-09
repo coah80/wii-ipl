@@ -66,15 +66,14 @@ ziU16 Zi8Uni2Ptr(ziU16 ch, ziE12* buf ZI_NEED_WORK) {
     if (ZI_WORK->unicodeMap != ZI8_NULL && ZI_WORK->unicodeMapSubLang == ZI_WORK->subLanguage) {
         if (ch >= ZI_WORK->unicodeRange1Min && ch <= ZI_WORK->unicodeRange1Max) {
             i = (ziU16)(ch - ZI_WORK->unicodeRange1Min);
-            goto map;
+        } else {
+            if (ch >= ZI_WORK->unicodeRange2Min && ch <= ZI_WORK->unicodeRange2Max) {
+                i = (ziU16)(ZI_WORK->unicodeRange1Max + (ch - ZI_WORK->unicodeRange2Min) -
+                            ZI_WORK->unicodeRange1Min + 1);
+            } else {
+                return 0xFFFF;
+            }
         }
-        if (ch >= ZI_WORK->unicodeRange2Min && ch <= ZI_WORK->unicodeRange2Max) {
-            i = (ziU16)(ZI_WORK->unicodeRange1Max + (ch - ZI_WORK->unicodeRange2Min) -
-                        ZI_WORK->unicodeRange1Min + 1);
-            goto map;
-        }
-        return 0xFFFF;
-    map:
         i = ZI_WORK->unicodeMap[i];
         if (i != 0xFFFF) {
             e = (ziU8*)table + i * 0xC;

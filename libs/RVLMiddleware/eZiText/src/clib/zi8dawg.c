@@ -124,15 +124,16 @@ check_keys:
             }
             if (context->cnt < count) goto descend;
         }
-        if (context->cnt < search[1]) goto descend;
-        if (search[0] != 0 && context->cnt > search[1]) goto next_sibling;
-        if (acceptPrefix != 0 || ZiDAWGgetEOWattribute(current->node)) {
-            for (index = 0; index < context->cnt; index++) output[index] = (ziU16)records[index].attr;
-            result = context->cnt;
-            searching = 0;
-            if (acceptPrefix != 0) goto next_sibling;
+        if (context->cnt >= search[1]) {
+            if (search[0] != 0 && context->cnt > search[1]) goto next_sibling;
+            if (acceptPrefix != 0 || ZiDAWGgetEOWattribute(current->node)) {
+                for (index = 0; index < context->cnt; index++) output[index] = (ziU16)records[index].attr;
+                result = context->cnt;
+                searching = 0;
+                if (acceptPrefix != 0) goto next_sibling;
+            }
+            if (search[0] != 0 && context->cnt >= search[1]) goto next_sibling;
         }
-        if (search[0] != 0 && context->cnt >= search[1]) goto next_sibling;
 descend:
         records[context->cnt].node = ZiDAWGGetChild(records[context->cnt - 1].node);
         if (records[context->cnt].node != (ziU8*)0) {
@@ -148,6 +149,7 @@ next_sibling:
         }
         current = &records[context->cnt - 1];
     }
+
 finish_graph:
     return result;
 }

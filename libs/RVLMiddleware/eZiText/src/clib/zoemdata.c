@@ -53,26 +53,28 @@ posEntry:
     if ((ziS32)position < length) {
         if (complete) word[length] = 1; else word[length] = 0;
         if (++index >= ZI_WORK->oemLen) goto oemFailed;
+    } else {
+        if (fallback) {
+            index = 0;
+            *word = *pattern;
+            return 1;
+        }
+        ZI_WORK->oemIdx = ++index;
+        while (word[position] != 0) position++;
+        return position;
+    }
+matchRetry:
+    if (index < ZI_WORK->oemLen) {
+        if (ZI_WORK->oemMatch(index, word, capacity, ZI_WORK->oemData)) {
+            goto posEntry;
+        }
+    }
+oemFailed:
+    if (length == 1 && complete && !continuation) {
+        complete = 0;
+        fallback = 1;
+        index = 0;
         goto matchRetry;
     }
-    if (fallback) {
-        index = 0;
-        *word = *pattern;
-        return 1;
-    }
-    ZI_WORK->oemIdx = ++index;
-    while (word[position] != 0) position++;
-    return position;
-matchRetry:
-    if (index >= ZI_WORK->oemLen) goto oemFailed;
-    if (!ZI_WORK->oemMatch(index, word, capacity, ZI_WORK->oemData)) goto oemFailed;
-    goto posEntry;
-oemFailed:
-    if (length != 1 || !complete || continuation) goto tail0;
-    complete = 0;
-    fallback = 1;
-    index = 0;
-    goto matchRetry;
-tail0:
     return 0;
 }

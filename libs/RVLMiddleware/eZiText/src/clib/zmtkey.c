@@ -68,17 +68,12 @@ ziBool Zi8getKeyLayout(ziU8 language, ziWChar key, ziWChar* chars, ziU8 mode, zi
         chars[keyIndex] = 0;
         return 1;
     } else {
-        if (mode == 1) {
-            goto table_1e;
+        if (mode != 1) {
+            if ((tableCount = Zi8GetTableCount(language, 0x1d, __zi8_work_data)) != 0) {
+                dataAddress = (ziU8*)Zi8GetTableAddress(language, 0x1d, __zi8_work_data);
+                goto tables_ready;
+            }
         }
-        if ((tableCount = Zi8GetTableCount(language, 0x1d, __zi8_work_data)) == 0) {
-            goto table_1e;
-        }
-        {
-            dataAddress = (ziU8*)Zi8GetTableAddress(language, 0x1d, __zi8_work_data);
-            goto tables_ready;
-        }
-table_1e:
         if ((tableCount = Zi8GetTableCount(language, 0x1e, __zi8_work_data)) != 0) {
             dataAddress = (ziU8*)Zi8GetTableAddress(language, 0x1e, __zi8_work_data);
         }
