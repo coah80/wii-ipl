@@ -308,36 +308,33 @@ BOOL BS2GetLockedTitles(ESTitleId *pTitleIds, u32 *count) {
         return FALSE;
     }
 
-    if (pTitleIds) {
-        goto getLockedTitles;
-    }
-
-    *count = 0;
-    PartitionCursor = (u32)PartitionInfoBuf;
-    for (i = 0; i < **(u32 **)&GameToc; i++) {
-        BS2Report("gamePartition ... 0x%08X\n", (u32)((DVDPartitionInfo *)PartitionCursor)->partition);
-        BS2Report("type          ... 0x%08X\n", ((DVDPartitionInfo *)PartitionCursor)->partitionType);
-        if (((DVDPartitionInfo *)PartitionCursor)->partitionType & 0xFF000000) {
-            BS2Report(" count++\n");
-            (*count)++;
+    if (!pTitleIds) {
+        *count = 0;
+        PartitionCursor = (u32)PartitionInfoBuf;
+        for (i = 0; i < **(u32 **)&GameToc; i++) {
+            BS2Report("gamePartition ... 0x%08X\n", (u32)((DVDPartitionInfo *)PartitionCursor)->partition);
+            BS2Report("type          ... 0x%08X\n", ((DVDPartitionInfo *)PartitionCursor)->partitionType);
+            if (((DVDPartitionInfo *)PartitionCursor)->partitionType & 0xFF000000) {
+                BS2Report(" count++\n");
+                (*count)++;
+            }
+            PartitionCursor += 8;
         }
-        PartitionCursor += 8;
-    }
 
-    PartitionCursor = (u32)PartitionInfoBuf + 0x20;
-    for (i = 0; i < **(u32 **)&DataToc; i++) {
-        BS2Report("gamePartition ... 0x%08X\n", (u32)((DVDPartitionInfo *)PartitionCursor)->partition);
-        BS2Report("type          ... 0x%08X\n", ((DVDPartitionInfo *)PartitionCursor)->partitionType);
-        if (((DVDPartitionInfo *)PartitionCursor)->partitionType & 0xFF000000) {
-            BS2Report(" count++\n");
-            (*count)++;
+        PartitionCursor = (u32)PartitionInfoBuf + 0x20;
+        for (i = 0; i < **(u32 **)&DataToc; i++) {
+            BS2Report("gamePartition ... 0x%08X\n", (u32)((DVDPartitionInfo *)PartitionCursor)->partition);
+            BS2Report("type          ... 0x%08X\n", ((DVDPartitionInfo *)PartitionCursor)->partitionType);
+            if (((DVDPartitionInfo *)PartitionCursor)->partitionType & 0xFF000000) {
+                BS2Report(" count++\n");
+                (*count)++;
+            }
+            PartitionCursor += 8;
         }
-        PartitionCursor += 8;
+
+        return TRUE;
     }
 
-    return TRUE;
-
-getLockedTitles:
     titleCount = *count;
     if (titleCount != 0) {
         PartitionCursor = (u32)PartitionInfoBuf;
@@ -727,6 +724,7 @@ void BS2StartGame() {
     }
 
     status = LowReadResult;
+    // MWCC needs the shared fatal and completion exits below.
     if (status != 2) {
         if ((status >= 2) || (status < 1)) {
             goto disk_fatal;
@@ -1479,6 +1477,7 @@ BS2State BS2Tick() {
         if (bootDisc->rvlMagic == 0x5d1c9ea3) {
             discTitle = (const char *)0x80000000;
             status = strncmp(discTitle, "RAAE", 4);
+            // MWCC needs both 410 comparisons to preserve the instruction stream.
             if (status == 0 || strncmp(discTitle, "408", 3) == 0 ||
                 strncmp(discTitle, "410", 3) == 0 ||
                 strncmp(discTitle, "410", 3) == 0)
@@ -1533,6 +1532,7 @@ BS2State BS2Tick() {
             break;
         discRegion = bi2.countryCode;
         productRegion = SCGetProductGameRegion();
+        // MWCC needs the shared false-result paths in these region switches.
         switch (productRegion) {
         case 0:
             if (discRegion != 0)

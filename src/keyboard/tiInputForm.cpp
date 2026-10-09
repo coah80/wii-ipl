@@ -211,6 +211,7 @@ extern "C" char scT_title_textCHN[] = "T_title_textCHN";
 bool DeadKeyStream::sbCompatibleFilterEnabled = true;
 bool mbHyphen = true;
 
+// MWCC needs the local compatibility table in .data.
 #pragma push
 #pragma section const_type ".data"
 inline bool DeadKeyStream::isCompatible(wchar_t character) {
@@ -1456,46 +1457,22 @@ bool Base::findURL(u32* start, u32* end, const wchar_t* string, u32 from, u32 to
     wordStart = true;
     for (position = from; position < to; ++position) {
         wchar_t character = string[position];
-        if (s32(character) < L'A') {
-            if (s32(character) == L'\r') goto separator;
-            if (s32(character) < L'\r') {
-                if (s32(character) == L'\n') goto separator;
-                if (s32(character) >= L'\n') goto punctuation;
-                if (!character) goto endString;
-                goto punctuation;
-            }
-            if (s32(character) < L'0') {
-                if (s32(character) == L' ') goto separator;
-                goto punctuation;
-            }
-            if (s32(character) >= L':') goto punctuation;
-            goto wordCharacter;
-        }
-        if (s32(character) == L'h') goto prefixStart;
-        if (s32(character) < L'h') {
-            if (s32(character) < L'[') {
-                if (s32(character) == L'H') goto prefixStart;
-                goto wordCharacter;
-            }
-            if (s32(character) >= L'a') goto wordCharacter;
-            goto punctuation;
-        }
-        if (s32(character) == 0x3000) goto separator;
-        if (s32(character) >= 0x3000) goto punctuation;
-        if (s32(character) >= L'{') goto punctuation;
-        goto wordCharacter;
-    endString:
-        if (found && end) *end = position;
-        return found;
-    separator: {
+        switch (s32(character)) {
+        case 0:
+            if (found && end) *end = position;
+            return found;
+        case L'\r':
+        case L'\n':
+        case L' ':
+        case 0x3000:
             if (!found) wordStart = true;
             else {
                 if (end) *end = position;
                 return true;
             }
-            goto nextCharacter;
-        }
-    prefixStart: {
+            break;
+        case L'h':
+        case L'H':
             if (wordStart && !found) {
                 prefix = prefixes;
                 current = &string[position];
@@ -1510,15 +1487,73 @@ bool Base::findURL(u32* start, u32* end, const wchar_t* string, u32 from, u32 to
                     }
                 }
             }
-            goto nextCharacter;
+            break;
+        case L'0':
+        case L'1':
+        case L'2':
+        case L'3':
+        case L'4':
+        case L'5':
+        case L'6':
+        case L'7':
+        case L'8':
+        case L'9':
+        case L'A':
+        case L'B':
+        case L'C':
+        case L'D':
+        case L'E':
+        case L'F':
+        case L'G':
+        case L'I':
+        case L'J':
+        case L'K':
+        case L'L':
+        case L'M':
+        case L'N':
+        case L'O':
+        case L'P':
+        case L'Q':
+        case L'R':
+        case L'S':
+        case L'T':
+        case L'U':
+        case L'V':
+        case L'W':
+        case L'X':
+        case L'Y':
+        case L'Z':
+        case L'a':
+        case L'b':
+        case L'c':
+        case L'd':
+        case L'e':
+        case L'f':
+        case L'g':
+        case L'i':
+        case L'j':
+        case L'k':
+        case L'l':
+        case L'm':
+        case L'n':
+        case L'o':
+        case L'p':
+        case L'q':
+        case L'r':
+        case L's':
+        case L't':
+        case L'u':
+        case L'v':
+        case L'w':
+        case L'x':
+        case L'y':
+        case L'z':
+            wordStart = false;
+            break;
+        default:
+            wordStart = true;
+            break;
         }
-    wordCharacter:
-        wordStart = false;
-        goto nextCharacter;
-    punctuation:
-        wordStart = true;
-    nextCharacter:
-        continue;
     }
     return found;
 }
@@ -2742,6 +2777,7 @@ void Base::dirtyCacheAll() {
     dirtyDrawCache();
 }
 
+// MWCC needs the direct-ABC path to join after the input-mode checks.
 void Base::notifyChangeMode() {
     if (mePredictMode == PM_Atok) {
         if (mpManager->getToolBar()->isQwerty()) {

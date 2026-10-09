@@ -49,6 +49,7 @@ char* getSuffix(const char* path) {
     return suffix;
 }
 
+// MWCC needs the shared product-region result paths to preserve branch layout.
 static inline u32 BS2SelectUpdateEntries(void) {
     static u32 Flags0[BS2_UPDATE_ENTRY_COUNT];
     BOOL missingFile;
@@ -141,11 +142,11 @@ product_region_checked:
     strcat(updatePath, productArea);
     if (DVDConvertPathToEntrynum(updatePath) < 0) {
         switch (SCGetProductArea()) {
-        case 0:
-        case 1:
-        case 2:
-        case 6:
-        case 11:
+        case SC_PRODUCT_AREA_JPN:
+        case SC_PRODUCT_AREA_USA:
+        case SC_PRODUCT_AREA_EUR:
+        case SC_PRODUCT_AREA_KOR:
+        case SC_PRODUCT_AREA_CHN:
             strcpy(updatePath, "__update.inf");
             if (DVDConvertPathToEntrynum(updatePath) < 0) {
                 BS2Report("Error: update information file is not found.");
@@ -237,11 +238,11 @@ product_region_checked:
     strcat(seatPath, productArea);
     if (DVDConvertPathToEntrynum(seatPath) < 0) {
         switch (SCGetProductArea()) {
-        case 0:
-        case 1:
-        case 2:
-        case 6:
-        case 11:
+        case SC_PRODUCT_AREA_JPN:
+        case SC_PRODUCT_AREA_USA:
+        case SC_PRODUCT_AREA_EUR:
+        case SC_PRODUCT_AREA_KOR:
+        case SC_PRODUCT_AREA_CHN:
             strcpy(seatPath, "__seatholder.inf");
             if (DVDConvertPathToEntrynum(seatPath) < 0) {
                 BS2Report("Error: update seatholder information file is not found.");

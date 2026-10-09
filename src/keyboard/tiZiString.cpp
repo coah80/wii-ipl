@@ -72,16 +72,14 @@ void WithZi::ChangeDictionaryLanguage(u8 language) {
         }
         if (entryIndex != -1) {
             dictionaryEntry = reinterpret_cast<u32*>(dictionaryTable[entryIndex].table);
-            if (dictionaryEntry == NULL) goto noDictionary;
-            attached = EZTXAttachOEMDict(
-                (u8*)SearchOEMDictionary, *dictionaryEntry & 0xffff,
-                dictionaryEntry, mpDictionaryWork);
-            mOemDictionaryId = attached & 0xff;
-            goto dictionaryReady;
-        noDictionary:
-            mOemDictionaryId = 0;
-        dictionaryReady:
-            ;
+            if (dictionaryEntry != NULL) {
+                attached = EZTXAttachOEMDict(
+                    (u8*)SearchOEMDictionary, *dictionaryEntry & 0xffff,
+                    dictionaryEntry, mpDictionaryWork);
+                mOemDictionaryId = attached & 0xff;
+            } else {
+                mOemDictionaryId = 0;
+            }
         }
     }
 }
@@ -271,6 +269,7 @@ void WithZi::partialConfirmForKR() {
     const wchar_t* letters;
     wchar_t value = util::toWLower(CandidatesBuffer[mInputLength - 1]);
     letters = kKoreanFinalLetters;
+    // MWCC needs the match flag assigned at the loop exits.
     for (index = 0; index < 12; ++index) {
         if (value == *letters) {
             match = true;
@@ -280,17 +279,14 @@ void WithZi::partialConfirmForKR() {
     }
     match = false;
 finalLetterChecked:
-    if (!match) goto keepLastLetter;
-    value = util::toWLower(CandidatesBuffer[mInputLength - 2]);
-    if (!IsKoreanLeadingLetter(value)) goto keepLastLetter;
-    CandidatesBuffer[0] = CandidatesBuffer[mInputLength - 2];
-    CandidatesBuffer[1] = CandidatesBuffer[mInputLength - 1];
-    mInputLength = 2;
-    goto confirmLetters;
-keepLastLetter:
-    CandidatesBuffer[0] = CandidatesBuffer[mInputLength - 1];
-    mInputLength = 1;
-confirmLetters:
+    if (match && IsKoreanLeadingLetter(util::toWLower(CandidatesBuffer[mInputLength - 2]))) {
+        CandidatesBuffer[0] = CandidatesBuffer[mInputLength - 2];
+        CandidatesBuffer[1] = CandidatesBuffer[mInputLength - 1];
+        mInputLength = 2;
+    } else {
+        CandidatesBuffer[0] = CandidatesBuffer[mInputLength - 1];
+        mInputLength = 1;
+    }
     CandidatesBuffer[mInputLength] = 0;
     update();
 }
@@ -393,12 +389,14 @@ void WithZi::update() {
         if (static_cast<s32>(count) > 0x28) {
             count = 0x28;
         }
-        if (getPredictLanguage() == ZI8_LANG_ZH && mbContextChanged != 0 &&
-            (mbContextChanged = 0, mSearch.count == 0)) {
-            copyLength = mCurrentWordLength;
-            CopyWordSuffix(LatestWord, copyLength);
-            mSearch.wordCharCount = wcslen((wchar_t*)LatestWord);
-            count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
+        if (getPredictLanguage() == ZI8_LANG_ZH && mbContextChanged != 0) {
+            mbContextChanged = 0;
+            if (mSearch.count == 0) {
+                copyLength = mCurrentWordLength;
+                CopyWordSuffix(LatestWord, copyLength);
+                mSearch.wordCharCount = wcslen((wchar_t*)LatestWord);
+                count = EZTXGetCandidates(&mSearch, mpDictionaryWork) & 0xff;
+            }
         }
         if (count == 0) {
             if (getPredictLanguage() != ZI8_LANG_ZH) {
@@ -415,6 +413,7 @@ void WithZi::update() {
         if (elementCount != 0 || mSearch.wordCharCount != 0) {
             source = reinterpret_cast<u16*>(mSearch.candidates);
             destination = CandidatedWord;
+            // MWCC needs failed copies to join at the destination advance.
             for (index = 0; index < static_cast<s32>(count); index++) {
                 if (getPredictLanguage() == ZI8_LANG_ZH) {
                     candidateLength = 0;
@@ -466,22 +465,17 @@ nextCandidate:
     }
 }
 
-u32 WithZi::complementsCandidates_(s32) {
-    bool useSentinel;
+static inline bool HasNumericElement(const u16* scan) {
     u16 value;
-    u16* scan = ElementBuffer;
-    goto scanCheck;
-scanBody:
-    if (0xeff1 <= value && value <= 0xeff9) {
-        useSentinel = true;
-        goto scanDone;
+    while ((value = *scan) != 0) {
+        if (0xeff1 <= value && value <= 0xeff9) return true;
+        ++scan;
     }
-    ++scan;
-scanCheck:
-    value = *scan;
-    if (value != 0) goto scanBody;
-    useSentinel = false;
-scanDone:
+    return false;
+}
+
+u32 WithZi::complementsCandidates_(s32) {
+    bool useSentinel = HasNumericElement(ElementBuffer);
     if (useSentinel) {
         CandidatedWord[mInputLength - 1] = 0xfffe;
         CandidatedWord[mInputLength] = 0;
@@ -497,31 +491,26 @@ scanDone:
         character = source;
         while (*source != 0) {
             s32 mode = mLetterMode;
-            if (mode == 2) goto modeTwo;
-            if (mode >= 2) goto modeThree;
-            if (mode == 0) goto modeZero;
-            if (mode >= 0) goto modeOne;
-            goto modeDone;
-        modeThree:
-            if (mode >= 4) goto modeDone;
-            goto modeCopy;
-        modeOne:
-            *destination = util::toWLower(*character);
-            goto modeDone;
-        modeTwo:
-            *destination = util::toWUpper(*character);
-            goto modeDone;
-        modeZero:
-            if (length == 0) {
-                *destination = util::toWUpper(*character);
-            }
-            else {
+            switch (mode) {
+            case LM_1:
                 *destination = util::toWLower(*character);
+                break;
+            case LM_2:
+                *destination = util::toWUpper(*character);
+                break;
+            case LM_0:
+                if (length == 0) {
+                    *destination = util::toWUpper(*character);
+                } else {
+                    *destination = util::toWLower(*character);
+                }
+                break;
+            case LM_3:
+                *destination = *character;
+                break;
+            default:
+                break;
             }
-            goto modeDone;
-        modeCopy:
-            *destination = *character;
-        modeDone:
             ++source;
             ++character;
             ++destination;
