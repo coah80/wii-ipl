@@ -121,6 +121,7 @@ void defaultOptionalCommandChecker(DVDCommandBlock* block, DVDLowCallback callba
 
 extern DVDErrorInfo __ErrorInfo;
 
+// MWCC must reload the interrupt-shared flags and counters below.
 static vu32 CommandInfoCounter = 0;
 
 static vBOOL PauseFlag = FALSE;
@@ -1889,12 +1890,13 @@ s32 DVDGetCommandBlockStatus(const DVDCommandBlock* block) {
     BOOL enabled;
     s32 retVal;
     DVDCommandBlock* next;
+    const volatile DVDCommandBlock* statusBlock = block;
 
     enabled = OSDisableInterrupts();
 
-    if (block->state == DVD_STATE_COVER_CLOSED) {
+    if (statusBlock->state == DVD_STATE_COVER_CLOSED) {
         retVal = DVD_STATE_BUSY;
-    } else if (((volatile DVDCommandBlock*)block)->state == DVD_STATE_COVER_OPENED) {
+    } else if (statusBlock->state == DVD_STATE_COVER_OPENED) {
         retVal = DVD_STATE_NO_DISK;
     } else if (executing == &__DVDStopMotorCommandBlock) {
         next = __DVDGetNextWaitingQueue();
@@ -1902,17 +1904,17 @@ s32 DVDGetCommandBlockStatus(const DVDCommandBlock* block) {
             if (block == next) {
                 retVal = DVD_STATE_BUSY;
             } else {
-                retVal = block->state;
+                retVal = statusBlock->state;
             }
         } else {
             if (block == &__DVDStopMotorCommandBlock) {
                 retVal = DVD_STATE_IDLE;
             } else {
-                retVal = block->state;
+                retVal = statusBlock->state;
             }
         }
     } else {
-        retVal = ((volatile DVDCommandBlock*)block)->state;
+        retVal = statusBlock->state;
     }
 
     OSRestoreInterrupts(enabled);

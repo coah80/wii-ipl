@@ -290,6 +290,7 @@ int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionSt
     interfaceConfig->netif.wireless.config.manual.ssidLength = (u8)connection->ssidLength;
     memcpy(interfaceConfig->netif.wireless.config.manual.ssid, connection->ssid, connection->ssidLength);
     result = 0;
+    // MWCC needs this guard to schedule the IP-config memset arguments.
     if (result == 0) {
         ipConfig = &AOSSi_NcdIpConfig;
         memset(ipConfig, 0, sizeof(*ipConfig));
