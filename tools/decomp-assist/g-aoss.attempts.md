@@ -131,3 +131,8 @@ Independent focused checks: AOSS pool 1/1 strings identical, AOSSLink 0/0 identi
 
 - pdm's `volatile pf_u8* buf` idiom (ordered loads from hardware-filled mem) does NOT apply: WLANConnect's 2d is arg-marshal `li r5/mr r3` scheduling — no loads involved. `NCDIpConfig* volatile ipConfig` spills the pointer (166 insns/109d regression); `memset((volatile T*)p,...)` is an illegal qualifier-discard error on MWCC.
 - Init_old residual regions (twin-branch @272, dead-bne @371/713/1273, materialization ~566-590, spills ~969-985) are control-flow/constant-materialization classes — no reordered buffer loads to pin. `*cfg`/`AOSSi_cancel_flag` reads already emit plain loads matching orig.
+
+## w1011/aoss wave-4 (opt_propagation off — assessed N/A)
+
+- Scoped `#pragma push/opt_propagation off/pop` around AOSS_Init_old: INERT (1582/534 identical). File-top unscoped: inert. WLANConnect: inert (2d). Pragma accepted (no warning) — but Init_old's `-O4,p` + `-inline off` + global `-ipa file` leaves nothing for it to change.
+- Verified no prop-signature in residual: orig's `cmpw/cmplw reg,reg` sites (172/434/635/776/997/1098/1336, e.g. `extsh r0; cmpw r0,r16` loop-limit compares) all sit inside rename regions — mine emits the same reg-reg compares with different coloring, not `cmpwi` constant-folds. The 534d wall is reg allocation + the twin-branch + dead-bne sites, not propagation.
