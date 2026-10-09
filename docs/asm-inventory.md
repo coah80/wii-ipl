@@ -1,7 +1,7 @@
 # Assembly inventory
 
-4.3U, 2026-10-09. 163 functions contain 165 assembly
-bodies/blocks: 162 ORIGINAL functions and 1 PLACEHOLDER function.
+4.3U, 2026-10-09. 162 functions contain 164 assembly
+bodies/blocks: 162 ORIGINAL functions and 0 PLACEHOLDER functions.
 
 Run `python3 tools/check_asm_inventory.py`. Completion requires exit 0, complete
 coverage and zero placeholders. The checker also rejects stale/duplicate rows,
@@ -37,7 +37,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `libs/NW4R/include/nw4r/math/types.h` | `VEC3Scale` | ORIGINAL | psq_l/ps_muls0/psq_st implements paired-single vector/matrix operations. |
 | `libs/NW4R/src/math/math_arithmetic.cpp` | `FrSqrt` | ORIGINAL | frsqrte plus fixed refinement matches the public [NW4R arithmetic assembly][arithmetic-cpp]. |
 | `libs/NW4R/src/math/math_types.cpp` | `MTX44Identity` | ORIGINAL | psq_st/ps_merge01/ps_merge10 implements paired-single vector/matrix operations. |
-| `libs/RVLMiddleware/TMC_JPEG/src/jpegdec/jdec_main.c` | `TMCJPEGDEC_err_restart` | PLACEHOLDER | JPEG marker scan; best C 95.73913%, 114/115 instructions, folded exit branch, [rx19](../tools/decomp-assist/rx19.attempts.md), [rx24][rx24]. |
 | `libs/RVL_SDK/include/revolution/os/OSFastCast.h` | `OSInitFastCast` | ORIGINAL | mtspr programs the GQR quantization registers. |
 | `libs/RVL_SDK/include/revolution/os/OSFastCast.h` | `__OSu16tof32` | ORIGINAL | psq_l uses a GQR integer conversion format for the fast cast. |
 | `libs/RVL_SDK/include/revolution/os/OSFastCast.h` | `__OSf32tou8` | ORIGINAL | psq_st uses a GQR integer conversion format for the fast cast. |
@@ -190,7 +189,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `src/system/rvl_dec.c` | `Rvl_decode_ash` | ORIGINAL | nofralloc hand-built 0x40 frame saves r21..31 with stmw; work address uses lis @h/ori @l. |
 | `src/system/rvl_dec.c` | `Rvl_decode_asr` | ORIGINAL | nofralloc hand-built 0x40 frame saves r21..31 with stmw; work address uses lis @h/ori @l. |
 
-[rx24]: ../tools/decomp-assist/rx36.attempts.md#rx24
 [rx36-osinit]: ../tools/decomp-assist/rx36.attempts.md#osinit
 [sdk-init]: https://github.com/doldecomp/ogws/blob/master/src/revolution/OS/__ppc_eabi_init.c
 [runtime]: https://github.com/doldecomp/ogws/blob/master/src/runtime/runtime.c
