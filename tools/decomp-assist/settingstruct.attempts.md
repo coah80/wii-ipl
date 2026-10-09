@@ -174,3 +174,29 @@ inside an identical instruction multiset. No scheduling/IRO/O-level/cflag/
 static/source-structure lever changes it in the right direction.
 AOSSi_WLANConnect: 2-insn marshal-order pair (mr r3,r27 vs li r5,0x7c4);
 all decl/static/source forms tried.
+
+## Round 4: const-source + scoped-table hint (#1304) + Init_old op-diff decode
+
+Post-#1296 rebase state: AOSSXorBufferWithKey landed by swarm (100). Remaining
+in leaf: AOSS_Init_old 96.62, AOSSi_WLANGetBSSList 98.48,
+AOSSi_WLANConnect 98.71, AESi*Block (stays as-is per orchestrator).
+
+AOSS_Init_old op-histogram diffs (M=mine vs orig): add +1, b -1, bgt +1,
+ble -1, bne -3, cmplw +2, cmplwi -2, li -1, mr +1 — real structural gap:
+- Mine emits `cmplw r3,r27` at the two AOSSi_Alloc NULL checks (0xc94/0x154c)
+  where orig emits `cmpwi r3,0` — the classic pinned-zero wall: MWCC shared
+  one zero web in r27 across the fn's many li 0/cmpwi sites; orig
+  rematerializes. All 4 pragma variants (iro 0/1/2, iro1+sched-twice) no-op.
+- Orig keeps 3 more `bne` and 2 more `cmplwi r0,1` (0xd60/0x1620 = likely
+  AOSSi_cancel_flag==1 sites where mine fused differently).
+
+Scoped-retry-counter attempt (move unlockRetries/cleanupRetries/scanRetries
+to uninit decls + assign before each loop — births webs later per the scoped-
+locals hint): GetBSSList 46->167 diffs, reverted.
+
+WLANConnect memset(&AOSSi_NcdIfConfig) direct-global + memsetTarget alias
+forms: both still forward to the r27 web, 2 diffs unchanged.
+
+const-table analysis: ipAddress/etc are non-const .data (written by
+AOSS_SetStaticIpConfig) — can't be const; supportedRates is .data non-const
+matching orig's sections (no .rodata in orig .o) — const would break data.
