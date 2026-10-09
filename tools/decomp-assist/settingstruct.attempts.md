@@ -99,3 +99,37 @@ decode). Branch now keeps only create's `ppc_iro_level 1` (98.73) + this log.
   266 normalized diffs vs 290 baseline — normalized counts mislead again). Reverted.
   Allhands exhaustive-decl-order docs predate IRO but the pragma is verified harmful
   here — remaining residual is the same table-load scheduler family.
+
+## MWCC scheduling-pragmas sweep (post-#1296 orchestrator hint)
+
+Target: AESiEncryptBlock/DecryptBlock table-load interleave (orig hoists ~11 rlwinm
+extracts before first lwzx; ours issues loads after ~4).
+
+Per-fn pragma results (normalized diffs -> objdiff fuzzy):
+- `#pragma scheduling off`   EncryptBlock 183->178 norm, fuzzy 65.81->36.20 (revert)
+- `#pragma scheduling once`  EncryptBlock 183->179 norm, fuzzy ->40.54 (revert)
+- `#pragma scheduling twice` EncryptBlock 183 (no change), DecryptBlock 290 (no change)
+- `#pragma scheduling 600`   rejected by MWCC 3.0a5.2 (CPU names only)
+- `#pragma scheduling 750`/`gekko` 183 (=default), `603`/`generic` 237 (worse)
+- `#pragma schedule_twice on`/`scheduling on`/`twice` 183 (no-ops)
+- `-opt schedule_twice` cflag: not a valid -opt for 3.0a5.2 (opts: prop,strength,dead,peep,schedule,display|dump)
+- `-schedule twice|twice,750|=twice` cflag: all rejected by 3.0a5.2 arg parser
+- `-opt schedule` cflag: 183 (no change)
+
+Source restructures (all reverted, fuzzy-measured):
+- 16 named table-value temps (t0..t15): 149 norm but fuzzy 65.81->58.99
+- named index vars i0..i15 + 16 loads: 149 norm (index vars forwarded/CSE'd), fuzzy also down
+- column-order extraction (all >>24, then >>16, >>8, &255): 228 norm (worse)
+
+Cross-check on AOSS fns:
+- AOSSi_WLANConnect `scheduling twice`: norm 28->2 (li r5,0x7c4/mr r3,r27 pair only)
+  BUT fuzzy unchanged 98.71 - remaining residual is the same marshal-order operand tie.
+- AOSSi_WLANGetBSSList `once` 46->43 norm, fuzzy 98.48->93.53 (harmful); `twice` no-op; `off` 69
+- AOSSXorBufferWithKey `twice` 61 (no-op); `off` 142 (worse)
+- AOSS_Init_old `twice` 1263 (no-op)
+
+Conclusion: the AES interleave is NOT a scheduling-pragma wall - MWCC's default
+gekko scheduler already matches orig's pass config; the residual is allocator
+web-lifetime/ready-set structure with no known source lever. `scheduling twice`
+is a real lever ONLY for instruction-issue-order residuals (marshal pairs), and
+even there fixes ordering without moving objdiff fuzzy.
