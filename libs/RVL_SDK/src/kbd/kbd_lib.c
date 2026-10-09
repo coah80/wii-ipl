@@ -396,6 +396,8 @@ static void kbdProcKey(u32 key, u32 pressed, u32 channel) {
     kbdSendKey(&event);
 }
 
+#pragma push
+#pragma opt_propagation off
 static void kbdProcMod(u32 key, u32 pressed, u32 channel) {
     KBDChannel* data;
     u32 modState;
@@ -524,6 +526,7 @@ static void kbdProcMod(u32 key, u32 pressed, u32 channel) {
     finalState = modState | 0x1000;
     KBDSetModState(channel, finalState);
 }
+#pragma pop
 
 static void kbdSendKey(KBDKeyEventData* event) {
     KBDChannel* data;
