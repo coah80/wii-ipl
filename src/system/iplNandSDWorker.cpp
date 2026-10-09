@@ -4,7 +4,7 @@
 
 #include "titledb.h"
 
-#pragma sym on  // required to match (fakematch?)
+#pragma sym on  // MWCC needs symbol mode to preserve this unit's inline code generation.
 
 // (for now, unless dtk makes the ATTRIBUTE_ALIGN part optional :P)
 // stub ATTRIBUTE_ALIGN
@@ -37,7 +37,7 @@
 
 namespace ipl {
 #ifndef NON_MATCHING
-    // this could work as a seperate unit???
+    // MWCC needs these calls to emit the stack container's weak functions.
     void forceStackWeaks() {
         ut::FreeList freeList;
         freeList.init(NULL, 0, 0);
@@ -77,6 +77,7 @@ namespace ipl {
 
         /* Setup important stuff */
 
+        // MWCC needs this Work pointer when computing the thread stack end.
         Work* workForStackP = (Work*)((u8*)myWork + sizeof(myWork->threadStack));
         OSCreateThread(&myWork->thread, thread_main, this, workForStackP->threadStack, sizeof(myWork->threadStack), priority, OS_THREAD_ATTR_DETACH);
 
@@ -1169,7 +1170,6 @@ namespace ipl {
         } else {
             // transfer.id is valid. Do nothing.
             OSReport("NandSDWorker: %s already exist.\n", c_transferid_path);
-            goto clean_up;
         }
 
     clean_up:
@@ -1314,7 +1314,6 @@ namespace ipl {
             }
         }
         result = RESULT_OK;
-    ret:
         return result;
     }
 
@@ -1608,10 +1607,9 @@ namespace ipl {
                 if (bannerFile->signature != WII_SAVE_BANNER_SIGNATURE) {
                     OSReport("NandSDWorker: banner file %s signature is not correct\n", path);
                     ret = RESULT_BAD_FILE;
-                    goto clean_up;
+                } else {
+                    ret = RESULT_OK;
                 }
-
-                ret = RESULT_OK;
 
             clean_up:
                 if (fileOpened) {
@@ -1980,6 +1978,7 @@ namespace ipl {
             ((AppBlocksInfo*)myWork->paramB)->blocks = userNodes;
         }
 
+        // MWCC needs the banner result to remain live through the free-area query.
         if (result != RESULT_OK) {
             myWork->asyncResult = result;
             goto clean_up;
@@ -2111,10 +2110,9 @@ namespace ipl {
         if (netSize + 0x19000 > sdFreeArea) {
             OSReport("NandSDWorker: total backup size [%d] is too large for SD card. \n", netSize + 0x19000);
             myWork->asyncResult = netSize + 0x19000;
-            goto clean_up;
+        } else {
+            myWork->asyncResult = RESULT_OK;
         }
-
-        myWork->asyncResult = RESULT_OK;
 
     clean_up:
         MEMFreeToExpHeap(myWork->mainHeap, backupData);
@@ -2885,47 +2883,44 @@ namespace ipl {
             isDataOnlyTitle = true;
         }
 
-        if (isDataOnlyTitle) {
-            goto start_backup;
+        if (!isDataOnlyTitle) {
+            if (!change_uid(myWork->curTitleId)) {
+                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                goto clean_up;
+            }
+            get_nand_data_only_title_save_path(myWork->curTitleId, bnrPath);
+
+            strncat(bnrPath, "/", NAND_MAX_PATH);
+            strncat(bnrPath, c_banner_file_name, NAND_MAX_PATH);
+
+            err = nand::wrapper::GetStatus(bnrPath, &bnrFileStatus);
+            if (check_nand_corrupt(err, &myWork->asyncResult))
+                goto clean_up;
+            if (err != NAND_RESULT_OK) {
+                OSReport("NandSDWorker: NANDGetStatus[%s] failed %d\n", bnrPath, err);
+                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                goto clean_up;
+            }
+            sdSaveBnr->perms = bnrFileStatus.permission;
+            sdSaveBnr->attr = bnrFileStatus.attribute;
+
+            bnrLen = nand_get_length(bnrPath);
+            if (bnrLen < 0) {
+                myWork->asyncResult = bnrLen;
+                goto clean_up;
+            }
+            sdSaveBnr->headerSize = bnrLen;
+            get_nand_data_only_title_save_path(myWork->curTitleId, bnrPath);
+
+            err = nand::wrapper::ChangeDir(bnrPath);
+            if (err != NAND_RESULT_OK) {
+                OSReport("NandSDWorker: NANDChangeDir %s failed.[%d]\n", bnrPath, err);
+                myWork->asyncResult = RESULT_FATAL_SD_ERROR;
+                goto clean_up;
+            }
+            changedDir = true;
         }
 
-        if (!change_uid(myWork->curTitleId)) {
-            myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-        get_nand_data_only_title_save_path(myWork->curTitleId, bnrPath);
-
-        strncat(bnrPath, "/", NAND_MAX_PATH);
-        strncat(bnrPath, c_banner_file_name, NAND_MAX_PATH);
-
-        err = nand::wrapper::GetStatus(bnrPath, &bnrFileStatus);
-        if (check_nand_corrupt(err, &myWork->asyncResult))
-            goto clean_up;
-        if (err != NAND_RESULT_OK) {
-            OSReport("NandSDWorker: NANDGetStatus[%s] failed %d\n", bnrPath, err);
-            myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-        sdSaveBnr->perms = bnrFileStatus.permission;
-        sdSaveBnr->attr = bnrFileStatus.attribute;
-
-        bnrLen = nand_get_length(bnrPath);
-        if (bnrLen < 0) {
-            myWork->asyncResult = bnrLen;
-            goto clean_up;
-        }
-        sdSaveBnr->headerSize = bnrLen;
-        get_nand_data_only_title_save_path(myWork->curTitleId, bnrPath);
-
-        err = nand::wrapper::ChangeDir(bnrPath);
-        if (err != NAND_RESULT_OK) {
-            OSReport("NandSDWorker: NANDChangeDir %s failed.[%d]\n", bnrPath, err);
-            myWork->asyncResult = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-        changedDir = true;
-
-    start_backup:
         backupWadSize = 0;
         s32 wadErr;
 
@@ -3014,6 +3009,7 @@ namespace ipl {
         nocopyExists = item_exist_nand_save_folder(myWork->curTitleId, c_nocopy_folder_name);
         notransferExists = item_exist_nand_save_folder(myWork->curTitleId, c_notransfer_folder_name);
 
+        // MWCC needs this separate boolean conversion when packing the copy flags.
         bool dataOnlyTitle;
         dataOnlyTitle = false;
         if (isDataOnlyTitle) {
@@ -3165,6 +3161,7 @@ namespace ipl {
         char sdSavePath[NAND_MAX_PATH];
         char targetPath[NAND_MAX_PATH];
         char tmpPath[NAND_MAX_PATH];
+        // MWCC needs this initialized buffer to preserve the retail stack frame.
         char unusedPath[NAND_MAX_PATH] = "";
 
         bool changedDir = false;
@@ -3543,56 +3540,49 @@ namespace ipl {
 
         OSTick startTick = OSGetTick();
 
-        goto open_lib;
-        while (true) {
+        while (NWC24OpenLib(nwc24Work) != NWC24_OK) {
             OSReport("NandSDWorker: waiting NWC24Open.\n");
             OSSleepTicks(OSMillisecondsToTicks((OSTime)30));
             if (OSTicksToMilliseconds(OSGetTick() - startTick) > 3000) {
                 ret = RESULT_FATAL_SD_ERROR;
                 OSReport("NandSDWorker: NWC24Open failed.\n");
-                break;
+                goto clean_up;
             }
+        }
 
-        open_lib:
-            if (NWC24OpenLib(nwc24Work) != NWC24_OK) {
+        u16 dlId = 0;
+        NWC24Err nwc24Err;
+        for (nwc24Err = NWC24IterateDlTask(&dlId, TRUE); nwc24Err >= NWC24_OK; nwc24Err = NWC24IterateDlTask(&dlId, FALSE)) {
+            NWC24DlTask dlTask;
+            nwc24Err = NWC24GetDlTask(&dlTask, dlId);
+            if (nwc24Err != NWC24_OK) {
+                OSReport("NandSDWorker: NWC24GetDlTask failed - [%d]  -> continue\n", nwc24Err);
                 continue;
             }
 
-            u16 dlId = 0;
-            NWC24Err nwc24Err;
-            for (nwc24Err = NWC24IterateDlTask(&dlId, TRUE); nwc24Err >= NWC24_OK; nwc24Err = NWC24IterateDlTask(&dlId, FALSE)) {
-                NWC24DlTask dlTask;
-                nwc24Err = NWC24GetDlTask(&dlTask, dlId);
-                if (nwc24Err != NWC24_OK) {
-                    OSReport("NandSDWorker: NWC24GetDlTask failed - [%d]  -> continue\n", nwc24Err);
-                    continue;
-                }
-
-                u32 dlAppId;
-                nwc24Err = NWC24GetDlAppId(&dlTask, &dlAppId);
-                if (nwc24Err != NWC24_OK) {
-                    OSReport("NandSDWorker: NWC24GetDlAppId failed - [%d]  -> continue\n", nwc24Err);
-                    continue;
-                }
-
-                if (dlAppId == titleId) {
-                    OSReport("NandSDWorker: found dl task owned same titleid [%p]\n", &dlTask);
-                    nwc24Err = NWC24DeleteDlTask(&dlTask);
-                    if (nwc24Err != NWC24_OK) {
-                        // @bug this should say NWC24DeleteDlTask, looks like it was copy-pasted from above
-                        OSReport("NandSDWorker: NWC24GetDlAppId failed - [%d]  -> continue\n", nwc24Err);
-                    } else {
-                        OSReport("NandSDWorker: delete download task for index : %d\n", dlId);
-                    }
-                } else {
-                    OSReport("NandSDWorker: ignore title id %d: %08x \n", dlId, dlAppId);
-                }
-            }
-            nwc24Err = NWC24CloseLib();
+            u32 dlAppId;
+            nwc24Err = NWC24GetDlAppId(&dlTask, &dlAppId);
             if (nwc24Err != NWC24_OK) {
-                OSReport("NandSDWorker: NWC24CloseLib failed - [%d]  -> continue\n", nwc24Err);
+                OSReport("NandSDWorker: NWC24GetDlAppId failed - [%d]  -> continue\n", nwc24Err);
+                continue;
             }
-            break;
+
+            if (dlAppId == titleId) {
+                OSReport("NandSDWorker: found dl task owned same titleid [%p]\n", &dlTask);
+                nwc24Err = NWC24DeleteDlTask(&dlTask);
+                if (nwc24Err != NWC24_OK) {
+                    // @bug this should say NWC24DeleteDlTask, looks like it was copy-pasted from above
+                    OSReport("NandSDWorker: NWC24GetDlAppId failed - [%d]  -> continue\n", nwc24Err);
+                } else {
+                    OSReport("NandSDWorker: delete download task for index : %d\n", dlId);
+                }
+            } else {
+                OSReport("NandSDWorker: ignore title id %d: %08x \n", dlId, dlAppId);
+            }
+        }
+        nwc24Err = NWC24CloseLib();
+        if (nwc24Err != NWC24_OK) {
+            OSReport("NandSDWorker: NWC24CloseLib failed - [%d]  -> continue\n", nwc24Err);
         }
 
     clean_up:
@@ -3746,11 +3736,10 @@ namespace ipl {
 
         if (handle_sd_error(FAFclose(fStream), &myWork->asyncResult) != RESULT_OK) {
             OSReport("NandSDWorker: FAFclose %s failed.\n", sdAppPath);
-            goto clean_up;
+        } else {
+            myWork->sdAppNum++;
+            myWork->asyncResult = RESULT_OK;
         }
-
-        myWork->sdAppNum++;
-        myWork->asyncResult = RESULT_OK;
 
     clean_up:
         MEMFreeToExpHeap(myWork->mainHeap, sdBanner);
@@ -4006,12 +3995,12 @@ namespace ipl {
         if (err < ES_ERR_OK) {
             OSReport("NandSDWorker: ES_OpenTitleContentFile titleid 0x%016llx cidx %d failed.[%d]\n", titleId, contentIdx, err);
             ret = RESULT_FATAL_SD_ERROR;
-            goto clean_up;
-        }
-        ret = err;
+        } else {
+            ret = err;
 
-        *contentSizeOut = tmdView->contents[contentIdx].size;
-        OSReport("NandSDWorker: successfully open titleid 0x%016llx cidx %d. fd = %d, size = %d.\n", titleId, contentIdx, ret, *contentSizeOut);
+            *contentSizeOut = tmdView->contents[contentIdx].size;
+            OSReport("NandSDWorker: successfully open titleid 0x%016llx cidx %d. fd = %d, size = %d.\n", titleId, contentIdx, ret, *contentSizeOut);
+        }
 
     clean_up:
         if (tmdView != NULL) {
@@ -4231,7 +4220,6 @@ namespace ipl {
         if (wadErr == WAD_ERROR_INCORRECT_DEVICE) {
             OSReport("NandSDWorker: WADRestoreSDEx failed, not original Wii.[%d]\n", wadErr);
             myWork->asyncResult = RESULT_NOT_TRANSFERRABLE;
-            goto clean_up;
         } else if (wadErr != WAD_ERROR_OK) {
             OSReport("NandSDWorker: WADRestoreSDEx failed.[%d]\n", wadErr);
             if (nand_app_exist_ex(sdAppBanner->titleId) == 1) {
@@ -4245,16 +4233,15 @@ namespace ipl {
                 }
             }
             myWork->asyncResult = RESULT_BAD_FILE;
-            goto clean_up;
-        }
+        } else {
+            OSReport("NandSDWorker: import app data titleid = 0x%016llx.\n", sdAppBanner->titleId);
+            myWork->nandAppNum++;
+            if (!changeAppCount) {
+                change_nand_app_count(1);
+            }
 
-        OSReport("NandSDWorker: import app data titleid = 0x%016llx.\n", sdAppBanner->titleId);
-        myWork->nandAppNum++;
-        if (!changeAppCount) {
-            change_nand_app_count(1);
+            myWork->asyncResult = RESULT_OK;
         }
-
-        myWork->asyncResult = RESULT_OK;
 
     clean_up:
         if (sdAppBanner != NULL) {
@@ -4342,10 +4329,8 @@ namespace ipl {
         if (handle_sd_error_for_entry(FAFstat(appPath, &fileStat), &ret) != RESULT_OK) {
             // @bug this should say FAFstat, looks like it was copy-pasted from above
             OSReport("NandSDWorker: FAFclose failed.\n");
-            goto clean_up;
-        }
 
-        if (fileStat.size <= ROUNDUP(appBanner->thumbSize, 64) + sizeof(SDAppBanner)) {
+        } else if (fileStat.size <= ROUNDUP(appBanner->thumbSize, 64) + sizeof(SDAppBanner)) {
             ret = RESULT_BAD_FILE;
         }
 
@@ -4412,10 +4397,9 @@ namespace ipl {
         if (ret < RESULT_OK) {
             OSReport("NandSDWorker: cannot uncompress thumbnail of %016llx [%d].\n", appBanner->titleId, ret);
             ret = RESULT_BAD_FILE;
-            goto clean_up;
+        } else {
+            OSReport("NandSDWorker: uncompress thumbnail size = %d.\n", ret);
         }
-
-        OSReport("NandSDWorker: uncompress thumbnail size = %d.\n", ret);
 
     clean_up:
         MEMFreeToExpHeap(myWork->mainHeap, cmprBuf);
@@ -4526,7 +4510,6 @@ namespace ipl {
         } else {
             OSReport("NandSDWorker: ES_ListTitleContentsOnCard failed.[%d]\n", esErr);
             ret = EXISTENCE_NOEXIST;
-            goto clean_up;
         }
 
     clean_up:
@@ -4647,6 +4630,13 @@ namespace ipl {
     }
 
     s32 NandSDWorker::uncompress_app_thumbnail(const u8* cmpr, u32 uncmprSize, u8* uncmpr) {
+        struct MD5Head {
+            u8 signature[4];
+            u32 length;
+            u8 reserved[8];
+            NETMD5Sum md5;
+        };
+
         s32 size;
 
         NETMD5Sum MD5Sum;
@@ -4654,10 +4644,10 @@ namespace ipl {
         u32 dataLen = 0;
         u32 offset = 0;
         if (NAND_CHECK_MAGIC4(cmpr, 'I', 'M', 'D', '5')) {
-            dataLen = *(u32*)(cmpr + 4);
+            dataLen = ((const MD5Head*)cmpr)->length;
             hasMd5 = true;
-            memcpy(MD5Sum, cmpr + 0x10, 0x10);
-            offset = 0x20;
+            memcpy(MD5Sum, ((const MD5Head*)cmpr)->md5, sizeof(MD5Sum));
+            offset = sizeof(MD5Head);
         }
 
         if (is_compressed(cmpr + offset)) {
