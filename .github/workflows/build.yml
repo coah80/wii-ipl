@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       require_complete:
-        description: Fail unless 43U code, data, functions, units, and links are all 100%
+        description: Fail unless 43U binary matches completely and source inventory is complete
         required: false
         default: false
         type: boolean
@@ -79,6 +79,7 @@ jobs:
         python tools/check_decomp_complete.py \
             build/${{ matrix.version }}/report.json \
             --dol build/${{ matrix.version }}/main.dol
+        python tools/check_asm_inventory.py
 
     # Upload map files
     - name: Upload map

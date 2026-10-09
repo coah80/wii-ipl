@@ -15,6 +15,10 @@ EXPECTED_TOTAL_DATA = 1832684
 EXPECTED_TOTAL_FUNCTIONS = 12563
 INTEGER_PATTERN = re.compile(r"-?(0|[1-9][0-9]*)\Z")
 CODE_SECTIONS = frozenset({".text", ".init"})
+DATA_SECTIONS = frozenset({
+    ".bss", "extab", "extabindex", ".ctors", ".ctors$10", ".dtors",
+    ".rodata", ".data", ".sdata2", ".sbss2", ".sdata", ".sbss",
+})
 # objdiff accumulates the aggregate fuzzy_match_percent in 32-bit floats over every code byte,
 # so a fully matched report can read 99.9998 instead of 100.0. Aggregates are accepted within
 # this tolerance only when every code byte is counted as matched; units, sections and functions
@@ -132,6 +136,43 @@ def check_complete_measures(measures, label, failures, aggregate=False):
         percent(measures, "fuzzy_match_percent", f"{label} fuzzy_match_percent", failures)
 
 
+def check_sections(sections, measures, name, failures):
+    if not isinstance(sections, list):
+        failures.append(f"{name}: missing sections")
+        return
+    sizes = {"code": 0, "data": 0}
+    names = set()
+    for section in sections:
+        if not isinstance(section, dict):
+            failures.append(f"{name}: invalid section entry")
+            continue
+        section_name = section.get("name")
+        label = f"{name} section {section_name}"
+        if not isinstance(section_name, str) or section_name not in CODE_SECTIONS | DATA_SECTIONS:
+            failures.append(f"{label}: unknown section name")
+            continue
+        if section_name in names:
+            failures.append(f"{label}: duplicate section")
+        names.add(section_name)
+        # Protobuf JSON omits a zero-valued size. objdiff counts data sections in
+        # full, but code measures exclude ignored/deduplicated function symbols.
+        size = count({"size": section.get("size", 0)}, "size", label, failures)
+        if size is not None:
+            sizes["code" if section_name in CODE_SECTIONS else "data"] += size
+        if "fuzzy_match_percent" in section:
+            percent(section, "fuzzy_match_percent", label, failures)
+        elif section_name in CODE_SECTIONS:
+            failures.append(f"{label}: missing fuzzy_match_percent")
+    for kind in ("code", "data"):
+        total = count({f"total_{kind}": measures.get(f"total_{kind}", 0)},
+                      f"total_{kind}", name, failures)
+        if total is not None and (
+            sizes[kind] < total if kind == "code" else sizes[kind] != total
+        ):
+            relation = "<" if kind == "code" else "!="
+            failures.append(f"{name} section {kind} coverage: {sizes[kind]} {relation} {total}")
+
+
 def key_for(value):
     return type(value).__name__, repr(value)
 
@@ -215,19 +256,7 @@ def check_report(report):
             equal(unit_measures, "matched_functions", "total_functions", f"{name} function match", failures)
             percent(unit_measures, "matched_functions_percent", f"{name} function percent", failures)
 
-        sections = unit.get("sections")
-        if not isinstance(sections, list):
-            failures.append(f"{name}: missing sections")
-        else:
-            for section in sections:
-                if not isinstance(section, dict):
-                    failures.append(f"{name}: invalid section entry")
-                    continue
-                section_name = section.get("name", "<unnamed>")
-                if "fuzzy_match_percent" in section:
-                    percent(section, "fuzzy_match_percent", f"{name} section {section_name}", failures)
-                elif isinstance(section_name, str) and section_name in CODE_SECTIONS:
-                    failures.append(f"{name} section {section_name}: missing fuzzy_match_percent")
+        check_sections(unit.get("sections"), unit_measures, name, failures)
 
         functions = unit.get("functions", [])
         if total_functions is not None and total_functions > 0:
