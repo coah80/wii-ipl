@@ -38,3 +38,15 @@ substitution table, rcon = the round constants). Earlier forms (initialKey[] arr
 hand-reassociated XOR trees) left the second key word's two XOR halves scheduled in the other order.
 Trials (all GC/3.0a5): array/scalar/direct stores x seven XOR associations: 9..268; reference
 GETU32 + reference loops verbatim: 3 (only cmplwi vs cmpwi); with the reference `int keyBits`: 0.
+
+## ATERMDiscoverAccessPoints (17 -> 7)
+
+mwdbg: callee-saved colors go r31 downward in decreasing vreg number. The three strength-reduced
+record pointers (entries[i].ssid, entries[i] base, entries[i].bssid) are compiler temps created in
+first-use order, so the target's increment order (ssid, base, bssid) means all three were indexed
+accesses, not named cursors. The descriptor start (scan buffer + 2) has r27 above them, so it is a
+loop-invariant expression hoisted after strength reduction, not a named local set before the loop.
+- indexed record fields, named firstDescriptor: 22 (increment order fixed, firstDescriptor r24)
+- descriptorWords = (u16*)scanBuffer + 1 inside the loop: 7; &((u16*)scanBuffer)[1]: 7;
+  (u16*)(scanBuffer + 2) and (u16*)(scanBuffer + sizeof(u16)): 105 (size changes)
+Remaining 7: MAC formatter input pointer r9 vs target r5, low nibble r5 vs r9.
