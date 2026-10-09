@@ -149,6 +149,9 @@ public:
     }
 
     void append(wchar_t ch) {
+        if (ch == L'\n') {
+            mCount = 0;
+        }
         mpOutput[mCount++] = ch;
     }
 
@@ -159,7 +162,7 @@ public:
 
 private:
     wchar_t* mpOutput;
-    u32 mCount;
+    u16 mCount;
 };
 }
 
