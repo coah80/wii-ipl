@@ -1536,6 +1536,5 @@ Rejected: named tag locals (+3 diffs), per-block-scoped start/afterEnd/
 valueLength (+16B frame — out-params are address-taken, must share stack
 slots), block-scoped afterEnd-only (neutral). Earlier: declsearch optimal,
 all-static (507), ref-params (79), self-add (+8).
-Theory to test next: web creation order follows inline-local decl order —
-FindTag's `char* start; char* end;` swapped to `end,start`, or endTag
-evaluated before startTag, could rotate the numbering by one slot.
+Theory tested and rejected: FindTag `char* start; char* end;` decl swap
+(neutral — res2 doesn't come from inline-local decl order).
