@@ -708,8 +708,8 @@ extern "C" void clearAllCardFileEntries(s32 slot) {
 }
 
 static inline void updateCardIconAnimation(s32 slot, s32 fileNo, CARDDir* dir) {
-    s32 shift = 0;
     s32 iconCount = 0;
+    s32 shift = 0;
     s32 icon;
     sThread->icons[slot][fileNo].unk_0x02 = 0;
     sThread->icons[slot][fileNo].anmMax = 0;
