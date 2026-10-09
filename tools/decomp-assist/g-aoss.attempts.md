@@ -136,3 +136,33 @@ Independent focused checks: AOSS pool 1/1 strings identical, AOSSLink 0/0 identi
 
 - Scoped `#pragma push/opt_propagation off/pop` around AOSS_Init_old: INERT (1582/534 identical). File-top unscoped: inert. WLANConnect: inert (2d). Pragma accepted (no warning) — but Init_old's `-O4,p` + `-inline off` + global `-ipa file` leaves nothing for it to change.
 - Verified no prop-signature in residual: orig's `cmpw/cmplw reg,reg` sites (172/434/635/776/997/1098/1336, e.g. `extsh r0; cmpw r0,r16` loop-limit compares) all sit inside rename regions — mine emits the same reg-reg compares with different coloring, not `cmpwi` constant-folds. The 534d wall is reg allocation + the twin-branch + dead-bne sites, not propagation.
+
+## w1011/aoss wave-5 (worker devin-w1011, marshal-order link hunt)
+
+AOSSi_WLANConnect `li r4; li r5; mr r3` marshal order — new mechanism data:
+
+- **`NCDIpConfig** pp = &ipConfig; memset(*pp, ...)` REPRODUCES base's marshal
+  order exactly: the surviving `*pp` load is the extra sched link that delays
+  the marshal into IU2 (confirmed — this is the "3rd link" the model wants).
+  Cost: `&ipConfig` demotes ipConfig to a memory slot, so the field-store web
+  becomes the codegen load temp which numbers AFTER named local `result`
+  (named locals vreg-number before codegen temps) -> addr web lands r28,
+  result takes r27 — the mirror image of base (~25 diffs, pure r27/r28 swap).
+- Decl-order permutations (4), late `result = 0`, `pp` decl/init variants: all
+  emit identically — the temp's numbering is structural, not decl-sensitive.
+  `memset` return-value-as-result: 159 insns (garbage).
+- Null-check block boundary (`if (!ipConfig) return -1;`): the check is NOT
+  deleted — emits real cmplw+b (+3-4 insns); no surviving copy.
+- Dead store on the same web before memset flips the order but emits `stwu`
+  (155v156). Confirms again: only links that die post-RA without changing web
+  homes can win; every sched-visible link either emits (stw/lwz/branch),
+  folds pre-sched (copies, casts, member views, single-use slots via SRA),
+  or rehomes the web (`**` load).
+- Per-fn `#pragma scheduling off` / `schedule_twice on`: identical 2-diff —
+  wall is upstream of the -O4,s list scheduler.
+- `AOSSConnection`/`AOSSConnectionStatus` have no config-pointer member, so no
+  member-load operand exists for the marshal chain.
+- AOSSi_WLANConnect stands at 2 diffs (marshal order only, 155v155 insns).
+  Remaining theoretical shape: an extra copy of the address whose source is
+  PHYSICAL (call result / param) — no NCD API returns a config pointer, and
+  no legitimately-dead expression produces one.
