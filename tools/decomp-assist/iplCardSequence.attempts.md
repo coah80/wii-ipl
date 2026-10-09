@@ -327,3 +327,12 @@ O1/O2/O3 all emit the identical 302-insn object — `rlwimi r19,r29` in-place
 + `mr r4,r19`. The coalescer's dst-operand fold is opt-level-invariant;
 orig was built at the same -O4,p as ours. Mixed-opt is NOT the explanation
 for the 2-line residual.
+
+- wave-8 (opt_propagation): `#pragma opt_propagation off` scoped to
+  sendValidityResponse emitted `rlwimi r19,r29; mr` (same shape, operand
+  web shifted); scoped to cardThreadMain `rlwimi r19,r25; mr` (valid-web
+  operand now matches base) — but the union web still ALIASES to command's
+  dying web, so the insert stays in-place and the mr lands after. The
+  pragma does not touch union-storage aliasing (not copy-prop).
+- Plain-u32 probe (`u32 reply = command; reply |= valid << 8`): folds to
+  `ori`, 300v301 — worse. Union form remains best (301v301, 2-line wall).
