@@ -166,11 +166,11 @@ namespace ipl {
             void update_file_array(u8 slot);
             void update_change_cardstate(u8 slot);
 
-            GXTexObj*       create_icon(u8 slot, s16 index);
-            GXTexObj*       create_icon(u8 slot, s16 index, long start);
-            GXTexObj*       _create_icon(u8 slot, s16 fileNo, long start);
+            const GXTexObj* create_icon(u8 slot, s16 index);
+            const GXTexObj* create_icon(u8 slot, s16 index, long start);
+            const GXTexObj* _create_icon(u8 slot, s16 fileNo, long start);
             const wchar_t*  getComment(u8 slot, s16 index, int which);
-            GXTexObj*       create_banner(u8 slot, s16 index);
+            const GXTexObj* create_banner(u8 slot, s16 index);
 #ifdef IPL_GC_WINDOW_CPP
             u32             getBlocks(u8 slot, s16 index);
 #else
@@ -187,7 +187,7 @@ namespace ipl {
             }
 
         private:
-            GXTexObj* initBannerTexture(u8 slot, s32 file, void* data) {
+            const GXTexObj* initBannerTexture(u8 slot, s32 file, void* data) {
                 GXInitTexObj(&mFileCell[slot][file].banner, data, CARD_BANNER_WIDTH, CARD_BANNER_HEIGHT,
                              GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
                 return &mFileCell[slot][file].banner;
@@ -201,6 +201,22 @@ namespace ipl {
             GXTlutObj* initBannerPalette(u8 slot, s32 file, void* data) {
                 GXInitTlutObj(&mFileCell[slot][file].bannerTlut, data, GX_TL_RGB5A3, 0x100);
                 return &mFileCell[slot][file].bannerTlut;
+            }
+
+            const GXTexObj* initIconTexture(u8 slot, s32 file, void* data) {
+                GXInitTexObj(&mFileCell[slot][file].icon, data, CARD_ICON_WIDTH, CARD_ICON_HEIGHT,
+                             GX_TF_RGB5A3, GX_CLAMP, GX_CLAMP, GX_FALSE);
+                return &mFileCell[slot][file].icon;
+            }
+
+            void initIconTextureCI(u8 slot, s32 file, void* data) {
+                GXInitTexObjCI(&mFileCell[slot][file].icon, data, CARD_ICON_WIDTH, CARD_ICON_HEIGHT,
+                               GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
+            }
+
+            GXTlutObj* initIconPalette(u8 slot, s32 file, void* data) {
+                GXInitTlutObj(&mFileCell[slot][file].iconTlut, data, GX_TL_RGB5A3, 0x100);
+                return &mFileCell[slot][file].iconTlut;
             }
 
             u32                  reserved;            // 0x00004

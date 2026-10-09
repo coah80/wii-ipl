@@ -814,7 +814,7 @@ config.libs = [
     IPLSection("memoryCard", [
             Object(Matching,    "scene/memoryCard/iplMemoryCard.cpp"),
             Object(Matching,    "scene/memoryCard/iplMemoryCardBase.cpp"),
-            Object(NonMatching, "scene/memoryCard/iplMemoryCardManager.cpp"),
+            Object(Matching,    "scene/memoryCard/iplMemoryCardManager.cpp"),
             Object(Matching,    "scene/memoryCard/iplGCSaveData.cpp"),
             Object(Matching, "scene/memoryCard/iplGCWindow.cpp"),
         ]
