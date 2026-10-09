@@ -178,8 +178,14 @@ namespace textinput {
                 void inputCharZi_(wchar_t character, u32 modifiers);
                 void inputCharDefault_(wchar_t character, u32 modifiers);
                 void inputInputting_(wchar_t character);
-                inline bool hasZiPredictions() const;
-                inline bool usesZiPrediction() const;
+                bool hasZiPredictions() const;
+                bool usesZiPrediction() const;
+#ifdef TIINPUTFORM_IMPLEMENTATION
+                void checkUnfixConverting_();
+                void setAtokMode_(bool fixMode, bool kanaMode);
+                void trimString_(u32 length);
+                void startConverting_();
+#endif
                 inline void resetPredictionContext();
                 inline void resetInputRelation();
 #endif

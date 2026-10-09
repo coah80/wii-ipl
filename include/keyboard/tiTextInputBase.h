@@ -47,8 +47,13 @@ namespace textinput {
         public :
             virtual ~Base() {}
 
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            virtual void    create(MEMAllocator* allocator) {}
+            virtual void    init() {}
+#else
             virtual void    create(MEMAllocator* allocator);
             virtual void    init();
+#endif
     };
 
     class CommandSender;
@@ -59,7 +64,11 @@ namespace textinput {
 #endif
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             CommandReceiver() { clearSender(); }
+#ifdef TIINPUTFORM_IMPLEMENTATION
+            virtual ~CommandReceiver() {}
+#else
             virtual ~CommandReceiver();
+#endif
 #endif
 #if defined(MYTIINPUTFORM_IMPLEMENTATION) || defined(MYTILETTERFORM_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             struct Scroll {
