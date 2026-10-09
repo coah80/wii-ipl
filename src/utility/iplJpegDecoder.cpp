@@ -27,8 +27,8 @@ namespace ipl {
                 mReadPos = 0;
 
                 TMCCJPEGDecInitParam param;
-                param.unk_0x24 = 0;
-                param.unk_0x2C = 0;
+                param.thumbnailMode = 0;
+                param.outputFormat = TMCC_JPEG_OUTPUT_RGB565;
                 param.pBuf1 = mpBuf1;
                 param.pBuf2 = mpBuf2;
                 param.buf2Size = 0x10040;
@@ -212,8 +212,8 @@ namespace ipl {
             Graphics::Orientation ori = Graphics::ORI_NONE;
 
             TMCCJPEGDecInitParam param;
-            param.unk_0x24 = 0;
-            param.unk_0x2C = 0;
+            param.thumbnailMode = 0;
+            param.outputFormat = TMCC_JPEG_OUTPUT_RGB565;
             param.pBuf1 = mpBuf1;
             param.pBuf2 = mpBuf2;
             param.buf2Size = 0x10040;
@@ -227,8 +227,8 @@ namespace ipl {
             u32 exifSize;
 
             if (TMCCJPEGDecGetOffsetEXIF(&exifOffset, &exifSize, &param) == 0) {
-                param.unk_0x24 = 0;
-                param.unk_0x2C = 0;
+                param.thumbnailMode = 0;
+                param.outputFormat = TMCC_JPEG_OUTPUT_RGB565;
                 param.pBuf1 = mpBuf1;
                 param.pBuf2 = mpData + exifOffset;
                 param.buf2Size = exifSize;

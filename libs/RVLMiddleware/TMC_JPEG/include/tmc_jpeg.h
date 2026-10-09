@@ -15,26 +15,32 @@ extern "C" {
 
 #define TMCC_JPEG_DEC_WORK_SIZE 0x1C00
 
+enum TMCCJPEGOutputFormat {
+    TMCC_JPEG_OUTPUT_RGB565 = 0,
+    TMCC_JPEG_OUTPUT_RGBA8 = 1,
+    TMCC_JPEG_OUTPUT_Y8U8V8 = 2
+};
+
 typedef struct TMCCJPEGDecWork_t TMCCJPEGDecWork;
 
 typedef s32(TMCCReadCallback)(void*, u8*, unsigned int);
 
 typedef struct {
-    u8 unk_0x00[0x10];
+    u8 reserved[0x10];
     void* pBuf2;                  // 0x10
     u32 buf2Size;                 // 0x14
     u32 dataSize;                 // 0x18
     TMCCReadCallback* pCallback;  // 0x1C
     void* pContext;               // 0x20
-    u8 unk_0x24;                  // 0x24
-    u8 pad_0x25[0x03];
+    u8 thumbnailMode;             // 0x24
+    u8 workBufferPadding[0x03];
     TMCCJPEGDecWork* pBuf1;  // 0x28
-    u8 unk_0x2C;             // 0x2C
-    u8 pad_0x2D[0x03];
+    u8 outputFormat;        // 0x2C
+    u8 alignmentPadding[0x03];
 } TMCCJPEGDecInitParam;
 
 typedef struct {
-    u8 unk_0x00[0x0C];
+    u8 reserved[0x0C];
     u16 orientation;           // 0x0C
     u32 xResNum;               // 0x10
     u32 xResDen;               // 0x14
@@ -70,7 +76,7 @@ typedef struct {
     u16 posX;
     u16 posY;
     s32 position;  // 0x04
-    u8 unk_0x08[0x04];
+    u8 reserved[0x04];
     u32 state;  // 0x0C
     u16 maxX;
     u16 maxY;
@@ -80,8 +86,8 @@ typedef struct {
     u8 stepYExt;
     u32 dataSizeX;
     u32 dataSizeY;
-    u8 exifFlags;  // 0x20
-    u8 thumbFlag;  // 0x21
+    u8 scaleFactor;  // 0x20
+    u8 noEoiCheck;   // 0x21
     u8 componentCount;
     u8 dimensionPadding;
     u16 jpegWidth;
@@ -107,7 +113,7 @@ typedef struct {
     u16 posX;      // 0x00
     u16 posY;      // 0x02
     s32 position;  // 0x04
-    u8 unk_0x08[0x04];
+    u8 reserved[0x04];
     u32 result;         // 0x0C
     u16 maxX;           // 0x10
     u16 maxY;           // 0x12
@@ -118,30 +124,26 @@ typedef struct {
     u32 dataSizeX;      // 0x18
     u32 dataSizeY;      // 0x1C
     u8 scaleFactor;     // 0x20
-    u8 unk_0x21;        // 0x21
+    u8 noEoiCheck;      // 0x21
     u8 componentCount;  // 0x22
-    u8 unk_0x23;        // 0x23
+    u8 dimensionPadding;
     u16 jpegWidth;      // 0x24
     u16 jpegHeight;     // 0x26
     u16 outputWidth;    // 0x28
     u16 outputHeight;   // 0x2A
     u32 convWidth;      // 0x2C
     u32 convHeight;     // 0x30
-#ifdef TMC_JPEG_PLANAR_OUTPUT
     u32 chromaWidth;
     u32 chromaHeight;
     u8* pLumaBuffer;
     u8* pCbBuffer;
     u8* pCrBuffer;
-#else
-    u8 unk_0x34[0x14];  // 0x34
-#endif
     void* pTexBuffer;   // 0x48
-    u8 unk_0x4C[0x67C];
+    TMCCJPEGDecExifData exifData;  // 0x4C
     TMCCJPEGDecWork* pWorkBuf;  // 0x6C8
     s32 decodeResult;           // 0x6CC
     u8 converterType;           // 0x6D0
-    u8 unk_0x6D1[0x03];
+    u8 alignmentPadding[0x03];
 } TMCCJPEGDecState;
 
 s32 TMCCJPEGDecInit(TMCCJPEGDecState* state, TMCCJPEGDecInitParam* param);

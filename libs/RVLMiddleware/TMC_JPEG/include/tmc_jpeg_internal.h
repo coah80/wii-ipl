@@ -5,12 +5,6 @@
 
 #include <tmc_jpeg.h>
 
-enum TMCCJPEGOutputFormat {
-    TMCC_JPEG_OUTPUT_RGB565 = 0,
-    TMCC_JPEG_OUTPUT_RGBA8 = 1,
-    TMCC_JPEG_OUTPUT_Y8U8V8 = 2
-};
-
 enum TMCJpegMarker {
     TMC_JPEG_MARKER_SOF0 = 0xFFC0,
     TMC_JPEG_MARKER_SOF2 = 0xFFC2,

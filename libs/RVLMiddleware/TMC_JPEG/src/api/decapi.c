@@ -37,16 +37,16 @@ s32 TMCCJPEGDecInit(TMCCJPEGDecState* state, TMCCJPEGDecInitParam* param) {
     work->pState = state;
     state->pWorkBuf = work;
 
-    if (param->unk_0x24 != 0) {
+    if (param->thumbnailMode != 0) {
         result = -1;
-    } else if (param->unk_0x2C != TMCC_JPEG_OUTPUT_RGB565 && param->unk_0x2C != TMCC_JPEG_OUTPUT_RGBA8 &&
-               param->unk_0x2C != TMCC_JPEG_OUTPUT_Y8U8V8) {
+    } else if (param->outputFormat != TMCC_JPEG_OUTPUT_RGB565 && param->outputFormat != TMCC_JPEG_OUTPUT_RGBA8 &&
+               param->outputFormat != TMCC_JPEG_OUTPUT_Y8U8V8) {
         result = -1;
     } else {
-        state->unk_0x21 = param->unk_0x24;
+        state->noEoiCheck = param->thumbnailMode;
         result = 0;
         state->scaleFactor = 1;
-        state->converterType = param->unk_0x2C;
+        state->converterType = param->outputFormat;
     }
 
     if (result < 0) {

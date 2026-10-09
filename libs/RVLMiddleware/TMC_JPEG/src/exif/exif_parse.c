@@ -221,11 +221,11 @@ s32 TMCCJPEGDecGetInfoEXIF(TMCCJPEGDecExifInfo* pInfo, TMCCJPEGDecInitParam* pPa
         return result;
     }
 
-    if (pParam->unk_0x24 == 0) {
+    if (pParam->thumbnailMode == 0) {
         return 0;
     }
 
-    if (pParam->unk_0x24 == 1) {
+    if (pParam->thumbnailMode == 1) {
         result = TMCJPEGDEC_ThumbnailCheck(pParam, pInfo, segSizeP2);
         if (result < 0) {
             return result;
@@ -668,7 +668,7 @@ static void TMCJPEGDEC_IFD1_tag_parse(TMCCJPEGDecExifData* pInfo, u16 byteOrder,
 static s32 TMCJPEGDEC_ThumbnailCheck(TMCCJPEGDecInitParam* param, TMCCJPEGDecExifInfo* info, u32 totalSize) {
     s32 total;
     s32 length;
-    s32 tmp;
+    s32 thumbnailBufferOffset;
 
     total = (s32)info->exifData.thumbnailOffset;
     if (total == 0) {
@@ -684,8 +684,8 @@ static s32 TMCJPEGDEC_ThumbnailCheck(TMCCJPEGDecInitParam* param, TMCCJPEGDecExi
         return -0xA0;
     }
 
-    tmp = (s32)info->exifData.thumbnailData - (s32)param->pBuf2;
-    total = length + total + tmp;
+    thumbnailBufferOffset = (s32)info->exifData.thumbnailData - (s32)param->pBuf2;
+    total = length + total + thumbnailBufferOffset;
 
     if ((u32)total > param->buf2Size) {
         return -0xF1;
@@ -695,19 +695,19 @@ static s32 TMCJPEGDEC_ThumbnailCheck(TMCCJPEGDecInitParam* param, TMCCJPEGDecExi
         return -0xF1;
     }
 
-    info->exifFlags = 1;
+    info->scaleFactor = 1;
 
-    if (param->unk_0x24 != 1) {
+    if (param->thumbnailMode != 1) {
         return -1;
     }
 
-    info->thumbFlag = 0;
+    info->noEoiCheck = 0;
 
-    if (param->unk_0x2C != TMCC_JPEG_OUTPUT_RGB565 && param->unk_0x2C != TMCC_JPEG_OUTPUT_RGBA8 &&
-        param->unk_0x2C != TMCC_JPEG_OUTPUT_Y8U8V8) {
+    if (param->outputFormat != TMCC_JPEG_OUTPUT_RGB565 && param->outputFormat != TMCC_JPEG_OUTPUT_RGBA8 &&
+        param->outputFormat != TMCC_JPEG_OUTPUT_Y8U8V8) {
         return -1;
     }
 
-    info->converterType = param->unk_0x2C;
+    info->converterType = param->outputFormat;
     return 0;
 }
