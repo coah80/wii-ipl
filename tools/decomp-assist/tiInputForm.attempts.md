@@ -531,3 +531,20 @@ Post-rebase states: Base::create(73i) normalized-identical (branch-target
 artifacts only). LayoutByNW4R::create(357i) residual = callee-web rotation
 (mine r20/r21/r28 vs base r23/r24/r30) + anonymous 0-operand pools; pure
 coloring. Unit fuzzy 99.54, data 100.
+
+## create residual wave (w1011 round 2) — 120 -> 88 normalized diffs
+
+- `u16` ButtonAnimations::count field + `u16 count` local lands count in base's r22
+  home (late allocator pin). u32/int/s32/short all keep the early pin (~150). Mechanism
+  is likely the u16 narrowing producing a secondary codegen-ordered temp.
+- Remaining 1 structural diff: `lhz` vs base `lwz` at the count load — orig's web is
+  u32-typed (lwz) yet allocator-late. u32-field+u16-local adds a clrlwi (worse).
+- declsearch on the 15-local decl block: moving `Info_* selected` up (2nd) and
+  `void* memory` down (11th) fixed 3 renames; converged after 80 evals.
+- Pointer-param `addButtonAnimations` helper (count load as IRO temp): lands r30
+  (IRO temps number reverse-creation — late inline = LOW temp no. = early pin).
+  `button->count` bound inside helper reloads per-iter (fIsPtrOp, no LICM hoist).
+- bindingName/count direct member uses, comma decl, split-web `count=0;count=...`,
+  stmt-order swaps on previous/next/selectedIndex: all no-ops or worse.
+- Residual ~86 renames: mriManager rows/selected/previous/next expression-temp band
+  (r4-r8 volatile order) + residual saved-reg permutations — same tie family.
