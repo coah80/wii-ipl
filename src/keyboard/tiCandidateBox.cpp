@@ -1,5 +1,7 @@
 #define TI_CANDIDATEBOX_IMPLEMENTATION
+#define TI_CANDIDATEBOX_SAMPLE_CLASS
 #include "keyboard/tiCandidateBox.h"
+#undef TI_CANDIDATEBOX_SAMPLE_CLASS
 
 #include "keyboard/tiManager.h"
 
@@ -60,11 +62,7 @@ namespace textinput {
             {ANM_InvalidOff, "fs_VK_predictInput_a_invalidMode_OFF.brlan"},
         };
 
-        struct CandidatePaneData {
-            PaneToAnimation panes[26];
-        };
-
-        extern "C" const CandidatePaneData scCandidatePaneData __attribute__((aligned(8))) = {{
+        static const PaneToAnimation csPaneToAnimation[] = {
             {KT_CandidateText, "N_predictInput", 1, NULL, {&csAninationFile[0]}},
             {KT_ScrollButton,
              "P_prdc_scrl_Left",
@@ -195,7 +193,7 @@ namespace textinput {
              6,
              NULL,
              {&csAninationFile[0], &csAninationFile[8], &csAninationFile[9], &csAninationFile[10], &csAninationFile[11], &csAninationFile[12]}},
-        }};
+        };
 
         void CandidateBoxCaller::Candidates::addCandidate(const wchar_t* wcString) {
             wcsncpy(szwcPredicted[mNumCandidate], wcString, ARRAY_LENGTH(szwcPredicted[0]));
@@ -376,50 +374,44 @@ namespace textinput {
         }
 
         void LayoutByNW4R::createAnmPane_(MEMAllocator* allocator) {
-            u32 animationCount;
-            const char* forceAddName;
-            u16 i;
-            for (i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
-                const PaneToAnimation& p = scCandidatePaneData.panes[i];
+            for (u16 i = 0; i < ARRAY_LENGTH(csPaneToAnimation); i++) {
+                const PaneToAnimation& paneAnimations = csPaneToAnimation[i];
                 CandidateTextAnmPane* pane = NULL;
-                switch (p.type) {
+                switch (paneAnimations.type) {
                     case KT_ScrollButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(CandidateScrollAnmPane));
-                        pane = new (pBtnBuf) CandidateScrollAnmPane(getPane(p.paneName), NULL);
+                        pane = new (pBtnBuf) CandidateScrollAnmPane(getPane(paneAnimations.paneName), NULL);
                         break;
                     }
                     case KT_CandidateText: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(CandidateTextAnmPane));
-                        pane = new (pBtnBuf) CandidateTextAnmPane(getPane(p.paneName), NULL);
+                        pane = new (pBtnBuf) CandidateTextAnmPane(getPane(paneAnimations.paneName), NULL);
                         break;
                     }
                     case KT_OnOffButton: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(OnOffAnmPane));
-                        pane = new (pBtnBuf) OnOffAnmPane(getPane(p.paneName), &mOnOffButton);
+                        pane = new (pBtnBuf) OnOffAnmPane(getPane(paneAnimations.paneName), &mOnOffButton);
                         break;
                     }
 
                     case KT_Window: {
                         void* pBtnBuf = MEMAllocFromAllocator(allocator, sizeof(PredictWindow));
-                        pane = new (pBtnBuf) PredictWindow(getPane(p.paneName), &mTextWindow);
+                        pane = new (pBtnBuf) PredictWindow(getPane(paneAnimations.paneName), &mTextWindow);
                         break;
                     }
                 }
 
                 nw4r::ut::List_Append(&mAnmPanes, pane);
 
-                forceAddName = p.forceAddName;
-                animationCount = p.count;
-                for (u16 j = 0; j < animationCount; j++) {
-                    const AnimationFile* const& animation = p.pAnims[j];
-                    void* pResource = mpMultiArcResourceAccessor->GetResource(0, animation->fileName);
+                for (u16 j = 0; j < paneAnimations.count; j++) {
+                    void* pResource = mpMultiArcResourceAccessor->GetResource(0, paneAnimations.pAnims[j]->fileName);
                     AnimTransformPane* transform =
                         static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(pResource, mpMultiArcResourceAccessor));
 
-                    if (forceAddName == NULL) {
-                        pane->addAnimation(allocator, animation->id, transform, false, true);
+                    if (paneAnimations.forceAddName == NULL) {
+                        pane->addAnimation(allocator, paneAnimations.pAnims[j]->id, transform, false, true);
                     } else {
-                        pane->forceAddAnimation(allocator, animation->id, transform, forceAddName, false, true);
+                        pane->forceAddAnimation(allocator, paneAnimations.pAnims[j]->id, transform, paneAnimations.forceAddName, false, true);
                     }
                 }
             }
@@ -678,8 +670,8 @@ namespace textinput {
         }
 
         void LayoutByNW4R::cancelStateFocusIn() {
-            const PaneToAnimation* pane = scCandidatePaneData.panes;
-            for (int i = 0; i < ARRAY_LENGTH(scCandidatePaneData.panes); i++) {
+            const PaneToAnimation* pane = csPaneToAnimation;
+            for (int i = 0; i < ARRAY_LENGTH(csPaneToAnimation); i++) {
                 CandidateTextAnmPane* p = static_cast<CandidateTextAnmPane*>(searchAnmPane(pane->paneName));
                 if (p != NULL) {
                     switch (p->getKeyType()) {
@@ -1766,3 +1758,48 @@ namespace textinput {
 
     }  // namespace candidatebox
 }  // namespace textinput
+
+inline void textinput::util::Animation::startAnm(AnimObserver* observer, f32 start, f32 end, f32 duration, void* data) {
+    mfStartPoint = start;
+    mfEndPoint = end;
+    mfAnimationTime = duration;
+    mfCurrentFrame = 0.0f;
+    mbInAnimation = true;
+    mpAnimObserver = observer;
+    mpData = data;
+    mbSE = false;
+    if (observer) observer->onAnmEvent(AnimObserver::AE_0, data);
+}
+
+inline void textinput::util::Animation::calc() {
+    if (mbInAnimation) {
+        if (mfCurrentFrame < mfAnimationTime) {
+            mfCurrentFrame = 1.0f + mfCurrentFrame;
+        } else {
+            if (mbInAnimation && mpAnimObserver) {
+                mpAnimObserver->onAnmEvent(AnimObserver::AE_1, mpData);
+            }
+            mbInAnimation = false;
+        }
+    }
+}
+
+inline f32 textinput::util::Animation::getValue() {
+    return hermiteInterporation(mfCurrentFrame, 0.0f, mfStartPoint, 0.0f, mfAnimationTime, mfEndPoint, 0.0f);
+}
+
+inline bool textinput::util::Animation::isActive() {
+    return mbInAnimation;
+}
+
+inline void textinput::util::Animation::setSEFlag(bool flag) {
+    mbSE = flag;
+}
+
+inline bool textinput::util::Animation::isSEFlag() {
+    return mbSE;
+}
+
+inline void textinput::util::Animation::stop() {
+    mbInAnimation = false;
+}
