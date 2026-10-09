@@ -287,6 +287,7 @@ static ziBool ZiIsLetterHyphen(ziWChar character ZI_NEED_WORK) {
 
 void Zi8ChangeWordCase(ziWChar* word, ziU8 language, ZiAlphaWork* work) {
     enum { LOWER_CASE, UPPER_CASE } upper = LOWER_CASE;
+    /* MWCC needs the explicit work cast in the case-mode test below. */
     if (work->caseMode == 3) {
         Zi8ChangeCharCase(1, word++, language, work);
     } else if (((ZiAlphaWork*)work)->caseMode == 1) {
@@ -566,10 +567,12 @@ int Zi8AlphaGetCandidates(ziGetParam* parameters, ziPtr optionData, ziPtr workDa
         switch ((int)((ZiAlphaWork*)workData)->dictionaryKinds[index]) {
         case 1:
         case 9:
-          goto foundHighlightedDictionary;
+          break;
+        default:
+          continue;
         }
+        break;
       }
-foundHighlightedDictionary:
       if (firstCandidate == 0 && ((ZiAlphaWork*)workData)->highlightedWord[elementIndex - 1] != 0) {
         if (((ZiAlphaWork*)workData)->requiredLength < parameters->elementCount)
           ((ZiAlphaWork*)workData)->reuseHighlightedWord = 0;
@@ -698,7 +701,6 @@ preparePrefix:
       prefixVowelRestriction = ZI8_FALSE;
     }
   }
-  goto prepareDictionaryOrder;
 prepareDictionaryOrder:
   ((ZiAlphaWork*)workData)->dictionaryOrder[0] = 0;
   if ((Zi8GetTableCount(language,0x1f,workData) & 0x20) != 0) {
@@ -770,11 +772,11 @@ prepareDictionaries:
     if (dictionaryIndex != ((ZiAlphaWork*)workData)->dictionaryCount) {
       dictionaryKind = ((ZiAlphaWork*)workData)->dictionaryKinds[dictionaryIndex];
       if (dictionaryKind == 12) {
-        if (languagePassCount != 2) goto finishDictionaryPass;
+        if (languagePassCount != 2) continue;
         goto selectDictionary;
       }
     } else {
-      if (((ZiAlphaOptions*)optionData)->lookupMode != 0) goto finishDictionaryPass;
+      if (((ZiAlphaOptions*)optionData)->lookupMode != 0) continue;
       dictionaryKind = 10;
     }
 selectDictionary:
@@ -785,7 +787,7 @@ selectDictionary:
           case 3:
           case 4:
           case 10:
-            goto finishDictionaryPass;
+            continue;
           }
         }
         {
@@ -803,7 +805,7 @@ selectDictionary:
                 ((parameters->currentWord == 0 ||
                  ((parameters->wordCharCount == 0 ||
                   (parameters->currentWord[parameters->wordCharCount - 1] == 0x20))))))))
-            goto finishDictionaryPass;
+            continue;
             if ((candidateCount == 0) &&
                ((((!punctuationCandidate && (parameters->firstCandidate == firstCandidate)) &&
                  ((parameters->currentWord == 0 ||
@@ -829,10 +831,10 @@ selectDictionary:
             punctuationCandidate = ZI8_FALSE;
             break;
           case 4:
-            if (((ZiAlphaOptions*)optionData)->minWordLength > elementCount) goto finishDictionaryPass;
+            if (((ZiAlphaOptions*)optionData)->minWordLength > elementCount) continue;
             break;
           case 3:
-            if (((ZiAlphaOptions*)optionData)->minWordLength > elementCount || elementCount == 1) goto finishDictionaryPass;
+            if (((ZiAlphaOptions*)optionData)->minWordLength > elementCount || elementCount == 1) continue;
             break;
           case 9:
             if (elementCount == 1 && *elements >= 0xEFF1 && *elements <= 0xF010) {
@@ -841,7 +843,7 @@ selectDictionary:
             }
           default:
             if (elementCount == 1 && prefixCount == 0 && *elements >= 0xEFF1 &&
-                *elements <= 0xF010 && !contextEnabled) goto finishDictionaryPass;
+                *elements <= 0xF010 && !contextEnabled) continue;
             dictionaryExact = 0;
             if (languagePassCount == 2) {
               for (index = dictionaryIndex + 1; index < ((ZiAlphaWork*)workData)->dictionaryCount; index++) {
@@ -943,7 +945,7 @@ selectDictionary:
                 }
                 if (wordLength != 0) goto filterVowelCandidate;
                 dictionaryStatus[dictionaryKind] = 1;
-                if (elements[apostropheIndex] >= 0xEFF1) goto retryDictionary;
+                if (elements[apostropheIndex] >= 0xEFF1) continue;
                 goto finishDictionaryPass;
               }
 filterVowelCandidate:
@@ -974,7 +976,7 @@ filterVowelCandidate:
                 if (wordLength == 0) {
                   wordLength = 0;
                   dictionaryStatus[dictionaryKind] = 1;
-                  goto retryDictionary;
+                  continue;
                 }
               }
               if (wordLength != 0) {
@@ -1015,6 +1017,7 @@ filterVowelCandidate:
               }
               break;
             case 10:
+              /* MWCC needs the stored punctuation character as the branch value. */
               if ((*wordCursor = *punctuationCursor) != 0) {
                 punctuationCursor++;
                 wordLength = 1;
@@ -1078,7 +1081,7 @@ filterVowelCandidate:
                   punctuationCursor = &punctuationBuffer[0];
                   dictionaryKind = 0xb;
                   retryPunctuation = ZI8_TRUE;
-                  goto retryDictionary;
+                  continue;
                 }
               }
               if ((((((dictionaryExact == 0) || (!currentVowelRestriction)) || (prefixCount != 0)) ||
@@ -1109,18 +1112,17 @@ prepareRememberedPunctuation:
             }
             else if (((ZiAlphaOptions*)optionData)->minWordLength <= wordLength) {
               if (prefixVowelRestriction) {
-                if (*wordCursor >= 0x30 && *wordCursor <= 0x39) goto retryDictionary;
+                if (*wordCursor >= 0x30 && *wordCursor <= 0x39) continue;
                 if (language == 0x2f) {
-                  if (Zi8ITspecialExclusion(wordCursor,prefixCount,wordLength) != 0) goto retryDictionary;
+                  if (Zi8ITspecialExclusion(wordCursor,prefixCount,wordLength) != 0) continue;
                 } else if (language == 0x58) {
-                  if (Zi8_814659E8(wordCursor,prefixCount,wordLength) != 0) goto retryDictionary;
+                  if (Zi8_814659E8(wordCursor,prefixCount,wordLength) != 0) continue;
                 } else if (Zi8IsVowel(language,*wordCursor) == 0) {
                   wordLength = 0;
-                  goto retryDictionary;
+                  continue;
                 }
               }
               {
-prepareCandidate:
                 if (((elementCount == 1) && (dictionaryKind != 10)) &&
                    ((*wordCursor >= 0xeff1 && *wordCursor <= 0xf010))) {
                   punctuationCandidate = ZI8_TRUE;
@@ -1163,7 +1165,6 @@ prepareCandidate:
                     case 5:
                     case 1:
                     case 9:
-checkKeyLayout:
                       keyLayoutCursor = keyLayout;
                       candidateCharacterCount = wordLength + prefixCount;
                       for (index = 0; (int)index < (int)(unsigned int)keyLayoutCount; index = index + 1) {
