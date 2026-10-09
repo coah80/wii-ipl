@@ -3142,6 +3142,7 @@ static inline f32 glyphBottom(f32 origin, const Base::DrawInfo& glyph, const nw4
 }
 
 u32 Base::calcCursorPos(f32 x, f32 y) {
+    f32 zero;
     f32 cursorX;
     f32 lineTop;
     f32 lineBottom;
@@ -3155,12 +3156,13 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
     u32 pos = 0;
     muWordWrapCounter = 0;
     mbHyphen = false;
+    zero = 0.0f;
     while (*string) {
         DrawInfo info;
-        info.rect.left = 0.0f;
-        info.rect.top = 0.0f;
-        info.rect.right = 0.0f;
-        info.rect.bottom = 0.0f;
+        info.rect.left = zero;
+        info.rect.top = zero;
+        info.rect.right = zero;
+        info.rect.bottom = zero;
         info.character = *string;
         calcRect(info);
         lineBottom = glyphBottom(lineTop, info, scale);
