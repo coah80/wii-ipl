@@ -24,7 +24,6 @@
 
 namespace ipl {
     namespace utility {
-// meh
 #define ES_ERR_REPORT(msg, ...) OSReport("%s::%s: " msg "\n", __FILE__, __FUNCTION__, __VA_ARGS__);
 
         BOOL checkForNullTermination(char* str, u32 len);
@@ -51,7 +50,6 @@ namespace ipl {
                 OSReport("ESMisc::GetTmdView: ES_GetTmdView2 err %d\n", ret);
                 heap->free(*outTmdView);
                 *outTmdView = NULL;
-                goto out;
             }
 
         out:
@@ -103,13 +101,9 @@ namespace ipl {
             if (numTicketViews >= inNumTicketViews) {
                 OSReport("ESMisc::GetTicketView: Invalid index %d\n", numTicketViews);
                 ret = ES_ERR_TICKET_NOT_FOUND;
-                goto out;
-            }
-
-            if (ret == ES_ERR_OK) {
+            } else if (ret == ES_ERR_OK) {
                 memcpy(ticketView, inTicketView + numTicketViews, sizeof(ESTicketView));
             }
-        out:
             if (inTicketView != NULL) {
                 heap->free(inTicketView);
             }
@@ -673,12 +667,10 @@ namespace ipl {
                 if (ret != NAND_RESULT_OK) {
                     ES_ERR_REPORT("NANDReadDir failed: %d", ret);
                     result = ret;
-                    goto out;
+                } else {
+                    result = nodes;
                 }
-
-                result = nodes;
             }
-        out:
             if (changedUid) {
                 ChangeUid(SYSMENU_TITLE_ID);
             }
@@ -721,6 +713,7 @@ namespace ipl {
                             if (result < 0) {
                                 ES_ERR_REPORT("NumInodesSaveDirRoot failed: %d", result);
                             } else {
+                                // MWCC needs the rotate form for this zero test.
                                 result = __rlwnm(1, __cntlzw(result), 31, 31);
                             }
                         }
@@ -741,15 +734,12 @@ namespace ipl {
             s32 ret = tmdFile.Open((char*)TMD_FILE);
             if (ret != ES_ERR_OK) {
                 ES_ERR_REPORT("Open TMD Backup file failed: %d", ret);
-                goto do_proc;
+            } else {
+                ret = tmdFile.Backup(titleId);
+                if (ret != ES_ERR_OK) {
+                    ES_ERR_REPORT("Backup TMD failed: %d", ret);
+                }
             }
-
-            ret = tmdFile.Backup(titleId);
-            if (ret != ES_ERR_OK) {
-                ES_ERR_REPORT("Backup TMD failed: %d", ret);
-                goto do_proc;
-            }
-        do_proc:
             ret = ES_DeleteTitle(titleId);
             if (ret != ES_ERR_OK) {
                 ES_ERR_REPORT("ES_DeleteTitle failed: %d for %016llx", ret, titleId);
@@ -824,8 +814,7 @@ namespace ipl {
             u32 dlAppId;
             NWC24Err err;
 
-            goto open_lib;
-            while (true) {
+            while (NWC24OpenLib(nwc24Work) != NWC24_OK) {
                 OSReport("%s::%s waiting NWC24Open.\n", __FILE__, __FUNCTION__);
                 OSSleepTicks(OSMillisecondsToTicks((OSTime)30));
                 if (OSTicksToMilliseconds(OSGetTick() - startTick) > 3000) {
@@ -833,42 +822,36 @@ namespace ipl {
                     OSReport("%s::%s NWC24Open failed with time out.\n", __FILE__, __FUNCTION__);
                     goto cleanup;
                 }
+            }
 
-            open_lib:
-                if (NWC24OpenLib(nwc24Work) != NWC24_OK) {
-                    continue;
-                }
-
-                dlId = 0;
-                err = NWC24IterateDlTask(&dlId, TRUE);
-                while (err >= NWC24_OK) {
-                    err = NWC24GetDlTask(&dlTask, dlId);
+            dlId = 0;
+            err = NWC24IterateDlTask(&dlId, TRUE);
+            while (err >= NWC24_OK) {
+                err = NWC24GetDlTask(&dlTask, dlId);
+                if (err != NWC24_OK) {
+                    OSReport("%s::%s NWC24GetDlTask failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, err);
+                } else {
+                    err = NWC24GetDlAppId(&dlTask, &dlAppId);
                     if (err != NWC24_OK) {
-                        OSReport("%s::%s NWC24GetDlTask failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, err);
-                    } else {
-                        err = NWC24GetDlAppId(&dlTask, &dlAppId);
+                        OSReport("%s::%s NWC24GetDlAppId failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, err);
+                    } else if (dlAppId == titleId) {
+                        OSReport("%s::%s found dl task owned same titleid [%p]\n", __FILE__, __FUNCTION__, &dlTask);
+                        err = NWC24DeleteDlTask(&dlTask);
                         if (err != NWC24_OK) {
                             OSReport("%s::%s NWC24GetDlAppId failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, err);
-                        } else if (dlAppId == titleId) {
-                            OSReport("%s::%s found dl task owned same titleid [%p]\n", __FILE__, __FUNCTION__, &dlTask);
-                            err = NWC24DeleteDlTask(&dlTask);
-                            if (err != NWC24_OK) {
-                                OSReport("%s::%s NWC24GetDlAppId failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, err);
-                            } else {
-                                OSReport("%s::%s delete download task for index : %d\n", __FILE__, __FUNCTION__, dlId);
-                            }
                         } else {
-                            OSReport("%s::%s ignore title id %d: %08x \n", __FILE__, __FUNCTION__, dlId, dlAppId);
+                            OSReport("%s::%s delete download task for index : %d\n", __FILE__, __FUNCTION__, dlId);
                         }
+                    } else {
+                        OSReport("%s::%s ignore title id %d: %08x \n", __FILE__, __FUNCTION__, dlId, dlAppId);
                     }
-                    err = NWC24IterateDlTask(&dlId, FALSE);
                 }
+                err = NWC24IterateDlTask(&dlId, FALSE);
+            }
 
-                ret = NWC24CloseLib();
-                if (ret != NWC24_OK) {
-                    OSReport("%s::%s NWC24CloseLib failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, ret);
-                }
-                goto cleanup;
+            ret = NWC24CloseLib();
+            if (ret != NWC24_OK) {
+                OSReport("%s::%s NWC24CloseLib failed - [%d]  -> continue\n", __FILE__, __FUNCTION__, ret);
             }
 
         cleanup:
@@ -950,42 +933,42 @@ namespace ipl {
         }
 
         ESError ESMisc::DeleteSavedata(ESTitleId titleId, EGG::Heap* heap) {
-            char dirPath[0x80] ALIGN32;
-            char filePath[0x41];
+            char dirPath[OSRoundUp32B(NAND_MAX_PATH + 1)] ALIGN32;
+            char filePath[OSRoundUp32B(NAND_MAX_PATH + 1)] ALIGN32;
             char* entries = NULL;
             u32 entryCount = 0;
             char* entry;
             u32 i;
             s32 ret;
 
-            sprintf(dirPath + 0x20, "/title/%08x/%08x/data/", NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
-            ret = NANDReadDir(dirPath + 0x20, NULL, &entryCount);
+            sprintf(dirPath, "/title/%08x/%08x/data/", NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
+            ret = NANDReadDir(dirPath, NULL, &entryCount);
 
             if (ret != ES_ERR_OK || entryCount == 0) {
-                ES_ERR_REPORT("Could not read1 %s: %d", dirPath + 0x20, ret);
+                ES_ERR_REPORT("Could not read1 %s: %d", dirPath, ret);
                 goto cleanup;
             }
 
-            entries = (char*)heap->alloc(OSRoundUp32B(entryCount * 0x41), -DEFAULT_ALIGN);
+            entries = (char*)heap->alloc(OSRoundUp32B(entryCount * (NAND_MAX_PATH + 1)), -DEFAULT_ALIGN);
             if (entries == NULL) {
                 ret = -2;
                 ES_ERR_REPORT("Could not alloc: %d", -2);
                 goto cleanup;
             }
 
-            ret = NANDReadDir(dirPath + 0x20, entries, &entryCount);
+            ret = NANDReadDir(dirPath, entries, &entryCount);
             if (ret != ES_ERR_OK) {
-                ES_ERR_REPORT("Could not read2 %s: %d", dirPath + 0x20, ret);
+                ES_ERR_REPORT("Could not read2 %s: %d", dirPath, ret);
                 goto cleanup;
             }
 
             entry = entries;
             for (i = 0; i < entryCount;) {
-                snprintf(filePath + 0x1c, 0x40, "%s%s", dirPath + 0x20, entry);
-                (filePath + 0x1c)[0x40] = 0;
-                ret = NANDPrivateDelete(filePath + 0x1c);
+                snprintf(filePath, NAND_MAX_PATH, "%s%s", dirPath, entry);
+                filePath[NAND_MAX_PATH] = 0;
+                ret = NANDPrivateDelete(filePath);
                 if (ret != ES_ERR_OK) {
-                    ES_ERR_REPORT("Failed to delete %s: %d", filePath + 0x1c, ret);
+                    ES_ERR_REPORT("Failed to delete %s: %d", filePath, ret);
                 }
                 i++;
                 entry += strlen(entry) + 1;
@@ -1076,6 +1059,7 @@ namespace ipl {
                             }
                             valid = TRUE;
 
+                        // MWCC needs both verification loops to share this failure label.
                         verify_failed:
 
                             if (!valid) {
@@ -1364,7 +1348,6 @@ namespace ipl {
                 // We are done!!!
                 ret = NAND_RESULT_OK;
                 mFileLength += entryLen;
-                goto out;
             }
         out:
             if (entry != NULL) {
@@ -1425,7 +1408,6 @@ namespace ipl {
                 ret = ES_ImportTitleDone();
                 if (ret != ES_ERR_OK) {
                     ES_ERR_REPORT("ES_ImportTitleDone err: %d", ret);
-                    goto out;
                 }
             }
         out:
