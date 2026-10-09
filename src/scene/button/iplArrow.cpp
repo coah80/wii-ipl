@@ -6,21 +6,24 @@ namespace ipl {
     namespace scene {
         void Arrow::draw() {
             Button* button;
-            if (System::onDefaultDrawLayer() && (button = static_cast<Button*>(System::getScene(SCENE_BUTTON)), button != NULL)) {
-                layout::Object::setDefaultCamera();
+            if (System::onDefaultDrawLayer()) {
+                button = static_cast<Button*>(System::getScene(SCENE_BUTTON));
+                if (button != NULL) {
+                    layout::Object::setDefaultCamera();
 
-                for (int i = 0; i < Button::ARROW_BTN_MAX; i++) {
-                    layout::Object* arrowLayout = button->get_layout();
-                    nw4r::lyt::Pane* pane = arrowLayout->FindPaneByName(Button::mscArrowName[i]);
+                    for (int i = 0; i < Button::ARROW_BTN_MAX; i++) {
+                        layout::Object* arrowLayout = button->get_layout();
+                        nw4r::lyt::Pane* pane = arrowLayout->FindPaneByName(Button::mscArrowName[i]);
 
-                    pane->SetVisible(true);
-                    arrowLayout->draw(pane);
-                    pane->SetVisible(false);
-                }
+                        pane->SetVisible(true);
+                        arrowLayout->draw(pane);
+                        pane->SetVisible(false);
+                    }
 
-                button->drawBalloon();
-                if (!System::isSafeMode()) {
-                    button->get_sd_menu_btn()->drawBalloon();
+                    button->drawBalloon();
+                    if (!System::isSafeMode()) {
+                        button->get_sd_menu_btn()->drawBalloon();
+                    }
                 }
             }
         }

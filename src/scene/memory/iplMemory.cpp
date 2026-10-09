@@ -109,7 +109,7 @@ namespace ipl {
             mpSavedataBase->calc();
 
             SavedataBox* currBox = NULL;
-            while (currBox = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, currBox), currBox != NULL)
+            while ((currBox = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, currBox)) != NULL)
                 currBox->calc();
 
             mpSavedataEdit->calc();
@@ -248,7 +248,7 @@ namespace ipl {
             int i = 0;
             SavedataBox* box = NULL;
 
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 nw4r::lyt::Pane* currPane = mpSavedataBase->getLytObject()->FindPaneByName(panes[0][i]);
                 nw4r::math::VEC3 translation(0, 0, 0);
                 PSMTXMultVec(currPane->GetGlobalMtx(), translation, translation);
@@ -264,7 +264,7 @@ namespace ipl {
         void Memory::fadein_savedata_box() {
             int i = 0;
             SavedataBox* box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 nw4r::lyt::Pane* currPane = mpSavedataBase->getLytObject()->FindPaneByName(panes[0][i]);
                 nw4r::math::VEC3 translation(0, 0, 0);
                 PSMTXMultVec(currPane->GetGlobalMtx(), translation, translation);
@@ -278,7 +278,7 @@ namespace ipl {
         void Memory::fadeout_savedata_box() {
             SavedataBox* box;
             box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 box->setBannerFileInfo(NULL);
                 box->anmFadeout();
             }
@@ -307,7 +307,7 @@ namespace ipl {
 
             SavedataBox* box;
             box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 if (box->getTextBalloon() != NULL) {
                     box->terminateBalloon();
                 }
@@ -495,7 +495,7 @@ namespace ipl {
             mpNandSDCardManager->cmdCleanQueue();
 
             SavedataBox* box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 box->clearEvent();
             }
 
@@ -511,7 +511,7 @@ namespace ipl {
             mpNandSDCardManager->cmdCleanQueue();
 
             SavedataBox* box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 box->clearEvent();
             }
 
@@ -553,7 +553,7 @@ namespace ipl {
             mpSavedataBase->draw();
 
             SavedataBox* box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 box->draw();
             }
 
@@ -602,7 +602,7 @@ namespace ipl {
 
             if (strcmp(pane->getName(), "B_SelectWii_00") == 0 && mPage == MEMORY_PAGE_SD) {
                 SavedataBox* box = NULL;
-                while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+                while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                     box->setBannerFileInfo(NULL);
                 }
 
@@ -630,7 +630,7 @@ namespace ipl {
                 }
             } else if (strcmp(pane->getName(), "B_SelectSd_00") == 0 && mPage == MEMORY_PAGE_WII) {
                 SavedataBox* box = NULL;
-                while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+                while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                     box->setBannerFileInfo(NULL);
                 }
 
@@ -759,7 +759,7 @@ namespace ipl {
             mpSavedataBase->update();
 
             SavedataBox* box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL)
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL)
                 box->update();
 
             if (mPage == MEMORY_PAGE_WII) {
@@ -798,7 +798,7 @@ namespace ipl {
 
         void Memory::on_fadein2nd() {
             SavedataBox* box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 if (!box->isIdle()) {
                     return;
                 }
@@ -828,7 +828,7 @@ namespace ipl {
             if (mpSavedataBase->isIdle()) {
                 mPageOffset += 15;
                 SavedataBox* box = NULL;
-                while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+                while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                     box->setBannerFileInfo(NULL);
                 }
 
@@ -842,7 +842,7 @@ namespace ipl {
             if (mpSavedataBase->isIdle()) {
                 mPageOffset -= 15;
                 SavedataBox* box = NULL;
-                while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+                while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                     box->setBannerFileInfo(NULL);
                 }
 
@@ -858,7 +858,7 @@ namespace ipl {
             }
 
             SavedataBox* box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 if (!box->isIdle()) {
                     return;
                 }
@@ -920,7 +920,7 @@ namespace ipl {
 
         void Memory::on_change_tag2nd() {
             SavedataBox* box = NULL;
-            while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+            while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                 if (!box->isIdle()) {
                     return;
                 }
@@ -1219,7 +1219,7 @@ namespace ipl {
                     mpNandSDCardManager->calc();
 
                     SavedataBox* box = NULL;
-                    while (box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box), box != NULL) {
+                    while ((box = (SavedataBox*)nw4r::ut::List_GetNext(&mSavedataBoxList, box)) != NULL) {
                         box->setBannerFileInfo(NULL);
                     }
 

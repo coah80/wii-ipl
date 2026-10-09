@@ -79,7 +79,7 @@ namespace ipl {
             mpLayout->calc();
             mpGui->calc();
             anmPane = NULL;
-            while (anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mPaneList, anmPane), anmPane != NULL) {
+            while ((anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mPaneList, anmPane)) != NULL) {
                 anmPane->calc();
             }
 

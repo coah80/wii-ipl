@@ -587,19 +587,9 @@ void GCWindow::on_error_message2nd() {
 }
 
 void GCWindow::on_error_message3rd() {
-    if (mFlags1[mCardState] != 0) {
-        goto fadeout;
-    }
-    if (mOperation != 2) {
-        goto check_animation;
-    }
-
-fadeout:
-    mState = 3;
-    return;
-
-check_animation:
-    if (!is_animation(0xb)) {
+    if (mFlags1[mCardState] != 0 || mOperation == 2) {
+        mState = 3;
+    } else if (!is_animation(0xb)) {
         mState = 2;
     }
 }
@@ -753,6 +743,7 @@ void GCWindow::onMemEvent(long event, u8 cardState) {
                 set_textbox("T_Message_00", 0xe5);
                 break;
             }
+            // MWCC needs this jump to retain both completion dispatch branches.
             goto process_complete;
         default:
             return;

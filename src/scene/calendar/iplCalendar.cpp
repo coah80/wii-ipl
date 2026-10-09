@@ -271,7 +271,7 @@ namespace ipl {
             set_date_pos(2);
 
             Date* date = NULL;
-            while (date = (Date*)nw4r::ut::List_GetNext(&mDateList, date), date != NULL) {
+            while ((date = (Date*)nw4r::ut::List_GetNext(&mDateList, date)) != NULL) {
                 date->calc();
             }
 
@@ -304,7 +304,7 @@ namespace ipl {
             }
 
             Date* date = NULL;
-            while (date = (Date*)nw4r::ut::List_GetNext(&mDateList, date), date != NULL) {
+            while ((date = (Date*)nw4r::ut::List_GetNext(&mDateList, date)) != NULL) {
                 date->calc();
             }
         }
@@ -478,7 +478,7 @@ namespace ipl {
 
             if (!mpLayout->isPlaying(IDANIM_0)) {
                 Date* date = NULL;
-                while (date = (Date*)nw4r::ut::List_GetNext(&mDateList, date), date != NULL) {
+                while ((date = (Date*)nw4r::ut::List_GetNext(&mDateList, date)) != NULL) {
                     date->initEvent();
                 }
 
@@ -546,7 +546,7 @@ namespace ipl {
 
         void Calendar::do_scroll_r() {
             Date* date = NULL;
-            while (date = (Date*)nw4r::ut::List_GetNext(&mDateList, date), date != NULL) {
+            while ((date = (Date*)nw4r::ut::List_GetNext(&mDateList, date)) != NULL) {
                 date->initEvent();
             }
 
@@ -588,7 +588,7 @@ namespace ipl {
 
         void Calendar::do_scroll_l() {
             Date* date = NULL;
-            while (date = (Date*)nw4r::ut::List_GetNext(&mDateList, date), date != NULL) {
+            while ((date = (Date*)nw4r::ut::List_GetNext(&mDateList, date)) != NULL) {
                 date->initEvent();
             }
 
@@ -705,11 +705,12 @@ namespace ipl {
         }
 
         void Calendar::set_textbox_date(int calendarIndex, const utility::Date& date) {
-            s32 lang = System::getLanguage();
-            int val;
+            // MWCC needs this query call to retain the original instruction sequence.
+            System::getLanguage();
+            int monthEnd;
             int maxDays;
-            int week;
-            week = utility::Calendar::getWeek(date.year, date.month, 1);
+            int firstWeekday;
+            firstWeekday = utility::Calendar::getWeek(date.year, date.month, 1);
             maxDays = utility::Calendar::getDays(date.year, date.month);
 
             OSCalendarTime curTime = System::getCurrentTime();
@@ -721,47 +722,44 @@ namespace ipl {
             utility::Calendar::getLastMonth(date, &lastMonth);
             utility::Calendar::getNextMonth(date, &nextMonth);
 
-            int dateIndex;
-            int weekOffset;
+            int listIndex;
+            int trailingDays;
             if (mbAsian || mbUSA) {
-                weekOffset = 6 - utility::Calendar::getWeek(date.year, date.month, maxDays);
+                trailingDays = 6 - utility::Calendar::getWeek(date.year, date.month, maxDays);
             } else {
-                week--;
-                if (week < 0) {
-                    week = 6;
+                firstWeekday--;
+                if (firstWeekday < 0) {
+                    firstWeekday = 6;
                 }
-                weekOffset = 6 - (utility::Calendar::getWeek(date.year, date.month, maxDays) - 1);
-                if (weekOffset >= 7) {
-                    weekOffset = 0;
+                trailingDays = 6 - (utility::Calendar::getWeek(date.year, date.month, maxDays) - 1);
+                if (trailingDays >= 7) {
+                    trailingDays = 0;
                 }
             }
 
-            dateIndex = calendarIndex == 1 ? 0 : DATE_COUNT;
+            listIndex = calendarIndex == 1 ? 0 : DATE_COUNT;
 
             utility::Date cellDate;
 
             u32 attr;
-            int val2;
-            int i;
-            for (i = 0; i < DATE_COUNT; i++) {
-                Date* dateScn = ((Date*)nw4r::ut::List_GetNth(&mDateList, dateIndex));
-                dateIndex++;
+            int visibleCellEnd;
+            int dayIndex;
+            for (dayIndex = 0; dayIndex < DATE_COUNT; dayIndex++) {
+                Date* dateScn = ((Date*)nw4r::ut::List_GetNth(&mDateList, listIndex));
+                listIndex++;
                 dateScn->setVisible(true);
 
-                val = (maxDays + week);
+                monthEnd = (maxDays + firstWeekday);
                 attr = 0;
-                val2 = (weekOffset + val);
-                if ((week - i) > 0) {
+                visibleCellEnd = (trailingDays + monthEnd);
+                if ((firstWeekday - dayIndex) > 0) {
                     cellDate.year = lastMonth.year;
                     cellDate.month = lastMonth.month;
-                    cellDate.day = i + (lastMonth.day - week) + 1;
-                    goto out;
-                }
-
-                if ((val - i) > 0) {
+                    cellDate.day = dayIndex + (lastMonth.day - firstWeekday) + 1;
+                } else if ((monthEnd - dayIndex) > 0) {
                     cellDate.year = date.year;
                     cellDate.month = date.month;
-                    cellDate.day = (i - week) + 1;
+                    cellDate.day = (dayIndex - firstWeekday) + 1;
                     attr |= 2;
 
                     if (cellDate == todayDate) {
@@ -778,20 +776,15 @@ namespace ipl {
                             break;
                         }
                     }
-                    goto out;
-                }
-
-                if ((val2 - i) > 0) {
+                } else if ((visibleCellEnd - dayIndex) > 0) {
                     cellDate.year = nextMonth.year;
                     cellDate.month = nextMonth.month;
-                    cellDate.day = ((i - maxDays) - week) + 1;
-                    goto out;
+                    cellDate.day = ((dayIndex - maxDays) - firstWeekday) + 1;
                 } else {
                     dateScn->setVisible(false);
                     continue;
                 }
 
-            out:
                 dateScn->setDate(cellDate);
                 dateScn->setAttribute(attr);
             }

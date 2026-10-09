@@ -16,8 +16,6 @@
 
 #include <cstring>
 
-// #pragma sym on
-
 namespace ipl {
     namespace math {
         static inline nw4r::math::VEC3 subHermitePoints(const VEC3& start, const VEC3& end) {
@@ -287,7 +285,7 @@ namespace ipl {
 
         // clang-format on
 
-#define FOREACH_CHANNEL_OBJ(chanObj) while (chanObj = (ChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj), chanObj != NULL)
+#define FOREACH_CHANNEL_OBJ(chanObj) while ((chanObj = (ChannelObj*)nw4r::ut::List_GetNext(&mChanList, chanObj)) != NULL)
 
         ChannelSelect::ChannelSelect(EGG::Heap* heap, int startup)
             : scene::FaderSceneBase(heap),
@@ -1266,21 +1264,14 @@ namespace ipl {
 
         void ChannelSelect::sortChannelListByPage(int page, int edgeDirection) {
             for (int i = 0; i < MAX_CHANNEL_INDEX; i++) {
-                // TODO: fix this ugly madness
                 if (edgeDirection == -1) {
                     if (!(i & 3)) {
                         continue;
                     }
-                } else {
-                    goto block_6;
-                }
-
-                goto block_7;
-            block_6:
-                if (!(edgeDirection != 1 || (i & 3) != 3)) {
+                } else if (edgeDirection == 1 && (i & 3) == 3) {
                     continue;
                 }
-            block_7:
+
                 ChannelObj* chanObj = searchList(page, i);
                 nw4r::ut::List_Remove(&mChanList, chanObj);
                 nw4r::ut::List_Append(&mChanList, chanObj);

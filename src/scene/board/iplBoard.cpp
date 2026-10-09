@@ -326,7 +326,7 @@ namespace ipl {
             return_to_freelist();
 
             void* object = NULL;
-            while (object = (void*)mObjList.getNextFree((BoardObject*)object), object != NULL) {
+            while ((object = (void*)mObjList.getNextFree((BoardObject*)object)) != NULL) {
                 ((BoardObject*)object)->destroy_heap();
             }
 

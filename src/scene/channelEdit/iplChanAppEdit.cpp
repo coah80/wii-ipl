@@ -98,7 +98,7 @@ namespace ipl {
             mpLayout->calc();
             mpGui->calc();
             anmPane = NULL;
-            while (anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mPaneList, anmPane), anmPane != NULL)
+            while ((anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mPaneList, anmPane)) != NULL)
                 anmPane->calc();
 
             if (mpThumbnail != NULL)
@@ -290,7 +290,7 @@ namespace ipl {
             change_button_text(MESG_CMN_BACK_ALT_3);
 
             AnmPane* anmPane = NULL;
-            while (anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mPaneList, anmPane), anmPane != NULL) {
+            while ((anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mPaneList, anmPane)) != NULL) {
                 clear_anmpane(anmPane->getName());
             }
 
@@ -331,7 +331,7 @@ namespace ipl {
             change_button_text(MESG_CMN_BACK_ALT_3);
 
             AnmPane* anmPane = NULL;
-            while (anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mPaneList, anmPane), anmPane != NULL) {
+            while ((anmPane = (AnmPane*)nw4r::ut::List_GetNext(&mPaneList, anmPane)) != NULL) {
                 clear_anmpane(anmPane->getName());
             }
 
