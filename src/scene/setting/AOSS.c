@@ -388,7 +388,7 @@ cleanup_done:
 
 int AOSS_Init_old(AOSSInitInput* input)
 {
-  s16 initialWait;
+  short waitAttempt;
   AOSSReceiveBuffer* packetBuffer;
   AOSSPacketHeader* packetWords;
   u32 initialSleep;
@@ -411,7 +411,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   int initializationResult;
   short attemptCount;
   u16 remainingWait;
-  short waitAttempt;
+  s16 initialWait;
   u16 defaultConnection;
   u16 defaultResponse;
   union {

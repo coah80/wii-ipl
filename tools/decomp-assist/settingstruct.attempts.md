@@ -218,3 +218,24 @@ checks vs orig cmpwi r3,0 (all pragma forms no-op); bgt-vs-ble+b layout at
 the manufacturerLength<=0xd memcpy guard (goto form folds back to bgt —
 orig's 2-branch layout implies a merge/region structure source can't
 reproduce); net -3 insns somewhere in mass-rotation noise.
+
+## Round 6: #1311 levers (declsearch, inline-helper, marshal forms) post-#1314
+
+Post-rebase scope: GetBSSList matched by swarm #1314; aes Matching #1311
+(object rebuilds identical). Remaining: AOSS_Init_old 96.70,
+AOSSi_WLANConnect 98.71.
+
+WLANConnect 2-insn marshal swap (li r5,0x7c4 vs mr r3,r27 order) refuted
+with ALL new levers: (void*)ipConfig, sizeof(AOSSi_NcdIpConfig), folded
+`memset(ipConfig = &...,...)` assignment form, and static-inline
+pointer-param helper AOSSi_ClearIpConfig — every form keeps the r27 web and
+MWCC emits mr-first. Pure marshal-order tie; declsearch found only the 2
+leading decls (no improvement).
+
+Init_old: declsearch.py --lines 391 435 (45-decl block, 100 evals) found a
+marginally better order (waitAttempt front, initialWait later): kept,
+96.69 -> 96.70. Pinned-zero root located: `li r27,0`@0xb34 — ONE shared
+zero web pinned fn-wide (stw/sth stores + addc/adde + 2 cmplw) where orig
+pins `input` in r27 (addi r27,r4,0) and remats zero per-site. Orig's
+pinned-input vs pinned-zero callee choice is an allocator web-priority
+decision; source can't declare which constant webs win a callee reg.
