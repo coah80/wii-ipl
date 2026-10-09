@@ -133,3 +133,23 @@ gekko scheduler already matches orig's pass config; the residual is allocator
 web-lifetime/ready-set structure with no known source lever. `scheduling twice`
 is a real lever ONLY for instruction-issue-order residuals (marshal pairs), and
 even there fixes ordering without moving objdiff fuzzy.
+
+## Round 2: structural decode attempts on AESiEncryptBlock (orchestrator hint)
+
+Baseline macro form remains best (183 norm, fuzzy 65.81). All reverted:
+- key as `const u32 (*key)[4]` pointer-to-row (+key++): identical 183
+- state[4]/nextState[4] with strided (i+k)&3 indices + for-loops: 230
+- fused `nextStateN = ENCRYPT(...) ^ key[N]` (states assigned at end): 231
+- state copied to t0..t3 temps at loop top: 183 (CSE folds)
+- two-phase combines (all rotated-halves then all tail-halves): 231
+- xor tree rebalance `(A^B)^(C^D)` and raw-term-first reorder: 175 norm, fuzzy 60.0/60.3
+- TU cflags -O4,s: 263 norm (worse); -O3: 177 norm, fuzzy 60.3/70.2 (worse)
+- prologue emits `srwi` extract before the input xors complete in BOTH objects;
+  158=158 insns, all residuals are regname + issue-order inside an identical op set
+- AOSSi_WLANConnect residual is 2 diffs (mr r3,r27 / li r5,0x7c4 marshal order);
+  pointer-local decl moved adjacent to memset: no change (baseline was already 2);
+  direct-global &AOSSi_NcdIfConfig form: 163 (the local web is required)
+
+Conclusion: the AES loop-body interleave is an allocator ready-set artifact;
+the register-lifetime shape that produces orig's ordering is not expressible
+through these source levers. No scheduling/-O lever improves fuzzy.
