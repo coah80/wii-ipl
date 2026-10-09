@@ -139,37 +139,37 @@ CDBErr CDBRecordOpen_(CDBRecord* record) {
         CDBReportError("can't open the record; the database is READONLY\n");
         return CDB_ERROR_26;
     }
+
     CDBConvKeyToFullPath(&record->key, fullPath);
     err = CDBRecordFileOpen(record, fullPath, CDB_RECORD_ALLOC_RW);
     if (err != CDB_ERROR_OK) {
         return err;
     }
+
     err = CDBRecordFileReadAttrBuf(record);
     if (err != CDB_ERROR_OK) {
         return err;
     }
+
     if (record->key.location == CDB_FS_LOCATION_SD) {
         err = CDBCryptBufAllocate((CDBCryptBuf**)&record->cryptBuf);
         if (err != CDB_ERROR_OK) {
             return err;
         }
+
         cryptBuf = (CDBCryptBuf*)record->cryptBuf;
         if (record == NULL || !CDBRecordKeyIsValid(&record->key)) {
             err = CDB_ERROR_1;
-        } else {
-            if (record->key.location == CDB_FS_LOCATION_SD) {
-                goto open_location_ok;
-            }
+        } else if (record->key.location != CDB_FS_LOCATION_SD) {
             err = CDB_ERROR_2;
-            goto open_result_ready;
-        open_location_ok:
+        } else {
             if (CDBFSSDIsMounted()) {
                 err = CDBRecordDecrypt(record, cryptBuf, 0x3EC00, &cryptBuf->size, NULL);
             } else {
                 err = CDB_ERROR_SD_IS_NOT_MOUNTED;
             }
         }
-    open_result_ready:
+
         if (err != CDB_ERROR_OK) {
             CDBCryptBufFree((CDBCryptBuf**)&record->cryptBuf);
             return err;
@@ -198,37 +198,37 @@ CDBErr CDBRecordOpenReadOnly_(CDBRecord* record) {
         CDBReportError("invalid key\n");
         return CDB_ERROR_5;
     }
+
     CDBConvKeyToFullPath(&record->key, fullPath);
     err = CDBRecordFileOpen(record, fullPath, CDB_RECORD_ALLOC_READ);
     if (err != CDB_ERROR_OK) {
         return err;
     }
+
     err = CDBRecordFileReadAttrBuf(record);
     if (err != CDB_ERROR_OK) {
         return err;
     }
+
     if (record->key.location == CDB_FS_LOCATION_SD) {
         err = CDBCryptBufAllocate((CDBCryptBuf**)&record->cryptBuf);
         if (err != CDB_ERROR_OK) {
             return err;
         }
+
         cryptBuf = (CDBCryptBuf*)record->cryptBuf;
         if (record == NULL || !CDBRecordKeyIsValid(&record->key)) {
             result = CDB_ERROR_1;
-        } else {
-            if (record->key.location == CDB_FS_LOCATION_SD) {
-                goto location_ok;
-            }
+        } else if (record->key.location != CDB_FS_LOCATION_SD) {
             result = CDB_ERROR_2;
-            goto result_ready;
-        location_ok:
+        } else {
             if (CDBFSSDIsMounted()) {
                 result = CDBRecordDecrypt(record, cryptBuf, 0x3EC00, &cryptBuf->size, NULL);
             } else {
                 result = CDB_ERROR_SD_IS_NOT_MOUNTED;
             }
         }
-    result_ready:
+
         if (result != CDB_ERROR_OK) {
             CDBCryptBufFree((CDBCryptBuf**)&record->cryptBuf);
             return result;
@@ -717,7 +717,7 @@ CDBErr CDBRecordGetId(CDBRecord* record, CDBId* id) {
             err = CDB_ERROR_OK;
             break;
         default:
-            goto get_id_done;
+            break;
     }
 get_id_done:
     CDBUnlock();

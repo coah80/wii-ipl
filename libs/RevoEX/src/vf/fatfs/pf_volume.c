@@ -630,7 +630,6 @@ pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv) {
     } else {
         if ((vol_idx < 0) || (vol_idx >= 0x1A)) {
             return VFipf_vol_set.last_error = 0x12;
-            return 0x12;
         }
         p_vol = &VFipf_vol_set.volumes[vol_idx];
         if ((p_vol->flags & 1) != 0) {
@@ -663,9 +662,7 @@ pf_s32 VFiPFVOL_attach(PF_DRV_TBL* p_drv) {
             return 0;
         }
         p_drv->stat |= 2;
-        goto block_55;
     }
-block_55:
     return 0;
 }
 

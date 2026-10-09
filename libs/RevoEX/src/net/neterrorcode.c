@@ -14,9 +14,7 @@ static int FirstConfig(u32 configs) {
     return -1;
 }
 
-#pragma dont_inline on
 int NETiGetConnectionTypeFromConfigList(u32 wireless, u32 wired, u32 other);
-#pragma dont_inline reset
 int NETiGetConnectionTypeFromConfigList(u32 wireless, u32 wired, u32 other) {
     int connection = 99;
     if (wireless != 0) {
@@ -29,7 +27,7 @@ int NETiGetConnectionTypeFromConfigList(u32 wireless, u32 wired, u32 other) {
     return connection;
 }
 
-#pragma dont_inline on
+#pragma dont_inline on // MWCC must preserve the startup-error helper call boundaries.
 int NETGetStartupErrorCode(int error) {
     u32 other, wired, wireless;
     int connection = 99;

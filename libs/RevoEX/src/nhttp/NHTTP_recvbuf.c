@@ -80,39 +80,15 @@ s32 NHTTPi_compareTokenN_HdrRecvBuf(const NHTTPResponseInfo* response, s32 posit
     if (position < limit) {
         FindHeaderBlock(response, position, &block, &offset);
 
-        if (block == NULL) {
-            if (offset < NHTTP_HDRRECVBUF_INILEN) {
-                character = (s8)response->hdrBufFirst[offset++];
-                goto compare_characters;
-            }
-            block = response->hdrBufBlock_p;
-            offset = 0;
-        } else if (offset == NHTTP_HDRRECVBUF_BLOCKLEN) {
-            offset = 0;
-            block = block->next_p;
-        }
-        character = block->block[offset++];
+        character = ReadHeaderChar(response, &block, &offset);
 
-    compare_characters:
         i = position;
         while (NHTTPi_TOLOWER((s8)character) == NHTTPi_TOLOWER((s8)*token)) {
             tokenChar = (s8)*token;
             if (tokenChar == '\0' || tokenChar == ' ' || tokenChar == delimiter || i == limit - 1) return 0;
 
-            if (block == NULL) {
-                if (offset < NHTTP_HDRRECVBUF_INILEN) {
-                    character = (s8)response->hdrBufFirst[offset++];
-                    goto advance_token;
-                }
-                block = response->hdrBufBlock_p;
-                offset = 0;
-            } else if (offset == NHTTP_HDRRECVBUF_BLOCKLEN) {
-                offset = 0;
-                block = block->next_p;
-            }
-            character = block->block[offset++];
+            character = ReadHeaderChar(response, &block, &offset);
 
-        advance_token:
             i++;
             token++;
         }

@@ -38,14 +38,16 @@ NWC24Err NWC24iPrepareShutdown(void) {
     if (nwc24ShtFd < 0)
         result = NWC24OpenResourceManager("/dev/net/kd/request", &nwc24ShtFd, 1);
     nwc24ShtRetryRest = 5;
-    do {
+    while (TRUE) {
         status = SCCheckStatus();
         if (status == SC_STATUS_FATAL)
-            goto ready;
-    } while (status == SC_STATUS_BUSY);
-    SCGetIdleMode(&idleMode);
-    __OSSetIdleLEDMode(idleMode.led);
-ready:
+            break;
+        if (status == SC_STATUS_BUSY)
+            continue;
+        SCGetIdleMode(&idleMode);
+        __OSSetIdleLEDMode(idleMode.led);
+        break;
+    }
     if (OSGetAppType() == OS_APP_TYPE_IPL)
         NWC24iSetScriptMode(1);
     return result;

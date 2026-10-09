@@ -81,20 +81,18 @@ pf_s32 VFiPFFAT16_ReadFATEntryPage(PF_VOLUME* p_vol, pf_u32 cluster, pf_u32* p_v
         }
         do {
             err = VFiPFCACHE_ReadFATPage(p_vol, sector, pp_page);
-            if (err != 0x1000 || p_vol->p_callback == PF_NULL) {
-                goto block_22;
-            }
-            result = ((PF_VOLUME_CB)p_vol->p_callback)(p_vol->last_driver_error);
-            if (result != 0) {
-                if (result == 1 && p_vol->bpb.num_active_FATs >= 2 && current_fat < p_vol->bpb.num_active_FATs) {
-                    current_fat++;
-                    sector += p_vol->bpb.sectors_per_FAT;
+            if (err == 0x1000 && p_vol->p_callback != PF_NULL) {
+                result = ((PF_VOLUME_CB)p_vol->p_callback)(p_vol->last_driver_error);
+                if (result != 0) {
+                    if (result == 1 && p_vol->bpb.num_active_FATs >= 2 && current_fat < p_vol->bpb.num_active_FATs) {
+                        current_fat++;
+                        sector += p_vol->bpb.sectors_per_FAT;
+                        continue;
+                    }
                 } else {
-                    goto block_22;
+                    continue;
                 }
             }
-            continue;
-        block_22:
             if (err != 0) {
                 return err;
             }
@@ -161,20 +159,18 @@ pf_s32 VFiPFFAT16_WriteFATEntryPage(PF_VOLUME* p_vol, pf_u32 cluster, pf_u32 val
         }
         do {
             err = VFiPFCACHE_ReadFATPage(p_vol, fat_sector, pp_page);
-            if (err != 0x1000 || p_vol->p_callback == PF_NULL) {
-                goto block_21;
-            }
-            result = ((PF_VOLUME_CB)p_vol->p_callback)(p_vol->last_driver_error);
-            if (result != 0) {
-                if (result == 1 && p_vol->bpb.num_active_FATs >= 2 && current_fat < p_vol->bpb.num_active_FATs) {
-                    current_fat++;
-                    fat_sector += p_vol->bpb.sectors_per_FAT;
+            if (err == 0x1000 && p_vol->p_callback != PF_NULL) {
+                result = ((PF_VOLUME_CB)p_vol->p_callback)(p_vol->last_driver_error);
+                if (result != 0) {
+                    if (result == 1 && p_vol->bpb.num_active_FATs >= 2 && current_fat < p_vol->bpb.num_active_FATs) {
+                        current_fat++;
+                        fat_sector += p_vol->bpb.sectors_per_FAT;
+                        continue;
+                    }
                 } else {
-                    goto block_21;
+                    continue;
                 }
             }
-            continue;
-        block_21:
             if (err != 0) {
                 return err;
             }

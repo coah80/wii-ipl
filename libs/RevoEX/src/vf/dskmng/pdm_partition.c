@@ -53,39 +53,39 @@ static pf_s32 VFipdm_part_get_start_sector(PDM_PARTITION* p_part) {
             p_part->total_sector = mbr_tbl.partition_table[part_id].lba_num_sectors;
             p_part->partition_type = mbr_tbl.partition_table[part_id].partition_type;
             p_part->mbr_sector = mbr_tbl.current_sector;
-            goto success;
-        }
-        for (part_index = 4;; part_index++) {
-            err = VFipdm_mbr_get_epbr_part_table(p_part->p_disk, &mbr_tbl);
-            if (err != 0 && err != 6) {
-                return err;
-            }
-            if (err != 6) {
-                if (part_id == part_index) {
-                    p_part->start_sector = mbr_tbl.partition_table[0].lba_start_sector;
-                    p_part->total_sector = mbr_tbl.partition_table[0].lba_num_sectors;
-                    p_part->partition_type = mbr_tbl.partition_table[0].partition_type;
-                    p_part->mbr_sector = mbr_tbl.current_sector;
-                    goto success;
+        } else {
+            for (part_index = 4;; part_index++) {
+                err = VFipdm_mbr_get_epbr_part_table(p_part->p_disk, &mbr_tbl);
+                if (err != 0 && err != 6) {
+                    return err;
                 }
-                continue;
+                if (err != 6) {
+                    if (part_id == part_index) {
+                        p_part->start_sector = mbr_tbl.partition_table[0].lba_start_sector;
+                        p_part->total_sector = mbr_tbl.partition_table[0].lba_num_sectors;
+                        p_part->partition_type = mbr_tbl.partition_table[0].partition_type;
+                        p_part->mbr_sector = mbr_tbl.current_sector;
+                        break;
+                    }
+                    continue;
+                }
+                return 7;
             }
+        }
+    } else {
+        if (part_id >= 1) {
             return 7;
         }
+        err = VFipdm_disk_get_media_information(p_part->p_disk, &disk_info);
+        if (err != 0) {
+            return err;
+        }
+        p_part->start_sector = 0;
+        p_part->total_sector = disk_info.total_sectors;
+        p_part->partition_type = 0;
+        p_part->mbr_sector = 0;
     }
-    if (part_id >= 1) {
-        return 7;
-    }
-    err = VFipdm_disk_get_media_information(p_part->p_disk, &disk_info);
-    if (err != 0) {
-        return err;
-    }
-    p_part->start_sector = 0;
-    p_part->total_sector = disk_info.total_sectors;
-    p_part->partition_type = 0;
-    p_part->mbr_sector = 0;
 
-success:
     return 0;
 }
 
@@ -301,43 +301,38 @@ pf_s32 VFipdm_part_get_permission(PDM_PARTITION* p_part) {
     }
 
     lp_part = &VFipdm_disk_set.partition[PDM_PART_GET_NO(p_part)];
-    if ((lp_part->status & 0x02) != 0) {
-        goto fail;
-    }
-    err = VFipdm_disk_set_disk(lp_part->p_disk, p_part);
-    if (err != 0) {
-        return err;
-    }
+    if ((lp_part->status & 0x02) == 0) {
+        err = VFipdm_disk_set_disk(lp_part->p_disk, p_part);
+        if (err != 0) {
+            return err;
+        }
 
-    err = VFipdm_disk_get_part_permission(lp_part->p_disk);
-    if (err != 0) {
-        return err;
-    }
+        err = VFipdm_disk_get_part_permission(lp_part->p_disk);
+        if (err != 0) {
+            return err;
+        }
 
-    err = VFipdm_disk_get_media_information(lp_part->p_disk, &disk_info);
-    if (err != 0) {
-        VFipdm_disk_release_part_permission(lp_part->p_disk, 1);
-        return err;
-    }
+        err = VFipdm_disk_get_media_information(lp_part->p_disk, &disk_info);
+        if (err != 0) {
+            VFipdm_disk_release_part_permission(lp_part->p_disk, 1);
+            return err;
+        }
 
-    if ((disk_info.media_attr & 0x01) != 0) {
-        lp_part->status |= 0x10;
+        if ((disk_info.media_attr & 0x01) != 0) {
+            lp_part->status |= 0x10;
+        } else {
+            lp_part->status &= ~0x10;
+        }
+
+        err = VFipdm_part_get_start_sector(lp_part);
+        if (err != 0) {
+            VFipdm_disk_release_part_permission(lp_part->p_disk, 1);
+            return err;
+        }
     } else {
-        lp_part->status &= ~0x10;
+        return 13;
     }
 
-    err = VFipdm_part_get_start_sector(lp_part);
-    if (err != 0) {
-        VFipdm_disk_release_part_permission(lp_part->p_disk, 1);
-        return err;
-    }
-
-    goto success;
-
-fail:
-    return 13;
-
-success:
     lp_part->status |= 0x02;
     lp_part->status &= ~0x08;
 

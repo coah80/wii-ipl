@@ -50,7 +50,7 @@ int* CDBIntArrayEnd(CDBIntArray* array) {
     return array->values + array->size;
 }
 
-#pragma dont_inline on
+#pragma dont_inline on // MWCC must keep dictionary search and insertion calls out of line.
 int CDBIntArrayDicInsertR(CDBIntArray* array, int* value, int first, int last) {
     int index;
     int result;

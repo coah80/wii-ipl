@@ -1147,7 +1147,7 @@ NWC24Err NWC24iCreateDlTaskList() {
     }
 }
 
-#pragma dont_inline on
+#pragma dont_inline on // MWCC must keep task-list initialization out of line.
 NWC24Err NWC24iInitDlTaskList(BOOL force) {
     NWC24Err result;
     DlTaskListHeader* header;
