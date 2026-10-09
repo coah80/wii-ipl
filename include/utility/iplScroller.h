@@ -55,7 +55,7 @@ namespace ipl {
             void init() {
                 mState = 0;
                 mScroll = 0.0f;
-                unk_0x3C = 0.0f;
+                mScrollVelocity = 0.0f;
                 mUpLimit = 0.0f;
                 mDownLimit = 0.0f;
             }
@@ -92,7 +92,7 @@ namespace ipl {
             int mState;      // 0x30
             f32 mDownLimit;  // 0x34
             f32 mUpLimit;    // 0x38
-            f32 unk_0x3C;
+            f32 mScrollVelocity;
             f32 mScroll;  // 0x40
             f32 mButtonScrollOrigin;
             f32 mVelocityDecay;

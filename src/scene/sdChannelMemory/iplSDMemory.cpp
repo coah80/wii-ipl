@@ -277,7 +277,7 @@ namespace ipl {
         void Scroller::init() {
             mState = 0;
             mScroll = 0.0f;
-            unk_0x3C = 0.0f;
+            mScrollVelocity = 0.0f;
             mUpLimit = 0.0f;
             mDownLimit = 0.0f;
         }

@@ -353,8 +353,8 @@ extern "C" void clearCardFileEntry(s32 slot, s32 index) {
     sThread->files[slot][index].size = 0;
     sThread->files[slot][index].canCopy = 1;
     sThread->files[slot][index].canMove = 1;
-    sThread->files[slot][index].unk_0x06 = 0;
-    sThread->icons[slot][index].unk_0x01 = 0;
+    sThread->files[slot][index].transferBlocked = 0;
+    sThread->icons[slot][index].iconEnable = 0;
     sThread->icons[slot][index].bannerEnable = 0;
     OSRestoreInterrupts(interrupts);
 }
@@ -379,14 +379,14 @@ extern "C" void refreshCardSlotInfo(s32 slot) {
     if (CARDGetResultCode(slot) >= CARD_RESULT_READY) {
         BOOL interrupts = OSDisableInterrupts();
 
-        sThread->slots[slot].unk_0x0C = ((u32)memSize << 17) / sectorSize - CARD_NUM_SYSTEM_BLOCK;
+        sThread->slots[slot].totalBlocks = ((u32)memSize << 17) / sectorSize - CARD_NUM_SYSTEM_BLOCK;
         sThread->slots[slot].key = sectorSize;
-        sThread->slots[slot].unk_0x0E = freeFiles;
+        sThread->slots[slot].freeFiles = freeFiles;
         sThread->slots[slot].freeBlocks = freeBytes / sectorSize;
         OSRestoreInterrupts(interrupts);
         OSReport("%d:%dbytes sectorsize , %d blocks , %d freeEntry\n", slot,
                  sThread->slots[slot].key, sThread->slots[slot].freeBlocks,
-                 sThread->slots[slot].unk_0x0E);
+                 sThread->slots[slot].freeFiles);
     }
 }
 
@@ -582,7 +582,7 @@ extern "C" void* cardThreadMain(void*) {
             do {
                 if (sThread->mounted[outerSlot] != 0) {
                     freeBlocks = countCardTitleBlocks(outerSlot, &freeDir);
-                    sThread->slots[outerSlot].unk_0x12 = freeBlocks;
+                    sThread->slots[outerSlot].titleBlocks = freeBlocks;
                 }
                 ++outerSlot;
             } while (outerSlot < 2);
@@ -607,11 +607,11 @@ extern "C" void markAllCardFilesDirty() {
         fileNo = 0;
 
         do {
-            sThread->files[slot][fileNo].unk_0x06 = 0;
+            sThread->files[slot][fileNo].transferBlocked = 0;
             if (sThread->mounted[slot] != 0 &&
                 sThread->mounted[slot ^ 1] != 0 &&
                 checkCardFileDuplicate((u8)slot, (s16)fileNo) < 0) {
-                sThread->files[slot][fileNo].unk_0x06 = flagValue;
+                sThread->files[slot][fileNo].transferBlocked = flagValue;
             }
             ++fileNo;
 
@@ -701,19 +701,19 @@ static inline s32 readCardImages(s32 slot, s32 fileNo, CARDDir* dir, CARDFileInf
     s32 sectorSize;
     if (CARDGetSectorSize(slot, (u32*)&sectorSize) < CARD_RESULT_READY) {
         sThread->icons[slot][fileNo].bannerEnable = 0;
-        sThread->icons[slot][fileNo].unk_0x01 = 0;
+        sThread->icons[slot][fileNo].iconEnable = 0;
         return 0;
     }
 
     u32 fileSize = (u32)dir->length * sectorSize;
     if (address > fileSize) {
         sThread->icons[slot][fileNo].bannerEnable = 0;
-        sThread->icons[slot][fileNo].unk_0x01 = 0;
+        sThread->icons[slot][fileNo].iconEnable = 0;
         return 0;
     }
     if (address + transferSize > fileSize) {
         sThread->icons[slot][fileNo].bannerEnable = 0;
-        sThread->icons[slot][fileNo].unk_0x01 = 0;
+        sThread->icons[slot][fileNo].iconEnable = 0;
         return 0;
     }
 
@@ -818,10 +818,10 @@ static inline s32 loadCardIconImages(s32 slot, s32 fileNo, CARDDir* dir, CARDFil
     shift = 0;
     hasTlut = FALSE;
     iconImageSize = 0;
-    sThread->icons[slot][fileNo].unk_0x02 = 0;
+    sThread->icons[slot][fileNo].iconCount = 0;
     sThread->icons[slot][fileNo].anmMax = 0;
     sThread->icons[slot][fileNo].anmFrameBits = dir->iconSpeed;
-    sThread->icons[slot][fileNo].unk_0x06 = (dir->iconSpeed & CARD_STAT_SPEED_MASK) << 2;
+    sThread->icons[slot][fileNo].anmFirstFrameDuration = (dir->iconSpeed & CARD_STAT_SPEED_MASK) << 2;
     icon = 0;
     iconCount = 0;
     while (icon < CARD_ICON_MAX) {
@@ -829,7 +829,7 @@ static inline s32 loadCardIconImages(s32 slot, s32 fileNo, CARDDir* dir, CARDFil
         if (iconSpeed != 0) {
             sThread->icons[slot][fileNo].anmMax += iconSpeed << 2;
         } else {
-            sThread->icons[slot][fileNo].unk_0x07 =
+            sThread->icons[slot][fileNo].anmLastFrameDuration =
                 (u8)(((dir->iconSpeed >> ((iconCount - 1) * 2)) << 2) & 0xC);
             goto animationDone;
         }
@@ -837,10 +837,10 @@ static inline s32 loadCardIconImages(s32 slot, s32 fileNo, CARDDir* dir, CARDFil
         shift = shift + 2;
         ++icon;
     }
-    sThread->icons[slot][fileNo].unk_0x07 = (dir->iconSpeed >> 0xC) & 0xC;
+    sThread->icons[slot][fileNo].anmLastFrameDuration = (dir->iconSpeed >> 0xC) & 0xC;
 animationDone:
     if ((dir->iconSpeed & CARD_STAT_SPEED_MASK) == 0 || (dir->iconFormat & CARD_STAT_ICON_MASK) == 0) {
-        sThread->icons[slot][fileNo].unk_0x01 = 0;
+        sThread->icons[slot][fileNo].iconEnable = 0;
         iconImageSize = 0;
     } else {
         for (iconCount = 0; iconCount < CARD_ICON_MAX; ++iconCount) {
@@ -873,8 +873,8 @@ animationDone:
                         iconFrameSize + sThread->icons[slot][fileNo].iconOffset[iconCount];
                 }
                 iconImageSize += iconFrameSize;
-                sThread->icons[slot][fileNo].unk_0x02 =
-                    sThread->icons[slot][fileNo].unk_0x02 + 1;
+                sThread->icons[slot][fileNo].iconCount =
+                    sThread->icons[slot][fileNo].iconCount + 1;
             } else {
                 sThread->icons[slot][fileNo].iconTlutOffset =
                     sThread->icons[slot][fileNo].iconOffset[iconCount];
@@ -884,7 +884,7 @@ animationDone:
         if (hasTlut) {
             iconImageSize += 0x200;
         }
-        sThread->icons[slot][fileNo].unk_0x01 = 1;
+        sThread->icons[slot][fileNo].iconEnable = 1;
         sThread->icons[slot][fileNo].anmType = dir->bannerFormat & 4;
         sThread->icons[slot][fileNo].anmDelta = 1;
     }
