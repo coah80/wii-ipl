@@ -1522,3 +1522,20 @@ Stack slot 0xc = shouldBranch (vmBoolInt/BOOL, fn-scope, memory-homed: live
 across ~800 insns of calls). g-chansvm already exhausted decl positions
 (100k permutations), per-arm/hoisted status, flag forms, pragmas, compiler
 versions. No source lever found; documented as scheduler-tie wall.
+
+## nup ParseServerInfo rotation analysis (w1009/update)
+
+71 diffs = cyclic web-creation-order rotation, identical insn stream/call sites
+(orig inlines __nupFindTag to strstr/strlen exactly as ours).
+Per-block1 base homes: startTagPtr=r22, result=r23, res1(start)=r24,
+endTagPtr=r25, res2(end)=r26. Mine: res2=r22, startTagPtr=r24, res1=r26 —
+the res2/end web is created FIRST in mine; base creates tagPtr first.
+Base arg homes: context=r30, response=r31 (last-numbered), messageId=r21,
+deviceId=r19:r20.
+Rejected: named tag locals (+3 diffs), per-block-scoped start/afterEnd/
+valueLength (+16B frame — out-params are address-taken, must share stack
+slots), block-scoped afterEnd-only (neutral). Earlier: declsearch optimal,
+all-static (507), ref-params (79), self-add (+8).
+Theory to test next: web creation order follows inline-local decl order —
+FindTag's `char* start; char* end;` swapped to `end,start`, or endTag
+evaluated before startTag, could rotate the numbering by one slot.
