@@ -18,3 +18,13 @@ ROW base BEFORE `file*0x15c` — `((this+slot*S)+0x10ec)+file*0x15c`. Natural
 `[slot][file].member` assoc is index-first. cell*/flat-byte/row-ref variants
 regress (26/24/24). Also orig saves args r25-r28 vs mine r24-r27 — one extra
 early callee web again.
+
+## w1011f — volatile-cast lever (#1309 idiom) assessed
+
+`((volatile memorycard::IconState*)icon)->member` tried at three granularities:
+named vicon local on all member reads -> 98v100 (-2 insns, 25d); site-casts on
+fmt+offset+tlutOffset -> 98v100/25d; site-cast on iconOffset only -> 100v100/20d
+(neutral, single-use read). Verdict: fossils' webs are ADDRESS arithmetic
+(recomputed base+off per call arg), not polled member reloads — the volatile
+lever doesn't apply. IconState's own volatile members (bannerEnable etc.)
+are already correctly declared in the header.
