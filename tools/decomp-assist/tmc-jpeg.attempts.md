@@ -659,3 +659,23 @@ GATE PASS
   (reversed `x | acBits` tried, unchanged) — allocator-side coalescing
   choice, not source-reachable (same wall as texturecvtr or-chains).
   Remaining diffs are pure reg-renaming in the IDCT butterfly.
+
+## Scheduling/opt pragma probes (directive wave)
+
+- MWCC scheduling pragmas probed per-fn via push/pop on the or-chain /
+  scheduling-interleave / coloring residuals:
+  - idct Lumi: `scheduling off` 38->33 diff lines but 257 insns kept and
+    serializes loads (not closer per-insn); `scheduling 601/602/603` 35;
+    `schedule_twice` 38; `peephole off` 18 lines BUT +23 insns (280v257,
+    breaks rlwinm. fusion) — all net regressions or ties.
+  - pdm is_master_boot_sector: baseline 7; `schedule_twice` 7 (same);
+    `scheduling 601` 16; `scheduling off` 31; `peephole off` 22 — all worse.
+  - cardSequence loadCardFileIcons (-1 phi tie): `scheduling off`,
+    `schedule_twice`, `peephole off` all 511 insns unchanged — pragma does
+    not reach pinned-result phi-coalescing.
+  - tiCandidateBox createAnmPane_: baseline 50; `schedule_twice` 50;
+    `scheduling off` 66; `peephole off` 54 — coloring tie stands.
+- CONCLUSION: or-operand order (or ACC,NEW,ACC vs ACC,ACC,NEW) is set by
+  the coalescer's dst-operand choice, upstream of the scheduler; phi
+  ties are upstream of both. No MWCC scheduling/peephole pragma reaches
+  these — source-level and pragma levers exhausted on these walls.
