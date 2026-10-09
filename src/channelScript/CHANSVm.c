@@ -716,7 +716,7 @@ const CHANSVmFloatConstantList scFloatConstantList[] = {
 char scFloatPrintfFmt[] = "%.16lg";
 // clang-format on
 
-static inline s32 CHANSVmParseFloat(CHANSVmObjHdr* obj, f64* out) {
+static inline s32 CHANSVmParseFloat(const CHANSVmObjHdr* obj, f64* out) {
     u8 type = obj->type;
     u32 stringLength;
     u32 charCount;
@@ -768,7 +768,7 @@ static inline s32 CHANSVmParseFloat(CHANSVmObjHdr* obj, f64* out) {
     return 0;
 }
 
-CHANSVmObjHdr* CHANSVmConvertToFloatFromStr(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToFloatFromStr(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* object) {
     // Convert string keyword into float value
     CHANSVmObjHdr* newObj = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_FLOAT, 0);
 
@@ -902,7 +902,7 @@ char scVmGetResultType[] = "VmGetResultType";
 const VmConvertEntry VmTypeConvertFuncTbl[] = {
     {vmNull, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertObjectTypeError, vmNull, CHANSVmConvertToIntFromFloat, CHANSVmConvertToIntFromStr, CHANSVmConvertToIntFromArray, CHANSVmConvertObjectTypeError},
-    {CHANSVmConvertToFloatFromUndefined, CHANSVmConvertToFloatFromInt, vmNull, CHANSVmConvertToFloatFromStr, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
+    {CHANSVmConvertToFloatFromUndefined, CHANSVmConvertToFloatFromInt, vmNull, (VmConvertFunc)CHANSVmConvertToFloatFromStr, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertToStrFromUndefined, CHANSVmConvertToStrFromInt, CHANSVmConvertToStrFromFloat, vmNull, CHANSVmConvertToStrFromArray, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, vmNull, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, vmNull},
@@ -2581,10 +2581,9 @@ VmCtorDefine(Date) {
 
 #define RANGE(val, min, max) ((val) >= (min) && (val) <= (max))
 
-const char* VmDateDayTbl[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-const char* VmDateMonthTbl[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
 VmDtorDefine(Date) {
+    static const char* VmDateDayTbl[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    static const char* VmDateMonthTbl[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
     char buffer[32];
     unsigned int uv;
     OSCalendarTime date;
