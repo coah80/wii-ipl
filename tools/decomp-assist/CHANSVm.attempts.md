@@ -1543,3 +1543,19 @@ Theory tested and rejected: FindTag `char* start; char* end;` decl swap
 
 - CHANSVmStep: O3 → 43 diffs (web renumber), O2 → 1254 insns (frame -0x30), O1 → 1256 — O4 confirmed (current 2-diff state under opt_lifetimes off).
 - nup ParseServerInfo: O3 → same 71 (rotation untouched — it's numbering, not opt folding), O2 → 454 insns — O4 confirmed.
+
+## CHANSVmStep final-2 wave 3 (w1009/update, post-#1323)
+
+optimization_level sweep exhausted (O3→43, O2→1254, O1→1256; O4 confirmed).
+Additional probes on the li-vs-stw join pair, all rejected:
+- `foundEntry = 0; result = OK; shouldBranch = foundEntry;` — foundEntry's
+  fresh const-0 merges the two zero webs: emits `stw r14` (result web) and
+  drops the li → -3 insns (1250). Base keeps r26/r14 as DISTINCT zero webs:
+  the flag store's operand must be a const-folded-but-separate web, matching
+  the plain `shouldBranch = foundEntry` form.
+- Named temp `branchFlag = foundEntry; shouldBranch = branchFlag` — MWCC
+  forward-substitutes, identical 2 diffs.
+- Conclusion: with identical web structure (g-chansvm's regsim 458/458), the
+  remaining pair is a deterministic-looking backend scheduling tie that no
+  source lever reached. Needs a pass-level dump (mwdbg backend-01+) to see
+  which operand the scheduler's ready-list orders differently.
