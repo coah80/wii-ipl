@@ -612,7 +612,7 @@ int AOSS_Init_old(AOSSInitInput* input)
           resultCode = 0xffffffff;
         } else {
           /* The original initialization path repeats this status check. */
-          if (state != 0) {
+          if (state != 0 || s_accessPointConfig[0] == 1) {
             input->status = 0xf;
             if (s_accessPointConfig) {
               AOSSi_Free(s_accessPointConfig);

@@ -112,3 +112,11 @@ GATE PASS
 ```
 
 Independent focused checks: AOSS pool 1/1 strings identical, AOSSLink 0/0 identical; WLANConnect odiff/ctxdiff 2/155, equal 0x26c sizes. Init odiff/ctxdiff 1263 differences, 1578/1584 instructions, sizes 0x18a8/0x18c0. No new exact functions. The data regression is fully repaired; both units remain unlinked. All experimental AOSSLink and compiler changes were discarded. Retained paths are AOSS.c and this attempts log.
+
+## w1011/aoss continuation (worker devin-w1011)
+
+### NEW LEVER: redundant `||` disjunct emits dead same-flags branch
+`AOSS_Init_old` triple-`bne` decode: orig's `cmpwi r3,0; bne A; bne B; lwz cfg; lwz *cfg; cmplwi 1; beq B` = `if (state != 0) ->A` then `if (state != 0 || *ptr == 1) ->B` — MWCC emits the provably-dead first disjunct's `bne` because `||` conditions do NOT get the dead-branch fold a standalone `if (state != 0)` does (verified: same-var inner if folds entirely; different-var holding same value also folds — VN unifies). Fix applied at the SetNCDIPAddr else-site: inner `if (state != 0 || s_accessPointConfig[0] == 1)` (reloc-verified: insn 373/374 = s_accessPointConfig then *cfg). 1582/1584 insns, 534 positional diffs (was 1578/722). `else if` form breaks braces — kept `else { if (cond||x) {...} work }`.
+- Residual per-site mapping unclear: my pair landed at MY insn ~304 while orig's three pairs sit at 371/713/1273 — the other two `if (state != 0)` sites (BSSList/CheckAP ~539, wait_for_packet ~1132) likely need the same idiom.
+- Also remaining: `ble; b` dual-branch at 272 (`manufacturerLength <= 0xd` — orig enters body via taken-ble + unconditional-b; ours single bgt), protocol-constant materialization region ~566-590 (mulhw + lis/addi 0xc0a80b01 store+reload — IP 192.168.11.1 materialized via named constant?), spill-order block ~969-985.
+- AOSSi_WLANConnect: all sched-copy shapes dead-end (u8* typed view cross-block, shared fillByte, result-as-fill, view-first chain, cfg-block) — swarm's two required internal shapes (chain-copy / r4+r5 both reg-copies) unreachable from source. Confirmed wall.
