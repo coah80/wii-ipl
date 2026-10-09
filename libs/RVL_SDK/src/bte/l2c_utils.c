@@ -1201,7 +1201,6 @@ BOOLEAN l2cu_check_feature_req(tL2C_LCB *p_lcb, UINT8 id, UINT8 *p_data,
 	UINT8 buff[100];
 	UINT8 *p_out = buff;
 	UINT8 *p_end = p_data + data_len - 2;
-	UINT8 pe_type;
 	UINT8 pe_len;
 
 	if (data_len < 4 || p_data[0] != 'R' || p_data[1] != 'Q'
@@ -1218,15 +1217,10 @@ BOOLEAN l2cu_check_feature_req(tL2C_LCB *p_lcb, UINT8 id, UINT8 *p_data,
 
 	while (p_data < p_end)
 	{
-		pe_type = *p_data++;
+		p_data++;
 		pe_len = *p_data++;
 
-		switch (pe_type)
-		{
-		default:
-			p_data += pe_len;
-			break;
-		}
+		p_data += pe_len;
 	}
 
 	if (p_data != p_end)
@@ -1259,16 +1253,12 @@ void l2cu_check_feature_rsp(tL2C_LCB *p_lcb, UINT8 id, UINT8 *p_data,
 
 	while (p_data < p_end)
 	{
-		UINT8 pe_id = *p_data++;
-		UINT8 pe_len = *p_data++;
+		UINT8 pe_len;
 
-		// This is kind of crazy LOL
-		switch (pe_id)
-		{
-		default:
-			p_data += pe_len;
-			break;
-		}
+		p_data++;
+		pe_len = *p_data++;
+
+		p_data += pe_len;
 	}
 
 	if (p_data != p_end)
@@ -1277,9 +1267,6 @@ void l2cu_check_feature_rsp(tL2C_LCB *p_lcb, UINT8 id, UINT8 *p_data,
 
 void l2cu_stop_compression(/* void? */)
 {
-#if 0
-	/* ... */
-#endif
 }
 
 BOOLEAN l2cu_lcb_has_feature_enable(/* tL2C_LCB *p_lcb? */)

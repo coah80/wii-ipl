@@ -133,16 +133,16 @@ UINT16 hcisu_h2_receive_msg(UINT16 pipe, tHCISU_H2_CB *p_cb)
 	UINT16 msg_len;
 	UINT16 len;
 	UINT8 msg_received;
-	UINT16 r27;
+	UINT16 usb_pipe;
 
 	if (p_cb->open_state != 2)
 		return 0;
 
-	r27 = pipe + 1;
+	usb_pipe = pipe + 1;
 
 	while (TRUE)
 	{
-		if (UUSB_Read(r27, &byte, 1) == 0)
+		if (UUSB_Read(usb_pipe, &byte, 1) == 0)
 			break;
 
 		++bytes_read;
@@ -151,17 +151,17 @@ UINT16 hcisu_h2_receive_msg(UINT16 pipe, tHCISU_H2_CB *p_cb)
 		switch (p_cb->rx_state[pipe])
 		{
 		case 0:
-			if (r27 == 1)
+			if (usb_pipe == 1)
 			{
 				p_cb->p_rx_msg[pipe] = GKI_getpoolbuf(GKI_POOL_ID_2);
 				p_cb->pkt_type[pipe] = 4;
 			}
-			else if (r27 == 2)
+			else if (usb_pipe == 2)
 			{
 				p_cb->p_rx_msg[pipe] = GKI_getpoolbuf(GKI_POOL_ID_3);
 				p_cb->pkt_type[pipe] = 2;
 			}
-			else if (r27 == 3)
+			else if (usb_pipe == 3)
 			{
 				p_cb->p_rx_msg[pipe] = GKI_getpoolbuf(GKI_POOL_ID_1);
 				p_cb->pkt_type[pipe] = 3;
@@ -207,10 +207,10 @@ UINT16 hcisu_h2_receive_msg(UINT16 pipe, tHCISU_H2_CB *p_cb)
 				{
 					msg_len = (msg_len << 8) + p_cb->len_hi[pipe];
 
-					if ((p_cb->p_rx_msg[pipe] =
-					         (HC_BT_HDR *)l2cap_link_chk_pkt_start(
-								 (BT_HDR *)p_cb->p_rx_msg[pipe]))
-					    == 0)
+					p_cb->p_rx_msg[pipe] =
+						(HC_BT_HDR *)l2cap_link_chk_pkt_start(
+							(BT_HDR *)p_cb->p_rx_msg[pipe]);
+					if (p_cb->p_rx_msg[pipe] == 0)
 					{
 						p_cb->bytes_left[pipe] = msg_len;
 

@@ -84,7 +84,7 @@ void HCI_TRACE(char const *p_msg)
 	/* ... */
 }
 
-void HCI_TRACE1(char const *p_msg, UINT32 arg1)
+void HCI_TRACE1(char const *p_msg, UINT32 value)
 {
 	/* ... */
 }
@@ -172,21 +172,17 @@ static void uusb_CloseDeviceCB(long result, void *p_data)
 
 static void uusb_ReadIntrDataCB(long result, void *p_data)
 {
+	// MWCC requires this local for the original callback instructions.
 	int sp14 = 0;
 	UINT32 len;
 	void *p_buffer = NULL;
 	HC_BT_HDR *p_buf = p_data;
-	int sp10 = 0;
-	int sp0c = 0;
-
-	len = 0;
 
 	usb.reading_intr_data = FALSE;
 
 	if (usb.state != 2)
 	{
 		GKI_freebuf(p_buf);
-		p_buf = NULL;
 
 		uusb_ReleaseCmdBufferPool();
 
@@ -199,7 +195,6 @@ static void uusb_ReadIntrDataCB(long result, void *p_data)
 	if (result <= 0)
 	{
 		GKI_freebuf(p_buf);
-		p_buf = NULL;
 		goto end;
 	}
 
@@ -207,7 +202,6 @@ static void uusb_ReadIntrDataCB(long result, void *p_data)
 	if (!p_buffer)
 	{
 		GKI_freebuf(p_buf);
-		p_buf = NULL;
 		goto end;
 	}
 
@@ -222,7 +216,6 @@ static void uusb_ReadIntrDataCB(long result, void *p_data)
 	                __uusb_ppc_stack1 + sizeof __uusb_ppc_stack1);
 
 	GKI_freebuf(p_buf);
-	p_buf = NULL;
 
 end:
 	uusb_issue_intr_read();
@@ -230,18 +223,13 @@ end:
 
 static void uusb_ReadBulkDataCB(long result, void *p_data)
 {
-	int sp14 = 0;
 	UINT32 len;
 	void *p_buffer = NULL;
 	HC_BT_HDR *p_buf = p_data;
-	int sp10 = 0;
-
-	len = 0;
 
 	if (usb.state != 2)
 	{
 		GKI_freebuf(p_buf);
-		p_buf = NULL;
 
 		uusb_ReleaseAclBufferPool();
 
@@ -251,7 +239,6 @@ static void uusb_ReadBulkDataCB(long result, void *p_data)
 	if (result <= 0)
 	{
 		GKI_freebuf(p_buf);
-		p_buf = NULL;
 		goto end;
 	}
 
@@ -261,7 +248,6 @@ static void uusb_ReadBulkDataCB(long result, void *p_data)
 	if (!p_buffer)
 	{
 		GKI_freebuf(p_buf);
-		p_buf = NULL;
 		goto end;
 	}
 
@@ -276,11 +262,9 @@ static void uusb_ReadBulkDataCB(long result, void *p_data)
 		OSSwitchFiberEx((unsigned long)p_buffer, 0, 0, 0,
 		                &bta_ci_hci_msg_handler,
 		                __uusb_ppc_stack2 + sizeof __uusb_ppc_stack2);
-		p_buffer = 0;
 	}
 
 	GKI_freebuf(p_buf);
-	p_buf = NULL;
 
 end:
 	uusb_issue_bulk_read();
@@ -290,7 +274,6 @@ static void uusb_issue_bulk_read(void)
 {
 	HC_BT_HDR *p_buf = NULL;
 	void *p_buffer;
-	int r28 = 0;
 	IOSError ret;
 
 	do
@@ -312,7 +295,6 @@ static void uusb_issue_bulk_read(void)
 	if (ret != 0)
 	{
 		GKI_freebuf(p_buf);
-		p_buf = NULL;
 	}
 }
 
@@ -320,7 +302,6 @@ static void uusb_issue_intr_read(void)
 {
 	HC_BT_HDR *p_buf = NULL;
 	void *p_buffer = NULL;
-	int r28 = 0;
 	IOSError ret;
 
 	do
@@ -341,7 +322,6 @@ static void uusb_issue_intr_read(void)
 	if (ret != 0)
 	{
 		GKI_freebuf(p_buf);
-		p_buf = NULL;
 	}
 
 	usb.reading_intr_data = TRUE;
@@ -359,7 +339,6 @@ static void uusb_WriteCtrlDataCB(long result, void *p_data)
 	if (p_data != NULL)
 	{
 		GKI_freebuf(p_data);
-		p_data = NULL;
 
 		GKI_disable();
 
@@ -407,7 +386,6 @@ static void uusb_WriteBulkDataCB(long result, void *p_data)
 	if (p_data != NULL)
 	{
 		GKI_freebuf(p_data);
-		p_data = NULL;
 
 		GKI_disable();
 
@@ -582,10 +560,8 @@ int UUSB_WriteBuf(/* ... */)
 
 UINT16 UUSB_Write(UINT8 pipe, void *p_data, UINT16 len, void *unused)
 {
-	short sp18 = 0;
 	IOSError ret = 0;
 	void *p_buffer = NULL;
-	int sp_0x1c = 0;
 	HC_BT_HDR *p_buf = NULL;
 
 	if (usb.state != 2)
@@ -628,7 +604,6 @@ UINT16 UUSB_Write(UINT8 pipe, void *p_data, UINT16 len, void *unused)
 				UUSBDBG("ret was negative eight: %d (8, eight)", ret);
 
 			GKI_freebuf(p_buf);
-			p_buf = NULL;
 		}
 		else
 		{
@@ -675,11 +650,9 @@ UINT16 UUSB_Write(UINT8 pipe, void *p_data, UINT16 len, void *unused)
 			if (ret != -22)
 				UUSBDBG("ret was negative 2wenty 2wo: %d", ret);
 
-			if (ret == -8);
-				UUSBDBG("rat was negative eight: %d", ret);
+			UUSBDBG("rat was negative eight: %d", ret);
 
 			GKI_freebuf(p_buf);
-			p_buf = NULL;
 		}
 		else
 		{

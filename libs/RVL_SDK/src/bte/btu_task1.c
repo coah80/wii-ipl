@@ -89,21 +89,18 @@ void btu_task_init(void)
 
 void btu_task_msg_handler(void)
 {
-	TIMER_LIST_ENT *r30;
-	BT_HDR *r29;
-	unsigned char r28;
-	unsigned short r27;
-	unsigned char r26;
+	TIMER_LIST_ENT *p_tle;
+	BT_HDR *p_msg;
+	UINT8 i;
+	UINT16 event;
+	BOOLEAN handled;
 
-	OSTime sp10;
-	signed (*sp0c)(TIMER_LIST_ENT *);
-	unsigned short sp0a;
-	unsigned char sp09;
-	char sp08;
+	tBTU_TIMER_CALLBACK *p_timeout_cback;
+	UINT16 mask;
+	BOOLEAN messages_done;
 
-	sp09 = 0;
-	sp08 = 1;
-	sp10 = OSGetTime();
+	messages_done = FALSE;
+	OSGetTime();
 
 	++_btu_g_count;
 
@@ -112,7 +109,6 @@ void btu_task_msg_handler(void)
 	if (execute_btu)
 	{
 		execute_btu = 0;
-		sp08 = btu_count;
 		btu_count = 1;
 	}
 	else
@@ -125,109 +121,110 @@ void btu_task_msg_handler(void)
 
 	GKI_enable();
 
-	r27 = 0x05;
+	event = TASK_MBOX_0_EVT_MASK | TASK_MBOX_2_EVT_MASK;
 
 	if ((unsigned)_btu_g_count > (unsigned)_btu_last_timer_tick + 500)
 	{
-		r27 |= 0x30;
+		event |= TIMER_0_EVT_MASK | TIMER_1_EVT_MASK;
 		_btu_last_timer_tick = _btu_g_count;
 	}
 
-	while (sp09 == 0)
+	while (!messages_done)
 	{
-		sp09 = 1;
+		messages_done = TRUE;
 
-		if (r27 & (1 << 0))
+		if (event & TASK_MBOX_0_EVT_MASK)
 		{
-			while ((r29 = GKI_read_mbox(0)))
+			while ((p_msg = GKI_read_mbox(BTU_HCI_RCV_MBOX)))
 			{
-				sp09 = 0;
+				messages_done = FALSE;
 
 				BTU_TASK_TRACE("BTU Task got msg in MBOX0\n");
 
-				switch (r29->event & 0xff00)
+				switch (p_msg->event & 0xff00)
 				{
 				case 0x1100:
-					l2c_rcv_acl_data(r29);
+					l2c_rcv_acl_data(p_msg);
 					break;
 
 				case 0x1900:
-					l2c_link_segments_xmitted(r29);
+					l2c_link_segments_xmitted(p_msg);
 					break;
 
 				case 0x1200:
-					btm_route_sco_data(r29);
+					btm_route_sco_data(p_msg);
 					break;
 
 				case 0x1000:
-					btu_hcif_process_event(r29);
-					GKI_freebuf(r29);
+					btu_hcif_process_event(p_msg);
+					GKI_freebuf(p_msg);
 					break;
 
 				case 0x1600:
-					btu_hcif_send_cmd(r29);
+					btu_hcif_send_cmd(p_msg);
 					break;
 
 				default:
-					r28 = 0;
-					sp0a = r29->event & 0xff00;
-					r26 = 0;
+					i = 0;
+					mask = p_msg->event & 0xff00;
+					handled = FALSE;
 
-					for (; r26 == 0 && r28 < BTU_MAX_REG_EVENT; ++r28)
+					for (; !handled && i < BTU_MAX_REG_EVENT; ++i)
 					{
-						if (!btu_cb.event_reg[r28].event_cb)
+						if (!btu_cb.event_reg[i].event_cb)
 							continue;
 
-						if (sp0a != btu_cb.event_reg[r28].event_range)
+						if (mask != btu_cb.event_reg[i].event_range)
 							continue;
 
-						if (btu_cb.event_reg[r28].event_cb)
+						// MWCC requires this repeated callback check.
+						if (btu_cb.event_reg[i].event_cb)
 						{
-							(*btu_cb.event_reg[r28].event_cb)(r29);
-							r26 = 1;
+							(*btu_cb.event_reg[i].event_cb)(p_msg);
+							handled = TRUE;
 						}
 					}
 
-					if (r26 == 0)
-						GKI_freebuf(r29);
+					if (!handled)
+						GKI_freebuf(p_msg);
 				}
 			}
 		}
 
-		if (r27 & (1 << 4))
+		if (event & TIMER_0_EVT_MASK)
 		{
 			GKI_update_timer_list(&btu_cb.timer_queue, 1);
-			r27 &= ~(1 << 4);
+			event &= ~TIMER_0_EVT_MASK;
 
 			while (btu_cb.timer_queue.p_first
 			       && btu_cb.timer_queue.p_first->ticks == 0)
 			{
-				sp09 = 0;
+				messages_done = FALSE;
 
-				r30 = btu_cb.timer_queue.p_first;
-				GKI_remove_from_timer_list(&btu_cb.timer_queue, r30);
+				p_tle = btu_cb.timer_queue.p_first;
+				GKI_remove_from_timer_list(&btu_cb.timer_queue, p_tle);
 
-				switch (r30->event)
+				switch (p_tle->event)
 				{
-				case 1:
-					btm_dev_timeout(r30);
+				case BTU_TTYPE_BTM_DEV_CTL:
+					btm_dev_timeout(p_tle);
 					break;
 
-				case 9:
-					btm_acl_timeout(r30);
+				case BTU_TTYPE_BTM_ACL:
+					btm_acl_timeout(p_tle);
 					break;
 
-				case 2:
-				case 3:
-				case 4:
-					l2c_process_timeout(r30);
+				case BTU_TTYPE_L2CAP_LINK:
+				case BTU_TTYPE_L2CAP_CHNL:
+				case BTU_TTYPE_L2CAP_HOLD:
+					l2c_process_timeout(p_tle);
 					break;
 
-				case 5:
-					sdp_conn_timeout((tCONN_CB *)r30->param);
+				case BTU_TTYPE_SDP:
+					sdp_conn_timeout((tCONN_CB *)p_tle->param);
 					break;
 
-				case 10:
+				case BTU_TTYPE_BTM_RMT_NAME:
 					btm_inq_rmt_name_failed();
 					break;
 
@@ -235,63 +232,63 @@ void btu_task_msg_handler(void)
 					btm_discovery_timeout();
 					break;
 
-				case 11:
-				case 12:
-					rfcomm_process_timeout(r30);
+				case BTU_TTYPE_RFCOMM_MFC:
+				case BTU_TTYPE_RFCOMM_PORT:
+					rfcomm_process_timeout(p_tle);
 					break;
 
-				case 60:
+				case BTU_TTYPE_BTU_CMD_CMPL:
 					btu_hcif_cmd_timeout();
 					break;
 
-				case 66:
-					hidh_proc_repage_timeout(r30);
+				case BTU_TTYPE_HID_HOST_REPAGE_TO:
+					hidh_proc_repage_timeout(p_tle);
 					break;
 
 				case 22:
-					sp0c = (signed (*)(TIMER_LIST_ENT *p_tle))r30->param;
+					p_timeout_cback = (tBTU_TIMER_CALLBACK *)p_tle->param;
 
-					(*sp0c)(r30);
+					(*p_timeout_cback)(p_tle);
 					break;
 
 				default:
-					r28 = 0;
-					r26 = 0;
+					i = 0;
+					handled = FALSE;
 
-					for (; r26 == 0 && r28 < BTU_MAX_REG_TIMER; ++r28)
+					for (; !handled && i < BTU_MAX_REG_TIMER; ++i)
 					{
-						if (!btu_cb.timer_reg[r28].timer_cb)
+						if (!btu_cb.timer_reg[i].timer_cb)
 							continue;
 
-						if (btu_cb.timer_reg[r28].p_tle != r30)
+						if (btu_cb.timer_reg[i].p_tle != p_tle)
 							continue;
 
-						(*btu_cb.timer_reg[r28].timer_cb)(r30);
-						r26 = 1;
+						(*btu_cb.timer_reg[i].timer_cb)(p_tle);
+						handled = TRUE;
 					}
 				}
 			}
 		}
 
-		if (r27 & (1 << 2))
+		if (event & TASK_MBOX_2_EVT_MASK)
 		{
-			while ((r29 = GKI_read_mbox(2)))
+			while ((p_msg = GKI_read_mbox(TASK_MBOX_2)))
 			{
 				BTU_TASK_TRACE("BTU Task got msg in MBOX2\n");
 
-				sp09 = 0;
+				messages_done = FALSE;
 
-				bta_sys_event(r29);
+				bta_sys_event(p_msg);
 			}
 		}
 
-		if (r27 & (1 << 5))
+		if (event & TIMER_1_EVT_MASK)
 		{
-			r27 &= ~(1 << 5);
+			event &= ~TIMER_1_EVT_MASK;
 			bta_sys_timer_update();
 		}
 
-		if (r27 & (1 << 15))
+		if (event & (1 << 15))
 			break;
 	}
 

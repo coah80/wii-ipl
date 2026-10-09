@@ -336,8 +336,8 @@ BOOLEAN SDP_FindAddProtoListsElemInRec(tSDP_DISC_REC *p_rec, UINT16 layer_uuid,
 				if (SDP_DISC_ATTR_TYPE(p_sattr->attr_len_type)
 				    == DATA_ELE_SEQ_DESC_TYPE)
 				{
-					if ((ret = sdp_fill_proto_elem(p_sattr, layer_uuid, p_elem))
-					    == TRUE)
+					ret = sdp_fill_proto_elem(p_sattr, layer_uuid, p_elem);
+					if (ret == TRUE)
 					{
 						break;
 					}
@@ -577,9 +577,11 @@ UINT16 SDP_SetLocalDiRecord(tSDP_DI_RECORD *p_device_info, UINT32 *p_handle)
 	{
 		handle = sdp_cb.server_db.di_primary_handle;
 	}
-	else if ((handle = SDP_CreateRecord()) == 0)
+	else
 	{
-		return SDP_NO_RESOURCES;
+		handle = SDP_CreateRecord();
+		if (handle == 0)
+			return SDP_NO_RESOURCES;
 	}
 
 	*p_handle = handle;
@@ -724,63 +726,64 @@ UINT16 SDP_GetLocalDiRecord(tSDP_DI_GET_RECORD *p_device_info, UINT32 *p_handle)
 	if (*p_handle == 0)
 		*p_handle = sdp_cb.server_db.di_primary_handle;
 
-	if ((p_rec = sdp_db_find_record(*p_handle)) != NULL)
+	p_rec = sdp_db_find_record(*p_handle);
+	if (p_rec != NULL)
 	{
 		// ERRATUM: uses sizeof(tSDP_DI_RECORD), not sizeof(tSDP_DI_GET_RECORD)
 		memset(p_device_info, 0, sizeof(tSDP_DI_RECORD));
 
 		result = SDP_SUCCESS;
 
-		if ((p_attr = sdp_db_find_attr_in_rec(p_rec, ATTR_ID_SPECIFICATION_ID,
-		                                      ATTR_ID_SPECIFICATION_ID))
-		    != NULL)
+		p_attr = sdp_db_find_attr_in_rec(
+			p_rec, ATTR_ID_SPECIFICATION_ID, ATTR_ID_SPECIFICATION_ID);
+		if (p_attr != NULL)
 		{
 			p_temp = p_attr->value_ptr;
 			BE_STREAM_TO_UINT16(p_temp, &p_device_info->spec_id);
 		}
 
-		if ((p_attr = sdp_db_find_attr_in_rec(p_rec, ATTR_ID_VENDOR_ID,
-		                                      ATTR_ID_VENDOR_ID))
-		    != NULL)
+		p_attr = sdp_db_find_attr_in_rec(
+			p_rec, ATTR_ID_VENDOR_ID, ATTR_ID_VENDOR_ID);
+		if (p_attr != NULL)
 		{
 			p_temp = p_attr->value_ptr;
 			BE_STREAM_TO_UINT16(p_temp, &p_device_info->rec.vendor);
 		}
 
-		if ((p_attr = sdp_db_find_attr_in_rec(p_rec, ATTR_ID_PRODUCT_ID,
-		                                      ATTR_ID_PRODUCT_ID))
-		    != NULL)
+		p_attr = sdp_db_find_attr_in_rec(
+			p_rec, ATTR_ID_PRODUCT_ID, ATTR_ID_PRODUCT_ID);
+		if (p_attr != NULL)
 		{
 			p_temp = p_attr->value_ptr;
 			BE_STREAM_TO_UINT16(p_temp, &p_device_info->rec.product);
 		}
 
-		if ((p_attr = sdp_db_find_attr_in_rec(p_rec, ATTR_ID_PRODUCT_VERSION,
-		                                      ATTR_ID_PRODUCT_VERSION))
-		    != NULL)
+		p_attr = sdp_db_find_attr_in_rec(
+			p_rec, ATTR_ID_PRODUCT_VERSION, ATTR_ID_PRODUCT_VERSION);
+		if (p_attr != NULL)
 		{
 			p_temp = p_attr->value_ptr;
 			BE_STREAM_TO_UINT16(p_temp, &p_device_info->rec.version);
 		}
 
-		if ((p_attr = sdp_db_find_attr_in_rec(p_rec, ATTR_ID_VENDOR_ID_SOURCE,
-		                                      ATTR_ID_VENDOR_ID_SOURCE))
-		    != NULL)
+		p_attr = sdp_db_find_attr_in_rec(
+			p_rec, ATTR_ID_VENDOR_ID_SOURCE, ATTR_ID_VENDOR_ID_SOURCE);
+		if (p_attr != NULL)
 		{
 			p_temp = p_attr->value_ptr;
 			BE_STREAM_TO_UINT16(p_temp, &p_device_info->rec.vendor_id_source);
 		}
 
-		if ((p_attr = sdp_db_find_attr_in_rec(p_rec, ATTR_ID_PRIMARY_RECORD,
-		                                      ATTR_ID_PRIMARY_RECORD))
-		    != NULL)
+		p_attr = sdp_db_find_attr_in_rec(
+			p_rec, ATTR_ID_PRIMARY_RECORD, ATTR_ID_PRIMARY_RECORD);
+		if (p_attr != NULL)
 		{
 			p_device_info->rec.primary_record = *p_attr->value_ptr;
 		}
 
-		if ((p_attr = sdp_db_find_attr_in_rec(p_rec, ATTR_ID_CLIENT_EXE_URL,
-		                                      ATTR_ID_CLIENT_EXE_URL))
-		    != NULL)
+		p_attr = sdp_db_find_attr_in_rec(
+			p_rec, ATTR_ID_CLIENT_EXE_URL, ATTR_ID_CLIENT_EXE_URL);
+		if (p_attr != NULL)
 		{
 			templen =
 				p_attr->len < SDP_MAX_ATTR_LEN ? p_attr->len : SDP_MAX_ATTR_LEN;
@@ -790,10 +793,9 @@ UINT16 SDP_GetLocalDiRecord(tSDP_DI_GET_RECORD *p_device_info, UINT32 *p_handle)
 			                   templen);
 		}
 
-		if ((p_attr =
-		         sdp_db_find_attr_in_rec(p_rec, ATTR_ID_SERVICE_DESCRIPTION,
-		                                 ATTR_ID_SERVICE_DESCRIPTION))
-		    != NULL)
+		p_attr = sdp_db_find_attr_in_rec(
+			p_rec, ATTR_ID_SERVICE_DESCRIPTION, ATTR_ID_SERVICE_DESCRIPTION);
+		if (p_attr != NULL)
 		{
 			templen =
 				p_attr->len < SDP_MAX_ATTR_LEN ? p_attr->len : SDP_MAX_ATTR_LEN;
@@ -803,9 +805,9 @@ UINT16 SDP_GetLocalDiRecord(tSDP_DI_GET_RECORD *p_device_info, UINT32 *p_handle)
 			                   templen);
 		}
 
-		if ((p_attr = sdp_db_find_attr_in_rec(p_rec, ATTR_ID_DOCUMENTATION_URL,
-		                                      ATTR_ID_DOCUMENTATION_URL))
-		    != NULL)
+		p_attr = sdp_db_find_attr_in_rec(
+			p_rec, ATTR_ID_DOCUMENTATION_URL, ATTR_ID_DOCUMENTATION_URL);
+		if (p_attr != NULL)
 		{
 			templen =
 				p_attr->len < SDP_MAX_ATTR_LEN ? p_attr->len : SDP_MAX_ATTR_LEN;
