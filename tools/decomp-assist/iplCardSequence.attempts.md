@@ -302,3 +302,19 @@ Shared headers and configure.py are unchanged. All data sections remain exact.
 - New levers tried: __rlwinm identity (folds), int-union-member,
   pointer-param pack helper, packValidity return-value, u8 params,
   separate `response` temp, second reply.value use (+stw). All fold.
+
+## cardThreadMain sendValidityResponse pack (wave-6)
+
+Base: `mr r4,r19; rlwimi r4,r25,8,0x10,0x17` = `reply.value = command`
+(copy into reply's own web, homed in arg-reg r4) then `reply.fields.valid =
+valid` (bitfield-insert sourcing validState's own `li r25,1` web).
+Ours: `rlwimi r19,r29,8,0x10,0x17; mr r4,r19` — MWCC coalesced reply.value
+onto command's web (in-place insert on r19, sourced shared-1 r29) then copies
+out. 2-line residual, same dst-operand/home-choice family as the or-chain
+wall. Tried: `OSMessage reply = command | (valid<<8)` (folds to `ori` —
+plain `|` canonicalizes, only bitfield-write emits rlwimi), fields-only
+writes (3-insert chain), fn-scope reply union (still coalesces), comma/select
+forms. `sThread->lastCommand = command` post-send DOES force `mr`+`rlwimi`
+(making command's web survive) but costs +3 insns — mechanism proven, no
+free source lever. Extra base `li r22,0` at 0x1040 = another remat-position
+diff, same family.

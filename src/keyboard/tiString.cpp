@@ -198,9 +198,11 @@ void Decolated::inputChar(wchar_t ch) {
         }
 nonKana:
         if (mTranslateMode == 3) {
-            CharacterOutput output(input);
-            output.append(ch);
-            count = output.finish();
+            count = mTranslateMode - 3;
+            input[count] = 0;
+            input[count] = ch;
+            count++;
+            input[count] = 0;
             mKanaStream.mOutput[0] = 0;
         } else {
             count = 1;

@@ -47,3 +47,25 @@ Unresolved: what source produces symbolic-index stores + dead compare.
   CharacterOutput direct + pointer-call (fully promotes + folds),
   post-inc index (folds). Register-born symbolic web needs phi/call/
   member-load provenance — none found that emits base's li-born shape.
+
+## inputChar mode-3 wave-2 (fuzzy 90.8 -> 94.34, still <100)
+
+PROVEN mechanism — the symbolic index web: base's `slwi r0,r6,1` reads a web
+with NO definition instruction anywhere in the function. An UNINITIALIZED local
+(`s32 idx;`) produces exactly that shape: MWCC emits indexed `slwi`+`sthx`
+reading the undef web's assigned register — the #1270 retail-uninit-read
+exception applies (the `li r6,0` writes a DIFFERENT web — the store operand).
+Committed form uses `count = mTranslateMode - 3` instead (fuzzy 94.34, better
+than undef-idx 92.61 — the undef web homes to r3 and breaks coloring; with
+`u32 inputIndex` shared with the kana loop it pins r28 = worse). Undef-idx
+variants give the most faithful structure: `sth`-first-store + indexed sthx +
+`clrlwi r29,idx-web,0x10` tail all match; only reg home (r3 vs r6) and
+in-place `addi r6,r6,1` vs new-web `addi r5,r3,1` differ.
+
+Wall boundary (~30 forms): `li`-born + symbolic is unproduced —
+`x-x`, `x&0`, `ch-ch`, `input-input`, `x*0`, comma-exprs, `?:`, empty-ifs,
+phi arms all either fold to `cmpwi`-path or emit real insns (addi/subf/xori).
+Dead `cmplwi r4,0xa` unproduced (comma/`||`/empty-if all drop it). `mr r4,r5`
+ptr copy + `li r5,0` zero web = same coalescer home-choice family as
+cardThreadMain. BEST KEPT: `count = mTranslateMode - 3; input[count] = 0;
+input[count] = ch; count++; input[count] = 0;` with `u16 count` (94.34).
