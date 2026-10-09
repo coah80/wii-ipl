@@ -54,54 +54,50 @@ static u32 BannerBuffer = 0;
 static u32 BannerAvailable = 0;
 static u32 Allocator = 0;
 volatile BOOL StartingGame = FALSE;
-static u32 RestartRequested = 0;
-static u32 PartitionOpen = 0;
+static vu32 RestartRequested = 0;
+static vu32 PartitionOpen = 0;
 static u32 CacheSeekComplete = 0;
-static u32 LoadingTitle = 0;
-BOOL FatalErrorFlag = FALSE;
+static vu32 LoadingTitle = 0;
+volatile BOOL FatalErrorFlag = FALSE;
 BOOL RetryErrorFlag = FALSE;
 BOOL UpdateErrorFlag = FALSE;
-BOOL AbortFlag = FALSE;
+volatile BOOL AbortFlag = FALSE;
 volatile int CacheFailed = 0;
 volatile int RegionValid = 0;
 static volatile int NandPending = 0;
 static vu32 CancelNand = 0;
 static vu32 LowReadResult = 0;
-static u32 CacheCommandComplete = 0;
-static u32 AudioBufferUnconfigured = 0;
-static u64 ResetTime = 0;
-static u64 SpinupDeadline = 0;
-u64 CoverPollTime = 0;
-u32 DriveWasReset = 0;
-static u32 TitleTicketView = 0;
-static u32 CurrentTmd = 0;
-u32 TitleCode = 0;
-u32 RequiredIosHigh = 0;
-u32 RequiredIosLow = 0;
-u32 GamePartition = 0;
-u32 UpdatePartition = 0;
-u32 PartitionCursor = 0;
-u32 DataToc = 0;
-u64 GameToc = 0;
-u32 CoverOpenTimeHigh = 0;
-u32 CoverOpenTimeLow = 0;
-vu32 NandTransferred = 0;
-vu32 NandLength = 0;
-u8 *NandBuffer = NULL;
-NANDFileInfo *NandFile = NULL;
-vu32 NandOperation = 0;
-volatile NANDCallback NandCompletion = NULL;
-u32 LoaderOffset = 0;
-vu32 LoaderLength = 0;
-u32 LoaderAddress = 0;
-vu32 CacheLength = 0;
-static vu32 BannerLength = 0;
-static vu32 DvdTransferLength = 0;
-static vu32 DvdTransferred = 0;
-static u32 *DvdProgress = 0;
-static u32 LoaderClose = 0;
-static u32 LoaderMain = 0;
-static u32 LoaderInit = 0;
+static u32 LoaderInit;
+static u32 LoaderMain;
+static u32 LoaderClose;
+static u32 *DvdProgress;
+static vu32 DvdTransferred;
+static vu32 DvdTransferLength;
+static vu32 BannerLength;
+vu32 CacheLength;
+u32 LoaderAddress;
+vu32 LoaderLength;
+u32 LoaderOffset;
+volatile NANDCallback NandCompletion;
+vu32 NandOperation;
+NANDFileInfo *NandFile;
+u8 *NandBuffer;
+vu32 NandLength;
+vu32 NandTransferred;
+OSTime CoverOpenTime;
+u64 GameToc;
+u32 DataToc;
+u32 PartitionCursor;
+u32 UpdatePartition;
+u32 GamePartition;
+u64 RequiredIos;
+u32 TitleCode;
+static u32 CurrentTmd;
+static u32 TitleTicketView;
+u32 DriveWasReset;
+u64 CoverPollTime;
+static u64 SpinupDeadline;
+static u64 ResetTime;
 
 
 void BS2Report(const char *msg, ...) {
@@ -667,8 +663,8 @@ void BS2StartGame() {
     __OSWriteStateFlags(&stateFlags);
     __OSClearRTCFlags();
 
-    titleType = RequiredIosHigh;
-    titleCode = RequiredIosLow;
+    titleType = (u32)(RequiredIos >> 32);
+    titleCode = (u32)RequiredIos;
     ticketCount = 1;
     ticketViews = TicketViews;
     if ((titleCode | titleType) == 0) {
@@ -982,9 +978,7 @@ static BOOL CheckDVDCommandStatus(DVDCommandBlock *block) {
     case 4:
     case 5:
         if (State == 7 || State == 9 || State == 10) {
-            u64 systemTime = __OSGetSystemTime();
-            CoverOpenTimeLow = (u32)systemTime;
-            CoverOpenTimeHigh = (u32)(systemTime >> 32);
+            CoverOpenTime = __OSGetSystemTime();
             State = BS2_STT_66;
         } else {
             State = BS2_STT_NO_DISK;
@@ -1099,6 +1093,8 @@ static void BS2NANDDivideWriteAsync(NANDFileInfo *info, const void *buffer, u32 
 }
 
 static BOOL CheckBS2CommandStatus() {
+    static u32 CacheCommandComplete = 0;
+
     if (CheckDVDCommandStatus(&Block) == 0) {
         BS2Report("DVD command is issuing\n");
         return 0;
@@ -1181,8 +1177,8 @@ static BOOL CheckBS2CommandStatus() {
         if (BS2BootCaching != 0) {
             BS2Report("Write partition ifno\n");
             NandPending = 1;
-            CacheLength += OSRoundUp32B(((DVDGameTOC *)DataToc)->partitionCount * sizeof(DVDPartitionInfo)) + 32;
             CacheCommandComplete = 1;
+            CacheLength += OSRoundUp32B(((DVDGameTOC *)DataToc)->partitionCount * sizeof(DVDPartitionInfo)) + 32;
             if ((unsigned int)CacheLength > 0xb00000) {
                 BS2NANDCallback(-1, NULL);
                 return 1;
@@ -1324,6 +1320,7 @@ static void BS2ReadDiskID(void *buffer, s32 length, u32 offset) {
 }
 
 BS2State BS2Tick() {
+    static u32 AudioBufferUnconfigured;
     u32 interruptsEnabled = OSDisableInterrupts();
     u32 loaderAddress;
     u32 loaderLength;
@@ -1338,7 +1335,6 @@ BS2State BS2Tick() {
     u64 currentTime;
     BOOL regionMatches;
     char productRegion;
-    u32 iosHigh;
     char *ticketByte;
     u32 entryCount;
     DVDGameTOC *dataToc;
@@ -1351,17 +1347,16 @@ BS2State BS2Tick() {
         BS2Report("Drive Reset      : %d\n", BS2DriveReset);
         BS2Report("Wait Spinup      : %d\n", BS2WaitSpinup);
         BS2Report("Boot From Cache  : %d\n", BS2BootFromCache);
-        DvdProgress = (u32 *)&(*(u32 *)0x800030d4);
+        DvdProgress = (u32 *)0x800030d4;
         PartitionParams.numTmdBytes = 0;
         PartitionParams.numCertBytes = 0;
         PartitionParams.dataWordOffset = 0;
-        (*(u32 *)0x800030d4) = 0;
+        *DvdProgress = 0;
         DvdTransferred = 0;
         DvdTransferLength = 0;
-        status = BS2NoDisk;
         AudioBufferUnconfigured = 1;
         CoverBlock.state = 0;
-        if (status != 0)
+        if (BS2NoDisk != 0)
             State = BS2_STT_NO_DISK;
         else if (BS2DriveReset != 0)
             State = BS2_STT_2;
@@ -1440,13 +1435,14 @@ BS2State BS2Tick() {
     case 5:
         status = CheckBS2CommandStatus();
         if (status != 0) {
-            if ((((const OSBootInfo *)0x80000000)->consoleType & 0xf0000000) == 0) {
+            OSBootInfo *bootInfo = (OSBootInfo *)OSPhysicalToCached(OS_ADDR_BOOT_INFO);
+
+            if ((bootInfo->consoleType & 0xf0000000) == 0) {
                 __OSDeviceCode = 0x8002;
-                State = BS2_STT_8;
             } else {
                 __OSDeviceCode = DriveInfo.deviceCode | 0x8000;
-                State = BS2_STT_8;
             }
+            State = BS2_STT_8;
         }
         break;
     case 6:
@@ -1882,9 +1878,7 @@ invalidRvlRegion:
                   (u32)((ESTitleMeta *)CurrentTmd)->head.sysVersion);
         BS2Report("Title ID       ... 0x%08X%08X\n", (u32)(((ESTitleMeta *)CurrentTmd)->head.titleId >> 32),
                   (u32)((ESTitleMeta *)CurrentTmd)->head.titleId);
-        iosHigh = (u32)(((ESTitleMeta *)CurrentTmd)->head.sysVersion >> 32);
-        RequiredIosLow = (u32)((ESTitleMeta *)CurrentTmd)->head.sysVersion;
-        RequiredIosHigh = iosHigh;
+        RequiredIos = ((ESTitleMeta *)CurrentTmd)->head.sysVersion;
         titleCode = (u32)((ESTitleMeta *)CurrentTmd)->head.titleId;
         TitleCode = titleCode;
         if (((ESTitleMeta *)CurrentTmd)->head.sysVersion == 0x0000000100000010ULL) {
@@ -2072,7 +2066,8 @@ invalidRvlRegion:
                 } else {
                     if ((BannerBuffer != 0) && (BannerLength != 0)) {
                         if (BannerLength < ((bannerFile.length + 0x1fU) & 0xffffffe0))
-                            OSPanic("BS2Mach.c", 0x12d3, "BS2 ERROR >>> Banner buffer is not enough to load banner file (0x%08x)");
+                            OSPanic("BS2Mach.c", 0x12d3, "BS2 ERROR >>> Banner buffer is not enough to load banner file (0x%08x)",
+                                    bannerFile.length);
                         BS2Report("BannerBufferAddr : %08X\n", BannerBuffer);
                     } else
                         OSPanic("BS2Mach.c", 0x12da, "BS2 ERROR >>> MEMAllocator and banner buffer is not set");
@@ -2321,7 +2316,7 @@ invalidRvlRegion:
         break;
     case 0x42:
         currentTime = __OSGetSystemTime();
-        if ((OSTime)(currentTime - (((u64)CoverOpenTimeHigh << 32) | CoverOpenTimeLow)) < OSMillisecondsToTicks((OSTime)350))
+        if ((OSTime)(currentTime - CoverOpenTime) < OSMillisecondsToTicks((OSTime)350))
             break;
         currentTime = __OSGetSystemTime();
         CoverPollTime = currentTime;
