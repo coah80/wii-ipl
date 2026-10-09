@@ -38,21 +38,19 @@ namespace ipl {
             if (ret < ES_ERR_OK) {
                 OSReport("ESMisc::GetTmdView: ES_GetTmdView1 err %d\n", ret);
                 *outTmdView = NULL;
-                goto out;
+            } else {
+                tmdView = (ESTmdView*)heap->alloc(OSRoundUp32B(tmdViewSize), -DEFAULT_ALIGN);
+                *outTmdView = tmdView;
+                memset(tmdView, 0, OSRoundUp32B(tmdViewSize));
+
+                ret = ES_GetTmdView(titleId, *outTmdView, &tmdViewSize);
+                if (ret < ES_ERR_OK) {
+                    OSReport("ESMisc::GetTmdView: ES_GetTmdView2 err %d\n", ret);
+                    heap->free(*outTmdView);
+                    *outTmdView = NULL;
+                }
             }
 
-            tmdView = (ESTmdView*)heap->alloc(OSRoundUp32B(tmdViewSize), -DEFAULT_ALIGN);
-            *outTmdView = tmdView;
-            memset(tmdView, 0, OSRoundUp32B(tmdViewSize));
-
-            ret = ES_GetTmdView(titleId, *outTmdView, &tmdViewSize);
-            if (ret < ES_ERR_OK) {
-                OSReport("ESMisc::GetTmdView: ES_GetTmdView2 err %d\n", ret);
-                heap->free(*outTmdView);
-                *outTmdView = NULL;
-            }
-
-        out:
             return ret;
         }
 
@@ -287,62 +285,58 @@ namespace ipl {
 
             ticketView = (ESTicketView*)heap->alloc(0xe0, -DEFAULT_ALIGN);
 
-            if (ESP_InitLib() < ES_ERR_OK) {
-                goto error;
-            }
+            if (ESP_InitLib() >= ES_ERR_OK) {
+                index = __OSGetValidTicketIndex(ticket, ticketLength);
 
-            index = __OSGetValidTicketIndex(ticket, ticketLength);
+                if (index >= -1) {
+                    if (index == -1) {
+                        index = 0;
+                    }
 
-            if (index < -1) {
-                goto error;
-            }
+                    memcpy(ticketView, &ticket[index], sizeof(ESTicketView));
 
-            if (index == -1) {
-                index = 0;
-            }
+                    {
+                        ESFd fd = ES_OpenTitleContentFile(titleId, ticketView, 0);
 
-            memcpy(ticketView, &ticket[index], sizeof(ESTicketView));
-
-            {
-                ESFd fd = ES_OpenTitleContentFile(titleId, ticketView, 0);
-
-                if (fd < 0) {
-                    OSReport("ESMisc::GetValidTicketIndex: ES_OpenTitleContentFile fd %d\n", fd);
-                } else {
-                    char* buf = (char*)heap->alloc(0x40, -DEFAULT_ALIGN);
-                    u32 numRead = ES_ReadContentFile(fd, buf, 0x40);
-
-                    if (numRead != 0x40) {
-                        OSReport("ESMisc::GetValidTicketIndex: ES_ReadContentFile err %d\n", numRead);
-                        heap->free(buf);
-
-                        if (ES_CloseContentFile(fd) < ES_ERR_OK) {
-                            goto error;
-                        }
-                    } else {
-                        if (ES_CloseContentFile(fd) < ES_ERR_OK) {
-                            heap->free(buf);
-                            goto error;
-                        }
-
-                        if (buf[0] == 0) {
-                            OSReport("ESMisc::GetValidTicketIndex: No name\n");
-                            heap->free(buf);
+                        if (fd < 0) {
+                            OSReport("ESMisc::GetValidTicketIndex: ES_OpenTitleContentFile fd %d\n", fd);
                         } else {
-                            heap->free(buf);
-                            found = true;
+                            char* buf = (char*)heap->alloc(0x40, -DEFAULT_ALIGN);
+                            u32 numRead = ES_ReadContentFile(fd, buf, 0x40);
+
+                            if (numRead != 0x40) {
+                                OSReport("ESMisc::GetValidTicketIndex: ES_ReadContentFile err %d\n", numRead);
+                                heap->free(buf);
+
+                                if (ES_CloseContentFile(fd) < ES_ERR_OK) {
+                                    goto error;
+                                }
+                            } else {
+                                if (ES_CloseContentFile(fd) < ES_ERR_OK) {
+                                    heap->free(buf);
+                                    goto error;
+                                }
+
+                                if (buf[0] == 0) {
+                                    OSReport("ESMisc::GetValidTicketIndex: No name\n");
+                                    heap->free(buf);
+                                } else {
+                                    heap->free(buf);
+                                    found = true;
+                                }
+                            }
                         }
                     }
+
+                    heap->free(ticketView);
+
+                    if (allocated && ticket != NULL) {
+                        heap->free(ticket);
+                    }
+
+                    return found ? index : -1;
                 }
             }
-
-            heap->free(ticketView);
-
-            if (allocated && ticket != NULL) {
-                heap->free(ticket);
-            }
-
-            return found ? index : -1;
 
         error:
             heap->free(ticketView);
@@ -405,66 +399,65 @@ namespace ipl {
             ret = ES_ListTitlesOnCard(NULL, &numTitles);
             if (ret < ES_ERR_OK) {
                 OSReport("DeleteSharedContent: ES_ListTitlesOnCard1 err %d\n", ret);
-                goto out;
-            }
+            } else {
+                if (numTitles != 0) {
+                    titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(numTitles * sizeof(ESTitleId)), -DEFAULT_ALIGN);
+                    if (titleIds == NULL) {
+                        OSReport("DeleteSharedContent: MEMAllocate for Title List err\n");
+                        ret = ES_ERR_MEMORY_ERROR;
+                        goto out;
+                    }
 
-            if (numTitles != 0) {
-                titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(numTitles * sizeof(ESTitleId)), -DEFAULT_ALIGN);
-                if (titleIds == NULL) {
-                    OSReport("DeleteSharedContent: MEMAllocate for Title List err\n");
-                    ret = ES_ERR_MEMORY_ERROR;
-                    goto out;
-                }
-
-                ret = ES_ListTitlesOnCard(titleIds, &numTitles);
-                if (ret < ES_ERR_OK) {
-                    OSReport("DeleteSharedContent: ES_ListTitlesOnCard2 err %d\n", ret);
-                    goto out;
-                }
-
-                for (u32 i = 0; i < numTitles; i++) {
-                    u32 tmdSize = 0;
-
-                    ret = ES_GetTmd(titleIds[i], NULL, &tmdSize);
+                    ret = ES_ListTitlesOnCard(titleIds, &numTitles);
                     if (ret < ES_ERR_OK) {
-                        OSReport("DeleteSharedContent: ES_GetTmd1 err %d\n", ret);
+                        OSReport("DeleteSharedContent: ES_ListTitlesOnCard2 err %d\n", ret);
                         goto out;
                     }
 
-                    if (tmdSize == 0 || tmdSize > sizeof(ESTitleMeta)) {
-                        ret = ES_ERR_INVALID;
-                        goto out;
-                    }
+                    for (u32 i = 0; i < numTitles; i++) {
+                        u32 tmdSize = 0;
 
-                    ret = ES_GetTmd(titleIds[i], tmd, &tmdSize);
-                    if (ret < ES_ERR_OK) {
-                        OSReport("DeleteSharedContent: ES_GetTmd2 err %d\n", ret);
-                        goto out;
-                    }
-
-                    for (u16 c = 0; c < tmd->head.numContents; c++) {
-                        if ((tmd->contents[c].type & 0x8000) == 0) {
-                            continue;
+                        ret = ES_GetTmd(titleIds[i], NULL, &tmdSize);
+                        if (ret < ES_ERR_OK) {
+                            OSReport("DeleteSharedContent: ES_GetTmd1 err %d\n", ret);
+                            goto out;
                         }
 
-                        for (u32 h = 0; h < numShared; h++) {
-                            if (memcmp(tmd->contents[c].hash, hashes[h], sizeof(ESHash)) == 0) {
-                                used[h] = 1;
-                                break;
+                        if (tmdSize == 0 || tmdSize > sizeof(ESTitleMeta)) {
+                            ret = ES_ERR_INVALID;
+                            goto out;
+                        }
+
+                        ret = ES_GetTmd(titleIds[i], tmd, &tmdSize);
+                        if (ret < ES_ERR_OK) {
+                            OSReport("DeleteSharedContent: ES_GetTmd2 err %d\n", ret);
+                            goto out;
+                        }
+
+                        for (u16 c = 0; c < tmd->head.numContents; c++) {
+                            if ((tmd->contents[c].type & 0x8000) == 0) {
+                                continue;
+                            }
+
+                            for (u32 h = 0; h < numShared; h++) {
+                                if (memcmp(tmd->contents[c].hash, hashes[h], sizeof(ESHash)) == 0) {
+                                    used[h] = 1;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            for (u32 h = 0; h < numShared; h++) {
-                if (used[h] != 0) {
-                    continue;
-                }
+                for (u32 h = 0; h < numShared; h++) {
+                    if (used[h] != 0) {
+                        continue;
+                    }
 
-                ret = ES_DeleteSharedContent(hashes[h]);
-                if (ret < ES_ERR_OK) {
-                    OSReport("DeleteSharedContent: ES_DeleteSharedContent err %d\n", ret);
+                    ret = ES_DeleteSharedContent(hashes[h]);
+                    if (ret < ES_ERR_OK) {
+                        OSReport("DeleteSharedContent: ES_DeleteSharedContent err %d\n", ret);
+                    }
                 }
             }
 
@@ -584,48 +577,43 @@ namespace ipl {
 
             if (ret < ES_ERR_OK) {
                 ES_ERR_REPORT("ES_GetTmdView1 failed: %d", ret);
-                goto out;
-            }
-
-            ret = ES_ListTitleContentsOnCard(titleId, NULL, &numContents);
-            if (ret != ES_ERR_OK) {
-                ES_ERR_REPORT("ES_ListTitleContentsOnCard1 failed: %d for %016llx", ret, titleId);
-                goto out;
-            }
-
-            if (numContents == 0) {
-                return ES_ERR_OK;
-            }
-
-            tmdView = (ESTmdView*)heap->alloc(OSRoundUp32B(tmdViewSize), -DEFAULT_ALIGN);
-            contentIds = (ESContentId*)heap->alloc(OSRoundUp32B(numContents * sizeof(ESContentId)), -DEFAULT_ALIGN);
-
-            ret = ES_ListTitleContentsOnCard(titleId, contentIds, &numContents);
-            if (ret != ES_ERR_OK) {
-                ES_ERR_REPORT("ES_ListTitleContentsOnCard2 failed: %d for %016llx", ret, titleId);
-                goto out;
-            }
-
-            ret = ES_GetTmdView(titleId, tmdView, &tmdViewSize);
-            if (ret < ES_ERR_OK) {
-                ES_ERR_REPORT("ES_GetTmdView2 failed: %d", ret);
-                goto out;
-            }
-
-            ret = 0;
-            u32 i = 0;
-            u32 j = 0;
-            ESCmdView* content = tmdView->contents;
-            for (; i < tmdView->head.numContents && j < numContents; i++, content++) {
-                if (content->cid == contentIds[j]) {
-                    if (!(content->type & 0x8000)) {
-                        ret++;
+            } else {
+                ret = ES_ListTitleContentsOnCard(titleId, NULL, &numContents);
+                if (ret != ES_ERR_OK) {
+                    ES_ERR_REPORT("ES_ListTitleContentsOnCard1 failed: %d for %016llx", ret, titleId);
+                } else {
+                    if (numContents == 0) {
+                        return ES_ERR_OK;
                     }
-                    j++;
+
+                    tmdView = (ESTmdView*)heap->alloc(OSRoundUp32B(tmdViewSize), -DEFAULT_ALIGN);
+                    contentIds = (ESContentId*)heap->alloc(OSRoundUp32B(numContents * sizeof(ESContentId)), -DEFAULT_ALIGN);
+
+                    ret = ES_ListTitleContentsOnCard(titleId, contentIds, &numContents);
+                    if (ret != ES_ERR_OK) {
+                        ES_ERR_REPORT("ES_ListTitleContentsOnCard2 failed: %d for %016llx", ret, titleId);
+                    } else {
+                        ret = ES_GetTmdView(titleId, tmdView, &tmdViewSize);
+                        if (ret < ES_ERR_OK) {
+                            ES_ERR_REPORT("ES_GetTmdView2 failed: %d", ret);
+                        } else {
+                            ret = 0;
+                            u32 i = 0;
+                            u32 j = 0;
+                            ESCmdView* content = tmdView->contents;
+                            for (; i < tmdView->head.numContents && j < numContents; i++, content++) {
+                                if (content->cid == contentIds[j]) {
+                                    if (!(content->type & 0x8000)) {
+                                        ret++;
+                                    }
+                                    j++;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
-        out:
             if (contentIds != NULL) {
                 heap->free(contentIds);
             }
@@ -946,35 +934,31 @@ namespace ipl {
 
             if (ret != ES_ERR_OK || entryCount == 0) {
                 ES_ERR_REPORT("Could not read1 %s: %d", dirPath, ret);
-                goto cleanup;
-            }
-
-            entries = (char*)heap->alloc(OSRoundUp32B(entryCount * (NAND_MAX_PATH + 1)), -DEFAULT_ALIGN);
-            if (entries == NULL) {
-                ret = -2;
-                ES_ERR_REPORT("Could not alloc: %d", -2);
-                goto cleanup;
-            }
-
-            ret = NANDReadDir(dirPath, entries, &entryCount);
-            if (ret != ES_ERR_OK) {
-                ES_ERR_REPORT("Could not read2 %s: %d", dirPath, ret);
-                goto cleanup;
-            }
-
-            entry = entries;
-            for (i = 0; i < entryCount;) {
-                snprintf(filePath, NAND_MAX_PATH, "%s%s", dirPath, entry);
-                filePath[NAND_MAX_PATH] = 0;
-                ret = NANDPrivateDelete(filePath);
-                if (ret != ES_ERR_OK) {
-                    ES_ERR_REPORT("Failed to delete %s: %d", filePath, ret);
+            } else {
+                entries = (char*)heap->alloc(OSRoundUp32B(entryCount * (NAND_MAX_PATH + 1)), -DEFAULT_ALIGN);
+                if (entries == NULL) {
+                    ret = -2;
+                    ES_ERR_REPORT("Could not alloc: %d", -2);
+                } else {
+                    ret = NANDReadDir(dirPath, entries, &entryCount);
+                    if (ret != ES_ERR_OK) {
+                        ES_ERR_REPORT("Could not read2 %s: %d", dirPath, ret);
+                    } else {
+                        entry = entries;
+                        for (i = 0; i < entryCount;) {
+                            snprintf(filePath, NAND_MAX_PATH, "%s%s", dirPath, entry);
+                            filePath[NAND_MAX_PATH] = 0;
+                            ret = NANDPrivateDelete(filePath);
+                            if (ret != ES_ERR_OK) {
+                                ES_ERR_REPORT("Failed to delete %s: %d", filePath, ret);
+                            }
+                            i++;
+                            entry += strlen(entry) + 1;
+                        }
+                    }
                 }
-                i++;
-                entry += strlen(entry) + 1;
             }
 
-        cleanup:
             if (entries != NULL) {
                 heap->free(entries);
             }
@@ -1020,65 +1004,65 @@ namespace ipl {
                         ret = NANDRead(fileInfo, saveData, 0x4000);
                         if (ret < 0) {
                             OSReport("%s::%s: Read file failed: %d\n", __FILE__, __FUNCTION__, ret);
-                            goto cleanup;
-                        } else if (ret != 0x4000) {
-                            OSReport("%s::%s: File size is not correct: %d\n", __FILE__, __FUNCTION__, ret);
-                            deleteSaveData = TRUE;
                         } else {
-                            offset = 8;
-                            valid = FALSE;
-                            j = 0;
-                            while (j < 3) {
-                                firstBlock = saveData + offset;
-                                if (!checkForNullTermination((char*)firstBlock + 0x4e, 8) ||
-                                    !checkForNullTermination((char*)firstBlock + 0x58, 8) ||
-                                    !checkForNullTermination((char*)firstBlock + 0x72, 8) ||
-                                    !checkForNullTermination((char*)firstBlock + 0x8e, 8) ||
-                                    !checkForNullTermination((char*)firstBlock + 0x1b4, 0x11) ||
-                                    !checkForNullTermination((char*)firstBlock + 0x1c5, 0x11)) {
-                                    goto verify_failed;
-                                }
-                                j++;
-                                offset += 0xa94;
-                            }
-
-                            offset = 0x2008;
-                            j = 0;
-                            while (j < 3) {
-                                secondBlock = saveData + offset;
-                                if (!checkForNullTermination((char*)secondBlock + 0x4e, 8) ||
-                                    !checkForNullTermination((char*)secondBlock + 0x58, 8) ||
-                                    !checkForNullTermination((char*)secondBlock + 0x72, 8) ||
-                                    !checkForNullTermination((char*)secondBlock + 0x8e, 8) ||
-                                    !checkForNullTermination((char*)secondBlock + 0x1b4, 0x11) ||
-                                    !checkForNullTermination((char*)secondBlock + 0x1c5, 0x11)) {
-                                    goto verify_failed;
-                                }
-                                j++;
-                                offset += 0xa94;
-                            }
-                            valid = TRUE;
-
-                        // MWCC needs both verification loops to share this failure label.
-                        verify_failed:
-
-                            if (!valid) {
-                                OSReport("%s::%s: Verify failed for %016llx\n", __FILE__, __FUNCTION__,
-                                         titleId);
+                            if (ret != 0x4000) {
+                                OSReport("%s::%s: File size is not correct: %d\n", __FILE__, __FUNCTION__, ret);
                                 deleteSaveData = TRUE;
-                            }
-                        }
+                            } else {
+                                offset = 8;
+                                valid = FALSE;
+                                j = 0;
+                                while (j < 3) {
+                                    firstBlock = saveData + offset;
+                                    if (!checkForNullTermination((char*)firstBlock + 0x4e, 8) ||
+                                        !checkForNullTermination((char*)firstBlock + 0x58, 8) ||
+                                        !checkForNullTermination((char*)firstBlock + 0x72, 8) ||
+                                        !checkForNullTermination((char*)firstBlock + 0x8e, 8) ||
+                                        !checkForNullTermination((char*)firstBlock + 0x1b4, 0x11) ||
+                                        !checkForNullTermination((char*)firstBlock + 0x1c5, 0x11)) {
+                                        goto verify_failed;
+                                    }
+                                    j++;
+                                    offset += 0xa94;
+                                }
 
-                        NANDClose(fileInfo);
-                        fileOpen = FALSE;
-                        if (deleteSaveData) {
-                            ESMisc::DeleteSavedata(titleId, heap);
+                                offset = 0x2008;
+                                j = 0;
+                                while (j < 3) {
+                                    secondBlock = saveData + offset;
+                                    if (!checkForNullTermination((char*)secondBlock + 0x4e, 8) ||
+                                        !checkForNullTermination((char*)secondBlock + 0x58, 8) ||
+                                        !checkForNullTermination((char*)secondBlock + 0x72, 8) ||
+                                        !checkForNullTermination((char*)secondBlock + 0x8e, 8) ||
+                                        !checkForNullTermination((char*)secondBlock + 0x1b4, 0x11) ||
+                                        !checkForNullTermination((char*)secondBlock + 0x1c5, 0x11)) {
+                                        goto verify_failed;
+                                    }
+                                    j++;
+                                    offset += 0xa94;
+                                }
+                                valid = TRUE;
+
+                            // MWCC needs direct failure branches; loop breaks add completion tests.
+                            verify_failed:
+
+                                if (!valid) {
+                                    OSReport("%s::%s: Verify failed for %016llx\n", __FILE__, __FUNCTION__,
+                                             titleId);
+                                    deleteSaveData = TRUE;
+                                }
+                            }
+
+                            NANDClose(fileInfo);
+                            fileOpen = FALSE;
+                            if (deleteSaveData) {
+                                ESMisc::DeleteSavedata(titleId, heap);
+                            }
                         }
                     }
                 }
             }
 
-        cleanup:
             if (saveData != NULL) {
                 heap->free(saveData);
             }
@@ -1098,26 +1082,26 @@ namespace ipl {
             ret = ES_GetTicketViews(titleId, NULL, ticketViewCount);
             if (ret != ES_ERR_OK) {
                 OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret, titleId);
-                goto cleanup;
-            }
-            if (*ticketViewCount == 0) {
-                return ret;
-            }
-            ticketViewList = (ESTicketView*)heap->alloc(*ticketViewCount * OSRoundUp32B(sizeof(ESTicketView)), -DEFAULT_ALIGN);
-            ret = ES_GetTicketViews(titleId, ticketViewList, ticketViewCount);
-            if (ret != ES_ERR_OK) {
-                OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret, titleId);
-                goto cleanup;
-            }
-            for (j = 0; j < *ticketViewCount; j++) {
-                memcpy(ticketViews, &ticketViewList[j], sizeof(ESTicketView));
-                ret = ES_DeleteTicket((ESTicketView*)ticketViews);
+            } else {
+                if (*ticketViewCount == 0) {
+                    return ret;
+                }
+                ticketViewList = (ESTicketView*)heap->alloc(*ticketViewCount * OSRoundUp32B(sizeof(ESTicketView)), -DEFAULT_ALIGN);
+                ret = ES_GetTicketViews(titleId, ticketViewList, ticketViewCount);
                 if (ret != ES_ERR_OK) {
-                    OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret,
-                             ((ESTicketView*)ticketViews)->ticketId);
+                    OSReport("%s::%s: ES_GetTicketViews failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret, titleId);
+                } else {
+                    for (j = 0; j < *ticketViewCount; j++) {
+                        memcpy(ticketViews, &ticketViewList[j], sizeof(ESTicketView));
+                        ret = ES_DeleteTicket((ESTicketView*)ticketViews);
+                        if (ret != ES_ERR_OK) {
+                            OSReport("%s::%s: ES_DeleteTicket failed: %d for %016llx\n", __FILE__, __FUNCTION__, ret,
+                                     ((ESTicketView*)ticketViews)->ticketId);
+                        }
+                    }
                 }
             }
-        cleanup:
+
             if (ticketViewList != NULL) {
                 heap->free(ticketViewList);
             }
@@ -1138,42 +1122,38 @@ namespace ipl {
 
             if (ret != ES_ERR_OK) {
                 OSReport("%s::%s: Failed to ES_ListTitlesOnCard1: %d\n", __FILE__, __FUNCTION__, ret);
-                goto cleanup;
-            }
-
-            titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(titleCount * sizeof(ESTitleId)), -DEFAULT_ALIGN);
-            if (titleIds == NULL) {
-                OSReport("%s::%s: Unable to allocate\n", __FILE__, __FUNCTION__);
-                goto cleanup;
-            }
-
-            ret = ES_ListTitlesOnCard(titleIds, &titleCount);
-            if (ret != ES_ERR_OK) {
-                OSReport("%s::%s: Failed to ES_ListTitlesOnCard2: %d\n", __FILE__, __FUNCTION__, ret);
-                goto cleanup;
-            }
-
-            {
-                ticketScratch = ticketViews;
-                for (i = 0; i < titleCount; i++) {
-                    if ((titleIds[i] & 0xFFFFFFFFFFFFFF00ULL) == 0x00010000525A4400ULL) {
-                        verifySavedataZD(heap, titleIds[i], &fileInfo);
-                        continue;
-                    }
-                    switch (titleIds[i]) {
-                        case 0x0001000844495343ULL:
-                        case 0x000100014A4F4449ULL:
-                        case 0x0001000148415858ULL:
-                        case 0x0001000844564458ULL:
-                        case 0x000100084449534BULL:
-                            ES_DeleteTitle(titleIds[i]);
-                            DeleteTicketsForce(heap, titleIds[i], ticketScratch, &ticketViewCount);
-                            break;
+            } else {
+                titleIds = (ESTitleId*)heap->alloc(OSRoundUp32B(titleCount * sizeof(ESTitleId)), -DEFAULT_ALIGN);
+                if (titleIds == NULL) {
+                    OSReport("%s::%s: Unable to allocate\n", __FILE__, __FUNCTION__);
+                } else {
+                    ret = ES_ListTitlesOnCard(titleIds, &titleCount);
+                    if (ret != ES_ERR_OK) {
+                        OSReport("%s::%s: Failed to ES_ListTitlesOnCard2: %d\n", __FILE__, __FUNCTION__, ret);
+                    } else {
+                        {
+                            ticketScratch = ticketViews;
+                            for (i = 0; i < titleCount; i++) {
+                                if ((titleIds[i] & 0xFFFFFFFFFFFFFF00ULL) == 0x00010000525A4400ULL) {
+                                    verifySavedataZD(heap, titleIds[i], &fileInfo);
+                                    continue;
+                                }
+                                switch (titleIds[i]) {
+                                    case 0x0001000844495343ULL:
+                                    case 0x000100014A4F4449ULL:
+                                    case 0x0001000148415858ULL:
+                                    case 0x0001000844564458ULL:
+                                    case 0x000100084449534BULL:
+                                        ES_DeleteTitle(titleIds[i]);
+                                        DeleteTicketsForce(heap, titleIds[i], ticketScratch, &ticketViewCount);
+                                        break;
+                                }
+                            }
+                        }
                     }
                 }
             }
 
-        cleanup:
             if (titleIds != NULL) {
                 heap->free(titleIds);
             }
@@ -1342,12 +1322,11 @@ namespace ipl {
                 ret = NANDWrite(&mFile, entry, entryLen);
                 if (ret != entryLen) {
                     ES_ERR_REPORT("NANDWrite err: %d!=%d", ret, entryLen);
-                    goto out;
+                } else {
+                    // We are done!!!
+                    ret = NAND_RESULT_OK;
+                    mFileLength += entryLen;
                 }
-
-                // We are done!!!
-                ret = NAND_RESULT_OK;
-                mFileLength += entryLen;
             }
         out:
             if (entry != NULL) {
@@ -1396,18 +1375,17 @@ namespace ipl {
                 ret = NANDRead(&mFile, tmdBuffer, fileLen);
                 if (ret != fileLen) {
                     ES_ERR_REPORT("NANDRead err: %d!=%d", ret, fileLen);
-                    goto out;
-                }
+                } else {
+                    ret = ES_ImportTitleInit(tmdBuffer, tmdSize, NULL, 0, NULL, 0, 2, 1);
+                    if (ret != ES_ERR_OK) {
+                        ES_ERR_REPORT("ES_ImportTitleInit err: %d", ret);
+                        ES_ImportTitleCancel();
+                    }
 
-                ret = ES_ImportTitleInit(tmdBuffer, tmdSize, NULL, 0, NULL, 0, 2, 1);
-                if (ret != ES_ERR_OK) {
-                    ES_ERR_REPORT("ES_ImportTitleInit err: %d", ret);
-                    ES_ImportTitleCancel();
-                }
-
-                ret = ES_ImportTitleDone();
-                if (ret != ES_ERR_OK) {
-                    ES_ERR_REPORT("ES_ImportTitleDone err: %d", ret);
+                    ret = ES_ImportTitleDone();
+                    if (ret != ES_ERR_OK) {
+                        ES_ERR_REPORT("ES_ImportTitleDone err: %d", ret);
+                    }
                 }
             }
         out:
