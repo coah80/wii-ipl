@@ -281,7 +281,7 @@ extern void AOSSi_Sleep(u32 duration);
 struct AOSSConnection;
 struct AOSSConnectionStatus;
 extern int AOSSi_WLANConnect(struct AOSSConnection* connection, struct AOSSConnectionStatus* status);
-extern int SOPoll(AOSSPollDescriptor* descriptors, int count, s32 timeoutHigh, s32 timeoutLow);
+extern int SOPoll(AOSSPollDescriptor* descriptors, int count, OSTime timeout);
 extern int SORecvFrom(int socket, void* buffer, int length, int flags, void* address);
 extern int SOSendTo(int socket, const void* buffer, int length, int flags, const void* address);
 extern int SOBind(int socket, const void* address);
@@ -389,7 +389,6 @@ cleanup_done:
 int AOSS_Init_old(AOSSInitInput* input)
 {
   s16 initialWait;
-  u64 tickRemainder;
   AOSSReceiveBuffer* packetBuffer;
   AOSSPacketHeader* packetWords;
   u32 initialSleep;
@@ -408,9 +407,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   int timeoutSeconds;
   int timeoutMilliseconds;
   int protocolResult;
-  u32 responseSleep;
-  u32 subnetMask;
-  u64 timeoutTicks;
+  OSTime timeoutTicks;
   int initializationResult;
   short attemptCount;
   u16 remainingWait;
@@ -430,7 +427,6 @@ int AOSS_Init_old(AOSSInitInput* input)
   u8 messageIdentity[8];
   __declspec(align(32)) AOSSSocketAddress socketAddress;
   struct { int seconds; int microseconds; } pollTime;
-  AOSSSocketAddress receivedAddress;
   u32 networkAddresses[5];
   AOSSPollDescriptor pollArguments[2];
 
@@ -827,13 +823,15 @@ request_socket_cleanup_complete:
               resultCode = 0xffffffff;
               goto finish_initialization;
             }
-            subnetMask = s_runtime.subnetMask;
-            responseSleep = s_runtime.ipAddress & subnetMask;
-            retryWait = responseSleep | (s_runtime.ipAddress & ~subnetMask) + 1;
-            if (retryWait >= (responseSleep | ~subnetMask)) {
-              retryWait = responseSleep | 1;
+            {
+              u32 mask = s_runtime.subnetMask;
+              u32 networkAddress = s_runtime.ipAddress & mask;
+              u32 localAddress = networkAddress | ((s_runtime.ipAddress & ~mask) + 1);
+              if (localAddress >= (networkAddress | ~mask)) {
+                localAddress = networkAddress | 1;
+              }
+              requestResult = AOSSi_SetNCDIPAddr(localAddress,s_runtime.subnetMask,s_runtime.ipAddress,0,0);
             }
-            requestResult = AOSSi_SetNCDIPAddr(retryWait,s_runtime.subnetMask,s_runtime.ipAddress,0,0);
             if (requestResult != 0) {
               s_errorCode = 0xc;
               input->status = 0xf;
@@ -1029,10 +1027,9 @@ request_socket_cleanup_complete:
           pollArguments[1].returnedEvents = 0;
           pollArguments[1].events = 1;
           timeoutTicks = 0;
-          timeoutTicks += (u32)(pollTime.seconds * (OS_BUS_CLOCK >> 2));
-          tickRemainder = (u32)(pollTime.microseconds * ((OS_BUS_CLOCK >> 2) / 125000)) >> 3;
-          timeoutTicks += tickRemainder;
-          requestResult = SOPoll(pollArguments,1,(u32)(timeoutTicks >> 32),(int)timeoutTicks);
+          timeoutTicks += (OSTime)(u32)OSSecondsToTicks(pollTime.seconds);
+          timeoutTicks += (OSTime)(u32)OSMicrosecondsToTicks(pollTime.microseconds);
+          requestResult = SOPoll(pollArguments,1,(OSTime)timeoutTicks);
           if (0 < requestResult) goto process_received_packet;
           receivedPackets = receivedPackets + 1;
           if (receivedPackets > attemptCount) {
@@ -1094,8 +1091,12 @@ request_socket_cleanup_complete:
   }
   goto finish_initialization;
 process_received_packet:
-  receivedAddress.length = 8;
-  receivedLength = SORecvFrom(s_socket,&packetBuffer->message,0x5dc,0,&receivedAddress);
+  {
+    AOSSSocketAddress receivedAddress;
+    u8 addressLength = sizeof(receivedAddress);
+    receivedAddress.length = addressLength;
+    receivedLength = SORecvFrom(s_socket,&packetBuffer->message,0x5dc,0,&receivedAddress);
+  }
   packetBuffer->socket = s_socket;
   retryWait = SONtoHs(receivedLength);
   packetBuffer->length = retryWait & 0xffff;
