@@ -864,7 +864,7 @@ config.libs = [
         ]
     ),
     IPLSection("sdChannelMemory", [
-            Object(NonMatching, "scene/sdChannelMemory/iplSDMemory.cpp"),
+            Object(Matching,    "scene/sdChannelMemory/iplSDMemory.cpp"),
         ]
     ),
     IPLSection("setting", [

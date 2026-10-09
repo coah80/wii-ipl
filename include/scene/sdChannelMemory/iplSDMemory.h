@@ -142,14 +142,9 @@ namespace ipl {
             u32 mTransferStatus;
             u64 mTransferStartTime;
             s32 mTransferFrame;
-            struct TitleListState {
-                ESTitleId* mpTitles;
-                u32 mCount;
-                ESTitleId* mpSecondaryTitles;
-                u32 mSecondaryCount;
-                ESTitleId* mpNames;
-                u32 mNameCount;
-            } mTitleListState;
+            NandSDWorker::TitleIdList mTitleList;
+            NandSDWorker::TitleIdList mNandTitleList;
+            NandSDWorker::TitleIdList mSDTitleList;
             scroller mScroller;
             s32 mButtonState;
             u8 mControllerFlags[4];
