@@ -53,7 +53,7 @@ namespace ipl {
         void UrlProcessor::destroy() {
             url_collision* col;
 
-            while (col = (url_collision*)nw4r::ut::List_GetNext(&mUrlCollisions, NULL), col != NULL) {
+            while ((col = (url_collision*)nw4r::ut::List_GetNext(&mUrlCollisions, NULL)) != NULL) {
                 nw4r::ut::List_Remove(&mUrlCollisions, col);
                 delete col;
             }
@@ -172,8 +172,8 @@ namespace ipl {
                 lineBottomOffset = 50.0f;
                 pointerX = pos.x;
 
-                while (url_col = (url_collision*)nw4r::ut::List_GetNext(&mUrlCollisions, url_col), url_col != NULL) {
-                    while (line_col = (line_collision*)nw4r::ut::List_GetNext(&url_col->mLineCollisions, line_col), line_col != NULL) {
+                while ((url_col = (url_collision*)nw4r::ut::List_GetNext(&mUrlCollisions, url_col)) != NULL) {
+                    while ((line_col = (line_collision*)nw4r::ut::List_GetNext(&url_col->mLineCollisions, line_col)) != NULL) {
                         f32 left = line_col->mLeft - hitMargin;
                         f32 right = hitMargin + line_col->mRight;
                         f32 lineY = ((mMemoTranslateY + mHitYOffset) - line_col->mY);
@@ -193,7 +193,7 @@ namespace ipl {
             url_collision* got = NULL;
             url_collision* url_col = NULL;
 
-            while (got = (url_collision*)nw4r::ut::List_GetNext(&mUrlCollisions, got), got != NULL) {
+            while ((got = (url_collision*)nw4r::ut::List_GetNext(&mUrlCollisions, got)) != NULL) {
                 if (got->mTagNo == mSelectedTagNo) {
                     url_col = got;
                     break;
@@ -235,7 +235,7 @@ namespace ipl {
         UrlProcessor::url_collision::~url_collision() {
             line_collision* col;
 
-            while (col = (line_collision*)nw4r::ut::List_GetNext(&mLineCollisions, NULL), col != NULL) {
+            while ((col = (line_collision*)nw4r::ut::List_GetNext(&mLineCollisions, NULL)) != NULL) {
                 nw4r::ut::List_Remove(&mLineCollisions, col);
                 delete col;
             }

@@ -109,7 +109,7 @@ namespace ipl {
             mpChanAppBase->calc();
 
             ChanAppBox* currBox = NULL;
-            while (currBox = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, currBox), currBox != NULL) {
+            while ((currBox = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, currBox)) != NULL) {
                 currBox->calc();
             }
 
@@ -255,7 +255,7 @@ namespace ipl {
             int i = 0;
             ChanAppBox* box = NULL;
 
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 nw4r::lyt::Pane* currPane = mpChanAppBase->getLytObject()->FindPaneByName(panes[0][i]);
                 nw4r::math::VEC3 translation(0, 0, 0);
                 PSMTXMultVec(currPane->GetGlobalMtx(), translation, translation);
@@ -271,7 +271,7 @@ namespace ipl {
         void ChannelEdit::fadein_chanapp_box() {
             int i = 0;
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 nw4r::lyt::Pane* currPane = mpChanAppBase->getLytObject()->FindPaneByName(panes[0][i]);
                 nw4r::math::VEC3 translation(0, 0, 0);
                 PSMTXMultVec(currPane->GetGlobalMtx(), translation, translation);
@@ -284,7 +284,7 @@ namespace ipl {
 
         void ChannelEdit::fadeout_chanapp_box() {
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 box->setThumbnail(NULL);
                 box->anmFadeout();
             }
@@ -311,7 +311,7 @@ namespace ipl {
 
             ChanAppBox* box;
             box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 if (box->getTextBalloon() != NULL) {
                     box->terminateBalloon();
                 }
@@ -504,7 +504,7 @@ namespace ipl {
             mpNandSDCardManager->cmdCleanQueue();
 
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 box->clearEvent();
             }
 
@@ -520,7 +520,7 @@ namespace ipl {
             mpNandSDCardManager->cmdCleanQueue();
 
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 box->clearEvent();
             }
 
@@ -564,7 +564,7 @@ namespace ipl {
             mpChanAppBase->draw();
 
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 box->draw();
             }
 
@@ -613,7 +613,7 @@ namespace ipl {
 
             if (strcmp(pane->getName(), "B_SelectWii_00") == 0 && mPage == PAGE_SD) {
                 ChanAppBox* box = NULL;
-                while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+                while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                     box->setThumbnail(NULL);
                 }
 
@@ -641,7 +641,7 @@ namespace ipl {
                 }
             } else if (strcmp(pane->getName(), "B_SelectSd_00") == 0 && mPage == PAGE_WII) {
                 ChanAppBox* box = NULL;
-                while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+                while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                     box->setThumbnail(NULL);
                 }
 
@@ -753,7 +753,7 @@ namespace ipl {
                 onTrigButton(false);
 
                 ChanAppBox* box = NULL;
-                while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+                while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                     box->setThumbnail(NULL);
                 }
                 return;
@@ -766,7 +766,7 @@ namespace ipl {
             mpChanAppBase->update();
 
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 box->update();
             }
 
@@ -806,7 +806,7 @@ namespace ipl {
 
         void ChannelEdit::on_fadein2nd() {
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 if (!box->isIdle()) {
                     return;
                 }
@@ -836,7 +836,7 @@ namespace ipl {
             if (mpChanAppBase->isIdle() && sd_worker_ready(mpNandSDCardManager)) {
                 mPageOffset += 15;
                 ChanAppBox* box = NULL;
-                while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+                while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                     box->setThumbnail(NULL);
                 }
 
@@ -850,7 +850,7 @@ namespace ipl {
             if (mpChanAppBase->isIdle() && sd_worker_ready(mpNandSDCardManager)) {
                 mPageOffset -= 15;
                 ChanAppBox* box = NULL;
-                while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+                while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                     box->setThumbnail(NULL);
                 }
 
@@ -865,7 +865,7 @@ namespace ipl {
                 return;
 
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 if (!box->isIdle()) {
                     return;
                 }
@@ -926,7 +926,7 @@ namespace ipl {
 
         void ChannelEdit::on_change_tag2nd() {
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 if (!box->isIdle()) {
                     return;
                 }
@@ -1170,7 +1170,7 @@ namespace ipl {
             mpNandSDCardManager->calc();
 
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 box->setThumbnail(NULL);
             }
 
@@ -1507,7 +1507,7 @@ namespace ipl {
             mpNandSDCardManager->calc();
 
             ChanAppBox* box = NULL;
-            while (box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box), box != NULL) {
+            while ((box = (ChanAppBox*)nw4r::ut::List_GetNext(&mChanAppBoxList, box)) != NULL) {
                 box->setThumbnail(NULL);
             }
 

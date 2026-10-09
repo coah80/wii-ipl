@@ -55,7 +55,7 @@ namespace ipl {
             TitleListing* listing;
 
             listing = NULL;
-            while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing), listing != NULL) {
+            while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing)) != NULL) {
                 if (listing == NULL) {
                     break;
                 }
@@ -65,7 +65,7 @@ namespace ipl {
             }
 
             listing = NULL;
-            while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing), listing != NULL) {
+            while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing)) != NULL) {
                 if (listing == NULL) {
                     break;
                 }
@@ -245,7 +245,7 @@ namespace ipl {
         GATED_STATE(NandSDCardManager::on_mount_sd, !mpWorker->is_working(), mState = STATE_NORMAL)
         GATED_STATE(NandSDCardManager::on_list_nandapp, !mpWorker->is_working(), {
             TitleListing* listing = NULL;
-            while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing), listing != NULL) {
+            while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing)) != NULL) {
                 nw4r::ut::List_Remove(&mNandListingList, listing);
                 delete listing;
                 listing = NULL;
@@ -279,7 +279,7 @@ namespace ipl {
         })
         GATED_STATE(NandSDCardManager::on_list_sdapp, !mpWorker->is_working(), {
             u8* buf = NULL;
-            while (buf = (u8*)nw4r::ut::List_GetNext(&mSDListingList, buf), buf != NULL) {
+            while ((buf = (u8*)nw4r::ut::List_GetNext(&mSDListingList, buf)) != NULL) {
                 nw4r::ut::List_Remove(&mSDListingList, buf);
                 delete buf;
                 buf = NULL;
@@ -507,7 +507,7 @@ namespace ipl {
         GATED_STATE(NandSDCardManager::on_copy_sdapp_to_nand, !mpWorker->is_working(), mState = STATE_NORMAL)
         GATED_STATE(NandSDCardManager::on_del_nandapp, !mpWorker->is_working(), {
             TitleListing* listing = NULL;
-            while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing), listing != NULL) {
+            while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing)) != NULL) {
                 ESTitleId titleId = mpActiveChanAppBox->getThumbnail()->getWiiTitleId();
                 if (titleId == listing->wiiTitleId) {
                     nw4r::ut::List_Remove(&mNandListingList, listing);
@@ -525,7 +525,7 @@ namespace ipl {
         })
         GATED_STATE(NandSDCardManager::on_del_nandsave, !mpWorker->is_working(), {
             TitleListing* listing = NULL;
-            while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing), listing != NULL) {
+            while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing)) != NULL) {
                 ESTitleId titleId = mpActiveSavedataBox->getBanner()->getWiiTitleId();
                 if (titleId == listing->wiiTitleId) {
                     nw4r::ut::List_Remove(&mNandListingList, listing);
@@ -537,7 +537,7 @@ namespace ipl {
         })
         GATED_STATE(NandSDCardManager::on_del_sdsave, !mpWorker->is_working(), {
             TitleListing* listing = NULL;
-            while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing), listing != NULL) {
+            while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing)) != NULL) {
                 u32 titleId = mpActiveSavedataBox->getBanner()->getSDTitleId();
                 if (titleId == listing->sdTitleId) {
                     nw4r::ut::List_Remove(&mSDListingList, listing);
@@ -549,7 +549,7 @@ namespace ipl {
         })
         GATED_STATE(NandSDCardManager::on_del_sdapp, !mpWorker->is_working(), {
             TitleListing* listing = NULL;
-            while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing), listing != NULL) {
+            while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing)) != NULL) {
                 u32 titleId = mpActiveChanAppBox->getThumbnail()->getSDTitleId();
                 if (titleId == listing->sdTitleId) {
                     nw4r::ut::List_Remove(&mSDListingList, listing);
@@ -664,7 +664,7 @@ namespace ipl {
         GATED_STATE(NandSDCardManager::on_move_nandapp_to_sd, !mpWorker->is_working(), {
             if (getAsyncResult() == NandSDWorker::RESULT_OK) {
                 TitleListing* listing = NULL;
-                while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing), listing != NULL) {
+                while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing)) != NULL) {
                     ESTitleId titleId = mpActiveChanAppBox->getThumbnail()->getWiiTitleId();
                     if (titleId == listing->wiiTitleId) {
                         nw4r::ut::List_Remove(&mNandListingList, listing);
@@ -678,7 +678,7 @@ namespace ipl {
         GATED_STATE(NandSDCardManager::on_move_sdapp_to_nand, !mpWorker->is_working(), {
             if (getAsyncResult() == NandSDWorker::RESULT_OK) {
                 TitleListing* listing = NULL;
-                while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing), listing != NULL) {
+                while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing)) != NULL) {
                     u32 titleId = mpActiveChanAppBox->getThumbnail()->getSDTitleId();
                     if (titleId == listing->sdTitleId) {
                         nw4r::ut::List_Remove(&mSDListingList, listing);
@@ -692,7 +692,7 @@ namespace ipl {
         GATED_STATE(NandSDCardManager::on_move_nandsave_to_sd, !mpWorker->is_working(), {
             if (getAsyncResult() == NandSDWorker::RESULT_OK) {
                 TitleListing* listing = NULL;
-                while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing), listing != NULL) {
+                while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mNandListingList, listing)) != NULL) {
                     ESTitleId titleId = mpActiveSavedataBox->getBanner()->getWiiTitleId();
                     if (titleId == listing->wiiTitleId) {
                         nw4r::ut::List_Remove(&mNandListingList, listing);
@@ -706,7 +706,7 @@ namespace ipl {
         GATED_STATE(NandSDCardManager::on_move_sdsave_to_nand, !mpWorker->is_working(), {
             if (getAsyncResult() == NandSDWorker::RESULT_OK) {
                 TitleListing* listing = NULL;
-                while (listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing), listing != NULL) {
+                while ((listing = (TitleListing*)nw4r::ut::List_GetNext(&mSDListingList, listing)) != NULL) {
                     u32 titleId = mpActiveSavedataBox->getBanner()->getSDTitleId();
                     if (titleId == listing->sdTitleId) {
                         nw4r::ut::List_Remove(&mSDListingList, listing);

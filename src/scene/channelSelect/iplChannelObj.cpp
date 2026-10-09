@@ -1022,7 +1022,7 @@ namespace ipl {
             wcsncpy(fullStr, text, channel::META_CHANNEL_NAME_LENGTH);
             strLen = wcslen(fullStr);
 
-            f32 temp1 = 0.0f;
+            f32 widthAdjustment = 0.0f;
             int extraLen = 0;
 
             if (strLen == 0) {
@@ -1033,7 +1033,7 @@ namespace ipl {
                     textPane->CalculateMtx(*mpBalloonLayout->getDrawInfo());
 
                     nw4r::ut::Rect textRect = textPane->GetTextDrawRect(*mpBalloonLayout->getDrawInfo());
-                    if (textRect.GetWidth() <= temp1 + 391.5f) {
+                    if (textRect.GetWidth() <= widthAdjustment + 391.5f) {
                         break;
                     }
 
@@ -1041,7 +1041,7 @@ namespace ipl {
                         fullStr[i - 1] = NULL;
                         fullStr[i - 2] = L'…';
                     } else {
-                        temp1 = -1.179962f;
+                        widthAdjustment = -1.179962f;
                         extraLen = 2;
                         fullStr[i + 1] = NULL;
                         fullStr[i] = '.';
