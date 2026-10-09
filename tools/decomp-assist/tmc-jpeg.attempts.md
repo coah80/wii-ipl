@@ -679,3 +679,11 @@ GATE PASS
   the coalescer's dst-operand choice, upstream of the scheduler; phi
   ties are upstream of both. No MWCC scheduling/peephole pragma reaches
   these — source-level and pragma levers exhausted on these walls.
+
+## w1011/struct2 wave-3 — or-chain serial probes
+
+- `acBits = acBits | x` (explicit self-assign) produces a SERIAL
+  or-chain (was pairs-tree) — but operand order still canonicalizes
+  to `or ACC,ACC,NEW` regardless of textual `x | acBits` vs
+  `acBits | x`. Normalized diff unchanged (25). Committed `|=`
+  kept — identical score, cleaner source.

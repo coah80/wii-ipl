@@ -256,3 +256,21 @@ Shared headers and configure.py are unchanged. All data sections remain exact.
   `rlwimi r19` vs base `mr r4,r19; rlwimi r4` — same coalescer
   dst-operand wall as the or-chain. `|=` folds to ori; bitfield-order
   emits 2 rlwimi + stw.
+
+## w1011/struct2 wave-3 — structural probes (icon-record intermediates)
+
+- `IconState* rec = &sThread->icons[slot][fileNo]` + member accesses:
+  collapses fn to 408 insns — MWCC pins the pointer, kills the
+  per-use rematted add chains. The sThread->icons[slot][fileNo]
+  spelled-out form is load-bearing for the remat structure.
+- `IconState (*icons)[CARD_MAX_FILE] = sThread->icons` array pointer:
+  collapses to 424 for the same reason. Named intermediates can't
+  reproduce base's pinned-products + remat-adds split.
+- The 26 residual diffs are a pure callee-window swap: base pins the
+  icon-record PRODUCTS (slot*0x1FC0->r29, fileNo<<6->r30, masked addr
+  ->r31) and params->r24-r26; mine pins params high. Chaitin color
+  ordering — documented tie.
+- cardThreadMain: `OSMessage msg` arg-coalescing local, packed
+  `command | (valid<<8)` single expr (folds, 300), mask+or
+  `(v & ~0xFF00)|(valid<<8)` (rlwinm+ori split) — the mr+rlwimi
+  copy-vs-inplace residual (2 lines) is the coalescer dst-operand wall.
