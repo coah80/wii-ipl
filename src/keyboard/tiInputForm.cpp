@@ -417,7 +417,7 @@ struct ButtonAnimations {
     const InputFormAnimationFile* files[12];
 };
 
-ButtonAnimations csButtonAnimations[] = {
+const ButtonAnimations csButtonAnimations[] = {
     {KT_NormalButton, scP_txtScrll_UP, 8, NULL, {
         &csAninationFile__Q29textinput9inputform[0], &csAninationFile__Q29textinput9inputform[1],
         &csAninationFile__Q29textinput9inputform[2], &csAninationFile__Q29textinput9inputform[3],
@@ -1115,29 +1115,14 @@ static inline const char* selectInputTextName(const nw4rmanager::Layout& layout,
     return "T_2l_TextBox";
 }
 
-inline void LayoutByNW4R::addButtonAnimation(MEMAllocator* allocator, nw4rmanager::AnmPane* animationPane, const InputFormAnimationFile* const& file, const char* bindingName) {
-    void* resource = mpMultiArcResourceAccessor->GetResource(0, file->fileName, NULL);
-    AnimTransformPane* transform = static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
-    if (!bindingName) animationPane->addAnimation(allocator, file->id, transform, false, true);
-    else animationPane->forceAddAnimation(allocator, file->id, transform, bindingName, false, true);
+inline nw4r::lyt::TextBox* LayoutByNW4R::getTextBox() const {
+    nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true));
+    return textBox;
 }
 
 void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
-    Info_* listEnd;
-    void* memory;
     nw4r::lyt::Pane* pane;
-    const char* bindingName;
-    u16 next;
-    Info_* rows;
-    u16 previous;
     void* handlerMemory;
-    u32 count;
-    u16 animationIndex;
-    Info_* selected;
-    nw4rmanager::AnmPane* animationPane;
-    nw4r::lyt::TextBox* textBox;
-    u16 selectedIndex;
-    u32 buttonIndex;
     mpAllocator = allocator;
     textdrawer::Base::create(allocator);
     mpString = static_cast<tistring::Decolated*>(editBuffer->mpString);
@@ -1146,27 +1131,35 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     mriManager.mpAllocator = allocator;
     mriManager.mpInfo = static_cast<Info_*>(MEMAllocFromAllocator(allocator, (mriManager.mMaxLength + 2) * sizeof(Info_)));
     mriManager.init();
+    Info_* rows;
+    Info_* row;
+    u16 next;
+    u16 previous;
+    u16 selectedIndex;
+    Info_* listEnd;
+    Info_* info;
     rows = mriManager.mpInfo;
-    selected = &rows[rows[mriManager.mMaxLength].Next];
-    previous = selected->Back;
-    next = selected->Next;
+    row = &rows[mriManager.mMaxLength];
+    row = &rows[row->Next];
+    next = row->Next;
+    previous = row->Back;
     selectedIndex = rows[next].Back;
     rows[next].Back = previous;
     rows[previous].Next = next;
-    selected->Back = selectedIndex;
-    selected->Next = selectedIndex;
-    rows = mriManager.mpInfo;
-    listEnd = &mriManager.mpInfo[mriManager.mpInfo[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
-    if (selected->Next == selected->Back) {
-        next = listEnd->Next;
-        selected->Back = rows[next].Back;
-        selected->Next = next;
+    row->Back = selectedIndex;
+    row->Next = selectedIndex;
+    info = mriManager.mpInfo;
+    listEnd = &info[info[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
+    if (row->Back == row->Next) {
+        u16 head = listEnd->Next;
+        row->Back = info[head].Back;
+        row->Next = head;
         listEnd->Next = selectedIndex;
-        rows[next].Back = selectedIndex;
+        info[head].Back = selectedIndex;
     }
-    selected->StrCount = 0;
-    selected->DispRowCount = 1;
-    mpCursorLine = selected;
+    row->StrCount = 0;
+    row->DispRowCount = 1;
+    mpCursorLine = row;
     handlerMemory = MEMAllocFromAllocator(allocator, sizeof(EventHandler));
     mpInputEventHandler = new (handlerMemory) EventHandler(this);
     nw4rmanager::Layout::createWithEventHandler(allocator, mpInputEventHandler);
@@ -1179,7 +1172,7 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
         mpMultiArcResourceAccessor->GetFont(mpFontName)->SetAlternateChar(0xe06b);
         setFont(*mpMultiArcResourceAccessor->GetFont(mpFontName));
     }
-    textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true));
+    nw4r::lyt::TextBox* textBox = getTextBox();
     textBox->SetString(L"", 0);
     mfCharacterSpacing = textBox->GetCharSpace();
     mfLineSpacing = textBox->GetLineSpace();
@@ -1194,21 +1187,25 @@ void LayoutByNW4R::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     pane = mpLayout->GetRootPane()->FindPaneByName(static_cast<const LanguagePaneData*>(mpLanguageData)->textBox, true);
     if (!pane) pane = mpLayout->GetRootPane()->FindPaneByName(selectInputTextName(*this, mpLanguageData), true);
     mpPaneManager->getPaneComponentByPane(pane)->setTriggerTarget(true);
-    for (buttonIndex = 0; buttonIndex < 2; ++buttonIndex) {
-        const ButtonAnimations& button = csButtonAnimations[static_cast<u16>(buttonIndex)];
-        animationPane = NULL;
+    for (u16 buttonIndex = 0; buttonIndex < 2; buttonIndex++) {
+        const ButtonAnimations& button = csButtonAnimations[buttonIndex];
+        nw4rmanager::AnmPane* animationPane = NULL;
         switch (button.type) {
         case KT_NormalButton: {
-            memory = MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane));
+            void* memory = MEMAllocFromAllocator(allocator, sizeof(NormalButtonAnmPane));
             animationPane = new (memory) NormalButtonAnmPane(getPane(button.paneName), NULL);
             break;
         }
         }
         nw4r::ut::List_Append(&mAnmPanes, animationPane);
-        bindingName = button.bindingName;
-        count = button.count;
-        for (animationIndex = 0; animationIndex < count; ++animationIndex) {
-            addButtonAnimation(allocator, animationPane, button.files[animationIndex], bindingName);
+        for (u16 animationIndex = 0; animationIndex < button.count; animationIndex++) {
+            void* resource = mpMultiArcResourceAccessor->GetResource(0, button.files[animationIndex]->fileName);
+            AnimTransformPane* transform = static_cast<AnimTransformPane*>(getLayout()->CreateAnimTransform(resource, mpMultiArcResourceAccessor));
+            if (button.bindingName == NULL) {
+                animationPane->addAnimation(allocator, button.files[animationIndex]->id, transform, false, true);
+            } else {
+                animationPane->forceAddAnimation(allocator, button.files[animationIndex]->id, transform, button.bindingName, false, true);
+            }
         }
     }
     init();
@@ -1230,7 +1227,7 @@ void LayoutByNW4R::init() {
     mRepeatButtons = 0;
     mCharColor = csCharColor;
     visibleSeparator(false);
-    nw4r::lyt::TextBox* textBox = static_cast<nw4r::lyt::TextBox*>(mpLayout->GetRootPane()->FindPaneByName(static_cast<const char*>(mpLayoutData), true));
+    nw4r::lyt::TextBox* textBox = getTextBox();
     textBox->SetString(L"", 0);
     mfCharacterSpacing = textBox->GetCharSpace();
     mfLineSpacing = textBox->GetLineSpace();
@@ -1616,28 +1613,35 @@ void Base::create(MEMAllocator* allocator, EditBuffer* editBuffer) {
     mriManager.mpAllocator = allocator;
     mriManager.mpInfo = static_cast<Info_*>(MEMAllocFromAllocator(allocator, (mriManager.mMaxLength + 2) * sizeof(Info_)));
     mriManager.init();
-    Info_* rows = mriManager.mpInfo;
-    struct RowCursor { Info_* row; };
-    RowCursor cursor = { &rows[rows[mriManager.mMaxLength].Next] };
-    u16 next = cursor.row->Next;
-    u16 previous = cursor.row->Back;
-    u16 selectedIndex = rows[next].Back;
+    Info_* rows;
+    Info_* row;
+    u16 next;
+    u16 previous;
+    u16 selectedIndex;
+    Info_* listEnd;
+    Info_* info;
+    rows = mriManager.mpInfo;
+    row = &rows[mriManager.mMaxLength];
+    row = &rows[row->Next];
+    next = row->Next;
+    previous = row->Back;
+    selectedIndex = rows[next].Back;
     rows[next].Back = previous;
     rows[previous].Next = next;
-    cursor.row->Back = selectedIndex;
-    cursor.row->Next = selectedIndex;
-    RowCursor listEnd = { &mriManager.mpInfo[mriManager.mpInfo[static_cast<u16>(mriManager.mMaxLength + 1)].Back] };
-    rows = mriManager.mpInfo;
-    if (cursor.row->Back == cursor.row->Next) {
-        next = listEnd.row->Next;
-        cursor.row->Back = rows[next].Back;
-        cursor.row->Next = next;
-        listEnd.row->Next = selectedIndex;
-        rows[next].Back = selectedIndex;
+    row->Back = selectedIndex;
+    row->Next = selectedIndex;
+    info = mriManager.mpInfo;
+    listEnd = &info[info[static_cast<u16>(mriManager.mMaxLength + 1)].Back];
+    if (row->Back == row->Next) {
+        u16 head = listEnd->Next;
+        row->Back = info[head].Back;
+        row->Next = head;
+        listEnd->Next = selectedIndex;
+        info[head].Back = selectedIndex;
     }
-    cursor.row->StrCount = 0;
-    cursor.row->DispRowCount = 1;
-    mpCursorLine = cursor.row;
+    row->StrCount = 0;
+    row->DispRowCount = 1;
+    mpCursorLine = row;
 }
 
 tistring::Decolated* Base::getCurrentString(bool inputting) {

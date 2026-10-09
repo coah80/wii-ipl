@@ -30,7 +30,6 @@ namespace textinput {
         class Base;
         class EventHandler;
         class LayoutByNW4R;
-        struct InputFormAnimationFile;
 #endif
         class EditBuffer {
 #ifdef TIMANAGER_IMPLEMENTATION
@@ -357,7 +356,7 @@ namespace textinput {
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
             friend class EventHandler;
             inline const nw4r::lyt::Pane* getLanguageTextPane() const;
-            inline void addButtonAnimation(MEMAllocator*, nw4rmanager::AnmPane*, const InputFormAnimationFile* const&, const char*);
+            inline nw4r::lyt::TextBox* getTextBox() const;
 #endif
             public:
 #if defined(MYTIMANAGER_IMPLEMENTATION) || defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION)
