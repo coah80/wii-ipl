@@ -141,8 +141,7 @@ wchar_t StringBase::getLastWChar() {
 }
 
 namespace {
-// State of a Hangul syllable under composition. This build has no Hangul
-// composer, so the state is always empty and each key is committed as typed.
+// MWCC needs these aggregate tests and dead stores for Hangul scheduling and count narrowing.
 struct HangulSyllable {
     u32 length;
 

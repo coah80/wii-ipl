@@ -315,8 +315,7 @@ static inline f32 scaledExtent(f32 scale, f32 start, f32 end) {
 }
 
 static inline f32 glyphBottom(f32 origin, const Base::DrawInfo& glyph, const nw4r::math::VEC2& scale) {
-    f32 extent = glyph.rect.GetHeight();
-    return origin + scale.y * extent;
+    return origin + scale.y * glyph.rect.GetHeight();
 }
 
 }  // namespace inputform
@@ -1361,10 +1360,8 @@ void Base::makeUpCursorPos(CursorPos* cursorPos, u32 pos, s32 startLine, s32 end
     muWordWrapCounter = wordWrapCounter;
 }
 
-// The original file had an uncalled function here that the linker stripped, so its body
-// is lost. It called getDrawModifyEndLine and getEndPos and was the first user of 0.5f,
-// which places those inline copies and the constant; this stand-in keeps that order.
-f32 strippedFunctionStandIn(Base* base) {
+// MWCC needs this unreferenced stand-in for a lost function to emit the getters and 0.5f in target order.
+f32 preserveStrippedFunctionLayout(Base* base) {
     base->getDrawModifyEndLine();
     base->getEndPos();
     return 0.5f;
@@ -1827,7 +1824,8 @@ void Base::drawCursor(f32 x, f32 y) {
 }
 
 u32 Base::calcCursorPos(f32 x, f32 y) {
-    f32 zero;
+    // MWCC needs this local declared first and assigned before the loop to preserve FPR allocation.
+    f32 rectZero;
     f32 cursorX;
     f32 lineTop;
     f32 lineBottom;
@@ -1841,13 +1839,13 @@ u32 Base::calcCursorPos(f32 x, f32 y) {
     u32 pos = 0;
     muWordWrapCounter = 0;
     mbHyphen = false;
-    zero = 0.0f;
+    rectZero = 0.0f;
     while (*string) {
         DrawInfo info;
-        info.rect.left = zero;
-        info.rect.top = zero;
-        info.rect.right = zero;
-        info.rect.bottom = zero;
+        info.rect.left = rectZero;
+        info.rect.top = rectZero;
+        info.rect.right = rectZero;
+        info.rect.bottom = rectZero;
         info.character = *string;
         calcRect(info);
         lineBottom = glyphBottom(lineTop, info, scale);
