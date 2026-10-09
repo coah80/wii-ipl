@@ -485,52 +485,55 @@ To pick up the loop:
    slot per the effort scale.
 4. Handle every `NEEDS REVIEW` line in `/tmp/automerge.log`.
 
-## Goal completion contract
+## Completion state
 
-The decompilation loop does not stop after a successful wave, a convenient
-near-match, or a code-only milestone. Keep dispatching and resuming workers
-until the live 43U report proves all of the following:
+As of 2026-10-09 the 4.3U decompilation is complete: every unit is `Matching`,
+code is 100% exact and linked, data is 100% linked, and no assembly
+placeholder remains. Every change from here on keeps these green:
 
-- Code is 100.00% exact-matched, not merely fuzzy-matched.
-- Code is 100.00% fully linked, with no remaining unlinked code units.
-- Data is 100.00% extracted/decompiled and 100.00% fully linked.
-- Every source unit and function in the 4.3U target is accounted for; no
-  `NonMatching`, missing, fuzzy-only, or unlinked unit remains.
-- The final full build passes, the DOL hash remains correct, and the report,
-  object files, and linked DOL agree.
+```
+python3 tools/check_decomp_complete.py build/43U/report.json --dol build/43U/main.dol   # DECOMPLETE_OK
+python3 tools/check_asm_inventory.py                                                    # ASM INVENTORY PASS
+sha1sum build/43U/main.dol                                                              # 26116613f624061ba99c8d1a299aaa6efa85670d
+```
 
-Until every condition is true and independently verified, the goal remains
-active. A worker wave with zero accepted matches is a failed attempt, not a
-completion condition; preserve useful workers, resume fixable leaves, and
-dispatch the next disjoint batch.
+The remaining `asm` blocks are the 162 ORIGINAL SDK hand-assembly functions
+listed in `docs/asm-inventory.md`; they stay.
 
-## Things that do NOT work
+## Cleanup phase
 
-- **Frame pragmas.** `#pragma ppc_iro_level 0` fixed exactly one function out
-  of roughly forty attempts and made others worse. A search across pragma
-  variants produced almost no movement. Do not spend time here.
-- **Reverting to pristine upstream to unblock.** The unmodified upstream tree
-  is needed as a baseline, but it does not help you match anything.
-- **Searching other forks for the missing functions.** The eleven unimplemented
-  `iplESMisc` functions do not exist in any of the twenty-three public forks.
+Work now makes the source read like normal code while every byte stays
+identical. The brief and priority order live in
+`/mnt/drive2/projects/wii-ipl-workers/_luna-runs/prompts/cleanup-common.md`;
+read it before any cleanup task. A cleanup that changes any byte is reverted.
+
+Workarounds accepted to reach 100% (owner decision, 2026-10-09) stay unless a
+cleanup removes them with identical bytes. Each one carries a one-line comment
+naming what the compiler needs:
+
+- function-scoped optimizer pragmas in `#pragma push` / `#pragma pop`;
+- per-use `volatile` where the target mixes volatile and plain access;
+- compiler intrinsics such as `__rlwinm`;
+- a uniform redundant guard or reassignment the compiler needs to keep a
+  block (AOSSLink, `TMCJPEGDEC_err_restart`);
+- dead-stripped stand-in functions that preserve layout (tiInputForm).
+
+Inline asm, `.s` files, section or `force_active` pragmas, padding objects,
+`register` and hand-placed `lbl_` references stay out of C sources.
+
+Matching levers learned in the final waves are in
+`/mnt/drive2/projects/wii-ipl-workers/_luna-runs/prompts/levers.md`; the
+decision log is `_luna-runs/effort-policy.txt` in the same directory.
 
 ## Known hard cases
 
-Many remaining diffs are pure compiler tie-breaks — register allocation and
-floating-point scheduling — with no source-level lever. If `ctxdiff.py` shows
-the instruction count already matches and the surviving differences are
-callee-saved register names, you are probably looking at a tie-break. Record it
-and move on rather than thrashing.
-
-## Current status
-
-Do not copy a progress number from this file. Regenerate the live 43U report
-with `ninja -C . progress build/43U/report.json`; the report and DOL hash are
-the authority for current status. `iplESMisc.cpp` remains `NonMatching` and
-unlinked, so work there is DOL-safe.
+Register allocation and scheduling ties usually have a source-level lever:
+declaration order, a named local for an inline getter, a function-local static
+to drop alias edges, or a scoped optimizer pragma. `combosweep.py` and the
+`_mwdbg` declaration-order search find most of them; see `levers.md`.
 
 ## Reference
 
-`tools/decomp-assist/iplESMisc.reference.cpp` is a snapshot of `iplESMisc.cpp`
-with the matching work applied, kept as a reference for the string order and
-function layout that the pool depends on.
+`tools/decomp-assist/iplESMisc.reference.cpp` is a historical snapshot of
+`iplESMisc.cpp` from before it matched, kept for its string order and
+function layout.
