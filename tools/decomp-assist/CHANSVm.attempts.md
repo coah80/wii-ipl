@@ -1506,3 +1506,19 @@ Their Step findings (o2-chansvm.attempts.md) applied and measured on this leaf:
 - Frame decode retained: `CHANSVmObjHdr objs[4]` gives exact base slots (operand@0x60 etc.) — their map: 0x30=stackPtr obj, 0x40=STORE_INDIRECT obj, 0x50=load, 0x60=operand (separate decls in orig; frame identical either way).
 - Batched application of their remaining items (operandTypes[indexed] + BRANCH_CASE early stackTop + GET_PROPERTY_NAME foundEntry/shouldBranch) → 1260 insns, reverted. These must land as a set with their numbering context, not piecemeal.
 - Their meta-levers: copy-use (`mr` copy keeps a named local's web), static-inline helper numbering, signedness mixing (int index over u32 counter), pass 10=SR / pass 14=CTR conversion — all relevant to the residual 259 web-coloring diffs; apply with a score.py whole-unit harness.
+
+## CHANSVmStep final-2 post-#1321 (w1009/update)
+
+Post-#1321 the fn is 1253/1253 with one real diff: insns 836/837 —
+base `li r26,0; li r14,0; stw r26,0xc(r1)` vs mine `li r26,0; stw r26,0xc(r1); li r14,0`
+(the shouldBranch stack-store vs result=OK materialization order at the
+GET_PROPERTY_NAME join block; foundEntry is const-0 on all join paths so both
+are pure-independent ops — a backend list-scheduler tie).
+Rejected probes: source-order swap (backend reorders anyway — g-chansvm saw the
+same in backend-01), s32 foundEntry, foundEntry=0+read foundEntry at
+property_done (-3 insns, orig DOES emit the separate shouldBranch store),
+tautology ternary, drop shouldBranch=foundEntry (1251 — store must exist).
+Stack slot 0xc = shouldBranch (vmBoolInt/BOOL, fn-scope, memory-homed: live
+across ~800 insns of calls). g-chansvm already exhausted decl positions
+(100k permutations), per-arm/hoisted status, flag forms, pragmas, compiler
+versions. No source lever found; documented as scheduler-tie wall.
