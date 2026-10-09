@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from check_decomp_complete import check_dol, check_report, exact
+from check_decomp_complete import check_dol, check_report, check_sections, exact
 from check_asm_inventory import check_inventory
 
 
@@ -138,6 +138,69 @@ void inactive() { asm("sync"); }
         self.assertTrue(any("inventory:" in failure for failure in self.check()[2]))
 
 
+class SectionCoverageTests(unittest.TestCase):
+    def check(self, sections, **measures):
+        failures = []
+        check_sections(sections, measures, "fixture", failures)
+        return failures
+
+    def test_code_and_data_coverage_pass(self):
+        sections = [
+            {"name": ".init", "size": "16", "fuzzy_match_percent": 100.0},
+            {"name": ".data", "size": "8", "fuzzy_match_percent": 100.0},
+        ]
+        self.assertEqual(self.check(sections, total_code="16", total_data="8"), [])
+
+    def test_data_only_and_proto_zero_sizes_pass(self):
+        self.assertEqual(self.check([{"name": ".sbss", "size": "64"}], total_data="64"), [])
+        self.assertEqual(self.check([], total_code=0, total_data=0), [])
+        self.assertEqual(self.check([
+            {"name": ".text", "fuzzy_match_percent": 100.0},
+            {"name": ".bss"},
+        ], total_code=0, total_data=0), [])
+
+    def test_deduplicated_code_is_not_required_to_equal_section_size(self):
+        sections = [{"name": ".text", "size": "28", "fuzzy_match_percent": 100.0}]
+        self.assertEqual(self.check(sections, total_code="16"), [])
+        self.assertEqual(self.check(sections, total_code=0), [])
+
+    def test_deleted_or_truncated_sections_fail(self):
+        for sections in ([], [{"name": ".text", "size": "12", "fuzzy_match_percent": 100.0}]):
+            with self.subTest(sections=sections):
+                failures = self.check(sections, total_code="16", total_data="8")
+                self.assertTrue(any("section code coverage" in item for item in failures))
+                self.assertTrue(any("section data coverage" in item for item in failures))
+
+    def test_excess_data_is_not_hidden_by_code_slack(self):
+        failures = self.check([
+            {"name": ".text", "size": "28", "fuzzy_match_percent": 100.0},
+            {"name": ".bss", "size": "12"},
+        ], total_code="16", total_data="8")
+        self.assertIn("fixture section data coverage: 12 != 8", failures)
+
+    def test_invalid_section_sizes_fail(self):
+        for size in (-1, "-1", True, 1.5, "1.5", None):
+            with self.subTest(size=size):
+                self.assertTrue(self.check([{"name": ".data", "size": size}], total_data=0))
+
+    def test_invalid_and_duplicate_section_names_fail(self):
+        for name in (None, [], "", ".unknown"):
+            with self.subTest(name=name):
+                self.assertTrue(self.check([{"name": name, "size": "8"}], total_data="8"))
+        section = {"name": ".data", "size": "4"}
+        self.assertIn("fixture section .data: duplicate section", self.check([section, section], total_data="8"))
+
+    def test_section_scores_remain_strict(self):
+        for section in (
+            {"name": ".text", "size": "16"},
+            {"name": ".text", "size": "16", "fuzzy_match_percent": 99.9999},
+            {"name": ".data", "size": "8", "fuzzy_match_percent": 99.9999},
+        ):
+            with self.subTest(section=section):
+                failures = self.check([section], total_code="16", total_data="8")
+                self.assertTrue(any("fixture section " + section["name"] in item for item in failures))
+
+
 class WorkflowGuardTests(unittest.TestCase):
     def test_exact_percent_is_strict(self):
         self.assertTrue(exact(100.0))
@@ -232,6 +295,43 @@ class WorkflowGuardTests(unittest.TestCase):
 
     def test_complete_report_schema_passes(self):
         self.assertEqual(check_report(self.complete_report()), [])
+
+    def test_empty_section_arrays_cannot_claim_completion(self):
+        report = self.complete_report()
+        for unit in report["units"]:
+            unit["sections"] = []
+        failures = check_report(report)
+        self.assertTrue(any("section code coverage" in failure for failure in failures))
+        self.assertTrue(any("section data coverage" in failure for failure in failures))
+
+    def test_deleting_one_code_or_data_section_fails(self):
+        for kind, section_name in (("code", ".text"), ("data", ".sbss")):
+            with self.subTest(kind=kind):
+                report = self.complete_report()
+                unit = next(unit for unit in report["units"]
+                            if any(section["name"] == section_name for section in unit["sections"]))
+                unit["sections"] = [section for section in unit["sections"] if section["name"] != section_name]
+                self.assertTrue(any(f"{unit['name']} section {kind} coverage" in failure
+                                    for failure in check_report(report)))
+
+    def test_every_current_section_is_required_for_coverage(self):
+        for unit in self.complete_report()["units"]:
+            for index, section in enumerate(unit["sections"]):
+                with self.subTest(unit=unit["name"], section=section["name"]):
+                    remaining = unit["sections"][:index] + unit["sections"][index + 1:]
+                    failures = []
+                    check_sections(remaining, unit["measures"], unit["name"], failures)
+                    self.assertTrue(any("coverage" in failure for failure in failures), failures)
+
+    def test_inventory_gate_is_only_in_strict_completion_step(self):
+        workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/build.yml").read_text(encoding="utf-8")
+        steps = workflow.split("    - name: ")
+        inventory_steps = [step for step in steps if "python tools/check_asm_inventory.py" in step]
+        self.assertEqual(len(inventory_steps), 1)
+        step = inventory_steps[0]
+        self.assertTrue(step.startswith("Enforce completion gate\n"))
+        self.assertIn("if: matrix.version == '43U' && github.event_name == 'workflow_dispatch' && inputs.require_complete == true", step)
+        self.assertIn("python tools/check_decomp_complete.py", step)
 
     def test_aggregate_fuzzy_float_rounding_passes_only_when_fully_matched(self):
         report = self.complete_report()

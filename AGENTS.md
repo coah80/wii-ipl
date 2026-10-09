@@ -94,10 +94,11 @@ The final completion assertion is machine-checkable:
 ```
 python3 tools/check_decomp_complete.py build/43U/report.json \
     --dol build/43U/main.dol
+python3 tools/check_asm_inventory.py
 ```
 
-It must pass before claiming full completion. GitHub Actions runs the same
-assertion when manually dispatched with `require_complete=true`.
+Both checks must pass before claiming full completion. GitHub Actions runs the same
+assertions when manually dispatched with `require_complete=true`.
 Normal push and pull-request builds publish progress without failing on the
 current incomplete state. Use the manual `require_complete=true` dispatch for
 the terminal all-100% gate.
