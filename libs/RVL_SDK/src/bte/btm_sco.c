@@ -80,7 +80,8 @@ static void btm_esco_conn_rsp(UINT16 sco_inx, UINT8 hci_status, BD_ADDR bda,
 	BT_HDR *p_buf;
 	UINT16 temp_pkt_types;
 
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_REJECT_ESCO)) == NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_REJECT_ESCO);
+	if (p_buf == NULL)
 	{
 		BTM_TRACE(ERROR, "btm_esco_conn_rsp -> No Resources");
 		return;
@@ -246,8 +247,10 @@ tBTM_STATUS BTM_CreateSco(BD_ADDR remote_bda, BOOLEAN is_orig, UINT16 pkt_types,
 
 	if (is_orig)
 	{
+		// MWCC requires this combined check for the original instructions.
 		if (!remote_bda
-		    || ((acl_handle = BTM_GetHCIConnHandle(remote_bda)) == 0xffff))
+		    || ((acl_handle = BTM_GetHCIConnHandle(remote_bda))
+		        == BTM_INVALID_HCI_HANDLE))
 		{
 			return BTM_UNKNOWN_ADDR;
 		}
@@ -382,7 +385,8 @@ void btm_sco_chk_pend_unpark(tHCI_STATUS hci_status, tHCI_HANDLE hci_handle,
 	/* explicitly post-increment */
 	for (xx = 0; xx < BTM_MAX_SCO_LINKS; xx++, p++)
 	{
-		if (p->state == SCO_ST_PEND_UNPARK && mode == 0
+		// MWCC requires the handle lookup inside this short-circuit condition.
+		if (p->state == SCO_ST_PEND_UNPARK && mode == HCI_MODE_ACTIVE
 		    && hci_status == HCI_SUCCESS
 		    && ((acl_handle = BTM_GetHCIConnHandle(p->esco.data.bd_addr))
 		        == hci_handle))
@@ -494,7 +498,7 @@ void btm_sco_connected(tHCI_STATUS hci_status, BD_ADDR bda,
 			{
 				if (p->state == SCO_ST_CONNECTING)
 				{
-					if (hci_status != 35)
+					if (hci_status != HCI_ERR_LMP_ERR_TRANS_COLLISION)
 					{
 						p->state = SCO_ST_UNUSED;
 
@@ -598,6 +602,7 @@ void btm_sco_removed(UINT16 hci_handle, UINT8 reason)
 	if (btm_num_sco_links_active() <= 1)
 		btm_chg_all_acl_pkt_types(FALSE);
 
+	// MWCC requires the second database address computation after the calls.
 	p = btm_cb.sco_cb.sco_db;
 
 	/* explicitly post-increment */

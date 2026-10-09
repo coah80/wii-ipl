@@ -66,11 +66,7 @@ enum
 typedef void tBTA_HH_ACTION(tBTA_HH_DEV_CB *p_cb, tBTA_HH_DATA *p_data);
 typedef UINT8 tBTA_HH_STATE_TABLE_ENTRY[BTA_HH_NUM_COLS];
 
-#if 0
-typedef tBTA_HH_STATE_TABLE_ENTRY tBTA_HH_STATE_TABLE[];
-#else
 typedef tBTA_HH_STATE_TABLE_ENTRY tBTA_HH_STATE_TABLE;
-#endif
 
 static char const *bta_hh_evt_code(tBTA_HH_INT_EVT evt_code);
 static char const *bta_hh_state_code(tBTA_HH_STATE state_code);
