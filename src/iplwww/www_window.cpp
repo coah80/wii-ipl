@@ -49,6 +49,7 @@ namespace ext_ead {
             mUpdateBufferIndex = 0;
             mUpdatePageIndex = 0;
 
+            // MWCC retains these two stack initialization stores in the original constructor.
             struct {
                 int v0, v1;
             } unused = {0, 0};
@@ -191,20 +192,13 @@ namespace ext_ead {
         }
 
         void BrowserWindow::HandleNotifyEvent_() {
-            bool received;
-            BOOL level;
-
-            OSMessage msg;
-            WindowCmd* pCmd;
-
             WindowCmd cmd;
 
-            // goto TRY_RECEIVE;
             while (mMessage.TryReceiveTypedMessage(&cmd)) {
                 if ((cmd.eventCode & 0xf0000000) == 0x10000000) {
                     ExecWwwEvent_(cmd.eventCode & 0xFFFFFFf, cmd.pHandleEventData);
                 }
-            };
+            }
         }
 
         void BrowserWindow::TileBlit_() {

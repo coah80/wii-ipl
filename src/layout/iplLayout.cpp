@@ -131,7 +131,7 @@ namespace ipl {
 
         Object::~Object() {
             Animator* anim;
-            while (anim = static_cast<Animator*>(nw4r::ut::List_GetFirst(&mAnims)), anim != NULL) {
+            while ((anim = static_cast<Animator*>(nw4r::ut::List_GetFirst(&mAnims))) != NULL) {
                 nw4r::ut::List_Remove(&mAnims, anim);
                 delete anim;
             }
@@ -211,7 +211,7 @@ namespace ipl {
 
         void Object::finishBinding() {
             Animator* anim = NULL;
-            while (anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim)), anim != NULL) {
+            while ((anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim))) != NULL) {
                 anim->initFrame();
                 anim->setFrame();
             }
@@ -228,7 +228,7 @@ namespace ipl {
             initLocationAdjust();
 
             Animator* anim = NULL;
-            while (anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim)), anim != NULL) {
+            while ((anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim))) != NULL) {
                 anim->calc();
             }
 
@@ -260,7 +260,7 @@ namespace ipl {
             Animator* anim;
             if (animIdx == -1) {
                 anim = NULL;
-                while (anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim)), anim != NULL) {
+                while ((anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim))) != NULL) {
                     anim->play();
                 }
             } else {
@@ -273,7 +273,7 @@ namespace ipl {
             Animator* anim;
             if (animIdx == -1) {
                 anim = NULL;
-                while (anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim)), anim != NULL) {
+                while ((anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim))) != NULL) {
                     anim->setMaxFrame(maxFrame);
                 }
             } else {
@@ -286,7 +286,7 @@ namespace ipl {
             Animator* anim;
             if (animIdx == -1) {
                 anim = NULL;
-                while (anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim)), anim != NULL) {
+                while ((anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim))) != NULL) {
                     anim->setMinFrame(minFrame);
                 }
             } else {
@@ -299,7 +299,7 @@ namespace ipl {
             Animator* anim;
             if (animIdx == -1) {
                 anim = NULL;
-                while (anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim)), anim != NULL) {
+                while ((anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim))) != NULL) {
                     anim->setAnmType(type);
                 }
             } else {
@@ -314,7 +314,7 @@ namespace ipl {
             Animator* anim;
             if (animIdx == -1) {
                 anim = NULL;
-                while (anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim)), anim != NULL) {
+                while ((anim = static_cast<Animator*>(nw4r::ut::List_GetNext(&mAnims, anim))) != NULL) {
                     result |= anim->isPlaying();
                 }
             } else {

@@ -150,7 +150,7 @@ namespace homebutton {
 
     void RemoteSpk::DelaySpeakerOnCallback(OSAlarm* alarm, OSContext* context) {
         s32 chan = reinterpret_cast<s32>(OSGetAlarmUserData(alarm));
-        s32 result = WPADControlSpeaker(chan, WPAD_SPEAKER_ON, &SpeakerOnCallback);
+        WPADControlSpeaker(chan, WPAD_SPEAKER_ON, &SpeakerOnCallback);
     }
 
     void RemoteSpk::SpeakerOnCallback(s32 chan, s32 result) {
@@ -162,7 +162,7 @@ namespace homebutton {
         switch (result) {
             case WPAD_ERR_OK: {
                 pRmtSpk->info[chan].first = true;
-                result = WPADControlSpeaker(chan, WPAD_SPEAKER_PLAY, &SpeakerPlayCallback);
+                WPADControlSpeaker(chan, WPAD_SPEAKER_PLAY, &SpeakerPlayCallback);
                 break;
             }
             case WPAD_ERR_COMMUNICATION_ERROR: {
@@ -177,7 +177,7 @@ namespace homebutton {
 
     void RemoteSpk::DelaySpeakerPlayCallback(OSAlarm* alarm, OSContext* context) {
         s32 chan = reinterpret_cast<s32>(OSGetAlarmUserData(alarm));
-        s32 result = WPADControlSpeaker(chan, WPAD_SPEAKER_PLAY, &SpeakerPlayCallback);
+        WPADControlSpeaker(chan, WPAD_SPEAKER_PLAY, &SpeakerPlayCallback);
     }
 
     void RemoteSpk::SpeakerPlayCallback(s32 chan, s32 result) {
@@ -210,7 +210,7 @@ namespace homebutton {
             return;
         }
 
-        int result = WPADControlSpeaker(chan, WPAD_SPEAKER_ON, &SpeakerOnCallback);
+        WPADControlSpeaker(chan, WPAD_SPEAKER_ON, &SpeakerOnCallback);
 
         std::memset(&info[chan].wencinfo, 0, sizeof(WENCInfo));
         info[chan].first = true;
@@ -246,6 +246,7 @@ namespace homebutton {
     }
 
     bool RemoteSpk::isPlayReady(s32 chan) const {
+        // MWCC needs this comparison to normalize the stored flag to a boolean.
         return info[chan].playReady != false;
     }
 }  // namespace homebutton

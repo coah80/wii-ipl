@@ -138,20 +138,11 @@ namespace ipl {
             }
 
             block = FIsSEActive(sndName);
-            if (block != NULL && block->handle.GetId() == WIPL_SE_GRAY_BUTTON) {
-                goto return_block;
-            }
-            if (block == NULL) {
-                goto continue_block;
-            }
-            if (block->handle.GetId() != WIPL_SE_ERROR) {
-                goto continue_block;
+            if ((block != NULL && block->handle.GetId() == WIPL_SE_GRAY_BUTTON) ||
+                (block != NULL && block->handle.GetId() == WIPL_SE_ERROR)) {
+                return &block->handle;
             }
 
-        return_block:
-            return &block->handle;
-
-        continue_block:
             if (block == NULL) {
                 block = getFreeSEBlock(true);
             }
@@ -174,20 +165,11 @@ namespace ipl {
             }
 
             block = FIsSEActive(sndIndex);
-            if (block != NULL && block->handle.GetId() == WIPL_SE_GRAY_BUTTON) {
-                goto return_block_index;
-            }
-            if (block == NULL) {
-                goto continue_block_index;
-            }
-            if (block->handle.GetId() != WIPL_SE_ERROR) {
-                goto continue_block_index;
+            if ((block != NULL && block->handle.GetId() == WIPL_SE_GRAY_BUTTON) ||
+                (block != NULL && block->handle.GetId() == WIPL_SE_ERROR)) {
+                return (int)block;
             }
 
-        return_block_index:
-            return (int)block;
-
-        continue_block_index:
             if (block == NULL) {
                 block = getFreeSEBlock(true);
             }
@@ -507,10 +489,10 @@ namespace snd {
             long range = hi - lo;
 
             if (range < 0) {
-                long temp = lo;
+                long originalLo = lo;
                 lo = hi;
-                hi = temp;
-                range = temp - lo;
+                hi = originalLo;
+                range = originalLo - lo;
             }
 
             if (value < lo) {

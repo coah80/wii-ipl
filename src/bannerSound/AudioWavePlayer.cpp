@@ -233,6 +233,7 @@ bool SimpleWavePlayer::makeThread(s32 prio, void* stack, u32 stackSize) {
         OSResumeThread(&mThread);
         mThreadRunning = true;
     }
+    // MWCC needs this comparison to preserve the original return sequence.
     return wasCreated == true;
 }
 
