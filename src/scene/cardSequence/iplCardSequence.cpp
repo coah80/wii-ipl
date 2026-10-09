@@ -403,8 +403,8 @@ static inline void sendValidityResponse(u32 command, u32 valid) {
         u32 value;
         struct { u32 upper : 16; u32 valid : 8; u32 command : 8; } fields;
     } reply;
-    reply.value = valid << 8;
-    reply.fields.command = command;
+    reply.value = command;
+    reply.fields.valid = valid;
     OSSendMessage(&sThread->responses, (OSMessage)reply.value, OS_MESSAGE_BLOCK);
 }
 

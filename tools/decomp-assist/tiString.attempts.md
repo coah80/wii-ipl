@@ -28,3 +28,22 @@ call result, or a non-foldable form). Dead `cmplwi r4,0xa` matches the documente
 dead-compare-fossil family (both-branch merge). Also: count lands in r29 via
 clrlwi (u16) — count is i.
 Unresolved: what source produces symbolic-index stores + dead compare.
+# tiString attempts
+
+## inputChar mode-3 indexed block (upstream main @10146c1b)
+
+- Base emits `li r6,0; sth r6,0x10; slwi r0,r6,1; addi r5,r1,0x10;
+  sthx r4,r5,r0; addi r6,r6,1; mr r4,r5; li r5,0; slwi r0,r6,1;
+  clrlwi r29,r6; sthx r5,r4,r0; sth r5,0x42` — input[count] INDEXED
+  stores with count a register-born (li+addi) SYMBOLIC web. MWCC folds
+  the FIRST store to immediate offset (count=0 proven) but keeps later
+  stores indexed — index var must be non-const-folded.
+- Decode: orig's mode-3 path is NOT CharacterOutput (inlines to folded
+  immediates). It's `count=0; input[count]=0; input[count++]=ch;
+  input[count]=0; count` — semantics confirmed; the wall is making
+  count's web symbolic.
+- ~13 forms: u16/u32/int index locals (all const-propped), struct-with-
+  inline-buffer member index (stays MEMORY: real stw/lwz — too far),
+  CharacterOutput direct + pointer-call (fully promotes + folds),
+  post-inc index (folds). Register-born symbolic web needs phi/call/
+  member-load provenance — none found that emits base's li-born shape.

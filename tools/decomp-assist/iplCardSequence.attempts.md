@@ -288,3 +288,17 @@ Shared headers and configure.py are unchanged. All data sections remain exact.
 - `(reply.value & ~0xFF00)|(valid<<8)`: rlwinm+ori split.
 - Residual 2 lines = coalescer dst-operand choice with no source
   lever that preserves insn count.
+
+## w1011/struct2 wave-5 (post-rebase 10146c1b) — aoss/chansvm levers exhausted
+
+- mr-cross-block mechanism (o2-aoss): copy survives iff its uses are in
+  other blocks. Verified base CFG: send block (0xd30) reached only from
+  case-10; `command` (r19) dies there, reborn in case-0 block at 0xd58.
+  No other case reads command → no legitimate later-block use exists;
+  all survival variants add insns. ~28 cumulative forms; wall stands.
+- declsearch.py: 120 decl-orderings of cardThreadMain's decl block —
+  no improvement ((2,3) floor); operand-dst selection unaffected by
+  vreg numbering.
+- New levers tried: __rlwinm identity (folds), int-union-member,
+  pointer-param pack helper, packValidity return-value, u8 params,
+  separate `response` temp, second reply.value use (+stw). All fold.
