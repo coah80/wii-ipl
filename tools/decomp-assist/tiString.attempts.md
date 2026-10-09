@@ -81,3 +81,23 @@ On the 136/136 insn-equal form (IRO-4 + inputBuf + phi arm, 7 diff ops):
 - TU `-O4,s` or NO extra_cflags → 132 insns — the committed `extra_cflags=["-O4,p"]` is
   LOAD-BEARING: removing it drops 4 insns (kills the symbolic-index sequence)
 - bool-assign arm `u32 v=(ch==10); inputIndex=v-v` → cntlzw materialization (135,11d) — rejected
+
+## Wave w1011d — structural decode pass on inputChar compare fossil (~10 more variants)
+
+Decoded orig emission (o64-79): `cmpwi r6,3; bne; li r6,0; sth r6,0x10; cmplwi r4,0xa(dead);
+slwi r0,r6,1; addi r5,r1,0x10; sthx r4; addi r6,r6,1; mr r4,r5; li r5,0; slwi; clrlwi r29;
+sthx; sth 0x42; b` — index stays symbolic via a phi whose arm emits ZERO insns.
+
+New arms tried (all fold or add insns):
+- dead-store arms: `input[0]=0`, `mKanaStream.mOutput[0]=0` → 130v136 (arm folds, kills sequence)
+- control forms: `if(ch==10);` empty → 125; `while(ch==10){}` → 129
+- `inputIndex=inputIndex+0` → 125; `input[inputIndex]=0`/`inputBuf[0]=0` arms → 130
+- `u16/s32 inputIndex` → 137(+1)/136(same); `count` as index → 137 insns, 5 diff ops but
+  rlwinm-masked index (u16) + bne/li arm remains
+- `u32 inputIndex;` UNINIT + arm `=0` → 128v136 (whole block folds to direct stores — MWCC
+  collapses uninit index to 0-folded direct offsets, losing the symbolic-index sequence)
+
+Wall (final): a phi whose arm-side definition emits zero insns — only realizable if MWCC
+elides BOTH the arm's li and the guard branch; no source form does it while keeping the
+index web symbolic. Compare fossil likely requires an MWCC phase-ordering quirk
+(compare emitted, then its branch consumer folded by a later pass that doesn't re-dce).
