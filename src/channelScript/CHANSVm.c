@@ -7106,6 +7106,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
     u32 foundEntry;
     CHANSVmErr loadResult;
     CHANSVmErr result;
+    CHANSVmErr propertyResult;
     CHANSVmModule* dbg;
     u32 typeIdx;
     const vmWStringObjVal* stackString;
@@ -7717,7 +7718,7 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                     if (operandBuf == vmNull) {
                         return CHANS_VM_ERR_CODE_RANGE;
                     }
-                    result = CHANS_VM_ERR_GET_PROPERTY_NAME;
+                    propertyResult = CHANS_VM_ERR_GET_PROPERTY_NAME;
                     foundEntry = 0;
                     imm16Val = VM_READ_BE_U16(operandBuf, 0);
                     foundObj = CHANSVmLookupScopedObject(vm, imm16Val);
@@ -7772,10 +7773,11 @@ CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount) {
                                     break;
                                 }
                             }
+                            propertyResult = CHANS_VM_OK;
                             shouldBranch = foundEntry;
-                            result = CHANS_VM_OK;
                         }
                     }
+                    result = propertyResult;
                     goto property_done;
                 property_error:
                     result = CHANS_VM_ERR_GET_PROPERTY_NAME;
