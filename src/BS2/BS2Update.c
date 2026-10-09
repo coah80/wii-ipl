@@ -93,31 +93,31 @@ static inline u32 BS2SelectUpdateEntries(void) {
         case SC_PRODUCT_AREA_TWN:
             if (titleRegion == 'J' || titleRegion == 'D') {
                 regionValid = TRUE;
-                goto product_region_checked;
+                break;
             }
             goto invalid_product_region;
         case SC_PRODUCT_AREA_USA:
             if (titleRegion == 'E' || titleRegion == 'D') {
                 regionValid = TRUE;
-                goto product_region_checked;
+                break;
             }
             goto invalid_product_region;
         case SC_PRODUCT_AREA_EUR:
             if (titleRegion == 'P' || titleRegion == 'D') {
                 regionValid = TRUE;
-                goto product_region_checked;
+                break;
             }
             goto invalid_product_region;
         case SC_PRODUCT_AREA_KOR:
             if (titleRegion == 'K') {
                 regionValid = TRUE;
-                goto product_region_checked;
+                break;
             }
             goto invalid_product_region;
         case SC_PRODUCT_AREA_CHN:
             if (titleRegion == 'C') {
                 regionValid = TRUE;
-                goto product_region_checked;
+                break;
             }
             goto invalid_product_region;
         default:
@@ -126,7 +126,6 @@ invalid_product_region:
             break;
         }
     }
-product_region_checked:
     if (!regionValid) {
         BS2Report("Error: failed to check product region.");
         selectedCount = 0;

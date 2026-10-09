@@ -1035,14 +1035,10 @@ extern "C" void runCardMoveOrCopy(u8 slot, s16 fileNo, s32 command) {
         sectorError = 0;
     }
 sectorSizeCheck:
-    if (sectorError >= CARD_RESULT_READY) {
-        goto sectorSizeDone;
+    if (sectorError < CARD_RESULT_READY) {
+        reportCardThreadError(slot, command, sectorError);
+        goto finish;
     }
-sectorSizeError:
-    reportCardThreadError(slot, command, sectorError);
-    goto finish;
-sectorSizeDone:
-    ;
 
     {
         s32 permissionResult = 0;

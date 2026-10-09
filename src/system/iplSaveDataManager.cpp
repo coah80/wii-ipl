@@ -133,6 +133,7 @@ namespace ipl {
             return file->isFinished();
         }
 
+        // MWCC needs the input-region comparison computed inside the channel search.
         #pragma push
         #pragma opt_loop_invariants off
         ESTitleId Manager::hasChannel(ESTitleId titleId, int* outIndex, int* outPage) const {
