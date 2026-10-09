@@ -84,157 +84,139 @@ s32 TMCJPEGDEC_get_byte(u8* dst, TMCCJPEGDecWork* work) {
 }
 
 s32 TMCJPEGDEC_get_wbyte(u16* dst, TMCCJPEGDecWork* work) {
-    u8 byte_val;
-    u32 byte_shifted;
-    s32 r;
+    u8 byte;
+    u32 highByte;
+    s32 result;
 
     u8* cur;
     u8* end;
     u8* next;
 
-    if (work->pBufCur >= work->pBufEnd) {
-        if (work->remaining != 0) {
-            r = refillJpegBuffer(work);
-            if (r < 0) {
-                goto br;
+    // MWCC needs the empty else branches to preserve refill branch direction.
+    do {
+        if (work->pBufCur >= work->pBufEnd) {
+            if (work->remaining != 0) {
+                result = refillJpegBuffer(work);
+                if (result < 0) {
+                    break;
+                } else {
+                }
             } else {
-                // This else-branch is load-bearing...
-                // Forces bge instead of blt.
+                result = TMCC_ERROR_UNDERFLOW;
+                break;
             }
-        } else {
-            r = TMCC_ERROR_UNDERFLOW;
-            goto br;
         }
+
+        {
+            u8* bufferCursor = work->pBufCur;
+            end = work->pBufEnd;
+            cur = bufferCursor;
+            next = bufferCursor + 1;
+        }
+
+        work->pBufCur = next;
+        byte = *cur;
+        if (next >= end) {
+            if (work->remaining != 0) {
+                result = refillJpegBuffer(work);
+                if (result < 0) {
+                    break;
+                } else {
+                }
+            } else {
+                result = TMCC_ERROR_UNDERFLOW;
+                break;
+            }
+        }
+        result = 0;
+    } while (0);
+    highByte = (u32)byte << 8;
+    if (result < 0) {
+        return result;
     }
 
-    {
-        u8* tmp = work->pBufCur;
+    do {
+        if (work->pBufCur >= work->pBufEnd) {
+            if (work->remaining != 0) {
+                result = refillJpegBuffer(work);
+                if (result < 0) {
+                    break;
+                } else {
+                }
+            } else {
+                result = TMCC_ERROR_UNDERFLOW;
+                break;
+            }
+        }
+
+        cur = work->pBufCur;
         end = work->pBufEnd;
-        cur = tmp;
-        next = tmp + 1;
-    }
-
-    work->pBufCur = next;
-    byte_val = *cur;
-    if (next < end) {
-        goto o1;
-    }
-
-    if (work->remaining != 0) {
-        r = refillJpegBuffer(work);
-        if (r >= 0) {
-            goto o1;
+        next = cur + 1;
+        work->pBufCur = next;
+        byte = *cur;
+        if (next >= end) {
+            if (work->remaining != 0) {
+                result = refillJpegBuffer(work);
+                if (result < 0) {
+                    break;
+                } else {
+                }
+            } else {
+                result = TMCC_ERROR_UNDERFLOW;
+                break;
+            }
         }
-        goto br;
-    } else {
-        r = TMCC_ERROR_UNDERFLOW;
-        goto br;
-    }
-
-o1:
-    r = 0;
-
-br:
-    byte_shifted = (u32)byte_val << 8;
-    if (r >= 0) {
-        goto p2;
-    }
-    return r;
-
-p2:
-    if (work->pBufCur < work->pBufEnd) {
-        goto r2;
-    }
-    if (work->remaining != 0) {
-        r = refillJpegBuffer(work);
-        if (r < 0)
-            goto ez;
-        else {
-            // ...
-        }
-    } else {
-        r = TMCC_ERROR_UNDERFLOW;
-        goto ez;
-    }
-
-r2:
-    cur = work->pBufCur;
-    end = work->pBufEnd;
-    next = cur + 1;
-    work->pBufCur = next;
-    byte_val = *cur;
-    if (next < end) {
-        goto o2;
-    }
-
-    if (work->remaining != 0) {
-        r = refillJpegBuffer(work);
-        if (r < 0)
-            goto ez;
-        else {
-            // ...
-        }
-    } else {
-        r = TMCC_ERROR_UNDERFLOW;
-        goto ez;
-    }
-
-o2:
-    r = 0;
-ez:
-    *dst = byte_shifted + byte_val;
-    return r < 0 ? r : 0;
+        result = 0;
+    } while (0);
+    *dst = highByte + byte;
+    return result < 0 ? result : 0;
 }
 
 s32 TMCJPEGDEC_get_sbyte(u8* dst, u32 count, TMCCJPEGDecWork* work) {
-    int r = 0;
+    int result = 0;
     u32 i;
     u8 byte;
     u8* cur;
 
     for (i = 0; i < count; i++) {
-        if (work->pBufCur >= work->pBufEnd) {
-            if (work->remaining != 0) {
-                r = refillJpegBuffer(work);
-                if (r < 0) {
-                    goto copy_byte;
+        // MWCC needs the empty else branches to preserve refill branch direction.
+        do {
+            if (work->pBufCur >= work->pBufEnd) {
+                if (work->remaining != 0) {
+                    result = refillJpegBuffer(work);
+                    if (result < 0) {
+                        break;
+                    } else {
+                    }
                 } else {
-                    // This else-branch is load-bearing...
-                    // Forces bge instead of blt.
+                    result = TMCC_ERROR_UNDERFLOW;
+                    break;
                 }
-            } else {
-                r = TMCC_ERROR_UNDERFLOW;
-                goto copy_byte;
             }
-        }
 
-        cur = work->pBufCur;
-        work->pBufCur += 1;
-        byte = *cur;
+            cur = work->pBufCur;
+            work->pBufCur += 1;
+            byte = *cur;
 
-        if (work->pBufCur < work->pBufEnd) {
-            goto r0;
-        }
-        if (work->remaining != 0) {
-            r = refillJpegBuffer(work);
-            if (r >= 0) {
-                goto r0;
+            if (work->pBufCur >= work->pBufEnd) {
+                if (work->remaining != 0) {
+                    result = refillJpegBuffer(work);
+                    if (result < 0) {
+                        break;
+                    } else {
+                    }
+                } else {
+                    result = TMCC_ERROR_UNDERFLOW;
+                    break;
+                }
             }
-            goto copy_byte;
-        } else {
-            r = TMCC_ERROR_UNDERFLOW;
-            goto copy_byte;
-        }
-
-    r0:
-        r = 0;
-
-    copy_byte:
+            result = 0;
+        } while (0);
         *dst = byte;
         dst++;
 
-        if (r < 0)
-            return r;
+        if (result < 0)
+            return result;
     }
     return 0;
 }
@@ -243,51 +225,41 @@ s32 TMCJPEGDEC_move_ptr(s32 offset, TMCCJPEGDecWork* work) {
     s32 avail;
     s32 r;
 
-    if (offset < 0) {
-        goto ng;
+    if (offset >= 0) {
+        while (work->pBufEnd - work->pBufCur <= offset) {
+            avail = work->pBufEnd - work->pBufCur;
+            offset -= avail;
+            if (work->remaining != 0) {
+                r = refillJpegBuffer(work);
+                if (r >= 0) {
+                    continue;
+                }
+                return r;
+            } else {
+                return TMCC_ERROR_UNDERFLOW;
+            }
+        }
+        work->pBufCur += offset;
+        if (work->pBufEnd > work->pBufCur) {
+            goto done;
+        }
+        if (work->remaining != 0) {
+            r = refillJpegBuffer(work);
+            if (r >= 0) {
+                goto done;
+            }
+            return r;
+        } else {
+            return TMCC_ERROR_UNDERFLOW;
+        }
+    } else {
+        offset = -offset;
+        if (work->pBufCur - work->pBufStart < offset) {
+            return TMCC_ERROR_UNDERFLOW;
+        }
+        work->pBufCur -= offset;
     }
-    goto lc;
-
-lp:
-    offset -= avail;
-    if (work->remaining == 0) {
-        goto er1;
-    }
-    r = refillJpegBuffer(work);
-    if (r >= 0) {
-        goto lc;
-    }
-    return r;
-er1:
-    return TMCC_ERROR_UNDERFLOW;
-
-lc:
-    avail = work->pBufEnd - work->pBufCur;
-    if (avail <= offset) {
-        goto lp;
-    }
-    work->pBufCur += offset;
-    if (work->pBufEnd > work->pBufCur) {
-        goto ret0;
-    }
-    if (work->remaining == 0) {
-        goto er2;
-    }
-    r = refillJpegBuffer(work);
-    if (r >= 0) {
-        goto ret0;
-    }
-    return r;
-er2:
-    return TMCC_ERROR_UNDERFLOW;
-
-ng:
-    offset = -offset;
-    if (work->pBufCur - work->pBufStart < offset) {
-        return TMCC_ERROR_UNDERFLOW;
-    }
-    work->pBufCur -= offset;
-ret0:
+done:
     return 0;
 }
 
@@ -314,47 +286,45 @@ s32 TMCJPEGDEC_load_buff(TMCCJPEGDecWork* work) {
         work->bitBuf = bitBuf;
         work->bitCount = bitCount;
         work->pBufCur = cur;
-        goto ret;
+    } else {
+        do {
+            if (work->pBufEnd <= work->pBufCur) {
+                if (work->remaining == 0) {
+                    break;
+                }
+                r = refillJpegBufferAfterFF(work);
+                if (r < 0) {
+                    return r;
+                }
+            }
+
+            {
+                u32 bb = work->bitBuf;
+                u8* c = work->pBufCur;
+                u8* next;
+                u8 byte = *c;
+
+                next = c + 1;
+                work->pBufCur = next;
+                work->bitBuf = (bb << 8) + byte;
+                work->bitCount += 8;
+                if (byte == 0xFF) {
+                    work->pBufCur = next + 1;
+                }
+            }
+
+            if (work->pBufEnd <= work->pBufCur) {
+                if (work->remaining == 0) {
+                    break;
+                }
+                r = refillJpegBufferAfterFF(work);
+                if (r < 0) {
+                    return r;
+                }
+            }
+        } while (work->bitCount <= 24);
     }
 
-    do {
-        if (work->pBufEnd <= work->pBufCur) {
-            if (work->remaining == 0) {
-                break;
-            }
-            r = refillJpegBufferAfterFF(work);
-            if (r < 0) {
-                return r;
-            }
-        }
-
-        {
-            u32 bb = work->bitBuf;
-            u8* c = work->pBufCur;
-            u8* next;
-            u8 byte = *c;
-
-            next = c + 1;
-            work->pBufCur = next;
-            work->bitBuf = (bb << 8) + byte;
-            work->bitCount += 8;
-            if (byte == 0xFF) {
-                work->pBufCur = next + 1;
-            }
-        }
-
-        if (work->pBufEnd <= work->pBufCur) {
-            if (work->remaining == 0) {
-                break;
-            }
-            r = refillJpegBufferAfterFF(work);
-            if (r < 0) {
-                return r;
-            }
-        }
-    } while (work->bitCount <= 24);
-
-ret:
     return 0;
 }
 

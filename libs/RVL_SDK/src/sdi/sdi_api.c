@@ -7,8 +7,6 @@
 
 #include <string.h>
 
-#pragma sym on
-
 #define SD_SLOT_0_PATH "/dev/sdio/slot0"
 #define SD_SLOT_1_PATH "/dev/sdio/slot1"
 #define SD_SLOT_W_PATH "/dev/sdio/slotw"
@@ -591,27 +589,32 @@ ISD_Error ISD_InitCard() {
         goto out;
     }
 
-    if ((__sdCmdBuffer = iosAlloc(__sdHeapId[0], 0x20)) == 0) {
+    __sdCmdBuffer = iosAlloc(__sdHeapId[0], 0x20);
+    if (__sdCmdBuffer == 0) {
         ret = IPC_RESULT_ALLOC_FAILED;
         goto out;
     }
 
-    if ((__sdResp = iosAlloc(__sdHeapId[0], 0x20)) == 0) {
+    __sdResp = iosAlloc(__sdHeapId[0], 0x20);
+    if (__sdResp == 0) {
         ret = IPC_RESULT_ALLOC_FAILED;
         goto out;
     }
 
-    if ((__sdResp2 = iosAlloc(__sdHeapId[0], 0x20)) == 0) {
+    __sdResp2 = iosAlloc(__sdHeapId[0], 0x20);
+    if (__sdResp2 == 0) {
         ret = IPC_RESULT_ALLOC_FAILED;
         goto out;
     }
 
-    if ((__sdReg = iosAlloc(__sdHeapId[0], 0x20)) == 0) {
+    __sdReg = iosAlloc(__sdHeapId[0], 0x20);
+    if (__sdReg == 0) {
         ret = IPC_RESULT_ALLOC_FAILED;
         goto out;
     }
 
-    if ((__sdVect = iosAlloc(__sdHeapId[0], 0x60)) == 0) {
+    __sdVect = iosAlloc(__sdHeapId[0], 0x60);
+    if (__sdVect == 0) {
         ret = IPC_RESULT_ALLOC_FAILED;
         goto out;
     }

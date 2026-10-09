@@ -264,18 +264,17 @@ static void CloseCallbackFromReload(s32 result, NANDCommandBlock* block) {
 static void FinishFromReload() {
     SCStatus status;
 
-_openFile:
-    Control.openFileType++;
-
-    if (Control.openFileType < SC_CONF_FILE_MAX) {
+    for (;;) {
+        Control.openFileType++;
+        if (Control.openFileType >= SC_CONF_FILE_MAX) {
+            break;
+        }
         Control.isFileOpen = FALSE;
 
         if (NANDPrivateOpenAsync(Control.filePaths[Control.openFileType], &Control.fileInfo, NAND_ACCESS_READ, OpenCallbackFromReload,
                                  &Control.commandBlock) == NAND_RESULT_OK) {
             return;
         }
-
-        goto _openFile;
     }
 
     switch (Control.asyncResult) {
@@ -293,7 +292,7 @@ _openFile:
         }
     }
 
-    *(u8*)((u8*)OSPhysicalToCached(SC_CONFIG_FILE_PHYS_ADDRESS) + SC_CONFIG_FILE_LENGTH - 1) = '\0';
+    ((u8*)OSPhysicalToCached(SC_CONFIG_FILE_PHYS_ADDRESS))[SC_CONFIG_FILE_LENGTH - 1] = '\0';
 
     if (Control.asyncCallback != NULL) {
         Control.asyncCallback(Control.asyncResult);
@@ -442,6 +441,7 @@ static SCStatus ParseConfBuf(u8* conf, u32 size) {
 
     // Build lookup table
 
+    // MWCC needs the name load in this loop condition to preserve scheduling.
     for (tblEnd = &tblIter[ItemIDMaxPlus1]; tblIter < tblEnd && (itName = tblIter->name) != (void*)NULL; tblIter++) {
         u32 itNameLen = strlen(itName);
 
@@ -726,6 +726,7 @@ static BOOL CreateItemByID(SCItemID id, u8 primType, const void* src, u32 len) {
 
     itemSize += len;
 
+    // MWCC needs the name load in this loop condition to preserve both branches.
     for (; (itemName = it->name) != (void*)NULL; it++) {
         if (it->id == id) {
             break;
@@ -1011,6 +1012,7 @@ void SCFlushAsync(SCFlushCallback callback) {
 static void MyNandCallback(s32 result, NANDCommandBlock* block) {
     SCControl* ctrl = &Control;
 
+    // MWCC needs shared switch paths to preserve branch layout.
     switch (ctrl->nandCbState) {
         case NAND_CB_STATE_GET_STATUS: {
             if (result == NAND_RESULT_OK && ctrl->fileType == NAND_TYPE_FILE) {
@@ -1020,15 +1022,15 @@ static void MyNandCallback(s32 result, NANDCommandBlock* block) {
                     goto _error;
                 }
             } else {
-                goto _case_1_lbl;
+                goto deleteFile;
             }
             return;
         }
         case NAND_CB_STATE_DELETE: {
             if (result == NAND_RESULT_OK && ctrl->fileAttr.permission == NAND_PERM_ALL_RW) {
-                goto _case_5_lbl;
+                goto openFile;
             }
-        _case_1_lbl:
+        deleteFile:
             ctrl->nandCbState = NAND_CB_STATE_GET_TYPE;
 
             if (NANDPrivateDeleteAsync(ConfFileName, MyNandCallback, &ctrl->commandBlock) != NAND_RESULT_OK) {
@@ -1045,19 +1047,17 @@ static void MyNandCallback(s32 result, NANDCommandBlock* block) {
             return;
         }
         case NAND_CB_STATE_CREATE_DIR: {
-            if (result == NAND_RESULT_OK && ctrl->fileType == NAND_TYPE_DIR) {
-                goto _case_4_lbl;
-            }
+            if (result != NAND_RESULT_OK || ctrl->fileType != NAND_TYPE_DIR) {
+                ctrl->nandCbState = NAND_CB_STATE_CREATE_FILE;
 
-            ctrl->nandCbState = NAND_CB_STATE_CREATE_FILE;
-
-            if (NANDPrivateCreateDirAsync(ConfDirName, NAND_PERM_ALL_RW, 0, MyNandCallback, &ctrl->commandBlock) != NAND_RESULT_OK) {
-                goto _error;
+                if (NANDPrivateCreateDirAsync(ConfDirName, NAND_PERM_ALL_RW, 0, MyNandCallback, &ctrl->commandBlock) != NAND_RESULT_OK) {
+                    goto _error;
+                }
+                return;
             }
-            return;
+            // FALLTHROUGH
         }
         case NAND_CB_STATE_CREATE_FILE: {
-        _case_4_lbl:
             ctrl->nandCbState = NAND_CB_STATE_OPEN_FILE;
             if (NANDPrivateCreateAsync(ConfFileName, NAND_PERM_ALL_RW, 0, MyNandCallback, &ctrl->commandBlock) != NAND_RESULT_OK) {
                 goto _error;
@@ -1065,7 +1065,7 @@ static void MyNandCallback(s32 result, NANDCommandBlock* block) {
             return;
         }
         case NAND_CB_STATE_OPEN_FILE: {
-        _case_5_lbl:
+        openFile:
             ctrl->nandCbState = NAND_CB_STATE_WRITE_FILE;
             if (NANDPrivateOpenAsync(ConfFileName, &ctrl->fileInfo, NAND_ACCESS_WRITE, MyNandCallback, &ctrl->commandBlock) != NAND_RESULT_OK) {
                 goto _error;
