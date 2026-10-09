@@ -727,7 +727,7 @@ namespace ipl {
             channel->state = CHAN_STATE_LOADED;
         }
 
-        // uhh
+        // MWCC needs IRO disabled to preserve repeated channel-entry address calculations.
 #pragma push
 #pragma ppc_iro_level 0
         void Manager::loadMetaHeaderAsync(int page, int index) {
@@ -838,21 +838,21 @@ namespace ipl {
         void Manager::makeLoadOrderList(int* list) const {
             int prevPage = System::getSaveData()->getPrevPage();
             *list = prevPage;
-            int var1 = prevPage + 1;
+            int nextPage = prevPage + 1;
 
             int i = 1;
             do {
-                int var2 = var1 - prevPage;
-                if (var2 >= 0) {
-                    if (var1 < 4) {
-                        list[i++] = var1;
+                int pageDistance = nextPage - prevPage;
+                if (pageDistance >= 0) {
+                    if (nextPage < MAX_CHANNEL_PAGE) {
+                        list[i++] = nextPage;
                     }
-                    var1 = prevPage - var2;
+                    nextPage = prevPage - pageDistance;
                 } else {
-                    if (var1 >= 0) {
-                        list[i++] = var1;
+                    if (nextPage >= 0) {
+                        list[i++] = nextPage;
                     }
-                    var1 = (prevPage - var2) + 1;
+                    nextPage = (prevPage - pageDistance) + 1;
                 }
             } while (i != MAX_CHANNEL_PAGE);
         }

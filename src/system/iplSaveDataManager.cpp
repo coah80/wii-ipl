@@ -15,16 +15,6 @@
 
 #include "config.h"
 
-extern "C" void _savegpr_14();
-extern "C" void _restgpr_14();
-extern "C" void _savegpr_26();
-extern "C" void _restgpr_26();
-extern "C" void _savegpr_16();
-extern "C" void _restgpr_16();
-extern "C" void _savegpr_28();
-extern "C" void _restgpr_28();
-extern "C" void _savegpr_20();
-extern "C" void _restgpr_20();
 extern "C" void _savegpr_22();
 extern "C" void _restgpr_22();
 
@@ -231,22 +221,23 @@ namespace ipl {
         }
 
         int Manager::getNumValidChannel() const {
-            const ChannelSlot* q;
-            int dens = MAX_CHANNEL_INDEX;
-            const ChannelPage* p;
-            int slot;
+            // MWCC needs this page view to preserve the original channel-base calculation.
+            const ChannelSlot* channelSlot;
+            int channelsPerPage = MAX_CHANNEL_INDEX;
+            const ChannelPage* channelPage;
+            int index;
             int count = 0;
             int page;
-            u8 flag;
-            s32 val;
+            u8 primaryType;
+            s32 sceneID;
             for (page = 0; page < MAX_CHANNEL_PAGE; page++) {
-                p = (const ChannelPage*)((const u8*)this + page * 0xc0);
-                for (slot = 0; slot < dens; slot++) {
-                    q = &p->slots[slot];
-                    flag = q->valid;
-                    if (flag != 0) {
-                        val = q->titleId;
-                        if (val != 0) {
+                channelPage = (const ChannelPage*)((const u8*)this + page * sizeof(mData.chanInfo[page]));
+                for (index = 0; index < channelsPerPage; index++) {
+                    channelSlot = &channelPage->slots[index];
+                    primaryType = channelSlot->valid;
+                    if (primaryType != 0) {
+                        sceneID = channelSlot->titleId;
+                        if (sceneID != 0) {
                             count++;
                         }
                     }
@@ -327,13 +318,15 @@ namespace ipl {
 
                                             u8* data = (u8*)manager;
                                             u32* loopFileLen = &fileLen;
+                                            // MWCC needs volatile MD5 reads to preserve the original byte-load schedule.
                                             volatile NETMD5Sum& md5Ref = md5;
                                             u32 i = 0;
                                             while (i < NET_MD5_DIGEST_SIZE) {
                                                 u8 md5Byte = md5Ref[i];
                                                 u32 offset = i;
                                                 offset += *loopFileLen;
-                                                u32 fileByte = *(u8*)(offset + (u32)data + NET_MD5_DIGEST_SIZE);
+                                                u8* fileByteAddress = (u8*)(offset + (u32)data + NET_MD5_DIGEST_SIZE);
+                                                u32 fileByte = *fileByteAddress;
                                                 if (md5Byte != fileByte) {
                                                     // Invalid MD5 sum, create new
                                                     bCreateNew = TRUE;
@@ -588,14 +581,8 @@ namespace ipl {
         }
 
 #ifdef __MWERKS__
-        extern "C" int isEqualChannel__Q33ipl8savedata7ManagerFUxUx();
-        extern "C" int checkValidApp__Q33ipl8savedata7ManagerFUx();
-        extern "C" int getAvailableInList__Q33ipl8savedata7ManagerFPCUxUl();
-        extern "C" int getAvailableNumInList__Q33ipl8savedata7ManagerFPCUxUl();
-        extern "C" int isDefaultChannel__Q33ipl8savedata7ManagerFUlUl();
-        extern "C" void makeTmpList__Q33ipl8savedata7ManagerFPUxUlPUxUl();
-        extern "C" void moveTitleTmpToPrior__Q33ipl8savedata7ManagerFPUxPCUx();
 
+        // MWCC needs IRO disabled to recompute title-list addresses at each use.
 #pragma push
 #pragma ppc_iro_level 0
         void Manager::makePriorTitleIDList(ESTitleId* titleIdsOut, ESTitleId* titleIdsIn, u32 titleCount) {
@@ -696,6 +683,7 @@ namespace ipl {
             }
         }
 
+        // MWCC needs IRO disabled to retain separate indexed channel address calculations.
 #pragma push
 #pragma ppc_iro_level 0
         BOOL Manager::doUpdateChanInfos(ESTitleId* titleIds) {
@@ -704,9 +692,9 @@ namespace ipl {
                 for (int index = 0; index < MAX_CHANNEL_INDEX; index++) {
                     if (mData.chanInfo[page][index].primaryType != channel::PRIMARY_TYPE_DISK) {
                         ESTitleId titleId = ES_TITLE_ID(mData.chanInfo[page][index].titleType, mData.chanInfo[page][index].titleCode);
-                        int n = index + page * MAX_CHANNEL_INDEX;
-                        if (titleId != titleIds[n]) {
-                            if (titleIds[n] == TITLE_NULL) {
+                        int titleIndex = index + page * MAX_CHANNEL_INDEX;
+                        if (titleId != titleIds[titleIndex]) {
+                            if (titleIds[titleIndex] == TITLE_NULL) {
                                 memset(&mData.chanInfo[page][index], 0, sizeof(channel::SInfo));
                             } else {
                                 mData.chanInfo[page][index].primaryType = channel::PRIMARY_TYPE_CHANNEL;
@@ -714,8 +702,8 @@ namespace ipl {
                                 mData.chanInfo[page][index].reserved[0] = 0;
                                 mData.chanInfo[page][index].reserved[1] = 0;
                                 mData.chanInfo[page][index].sceneID = SCENE_NORMAL_CHANNEL;
-                                mData.chanInfo[page][index].titleType = ES_TITLE_TYPE(titleIds[n]);
-                                mData.chanInfo[page][index].titleCode = ES_TITLE_CODE(titleIds[n]);
+                                mData.chanInfo[page][index].titleType = ES_TITLE_TYPE(titleIds[titleIndex]);
+                                mData.chanInfo[page][index].titleCode = ES_TITLE_CODE(titleIds[titleIndex]);
                             }
                             changed = TRUE;
                         }
@@ -771,16 +759,17 @@ namespace ipl {
         }
 
         int Manager::getAvailableInList(const ESTitleId* titleIds, u32 titleCount) {
-            int dens = MAX_CHANNEL_INDEX;
-            u32 i;
-            for (i = 0; i < titleCount; i++) {
-                if (titleIds[i] == 0) {
-                    int page = (int)i / dens;
-                    int slot = (int)i % dens;
-                    u8* p = (u8*)this + page * 0xc0;
-                    p += slot * 16;
-                    if (*(p + 0x30) != 1) {
-                        return (int)i;
+            int channelsPerPage = MAX_CHANNEL_INDEX;
+            u32 titleIndex;
+            for (titleIndex = 0; titleIndex < titleCount; titleIndex++) {
+                if (titleIds[titleIndex] == TITLE_NULL) {
+                    int page = (int)titleIndex / channelsPerPage;
+                    int index = (int)titleIndex % channelsPerPage;
+                    // MWCC needs this address order to preserve the original channel-slot loads.
+                    u8* channelPage = (u8*)this + page * sizeof(mData.chanInfo[page]);
+                    channelPage += index * sizeof(channel::SInfo);
+                    if (*(channelPage + 0x30) != channel::PRIMARY_TYPE_DISK) {
+                        return (int)titleIndex;
                     }
                 }
             }

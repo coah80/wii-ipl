@@ -57,7 +57,7 @@ namespace ipl {
 
         void delete_task_(void* work);
 
-#define FOREACH_OBJ_IN_LIST(object) while (object = mObjList.getNext(object), object != NULL)
+#define FOREACH_OBJ_IN_LIST(object) while ((object = mObjList.getNext(object)) != NULL)
 
         enum {
             FOCUS_ANIM_IN = 0,
@@ -429,6 +429,7 @@ namespace ipl {
         }
 
         BOOL Board::appendRecord(CDBRecord* record) {
+            // MWCC needs this aggregate to keep interrupt states in their original stack slots.
             struct RecordReadState {
                 BOOL recordInterrupts;
                 u32 dataSize;
@@ -572,7 +573,6 @@ namespace ipl {
         close:
             cdbManager->close(record);
 
-        hide_icon:
             if (mSearchDirection == CDB_SEARCH_DIRECTION_LEFT) {
                 hide_licon();
             } else {
@@ -693,6 +693,7 @@ namespace ipl {
             }
         }
 
+        // MWCC needs IRO disabled to preserve the original scene-check scheduling.
 #pragma push
 #pragma ppc_iro_level 0
         void Board::stt_wait_child_dst() {
@@ -1656,24 +1657,18 @@ namespace ipl {
             }
         }
 
+        // MWCC needs IRO disabled for the original list cursor registers.
 #pragma push
 #pragma ppc_iro_level 0
         void Board::return_to_freelist_if_diff_date() {
             BoardObject* object = mObjList.getNext(NULL);
-            goto start_loop;
-            while (TRUE) {
-                BoardObject* tmp = mObjList.getNext(object);
-
+            while (object != NULL) {
+                BoardObject* next = mObjList.getNext(object);
                 if (object->mBoardDate != mCurrentDate) {
                     object->destroy();
                     mObjList.remove(object);
                 }
-
-                object = tmp;
-            start_loop:
-                if (object == NULL) {
-                    break;
-                }
+                object = next;
             }
         }
 #pragma pop
@@ -2053,6 +2048,7 @@ namespace ipl {
             }
         }
 
+        // MWCC needs IRO disabled to preserve the list cursor and result registers.
 #pragma push
 #pragma ppc_iro_level 0
         BoardObject* Board::get_log_obj() {

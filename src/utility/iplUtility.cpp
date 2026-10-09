@@ -1,3 +1,4 @@
+// MWCC needs this local interpolation layout for the original Scroller methods.
 #define IPL_MATH_INTERPORATION_H
 
 #include <nw4r/math.h>
@@ -244,7 +245,7 @@ namespace ipl {
             return result;
         }
 
-        // uhh
+        // MWCC needs IRO disabled to keep the direction test as branches.
 #pragma push
 #pragma ppc_iro_level 0
         void BScroller::set_arw_param() {
@@ -267,7 +268,7 @@ namespace ipl {
 #pragma pop
 
         bool BScroller::isActive() const {
-            return (u32)(mState + 1) > 0;
+            return mState != -1;
         }
 
         bool BScroller::isUp() const {
@@ -286,6 +287,7 @@ namespace ipl {
             return FALSE;
         }
 
+        // MWCC needs inlining disabled for this constructor's original call sequence.
 #pragma dont_inline on
         Scroller::Scroller() {
             mState = 0;
@@ -476,18 +478,16 @@ namespace ipl {
             u32 result = 0;
             int len = 0;
 
-            const wchar_t* p = src;
-            while (*p != 0) {
+            const wchar_t* digit = src;
+            while (*digit != 0) {
                 len++;
-                p++;
+                digit++;
             }
 
-            int off = 0;
             for (int i = 0; i < len; i++) {
                 double exp = pow(10.0, len - i - 1);
                 wchar_t in = src[i];
                 result += (in - L'0') * exp;
-                off += 2;
             }
             *dest = result;
         }
@@ -500,10 +500,10 @@ namespace ipl {
             char* bytes = (char*)dest;
             for (int i = 0; i < count; i++) {
                 int off = i * 2;
-                char t0 = bytes[off];
-                char t1 = bytes[off + 1];
-                bytes[off] = t1;
-                bytes[off + 1] = t0;
+                char firstByte = bytes[off];
+                char secondByte = bytes[off + 1];
+                bytes[off] = secondByte;
+                bytes[off + 1] = firstByte;
             }
         }
 
@@ -526,6 +526,7 @@ namespace ipl {
                 while (info != NULL) {
                     if (info == textBoxType) {
                         found = true;
+                        // MWCC needs this exit shape to preserve the type-check instruction order.
                         goto check;
                     }
                     info = info->mParentTypeInfo;
@@ -557,10 +558,12 @@ namespace ipl {
 
             math::VEC2 result;
             math::VEC2 pos;
-            math::VEC2* posPtr = &pos;
-            posPtr = __ct__Q33ipl4math4VEC2Fff(posPtr, basePos.x * (rect4x3.GetWidth() / rect16x9.GetWidth()), -basePos.y);
-            ((u32*)&result)[1] = ((u32*)posPtr)[1];
-            ((u32*)&result)[0] = ((u32*)posPtr)[0];
+            math::VEC2* posPtr = __ct__Q33ipl4math4VEC2Fff(&pos, basePos.x * (rect4x3.GetWidth() / rect16x9.GetWidth()), -basePos.y);
+            // MWCC needs the original integer-copy order when returning this vector.
+            u32* resultWords = (u32*)&result;
+            const u32* positionWords = (const u32*)posPtr;
+            resultWords[1] = positionWords[1];
+            resultWords[0] = positionWords[0];
             return result;
         }
 
@@ -575,7 +578,7 @@ namespace ipl {
             if (pal == NULL) {
                 return;
             }
-            if (pal->versionNumber != 0x0020AF30) {
+            if (pal->versionNumber != TPL_MAGIC) {
                 return;
             }
             if ((u32)pal->descriptorArray < 0x80000000) {
@@ -652,9 +655,9 @@ namespace ipl {
                            mpTexHeader->format != GX_TF_IA4 && mpTexHeader->format != GX_TF_IA8 && mpTexHeader->format != GX_TF_RGB565 &&
                            mpTexHeader->format != GX_TF_RGB5A3 && mpTexHeader->format != GX_TF_CMPR && mpTexHeader->format != GX_TF_RGBA8) {
                     r = FALSE;
-                } else if (mpClutHeader != NULL && mpTexHeader->format != 8 && mpTexHeader->format != 9) {
+                } else if (mpClutHeader != NULL && mpTexHeader->format != GX_TF_C4 && mpTexHeader->format != GX_TF_C8) {
                     r = FALSE;
-                } else if (mpClutHeader != NULL && mpClutHeader->format != 0 && mpClutHeader->format != 1 && mpClutHeader->format != 2) {
+                } else if (mpClutHeader != NULL && mpClutHeader->format != GX_TL_IA8 && mpClutHeader->format != GX_TL_RGB565 && mpClutHeader->format != GX_TL_RGB5A3) {
                     r = FALSE;
                 } else if (mpClutHeader != NULL && mpClutHeader->numEntries > 0x4000) {
                     r = FALSE;
@@ -691,7 +694,7 @@ namespace ipl {
                     r = FALSE;
                 } else if (mpTexHeader->width > 0x200) {
                     r = FALSE;
-                } else if (mpClutHeader == NULL && mpTexHeader->format == 6) {
+                } else if (mpClutHeader == NULL && mpTexHeader->format == GX_TF_RGBA8) {
                     r = FALSE;
                 }
             }
@@ -731,6 +734,7 @@ namespace ipl {
     }  // namespace utility
 
 #ifndef NON_MATCHING
+    // MWCC needs this weak factory to preserve the original object text layout.
     __declspec(weak) math::VEC2 ForceCTORWeak() {
         return math::VEC2(NULL, NULL);
     }
