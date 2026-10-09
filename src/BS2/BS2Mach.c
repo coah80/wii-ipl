@@ -48,6 +48,7 @@ u8 PartitionInfoBuf[OSRoundUp32B(sizeof(DVDPartitionInfo) * 256)] ALIGN32;
 DVDCommandBlock Block;
 
 static BS2State State = BS2_STT_BEGIN;
+// MWCC must preserve the reads and writes of interrupt-shared flags below.
 static vu32 DvdReadPending = 0;
 static u32 BannerAllocation = 0;
 static u32 BannerBuffer = 0;
@@ -603,6 +604,10 @@ static void BS2Reboot(void) {
     }
 }
 
+static inline s32 BS2ReadDVDState(const volatile DVDCommandBlock *block) {
+    return block->state;
+}
+
 void BS2StartGame() {
     u32 runResult;
     u8 *base;
@@ -619,7 +624,7 @@ void BS2StartGame() {
     u32 (*entry)(void);
 
     StartingGame = TRUE;
-    while (((volatile DVDCommandBlock *)&CoverBlock)->state != DVD_STATE_IDLE) {
+    while (BS2ReadDVDState(&CoverBlock) != DVD_STATE_IDLE) {
     }
 
     BS2Report("BS2StartGame(1)\n");
@@ -850,7 +855,7 @@ void BS2StartGCGame() {
     OSTime time;
 
     StartingGame = TRUE;
-    while (((volatile DVDCommandBlock *)&CoverBlock)->state != DVD_STATE_IDLE) {
+    while (BS2ReadDVDState(&CoverBlock) != DVD_STATE_IDLE) {
     }
 
     soundMode = SCGetSoundMode();
@@ -2171,7 +2176,7 @@ invalidRvlRegion:
         BS2BootFromCache = 0;
         BS2BootCaching = 1;
         LoadingTitle = 0;
-        switch (((volatile DVDCommandBlock *)&Block)->state) {
+        switch (BS2ReadDVDState(&Block)) {
         case 4:
         case 5:
             CheckDVDCommandStatus(&Block);

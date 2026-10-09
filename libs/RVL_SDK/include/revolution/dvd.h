@@ -72,6 +72,7 @@ struct DVDCommandBlock {
     DVDCommandBlock* prev;  // 0x04
 
     u32 command;  // 0x08
+    // MWCC needs plain state stores; asynchronous readers use volatile views.
     s32 state;    // 0x0C
 
     u32 offset;  // 0x10

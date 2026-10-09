@@ -57,6 +57,7 @@ ziU8 ZADP_Zi8SetPDremoveOpt(ziU8 option, struct __zi8_work_data_s* __zi8_work_da
     return previous;
 }
 ziU8 Zi8MatchPUDdata_ZHS(ziWChar* pattern, ziU8 length, ziU8 language, ziWChar* output, ziU16 capacity, ziWChar* spelling, ziU16 spellingCapacity, ziU8 complete, ziU8 continuation ZI_NEED_WORK) {
+    // MWCC needs this aggregate to retain the unread workspace store at SP+0x24.
     struct {
         int fallback;
         ziPtr workspace;
