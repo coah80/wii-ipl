@@ -10,31 +10,9 @@ namespace ipl {
         public:
             inline Queue<T, c>() : count(c), current(0), popped(0), pushed(0) {}
 
-            BOOL push(const T& item) {
-                if (count == current) {
-                    return FALSE;
-                }
-                items[pushed] = item;
-                if (++pushed >= count) {
-                    pushed = 0;
-                }
-                current++;
-                return TRUE;
-            }
+            BOOL push(const T& item);
 
-            BOOL pop() {
-                BOOL result = TRUE;
-                if (current == 0) {
-                    result = FALSE;
-                    goto done;
-                }
-                if (++popped >= count) {
-                    popped = 0;
-                }
-                current--;
-            done:
-                return result;
-            }
+            BOOL pop();
 
             int get_current_index() { return current; }
             T& get_current_item() { return items[get_current_index()]; }
@@ -55,6 +33,34 @@ namespace ipl {
             int current;         // (sizeof(items) * count) + 0x04
             int popped, pushed;  // (sizeof(items) * count) + 0x08
         };
+
+        template <typename T, int c>
+        BOOL Queue<T, c>::push(const T& item) {
+            if (count == current) {
+                return FALSE;
+            }
+            items[pushed] = item;
+            if (++pushed >= count) {
+                pushed = 0;
+            }
+            current++;
+            return TRUE;
+        }
+
+        template <typename T, int c>
+        BOOL Queue<T, c>::pop() {
+            BOOL result = TRUE;
+            if (current == 0) {
+                result = FALSE;
+                goto done;
+            }
+            if (++popped >= count) {
+                popped = 0;
+            }
+            current--;
+        done:
+            return result;
+        }
     }  // namespace utility
 }  // namespace ipl
 

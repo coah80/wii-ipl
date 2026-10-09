@@ -9,7 +9,6 @@
 
 extern char scPaneName_B_Stop[7];
 extern char scPaneName_T_Stop[];
-extern "C" BOOL push_button_queue(void*, const void*);
 
 namespace ipl {
     namespace scene {
@@ -828,7 +827,7 @@ namespace ipl {
             Command command;
             command.type = Command::TYPE_ANIM;
             command.animId = animId;
-            push_button_queue(&mReservedCmd, &command);
+            mReservedCmd.push(command);
         }
 
         void Button::reserveText(int paneId, u32 msgId) {
@@ -836,7 +835,7 @@ namespace ipl {
             command.type = Command::TYPE_TEXT;
             command.paneId = paneId;
             command.msgId = msgId;
-            push_button_queue(&mReservedCmd, &command);
+            mReservedCmd.push(command);
         }
 
         /* ============== */
@@ -968,22 +967,6 @@ namespace ipl {
 
         void OptOutButtonEventHandlerBase::onEventDerived(u32 compId, u32 event, const controller::Interface* con) {
         }
-
-        extern "C" BOOL push_button_queue(void* storage, const void* item) {
-            typedef utility::Queue<Button::Command, 8> CommandQueue;
-            CommandQueue* queue = static_cast<CommandQueue*>(storage);
-            const Button::Command* command = static_cast<const Button::Command*>(item);
-            if (queue->count == queue->current) {
-                return FALSE;
-            }
-            queue->items[queue->pushed] = *command;
-            if (++queue->pushed >= queue->count) {
-                queue->pushed = 0;
-            }
-            queue->current++;
-            return TRUE;
-        }
-
     }  // namespace scene
 }  // namespace ipl
 

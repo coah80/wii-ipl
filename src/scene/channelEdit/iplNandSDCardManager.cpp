@@ -3,9 +3,6 @@
 
 #include "titledb.h"
 
-// actually needed to match.
-#pragma sym on
-
 namespace ipl {
     namespace scene {
 #define COMMAND_FN(FUNCTION_HEADER, TAG, APP_BOX, SAVE_BOX, WII_TITLE_ID, SD_TITLE_ID)                                                               \
