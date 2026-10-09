@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 void CNTCACHEInit(int unk0, int unk1);
-void CNTCACHEClear();
+s32 CNTCACHEClear(void);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,5 @@
 #include <revolution/os.h>
+#include <revolution/verdefs.h>
 #include <private/nand.h>
 #include <revolution/nand.h>
 #include <private/es.h>
@@ -7,37 +8,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-char scCntCacheStrs[0xd0] = {
-    0x3c, 0x3c, 0x20, 0x52, 0x56, 0x4c, 0x5f, 0x53, 0x44, 0x4b, 0x20, 0x2d, 0x20, 0x43, 0x4e, 0x54,
-    0x43, 0x41, 0x43, 0x48, 0x45, 0x20, 0x09, 0x72, 0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x20, 0x62,
-    0x75, 0x69, 0x6c, 0x64, 0x3a, 0x20, 0x41, 0x70, 0x72, 0x20, 0x32, 0x30, 0x20, 0x32, 0x30, 0x31,
-    0x30, 0x20, 0x31, 0x34, 0x3a, 0x31, 0x35, 0x3a, 0x32, 0x38, 0x20, 0x28, 0x30, 0x78, 0x34, 0x31,
-    0x39, 0x39, 0x5f, 0x36, 0x30, 0x38, 0x33, 0x31, 0x29, 0x20, 0x3e, 0x3e, 0x00, 0x00, 0x00, 0x00,
-    0x2f, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x32, 0x2f, 0x63, 0x6e, 0x74, 0x63, 0x61, 0x63, 0x68,
-    0x65, 0x2e, 0x74, 0x78, 0x74, 0x00, 0x00, 0x00, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x69,
-    0x74, 0x6c, 0x65, 0x20, 0x00, 0x00, 0x00, 0x00, 0x25, 0x30, 0x31, 0x36, 0x6c, 0x6c, 0x78, 0x20,
-    0x00, 0x00, 0x00, 0x00, 0x2f, 0x74, 0x6d, 0x70, 0x2f, 0x63, 0x6e, 0x74, 0x63, 0x61, 0x63, 0x68,
-    0x65, 0x2e, 0x74, 0x78, 0x74, 0x00, 0x00, 0x00, 0x2f, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x32,
-    0x00, 0x00, 0x00, 0x00, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e,
-    0x74, 0x20, 0x00, 0x00, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x69, 0x74, 0x6c, 0x65, 0x00,
-    0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x00, 0x00, 0x00
-};
-char scCntCacheTitleDataFmt[0x16] = {
-    0x2f, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x2f, 0x25, 0x30, 0x38, 0x78, 0x2f, 0x25, 0x30, 0x38, 0x78,
-    0x2f, 0x64, 0x61, 0x74, 0x61, 0x00,
-};
-const char* __CNTCACHEVersion = scCntCacheStrs;
-char scCntCacheSpaceNl[3] = {0x20, 0x0a, 0x00};
+#define CNTCACHE_FILE "/shared2/cntcache.txt"
+#define CNTCACHE_TMP_FILE "/tmp/cntcache.txt"
+#define CNTCACHE_DIR "/shared2"
+#define CNTCACHE_READ_SIZE 0x400
+#define CNTCACHE_LINE_SIZE 0x40
+#define CNTCACHE_RESULT_IO_ERROR (-5299)
 
-extern void _savegpr_23();
-extern void _restgpr_23();
+SDKDefineVersion(CNTCACHE, "Apr 20 2010", "14:15:28");
 
 OSMutex _CNTCACHEMutex;
 long long _CNTCACHEUnused816997A8;
 int _CNTCACHEUnused816997A4;
 BOOL _CNTCACHEInitialized;
 
-void CNTCACHEClear();
+s32 CNTCACHEClear(void);
 BOOL _CNTCACHEIsTitleRemovable(ESTitleId titleId);
 void _CNTCACHEDeleteTitle();
 void _CNTCACHEDeleteContent();
@@ -61,203 +46,243 @@ void CNTCACHEInit(int cacheValue, int cacheHighWord) {
     _CNTCACHEUnused816997A4 = cacheValue;
     *((int*)&_CNTCACHEUnused816997A8) = cacheHighWord;
 }
-asm void CNTCACHEClear() {
-    clrlwi r11, r1, 0x1b
-    mr r12, r1
-    subfic r11, r11, -0x500
-    stwux r1, r1, r11
-    mflr r0
-    mr r11, r12
-    stw r0, 4(r12)
-    bl _savegpr_23
-    lis r30, scCntCacheStrs@ha
-    lis r3, _CNTCACHEMutex@ha
-    addi r30, r30, scCntCacheStrs@l
-    li r29, 0
-    addi r3, r3, _CNTCACHEMutex@l
-    bl OSLockMutex
-    addi r3, r30, 0x50
-    addi r4, r1, 0x24
-    li r27, 1
-    li r5, 3
-    bl NANDPrivateOpen
-    cmpwi r3, -0xc
-    mr r28, r3
-    bne L_d4
-    li r28, 0
-    b L_28c
-L_d4:
-    cmpwi r3, 0
-    beq L_e0
-    b L_268
-L_e0:
-    addi r3, r1, 0x24
-    addi r4, r1, 0x20
-    bl NANDGetLength
-    cmpwi r3, 0
-    mr r28, r3
-    beq L_fc
-    b L_268
-L_fc:
-    li r26, 0
-    li r31, 0
-    b L_25c
-L_108:
-    lwz r25, 0x20(r1)
-    cmplwi r25, 0x400
-    ble L_118
-    li r25, 0x400
-L_118:
-    addi r24, r1, 0xc0
-    addi r0, r25, 0x1f
-    addi r3, r1, 0x24
-    mr r4, r24
-    rlwinm r5, r0, 0, 0, 0x1a
-    bl NANDRead
-    cmpw r3, r25
-    beq L_140
-    li r28, -0x14b3
-    b L_268
-L_140:
-    mr r4, r24
-    li r28, 0
-    mtctr r25
-    cmplwi r25, 0
-    ble L_16c
-L_154:
-    lbz r0, 0(r4)
-    cmpwi r0, 0xa
-    bne L_164
-    b L_170
-L_164:
-    addi r4, r4, 1
-    bdnz L_154
-L_16c:
-    li r4, 0
-L_170:
-    cmpwi r4, 0
-    bne L_224
-    li r28, 0
-    b L_268
-    b L_224
-L_184:
-    stb r31, 0(r4)
-    subf r23, r24, r4
-    mr r3, r24
-    la r4, scCntCacheSpaceNl
-    bl strtok
-    cmpwi r3, 0
-    mr r29, r3
-    beq L_1d4
-    addi r4, r30, 0xb4
-    bl strcmp
-    cmpwi r3, 0
-    bne L_1bc
-    bl _CNTCACHEDeleteTitle
-    b L_1d4
-L_1bc:
-    mr r3, r29
-    addi r4, r30, 0xc0
-    bl strcmp
-    cmpwi r3, 0
-    bne L_1d4
-    bl _CNTCACHEDeleteContent
-L_1d4:
-    lwz r0, 0x20(r1)
-    addi r23, r23, 1
-    add r24, r24, r23
-    subf r0, r23, r0
-    subf r25, r23, r25
-    mr r4, r24
-    stw r0, 0x20(r1)
-    add r26, r26, r23
-    mtctr r25
-    cmplwi r25, 0
-    ble L_218
-L_200:
-    lbz r0, 0(r4)
-    cmpwi r0, 0xa
-    bne L_210
-    b L_21c
-L_210:
-    addi r4, r4, 1
-    bdnz L_200
-L_218:
-    li r4, 0
-L_21c:
-    cmpwi r4, 0
-    beq L_22c
-L_224:
-    cmpwi r25, 0
-    bgt L_184
-L_22c:
-    lwz r0, 0x20(r1)
-    cmpwi r0, 0
-    beq L_25c
-    mr r4, r26
-    addi r3, r1, 0x24
-    li r5, 0
-    bl NANDSeek
-    cmplw r3, r26
-    beq L_258
-    li r28, -0x14b3
-    b L_268
-L_258:
-    li r28, 0
-L_25c:
-    lwz r0, 0x20(r1)
-    cmpwi r0, 0
-    bne L_108
-L_268:
-    addi r3, r1, 0x24
-    bl NANDClose
-    addi r3, r30, 0x50
-    li r29, 0
-    bl NANDPrivateDelete
-    cmpwi r3, 0
-    addi r3, r30, 0x84
-    bl NANDPrivateDelete
-    cmpwi r3, 0
-L_28c:
-    cmpwi r29, 0
-    beq L_29c
-    addi r3, r1, 0x24
-    bl NANDClose
-L_29c:
-    cmpwi r27, 0
-    beq L_2b0
-    lis r3, _CNTCACHEMutex@ha
-    addi r3, r3, _CNTCACHEMutex@l
-    bl OSUnlockMutex
-L_2b0:
-    mr r3, r28
-    lwz r10, 0(r1)
-    mr r11, r10
-    bl _restgpr_23
-    lwz r0, 4(r10)
-    mtlr r0
-    mr r1, r10
-    blr
+
+static s32 ReadCacheFile(char* buf, u32 bufSize, u32* length) {
+    NANDFileInfo info;
+    s32 result;
+
+    *length = 0;
+    result = NANDPrivateOpen(CNTCACHE_FILE, &info, NAND_ACCESS_READ);
+    if (result == NAND_RESULT_NOEXISTS) {
+        return NAND_RESULT_OK;
+    }
+    if (result != NAND_RESULT_OK) {
+        return result;
+    }
+
+    result = NANDGetLength(&info, length);
+    if (result == NAND_RESULT_OK && *length > bufSize) {
+        result = NAND_RESULT_MAXBLOCKS;
+    }
+    if (result == NAND_RESULT_OK && NANDRead(&info, buf, OSRoundUp32B(*length)) != *length) {
+        result = CNTCACHE_RESULT_IO_ERROR;
+    }
+    NANDClose(&info);
+    return result;
+}
+
+static s32 WriteCacheFile(const char* buf, u32 length);
+
+s32 CNTCACHEAddDeleteTitle(ESTitleId titleId) {
+    char buf[CNTCACHE_READ_SIZE + CNTCACHE_LINE_SIZE] ALIGN32;
+    u32 length;
+    s32 result;
+
+    OSLockMutex(&_CNTCACHEMutex);
+    result = ReadCacheFile(buf, CNTCACHE_READ_SIZE, &length);
+    if (result == NAND_RESULT_OK) {
+        strcpy(buf + length, "DeleteTitle ");
+        length += strlen(buf + length);
+        length += sprintf(buf + length, "%016llx ", titleId);
+        buf[length++] = '\n';
+        result = WriteCacheFile(buf, length);
+    }
+    OSUnlockMutex(&_CNTCACHEMutex);
+    return result;
+}
+
+static s32 WriteCacheFile(const char* buf, u32 length) {
+    NANDFileInfo info;
+    s32 result;
+
+    NANDPrivateDelete(CNTCACHE_TMP_FILE);
+    result = NANDPrivateCreate(CNTCACHE_TMP_FILE, NAND_PERM_USER | NAND_PERM_GROUP, 0);
+    if (result != NAND_RESULT_OK) {
+        return result;
+    }
+
+    result = NANDPrivateOpen(CNTCACHE_TMP_FILE, &info, NAND_ACCESS_WRITE);
+    if (result != NAND_RESULT_OK) {
+        return result;
+    }
+    if (NANDWrite(&info, buf, length) != length) {
+        result = CNTCACHE_RESULT_IO_ERROR;
+    }
+    NANDClose(&info);
+    if (result != NAND_RESULT_OK) {
+        return result;
+    }
+
+    return NANDPrivateMove(CNTCACHE_TMP_FILE, CNTCACHE_DIR);
+}
+
+s32 CNTCACHEAddDeleteContent(ESTitleId titleId, const char* indices) {
+    char buf[CNTCACHE_READ_SIZE + CNTCACHE_LINE_SIZE] ALIGN32;
+    u32 length;
+    s32 result;
+
+    if (strlen(indices) > CNTCACHE_LINE_SIZE / 2) {
+        return NAND_RESULT_INVALID;
+    }
+
+    OSLockMutex(&_CNTCACHEMutex);
+    result = ReadCacheFile(buf, CNTCACHE_READ_SIZE, &length);
+    if (result == NAND_RESULT_OK) {
+        strcpy(buf + length, "DeleteContent ");
+        length += strlen(buf + length);
+        length += sprintf(buf + length, "%016llx ", titleId);
+        strcpy(buf + length, indices);
+        length += strlen(buf + length);
+        buf[length++] = '\n';
+        result = WriteCacheFile(buf, length);
+    }
+    OSUnlockMutex(&_CNTCACHEMutex);
+    return result;
+}
+
+static char* FindLineEnd(char* str, u32 length) {
+    u32 i;
+
+    for (i = 0; i < length; i++) {
+        if (*str == '\n') {
+            return str;
+        }
+        str++;
+    }
+    return NULL;
+}
+
+static inline BOOL DeleteCacheFile(const char* path) {
+    if (NANDPrivateDelete(path) != NAND_RESULT_OK) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
+s32 CNTCACHEClear(void) {
+    NANDFileInfo info;
+    char* command;
+    s32 result;
+    BOOL locked = FALSE;
+    BOOL opened = FALSE;
+    u32 fileLength;
+    u32 offset;
+    s32 readLength;
+    char* line;
+    char* lineEnd;
+    u32 lineLength;
+    u8 buf[CNTCACHE_READ_SIZE] ALIGN32;
+
+    OSLockMutex(&_CNTCACHEMutex);
+    locked = TRUE;
+
+    result = NANDPrivateOpen(CNTCACHE_FILE, &info, NAND_ACCESS_RW);
+    if (result == NAND_RESULT_NOEXISTS) {
+        result = NAND_RESULT_OK;
+        goto end;
+    }
+    switch (result) {
+    case NAND_RESULT_OK:
+        opened = TRUE;
+        break;
+    default:
+        goto close;
+    }
+
+    result = NANDGetLength(&info, &fileLength);
+    switch (result) {
+    case NAND_RESULT_OK:
+        break;
+    default:
+        goto close;
+    }
+
+    offset = 0;
+    while (fileLength != 0) {
+        readLength = fileLength > sizeof(buf) ? sizeof(buf) : fileLength;
+        line = (char*)buf;
+        result = NANDRead(&info, buf, OSRoundUp32B(readLength));
+        if (result != readLength) {
+            result = CNTCACHE_RESULT_IO_ERROR;
+            goto close;
+        }
+        result = NAND_RESULT_OK;
+
+        lineEnd = FindLineEnd(line, readLength);
+        if (!lineEnd) {
+            result = NAND_RESULT_OK;
+            goto close;
+        }
+
+        while (readLength > 0) {
+            *lineEnd = '\0';
+            lineLength = lineEnd - line;
+            command = strtok(line, " \n");
+            if (command) {
+                if (strcmp(command, "DeleteTitle") == 0) {
+                    _CNTCACHEDeleteTitle();
+                } else if (strcmp(command, "DeleteContent") == 0) {
+                    _CNTCACHEDeleteContent();
+                }
+            }
+
+            lineLength++;
+            line += lineLength;
+            fileLength -= lineLength;
+            readLength -= lineLength;
+            offset += lineLength;
+
+            lineEnd = FindLineEnd(line, readLength);
+            if (!lineEnd) {
+                break;
+            }
+        }
+
+        if (fileLength != 0) {
+            result = NANDSeek(&info, offset, NAND_SEEK_BEG);
+            if (result != offset) {
+                result = CNTCACHE_RESULT_IO_ERROR;
+                goto close;
+            }
+            result = NAND_RESULT_OK;
+        }
+    }
+
+close:
+    NANDClose(&info);
+    opened = FALSE;
+    DeleteCacheFile(CNTCACHE_FILE);
+    DeleteCacheFile(CNTCACHE_TMP_FILE);
+
+end:
+    if (opened) {
+        NANDClose(&info);
+    }
+    if (locked) {
+        OSUnlockMutex(&_CNTCACHEMutex);
+    }
+    return result;
 }
 
 void _CNTCACHEDeleteTitle() {
-    char* token = strtok(NULL, scCntCacheSpaceNl);
+    char* token;
 
-    while (token != NULL) {
+    for (token = strtok(NULL, " \n"); token != NULL; token = strtok(NULL, " \n")) {
         ESTitleId titleId;
         int removable;
 
         errno = 0;
         titleId = strtoull(token, NULL, 16);
-        if (errno == 0 && (u32)ES_TITLE_TYPE(titleId) != 1) {
-            removable = _CNTCACHEIsTitleRemovable(titleId);
-            if (removable == 1) {
-                ES_DeleteTitle(titleId);
-            } else if (removable == 0) {
-                ES_DeleteTitleContent(titleId);
-            }
+        if (errno != 0 || (u32)ES_TITLE_TYPE(titleId) == 1) {
+            continue;
         }
-        token = strtok(NULL, scCntCacheSpaceNl);
+
+        removable = _CNTCACHEIsTitleRemovable(titleId);
+        if (removable == 1) {
+            ES_DeleteTitle(titleId);
+        } else if (removable == 0) {
+            ES_DeleteTitleContent(titleId);
+        }
     }
 }
 
@@ -267,7 +292,7 @@ static s32 GetSaveDataUsage(ESTitleId titleId) {
     u32 usedBlocks = 1;
     u32 usedINodes = 1;
 
-    snprintf(nandPath, (int)sizeof(nandPath), scCntCacheTitleDataFmt, NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
+    snprintf(nandPath, (int)sizeof(nandPath), "/title/%08x/%08x/data", NANDTitleIdHi(titleId), NANDTitleIdLo(titleId));
     ret = NANDSecretGetUsage(nandPath, &usedBlocks, &usedINodes);
 
     if (ret == NAND_RESULT_NOEXISTS) {
@@ -322,7 +347,7 @@ void _CNTCACHEDeleteContent() {
     ESError result;
     char* token;
 
-    token = strtok(NULL, scCntCacheSpaceNl);
+    token = strtok(NULL, " \n");
     errno = 0;
     titleId = strtoull(token, NULL, 16);
     if (errno == 0 && NANDTitleIdHi(titleId) == 0x00010005) {
@@ -333,7 +358,7 @@ void _CNTCACHEDeleteContent() {
         }
         if (result == ES_ERR_OK && ES_GetTmdView(titleId, tmd, &size) == ES_ERR_OK) {
             if ((tmd->head.titleType & 8) && (tmd->head.titleType & 0x10)) {
-                token = strtok(NULL, scCntCacheSpaceNl);
+                token = strtok(NULL, " \n");
                 while (token) {
                     u32 index;
                     u32 i;
@@ -353,7 +378,7 @@ void _CNTCACHEDeleteContent() {
                             }
                         }
                     }
-                    token = strtok(NULL, scCntCacheSpaceNl);
+                    token = strtok(NULL, " \n");
                 }
             }
             memset(buf, 0, OSRoundUp32B(size));
