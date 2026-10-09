@@ -39,3 +39,5 @@ Remaining difference: the byte-load schedule of the inlined LE32 read. The targe
 - Pragmas on the fn: ppc_iro_level 0/1 = 43, scheduling off = 47, schedule_twice on = 17 (inert), scheduling 600 = compile failure, optimization_level untested (same class).
 - declsearch on the 6-line decl block: current order already optimal (scored 12,21).
 - Wall class: allocator/solver-internal web-coloring (which slwi piece gets the callee + non-coalesced Rc dst) — same class as the fossils leaf. Prior worker's DAG-level note stands: orig loads b0 before b1 (b1 shares b3's r9), ours loads b1 before b0; all 120 operand perms were exhausted without the s-local cross-product — none of the ~16 s-local forms moved it past 17.
+- Post-#1312 re-check on origin/main 54ca052b: still 84v84/17 (fn was never 100% — #1312 only swapped helper->MBR_WORD + pointer->index second loop). Restoring the deleted `read_partition_u32` const-ptr static-inline crossed with s-local: 86v84/42 (re-adds r29 web — const-ptr helper call boundary hurts). `pf_s32 s`: 17 no-op. The 17d macro+s form remains best of ~18 variants.
+
