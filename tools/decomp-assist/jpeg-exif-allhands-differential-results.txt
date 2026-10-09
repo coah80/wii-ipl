@@ -1,6 +1,0 @@
-TMCJPEGDEC_IFD0_tag_parse 131072 selector cases PASS
-TMCJPEGDEC_IFD1_tag_parse 131072 selector cases PASS
-TMCJPEGDEC_IFD0_tag_parse 132746 cases PASS; own-body instruction coverage 480 / 480 source; 481 / 481 original
-TMCJPEGDEC_IFD1_tag_parse 132704 cases PASS; own-body instruction coverage 239 / 239 source; 241 / 242 original
-TMCJPEGDEC_exif_parse 1832 cases PASS; own-body instruction coverage 212 / 212 source; 212 / 212 original
-TOTAL 267282 paired EXIF calls PASS

@@ -1,9 +1,0 @@
-{
-  "Vec2": "math::VEC2",
-  "Color": "ut::Color",
-  "TexCoords": "detail::TexCoords",
-  "GetTextureSize": "detail::GetTextureSize",
-  "IsModulateVertexColor": "detail::IsModulateVertexColor",
-  "SetVertexFormat": "detail::SetVertexFormat",
-  "DrawQuad": "detail::DrawQuad"
-}
