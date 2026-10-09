@@ -1033,30 +1033,31 @@ cleanup:
 
 int ATERMBuildEncryptedMessage(u16* messageBuffer, u32 sequence, u16* payload, size_t payloadLength,
                    void* encryptionKey) {
+    AtermFrameHeader* header = (AtermFrameHeader*)messageBuffer;
+    AtermElementHeader* element = (AtermElementHeader*)payload;
     u8* end;
     u8* cursor;
     u32 checksum = 0;
 
-    memset(payload, 0, 8);
-    payload[0] = SOHtoNs((payloadLength - 8) & 0xFFFF);
+    memset(element, 0, sizeof(*element));
+    element->length = SOHtoNs(payloadLength - sizeof(*element));
     if (encryptionKey != NULL) {
-        ATERMAesKeyWrap(messageBuffer + 3, payload, payloadLength, encryptionKey, 0x10);
+        ATERMAesKeyWrap((u16*)(header + 1), payload, payloadLength, encryptionKey, 0x10);
         payloadLength += 8;
     } else {
-        memcpy(messageBuffer + 3, payload, payloadLength);
+        memcpy(header + 1, payload, payloadLength);
     }
-    memset(messageBuffer, 0, 6);
-    messageBuffer[0] = SOHtoNs(sequence & 0xFFFF);
-    messageBuffer[1] = SOHtoNs(payloadLength & 0xFFFF);
+    memset(header, 0, sizeof(*header));
+    header->command = SOHtoNs(sequence);
+    header->length = SOHtoNs(payloadLength);
 
-    end = (u8*)(messageBuffer + 3);
+    end = (u8*)(header + 1);
     end += payloadLength;
-    cursor = (u8*)messageBuffer;
-    for (; cursor < end; cursor++) {
+    for (cursor = (u8*)messageBuffer; cursor < end; cursor++) {
         checksum += *cursor;
     }
     *(u16*)end = SOHtoNs(checksum);
-    return (int)(end + sizeof(u16) - (u8*)messageBuffer);
+    return end + sizeof(u16) - (u8*)messageBuffer;
 }
 
 int ATERMParsePacket(AtermPacket* packet, u32* setupType) {

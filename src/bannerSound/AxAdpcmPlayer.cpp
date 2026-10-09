@@ -5,7 +5,7 @@
 #include <revolution/sc.h>
 
 VoiceInfo Voices[AX_VOICE_MAX];
-u8 sZeroMem[0x100];
+u8 sZeroMem[0x100] ATTRIBUTE_ALIGN(32);
 
 void* zeroBuffer;
 bool AxAdpcmSimplePlayer::sSysInit;
