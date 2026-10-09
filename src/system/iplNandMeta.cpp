@@ -127,10 +127,11 @@ namespace ipl {
             }
 
             // Read the file
-            if (ES_ReadContentFile(mDescriptor, bufferOut, length) < ES_ERR_OK) {
-            failed:
-                IPLErrorLogAndDisplay(MESG_ERR_FILE, "ES", 0, 230);
+            if (ES_ReadContentFile(mDescriptor, bufferOut, length) >= ES_ERR_OK) {
+                return;
             }
+        failed:
+            IPLErrorLogAndDisplay(MESG_ERR_FILE, "ES", 0, 230);
         }
 
         BOOL MetaFile::closeTicketFile_() {

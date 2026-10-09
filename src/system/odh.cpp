@@ -1294,7 +1294,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               (u32)master->blockX * 8;
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + statusOrOffset,
@@ -1312,7 +1312,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               (u32)master->blocksHigh * ((u32)master->blocksWide << 6);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
@@ -1332,7 +1332,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               (u32)master->blocksWide * ((u32)master->blockY << 6));
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
@@ -1352,7 +1352,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       requiredBlockEnd = planeOffset + (blockRowSize * 2) + 8;
       if (requiredBlockEnd > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + planeOffset
@@ -1368,7 +1368,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       }
       if (requiredBlockEnd + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables,master->coefficients,
@@ -1386,7 +1386,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               (u32)master->blocksHigh * ((u32)master->blocksWide << 7);
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
@@ -1405,7 +1405,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                (u32)master->blocksWide * ((u32)master->blockY << 6));
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
@@ -1424,7 +1424,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                (u32)master->blocksWide * ((u32)master->blockY << 6) * 2;
       if (planeOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + planeOffset
@@ -1441,7 +1441,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       planeOffset += (u32)master->blocksWide << 6;
       if (planeOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + planeOffset
@@ -1459,7 +1459,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               (u32)master->blocksWide * ((u32)master->blockY << 6));
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
@@ -1478,7 +1478,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                (u32)master->blocksWide * ((u32)master->blockY << 6));
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
@@ -1498,7 +1498,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       requiredBlockEnd = planeOffset + (blockRowSize * 2) + 8;
       if (requiredBlockEnd > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + planeOffset
@@ -1515,7 +1515,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       planeOffset = nextOffset;
       if (nextOffset + (blockRowSize * 2) + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + nextOffset
@@ -1533,7 +1533,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       planeOffset = requiredBlockEnd + (blockRowSize * 2) + 8;
       if (planeOffset > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables,master->coefficients,master->workBuffer + requiredBlockEnd
@@ -1549,7 +1549,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
       }
       if (planeOffset + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables,master->coefficients,
@@ -1567,7 +1567,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
                (u32)master->blocksWide * ((u32)master->blockY << 6));
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
@@ -1586,7 +1586,7 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
               (u32)master->blocksWide * ((u32)master->blockY << 6));
       if (statusOrOffset + blockRowSize + 8 > workBufferSize) {
         statusOrOffset = -0x7ffffffa;
-        goto finishBlock;
+        return statusOrOffset;
       }
       idct_fast
                 (range_limit,master->quantizationTables + 64,master->coefficients,master->workBuffer + statusOrOffset,
@@ -1600,7 +1600,6 @@ s32 CArGBAOdh::cdj_d_decompressLoop(SArCDJ_OdhMaster* master, int srcSize, int w
     }
   } while (master->blockY < master->blocksHigh);
   statusOrOffset = 0;
-finishBlock:
   return statusOrOffset;
 }
 

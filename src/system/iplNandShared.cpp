@@ -16,57 +16,58 @@ namespace ipl {
         }
 
         BOOL SharedFile::openTicketFile_() {
-            int code = 0;
-            int errcode = 0;
+            int errorStage = 0;
+            int errorCode = 0;
             ESTitleId titleId = 0;
             ESTicketId ticketId = 0;
-            int erridx = 0;
+            int contentIndex = 0;
             mTicket = (ESTicketView*)System::getSharedHeap()->alloc(OSRoundUp32B(sizeof(ESTicketView)), -DEFAULT_ALIGN);
 
             if (mTicketIdx >= 0) {
                 if (utility::ESMisc::GetTicketView(System::getSharedHeap(), mTitleId, mTicket, mTicketIdx) < ES_ERR_OK) {
-                    code = 100;
+                    errorStage = 100;
                     goto err;
                 }
             } else {
-                u32 tikCount;
-                ESTicketView* tik;
+                u32 ticketCount;
+                ESTicketView* ticketViews;
 
-                if (utility::ESMisc::GetTicketViewList(System::getSharedHeap(), mTitleId, &tik, &tikCount) != ES_ERR_OK) {
-                    code = code;
+                if (utility::ESMisc::GetTicketViewList(System::getSharedHeap(), mTitleId, &ticketViews, &ticketCount) != ES_ERR_OK) {
+                    // MWCC needs these self-copies to preserve the error branches.
+                    errorStage = errorStage;
                     goto err;
                 } else {
-                    int tikIdx = utility::ESMisc::GetValidTicketIndex(System::getSharedHeap(), mTitleId, tik, tikCount);
-                    if (tikIdx < 0) {
+                    int ticketIndex = utility::ESMisc::GetValidTicketIndex(System::getSharedHeap(), mTitleId, ticketViews, ticketCount);
+                    if (ticketIndex < 0) {
                         goto err;
                     }
-                    if (tikIdx >= tikCount) {
-                        code = code;
+                    if (ticketIndex >= ticketCount) {
+                        errorStage = errorStage;
                         goto err;
                     }
-                    mTicketIdx = tikIdx;
-                    memcpy(mTicket, &tik[tikIdx], sizeof(ESTicketView));
-                    System::getSharedHeap()->free(tik);
+                    mTicketIdx = ticketIndex;
+                    memcpy(mTicket, &ticketViews[ticketIndex], sizeof(ESTicketView));
+                    System::getSharedHeap()->free(ticketViews);
                 }
             }
 
-            s32 ret = ES_OpenTitleContentFile(mTitleId, mTicket, mContentIdx);
-            mDescriptor = ret;
+            s32 contentDescriptor = ES_OpenTitleContentFile(mTitleId, mTicket, mContentIdx);
+            mDescriptor = contentDescriptor;
 
-            if (ret < ES_ERR_OK) {
-                errcode = ret;
+            if (contentDescriptor < ES_ERR_OK) {
+                errorCode = contentDescriptor;
                 titleId = mTitleId;
                 if (mTicket) {
                     ticketId = mTicket->ticketId;
                 }
-                erridx = mContentIdx;
-                code = 400;
+                contentIndex = mContentIdx;
+                errorStage = 400;
                 goto err;
             }
 
             ARCHeader header ALIGN32;
             if (ES_ReadContentFile(mDescriptor, &header, sizeof(ARCHeader)) < ES_ERR_OK) {
-                code = 500;
+                errorStage = 500;
                 goto err;
             }
 
@@ -75,7 +76,7 @@ namespace ipl {
 
             if (ES_SeekContentFile(mDescriptor, 0, NAND_SEEK_BEG) < ES_ERR_OK || ES_ReadContentFile(mDescriptor, mpFSTBuffer, bufSize) < ES_ERR_OK ||
                 !ARCInitHandle(mpFSTBuffer, &mArc)) {
-                code = 600;
+                errorStage = 600;
                 goto err;
             }
 
@@ -88,9 +89,9 @@ namespace ipl {
             return result == TRUE;
         err:
             char errString[128];
-            sprintf(errString, "ES %d, %llx, %llx, %x", errcode, titleId, ticketId, erridx);
+            sprintf(errString, "ES %d, %llx, %llx, %x", errorCode, titleId, ticketId, contentIndex);
 
-            IPLErrorLogAndDisplay(MESG_ERR_FILE, errString, code, 158);
+            IPLErrorLogAndDisplay(MESG_ERR_FILE, errString, errorStage, 158);
 
             return FALSE;
         }
