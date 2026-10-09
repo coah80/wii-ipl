@@ -200,3 +200,21 @@ forms: both still forward to the r27 web, 2 diffs unchanged.
 const-table analysis: ipAddress/etc are non-const .data (written by
 AOSS_SetStaticIpConfig) — can't be const; supportedRates is .data non-const
 matching orig's sections (no .rodata in orig .o) — const would break data.
+
+## Round 5: Init_old u32-deref decode (orchestrator's missing-checks lead)
+
+Orchestrator hypothesized missing cancel_flag reads — refuted: 14 lwz
+AOSSi_cancel_flag sites in BOTH objects. Orig's extra cmplwi r0,1 at
+0xd60/0x1620 are `*s_accessPointConfig == 1` compares: MWCC emits cmplwi
+(unsigned) vs my cmpwi (signed) keyed off the COMPARE OPERAND's type —
+s_accessPointConfig stays `int*` (file is full of (int*)0x0 literal casts)
+but the deref needs an unsigned compare: `(u32)*s_accessPointConfig == 1u`
+at the two wait-loop break sites (lines 881/1233) matching line 675's
+existing pattern. All 3 sites now cmplwi r0,1; cmplwi count 17=17.
+Init_old 96.62 -> 96.69; fn now 1581 vs orig 1584 insns.
+
+Remaining real gaps: pinned-zero cmplw r3,r27 at both AOSSi_Alloc NULL
+checks vs orig cmpwi r3,0 (all pragma forms no-op); bgt-vs-ble+b layout at
+the manufacturerLength<=0xd memcpy guard (goto form folds back to bgt —
+orig's 2-branch layout implies a merge/region structure source can't
+reproduce); net -3 insns somewhere in mass-rotation noise.

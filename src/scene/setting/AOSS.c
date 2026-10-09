@@ -672,7 +672,7 @@ wait_for_initial_link:
     resultCode = 0xffffffff;
     goto finish_initialization;
   }
-  if ((state == 0) && ((u32)*s_accessPointConfig == 1u)) goto handle_initial_link;
+  if ((state == 0) && (*s_accessPointConfig == 1u)) goto handle_initial_link;
   remainingWait = (u16)waitIntervals.limits.response;
   for (; remainingWait != 0; remainingWait = (u16)(remainingWait - nextSleep)) {
     if (AOSSi_cancel_flag == 1) {
@@ -878,7 +878,7 @@ request_socket_cleanup_complete:
                 resultCode = 0xffffffff;
                 goto finish_initialization;
               }
-              if ((requestResult == 0) && (*s_accessPointConfig == 1)) break;
+              if ((requestResult == 0) && ((u32)*s_accessPointConfig == 1u)) break;
               remainingWait = waitIntervals.limits.response;
               for (; remainingWait != 0; remainingWait -= initialSleep) {
                 if (AOSSi_cancel_flag == 1) {
@@ -1230,7 +1230,7 @@ wait_for_packet:
           resultCode = 0xffffffff;
           goto finish_initialization;
         }
-        if ((state == 0) && (*s_accessPointConfig == 1)) break;
+        if ((state == 0) && ((u32)*s_accessPointConfig == 1u)) break;
         remainingWait = waitIntervals.limits.response;
         for (; remainingWait != 0; remainingWait -= initialSleep) {
           if (AOSSi_cancel_flag == 1) {
