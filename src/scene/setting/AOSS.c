@@ -461,7 +461,7 @@ int AOSS_Init_old(AOSSInitInput* input)
   waitSettings.value = 0;
   receivedPackets = 0;
   protocolState = 0;
-  memset(&requestRecords,0,0x18);
+  memset(&requestRecords, 0, sizeof(requestRecords));
   waitIntervals.limits.connection = input->options[0];
   if (waitIntervals.limits.connection == -1) {
     waitIntervals.limits.connection = 10;
@@ -730,7 +730,9 @@ wait_for_initial_link:
   }
   attemptCount++;
 test_initial_link:
-  if (attemptCount < waitIntervals.limits.connection) goto wait_for_initial_link;
+  if (attemptCount < waitIntervals.limits.connection) {
+    goto wait_for_initial_link;
+  }
 handle_initial_link:
   if (attemptCount == waitIntervals.limits.connection) {
     input->status = 0xf;
@@ -1046,6 +1048,7 @@ perform_request:
             timeoutTicks = 0;
             timeoutTicks += (OSTime)(u32)OSSecondsToTicks(seconds);
             timeoutTicks += (OSTime)(u32)OSMicrosecondsToTicks(microseconds);
+            // MWCC needs these legacy select stores to preserve the original poll block.
             readSet.returnedEvents = 0;
             readSet.socket = s_socket;
             readSet.events = 1;
@@ -1053,7 +1056,9 @@ perform_request:
             pollTime.microseconds = microseconds;
           }
           requestResult = SOPoll(pollDescriptors,1,(OSTime)timeoutTicks);
-          if (0 < requestResult) goto process_received_packet;
+          if (0 < requestResult) {
+            goto process_received_packet;
+          }
           receivedPackets = receivedPackets + 1;
           if (receivedPackets > waitSettings.halfwords.high) {
             if (protocolState == 0) {
@@ -1131,7 +1136,9 @@ process_received_packet:
   }
   else {
     if (protocolState != requestResult) {
-      if (requestResult != 2) goto advance_protocol_state;
+      if (requestResult != 2) {
+        goto advance_protocol_state;
+      }
       if (AOSSCloseSocket() != 0) {
         input->status = 0xf;
         if (s_accessPointConfig) {
@@ -1401,7 +1408,9 @@ close_protocol_socket:
     goto finish_initialization;
   } else {
     protocolResult = AOSSValidateInitConfig(input);
-    if (protocolResult == 0) goto configuration_success;
+    if (protocolResult == 0) {
+      goto configuration_success;
+    }
     {
       input->status = 6;
       if (s_accessPointConfig) {
@@ -1838,6 +1847,7 @@ int AOSSHandleFinalReply(int state, AOSSReceiveBuffer* packet, int* count, AOSSR
 }
 
 int AOSSDecryptMessage(AOSSDecryptionMessage* message) {
+    // MWCC needs grouped checksum fields for the original register allocation.
     struct { u32 expected; u32 actual; } integrity;
     u8 manufacturerAddress[8];
     AOSSKeySchedule schedule;
@@ -2154,6 +2164,7 @@ int AOSSParsePskConfig(const AOSSOptionRecord* packet, AOSSStoredConfig* config)
     return 0;
 }
 
+// MWCC needs level 3 to reuse the option cursor register across both loops.
 #pragma push
 #pragma optimization_level 3
 int AOSSApplyAuthOptions(int state, const AOSSReplyOption* response, int responseLength, void* config, void* networkData) {
@@ -2180,7 +2191,7 @@ int AOSSApplyAuthOptions(int state, const AOSSReplyOption* response, int respons
         if (responseRecord->fields.type == responseTypes[state]) {
             break;
         }
-        length = SONtoHs(responseRecord->fields.length) + 4;
+        length = SONtoHs(responseRecord->fields.length) + offsetof(AOSSReplyOption, fields.payload);
         responseLength -= length;
         responseRecord = (const AOSSReplyOption*)&responseRecord->bytes[length];
         if (responseLength <= 0) {
@@ -2189,7 +2200,7 @@ int AOSSApplyAuthOptions(int state, const AOSSReplyOption* response, int respons
     }
 
     length = responseRecord->fields.length;
-    responseRecord = (const AOSSReplyOption*)&responseRecord->bytes[4];
+    responseRecord = (const AOSSReplyOption*)&responseRecord->fields.payload;
     optionRemaining = SONtoHs((u16)length);
     configRecord = &((AOSSConfigData*)config)->records[state];
     wep40Config = (AOSSStoredConfig*)&configRecord->reserved00[8];
@@ -2236,7 +2247,7 @@ int AOSSApplyAuthOptions(int state, const AOSSReplyOption* response, int respons
             return result;
         }
 
-        length = SONtoHs(responseRecord->fields.length) + 4;
+        length = SONtoHs(responseRecord->fields.length) + offsetof(AOSSReplyOption, fields.payload);
         optionRemaining -= length;
         responseRecord = (const AOSSReplyOption*)&responseRecord->bytes[length];
     } while (optionRemaining > 0);
