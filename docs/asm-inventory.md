@@ -5,8 +5,7 @@ bodies/blocks: 162 ORIGINAL functions and 0 PLACEHOLDER functions.
 
 Run `python3 tools/check_asm_inventory.py`. Completion requires exit 0, complete
 coverage and zero placeholders. The checker also rejects stale/duplicate rows,
-invalid classifications and syntax it cannot inspect. This audit supersedes the
-historical inventory in `tools/decomp-assist/asm-inventory.md`.
+invalid classifications and syntax it cannot inspect.
 
 Scope: C/C++ sources and headers in `src/` and `libs/`, including inactive
 platform branches, plus standalone assembly there or referenced by
@@ -21,8 +20,7 @@ The rvl_dec family follows the original decoder convention specified for this
 audit; ASH/ASR also show unsigned `lis @h`/`ori @l` address construction and
 hand-built `stmw` frames. C scores below are recorded rejected trials, not fresh
 measurements or scores of the retained assembly. Unrecorded means no C score was
-found. Historical logs absent from this branch have commit IDs and excerpts in
-[the audit log](../tools/decomp-assist/rx36.attempts.md).
+found. Historical audit logs are in git history.
 
 | File | Function | Classification | Evidence |
 | --- | --- | --- | --- |
@@ -189,7 +187,6 @@ found. Historical logs absent from this branch have commit IDs and excerpts in
 | `src/system/rvl_dec.c` | `Rvl_decode_ash` | ORIGINAL | nofralloc hand-built 0x40 frame saves r21..31 with stmw; work address uses lis @h/ori @l. |
 | `src/system/rvl_dec.c` | `Rvl_decode_asr` | ORIGINAL | nofralloc hand-built 0x40 frame saves r21..31 with stmw; work address uses lis @h/ori @l. |
 
-[rx36-osinit]: ../tools/decomp-assist/rx36.attempts.md#osinit
 [sdk-init]: https://github.com/doldecomp/ogws/blob/master/src/revolution/OS/__ppc_eabi_init.c
 [runtime]: https://github.com/doldecomp/ogws/blob/master/src/runtime/runtime.c
 [arithmetic-h]: https://github.com/doldecomp/ogws/blob/master/include/nw4r/math/math_arithmetic.h

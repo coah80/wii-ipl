@@ -1,2 +1,0 @@
-src 0x1f8 base 0x1f8 insns 126/126
-diffs 0: []

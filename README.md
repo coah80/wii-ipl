@@ -2,8 +2,8 @@
 >
 > original doesnt like ai commits, so im forking to not disturb them. :)
 >
-> This is a personal fork for AI-assisted matching work. No pull requests are
-> opened against upstream, ever. See [AGENTS.md](AGENTS.md).
+> This is a personal fork for AI-assisted matching work. The 4.3U decompilation
+> is complete. No pull requests are opened against upstream, ever.
 
 <!--- Github Actions Badge -->
 
