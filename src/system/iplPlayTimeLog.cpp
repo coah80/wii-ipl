@@ -339,8 +339,6 @@ namespace ipl {
         create_new_record(&event);
     }
 
-    // https://decomp.me/scratch/sRhsi
-    // Some sort of hellhole with loading arguments for createNewRecord??
     void PlayTimeLog::create_new_record(const EventBuffer* event) {
         cdb::Manager* cdbManager = System::getCdbManager();
 
@@ -351,6 +349,7 @@ namespace ipl {
 
         const void* attachData[RBR_ATTACHMENT_MAX] = {(void*)event, NULL};
 
+        // MWCC needs volatile reads to preserve the attachment constant layout.
         u32 attachSize[RBR_ATTACHMENT_MAX] = {
             *reinterpret_cast<volatile const u32*>(&sPlayTimeLogAttachSize0),
             *reinterpret_cast<volatile const u32*>(&sPlayTimeLogAttachSize1)
@@ -468,6 +467,7 @@ namespace ipl {
         static const u32 attachSize1 = 0;
         static const RBRAttachmentType attachType0 = RBRAttachmentType_PlayTimeLog;
         static const RBRAttachmentType attachType1 = RBRAttachmentType_None;
+        // MWCC needs volatile reads to preserve the attachment constant layout.
         u32 attachSize[RBR_ATTACHMENT_MAX] = {*reinterpret_cast<const volatile u32*>(&attachSize0),
                                               *reinterpret_cast<const volatile u32*>(&attachSize1)};
         RBRAttachmentType attachType[RBR_ATTACHMENT_MAX] = {

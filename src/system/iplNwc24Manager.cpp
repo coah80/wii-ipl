@@ -573,7 +573,7 @@ namespace ipl {
                     if (msgType == NWC24_MSGTYPE_PUBLIC) {
                         u32 index = 0;
                         if (!readMsgFromAddr(&msgObj, msgFriendAddr.mailAddr, sizeof(NWC24UserMailAddr)) && !FILE_ERROR_OK) {
-                            goto out;
+                            goto cleanup;
                         }
                         msgFriendType = NWC24_FRIENDTYPE_EMAIL;
                         if (searchFriendInfo(&msgFriendAddr, &index)) {
@@ -604,14 +604,14 @@ namespace ipl {
                     getMsgGroupId(&msgObj, &msgGroupId);
                     OSReport("msg app_id %x group_id %x\n", msgAppId, msgGroupId);
                     if (!is_valid_app_id(msgAppId, msgGroupId)) {
-                        goto out;
+                        goto cleanup;
                     }
 
                     // Get software update flag (display "Update" button)
                     u32 msgMbUpdateSW = 0;
                     result = readMsgMBUpdateSW(&msgObj, &msgMbUpdateSW);
                     if (!FILE_ERROR_OK) {
-                        goto out;
+                        goto cleanup;
                     }
 
                     // Get opt out flag (display "Opt Out" button)
@@ -620,7 +620,7 @@ namespace ipl {
                     *(u32*)&msgOptOutAppId = 0;
                     result = readMsgMBOptOutFlag(&msgObj, &msgMbOptOutFlag, (u32*)&msgOptOutAppId);
                     if (!FILE_ERROR_OK) {
-                        goto out;
+                        goto cleanup;
                     }
                     bool msgBoardCanOptOut = (result & (bool)msgMbOptOutFlag);
 
@@ -662,7 +662,7 @@ namespace ipl {
                     // Get no reply flag (prevents replying to the message)
                     BOOL msgNoReply = FALSE;
                     if (!readMsgMBNoReply(&msgObj, &msgNoReply) && !FILE_ERROR_OK) {
-                        goto out;
+                        goto cleanup;
                     }
 
                     // Get delay timer (receive the message a later time)
@@ -681,7 +681,7 @@ namespace ipl {
                             continue;
                         }
                     } else if (!FILE_ERROR_OK) {
-                        goto out;
+                        goto cleanup;
                     }
 
                     // Get message date (if it fails to read, the current time will be used instead)
@@ -698,14 +698,14 @@ namespace ipl {
                         msgMbRegDate.mon = msgMonth - 1;
                         msgMbRegDate.mday = msgDay;
                     } else if (!FILE_ERROR_OK) {
-                        goto out;
+                        goto cleanup;
                     }
 
                     // Get title
                     wchar_t msgTitleText[0x28];
                     memset(msgTitleText, 0, sizeof(msgTitleText));
                     if (!readMsgAltName(&msgObj, (u16*)msgTitleText, 0x28) && !FILE_ERROR_OK) {
-                        goto out;
+                        goto cleanup;
                     }
 
                     // If we failed to read it, NULL it out and use the friend's name instead.
@@ -717,7 +717,7 @@ namespace ipl {
                     u32 failedToMakeText = FALSE;
                     msgBodyText = make_text(heap, &msgObj, msgType == NWC24_MSGTYPE_PUBLIC, &failedToMakeText);
                     if (failedToMakeText) {
-                        goto out;
+                        goto cleanup;
                     }
 
                     // Get Mii data
@@ -740,7 +740,7 @@ namespace ipl {
                     // Get attachment count
                     getMsgNumAttached(&msgObj, &msgNumAttached);
                     if (mLastError == NWC24_ERR_BROKEN) {
-                        goto out2;
+                        goto message_received;
                     }
 
                     // Get attachment data
@@ -753,7 +753,7 @@ namespace ipl {
                         }
 
                         if (!readMsgAttached(&msgObj, attachIndex, mAttachData[attachIndex], mAttachSize[attachIndex]) && !FILE_ERROR_OK) {
-                            goto out;
+                            goto cleanup;
                         }
 
                         getMsgAttachedType(&msgObj, attachIndex, &nwc24AttachTypes[attachIndex]);
@@ -872,10 +872,10 @@ namespace ipl {
                         msgRecordFlags.data, msgFriendAddr, msgFriendType, msgNoReply, msgTitleText[0] != 0 ? msgTitleText : msgFriendName,
                         msgBodyText, msgHasMii ? &msgCharData : NULL, (const void**)mAttachData, mAttachSize, msgAttachTypes);
 
-                out2:
+                message_received:
                     mbReviecedMsg = true;
 
-                out:
+                cleanup:
                     if (msgBodyText != NULL) {
                         delete[] msgBodyText;
                     }
@@ -916,51 +916,46 @@ namespace ipl {
             SCSimpleAddress address;
 
             if (SCGetSimpleAddressData(&address)) {
-                int i = 0;
-
-                // Interesting way to do a for loop
-                goto start;
-                while (TRUE) {
+                int retryCount = 0;
+                while (!open()) {
                     OSSleepMilliseconds(10);
-                    if (++i > 1000) {
-                        break;
-                    }
-                start:
-                    if (open()) {
-                        char fullDlUrl[64];
-                        memset(fullDlUrl, 0, sizeof(fullDlUrl));
-
-                        NWC24DlId dlIds[4] = {
-                            DL_ID_0,
-                            DL_ID_1,
-                            DL_ID_5,
-                            DL_ID_6,
-                        };
-                        u16 dlIntervals[4] = {
-                            DL_INTERVAL_0,
-                            DL_INTERVAL_1,
-                            DL_INTERVAL_2,
-                            DL_INTERVAL_3,
-                        };
-                        u8 dlPrios[4] = {
-                            DL_PRIORITY_0,
-                            DL_PRIORITY_1,
-                            DL_PRIORITY_2,
-                            DL_PRIORITY_3,
-                        };
-
-                        for (int j = 0; j < 4; j++) {
-                            // Add DL task for announcements
-                            snprintf(fullDlUrl, sizeof(fullDlUrl) / sizeof(char), "http://cfh.wapp.wii.com/announce/%03d/%d/%d.bin",
-                                     address.id >> SC_SIMPLE_ADDRESS_ID_COUNTRY, System::getLanguage(), j + 1);
-
-                            add_dl_task(dlIds[j], fullDlUrl, dlIntervals[j], dlPrios[j]);
-                        }
-
-                        close();
+                    if (++retryCount > 1000) {
                         return;
                     }
                 }
+
+                char fullDlUrl[64];
+                memset(fullDlUrl, 0, sizeof(fullDlUrl));
+
+                NWC24DlId dlIds[4] = {
+                    DL_ID_0,
+                    DL_ID_1,
+                    DL_ID_5,
+                    DL_ID_6,
+                };
+                u16 dlIntervals[4] = {
+                    DL_INTERVAL_0,
+                    DL_INTERVAL_1,
+                    DL_INTERVAL_2,
+                    DL_INTERVAL_3,
+                };
+                u8 dlPrios[4] = {
+                    DL_PRIORITY_0,
+                    DL_PRIORITY_1,
+                    DL_PRIORITY_2,
+                    DL_PRIORITY_3,
+                };
+
+                for (int j = 0; j < 4; j++) {
+                    // Add DL task for announcements
+                    snprintf(fullDlUrl, sizeof(fullDlUrl) / sizeof(char), "http://cfh.wapp.wii.com/announce/%03d/%d/%d.bin",
+                             address.id >> SC_SIMPLE_ADDRESS_ID_COUNTRY, System::getLanguage(), j + 1);
+
+                    add_dl_task(dlIds[j], fullDlUrl, dlIntervals[j], dlPrios[j]);
+                }
+
+                close();
+                return;
             }
         }
 

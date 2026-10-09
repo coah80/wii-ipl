@@ -1209,79 +1209,82 @@ namespace ipl {
 
     void DialogWindow::start_trig_event(const char* paneName) {
         int btnNo;
-        if (!(mState == DIALOG_STATE_PAGE_FADE) && (btnNo = get_button_no(paneName), btnNo != -1)) {
-            int animIdx = -1;
+        if (mState != DIALOG_STATE_PAGE_FADE) {
+            btnNo = get_button_no(paneName);
+            if (btnNo != -1) {
+                int animIdx = -1;
 
-            // Get select animation
-            if (mDialogType == DIALOG_TYPE_BTN3) {
-                switch (btnNo) {
-                    case DIALOG_BTN_TYPE_BTN2: {
-                        mResult = RESULT_TOP_BUTTON;
-                        animIdx = ANIM_BTN3_SELECT_BTN_A;
-                        snd::getSystem()->startSE("WIPL_SE_DECIDE");
-                        break;
-                    }
-                    case DIALOG_BTN_TYPE_BTN1: {
-                        mResult = RESULT_MIDDLE_BUTTON;
-                        animIdx = ANIM_BTN3_SELECT_BTN_B;
-                        snd::getSystem()->startSE("WIPL_SE_DECIDE");
-                        break;
-                    }
-                    case DIALOG_BTN_TYPE_BTN3: {
-                        mResult = RESULT_BOTTOM_BUTTON;
-                        animIdx = ANIM_BTN3_SELECT_BTN_C;
-                        snd::getSystem()->startSE("WIPL_SE_CANCEL");
-                        break;
-                    }
-                }
-            } else {
-                switch (btnNo) {
-                    case DIALOG_BTN_TYPE_BTN2: {
-                        mResult = RESULT_LEFT_BUTTON;
-                        animIdx = ANIM_SELECT_BTN_A;
-                        if (mbSwapSound) {
+                // Get select animation
+                if (mDialogType == DIALOG_TYPE_BTN3) {
+                    switch (btnNo) {
+                        case DIALOG_BTN_TYPE_BTN2: {
+                            mResult = RESULT_TOP_BUTTON;
+                            animIdx = ANIM_BTN3_SELECT_BTN_A;
                             snd::getSystem()->startSE("WIPL_SE_DECIDE");
-                        } else {
-                            snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                            break;
                         }
-                        mPrevPage = mCurPage;
-                        mCurPage--;
-                        break;
-                    }
-                    case DIALOG_BTN_TYPE_BTN1: {
-                        mResult = RESULT_BUTTON;
-                        animIdx = ANIM_SELECT_BTN_B;
-                        if (mbSwapSound) {
-                            snd::getSystem()->startSE("WIPL_SE_CANCEL");
-                        } else {
+                        case DIALOG_BTN_TYPE_BTN1: {
+                            mResult = RESULT_MIDDLE_BUTTON;
+                            animIdx = ANIM_BTN3_SELECT_BTN_B;
                             snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                            break;
                         }
-                        mPrevPage = mCurPage;
-                        mCurPage++;
-                        break;
+                        case DIALOG_BTN_TYPE_BTN3: {
+                            mResult = RESULT_BOTTOM_BUTTON;
+                            animIdx = ANIM_BTN3_SELECT_BTN_C;
+                            snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                            break;
+                        }
+                    }
+                } else {
+                    switch (btnNo) {
+                        case DIALOG_BTN_TYPE_BTN2: {
+                            mResult = RESULT_LEFT_BUTTON;
+                            animIdx = ANIM_SELECT_BTN_A;
+                            if (mbSwapSound) {
+                                snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                            } else {
+                                snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                            }
+                            mPrevPage = mCurPage;
+                            mCurPage--;
+                            break;
+                        }
+                        case DIALOG_BTN_TYPE_BTN1: {
+                            mResult = RESULT_BUTTON;
+                            animIdx = ANIM_SELECT_BTN_B;
+                            if (mbSwapSound) {
+                                snd::getSystem()->startSE("WIPL_SE_CANCEL");
+                            } else {
+                                snd::getSystem()->startSE("WIPL_SE_DECIDE");
+                            }
+                            mPrevPage = mCurPage;
+                            mCurPage++;
+                            break;
+                        }
                     }
                 }
-            }
 
-            // Play select animation
-            mpCurDialog->gLayout->getAnim(animIdx)->play();
+                // Play select animation
+                mpCurDialog->gLayout->getAnim(animIdx)->play();
 
-            // Change page
-            if (mPageCount > 0) {
-                if (mpPages[mPrevPage].isLytAnim && mpPages[mPrevPage].layoutObj) {
-                    mpPages[mPrevPage].layoutObj->getAnim()->stop();
-                }
+                // Change page
+                if (mPageCount > 0) {
+                    if (mpPages[mPrevPage].isLytAnim && mpPages[mPrevPage].layoutObj) {
+                        mpPages[mPrevPage].layoutObj->getAnim()->stop();
+                    }
 
-                if (mCurPage < 0 || mCurPage == mPageCount) {
+                    if (mCurPage < 0 || mCurPage == mPageCount) {
+                        mbNextState = true;
+                        mState = DIALOG_STATE_SELECT;
+                    } else {
+                        mState = DIALOG_STATE_PAGE_FADE_PREPARE;
+                        mPageState = DIALOG_PAGE_FADE_OUT;
+                    }
+                } else {
                     mbNextState = true;
                     mState = DIALOG_STATE_SELECT;
-                } else {
-                    mState = DIALOG_STATE_PAGE_FADE_PREPARE;
-                    mPageState = DIALOG_PAGE_FADE_OUT;
                 }
-            } else {
-                mbNextState = true;
-                mState = DIALOG_STATE_SELECT;
             }
         }
     }

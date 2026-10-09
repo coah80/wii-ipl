@@ -30,16 +30,16 @@ namespace ipl {
                 u8 mac[NCD_MAC_ADDRESS_LENGTH + 1];
                 mac[6] = mac[5] = mac[4] = mac[3] = mac[2] = mac[1] = mac[0] = 0;
 
-                u8 temp[3];
-                temp[2] = temp[1] = temp[0] = 0;
+                u8 macByteText[3];
+                macByteText[2] = macByteText[1] = macByteText[0] = 0;
 
                 // Setup work
                 u8* ncd_mac = ncd::NCDSetting::getMacAddr();
 
                 // Get mac values
                 for (int i = 1; i < NCD_MAC_ADDRESS_LENGTH; i++) {
-                    memcpy(temp, &ncd_mac[i * ARRAY_LENGTH(temp)], sizeof(temp) - 1);
-                    mac[i] = strtol((char*)temp, NULL, 16);
+                    memcpy(macByteText, &ncd_mac[i * ARRAY_LENGTH(macByteText)], sizeof(macByteText) - 1);
+                    mac[i] = strtol((char*)macByteText, NULL, 16);
                 }
 
                 RFLiSetMacAddr(mac);

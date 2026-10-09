@@ -15,15 +15,6 @@
 #undef IPL_CONTROLLER_NATIVE_HIERARCHY
 #include "system/iplSystem.h"
 
-extern "C" void _savegpr_16();
-extern "C" void _restgpr_16();
-extern "C" void _savegpr_29();
-extern "C" void _restgpr_29();
-extern "C" void _savegpr_27();
-extern "C" void _restgpr_27();
-extern "C" void _savegpr_28();
-extern "C" void _restgpr_28();
-
 namespace ipl {
     namespace controller {
         void* Manager::mpBuf;
@@ -83,6 +74,7 @@ namespace ipl {
 
                 u32 deviceType;
                 s32 probe = WPADProbe(chan, &deviceType);
+                // MWCC needs this probe dispatch to preserve the branch layout.
                 if (probe == WPAD_ERR_NO_CONTROLLER) {
                     goto probe_invalid;
                 }
@@ -117,23 +109,20 @@ namespace ipl {
                             mControllers[chan] = NULL;
                         }
                     } else {
-                        if (read != 0) {
-                            goto store_null;
-                        }
-                        mInvalidCount[chan]++;
-                        if (mInvalidCount[chan] > 0x3c) {
-                            mInvalidCount[chan] = 0x3c;
-                            if (mControllers[chan] != NULL) {
-                                WPADControlMotor(chan, WPAD_MOTOR_STOP);
+                        if (read == 0) {
+                            mInvalidCount[chan]++;
+                            if (mInvalidCount[chan] > 0x3c) {
+                                mInvalidCount[chan] = 0x3c;
+                                if (mControllers[chan] != NULL) {
+                                    WPADControlMotor(chan, WPAD_MOTOR_STOP);
+                                }
+                                mControllers[chan] = NULL;
                             }
+                        } else {
                             mControllers[chan] = NULL;
                         }
                     }
                 }
-                goto channel_done;
-
-            store_null:
-                mControllers[chan] = NULL;
                 goto channel_done;
 
             probe_invalid:

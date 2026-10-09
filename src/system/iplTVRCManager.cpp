@@ -77,7 +77,7 @@ namespace ipl {
 
         nand::wrapper::Close(&fileInfo);
 
-        // why
+        // MWCC needs this shared return block to preserve the settings error branches.
         if (result <= 0) {
             goto fail;
         open_err:
@@ -223,7 +223,6 @@ namespace ipl {
         }
     }
 
-    /* idk*/
 #define IS_DISABLED (mbInitialized && mbPrepTVRC && mbDisabled && !mbResetting)
 #define IS_ENABLED (mbInitialized && mbPrepTVRC && !mbDisabled && !mbResetting)
 
@@ -242,7 +241,7 @@ namespace ipl {
                 mDisabledTriggerState = 0;
                 mDisabledTriggerTick = OSGetTick();
             }
-            goto ret;
+            return;
         }
         switch (mState) {
             case STATE_0: {
@@ -262,15 +261,14 @@ namespace ipl {
                     mbRepeatCommand = 1;
                     mState = STATE_2;
                     mLastCommandTime = OSGetTime();
-                    goto fallthrough;
+                } else {
+                    if (mLastCommandTime != 0 && OSTicksToMilliseconds(OSDiffTick(OSGetTime(), mLastCommandTime)) >= 5000) {
+                        mLastCommandTime = 0;
+                    }
+                    break;
                 }
-                if (mLastCommandTime != 0 && OSTicksToMilliseconds(OSDiffTick(OSGetTime(), mLastCommandTime)) >= 5000) {
-                    mLastCommandTime = 0;
-                }
-                break;
             }
             case STATE_2: {
-            fallthrough:
                 snd::getSystem()->muteOnBGM(10);
                 System::getMasterController()->setForceInvalid(TRUE);
                 mMuteStartTime = OSGetTime();
@@ -333,9 +331,6 @@ namespace ipl {
                 break;
             }
         }
-
-    ret:
-        return;
     }
 
     void TVRCManager::resetProcessAsync(BOOL flag) {
