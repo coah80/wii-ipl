@@ -162,7 +162,7 @@ public:
 
 private:
     wchar_t* mpOutput;
-    u16 mCount;
+    u32 mCount;
 };
 }
 

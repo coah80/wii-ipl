@@ -59,3 +59,34 @@ Remaining (unresolved):
 3. 1 missing insn in mode3 tail: base has `mr r4,r5` + `li r5,0` (buf re-copied
    into r4 for the terminator store) — mine shares r5 (append and finish inlined
    reads coalesce the mpOutput web).
+
+## inputChar — opt_propagation wave (w1009, post-#1323)
+Scoped `#pragma opt_propagation off` around inputChar + u32 mCount: block shape
+changed slightly (li/sth/addi ordering) but no wall cracked — live bne persists,
+re-narrow still folds, mr r4,r5 still missing. Pragma does not reproduce the
+fossil (compare emission is frontend, before IR prop runs).
+
+`finish(wchar_t* p)` + `output.finish(input)`: emits `addi r4,r1,0x10` for the
+buf web — SEPARATE web created (operand order matches base sthx r5,r4) but
+remat, not `mr r4,r5`. `finish(output.mpOutput)` folds fully (single web). The
+`mr` is a codegen remat-vs-copy tie: buf#2's web is a COPY of r5 in base —
+needs a reg-valued (non-remat) arg source; no honest source form found.
+
+Dead-cmplwi fossil — ~12 more mechanisms rejected:
+- `if(ch=='\n') mCount=0` arm stays LIVE in every member shape (u32 member,
+  ctor-reordered init, hoisted input[0]=0). MWCC does NOT value-track member
+  stores post-inline (`cmpwi r6,0` emitted on provably-0 mCount proves it) —
+  so the arm can never be redundant-eliminated.
+- `if(ch=='\n') mOutput[0]=0` arm (killed-by-later-unconditional member):
+  `bne;sth` kept — no member-store DSE across the block.
+- `if(ch=='\n') count=0` arm (var killed by later `count=finish()`): arm does
+  die BUT removing the mCount write collapses the index web -> input[0] fold.
+- `i=i`, `mCount=mCount` self-stores: deleted -> compare deleted -> collapse.
+- nested `if(mCount!=0) mCount=0`: inner stays live (+3).
+- `input[i]=0` arm (indexed, dedup vs ctor): index folds (single-def) -> collapse.
+Wall restated: index needs mCount phi'd (multi-def -> unprovable), arm must be
+dead (no insns) — but every arm that dies removes the phi input. Any dead-arm
+form must leave a SECOND mCount def that MWCC can't prove equal — no such form
+found for var/member/local-arm writes.
+
+u32 mCount retained (removes all rlwinm per-access mask diffs): 135 vs base 136.
