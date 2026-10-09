@@ -1127,7 +1127,7 @@ s32 TMCJPEGDEC_err_restart(TMCCJPEGDecWork* work) {
         state->posY = div;
         state->position = TMCJPEGDEC_get_position(work);
 
-        return state->result - (state->posY * state->maxX) - state->posY;
+        return state->result - (state->posY * state->maxX) - state->posX;
     }
 }
 #endif
