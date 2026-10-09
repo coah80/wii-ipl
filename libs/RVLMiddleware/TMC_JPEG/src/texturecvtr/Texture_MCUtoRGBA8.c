@@ -14,6 +14,7 @@ static void TMCJPEGDEC_converterYUV444toRGBA8edge(TMCCJPEGDecWork*, s32, s32);
 static void TMCJPEGDEC_converterYUV400toRGBA8(TMCCJPEGDecWork*, s32, s32);
 static void TMCJPEGDEC_converterYUV400toRGBA8edge(TMCCJPEGDecWork*, s32, s32);
 
+/* MWCC needs level 1 to preserve the shared conversion-buffer base. */
 #pragma push
 #pragma optimization_level 1
 s32 TMCJPEGDEC_set_converterRGBA8(TMCCJPEGDecWork* work) {
@@ -188,6 +189,7 @@ s32 TMCJPEGDEC_set_converterRGBA8(TMCCJPEGDecWork* work) {
 
 #pragma pop
 
+/* MWCC needs the full-width alpha addition before the halfword stores. */
 static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 y) {
     u16* output;
     s32 tileRow;
@@ -252,6 +254,7 @@ static void TMCJPEGDEC_converterYUV411toRGBA8(TMCCJPEGDecWork* work, s32 x, s32 
                 red = red > 255 ? 255 : red < 0 ? 0 : red;
             }
             columnInTile = column & 3;
+            /* MWCC needs these assignments in the first store to preserve row-address scheduling. */
             (output = (u16*)(texture + ((y & 3) << 3)))[
                 columnInTile + ((((column >> 2) << 1) +
                                  (tileRow = (y >> 2) * tileWidth)) << 4)] = (u8)red + 0x10000 - 0x100;
