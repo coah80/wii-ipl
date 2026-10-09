@@ -62,8 +62,8 @@ typedef struct
 
 typedef struct
 {
-	UINT16	at_0x00;	// 0x00
-	UINT16	at_0x02;	// 0x02
+	UINT16	vendorId;	// 0x00
+	UINT16	productId;	// 0x02
 } tHCI_CFG; // size 0x04
 
 typedef void tHCI_INIT(UINT8, UINT8, UINT16);
