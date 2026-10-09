@@ -81,7 +81,8 @@ int RFCOMM_CreateConnection(UINT16 uuid, UINT8 scn, BOOLEAN is_server,
 		}
 	}
 
-	if ((p_port = port_allocate_port(dlci, bd_addr)) == NULL)
+	p_port = port_allocate_port(dlci, bd_addr);
+	if (p_port == NULL)
 	{
 		RFCOMM_TRACE(WARNING, "RFCOMM_CreateConnection - no resources");
 		return PORT_NO_RESOURCES;
@@ -125,7 +126,8 @@ int RFCOMM_CreateConnection(UINT16 uuid, UINT8 scn, BOOLEAN is_server,
 	{
 		rfcomm_mtu = L2CAP_MTU_SIZE - RFCOMM_DATA_OVERHEAD;
 
-		if (mtu) // ?
+		// MWCC requires this repeated MTU test for the original instructions.
+		if (mtu)
 			p_port->mtu = mtu < rfcomm_mtu ? mtu : rfcomm_mtu;
 		else
 			p_port->mtu = rfcomm_mtu;
@@ -921,7 +923,8 @@ int PORT_Test(UINT16 handle, UINT8 *p_data, UINT16 len)
 	if (len > (p_port->mtu == 0 ? RFCOMM_DEFAULT_MTU : p_port->mtu))
 		return PORT_UNKNOWN_ERROR;
 
-	if ((p_buf = GKI_getpoolbuf(RFCOMM_CMD_POOL_ID)) != NULL)
+	p_buf = GKI_getpoolbuf(RFCOMM_CMD_POOL_ID);
+	if (p_buf != NULL)
 	{
 		p_buf->offset = L2CAP_MIN_OFFSET + RFCOMM_MIN_OFFSET + 2;
 		p_buf->len = len;

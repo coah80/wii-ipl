@@ -61,9 +61,11 @@ BOOLEAN L2CA_Register(UINT16 psm, tL2CAP_APPL_INFO *p_cb_info)
 		return FALSE;
 	}
 
-	if ((p_rcb = l2cu_find_rcb_by_psm(psm)) == NULL)
+	p_rcb = l2cu_find_rcb_by_psm(psm);
+	if (p_rcb == NULL)
 	{
-		if ((p_rcb = l2cu_allocate_rcb(psm)) == NULL)
+		p_rcb = l2cu_allocate_rcb(psm);
+		if (p_rcb == NULL)
 		{
 			L2CAP_TRACE(WARNING, "L2CAP - no RCB available, PSM: 0x%04x", psm);
 			return FALSE;
@@ -81,7 +83,8 @@ void L2CA_Deregister(UINT16 psm)
 
 	L2CAP_TRACE(API, "L2CAP - L2CA_Deregister() called for PSM: 0x%04x", psm);
 
-	if ((p_rcb = l2cu_find_rcb_by_psm(psm)) != NULL)
+	p_rcb = l2cu_find_rcb_by_psm(psm);
+	if (p_rcb != NULL)
 	{
 		l2cu_release_rcb(p_rcb);
 	}
@@ -110,14 +113,16 @@ UINT16 L2CA_ConnectReq(UINT16 psm, BD_ADDR p_bd_addr)
 		return 0;
 	}
 
-	if ((p_rcb = l2cu_find_rcb_by_psm(psm)) == NULL)
+	p_rcb = l2cu_find_rcb_by_psm(psm);
+	if (p_rcb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no RCB for L2CA_conn_req, PSM: 0x%04x",
 		            psm);
 		return 0;
 	}
 
-	if ((p_lcb = l2cu_find_lcb_by_bd_addr(p_bd_addr)) == NULL)
+	p_lcb = l2cu_find_lcb_by_bd_addr(p_bd_addr);
+	if (p_lcb == NULL)
 	{
 		if (((p_lcb = l2cu_allocate_lcb(p_bd_addr)) == NULL))
 		{
@@ -136,7 +141,8 @@ UINT16 L2CA_ConnectReq(UINT16 psm, BD_ADDR p_bd_addr)
 		return 0;
 	}
 
-	if ((p_ccb = l2cu_allocate_ccb(p_lcb)) == NULL)
+	p_ccb = l2cu_allocate_ccb(p_lcb);
+	if (p_ccb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no CCB for L2CA_conn_req");
 		return 0;
@@ -166,13 +172,15 @@ BOOLEAN L2CA_ConnectRsp(BD_ADDR p_bd_addr, UINT8 id, UINT16 lcid, UINT16 result,
 	            p_bd_addr[0], p_bd_addr[1], p_bd_addr[2], p_bd_addr[3],
 	            p_bd_addr[4], p_bd_addr[5]);
 
-	if ((p_lcb = l2cu_find_lcb_by_bd_addr(p_bd_addr)) == NULL)
+	p_lcb = l2cu_find_lcb_by_bd_addr(p_bd_addr);
+	if (p_lcb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no LCB for L2CA_conn_rsp");
 		return FALSE;
 	}
 
-	if ((p_ccb = l2cu_find_ccb_by_cid(p_lcb, lcid)) == NULL)
+	p_ccb = l2cu_find_ccb_by_cid(p_lcb, lcid);
+	if (p_ccb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no CCB for L2CA_conn_rsp");
 		return FALSE;
@@ -212,7 +220,8 @@ BOOLEAN L2CA_ConfigReq(UINT16 cid, tL2CAP_CFG_INFO *p_cfg)
 
 	L2CAP_TRACE(API, "L2CA_ConfigReq()  CID: 0x%04x", cid);
 
-	if ((p_ccb = l2cu_find_ccb_by_cid(NULL, cid)) == NULL)
+	p_ccb = l2cu_find_ccb_by_cid(NULL, cid);
+	if (p_ccb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no CCB for L2CA_cfg_req, CID: %d", cid);
 		return FALSE;
@@ -232,7 +241,8 @@ BOOLEAN L2CA_ConfigRsp(UINT16 cid, tL2CAP_CFG_INFO *p_cfg)
 	L2CAP_TRACE(API, "L2CA_ConfigRsp()  CID: 0x%04x  Result: %d", cid,
 	            p_cfg->result);
 
-	if ((p_ccb = l2cu_find_ccb_by_cid(NULL, cid)) == NULL)
+	p_ccb = l2cu_find_ccb_by_cid(NULL, cid);
+	if (p_ccb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no CCB for L2CA_cfg_rsp, CID: %d", cid);
 		return FALSE;
@@ -252,7 +262,8 @@ BOOLEAN L2CA_DisconnectReq(UINT16 cid)
 
 	L2CAP_TRACE(API, "L2CA_DisconnectReq()  CID: 0x%04x", cid);
 
-	if ((p_ccb = l2cu_find_ccb_by_cid(NULL, cid)) == NULL)
+	p_ccb = l2cu_find_ccb_by_cid(NULL, cid);
+	if (p_ccb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no CCB for L2CA_disc_req, CID: %d", cid);
 		return FALSE;
@@ -269,7 +280,8 @@ BOOLEAN L2CA_DisconnectRsp(UINT16 cid)
 
 	L2CAP_TRACE(API, "L2CA_DisconnectRsp()  CID: 0x%04x", cid);
 
-	if ((p_ccb = l2cu_find_ccb_by_cid(NULL, cid)) == NULL)
+	p_ccb = l2cu_find_ccb_by_cid(NULL, cid);
+	if (p_ccb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no CCB for L2CA_disc_rsp, CID: %d", cid);
 		return FALSE;
@@ -287,7 +299,8 @@ UINT8 L2CA_DataWrite(UINT16 cid, BT_HDR *p_data)
 	L2CAP_TRACE(API, "L2CA_DataWrite()  CID: 0x%04x  Len: %d", cid,
 	            p_data->len);
 
-	if ((p_ccb = l2cu_find_ccb_by_cid(NULL, cid)) == NULL)
+	p_ccb = l2cu_find_ccb_by_cid(NULL, cid);
+	if (p_ccb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no CCB for L2CA_DataWrite, CID: %d", cid);
 		GKI_freebuf(p_data);
@@ -324,9 +337,11 @@ BOOLEAN L2CA_Ping(BD_ADDR p_bd_addr, tL2CA_ECHO_RSP_CB *p_callback)
 	if (!BTM_IsDeviceUp())
 		return FALSE;
 
-	if ((p_lcb = l2cu_find_lcb_by_bd_addr(p_bd_addr)) == NULL)
+	p_lcb = l2cu_find_lcb_by_bd_addr(p_bd_addr);
+	if (p_lcb == NULL)
 	{
-		if ((p_lcb = l2cu_allocate_lcb(p_bd_addr)) == NULL)
+		p_lcb = l2cu_allocate_lcb(p_bd_addr);
+		if (p_lcb == NULL)
 		{
 			L2CAP_TRACE(WARNING, "L2CAP - no LCB for L2CA_ping");
 			return FALSE;
@@ -374,7 +389,8 @@ BOOLEAN L2CA_SetIdleTimeout(UINT16 cid, UINT16 timeout, BOOLEAN is_global)
 	}
 	else
 	{
-		if ((p_ccb = l2cu_find_ccb_by_cid(NULL, cid)) == NULL)
+		p_ccb = l2cu_find_ccb_by_cid(NULL, cid);
+		if (p_ccb == NULL)
 		{
 			L2CAP_TRACE(WARNING,
 			            "L2CAP - no CCB for L2CA_SetIdleTimeout, CID: %d", cid);
@@ -453,7 +469,8 @@ BOOLEAN L2CA_SetAclPriority(BD_ADDR bd_addr, UINT8 priority)
 		            bd_addr[0], bd_addr[1], bd_addr[2], bd_addr[3], bd_addr[4],
 		            bd_addr[5]);
 
-		if ((p_lcb = l2cu_find_lcb_by_bd_addr(bd_addr)) == NULL)
+		p_lcb = l2cu_find_lcb_by_bd_addr(bd_addr);
+		if (p_lcb == NULL)
 		{
 			L2CAP_TRACE(WARNING, "L2CAP - no LCB for L2CA_SetAclPriority");
 			return FALSE;
@@ -489,7 +506,8 @@ void L2CA_SetCompression(UINT16 local_cid, UINT8 pe_type, UINT8 mem_level,
 	            "pe_type %d, mem_level %d, wbits %d, enable %d",
 	            local_cid, direction, pe_type, mem_level, wbits, enable);
 
-	if ((p_ccb = l2cu_find_ccb_by_cid(NULL, local_cid)) == NULL)
+	p_ccb = l2cu_find_ccb_by_cid(NULL, local_cid);
+	if (p_ccb == NULL)
 		return;
 
 	p_lcb = p_ccb->p_lcb;
@@ -512,7 +530,8 @@ UINT8 L2CA_Flush(UINT16 cid)
 	int xx;
 	int num_bufs;
 
-	if ((p_ccb = l2cu_find_ccb_by_cid(NULL, cid)) == NULL)
+	p_ccb = l2cu_find_ccb_by_cid(NULL, cid);
+	if (p_ccb == NULL)
 	{
 		L2CAP_TRACE(WARNING, "L2CAP - no CCB for L2CA_Flush, CID: %d", cid);
 		return FALSE;

@@ -45,7 +45,8 @@ int port_open_continue(tPORT *p_port)
 
 	RFCOMM_TRACE(EVENT, "port_open_continue");
 
-	if ((p_mcb = rfc_alloc_multiplexer_channel(p_port->bd_addr, TRUE)) == NULL)
+	p_mcb = rfc_alloc_multiplexer_channel(p_port->bd_addr, TRUE);
+	if (p_mcb == NULL)
 	{
 		RFCOMM_TRACE(WARNING, "port_open_continue no mx channel");
 		port_release_port(p_port);
@@ -653,7 +654,8 @@ void PORT_FlowInd(tRFC_MCB *p_mcb, UINT8 dlci, BOOLEAN enable_data)
 	}
 	else
 	{
-		if ((p_port = port_find_mcb_dlci_port(p_mcb, dlci)) == NULL)
+		p_port = port_find_mcb_dlci_port(p_mcb, dlci);
+		if (p_port == NULL)
 			return;
 
 		p_port->tx.peer_fc = !enable_data;
@@ -695,7 +697,8 @@ UINT32 port_rfc_send_tx_data(tPORT *p_port)
 		while (!p_port->tx.peer_fc && p_port->rfc.p_mcb
 		       && p_port->rfc.p_mcb->peer_ready)
 		{
-			if ((p_buf = GKI_dequeue(&p_port->tx.queue)) != NULL)
+			p_buf = GKI_dequeue(&p_port->tx.queue);
+			if (p_buf != NULL)
 			{
 				RFCOMM_TRACE(EVENT, "Sending RFCOMM_DataReq");
 

@@ -43,21 +43,9 @@
 
 #define BTA_DISABLE_DELAY					1000
 
-#ifndef BTA_DISABLE_DELAY
-# define BTA_DISABLE_DELAY					200
-#endif
-
 #define BTA_DM_REMOTE_DEVICE_NAME_LENGTH	32
 
-#ifndef BTA_DM_REMOTE_DEVICE_NAME_LENGTH
-# define BTA_DM_REMOTE_DEVICE_NAME_LENGTH	248
-#endif
-
 #define BTA_DM_SDP_DB_SIZE					250
-
-#ifndef BTA_DM_SDP_DB_SIZE
-# define BTA_DM_SDP_DB_SIZE					8000
-#endif
 
 /* GKI pools */
 
@@ -66,10 +54,6 @@
 #endif
 
 #define SDP_POOL_ID							GKI_POOL_ID_2
-
-#ifndef SDP_POOL_ID
-# define SDP_POOL_ID						GKI_POOL_ID_3
-#endif
 
 #ifndef RFCOMM_CMD_POOL_ID
 # define RFCOMM_CMD_POOL_ID					GKI_POOL_ID_2
@@ -110,23 +94,14 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 
 #define BT_1SEC_TIMEOUT						1
 
-#ifndef BT_1SEC_TIMEOUT
-# define BT_1SEC_TIMEOUT					2
-#endif
-
 /* BTM */
 
 #define BTM_INQ_DB_SIZE						12
-
-#ifndef BTM_INQ_DB_SIZE
-# define BTM_INQ_DB_SIZE					40
-#endif
 
 #ifndef BTM_DEFAULT_SCAN_TYPE
 # define BTM_DEFAULT_SCAN_TYPE				BTM_SCAN_TYPE_INTERLACED
 #endif
 
-// CLEANUP: header pass, probably
 #ifndef BTM_DEFAULT_CONN_WINDOW
 # define BTM_DEFAULT_CONN_WINDOW			18
 #endif
@@ -139,7 +114,6 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 # define BTM_DEFAULT_DISC_MODE				BTM_GENERAL_DISCOVERABLE
 #endif
 
-// CLEANUP: header pass, probably
 #ifndef BTM_DEFAULT_DISC_WINDOW
 # define BTM_DEFAULT_DISC_WINDOW			18
 #endif
@@ -154,15 +128,7 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
  */
 #define BTA_DM_COD							{0x40, 0x02, 0x04}
 
-#ifndef BTA_DM_COD
-# define BTA_DM_COD							{0x5a, 0x02, 0x0c}
-#endif
-
 #define BTM_MAX_SCO_LINKS					3
-
-#ifndef BTM_MAX_SCO_LINKS
-# define BTM_MAX_SCO_LINKS					2
-#endif
 
 #ifndef BTM_DEFAULT_SCO_MODE
 # define BTM_DEFAULT_SCO_MODE				2
@@ -170,27 +136,11 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 
 #define BTM_SEC_MAX_DEVICE_RECORDS			16
 
-#ifndef BTM_SEC_MAX_DEVICE_RECORDS
-# define BTM_SEC_MAX_DEVICE_RECORDS			100
-#endif
-
 #define BTM_SEC_MAX_SERVICE_RECORDS			24
-
-#ifndef BTM_SEC_MAX_SERVICE_RECORDS
-# define BTM_SEC_MAX_SERVICE_RECORDS		32
-#endif
 
 #define BTM_MAX_REM_BD_NAME_LEN				64
 
-#ifndef BTM_MAX_REM_BD_NAME_LEN
-# define BTM_MAX_REM_BD_NAME_LEN			248
-#endif
-
 #define BTM_MAX_LOC_BD_NAME_LEN				31
-
-#ifndef BTM_MAX_LOC_BD_NAME_LEN
-# define BTM_MAX_LOC_BD_NAME_LEN			248
-#endif
 
 #ifndef BTM_SEC_SERVICE_NAME_LEN
 # define BTM_SEC_SERVICE_NAME_LEN			BT_MAX_SERVICE_NAME_LEN
@@ -210,36 +160,13 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 
 /* L2CAP */
 
-// TODO: could this be resolved by configuring MAX_ACL_CONNECTIONS?
-#if 0
-#define MAX_ACL_CONNECTIONS					4
-
-#ifndef MAX_ACL_CONNECTIONS
-# define MAX_L2CAP_LINKS					7
-#else
-# define MAX_L2CAP_LINKS					MAX_ACL_CONNECTIONS
-#endif
-#else
-# define MAX_L2CAP_LINKS					4
-#endif
+#define MAX_L2CAP_LINKS					4
 
 #define MAX_L2CAP_CHANNELS					10
 
-#ifndef MAX_L2CAP_CHANNELS
-# define MAX_L2CAP_CHANNELS					16
-#endif
-
 #define MAX_L2CAP_CLIENTS					8
 
-#ifndef MAX_L2CAP_CLIENTS
-# define MAX_L2CAP_CLIENTS					15
-#endif
-
 #define L2CAP_LINK_INACTIVITY_TOUT			2
-
-#ifndef L2CAP_LINK_INACTIVITY_TOUT
-# define L2CAP_LINK_INACTIVITY_TOUT			4
-#endif
 
 #ifndef L2CAP_LINK_STARTUP_TOUT
 # define L2CAP_LINK_STARTUP_TOUT			60
@@ -269,26 +196,10 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 
 #define SDP_MAX_PAD_LEN						350
 
-#ifndef SDP_MAX_PAD_LEN
-# define SDP_MAX_PAD_LEN					600
-#endif
-
 #define SDP_MAX_ATTR_LEN					80
 
-#ifndef SDP_MAX_ATTR_LEN
-# if defined(HID_DEV_INCLUDED) && HID_DEV_INCLUDED == TRUE
-// probably went here
-#  define SDP_MAX_ATTR_LEN					80
-# else
-#  define SDP_MAX_ATTR_LEN					100
-# endif
-#endif
 
 #define SDP_MAX_ATTR_FILTERS				12
-
-#ifndef SDP_MAX_ATTR_FILTERS
-# define SDP_MAX_ATTR_FILTERS				15
-#endif
 
 #ifndef SDP_MAX_UUID_FILTERS
 # define SDP_MAX_UUID_FILTERS				3
@@ -299,10 +210,6 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 #endif
 
 #define SDP_MAX_LIST_BYTE_COUNT				1000
-
-#ifndef SDP_MAX_LIST_BYTE_COUNT
-# define SDP_MAX_LIST_BYTE_COUNT			0x1000
-#endif
 
 #ifndef SDP_MAX_PROTOCOL_PARAMS
 # define SDP_MAX_PROTOCOL_PARAMS			2
@@ -332,52 +239,17 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 
 #define MAX_RFC_PORTS						5
 
-#ifndef MAX_RFC_PORTS
-# define MAX_RFC_PORTS						30
-#endif
-
-// Well I guess not since this is different than MAX_L2CAP_LINKS
-#if 0
-#define MAX_ACL_CONNECTIONS					4
-
-#ifndef MAX_ACL_CONNECTIONS
-# define MAX_BD_CONNECTIONS					7
-#else
-# define MAX_BD_CONNECTIONS					MAX_ACL_CONNECTIONS
-#endif
-#else
-# define MAX_BD_CONNECTIONS					1
-#endif
+#define MAX_BD_CONNECTIONS					1
 
 #define PORT_RX_LOW_WM						5000
 
-#ifndef PORT_RX_LOW_WM
-# define PORT_RX_LOW_WM						(BTA_RFC_MTU_SIZE * PORT_RX_BUF_LOW_WM)
-#endif
-
 #define PORT_RX_HIGH_WM						8000
-
-#ifndef PORT_RX_HIGH_WM
-# define PORT_RX_HIGH_WM					(BTA_RFC_MTU_SIZE * PORT_RX_BUF_HIGH_WM)
-#endif
 
 #define PORT_RX_CRITICAL_WM					12000
 
-#ifndef PORT_RX_CRITICAL_WM
-# define PORT_RX_CRITICAL_WM				(BTA_RFC_MTU_SIZE * PORT_RX_BUF_CRITICAL_WM)
-#endif
-
 #define PORT_RX_BUF_LOW_WM					8
 
-#ifndef PORT_RX_BUF_LOW_WM
-# define PORT_RX_BUF_LOW_WM					4
-#endif
-
 #define PORT_RX_BUF_HIGH_WM					16
-
-#ifndef PORT_RX_BUF_HIGH_WM
-# define PORT_RX_BUF_HIGH_WM				10
-#endif
 
 #ifndef PORT_RX_BUF_CRITICAL_WM
 # define PORT_RX_BUF_CRITICAL_WM			15
@@ -385,27 +257,11 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 
 #define PORT_TX_HIGH_WM						8000
 
-#ifndef PORT_TX_HIGH_WM
-# define PORT_TX_HIGH_WM					(BTA_RFC_MTU_SIZE * PORT_TX_BUF_HIGH_WM)
-#endif
-
 #define PORT_TX_CRITICAL_WM					10000
-
-#ifndef PORT_TX_CRITICAL_WM
-# define PORT_TX_CRITICAL_WM				(BTA_RFC_MTU_SIZE * PORT_TX_BUF_CRITICAL_WM)
-#endif
 
 #define PORT_TX_BUF_HIGH_WM					16
 
-#ifndef PORT_TX_BUF_HIGH_WM
-# define PORT_TX_BUF_HIGH_WM				10
-#endif
-
 #define PORT_TX_BUF_CRITICAL_WM				22
-
-#ifndef PORT_TX_BUF_CRITICAL_WM
-# define PORT_TX_BUF_CRITICAL_WM			15
-#endif
 
 #ifndef PORT_FC_DEFAULT
 # define PORT_FC_DEFAULT					PORT_FC_CREDIT
@@ -451,10 +307,6 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 
 #define HID_HOST_MAX_DEVICES				16
 
-#ifndef HID_HOST_MAX_DEVICES
-# define HID_HOST_MAX_DEVICES				7
-#endif
-
 #ifndef HID_HOST_MTU
 # define HID_HOST_MTU						640
 #endif
@@ -464,10 +316,6 @@ void bte_hcisu_send(BT_HDR *p_msg, UINT16 event);
 #endif
 
 #define HID_HOST_MAX_CONN_RETRY				0
-
-#ifndef HID_HOST_MAX_CONN_RETRY
-# define HID_HOST_MAX_CONN_RETRY			3
-#endif
 
 #ifndef HID_HOST_REPAGE_WIN
 # define HID_HOST_REPAGE_WIN				2

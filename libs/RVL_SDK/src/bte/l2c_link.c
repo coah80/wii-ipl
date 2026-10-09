@@ -132,7 +132,8 @@ BOOLEAN l2c_link_hci_conn_comp(UINT8 status, UINT16 handle, BD_ADDR p_bda)
 	{
 		p_lcb->link_state = LST_CONNECTED;
 
-		if ((p_dev_info = btm_find_dev(p_bda)) != NULL)
+		p_dev_info = btm_find_dev(p_bda);
+		if (p_dev_info != NULL)
 		{
 			btm_acl_created(ci.bd_addr, p_dev_info->dev_class,
 			                p_dev_info->sec_bd_name, handle, p_lcb->link_role);
@@ -242,7 +243,8 @@ BOOLEAN l2c_link_hci_disc_comp(UINT16 handle, UINT8 reason)
 		l2cu_release_lcb(p_lcb);
 	}
 
-	if ((p_lcb = l2cu_find_lcb_by_state(LST_CONNECT_HOLDING)) != NULL)
+	p_lcb = l2cu_find_lcb_by_state(LST_CONNECT_HOLDING);
+	if (p_lcb != NULL)
 		l2cu_create_conn(p_lcb);
 
 	return status;
@@ -757,7 +759,8 @@ void l2c_link_segments_xmitted(BT_HDR *p_msg)
 	STREAM_TO_UINT16(p, &handle);
 	handle = HCID_GET_HANDLE(handle);
 
-	if ((p_lcb = l2cu_find_lcb_by_handle(handle)) == NULL)
+	p_lcb = l2cu_find_lcb_by_handle(handle);
+	if (p_lcb == NULL)
 	{
 		L2CAP_TRACE(WARNING,
 		            "L2CAP - rcvd segment complete, unknown handle: %d",

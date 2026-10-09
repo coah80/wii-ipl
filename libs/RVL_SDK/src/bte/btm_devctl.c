@@ -52,10 +52,6 @@
 
 #define BTM_SCO_HOST_BUF_SIZE		30
 
-#ifndef BTM_SCO_HOST_BUF_SIZE
-# define BTM_SCO_HOST_BUF_SIZE		255
-#endif
-
 static void btm_db_reset(void);
 
 static void btm_dev_reset(void);
@@ -99,6 +95,7 @@ static void btm_db_reset(void)
 	btm_inq_db_reset();
 	btm_discovery_db_reset();
 
+	// MWCC requires the repeated callback tests for the original instructions.
 	if (btm_cb.devcb.p_rln_cmpl_cb)
 	{
 		p_cb = btm_cb.devcb.p_rln_cmpl_cb;
@@ -247,7 +244,8 @@ void btm_get_hci_buf_size(void)
 		btu_start_timer(&btm_cb.devcb.reset_timer, BTU_TTYPE_BTM_DEV_CTL,
 		                BTM_DEV_REPLY_TIMEOUT);
 
-		if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_READ_CMD)) != NULL)
+		p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_READ_CMD);
+		if (p_buf != NULL)
 			btsnd_hcic_read_buffer_size(p_buf);
 	}
 }
@@ -662,7 +660,8 @@ tBTM_STATUS BTM_ReadLocalDeviceName(tBTM_CMPL_CB *p_cb)
 		return BTM_BUSY;
 
 	// NOTE: HCIC_PARAM_SIZE_READ_NAME is not defined
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_READ_NAME)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_READ_NAME);
+	if (p_buf != NULL)
 	{
 		btu_start_timer(&btm_cb.devcb.rln_timer, BTU_TTYPE_BTM_DEV_CTL,
 		                BTM_INFO_TIMEOUT);
@@ -736,7 +735,8 @@ tBTM_STATUS BTM_SetDeviceClass(DEV_CLASS dev_class)
 		return BTM_DEV_RESET;
 	}
 
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM3)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM3);
+	if (p_buf != NULL)
 	{
 		btsnd_hcic_write_dev_class(p_buf, dev_class);
 		return BTM_SUCCESS;
@@ -857,7 +857,8 @@ tBTM_STATUS BTM_WritePageTimeout(UINT16 timeout)
 
 	btm_cb.devcb.page_timeout = timeout * 625 / 1000;
 
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM2)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM2);
+	if (p_buf != NULL)
 	{
 		btsnd_hcic_write_page_tout(p_buf, timeout);
 		return BTM_SUCCESS;
@@ -875,7 +876,8 @@ tBTM_STATUS BTM_WriteVoiceSettings(UINT16 settings)
 	BTM_TRACE(EVENT, "BTM: BTM_WriteVoiceSettings: Settings: 0x%04x.",
 	          settings);
 
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM2)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_WRITE_PARAM2);
+	if (p_buf != NULL)
 	{
 		btsnd_hcic_write_voice_settings(p_buf, settings & 0x03ff);
 		return BTM_SUCCESS;
@@ -893,7 +895,8 @@ tBTM_STATUS BTM_EnableTestMode(void)
 
 	BTM_TRACE(EVENT, "BTM: BTM_EnableTestMode");
 
-	if ((p_buf = HCI_GET_CMD_BUF(2 + sizeof cond)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(2 + sizeof cond);
+	if (p_buf != NULL)
 	{
 		cond = HCI_DO_AUTO_ACCEPT_CONNECT;
 		btsnd_hcic_set_event_filter(p_buf, HCI_FILTER_CONNECTION_SETUP,
@@ -920,7 +923,8 @@ tBTM_STATUS BTM_EnableTestMode(void)
 		return BTM_NO_RESOURCES;
 	}
 
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_READ_CMD)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_READ_CMD);
+	if (p_buf != NULL)
 	{
 		btsnd_hcic_enable_test_mode(p_buf);
 		return BTM_SUCCESS;
@@ -955,7 +959,8 @@ tBTM_STATUS BTM_ReadStoredLinkKey(BD_ADDR bd_addr, tBTM_CMPL_CB *p_cb)
 	BTM_TRACE(EVENT, "BTM: BTM_ReadStoredLinkKey: Read_All: %s",
 	          read_all_flag ? "TRUE" : "FALSE");
 
-	if ((p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_READ_STORED_KEY)) != NULL)
+	p_buf = HCI_GET_CMD_BUF(HCIC_PARAM_SIZE_READ_STORED_KEY);
+	if (p_buf != NULL)
 	{
 		btm_cb.devcb.p_stored_link_key_cmpl_cb = p_cb;
 
