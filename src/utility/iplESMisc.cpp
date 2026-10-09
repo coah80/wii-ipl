@@ -199,16 +199,16 @@ namespace ipl {
                 OSReport("ESMisc::checkContentsNum: no TMD or content for 0x%016llx.\n", titleId);
                 return 1;
             } else {
-                u16 num = tmdView->head.numContents;
-                u32 count = 0;
+                u16 tmdContentCount = tmdView->head.numContents;
+                u32 privateContentCount = 0;
 
-                for (u32 i = 0; i < num; i++) {
+                for (u32 i = 0; i < tmdContentCount; i++) {
                     if ((tmdView->contents[i].type & 0x8000) == 0) {
-                        count++;
+                        privateContentCount++;
                     }
                 }
 
-                if (privateCount == count) {
+                if (privateCount == privateContentCount) {
                     return 0;
                 } else {
                     ESError err = ES_ListTitleContentsOnCard(titleId, NULL, &numContents);
@@ -240,16 +240,16 @@ namespace ipl {
                                 OSReport("ESMisc::checkContentsNum: 0x%016llx is already deleted.\n", titleId);
                                 return 1;
                             } else {
-                                u32 k;
-                                for (u32 j = 0; j < num; j++) {
-                                    k = 0;
+                                u32 contentIndex;
+                                for (u32 j = 0; j < tmdContentCount; j++) {
+                                    contentIndex = 0;
                                     for (u32 i = 0; i < numContents; i++) {
                                         if (contentIds[i] == tmdView->contents[j].cid) {
                                             break;
                                         }
-                                        k++;
+                                        contentIndex++;
                                     }
-                                    if (k == numContents && (tmdView->contents[j].type & 0x4000) == 0) {
+                                    if (contentIndex == numContents && (tmdView->contents[j].type & 0x4000) == 0) {
                                         OSReport("ESMisc::checkContentsNum: not complete: non-optional cidx %d missing for 0x%016llx.\n",
                                                  tmdView->contents[j].index, titleId);
                                         return 2;

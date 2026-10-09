@@ -2769,7 +2769,6 @@ namespace ipl {
     }
 
     int NandSDWorker::get_nand_free_area(u32* sysNodes, u32* sysBlocks, s32* userNodes, s32* userBlocks) {
-        int ret;
         NANDFileSystemStatus fsStatus;
         u32 usedUserBlocks, usedUserInodes;
 
