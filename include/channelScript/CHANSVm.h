@@ -19,7 +19,7 @@ extern "C" {
 #define CHANS_VM_CLASS_NAME_LEN 32
 
 CHANSVmErr CHANSVmInit(CHANSVm* vm, vmPtr work, vmU32 size);
-CHANSVmErr CHANSVmLinkModules(CHANSVm* vm, vmS32 unk0);
+CHANSVmErr CHANSVmLinkModules(CHANSVm* vm, vmS32 reserved);
 
 void CHANSVmSetSignal(CHANSVm* vm, vmBool* signal);
 
@@ -30,7 +30,7 @@ void CHANSVmSetSignal(CHANSVm* vm, vmBool* signal);
 vmU32 CHANSVmGetFreeExeSize(CHANSVm* vm);
 vmPtr CHANSVmGetFreeExeBufp(CHANSVm* vm);
 
-CHANSVmErr CHANSVmAddExe(CHANSVm* vm, vmS32 unk0, CHANSVm* execCtx);
+CHANSVmErr CHANSVmAddExe(CHANSVm* vm, vmS32 reserved, CHANSVm* execCtx);
 
 CHANSVmErr CHANSVmStep(CHANSVm* vm, int stepCount);
 

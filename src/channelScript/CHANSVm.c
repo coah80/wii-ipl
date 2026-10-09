@@ -748,13 +748,12 @@ static inline s32 CHANSVmParseFloat(const CHANSVmObjHdr* obj, f64* out) {
                     u64 val = strtoull(buf, &endPtr, 0);
                     if (endPtr == bufEnd) {
                         number = VmIntToFloat(val);
-                        goto store;
+                    } else {
+                        number = strtod(buf, &endPtr);
+                        if (endPtr == buf) {
+                            number = VM_NAN;
+                        }
                     }
-                }
-
-                number = strtod(buf, &endPtr);
-                if (endPtr == buf) {
-                    number = VM_NAN;
                 }
 
             store:
@@ -1570,7 +1569,7 @@ CHANSVmNativeClass* CHANSVmAddNativeClass2(CHANSVm* vm, const char* clsName, CHA
     if (CHANSVmFindNativeClass(vm, clsName) == vmNull) {
         clsNameLen = strlen(clsName);
         if (clsNameLen != 0) {
-            cls = CHANSVmAlloc(vm, VM_ALIGN(clsNameLen + sizeof(CHANSVmNativeClass) - 0x20));
+            cls = CHANSVmAlloc(vm, VM_ALIGN(clsNameLen + sizeof(CHANSVmNativeClass) - CHANS_VM_CLASS_NAME_LEN));
             if (cls != vmNull) {
                 if (pVm->pNativeClasses == vmNull) {
                     pVm->pNativeClasses = cls;
@@ -2467,87 +2466,84 @@ vmBoolInt VmDateCommon(CHANSVm* vm, OSCalendarTime* out) {
     if (out != vmNull) {
         argc = ((CHANSVmPrivate*)vm)->pActiveCtx->argc;
 
-        if (argc == 0) {
-            goto osgettime;
-        }
-        if (argc == 1) {
-            CHANSVmObjHdr* arg = CHANSVmGetArg(vm, 0);
+        if (argc != 0) {
+            if (argc == 1) {
+                CHANSVmObjHdr* arg = CHANSVmGetArg(vm, 0);
 
-            if (arg && arg->type == CHANS_VM_OBJ_TYPE_STRING) {
-                if (arg->value.wstring_v->len == 6 && memcmp(arg->value.wstring_v->spData, VmDateConstantTbl[0].spName, 6) == 0) {
-                    NETGetUniversalCalendar(&nettime);
-                    time = OSCalendarTimeToTicks(&nettime);
-                    time = (u64)((s64)time / (__OSBusClock / 4 / 1000));
+                if (arg && arg->type == CHANS_VM_OBJ_TYPE_STRING) {
+                    if (arg->value.wstring_v->len == 6 && memcmp(arg->value.wstring_v->spData, VmDateConstantTbl[0].spName, 6) == 0) {
+                        NETGetUniversalCalendar(&nettime);
+                        time = OSCalendarTimeToTicks(&nettime);
+                        time = (u64)((s64)time / (__OSBusClock / 4 / 1000));
+                        goto finalize;
+                    }
+                }
+
+                arg = CHANSVmGetArg(vm, 0);
+                arg = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_INTEGER, arg);
+                if (arg) {
+                    time = arg->value.int_v;
                     goto finalize;
                 }
             }
 
-            arg = CHANSVmGetArg(vm, 0);
-            arg = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_INTEGER, arg);
-            if (arg) {
-                time = arg->value.int_v;
-                goto finalize;
-            }
-        }
+            memset(&nettime, 0, sizeof(nettime));
 
-        memset(&nettime, 0, sizeof(nettime));
-
-        if (argc > 7) {
-            argc = 7;
-        }
-
-        for (i = 0; i < argc; i++) {
-            int* dst;
-            CHANSVmObjHdr* arg = CHANSVmGetArg(vm, i);
-            arg = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_INTEGER, arg);
-            if (arg == vmNull) {
-                break;
+            if (argc > 7) {
+                argc = 7;
             }
 
-            switch (i) {
-                case 0:
-                    dst = &nettime.year;
+            for (i = 0; i < argc; i++) {
+                int* dst;
+                CHANSVmObjHdr* arg = CHANSVmGetArg(vm, i);
+                arg = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_INTEGER, arg);
+                if (arg == vmNull) {
                     break;
-                case 1:
-                    dst = &nettime.mon;
-                    break;
-                case 2:
-                    dst = &nettime.mday;
-                    break;
-                case 3:
-                    dst = &nettime.hour;
-                    break;
-                case 4:
-                    dst = &nettime.min;
-                    break;
-                case 5:
-                    dst = &nettime.sec;
-                    break;
-                case 6:
-                    dst = &nettime.msec;
-                    break;
-                default:
-                    CHANS_VM_PRINTF_CUSTOM("internal error in %s line %d\n", __FUNCTION__, 211);
-                    return vmFalse;
+                }
+
+                switch (i) {
+                    case 0:
+                        dst = &nettime.year;
+                        break;
+                    case 1:
+                        dst = &nettime.mon;
+                        break;
+                    case 2:
+                        dst = &nettime.mday;
+                        break;
+                    case 3:
+                        dst = &nettime.hour;
+                        break;
+                    case 4:
+                        dst = &nettime.min;
+                        break;
+                    case 5:
+                        dst = &nettime.sec;
+                        break;
+                    case 6:
+                        dst = &nettime.msec;
+                        break;
+                    default:
+                        CHANS_VM_PRINTF_CUSTOM("internal error in %s line %d\n", __FUNCTION__, 211);
+                        return vmFalse;
+                }
+
+                *dst = (s32)arg->value.int_v;
             }
 
-            *dst = (s32)arg->value.int_v;
-        }
+            if (nettime.year < 2000) {
+                nettime.year = 2000;
+            }
+            if (nettime.mday < 1) {
+                nettime.mday = 1;
+            }
 
-        if (nettime.year < 2000) {
-            nettime.year = 2000;
+            time = OSCalendarTimeToTicks(&nettime);
+            time = (u64)((s64)time / (__OSBusClock / 4 / 1000));
+        } else {
+            time = OSGetTime();
+            time = (u64)((s64)time / (__OSBusClock / 4 / 1000));
         }
-        if (nettime.mday < 1) {
-            nettime.mday = 1;
-        }
-
-        time = OSCalendarTimeToTicks(&nettime);
-        time = (u64)((s64)time / (__OSBusClock / 4 / 1000));
-        goto finalize;
-
-    osgettime:
-        time = OSGetTime();
-        time = (u64)((s64)time / (__OSBusClock / 4 / 1000));
 
     finalize:
         time = time * (__OSBusClock / 4 / 1000);
@@ -3386,17 +3382,17 @@ VmMethodDefine(String, ToUpperCase) {
     return vmFalse;
 }
 
-CHANSVmObjHdr* CHANSVmFormatString(CHANSVm* vm, CHANSVmObjHdr* obj, u32 arg) {
-    u8 charBuffer[8];
+CHANSVmObjHdr* CHANSVmFormatString(CHANSVm* vm, CHANSVmObjHdr* obj, u32 formatArgIndex) {
+    vmWChar charBuffer[4];
     CHANSVmObjHdr* formattedObj;
-    u8 stringHeaderBuffer[16];
+    CHANSVmObjHdr stringHeader;
     u8 fmtBufData[32];
     u8* fmtBuf;
     wchar_t wideFmt[32];
     u32 halfMaxSize;
     BOOL alternateForm;
     CHANSVmObjHdr* stringArg;
-    u32 argIdxCounter;
+    u32 argumentOffset;
     u32 totalLen;
     u8* str;
     u32 strLen;
@@ -3407,6 +3403,7 @@ CHANSVmObjHdr* CHANSVmFormatString(CHANSVm* vm, CHANSVmObjHdr* obj, u32 arg) {
     u32 maxSize;
     u8* outputBuf;
     u32 outputPos;
+    // MWCC needs the maximum-length comparisons even though the result is unused.
     u32 maxLitLen;
     u32 litLen;
     u32 isEscaped;
@@ -3415,13 +3412,13 @@ CHANSVmObjHdr* CHANSVmFormatString(CHANSVm* vm, CHANSVmObjHdr* obj, u32 arg) {
     CHANSVmObjHdr* argObj;
 
     pVm = (CHANSVmPrivate*)vm;
-    memset(stringHeaderBuffer, 0, sizeof(stringHeaderBuffer));
+    memset(&stringHeader, 0, sizeof(stringHeader));
 
     if (pVm->pActiveCtx->argc == 0) {
         goto empty_create;
     }
 
-    argObj = CHANSVmGetArg(vm, arg);
+    argObj = CHANSVmGetArg(vm, formatArgIndex);
     if (argObj == vmNull || argObj->type != CHANS_VM_OBJ_TYPE_STRING) {
         goto null_return;
     }
@@ -3440,7 +3437,7 @@ CHANSVmObjHdr* CHANSVmFormatString(CHANSVm* vm, CHANSVmObjHdr* obj, u32 arg) {
     while (vmTrue) {
         strPos = 0;
         segStart = 0;
-        argIdxCounter = 1;
+        argumentOffset = 1;
 
         while (strPos < strLen) {
         // Label allows to continue without checking the condition
@@ -3589,11 +3586,11 @@ CHANSVmObjHdr* CHANSVmFormatString(CHANSVm* vm, CHANSVmObjHdr* obj, u32 arg) {
                     fmtBuf[fmtBufPos++] = 'l';
                     fmtBuf[fmtBufPos++] = conversionChar;
                     fmtBuf[fmtBufPos] = 0;
-                    valueObj = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_INTEGER, CHANSVmGetArg(vm, arg + argIdxCounter));
+                    valueObj = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_INTEGER, CHANSVmGetArg(vm, formatArgIndex + argumentOffset));
                 }
 
                 common_number_format: {
-                    argIdxCounter++;
+                    argumentOffset++;
                     if (valueObj == vmNull) {
                         goto loop_hint;
                     }
@@ -3627,35 +3624,35 @@ CHANSVmObjHdr* CHANSVmFormatString(CHANSVm* vm, CHANSVmObjHdr* obj, u32 arg) {
                     fmtBuf[fmtBufPos++] = 'l';
                     fmtBuf[fmtBufPos++] = conversionChar;
                     fmtBuf[fmtBufPos] = 0;
-                    valueObj = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_FLOAT, CHANSVmGetArg(vm, arg + argIdxCounter));
+                    valueObj = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_FLOAT, CHANSVmGetArg(vm, formatArgIndex + argumentOffset));
                     litLen = 1;
                     goto common_number_format;
                 }
 
                 char_body: {
-                    valueObj = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_INTEGER, CHANSVmGetArg(vm, arg + argIdxCounter));
-                    argIdxCounter++;
+                    valueObj = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_INTEGER, CHANSVmGetArg(vm, formatArgIndex + argumentOffset));
+                    argumentOffset++;
                     if (valueObj == vmNull) {
                         goto loop_hint;
                     }
                     stringData = charBuffer;
-                    *(u16*)charBuffer = valueObj->value.int_v;
-                    *(u16*)(charBuffer + 2) = 0;
+                    charBuffer[0] = valueObj->value.int_v;
+                    charBuffer[1] = 0;
                     formattedObj = vmNull;
                     goto common_string_format;
                 }
 
                 string_body: {
                     u32 objLen;
-                    stringArg = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_STRING, CHANSVmGetArg(vm, arg + argIdxCounter));
-                    argIdxCounter++;
+                    stringArg = CHANSVmConvertObjectType(vm, CHANS_VM_OBJ_TYPE_STRING, CHANSVmGetArg(vm, formatArgIndex + argumentOffset));
+                    argumentOffset++;
                     if (stringArg == vmNull) {
                         goto loop_hint;
                     }
 
                     objLen = stringArg->value.string_v->len & ~1U;
                     {
-                        formattedObj = CHANSVmNewObject(vm, vmFalse, (CHANSVmObjHdr*)stringHeaderBuffer, CHANS_VM_OBJ_TYPE_STRING, objLen + 2);
+                        formattedObj = CHANSVmNewObject(vm, vmFalse, &stringHeader, CHANS_VM_OBJ_TYPE_STRING, objLen + 2);
                         if (formattedObj == vmNull) {
                             goto null_return;
                         }
@@ -4839,35 +4836,35 @@ static CHANSVmBlobPackFormatList vmBlobPackFormatList[25] = {
     {0x0A, 1, 2, 0},   // '\n'
 };
 
-static u32 vmBlobParsePackFormatString(u32* out_nextPos, u32* out_elemType, u32* out_elemSize, u32* out_paramValue, const wchar_t* fmtStr, u32 fmtLen,
+static u32 vmBlobParsePackFormatString(u32* out_formatChar, u32* out_elemType, u32* out_elemSize, u32* out_paramValue, const wchar_t* fmtStr, u32 fmtLen,
                                        u32 curPos) {
     wchar_t curChar;
     u32 elemType;
     u32 elemSize;
-    u32 hasStar;
+    u32 supportsStar;
     s32 paramValue;
     u32 hasParam;
     u32 i;
     const CHANSVmBlobPackFormatList* p;
 
     elemSize = 1;
-    hasStar = 0;
+    supportsStar = 0;
     paramValue = 0;
 
     while (curPos < fmtLen) {
         curChar = fmtStr[curPos];
         p = vmBlobPackFormatList;
 
-        for (i = 0; i < 25; i++, p++) {
+        for (i = 0; i < sizeof(vmBlobPackFormatList) / sizeof(vmBlobPackFormatList[0]); i++, p++) {
             if (curChar == p->charCode) {
                 elemType = p->type;
                 elemSize = p->size;
-                hasStar = p->flags;
+                supportsStar = p->flags;
                 break;
             }
         }
 
-        if (i >= 25) {
+        if (i >= sizeof(vmBlobPackFormatList) / sizeof(vmBlobPackFormatList[0])) {
             elemSize = 1;
             elemType = 0;
             goto exit;
@@ -4899,7 +4896,7 @@ param_processing:
 
         if (!hasParam) {
             if (digit == '*') {
-                if (hasStar & 1) {
+                if (supportsStar & 1) {
                     paramValue = -1;
                     curPos++;
                     goto exit;
@@ -4932,8 +4929,8 @@ param_processing:
     }
 
 exit:
-    if (out_nextPos != vmNull) {
-        *out_nextPos = curChar;
+    if (out_formatChar != vmNull) {
+        *out_formatChar = curChar;
     }
     if (out_elemType != vmNull) {
         *out_elemType = elemType;
@@ -6562,30 +6559,27 @@ static CHANSVmErr VmPushFuncReturnInfo(CHANSVm* vm, u32 argCount, u32 totalSlots
             }
         }
 
-        if (block == vmNull) {
-            goto return_result;
+        if (block != vmNull) {
+            if (pVm->pActiveCtx != vmNull) {
+                block->pDbg = pVm->pActiveCtx->pDbg;
+                block->pc = pVm->pActiveCtx->pc;
+                block->pNext = pVm->pActiveCtx;
+            }
+
+            pVm->pActiveCtx = block;
+            block->pArgv = (vmWString*)objStackTopBuf;
+            block->argc = argCount;
+            block->totalSlots = totalSlots;
+            block->headerCount = headerCount;
+            block->frameBase = (vmU16)(VM_FRAME_ARENA_SIZE - (headerCount + totalSlots));
+
+            for (i = 0; i < headerCount; i++) {
+                memset(&block->headers[i], 0, sizeof(CHANSVmObjHdr));
+            }
+
+            result = CHANS_VM_OK;
         }
-
-        if (pVm->pActiveCtx != vmNull) {
-            block->pDbg = pVm->pActiveCtx->pDbg;
-            block->pc = pVm->pActiveCtx->pc;
-            block->pNext = pVm->pActiveCtx;
-        }
-
-        pVm->pActiveCtx = block;
-        block->pArgv = (vmWString*)objStackTopBuf;
-        block->argc = argCount;
-        block->totalSlots = totalSlots;
-        block->headerCount = headerCount;
-        block->frameBase = (vmU16)(VM_FRAME_ARENA_SIZE - (headerCount + totalSlots));
-
-        for (i = 0; i < headerCount; i++) {
-            memset(&block->headers[i], 0, sizeof(CHANSVmObjHdr));
-        }
-
-        result = 0;
     }
-return_result:
     return result;
 }
 
@@ -6758,7 +6752,9 @@ CHANSVmErr CHANSVmLinkModules(CHANSVm* vm, vmS32 reserved) {
                 CHANSVmObjHdr* obj;
                 if (idx >= module->moduleCount) {
                     goto pass3_idx_err;
-                } else if (obj = CHANSVmLookupScopedObject(vm, idx), obj == vmNull) {
+                }
+                obj = CHANSVmLookupScopedObject(vm, idx);
+                if (obj == vmNull) {
                     goto pass3_obj_err;
                 } else if (obj->type == CHANS_VM_OBJ_TYPE_BLANK) {
                     goto pass3_success;
@@ -6870,7 +6866,7 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
     CHANSVmFunction funcPtr;
     CHANSVmNativeClass* target;
     u32 pushEnd, headerCount;
-    CHANSVmObjHdr localBuf;
+    CHANSVmObjHdr nativeResult;
     u32 pushDepth;
 
     acc = &pVm->accumulator;
@@ -6940,7 +6936,7 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
         }
     }
 
-    memset(&localBuf, 0, sizeof(CHANSVmObjHdr));
+    memset(&nativeResult, 0, sizeof(CHANSVmObjHdr));
 
     if (callType == CHANS_VM_CALL_TYPE_FUNCTION) {
         methodRef = 0;
@@ -7024,8 +7020,8 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
                 return CHANS_VM_ERR_NO_SUCH_FUNCTION;
             }
             if (ctorFlag != vmFalse) {
-                localBuf.parentCls = target;
-                localBuf.type = CHANS_VM_TYPE_OBJECT;
+                nativeResult.parentCls = target;
+                nativeResult.type = CHANS_VM_TYPE_OBJECT;
                 funcPtr = target->ctor;
                 if (funcPtr == vmNull) {
                     return CHANS_VM_ERR_NOT_CONSTRUCTOR;
@@ -7042,7 +7038,7 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
     retVal = VmPushFuncReturnInfo(vm, pushDepth, target != vmNull ? pushDepth : pushEnd, headerCount);
     if (retVal == CHANS_VM_OK) {
         if (target != vmNull) {
-            if (funcPtr != vmNull && funcPtr(vm, acc, &localBuf) == CHANS_VM_OK) {
+            if (funcPtr != vmNull && funcPtr(vm, acc, &nativeResult) == CHANS_VM_OK) {
                 retVal = CHANS_VM_ERR_IN_METHOD_OR_PROPERTY;
                 if (ctorFlag != vmFalse) {
                     retVal = CHANS_VM_ERR_NEW;
@@ -7052,9 +7048,9 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
                 if (retVal == CHANS_VM_OK && callType != CHANS_VM_CALL_TYPE_PROP_SET) {
                     retVal = CHANSVmDeleteObject(vm, acc);
                     if (retVal == CHANS_VM_OK) {
-                        memcpy(acc, &localBuf, sizeof(CHANSVmObjHdr));
+                        memcpy(acc, &nativeResult, sizeof(CHANSVmObjHdr));
                         acc->flags.raw &= ~CHANSVM_OBJ_FLAG_READONLY;
-                        memset(&localBuf, 0, sizeof(CHANSVmObjHdr));
+                        memset(&nativeResult, 0, sizeof(CHANSVmObjHdr));
                     }
                 }
             }
@@ -7074,7 +7070,6 @@ static CHANSVmErr VmCallMethod(CHANSVm* vm, u32 instructionSize, u32 callType, u
         }
     }
 
-return_label:
     return retVal;
 }
 
