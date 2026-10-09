@@ -199,6 +199,7 @@ NWC24Err NWC24SetMsgSubjectPublic(NWC24MsgObj* msg, const u16* subject, u32 subj
 
     nwcWork = NWC24WorkP;
     result = NWC24iDetectEncodingToSend(nwcWork->stringWork, 0x40, subject, subjectSize, NULL, 0, region);
+    /* MWCC needs the success-only switches to retain their extra branches. */
     switch (result) {
         case NWC24_OK:
             break;
@@ -206,29 +207,29 @@ NWC24Err NWC24SetMsgSubjectPublic(NWC24MsgObj* msg, const u16* subject, u32 subj
             goto done;
     }
     if (NWC24ParseCharsetStr(&charset, nwcWork->stringWork) != NWC24_OK) {
-        charset = 0;
+        charset = NWC24_US_ASCII;
     }
-    if (charset == 0) {
+    if (charset == NWC24_US_ASCII) {
         result = NWC24iSetMsgSubjectPlain(msg, subject, subjectSize, region, alternative, work, workSize, charset, nwcWork->stringWork);
         goto done;
     }
     switch (region) {
-        case 0:
-            result = 2;
+        case NWC24_ENCODING_REGION_JPN:
+            result = NWC24_ENC_BASE64;
             break;
-        case 1:
-        case 2:
-            result = 3;
+        case NWC24_ENCODING_REGION_USA:
+        case NWC24_ENCODING_REGION_EUR:
+            result = NWC24_ENC_QUOTED_PRINTABLE;
             break;
-        case 3:
-        case 4:
-            result = 2;
+        case NWC24_ENCODING_REGION_KOR:
+        case NWC24_ENCODING_REGION_CHN:
+            result = NWC24_ENC_BASE64;
             break;
         default:
-            result = 2;
+            result = NWC24_ENC_BASE64;
             break;
     }
-    if (result == 3) {
+    if (result == NWC24_ENC_QUOTED_PRINTABLE) {
         result = NWC24iSetMsgSubjectQP(msg, subject, subjectSize, region, alternative, work, workSize, charset, nwcWork->stringWork);
     } else {
         result = NWC24iSetMsgSubjectBase64(msg, subject, subjectSize, region, alternative, work, workSize, charset, nwcWork->stringWork);
@@ -275,6 +276,7 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
 
     nwcWork = NWC24WorkP;
     result = NWC24iDetectEncodingToSend(nwcWork->stringWork, 0x40, subject, subjectSize, text, textSize, region);
+    /* MWCC needs the success-only switches to retain their extra branches. */
     switch (result) {
         case NWC24_OK:
             break;
@@ -282,7 +284,7 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
             goto done;
     }
     if (NWC24ParseCharsetStr(&charset, nwcWork->stringWork) != NWC24_OK) {
-        charset = 0;
+        charset = NWC24_US_ASCII;
     }
     textCapacity = (workSize * textSize) / (textSize + subjectSize * 4);
     textWorkSize = textCapacity;
@@ -300,23 +302,23 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
     result = ENCIs7BitEncoding(&is7Bit, nwcWork->stringWork);
     if (!is7Bit || (result != ENC_OK)) {
         switch (region) {
-            case 0:
-                result = 2;
+            case NWC24_ENCODING_REGION_JPN:
+                result = NWC24_ENC_BASE64;
                 break;
-            case 1:
-            case 2:
-                result = 3;
+            case NWC24_ENCODING_REGION_USA:
+            case NWC24_ENCODING_REGION_EUR:
+                result = NWC24_ENC_QUOTED_PRINTABLE;
                 break;
-            case 3:
-            case 4:
-                result = 2;
+            case NWC24_ENCODING_REGION_KOR:
+            case NWC24_ENCODING_REGION_CHN:
+                result = NWC24_ENC_BASE64;
                 break;
             default:
-                result = 2;
+                result = NWC24_ENC_BASE64;
                 break;
         }
     } else {
-        result = 0;
+        result = NWC24_ENC_7BIT;
     }
     result = NWC24SetMsgText(msg, (char*)work, textWorkSize - 1, charset, result);
     switch (result) {
@@ -325,27 +327,27 @@ NWC24Err NWC24SetMsgSubjectAndTextPublic(NWC24MsgObj* msg, const u16* subject, u
         default:
             goto done;
     }
-    if (charset == 0) {
+    if (charset == NWC24_US_ASCII) {
         result = NWC24iSetMsgSubjectPlain(msg, subject, subjectSize, region, alternative, subjectWork, subjectWorkSize, charset, nwcWork->stringWork);
         goto done;
     }
     switch (region) {
-        case 0:
-            result = 2;
+        case NWC24_ENCODING_REGION_JPN:
+            result = NWC24_ENC_BASE64;
             break;
-        case 1:
-        case 2:
-            result = 3;
+        case NWC24_ENCODING_REGION_USA:
+        case NWC24_ENCODING_REGION_EUR:
+            result = NWC24_ENC_QUOTED_PRINTABLE;
             break;
-        case 3:
-        case 4:
-            result = 2;
+        case NWC24_ENCODING_REGION_KOR:
+        case NWC24_ENCODING_REGION_CHN:
+            result = NWC24_ENC_BASE64;
             break;
         default:
-            result = 2;
+            result = NWC24_ENC_BASE64;
             break;
     }
-    if (result == 3) {
+    if (result == NWC24_ENC_QUOTED_PRINTABLE) {
         result = NWC24iSetMsgSubjectQP(msg, subject, subjectSize, region, alternative, subjectWork, subjectWorkSize, charset, nwcWork->stringWork);
     } else {
         result =
@@ -360,33 +362,32 @@ NWC24Err NWC24iGetDefaultCharset(char* charset, u32 charsetSize, NWC24EncodingRe
     NWC24Err result = NWC24_OK;
 
     switch (region) {
-        case 0:
+        case NWC24_ENCODING_REGION_JPN:
             strncpy(charset, DefaultCharsetJp, charsetSize - 1);
             charset[charsetSize - 1] = 0;
-            goto done;
-        case 1:
+            break;
+        case NWC24_ENCODING_REGION_USA:
             strncpy(charset, "iso-8859-1", charsetSize - 1);
             charset[charsetSize - 1] = 0;
-            goto done;
-        case 2:
+            break;
+        case NWC24_ENCODING_REGION_EUR:
             strncpy(charset, "iso-8859-1", charsetSize - 1);
             charset[charsetSize - 1] = 0;
-            goto done;
-        case 3:
+            break;
+        case NWC24_ENCODING_REGION_KOR:
             strncpy(charset, DefaultCharsetKr, charsetSize - 1);
             charset[charsetSize - 1] = 0;
-            goto done;
-        case 4:
+            break;
+        case NWC24_ENCODING_REGION_CHN:
             strncpy(charset, "gb2312", charsetSize - 1);
             charset[charsetSize - 1] = 0;
-            goto done;
+            break;
         default:
             strncpy(charset, "iso-8859-1", charsetSize - 1);
             charset[charsetSize - 1] = 0;
             result = NWC24_ERR_INVALID_VALUE;
     }
 
-done:
     return result;
 }
 
@@ -403,6 +404,7 @@ NWC24Err NWC24iConvertToInternalEncoding(u16* dst, u32* dstSize, const u8* src, 
         result = NWC24_ERR_OVERFLOW;
         goto done;
     }
+    /* MWCC needs the success switch and short-circuit setup for this instruction order. */
     if (charset[0] == '\0') {
         result = NWC24iGetDefaultCharset(charset, charsetSize, region);
         switch (result) {
@@ -421,52 +423,29 @@ NWC24Err NWC24iConvertToInternalEncoding(u16* dst, u32* dstSize, const u8* src, 
         dst[convertedBytes >> 1] = 0;
         *dstSize = (convertedBytes >> 1) + 1;
     }
-    if (result == ENC_ERR_NO_MAP_RULE) {
-        goto invalidCharacter;
+    switch (result) {
+        case ENC_OK:
+            result = NWC24_OK;
+            break;
+        case ENC_ERR_INVALID_PARAM:
+            result = NWC24_ERR_INVALID_VALUE;
+            break;
+        case ENC_ERR_NO_BUF_LEFT:
+            result = NWC24_ERR_OVERFLOW;
+            break;
+        case ENC_ERR_NO_MAP_RULE:
+        case ENC_ERR_INVALID_FORMAT:
+            result = NWC24_ERR_INVALID_CHAR;
+            break;
+        case ENC_ERR_UNKNOWN_ENCODING:
+        case ENC_ERR_UNSUPPORTED:
+        case ENC_ERR_NOT_LOADED:
+            result = NWC24_ERR_NOT_SUPPORTED;
+            break;
+        default:
+            result = NWC24_ERR_FATAL;
+            break;
     }
-    if (result < ENC_ERR_NO_MAP_RULE) {
-        if (result == ENC_ERR_INVALID_FORMAT) {
-            goto invalidCharacter;
-        }
-        if (result >= ENC_ERR_INVALID_FORMAT) {
-            goto invalidValue;
-        }
-        if (result >= ENC_ERR_NOT_LOADED) {
-            goto notSupported;
-        }
-    } else {
-        if (result == ENC_OK) {
-            goto success;
-        }
-        if (result >= ENC_OK) {
-            goto fatal;
-        }
-        goto overflow;
-    }
-    goto fatal;
-
-success:
-    result = ENC_OK;
-    goto done;
-
-invalidValue:
-    result = NWC24_ERR_INVALID_VALUE;
-    goto done;
-
-overflow:
-    result = NWC24_ERR_OVERFLOW;
-    goto done;
-
-invalidCharacter:
-    result = NWC24_ERR_INVALID_CHAR;
-    goto done;
-
-notSupported:
-    result = NWC24_ERR_NOT_SUPPORTED;
-    goto done;
-
-fatal:
-    result = NWC24_ERR_FATAL;
 
 done:
     return result;
@@ -486,6 +465,7 @@ NWC24Err NWC24iConvertFromInternalEncoding(u8* dst, u32* dstSize, const u16* src
         result = NWC24_ERR_OVERFLOW;
         goto done;
     }
+    /* MWCC needs the success switch and short-circuit setup for this instruction order. */
     if (charset[0] == '\0') {
         result = NWC24iGetDefaultCharset(charset, charsetSize, region);
         switch (result) {
@@ -506,51 +486,29 @@ NWC24Err NWC24iConvertFromInternalEncoding(u8* dst, u32* dstSize, const u16* src
         *srcSize = inputBytes >> 1;
         *dstSize = outputBytes + 1;
     }
-    if (result == ENC_ERR_NO_MAP_RULE) {
-        goto invalidCharacter;
+    switch (result) {
+        case ENC_OK:
+            result = NWC24_OK;
+            break;
+        case ENC_ERR_INVALID_PARAM:
+            result = NWC24_ERR_INVALID_VALUE;
+            break;
+        case ENC_ERR_NO_BUF_LEFT:
+            result = NWC24_ERR_OVERFLOW;
+            break;
+        case ENC_ERR_NO_MAP_RULE:
+        case ENC_ERR_INVALID_FORMAT:
+            result = NWC24_ERR_INVALID_CHAR;
+            break;
+        case ENC_ERR_UNKNOWN_ENCODING:
+        case ENC_ERR_UNSUPPORTED:
+        case ENC_ERR_NOT_LOADED:
+            result = NWC24_ERR_NOT_SUPPORTED;
+            break;
+        default:
+            result = NWC24_ERR_FATAL;
+            break;
     }
-    if (result < ENC_ERR_NO_MAP_RULE) {
-        if (result == ENC_ERR_INVALID_FORMAT) {
-            goto invalidCharacter;
-        }
-        if (result >= ENC_ERR_INVALID_FORMAT) {
-            goto invalidValue;
-        }
-        if (result >= ENC_ERR_NOT_LOADED) {
-            goto notSupported;
-        }
-        goto fatal;
-    }
-    if (result == ENC_OK) {
-        goto success;
-    }
-    if (result >= ENC_OK) {
-        goto fatal;
-    }
-    goto overflow;
-
-success:
-    result = ENC_OK;
-    goto done;
-
-invalidValue:
-    result = NWC24_ERR_INVALID_VALUE;
-    goto done;
-
-overflow:
-    result = NWC24_ERR_OVERFLOW;
-    goto done;
-
-invalidCharacter:
-    result = NWC24_ERR_INVALID_CHAR;
-    goto done;
-
-notSupported:
-    result = NWC24_ERR_NOT_SUPPORTED;
-    goto done;
-
-fatal:
-    result = NWC24_ERR_FATAL;
 
 done:
     return result;
@@ -572,20 +530,20 @@ NWC24Err NWC24iDetectEncodingToSend(char* charset, u32 charsetSize, const u16* s
     startIndex = 0;
     lastIndex = -1;
     switch (region) {
-        case 0:
+        case NWC24_ENCODING_REGION_JPN:
             names = JapaneseCharsets;
             numNames = 3;
             break;
-        case 1:
-        case 2:
+        case NWC24_ENCODING_REGION_USA:
+        case NWC24_ENCODING_REGION_EUR:
             names = WesternCharsets;
             numNames = 8;
             break;
-        case 3:
+        case NWC24_ENCODING_REGION_KOR:
             names = KoreanCharsets;
             numNames = 3;
             break;
-        case 4:
+        case NWC24_ENCODING_REGION_CHN:
             names = ChineseCharsets;
             numNames = 2;
             break;
@@ -642,7 +600,7 @@ NWC24Err NWC24iDetectBreakPoint(u32* breakPoint, NWC24Charset charset, const u8*
     if ((breakPoint == NULL) || (text == NULL)) {
         return NWC24_ERR_INVALID_VALUE;
     }
-    if (charset == 0) {
+    if (charset == NWC24_US_ASCII) {
         byteEncoding = TRUE;
     } else if (charset == NWC24_UTF_8) {
         byteEncoding = FALSE;
@@ -797,7 +755,7 @@ NWC24Err NWC24iSetMsgSubjectQP(NWC24MsgObj* msg, const u16* subject, u32 subject
                         charsetLength = (0x40 - strlen(charsetName)) / 3;
                         total = outputLength - 1;
                         workHalf = secondSize;
-                        for (; sourceOffset < subjectLength;) {
+                        while (sourceOffset < subjectLength) {
                             if (workHalf - total < 3) {
                                 result = NWC24_ERR_OVERFLOW;
                                 goto done;
@@ -808,6 +766,7 @@ NWC24Err NWC24iSetMsgSubjectQP(NWC24MsgObj* msg, const u16* subject, u32 subject
                             NWC24iDetectBreakPoint(&lineLength, charset, work + sourceOffset, subjectLength - sourceOffset, charsetLength);
                             result = NWC24EncodeWord(second + total, workHalf - total, &outputLength, charsetName, 0x40, 'Q', work + sourceOffset,
                                                      lineLength);
+                            /* MWCC needs this success-only switch's extra branch. */
                             switch (result) {
                                 case NWC24_OK:
                                     break;
@@ -829,6 +788,7 @@ done:
 
 NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 subjectSize, NWC24EncodingRegion region, u16 alternative, u8* work,
                                    u32 workSize, NWC24Charset charset, char* charsetName) {
+    /* MWCC needs a const input alias to preserve the conversion-call registers. */
     const u8* encodedInput = work;
     u8* second;
     u32 secondSize;
@@ -852,6 +812,7 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
         subjectLength = subjectSize;
         result = NWC24iConvertFromInternalEncoding(work, &workHalf, subject, &subjectLength, charsetName, 0x40, region, alternative);
         if (result != NWC24_OK) {
+            /* MWCC needs the success-only switches to retain their extra branches. */
             switch (result) {
                 case NWC24_ERR_OVERFLOW: break;
                 default: goto done;
@@ -867,7 +828,7 @@ NWC24Err NWC24iSetMsgSubjectBase64(NWC24MsgObj* msg, const u16* subject, u32 sub
                 charsetLength = strlen(charsetName);
                 lineLength = (((0x3E - charsetLength) * 3) >> 2) + 1;
                 total = outputLength - 1;
-                for (; sourceOffset < subjectSize;) {
+                while (sourceOffset < subjectSize) {
                     subjectLength = subjectSize - sourceOffset;
                     workHalf = lineLength;
                     if (secondSize - total < 3) {

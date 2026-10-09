@@ -16,6 +16,7 @@ const u8 scWpaOui0 = 0;
 const u8 scWpaOui1 = 0x50;
 const u8 scWpaOui2 = 0xF2;
 const u8 scWpaOuiPad = 0;
+/* MWCC places the WPA search bytes in .sdata. */
 #pragma push
 #pragma section sconst_type ".sdata"
 const u8 scWpaFindOui0 = 0;
@@ -28,6 +29,7 @@ const u8 scWpaFindOuiPad3 = 0;
 const u8 scWpaFindOuiPad4 = 0;
 #pragma pop
 
+/* MWCC must load the OUI bytes from memory instead of folding their values. */
 #define scRsnOui0 (*((volatile const u8*)&scRsnOui0))
 #define scRsnOui1 (*((volatile const u8*)&scRsnOui1))
 #define scRsnOui2 (*((volatile const u8*)&scRsnOui2))
@@ -96,68 +98,58 @@ static inline s32 GetResultNCD(s32 result) {
 
 s32 WDCheckEnableChannel(u16* enableChannel) {
     s32 id;
+    s32 result;
+    s32 infoResult;
 
     if (enableChannel != NULL) {
         *enableChannel = 0;
     }
 
     id = NCDLockWirelessDriver();
-    if (id <= 0) {
-        goto ncd_err;
-    } else {
-        s32 result = WD_Startup(3);
-        s32 result2;
+    if (id > 0) {
+        result = WD_Startup(3);
         if (result == WD_INTERNAL_ERR_OK) {
             WD_Info info;
-            result2 = WD_GetInfo(&info);
-            if (result2 == WD_INTERNAL_ERR_OK && enableChannel != NULL) {
+            infoResult = WD_GetInfo(&info);
+            if (infoResult == WD_INTERNAL_ERR_OK && enableChannel != NULL) {
                 *enableChannel = info.enableChannel;
             }
             WAIT_FOR_OPERATION(WD_Cleanup());
         }
 
         WAIT_FOR_OPERATION(NCDUnlockWirelessDriver(id));
-        goto wd_err;
-
-    ncd_err:
+    } else {
         return GetResultNCD(id);
-
-    wd_err:
-        if (result == WD_ERR_OK) {
-            return GetResultWD(result2);
-        } else {
-            return GetResultWD(result);
-        }
+    }
+    if (result == WD_ERR_OK) {
+        return GetResultWD(infoResult);
+    } else {
+        return GetResultWD(result);
     }
 }
 
 s32 WDScanOnce(u8* scanBuffer, u32 scanBufferLen, WDScanParam* param) {
     s32 id;
+    s32 result;
+    s32 scanResult;
 
     id = NCDLockWirelessDriver();
-    if (id <= 0) {
-        goto ncd_err;
-    } else {
-        s32 result = WD_Startup(3);
-        s32 result2;
+    if (id > 0) {
+        result = WD_Startup(3);
         if (result == WD_INTERNAL_ERR_OK) {
             memset(scanBuffer, 0, scanBufferLen);
-            result2 = WD_Scan(param, scanBuffer, scanBufferLen);
+            scanResult = WD_Scan(param, scanBuffer, scanBufferLen);
             WAIT_FOR_OPERATION(WD_Cleanup());
         }
 
         WAIT_FOR_OPERATION(NCDUnlockWirelessDriver(id));
-        goto wd_err;
-
-    ncd_err:
+    } else {
         return GetResultNCD(id);
-
-    wd_err:
-        if (result == WD_ERR_OK) {
-            return GetResultWD(result2);
-        } else {
-            return GetResultWD(result);
-        }
+    }
+    if (result == WD_ERR_OK) {
+        return GetResultWD(scanResult);
+    } else {
+        return GetResultWD(result);
     }
 }
 
@@ -175,93 +167,55 @@ s32 WDGetPrivacyMode(WDBssDesc* bssDesc) {
         data[2] = scRsnOui2;
         memcpy(readIE, ieData, sizeof(WDVendorInfoElement) + 2);
         if (memcmp(&readIE[2], data, WD_VENDOR_LENGTH) == 0) {
-            if ((s32)readIE[5] == 3) {
-                goto privacy_second;
+            switch (readIE[5]) {
+                case 1:
+                    return WD_PRIVACY_MODE_DS_COMMUNICATION;
+                case 2:
+                    return WD_PRIVACY_MODE_7;
+                case 3:
+                    break;
+                case 4:
+                    return WD_PRIVACY_MODE_5;
+                case 5:
+                    return WD_PRIVACY_MODE_2;
+                default:
+                    break;
             }
-            if ((s32)readIE[5] >= 3) {
-                goto privacy_rsn_high;
-            }
-            if ((s32)readIE[5] == 1) {
-                goto privacy_rsn_mode1;
-            }
-            if ((s32)readIE[5] >= 1) {
-                goto privacy_rsn_mode7;
-            }
-            goto privacy_second;
-        privacy_rsn_high:
-            if ((s32)readIE[5] == 5) {
-                goto privacy_rsn_mode2;
-            }
-            if ((s32)readIE[5] >= 5) {
-                goto privacy_second;
-            }
-            goto privacy_rsn_mode5;
         }
     }
-    goto privacy_second;
 
-privacy_rsn_mode1:
-    return WD_PRIVACY_MODE_DS_COMMUNICATION;
-privacy_rsn_mode7:
-    return WD_PRIVACY_MODE_7;
-privacy_rsn_mode5:
-    return WD_PRIVACY_MODE_5;
-privacy_rsn_mode2:
-    return WD_PRIVACY_MODE_2;
-
-privacy_second: {
+    {
         u8 data[WD_VENDOR_LENGTH];
         u8 findData[WD_VENDOR_LENGTH];
 
         findData[0] = scWpaFindOui0;
         findData[1] = scWpaFindOui1;
         findData[2] = scWpaFindOui2;
-        if (!WDiFindVendorSpecificIE(&ieData, &ieLength, bssDesc, 0xDD, findData, 1)) {
-            goto privacy_fallback;
-        }
-        data[0] = scWpaOui0;
-        data[1] = scWpaOui1;
-        data[2] = scWpaOui2;
+        if (WDiFindVendorSpecificIE(&ieData, &ieLength, bssDesc, 0xDD, findData, 1)) {
+            data[0] = scWpaOui0;
+            data[1] = scWpaOui1;
+            data[2] = scWpaOui2;
 
-        {
             memcpy(readIE, ieData, sizeof(WDVendorInfoElement));
-            if (memcmp(&readIE[2], data, WD_VENDOR_LENGTH) != 0) {
-                goto privacy_fallback;
+            if (memcmp(&readIE[2], data, WD_VENDOR_LENGTH) == 0) {
+                switch (readIE[5]) {
+                    case 1:
+                        return WD_PRIVACY_MODE_DS_COMMUNICATION;
+                    case 2:
+                        return WD_PRIVACY_MODE_4;
+                    case 3:
+                        break;
+                    case 4:
+                        return WD_PRIVACY_MODE_6;
+                    case 5:
+                        return WD_PRIVACY_MODE_2;
+                    default:
+                        break;
+                }
             }
-            if ((s32)readIE[5] == 3) {
-                    goto privacy_fallback;
-                }
-                if ((s32)readIE[5] >= 3) {
-                    goto privacy_wpa_high;
-                }
-                if ((s32)readIE[5] == 1) {
-                    goto privacy_wpa_mode1;
-                }
-                if ((s32)readIE[5] >= 1) {
-                    goto privacy_wpa_mode4;
-                }
-                goto privacy_fallback;
-            privacy_wpa_high:
-                if ((s32)readIE[5] == 5) {
-                    goto privacy_wpa_mode2;
-                }
-                if ((s32)readIE[5] >= 5) {
-                    goto privacy_fallback;
-                }
-                goto privacy_wpa_mode6;
         }
     }
 
-privacy_wpa_mode1:
-    return WD_PRIVACY_MODE_DS_COMMUNICATION;
-privacy_wpa_mode4:
-    return WD_PRIVACY_MODE_4;
-privacy_wpa_mode6:
-    return WD_PRIVACY_MODE_6;
-privacy_wpa_mode2:
-    return WD_PRIVACY_MODE_2;
-
-privacy_fallback:
     if (bssDesc != NULL && (bssDesc->capabilities & 0x10) == 0x10) {
         result = WD_PRIVACY_MODE_8;
     } else {
