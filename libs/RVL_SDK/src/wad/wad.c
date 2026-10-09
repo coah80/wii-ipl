@@ -83,8 +83,10 @@ typedef struct WADFileHeader {
     u8 reserved_0x60[0x20];
 } WADFileHeader;
 
-typedef struct WADBootImportParts {
-    s32 headerInfo[2];
+typedef struct WADImportParts {
+    s32 type;
+    u16 cidxMode;
+    u16 version;
     u32 certificateSize;
     void* certificates;
     u32 crlSize;
@@ -93,7 +95,7 @@ typedef struct WADBootImportParts {
     void* ticket;
     u32 titleMetaSize;
     void* titleMeta;
-} WADBootImportParts;
+} WADImportParts;
 
 typedef struct WADBackupFileHeader {
     u32 magic;
@@ -3397,7 +3399,7 @@ static s32 _WADCleanTmpDir(MEMAllocator* allocator) {
 
 s32 WADImportDVDForBS(const char* path, void* buffer, u32 bufferSize) {
     DVDFileInfo fileInfo;
-    WADBootImportParts parts;
+    WADImportParts parts;
     WADHeader* header;
     u8* readBuffer;
     BOOL fileOpened = FALSE;
@@ -3433,14 +3435,14 @@ s32 WADImportDVDForBS(const char* path, void* buffer, u32 bufferSize) {
 
     memset(&parts, 0, sizeof(parts));
     header = (WADHeader*)readBuffer;
-    result = WAD_815C2F44(header, parts.headerInfo);
+    result = WAD_815C2F44(header, &parts.type);
     if (result != 2) {
         OSReport("%s:%d Format should be iRD format: %s\n", __func__, 0x17D2,
                  path);
         result = -3000;
         goto cleanup;
     }
-    if (parts.headerInfo[0] == 3) {
+    if (parts.type == 3) {
         sectionOffset = (header->hdrSize + 0x3F) & ~0x3F;
         if (header->certSize != 0) {
             parts.certificateSize = header->certSize;
@@ -3496,19 +3498,7 @@ cleanup:
 s32 WADImportDVDExForBS(const char* path, void* buffer, u32 bufferSize) {
     WADHeader header ALIGN32;
     DVDFileInfo fileInfo;
-    struct {
-        s32 type;
-        u16 cidxMode;
-        u16 version;
-        u32 certificateSize;
-        void* certificates;
-        u32 crlSize;
-        void* crls;
-        u32 ticketSize;
-        void* ticket;
-        u32 titleMetaSize;
-        void* titleMeta;
-    } parts;
+    WADImportParts parts;
     BOOL fileOpened = FALSE;
     s32 result;
     u8* contentBuffer;
