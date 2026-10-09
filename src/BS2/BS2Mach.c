@@ -619,7 +619,7 @@ void BS2StartGame() {
     u32 (*entry)(void);
 
     StartingGame = TRUE;
-    while (CoverBlock.state != DVD_STATE_IDLE) {
+    while (((volatile DVDCommandBlock *)&CoverBlock)->state != DVD_STATE_IDLE) {
     }
 
     BS2Report("BS2StartGame(1)\n");
@@ -850,7 +850,7 @@ void BS2StartGCGame() {
     OSTime time;
 
     StartingGame = TRUE;
-    while (CoverBlock.state != DVD_STATE_IDLE) {
+    while (((volatile DVDCommandBlock *)&CoverBlock)->state != DVD_STATE_IDLE) {
     }
 
     soundMode = SCGetSoundMode();
@@ -2171,7 +2171,7 @@ invalidRvlRegion:
         BS2BootFromCache = 0;
         BS2BootCaching = 1;
         LoadingTitle = 0;
-        switch (Block.state) {
+        switch (((volatile DVDCommandBlock *)&Block)->state) {
         case 4:
         case 5:
             CheckDVDCommandStatus(&Block);
