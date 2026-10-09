@@ -166,3 +166,20 @@ AOSSi_WLANConnect `li r4; li r5; mr r3` marshal order — new mechanism data:
   Remaining theoretical shape: an extra copy of the address whose source is
   PHYSICAL (call result / param) — no NCD API returns a config pointer, and
   no legitimately-dead expression produces one.
+- orig .bss/.sbss fully owned (AOSSi_NcdIfConfig 0x0/0x15e, AOSSi_NcdIpConfig
+  0x160/0x7c4, sbss ip* globals + alloc/release/statusCallback + cancel_flag)
+  — no hidden pointer object; orig had no static config pointer.
+- Direct-global shape (no ipConfig local, `AOSSi_NcdIpConfig.field` stores):
+  worse — memset arg folds to `addi r3` in-place (no marshal insn at all) and
+  the address web splits (r27/r28 across the two config structs).
+- `memset(&AOSSi_NcdIpConfig, ...)` arg while keeping ipConfig local: same
+  2-diff (marshal still reads ipConfig's web? no — identical output).
+- Fill-byte variants (`retries`, `result`, named u8 const): identical 2-diff.
+  `AOSSi_cancel_flag` shifts the block but is semantically wrong (fills with
+  flag value, not 0) — rejected.
+- ipConfig init-at-decl (`= &AOSSi_NcdIpConfig` at declaration): web born
+  early -> pinned r29 across calls (home change, worse). Cross-block `dst`
+  copies (early def / use-past-branch): all fold.
+- Exhausted: ~60 source forms + pragmas + decl permutations. The target needs
+  the marshal in IU2 behind a forwarded operand; no non-emitting, non-folding,
+  non-rehoming chain link exists from this source language level.
