@@ -891,8 +891,7 @@ s32 CArGBAOdh::cdj_c_colorConv(SArCDJ_OdhMaster* master, u8* sourceData, int for
 
 void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutput, u16 width, u16 height,
                            const long* conversionTable, int format) {
-    u8* cbSource = source + width * height;
-    u8* crSource = source + width * height * 2;
+    u32 planeSize = (u32)width * (u32)height;
     for (int i = 0; i < width; i++) {
         s32 red;
         s32 green;
@@ -916,8 +915,8 @@ void CArGBAOdh::LineConv11(u8* source, u8* lumaOutput, u8* cbOutput, u8* crOutpu
         } else {
             int offset = (i & 7) + (i & ~7) * 4;
             float y = source[offset] - colorConvert16;
-            float cb = cbSource[offset] - colorConvert128;
-            float cr = crSource[offset] - colorConvert128;
+            float cb = source[planeSize + offset] - colorConvert128;
+            float cr = source[planeSize * 2 + offset] - colorConvert128;
             red = colorConvertY * y + colorConvertR * cr;
             green = colorConvertY * y - colorConvertG1 * cb - colorConvertG2 * cr;
             blue = colorConvertY * y + colorConvertB * cb;
@@ -2025,7 +2024,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
         return ODH_ERROR_INVALID_BITSTREAM;
     }
 
-    bitBuffer = (sourceCursor[0] << 24 | sourceCursor[1] << 16 | sourceCursor[2] << 8 | sourceCursor[3]) << bitOffset;
+    bitBuffer = ((u32)sourceCursor[0] << 24 | (u32)sourceCursor[1] << 16 | (u32)sourceCursor[2] << 8 | sourceCursor[3]) << bitOffset;
     maxLength = component == 0 ? 9 : 11;
 
     length = 1;
@@ -2081,7 +2080,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
             return ODH_ERROR_INVALID_BITSTREAM;
         }
 
-        bitBuffer = (sourceCursor[0] << 24 | sourceCursor[1] << 16 | sourceCursor[2] << 8 | sourceCursor[3]) << bitOffset;
+        bitBuffer = ((u32)sourceCursor[0] << 24 | (u32)sourceCursor[1] << 16 | (u32)sourceCursor[2] << 8 | sourceCursor[3]) << bitOffset;
         length = 1;
         tableIndex = 0;
         for (; length <= 6; length++) {
@@ -2144,7 +2143,7 @@ s32 CArGBAOdh::huffmanDecoder(u32* coefficientOutput, SArCDJ_HuffmanRequest* req
             return ODH_ERROR_INVALID_BITSTREAM;
         }
 
-        bitBuffer = (sourceCursor[0] << 24 | sourceCursor[1] << 16 | sourceCursor[2] << 8 | sourceCursor[3]) << bitOffset;
+        bitBuffer = ((u32)sourceCursor[0] << 24 | (u32)sourceCursor[1] << 16 | (u32)sourceCursor[2] << 8 | sourceCursor[3]) << bitOffset;
         maxLength = component == 0 ? 9 : 11;
 
         length = 1;
