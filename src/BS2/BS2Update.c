@@ -9,12 +9,11 @@
 
 #include <string.h>
 
-static u32 Flags0[BS2_UPDATE_ENTRY_COUNT] = {0};
-static u32 Flags1[BS2_UPDATE_ENTRY_COUNT] = {0};
-static OSThread Thread = {0};
-static u8 ThreadStack[4096] = {0};
-static BS2UpdateHeader UpdateHeader0 ALIGN32 = {0};
-static BS2UpdateHeader UpdateHeader1 ALIGN32 = {0};
+static u32 Flags1[BS2_UPDATE_ENTRY_COUNT];
+static OSThread Thread;
+static u8 ThreadStack[4096];
+static BS2UpdateHeader UpdateHeader0 ALIGN32;
+static BS2UpdateHeader UpdateHeader1 ALIGN32;
 
 BS2UpdateEntry DiscEntries[BS2_UPDATE_ENTRY_COUNT] ADDRESS(0x80480000);
 
@@ -50,32 +49,8 @@ char* getSuffix(const char* path) {
     return suffix;
 }
 
-static void* UpdateThread(void* argument);
-
-void BS2UpdateInit(void* allocator) {
-    BS2Report("initialize BS2Update\n");
-    ConsoleType = OSGetConsoleType();
-    VersionES = __OSGetHollywoodRev();
-    VersionMEM2 = OSGetPhysicalMem2Size();
-    __OSGetIOSRev((OSIOSRev*)&VersionIOS);
-    BS2Report("Console Type  : %08X\n", ConsoleType);
-    BS2Report("Hollywood Rev : %08X\n", VersionES);
-    BS2Report("MEM2 Size     : %08X\n", VersionMEM2);
-    MemAllocator = allocator;
-    State = 0;
-    CurrentEntry = NULL;
-    pEntries = NULL;
-    EntriesCount = 0;
-    memset(DiscEntries, 0, 0x40000);
-    memset(EntriesToImport, 0, 0x40000);
-    memset(Flags1, 0, sizeof(Flags1));
-    BS2Report("Create update thread\n");
-    OSCreateThread(&Thread, UpdateThread, NULL, ThreadStack + sizeof(ThreadStack),
-                   sizeof(ThreadStack), 31, OS_THREAD_ATTR_DETACH);
-    OSResumeThread(&Thread);
-}
-
 static inline u32 BS2SelectUpdateEntries(void) {
+    static u32 Flags0[BS2_UPDATE_ENTRY_COUNT];
     BOOL missingFile;
     u32 index;
     u32 selectedCount;
@@ -416,6 +391,31 @@ seats_done:
     }
 selection_complete:
     return selectedCount;
+}
+
+static void* UpdateThread(void* argument);
+
+void BS2UpdateInit(void* allocator) {
+    BS2Report("initialize BS2Update\n");
+    ConsoleType = OSGetConsoleType();
+    VersionES = __OSGetHollywoodRev();
+    VersionMEM2 = OSGetPhysicalMem2Size();
+    __OSGetIOSRev((OSIOSRev*)&VersionIOS);
+    BS2Report("Console Type  : %08X\n", ConsoleType);
+    BS2Report("Hollywood Rev : %08X\n", VersionES);
+    BS2Report("MEM2 Size     : %08X\n", VersionMEM2);
+    MemAllocator = allocator;
+    State = 0;
+    CurrentEntry = NULL;
+    pEntries = NULL;
+    EntriesCount = 0;
+    memset(DiscEntries, 0, 0x40000);
+    memset(EntriesToImport, 0, 0x40000);
+    memset(Flags1, 0, sizeof(Flags1));
+    BS2Report("Create update thread\n");
+    OSCreateThread(&Thread, UpdateThread, NULL, ThreadStack + sizeof(ThreadStack),
+                   sizeof(ThreadStack), 31, OS_THREAD_ATTR_DETACH);
+    OSResumeThread(&Thread);
 }
 
 static void* UpdateThread(void* argument) {
