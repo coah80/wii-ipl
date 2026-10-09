@@ -178,6 +178,7 @@ s32 PFFAT_ReadFATSector(PF_VOLUME* volume, PF_CACHE_PAGE* page, u32 cluster)
     } else {
         currentFAT = 1;
     }
+    // MWCC needs both retry paths to reach the shared error test.
     for (;;) {
         error = PFSEC_ReadFAT(volume, page->p_buf, page->sector, 0,
                               volume->bpb.bytes_per_sector);

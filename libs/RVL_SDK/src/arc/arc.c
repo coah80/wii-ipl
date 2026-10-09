@@ -167,24 +167,27 @@ s32 ARCConvertPathToEntrynum(ARCHandle* handle, const char* path) {
 
         for (i = dirLookAt + 1; i < FSTEntries[dirLookAt].dir.next; i = IS_ENTRY_DIR(FSTEntries, i) ? FSTEntries[i].dir.next : i + 1) {
             char* name;
-        loop_back:
-            // Skip directories
-            if (IS_ENTRY_DIR(FSTEntries, i) == FALSE && isDir == TRUE) {
-                continue;
-            }
+            do {
+                // Skip directories
+                if (IS_ENTRY_DIR(FSTEntries, i) == FALSE && isDir == TRUE) {
+                    break;
+                }
 
-            name = handle->FSTStringStart + FILE_STRING_OFF(FSTEntries, i);
+                name = handle->FSTStringStart + FILE_STRING_OFF(FSTEntries, i);
 
-            // Skip empty entries
-            if (*name == '.' && *(name + 1) == 0) {
-                i++;
-                goto loop_back;
-            }
+                // Skip empty entries
+                if (*name == '.' && *(name + 1) == 0) {
+                    i++;
+                    continue;
+                }
 
-            // Advance to next file in hierarchy
-            if (isSame(ptrPath, name) == TRUE) {
-                goto next_in_hier;
-            }
+                // Advance to next file in hierarchy
+                if (isSame(ptrPath, name) == TRUE) {
+                    // MWCC needs this join to preserve the original search branches.
+                    goto next_in_hier;
+                }
+                break;
+            } while (TRUE);
         }
         return -1;
 
@@ -315,22 +318,25 @@ BOOL ARCReadDir(ARCDir* dir, ARCDirEntry* dirent) {
     handle = dir->handle;
     FSTEntries = (FSTEntry*)handle->FSTStart;
     loc = dir->location;
-retry:
-    if (loc <= dir->entryNum || dir->next <= loc) {
-        return FALSE;
+    for (;;) {
+        if (loc <= dir->entryNum || dir->next <= loc) {
+            return FALSE;
+        }
+
+        dirent->handle = handle;
+        dirent->entryNum = loc;
+        dirent->isDir = IS_ENTRY_DIR(FSTEntries, loc);
+        dirent->name = handle->FSTStringStart + FILE_STRING_OFF(FSTEntries, loc);
+
+        if (dirent->name[0] == '.' && dirent->name[1] == 0) {
+            loc++;
+            continue;
+        }
+
+        dir->location = IS_ENTRY_DIR(FSTEntries, loc) ? FSTEntries[loc].dir.next : (loc + 1);
+
+        break;
     }
-
-    dirent->handle = handle;
-    dirent->entryNum = loc;
-    dirent->isDir = IS_ENTRY_DIR(FSTEntries, loc);
-    dirent->name = handle->FSTStringStart + FILE_STRING_OFF(FSTEntries, loc);
-
-    if (dirent->name[0] == '.' && dirent->name[1] == 0) {
-        loc++;
-        goto retry;
-    }
-
-    dir->location = IS_ENTRY_DIR(FSTEntries, loc) ? FSTEntries[loc].dir.next : (loc + 1);
 
     return TRUE;
 }

@@ -6,6 +6,7 @@
 static void WriteCallback(s32 chan, s32 result);
 static void EraseCallback(s32 chan, s32 result);
 
+// MWCC needs write failures to bypass the shared command-status check.
 static void WriteCallback(s32 chan, s32 result) {
     CARDControl* card;
     CARDCallback callback;
@@ -19,7 +20,7 @@ static void WriteCallback(s32 chan, s32 result) {
         fileInfo = card->fileInfo;
         if (fileInfo->length < 0) {
             result = CARD_RESULT_CANCELED;
-            goto after;
+            goto finish_write;
         }
         fileInfo->length -= card->sectorSize;
         if (fileInfo->length <= 0) {
@@ -29,23 +30,23 @@ static void WriteCallback(s32 chan, s32 result) {
             callback = card->apiCallback;
             card->apiCallback = NULL;
             result = __CARDUpdateDir(chan, callback);
-            goto check;
+            goto check_command_result;
         } else {
             fat = __CARDGetFatBlock(card);
             fileInfo->offset += card->sectorSize;
             fileInfo->iBlock = fat[fileInfo->iBlock];
             if ((fileInfo->iBlock < 5) || (fileInfo->iBlock >= card->cBlock)) {
                 result = CARD_RESULT_BROKEN;
-                goto after;
+                goto finish_write;
             }
             result = __CARDEraseSector(chan, card->sectorSize * fileInfo->iBlock, EraseCallback);
-        check:
+        check_command_result:
             if (result < 0) {
-                goto after;
+                goto finish_write;
             }
         }
     } else {
-    after:
+    finish_write:
         callback = card->apiCallback;
         card->apiCallback = NULL;
         __CARDPutControlBlock(card, result);
@@ -62,16 +63,14 @@ static void EraseCallback(s32 chan, s32 result) {
     if (result >= 0) {
         fileInfo = card->fileInfo;
         result = __CARDWrite(chan, card->sectorSize * fileInfo->iBlock, card->sectorSize, card->buffer, WriteCallback);
-        if (result < 0) {
-            goto after;
+        if (result >= 0) {
+            return;
         }
-    } else {
-    after:
-        callback = card->apiCallback;
-        card->apiCallback = NULL;
-        __CARDPutControlBlock(card, result);
-        callback(chan, result);
     }
+    callback = card->apiCallback;
+    card->apiCallback = NULL;
+    __CARDPutControlBlock(card, result);
+    callback(chan, result);
 }
 
 s32 CARDWriteAsync(CARDFileInfo* fileInfo, void* buf, s32 length, s32 offset, CARDCallback callback) {

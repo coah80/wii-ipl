@@ -251,23 +251,26 @@ s32 contentConvertPathToEntrynumDVD(CNTHandleDVD* cntHandle, const char* path) {
         ptrPath = path;
 
         for (i = dirLookAt + 1; i < FstStart[dirLookAt].dir.next; i = IS_ENTRY_DIR(FstStart, i) ? FstStart[i].dir.next : (i + 1)) {
-        loop_back:
-            // Skip directories
-            if (IS_ENTRY_DIR(FstStart, i) == FALSE && isDir == TRUE) {
-                continue;
-            }
+            do {
+                // Skip directories
+                if (IS_ENTRY_DIR(FstStart, i) == FALSE && isDir == TRUE) {
+                    break;
+                }
 
-            name = FstStringStart + FILE_STRING_OFF(FstStart, i);
+                name = FstStringStart + FILE_STRING_OFF(FstStart, i);
 
-            if (*name == '.' && *(name + 1) == 0) {
-                i++;
-                goto loop_back;
-            }
+                if (*name == '.' && *(name + 1) == 0) {
+                    i++;
+                    continue;
+                }
 
-            // Advance to next file in hierarchy
-            if (isSame(ptrPath, name) == TRUE) {
-                goto next_in_hier;
-            }
+                // Advance to next file in hierarchy
+                if (isSame(ptrPath, name) == TRUE) {
+                    // MWCC needs this join to preserve the original search branches.
+                    goto next_in_hier;
+                }
+                break;
+            } while (TRUE);
         }
 
         return -1;

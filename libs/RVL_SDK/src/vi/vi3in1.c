@@ -168,6 +168,7 @@ void __VISetVolume(u8 wd0, u8 wd1) {
     WaitMicroTime(2);
 }
 
+// MWCC needs the separate region-store blocks in this dispatch.
 void __VISetYUVSEL(u8 value) {
     s32 region = *(s32*)0x800000cc;
     u8 data[2];
@@ -649,34 +650,21 @@ void __VIInit3in1(VITVMode mode) {
     s32 value = (u32)mode >> 2;
     u32 flag;
 
-    if (value == 2) {
-        goto region1;
+    switch (value) {
+        case 0:
+            flag = 0;
+            break;
+        case 2:
+            flag = 1;
+            break;
+        case 1:
+        case 5:
+            flag = 2;
+            break;
+        default:
+            flag = 0;
+            break;
     }
-    if (value < 2) {
-        if (value == 0) {
-            goto region0;
-        }
-        if (value >= 0) {
-            goto region2;
-        }
-        goto regionDefault;
-    }
-    if (value == 5) {
-        goto region2;
-    }
-    goto regionDefault;
-region0:
-    flag = 0;
-    goto send;
-region1:
-    flag = 1;
-    goto send;
-region2:
-    flag = 2;
-    goto send;
-regionDefault:
-    flag = 0;
-send:
     Vdac_Flag_Region = flag;
     data[0] = 1;
     data[1] = flag;

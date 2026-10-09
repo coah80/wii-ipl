@@ -43,7 +43,7 @@ CXStreamingResult CXReadUncompRL(CXUncompContextRL* context, const void* src, u3
     const u8* pSrc = src;
 
     if (context->hdrLen) {
-        int a;
+        int headerBytes;
         if (context->hdrLen == 8) {
             if ((*pSrc & CX_COMPRESSION_TYPE_MASK) != CX_COMPRESSION_TYPE_RUN_LENGTH) {
                 return CX_STREAMING_ERR_BAD_FILE_TYPE;
@@ -54,10 +54,10 @@ CXStreamingResult CXReadUncompRL(CXUncompContextRL* context, const void* src, u3
             }
         }
 
-        a = CXiReadHeader(&context->hdrLen, &context->outDataLen, pSrc, size, context->size);
+        headerBytes = CXiReadHeader(&context->hdrLen, &context->outDataLen, pSrc, size, context->size);
 
-        pSrc += a;
-        size -= a;
+        pSrc += headerBytes;
+        size -= headerBytes;
 
         if (!size) {
             return !context->hdrLen ? context->outDataLen : CX_STREAMING_ERR_BAD_FILE_TYPE;
@@ -78,11 +78,11 @@ CXStreamingResult CXReadUncompRL(CXUncompContextRL* context, const void* src, u3
                 }
             }
         } else if (context->length) {
-            u8 b = *pSrc++;
+            u8 repeatedByte = *pSrc++;
             size--;
 
             while (context->length) {
-                *context->outData++ = b;
+                *context->outData++ = repeatedByte;
 
                 context->length--;
                 context->outDataLen--;
@@ -161,7 +161,7 @@ CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u3
     const u8* pSrc = src;
 
     if (context->hdrLen) {
-        int a;
+        int headerBytes;
         if (context->hdrLen == 8) {
             if ((*pSrc & CX_COMPRESSION_TYPE_MASK) != CX_COMPRESSION_TYPE_LZ) {
                 return CX_STREAMING_ERR_BAD_FILE_TYPE;
@@ -174,10 +174,10 @@ CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u3
             }
         }
 
-        a = CXiReadHeader(&context->hdrLen, &context->outDataLen, pSrc, size, context->size);
+        headerBytes = CXiReadHeader(&context->hdrLen, &context->outDataLen, pSrc, size, context->size);
 
-        pSrc += a;
-        size -= a;
+        pSrc += headerBytes;
+        size -= headerBytes;
 
         if (!size) {
             return !context->hdrLen ? context->outDataLen : CX_STREAMING_ERR_BAD_FILE_TYPE;
@@ -186,7 +186,7 @@ CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u3
 
     while (context->outDataLen > 0) {
         while (context->flagsLeft) {
-            s32 a;
+            s32 backReferenceDistance;
 
             if (!size) {
                 return context->outDataLen;
@@ -197,76 +197,73 @@ CXStreamingResult CXReadUncompLZ(CXUncompContextLZ* context, const void* src, u3
                 context->outDataLen--;
 
                 size--;
+            } else {
+                while (context->lengthBytesLeft) {
+                    context->lengthBytesLeft--;
 
-                goto there;
-            }
+                    if (!context->lzType) {
+                        context->length = *pSrc++;
+                        context->length += 0x30;
+                        context->lengthBytesLeft = 0;
+                    } else {
+                        switch (context->lengthBytesLeft) {
+                            case 2: {
+                                context->length = *pSrc++;
 
-            while (context->lengthBytesLeft) {
-                context->lengthBytesLeft--;
+                                if (context->length >> 4 == 1) {
+                                    context->length = (context->length & 0x0F) << 16;
+                                    context->length += 0x1110;
+                                } else if (context->length >> 4 == 0) {
+                                    context->length = (context->length & 0x0F) << 8;
+                                    context->length += 0x110;
+                                    context->lengthBytesLeft = 1;
+                                } else {
+                                    context->length += 0x10;
+                                    context->lengthBytesLeft = 0;
+                                }
 
-                if (!context->lzType) {
-                    context->length = *pSrc++;
-                    context->length += 0x30;
-                    context->lengthBytesLeft = 0;
-                } else {
-                    switch (context->lengthBytesLeft) {
-                        case 2: {
-                            context->length = *pSrc++;
-
-                            if (context->length >> 4 == 1) {
-                                context->length = (context->length & 0x0F) << 16;
-                                context->length += 0x1110;
-                            } else if (context->length >> 4 == 0) {
-                                context->length = (context->length & 0x0F) << 8;
-                                context->length += 0x110;
-                                context->lengthBytesLeft = 1;
-                            } else {
-                                context->length += 0x10;
-                                context->lengthBytesLeft = 0;
+                                break;
                             }
+                            case 1: {
+                                context->length += *pSrc++ << 8;
+                                break;
+                            }
+                            case 0: {
+                                context->length += *pSrc++;
+                                break;
+                            }
+                        }
+                    }
 
-                            break;
-                        }
-                        case 1: {
-                            context->length += *pSrc++ << 8;
-                            break;
-                        }
-                        case 0: {
-                            context->length += *pSrc++;
-                            break;
-                        }
+                    size--;
+                    if (!size) {
+                        return context->outDataLen;
                     }
                 }
 
+                backReferenceDistance = (context->length & 0x0F) << 8;
+                context->length >>= 4;
+
+                backReferenceDistance = (backReferenceDistance | *pSrc++) + 1;
                 size--;
-                if (!size) {
-                    return context->outDataLen;
+                context->lengthBytesLeft = 3;
+
+                if (context->length > context->outDataLen) {
+                    if (!context->size) {
+                        return CX_STREAMING_ERR_BAD_FILE_SIZE;
+                    }
+
+                    context->length = context->outDataLen;
+                }
+
+                while (context->length > 0) {
+                    *context->outData = context->outData[-backReferenceDistance];
+                    context->outData++;
+                    context->outDataLen--;
+                    context->length--;
                 }
             }
 
-            a = (context->length & 0x0F) << 8;
-            context->length >>= 4;
-
-            a = (a | *pSrc++) + 1;
-            size--;
-            context->lengthBytesLeft = 3;
-
-            if (context->length > context->outDataLen) {
-                if (!context->size) {
-                    return CX_STREAMING_ERR_BAD_FILE_SIZE;
-                }
-
-                context->length = context->outDataLen;
-            }
-
-            while (context->length > 0) {
-                *context->outData = context->outData[-a];
-                context->outData++;
-                context->outDataLen--;
-                context->length--;
-            }
-
-        there:
             if (!context->outDataLen) {
                 goto out;
             }
@@ -295,7 +292,7 @@ CXStreamingResult CXReadUncompHuffman(CXUncompContextHuffman* context, const voi
     const u8* pSrc = src;
 
     if (context->hdrLen) {
-        int a;
+        int headerBytes;
         if (context->hdrLen == 8) {
             context->depth = *pSrc & 0x0F;
 
@@ -308,10 +305,10 @@ CXStreamingResult CXReadUncompHuffman(CXUncompContextHuffman* context, const voi
             }
         }
 
-        a = CXiReadHeader(&context->hdrLen, &context->outDataLen, pSrc, size, context->size);
+        headerBytes = CXiReadHeader(&context->hdrLen, &context->outDataLen, pSrc, size, context->size);
 
-        pSrc += a;
-        size -= a;
+        pSrc += headerBytes;
+        size -= headerBytes;
 
         if (!size) {
             return !context->hdrLen ? context->outDataLen : CX_STREAMING_ERR_BAD_FILE_TYPE;
