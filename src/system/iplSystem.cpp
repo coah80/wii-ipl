@@ -1195,17 +1195,17 @@ namespace ipl {
     }
 
     void System::getProjectionRect4x3(nw4r::ut::Rect* rect) {
-        rect->left = *((volatile const f32*)&scOrthoLeft);
-        rect->right = *((volatile const f32*)&scOrthoRight);
-        rect->bottom = *((volatile const f32*)&scOrthoBottom);
-        rect->top = *((volatile const f32*)&scOrthoTop);
+        rect->left = scOrthoLeft;
+        rect->right = scOrthoRight;
+        rect->bottom = scOrthoBottom;
+        rect->top = scOrthoTop;
     }
 
     void System::getProjectionRect16x9(nw4r::ut::Rect* rect) {
-        rect->left = *((volatile const f32*)&scWideOrthoLeft);
-        rect->right = *((volatile const f32*)&scWideOrthoRight);
-        rect->bottom = *((volatile const f32*)&scOrthoBottom);
-        rect->top = *((volatile const f32*)&scOrthoTop);
+        rect->left = scWideOrthoLeft;
+        rect->right = scWideOrthoRight;
+        rect->bottom = scOrthoBottom;
+        rect->top = scOrthoTop;
     }
 
     GXRenderModeObj* System::getRenderModeObj() {

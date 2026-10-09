@@ -19,9 +19,9 @@
 namespace ipl {
     namespace math {
         static inline nw4r::math::VEC3 subHermitePoints(const VEC3& start, const VEC3& end) {
-            nw4r::math::VEC3 temp;
-            nw4r::math::VEC3Sub(&temp, &start, &end);
-            return temp;
+            nw4r::math::VEC3 difference;
+            nw4r::math::VEC3Sub(&difference, &start, &end);
+            return difference;
         }
 
         template <>

@@ -2777,16 +2777,12 @@ void Base::dirtyCacheAll() {
     dirtyDrawCache();
 }
 
-// MWCC needs the direct-ABC path to join after the input-mode checks.
 void Base::notifyChangeMode() {
     if (mePredictMode == PM_Atok) {
-        if (mpManager->getToolBar()->isQwerty()) {
-            if (mpManager->getPCKeyboard()->isABC()) {
-                if (!mpManager->getPCKeyboard()->getTranslateMode()) goto checkInput;
-            }
+        if (!mpManager->getToolBar()->isQwerty() ||
+            !mpManager->getPCKeyboard()->isABC() || mpManager->getPCKeyboard()->getTranslateMode()) {
+            if (!mpManager->getToolBar()->isQwerty()) mpManager->getCellPhoneKeyboard()->getInputMode();
         }
-        if (!mpManager->getToolBar()->isQwerty()) mpManager->getCellPhoneKeyboard()->getInputMode();
-checkInput:
         if (mpUnfixString->getInputStringLength() == 0) updateCandidateState_();
     } else if (mePredictMode == PM_12) {
         tistring::WithZi::PredictLanguage language;
