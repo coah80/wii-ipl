@@ -9,6 +9,7 @@ static inline pf_u16 read_boot_u16(pf_u8* buf, pf_u32 offset) {
 }
 
 pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mbr) {
+    pf_u32 s;
     pf_u32* p_start;
     pf_u32* p_count;
     pf_s16 index;
@@ -20,7 +21,8 @@ pf_s32 pdm_part_is_master_boot_sector(pf_u8* buf, pf_u32 total, pf_bool* p_is_mb
     p_count = count;
     for (index = 0; index < 4; index++) {
         *p_start = 0;
-        *p_start = MBR_WORD(buf, 454);
+        s = MBR_WORD(buf, 454);
+        *p_start = s;
         *p_count = MBR_WORD(buf, 458);
         if (*p_start != 0 && *p_count != 0) {
             if (index == 0) { *p_is_mbr = 1; }
