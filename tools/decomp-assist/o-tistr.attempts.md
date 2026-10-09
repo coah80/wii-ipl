@@ -67,3 +67,97 @@ block exactly (`li r6,0; sth r6,0x10(r1)`, then a `bne` on the reused cr0). Two 
 then-block keeps `li r6,0` (IRO scalarizes the field into a named local, which VN never deletes), and IRO's
 dead-store pass removes a newline then-block that only resets the position, so the `cmplwi` disappears.
 The gate for this round passed with the dispatch cleanup only (0 regressions, DOL hash unchanged).
+
+## Round b (worktree data-d5, branch agent/w1009/o-tistr2, base f1d824ac)
+
+Scratch: /tmp/o-tistr/r2 (run2.py parallel variant runner, s1..s33 variant sets, captures in
+/tmp/o-tistr/cap/run-b-*). Owner ruling: the `s32 mode` re-test is allowed.
+
+### Target block structure, corrected
+
+The target's Hangul code is five blocks at the final schedule, not three:
+
+1. `li r6,0; sth r6,0x10(r1)` then the re-test branch (reused cr0, removed at emission).
+2. Re-test then-block, empty.
+3. `cmplwi r4,0xa; slwi r0,r6,1; addi r5,r1,0x10; sthx r4,r5,r0; addi r6,r6,1; mr r4,r5` then the newline
+   branch. The char store and the pointer copy are in the same block as the newline compare: the
+   scheduler moves the independent `cmplwi` to the front. So the original writes the character before the
+   newline test, and the terminator after it.
+4. Newline then-block, empty.
+5. `li r5,0; slwi r0,r6,1; clrlwi r29,r6,0x10; sthx r5,r4,r0; sth r5,0x42(r3); b`.
+
+### GC3 facts measured with per-pass captures (new)
+
+- 0x59a030 (peephole forward, run at optimizer start and before RA) CSEs equal li's inside a block into the
+  first one and forwards stack loads from stores in the same block.
+- VN (0x5976e0) forwards stores to loads across single-predecessor chains in both runs, deletes a copy or
+  load whose destination already holds the value, flattens copy chains (also into named locals), and keys
+  records by opcode, flags and operand count. Codegen li has 2 operands, const-prop li 3; codegen addi has 4
+  operands, const-prop addi 3. Different shapes never match, pre or post RA.
+- Copy propagation (0x621d00) also propagates copies into function-scope named locals.
+- Halfword store-to-load forwarding always produces `rlwinm d,s,0,16,31`, even for a zero-extended source.
+- A dead store to a constant-initialized one-field POD struct (`LinePosition position = {0};`) survives IRO
+  and is removed by array-to-register: that makes the newline then-block empty and leaves the bare `cmplwi`
+  exactly as in the target (variants rb-*, nt1, o-*).
+- An indexed first store (`input[position.index] = 0;`) hides the store from VN(0), so a re-test then-block
+  `n = input[0];` survives both const-prop passes as a second definition of n and is forwarded only by VN(1).
+  First block, dead `cmplwi` and empty newline block then match; the re-test block keeps one
+  `clrlwi r6,r6,16` (halfword forwarding). Variant rb-a-rd0-pz, 60 diffs (41 without the newline test).
+- IRO block-local expression propagation copies a pointer definition into its single use; `&input[k]` forms
+  with k from a memory struct become const-prop addi's (3 operands) that survive VN as a separate register
+  (ap1), but never turn into `mr`.
+
+### Still open
+
+- Re-test then-block: needs a second definition of the counter that survives both const-prop passes and
+  disappears afterwards. Named li never disappears; read-back leaves the halfword `clrlwi`; struct
+  (array-to-register) forms put an extra const-prop li in block 1.
+- Pointer copy in block 3: copy propagation removes `mr out,p` unless `out` has a second reaching definition
+  in the newline block, and that definition has to vanish after the last copy propagation.
+
+### Resolution: EXACT (13 -> 0), tiString linked
+
+Scratch for this part: /tmp/o-tistr/r2/s43..s54 (variant sets), /tmp/o-tistr/r3 (probes, captures
+run-main/run-F3, scheduler checks t6..t15 in /tmp/o-tistr/sched).
+
+The "still open" items above were both wrong about the block structure. A list-scheduler model check shows
+the target's char store and terminator are ONE block at the final schedule (the second `slwi r0` waits on the
+first `sthx` through r0, which puts `li r5,0` before it); a separate terminator block can never give
+`mr; li; slwi; clrlwi`. And `cmplwi` first is only possible with the newline test BEFORE the character store,
+in its own block. Final structure: `[li n; sth] | [cmplwi] | [char store; mr; terminator]`.
+
+GC3 facts that decided it (disassembled from mwcceppc.exe with /tmp/o-tistr/r2/x86dis.py):
+- Extension elimination (0x625170, called from const-prop 0x622a20 for `rlwinm x,y,0,MB,31`) walks every
+  reaching definition. It counts lhz/lbz loads, rlwinm with MB 16/24, andi., ori/xori (recursively) and
+  non-negative li as zero-extended, and returns 0 for anything else. Copies are NOT looked through. So the
+  tail's `clrlwi r0,r29,16` survives only if count's Hangul definition is a `mr` at both const-prop passes.
+  A u16 conversion used twice (`composing.length = static_cast<u16>(n); count = n;`) is CSE'd by IRO into a
+  temp, count's definition becomes `mr count,temp`, and the allocator coalesces the temp into count, which
+  leaves exactly `clrlwi r29,r6,16` (36 -> 6 diffs; variants C2, S3).
+- Copy propagation (0x621d00) replaces uses one at a time; a use that is itself a move (flag 0x10) or a
+  source redefined before the use blocks it. Value numbering also rewrites uses inside its region, so two
+  `&input` computations in one region always collapse to one register.
+- The pre-RA pass 0x596850 folds `li x; cmpi x,imm; bc` in one block: always-taken branches become `b`
+  (the skipped block keeps its out-edge, so the join stays a join), and never-taken branches are deleted.
+  With a never-taken branch over an empty then-block, the char block, the empty block and the terminator
+  form a single-predecessor chain: post-RA value numbering turns the terminator's `addi r4,r1,input` into
+  `mr r4,r5`, and the post-RA merge makes it one block for the final schedule.
+- The compare's `li` must be in the same block, so the always-true test needs a `{0}` struct initialised
+  after the character store (probe r2 in /tmp/o-tistr/r3/fold3.cpp reproduces the whole Hangul shape;
+  reusing the first struct keeps the compare).
+
+Final source: a one-field `HangulSyllable` aggregate with isEmpty()/clear() (a class with a constructor is
+scalarised by IRO and folds everything, 126 insns), `composing` checked before the character and cleared on
+newline, `next` checked after it, and the CSE'd u16 length for count. Equivalent exact spellings: K1, L0-L4,
+L8, M1, M3, R1, R3, S1, S3, S4, S6, T1-T5.
+
+Link flip: the first full build changed the DOL (faa948f9...). tiString.cpp defined `~Decolated()` out of
+line (STB_GLOBAL), so the linker kept tiString's copy instead of the weak one tiInputForm emits at
+0x8141BC64. In the original, `~Decolated`, `clear()` and `set()` are inline (all three sit in tiInputForm's
+range) and `setLength` is the vtable's key function. Making those three inline for TISTRING_IMPLEMENTATION
+(dropping the inline destructor alone loses the vtable: link error) restores the DOL. All weak copies in
+tiString.o are dropped at link.
+
+Result: inputChar 0/136 differing, pool identical, ctxdiff 0; tiString 42/42 instruction-exact, code
+5176/5176, data 288/288; DOL SHA1 26116613f624061ba99c8d1a299aaa6efa85670d. Gate: GATE PASS, 0 regressions,
+global matched/complete code 100.00%.

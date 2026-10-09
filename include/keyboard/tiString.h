@@ -85,13 +85,13 @@ namespace textinput {
 #endif
 
 #if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TIMANAGER_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION) || defined(TIZISTRING_IMPLEMENTATION)
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION)
             virtual ~Decolated() {}
 #else
             virtual ~Decolated();
 #endif
             enum TranslateMode { TM_Direct, TM_Kana, TM_Roman, TM_Hangul };
-#ifdef TIINPUTFORM_IMPLEMENTATION
+#if defined(TIINPUTFORM_IMPLEMENTATION) || defined(TISTRING_IMPLEMENTATION)
             virtual void clear() {
                 StringBase::clear();
                 mCursorStart = 0;
