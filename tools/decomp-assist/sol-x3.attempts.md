@@ -2097,3 +2097,269 @@ GATE PASS
 ```
 
 Handoff artifact refreshed against the committed ordinary-locals cleanup so the next round can apply it after this cleanup lands. Authoritative best path remains _luna-runs/best/sol-x3.iplCardSequence.diff; SHA256 396617842ab7b1728309078131a691b1afa0a7c4eb51c359e8054dfa273f092f. The earlier origin/main-relative patch is backed up at /tmp/sol-x3-e-best-origin-main.diff. This changes only patch context; the independently measured candidate source is unchanged.
+
+## Round f xhigh
+
+Assigned branch agent/w1009/cardseq2, HEAD b66bd1ed, contains both carrier removals. Full Ninja build ran before experiments and passed; main.dol SHA1 is 26116613f624061ba99c8d1a299aaa6efa85670d. Existing untracked perm5 and swe2ifd0 logs preserved. Read sol-common, brief-v2, all current levers, AGENTS.md, prior sol-x3 including 41132256, sol-card and the earlier CardSequence evidence. Applying unslop and writing-for-agents to this record. Locked fetch found origin/main advanced to 710174c7; no branch movement or rebase. Fresh local baseline is 28/30 exact, data 1496/1496.
+
+Replayed saved ordinary source after backing up the patch. Fresh Ninja object and pool verify cardThreadMain 2/301 and loadCardFileIcons 219/512, both equal-sized; this is the requested clean seed. Previous array declaration/scope trials, command-first bitfield packing, reply parameter const/reference trials, scoped IRO1, icon parameter copies and scalar-only declaration searches are not repeated. This round studies stack size buckets in a standalone source and then changes meaningful icon helper boundaries and palette/control-flow shapes. The human explicitly authorizes committing clean non-exact improvements in this round.
+- loadCardFileIcons: f-banner-helper: 265/512 differences; instructions 512/512; objdiff 95.34766%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-banner-helper-format-word: 265/512 differences; instructions 512/512; objdiff 95.34766%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-banner-helper-format-dir: 265/512 differences; instructions 512/512; objdiff 95.34766%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-banner-helper-format-dir-const: 265/512 differences; instructions 512/512; objdiff 95.34766%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-banner-deferred-address: 312/512 differences; instructions 512/512; objdiff 93.365234%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-palette-outside: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-palette-none-explicit: 394/514 differences; instructions 514/512; objdiff 95.9043%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-banner-icons-helper: 284/512 differences; instructions 512/512; objdiff 93.62891%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-banner-icons-helper-palette-none-explicit: 443/514 differences; instructions 514/512; objdiff 93.21875%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-banner-icons-helper-palette-outside: 443/514 differences; instructions 514/512; objdiff 93.21875%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-plain-icons-helper: 253/512 differences; instructions 512/512; objdiff 94.3125%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-plain-icons-helper-palette-none-explicit: 416/514 differences; instructions 514/512; objdiff 93.98047%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-plain-icons-helper-palette-outside: 416/514 differences; instructions 514/512; objdiff 93.98047%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+
+### Address-taken local layout research
+
+Standalone source /tmp/sol-x3-f-stack.cpp uses the unit compiler command extracted through ccflags.py, including GC/3.0a5.2, -align powerpc, -ipa file and effective -O4,s. Compiled 55 functions varying declaration order, call order, sizes 1-16, nested/disjoint scope, comparison-only versus mutable function arguments, byte array versus six-byte struct, and separate CARD company/game buffers. All object dumps are /tmp/sol-x3-f-stack-results.txt. Sizes 1/2 precede the word; sizes 3/4 share its bucket and follow reverse declaration order; sizes 5+ follow the word. Declaration and first-use order do not move the six-byte array before the word; nesting and struct type do not either. This supports allocation by small size buckets, then reverse declaration order within a bucket. The byte-load-only array is still materialized after the word. Separate company[2] and game[4] naturally occupy offsets 8 and 0xA and put the word at 0x10. The saved clean thread uses exactly these real metadata widths and independently reproduces all target stack offsets.
+
+Scanned the live exact-function report and object disassembly for addi rX,r1,8, then inspected source and disasm_fn dumps. Exact is_valid_app_id in iplNwc24Manager uses an address-taken u32 appId at 8, u16 groupId at 0xC, and char[6] at 0xE. These are parameter homes, so this example does not by itself prove local ordering. Exact DoRegistration in iplUSBAP has a received message word at 8 and a result word at 0xC ahead of larger scan/SSID objects. Exact ATERMStartNetworkStack has message slots 8/0x14 but no local byte array, so it is excluded as evidence. Exact WDGetPrivacyMode has three-byte OUI arrays at 8/0xC/0x10, ieLength at 0x14, an address-taken IE pointer at 0x18, and readIE[8] at 0x20. This shows small byte arrays preceding words and the larger array following them. The standalone results isolate the local-size rule from those parameter/inline effects. No carrier or forced alignment is needed.
+- loadCardFileIcons: f-image-read-helper: 226/512 differences; instructions 512/512; objdiff 96.21875%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-image-read-helper-file-ref: 226/512 differences; instructions 512/512; objdiff 96.21875%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-image-read-helper-dir-const: 226/512 differences; instructions 512/512; objdiff 96.21875%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-image-read-helper-total-const-ref: 226/512 differences; instructions 512/512; objdiff 96.21875%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-image-read-helper-base-const-ref: 226/512 differences; instructions 512/512; objdiff 96.21875%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-image-read-helper-offset-const-ref: 226/512 differences; instructions 512/512; objdiff 96.21875%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-comment-read-helper: 227/512 differences; instructions 512/512; objdiff 96.177734%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-comment-read-helper-file-ref: 227/512 differences; instructions 512/512; objdiff 96.177734%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-comment-read-helper-dir-const: 227/512 differences; instructions 512/512; objdiff 96.177734%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-file-metadata-helper: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-access-image-address: 224/512 differences; instructions 512/512; objdiff 96.24609%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-access-dir-address: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-access-image: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-access-state-ref: 407/515 differences; instructions 515/512; objdiff 95.06641%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-access-state-ref-caller-only: 407/515 differences; instructions 515/512; objdiff 95.06641%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-access-state-ref-animation-only: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-access-state-ptr: 407/515 differences; instructions 515/512; objdiff 95.06641%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-access-state-ptr-caller-only: 407/515 differences; instructions 515/512; objdiff 95.06641%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-access-state-ptr-animation-only: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: e-cached-state-pointer: compile FAIL.
+- loadCardFileIcons: e-cached-state-reference: compile FAIL.
+- loadCardFileIcons: f-address-offset-mask: 219/512 differences; instructions 512/512; objdiff 96.20703%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-comment-offset-mask: 220/512 differences; instructions 512/512; objdiff 96.197266%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-transfer-by-div: 219/512 differences; instructions 512/512; objdiff 96.31445%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-cached-state-corrected-pointer: 502/512 differences; instructions 424/512; objdiff 73.2168%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-cached-state-corrected-reference: 502/512 differences; instructions 424/512; objdiff 73.2168%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-1: objdiff 96.31445%; instructions 512/512; source SHA256 b7b70a4384771f3e.
+- cardThreadMain: f-packet-halfword-u16-valid-first: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-2: objdiff 96.31445%; instructions 512/512; source SHA256 fa4dae558f0b46f6.
+- cardThreadMain: f-packet-halfword-u16-command-first: 3/301 differences; instructions 301/301; objdiff 99.30232%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-3: objdiff 96.30469%; instructions 512/512; source SHA256 fdb1d48c7cf76c8b.
+- cardThreadMain: f-packet-halfword-s16-valid-first: 2/301 differences; instructions 301/301; objdiff 99.73422%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-4: objdiff 96.30469%; instructions 512/512; source SHA256 2900807bce1b1255.
+- cardThreadMain: f-packet-halfword-s16-command-first: 255/302 differences; instructions 302/301; objdiff 99.43522%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-5: objdiff 96.30469%; instructions 512/512; source SHA256 6ba36cc8f40633eb.
+- cardThreadMain: f-packet-byte-bitfields-u8: 295/305 differences; instructions 305/301; objdiff 96.063126%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-6: objdiff 96.30469%; instructions 512/512; source SHA256 d7f89e97c2ce3c09.
+- cardThreadMain: f-packet-byte-bitfields-s8: 295/305 differences; instructions 305/301; objdiff 96.063126%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-7: objdiff 96.30469%; instructions 512/512; source SHA256 aba5fd31cb485e0d.
+- cardThreadMain: f-packet-explicit-fields-command-valid-upper: 296/305 differences; instructions 305/301; objdiff 94.38538%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-8: objdiff 96.30469%; instructions 512/512; source SHA256 3ea189491596ebc9.
+- cardThreadMain: f-packet-explicit-fields-upper-command-valid: 296/305 differences; instructions 305/301; objdiff 94.33555%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-9: objdiff 96.30469%; instructions 512/512; source SHA256 a6888d634bfbdf55.
+- loadCardFileIcons: f-search-306-10: objdiff 96.30469%; instructions 512/512; source SHA256 4a8ff9549f70bd58.
+- loadCardFileIcons: f-search-306-11: objdiff 96.30469%; instructions 512/512; source SHA256 4082a3849c2c85c1.
+- loadCardFileIcons: f-search-306-12: objdiff 96.30469%; instructions 512/512; source SHA256 ba7efd688b717b68.
+- loadCardFileIcons: f-search-306-13: objdiff 96.30469%; instructions 512/512; source SHA256 f6020b39f5094259.
+- loadCardFileIcons: f-search-306-14: objdiff 96.30469%; instructions 512/512; source SHA256 d5d40b3e8b398b76.
+- loadCardFileIcons: f-search-306-15: objdiff 96.30469%; instructions 512/512; source SHA256 6e0a4eb7049ce3e3.
+- loadCardFileIcons: f-search-306-16: objdiff 96.30469%; instructions 512/512; source SHA256 cb9928bb1680433e.
+- loadCardFileIcons: f-search-306-17: objdiff 96.30469%; instructions 512/512; source SHA256 42ce7849eb1fc3ef.
+- loadCardFileIcons: f-search-306-18: objdiff 91.24609%; instructions 512/512; source SHA256 2497fe26c52b3cb8.
+- loadCardFileIcons: f-search-306-19: objdiff 96.30469%; instructions 512/512; source SHA256 bc6fdbb8109b7018.
+- loadCardFileIcons: f-search-306-20: objdiff 86.86133%; instructions 467/512; source SHA256 791cd72283a6985e.
+- loadCardFileIcons: f-search-306-21: objdiff 96.30469%; instructions 512/512; source SHA256 7e2d493d215187b6.
+- loadCardFileIcons: f-search-306-22: objdiff 91.24609%; instructions 512/512; source SHA256 078d47e406118d37.
+- loadCardFileIcons: f-search-306-23: objdiff 96.30469%; instructions 512/512; source SHA256 e896998d53fc554b.
+- loadCardFileIcons: f-search-306-24: objdiff 96.30469%; instructions 512/512; source SHA256 d0ee14494618b907.
+- loadCardFileIcons: f-search-306-25: objdiff 96.30469%; instructions 512/512; source SHA256 f2296369296fc5d7.
+- loadCardFileIcons: f-search-306-26: objdiff 96.30469%; instructions 512/512; source SHA256 8a67f68fc608ae08.
+- loadCardFileIcons: f-search-306-27: objdiff 96.29492%; instructions 512/512; source SHA256 50953d72bb7bd03b.
+- loadCardFileIcons: f-search-306-28: objdiff 96.29492%; instructions 512/512; source SHA256 2ccc61fa2cec8b5c.
+- loadCardFileIcons: f-search-306-29: objdiff 96.29492%; instructions 512/512; source SHA256 90b8b69be2fbac94.
+- loadCardFileIcons: f-search-306-30: objdiff 96.29492%; instructions 512/512; source SHA256 961ea44b5513ab6b.
+- loadCardFileIcons: f-search-306-31: objdiff 96.29492%; instructions 512/512; source SHA256 a77d0659a63249fc.
+- loadCardFileIcons: f-search-306-32: objdiff 96.29492%; instructions 512/512; source SHA256 961ea44b5513ab6b.
+- loadCardFileIcons: f-search-306-33: objdiff 96.29492%; instructions 512/512; source SHA256 9cefe3095e28b247.
+- loadCardFileIcons: f-search-306-34: objdiff 96.29492%; instructions 512/512; source SHA256 a02c04bbb6251648.
+- loadCardFileIcons: f-search-306-35: objdiff 96.29492%; instructions 512/512; source SHA256 b2e8cea7f3691a3f.
+- loadCardFileIcons: f-search-306-36: objdiff 96.29492%; instructions 512/512; source SHA256 0828aadc5ed21ee3.
+- loadCardFileIcons: f-search-306-37: objdiff 96.29492%; instructions 512/512; source SHA256 39d58397d42d79b9.
+- loadCardFileIcons: f-search-306-38: objdiff 95.91406%; instructions 512/512; source SHA256 068793d63a493627.
+- loadCardFileIcons: f-search-306-39: objdiff 95.91406%; instructions 512/512; source SHA256 85353bd7a4c2626e.
+- loadCardFileIcons: f-search-306-40: objdiff 95.91406%; instructions 512/512; source SHA256 33254ee08fd4bfa2.
+- loadCardFileIcons: f-search-306-41: objdiff 95.796875%; instructions 512/512; source SHA256 4a47c5587d19e743.
+- loadCardFileIcons: f-search-306-42: objdiff 95.796875%; instructions 512/512; source SHA256 f564825f20c2b852.
+- loadCardFileIcons: f-search-306-43: objdiff 86.36328%; instructions 467/512; source SHA256 f41fbaa810def581.
+- loadCardFileIcons: f-search-306-44: objdiff 95.79297%; instructions 512/512; source SHA256 c489268f319a8756.
+- loadCardFileIcons: f-search-306-45: objdiff 95.79297%; instructions 512/512; source SHA256 543cc843ed3933f1.
+- loadCardFileIcons: f-search-306-46: objdiff 95.79297%; instructions 512/512; source SHA256 ae95cf826d992cca.
+- loadCardFileIcons: f-search-306-47: objdiff 95.79297%; instructions 512/512; source SHA256 0e09d4328046a8c3.
+- loadCardFileIcons: f-search-306-48: objdiff 95.79297%; instructions 512/512; source SHA256 ae95cf826d992cca.
+- loadCardFileIcons: f-search-306-49: objdiff 86.359375%; instructions 467/512; source SHA256 dd2e4811a3295a84.
+
+Fresh icon capture /tmp/sol-x3-f-icon-capture reproduces 381/381 virtual registers, and every allocated and relocation section matches the Ninja object. The first discrepancy is dir r31 versus r26. Coloring first claims r31 for dir, then r30/r29 for fileNo/slot, while the target reserves r31 for image base and r30/r29 for icon column/row. The two row/column and image row/column webs are created during the banner switch and coalesced across its cases; moving scalar declarations alone cannot assign their compiler temporaries. Read-only image-base/get-image/get-icon-state helpers and actual banner, image-read, comment-read and icon-format helpers were compiled. No improvement beyond the 219-difference seed yet. Cached IconState pointer/reference candidates reduce the function to 424 instructions and are rejected. Two first versions failed due to a real icon-loop local name collision; the corrected iconState versions are scored.
+
+A private srcsearch copy fixes the shared tool's forward-declaration selection so mutations touch the actual loadCardFileIcons definition. Its first preparation edit matched the count helper's regex rather than the function regex and failed before compiling any candidate; corrected before the search. Every scored mutation has a row above and full source/digest in /tmp/sol-x3-f-search306b/trials.jsonl. No search source is retained without semantic and readability review.
+- loadCardFileIcons: f-open-boundary-content-helper: 230/512 differences; instructions 512/512; objdiff 94.8125%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-50: objdiff 95.91016%; instructions 512/512; source SHA256 7483c0a642c23014.
+- loadCardFileIcons: f-open-boundary-file-ref: 230/512 differences; instructions 512/512; objdiff 94.8125%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-51: objdiff 95.91992%; instructions 512/512; source SHA256 03fee05fd6d57f93.
+- loadCardFileIcons: f-open-boundary-slot-u8: 491/519 differences; instructions 519/512; objdiff 91.32031%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-52: objdiff 93.30664%; instructions 508/512; source SHA256 ee2a40b179680a86.
+- loadCardFileIcons: f-open-boundary-slot-u32: 440/514 differences; instructions 514/512; objdiff 94.00586%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-53: objdiff 95.91992%; instructions 512/512; source SHA256 3d808769ad2129ba.
+- loadCardFileIcons: f-open-boundary-file-s16: 500/516 differences; instructions 516/512; objdiff 91.05469%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-54: objdiff 95.802734%; instructions 512/512; source SHA256 a0b495fdcda233ef.
+- loadCardFileIcons: f-open-boundary-file-u32: 428/514 differences; instructions 514/512; objdiff 94.67383%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-55: objdiff 95.91992%; instructions 512/512; source SHA256 6e695020c8bd68e4.
+- loadCardFileIcons: f-open-boundary-close-in-caller: 234/512 differences; instructions 512/512; objdiff 94.40234%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- loadCardFileIcons: f-search-306-56: objdiff 95.802734%; instructions 512/512; source SHA256 c879d9bb8810aee4.
+- loadCardFileIcons: f-search-306-57: objdiff 95.802734%; instructions 512/512; source SHA256 2e87803a6041e1d6.
+- loadCardFileIcons: f-search-306-58: objdiff 86.36914%; instructions 467/512; source SHA256 832f53a20600feb6.
+- loadCardFileIcons: f-search-306-59: objdiff 95.91992%; instructions 512/512; source SHA256 e741d0623fa857d8.
+- loadCardFileIcons: f-search-306-60: objdiff 92.34375%; instructions 512/512; source SHA256 4aec4c6a35aef7a8.
+- loadCardFileIcons: f-search-306-61: objdiff 95.91992%; instructions 512/512; source SHA256 13c3faa4a075e49c.
+- loadCardFileIcons: f-search-306-62: objdiff 86.47656%; instructions 467/512; source SHA256 b4ca23a5cc03d187.
+- loadCardFileIcons: f-search-306-63: objdiff 95.92383%; instructions 512/512; source SHA256 87feb434885c295b.
+- loadCardFileIcons: f-search-306-64: objdiff 95.92383%; instructions 512/512; source SHA256 486b060087fdd091.
+- loadCardFileIcons: f-search-306-65: objdiff 95.92383%; instructions 512/512; source SHA256 89f58d5142ffe0c5.
+- loadCardFileIcons: f-search-306-66: objdiff 95.92383%; instructions 512/512; source SHA256 5e315efdf6aa9452.
+- loadCardFileIcons: f-search-306-67: objdiff 92.34766%; instructions 512/512; source SHA256 d81fab540c351672.
+- loadCardFileIcons: f-search-306-68: objdiff 95.92383%; instructions 512/512; source SHA256 a3e629a406e8015b.
+- loadCardFileIcons: f-search-306-69: objdiff 86.48047%; instructions 467/512; source SHA256 ff7eb4b0c2d018c4.
+- loadCardFileIcons: f-search-306-70: objdiff 95.92383%; instructions 512/512; source SHA256 5f9e19e1b302b426.
+- loadCardFileIcons: f-search-306-71: objdiff 95.91797%; instructions 512/512; source SHA256 70be082eb2b7f8a1.
+- loadCardFileIcons: f-search-306-72: objdiff 95.91406%; instructions 512/512; source SHA256 2ef0fb1ad9d60bb3.
+- loadCardFileIcons: f-search-306-73: objdiff 95.91406%; instructions 512/512; source SHA256 ca7f2d448c57361e.
+- loadCardFileIcons: f-search-306-74: objdiff 95.91406%; instructions 512/512; source SHA256 b24d1814e472ed3e.
+- loadCardFileIcons: f-search-306-75: objdiff 95.91406%; instructions 512/512; source SHA256 fcb64a3873e90665.
+- loadCardFileIcons: f-search-306-76: objdiff 93.802734%; instructions 509/512; source SHA256 5ae01025be13c4f4.
+- loadCardFileIcons: f-search-306-77: objdiff 95.91406%; instructions 512/512; source SHA256 6ad50fe41f1693c2.
+- loadCardFileIcons: f-search-306-78: objdiff 95.91406%; instructions 512/512; source SHA256 359ade1dd5cfda50.
+- loadCardFileIcons: f-search-306-79: objdiff 95.91406%; instructions 512/512; source SHA256 f4c7f1b77b3ad816.
+- loadCardFileIcons: f-search-306-80: objdiff 95.91406%; instructions 512/512; source SHA256 4602f3ff168e018f.
+- loadCardFileIcons: f-search-306-81: objdiff 95.91406%; instructions 512/512; source SHA256 c37d1b06ad83eeb9.
+- loadCardFileIcons: f-search-306-82: objdiff 96.29492%; instructions 512/512; source SHA256 ac861135fff83f2c.
+- loadCardFileIcons: f-search-306-83: objdiff 96.29492%; instructions 512/512; source SHA256 c7f3e5fc24aad658.
+- loadCardFileIcons: f-search-306-84: objdiff 96.29492%; instructions 512/512; source SHA256 36b5dedabfd5887b.
+- loadCardFileIcons: f-search-306-85: objdiff 96.29492%; instructions 512/512; source SHA256 f749b7283a63f256.
+- loadCardFileIcons: f-search-306-86: objdiff 96.29492%; instructions 512/512; source SHA256 aa1df3a6b8d7da23.
+- loadCardFileIcons: f-search-306-87: objdiff 96.29883%; instructions 512/512; source SHA256 2b56c0ae37575fc1.
+- loadCardFileIcons: f-search-306-88: objdiff 96.29883%; instructions 512/512; source SHA256 78d0a3f496f963fe.
+- loadCardFileIcons: f-search-306-89: objdiff 86.85547%; instructions 467/512; source SHA256 7de0cf1329f4285c.
+- loadCardFileIcons: f-search-306-90: objdiff 96.29883%; instructions 512/512; source SHA256 16ca1adb8c468b7e.
+- cardThreadMain: f-diagnostic-iro1-split-metadata: 196/303 differences; instructions 303/301; objdiff 97.62459%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: f-diagnostic-iro1-split-metadata-command-first: 197/303 differences; instructions 303/301; objdiff 97.25914%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: f-diagnostic-iro1-mount-shift-mask: 197/303 differences; instructions 303/301; objdiff 97.25914%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: f-diagnostic-iro1-mount-direct-slot: 196/303 differences; instructions 303/301; objdiff 97.25914%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+- cardThreadMain: f-diagnostic-iro1-command-scoped-switch: 197/303 differences; instructions 303/301; objdiff 97.25914%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+
+### Standalone layout measurements
+
+- f-standalone-array1_decl0_use0: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x10 calls word,bytes,word,bytes
+- f-standalone-array1_decl0_use1: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x10 calls bytes,word,bytes,word
+- f-standalone-array1_decl1_use0: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x10 calls word,bytes,word,bytes
+- f-standalone-array1_decl1_use1: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x10 calls bytes,word,bytes,word
+- f-standalone-array2_decl0_use0: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x10 calls word,bytes,word,bytes
+- f-standalone-array2_decl0_use1: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x10 calls bytes,word,bytes,word
+- f-standalone-array2_decl1_use0: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x10 calls word,bytes,word,bytes
+- f-standalone-array2_decl1_use1: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x10 calls bytes,word,bytes,word
+- f-standalone-array3_decl0_use0: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x10 calls word,bytes,word,bytes
+- f-standalone-array3_decl0_use1: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x10 calls bytes,word,bytes,word
+- f-standalone-array3_decl1_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x10 calls word,bytes,word,bytes
+- f-standalone-array3_decl1_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x10 calls bytes,word,bytes,word
+- f-standalone-array4_decl0_use0: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x10 calls word,bytes,word,bytes
+- f-standalone-array4_decl0_use1: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x10 calls bytes,word,bytes,word
+- f-standalone-array4_decl1_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x10 calls word,bytes,word,bytes
+- f-standalone-array4_decl1_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x10 calls bytes,word,bytes,word
+- f-standalone-array5_decl0_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array5_decl0_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array5_decl1_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array5_decl1_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array6_decl0_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array6_decl0_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array6_decl1_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array6_decl1_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array7_decl0_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array7_decl0_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array7_decl1_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array7_decl1_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array8_decl0_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array8_decl0_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array8_decl1_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array8_decl1_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array9_decl0_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array9_decl0_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array9_decl1_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array9_decl1_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array12_decl0_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array12_decl0_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array12_decl1_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array12_decl1_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array16_decl0_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array16_decl0_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-array16_decl1_use0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-array16_decl1_use1: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-struct_decl0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-struct_decl1: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-metadata_decl0: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-metadata_decl1: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-nested_array: r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes,word,bytes
+- f-standalone-nested_word: r3, r1, 0xc, r3, r1, 8, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word,bytes,word
+- f-standalone-nested_disjoint: r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls bytes,word
+- f-standalone-nested_disjoint_wordfirst: r3, r1, 8, r3, r1, 0xc, r1, r1, 0x20 calls word,bytes
+- f-standalone-compare_only: r3, r1, 8, r3, r1, 0xc, r3, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls word,compare,word
+- f-standalone-byte_load_only: r3, r1, 8, r3, r1, 0xc, r4, r1, 0xc, r3, r1, 8, r1, r1, 0x20 calls word,word
+- f-standalone-split_metadata: r3, r1, 0x10, r3, r1, 8, r3, r1, 0xa, r3, r1, 0x10, r3, r1, 8, r3, r1, 0xa, r1, r1, 0x20 calls word,bytes,bytes,word,bytes,bytes
+
+### Round f retained candidate
+
+Fresh thread capture /tmp/sol-x3-f-thread-capture matches every allocated and relocation section of the Ninja object and reproduces 124/124 virtual registers. Before allocation, B7 sets validState to one and reports it; B8 already replaces the shifted validState with the constant 256 before inserting command's low byte. Command-first packing instead coalesces the response into command and copies it after insertion. Eight new halfword/byte bitfield and explicit packet-field variants do not fix this. Five scoped IRO1 diagnostics on the separate metadata-buffer source remain 303 instructions and are discarded. No pragma or packet change is retained.
+
+Further icon work includes banner, animation/format, image-read, comment-read, metadata, file-open and close boundaries; native pointer/reference views; address decoding; cached icon views; and a 120-second source search. The search measured 89 candidates plus its starting object, with no score improvement while preserving every starting function score. Its complete rejected sources are outside the repository. Helpers grouping actual file operations are allowed, but none improved on the clean 219-difference seed. There is no compiler-simulator-only permutation, carrier, uninitialized palette, new assembly, raw offset cast, dummy object, definition/header change or new code comment in the retained diff.
+
+Under this round's explicit authorization, retain and commit the clean previous-round seed: thread uses real company[2]/gameName[4] metadata comparison buffers, and the icons function uses the actual animation helper, initialized palette and target-shaped read-error control flow. Every byte comparison and zero store is preserved. The palette is initialized for every reserved-format path. CARDGetSectorSize returns zero on success; the explicit image-success assignment matches target behavior when the image byte count is zero. No new exact match is claimed.
+- loadCardFileIcons: f-baseline-independent-recheck: 436/512 differences; instructions 509/512; objdiff 91.33984%; exact sibling drops []; pool POOL IDENTICAL up to 43 (mine=43 base=43).
+
+### Round f final gate and handoff
+
+The required final gate ran once on the retained source and reports GATE PASS. Full 43U build passes and an independent SHA1 check confirms 26116613f624061ba99c8d1a299aaa6efa85670d. Pool identical at all 43 entries. Fresh ctxdiff independently reports thread 301/301, diffs 2, and icons 512/512, diffs 219. Exact-name objdiff is 99.73422% and 96.31445%. Unit stays 28/30 exact functions, code 6600/9852 and data 1496/1496, with every data section at 100%. Unit fuzzy improves 98.16281% to 99.20138%. Zero baseline regressions, new forbidden patterns and readability warnings. The unit remains NonMatching and unlinked; no whole-unit completion is claimed.
+
+An independent baseline source compilation confirms thread 13/301 and icons 436/512, with the latter initially 509/512 instructions. Thus the retained changes recover all thread stack offsets and the target icon instruction count. Continued round-f trials did not beat the incoming clean 2/219 seed. The two thread reply instructions remain blocked by constant propagation/copy coalescing; icon allocation and palette-block placement remain unresolved. Both are explicit non-exact handoffs for further effort.
+
+Best diff remains /mnt/drive2/projects/wii-ipl-workers/_luna-runs/best/sol-x3.iplCardSequence.diff, SHA256 717f9b17c8f5891d1a037333c30ed7eadae84b324730119d9fde5fe9c447b611. It reverse-checks cleanly against the retained worktree and preserves ordinary locals and initialized palette. Gate output is /tmp/sol-x3-f-gate.log. Captures, standalone research sources, trial objects and rejected search candidates stay under /tmp/sol-x3-f-*.
+
+Commit only src/scene/cardSequence/iplCardSequence.cpp and this log on agent/w1009/cardseq2. Existing untracked perm5/swe2ifd0 logs remain untouched. No push, PR, merge, rebase or other-worktree edit.
+
+```text
+full build: ok
+main.dol sha1: 26116613f624061ba99c8d1a299aaa6efa85670d
+[src/scene/cardSequence/iplCardSequence] pool: IDENTICAL
+[src/scene/cardSequence/iplCardSequence] objdiff: code 6600/9852 data 1496/1496 functions 28/30 fuzzy 99.2014 linked code 0
+[src/scene/cardSequence/iplCardSequence] instruction-exact functions: 28/30
+[src/scene/cardSequence/iplCardSequence]   section .bss size 16 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .data size 1464 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .sbss size 8 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .sdata size 8 match 100.0
+[src/scene/cardSequence/iplCardSequence]   section .text size 9852 match 99.20138
+[src/scene/cardSequence/iplCardSequence]   below 100: cardThreadMain 99.73422
+[src/scene/cardSequence/iplCardSequence]   below 100: loadCardFileIcons 96.31445
+[src/scene/cardSequence/iplCardSequence] baseline: code 6600/9852 data 1496 functions 28 fuzzy 98.1628
+regressions vs baseline: 0
+global matched_code_percent: 98.09787 -> 98.09787
+global fuzzy_match_percent: 99.92176 -> 99.92518
+global complete_code_percent: 90.12492 -> 90.12492
+global matched_data_percent: 100.00000 -> 100.00000
+forbidden patterns added (net, per file): 0
+readability warnings (net, per file; must be 0 in the final result): 0
+GATE PASS
+```
