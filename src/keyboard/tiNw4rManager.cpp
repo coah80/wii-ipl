@@ -202,10 +202,10 @@ namespace textinput {
 
                 // P = Picture, W = Window ?
                 if (paneName[0] == 'P' || paneName[0] == 'W') {
-                    char tmp[17];
-                    util::replaceChar(tmp, 17, paneName, 0, 'B');
+                    char boundingPaneName[17];
+                    util::replaceChar(boundingPaneName, 17, paneName, 0, 'B');
 
-                    setVisible(tmp, flag);
+                    setVisible(boundingPaneName, flag);
                 }
             }
         }

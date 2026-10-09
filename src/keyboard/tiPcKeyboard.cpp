@@ -3056,62 +3056,62 @@ namespace textinput {
             }
 
             void OnOffButtonAnmPane::onAnmEvent(AnmPaneEvent event) {
+                // MWCC needs animation loads guarded by their event comparisons.
                 int state;
 
-                if ((((event == 0) && (state = mAnimation, state != 0xf)) && (state != 2)) && (state != 0xd)) {
+                if (event == PE_0 && (state = mAnimation, state != 0xf) && state != 2 && state != 0xd) {
                     changeAnimation(4);
-                } else if (((((event == 6) && (state = mAnimation, state != 0xe)) && ((state != 4 && ((state != 3 && (state != 0xc)))))) &&
-                            (state != 1)) &&
-                           (state != 2)) {
+                } else if (event == PE_6 && (state = mAnimation, state != 0xe) && state != 4 && state != 3 && state != 0xc &&
+                           state != 1 && state != 2) {
                     changeAnimation(0xc);
-                } else if ((event == 7) && (mAnimation != 0xf)) {
+                } else if ((event == PE_7) && (mAnimation != 0xf)) {
                     changeAnimation(0xd);
                 } else {
                     switch (mAnimation) {
                         case 0xc:
-                            if (event == 4) {
+                            if (event == PE_4) {
                                 changeAnimation(0xe);
                             }
-                            if (event == 1) {
+                            if (event == PE_1) {
                                 changeAnimation(1);
                             }
                             break;
                         case 0xd:
-                            if (event == 4) {
+                            if (event == PE_4) {
                                 changeAnimation(0xf);
                             }
                             break;
                         case 0xe:
-                            if (event == 1) {
+                            if (event == PE_1) {
                                 changeAnimation(1);
                             }
                             break;
                         case 1:
-                            if (event == 4) {
+                            if (event == PE_4) {
                                 changeAnimation(3);
                             }
-                            if (event == 2) {
+                            if (event == PE_2) {
                                 changeAnimation(2);
                             }
                             break;
                         case 3:
-                            if (event == 2) {
+                            if (event == PE_2) {
                                 changeAnimation(2);
                             }
                             break;
                         case 2:
-                            if (event == 4) {
+                            if (event == PE_4) {
                                 changeAnimation(0xe);
                             }
-                            if (event == 1) {
+                            if (event == PE_1) {
                                 changeAnimation(1);
                             }
                             break;
                         case 4:
-                            if (event == 4) {
+                            if (event == PE_4) {
                                 changeAnimation(3);
                             }
-                            if (event == 2) {
+                            if (event == PE_2) {
                                 changeAnimation(2);
                             }
                             break;

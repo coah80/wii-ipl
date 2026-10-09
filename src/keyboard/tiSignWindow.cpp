@@ -280,20 +280,18 @@ void LayoutByNW4R::onKey(u32 command, void* data) {
         const char* paneName = static_cast<const char*>(data);
         key = findControlKey(paneName);
 
-        if (key == 0x1B) {
-            goto character;
+        if (key != 0x1B) {
+            switch (key) {
+            case 0x18:
+                mpEventObserver->onSE(sound::SE_CHAR_DECIDE);
+                break;
+            case 0x19:
+            case 0x1A:
+                break;
+            }
+            return;
         }
-        switch (key) {
-        case 0x18:
-            mpEventObserver->onSE(sound::SE_CHAR_DECIDE);
-            break;
-        case 0x19:
-        case 0x1A:
-            break;
-        }
-        return;
 
-character:
         u16 code = findSignCharacter(mpLanguageDependency->keys, muPage, paneName);
 
         if ((code != 0) && (mpKeyboard->getType() == 0)) {

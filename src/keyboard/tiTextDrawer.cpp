@@ -241,17 +241,12 @@ namespace textinput {
             drawInfo.rect.right = 0.0f;
             drawInfo.rect.bottom = 0.0f;
             u16 ch;
-            goto check;
-            body:
+            while ((ch = *sz) != 0) {
                 drawInfo.character = ch;
                 calcRect(drawInfo);
                 width += drawInfo.rect.right - drawInfo.rect.left;
                 ++sz;
-            check:
-                ch = *sz;
-                if (ch != 0) {
-                    goto body;
-                }
+            }
             return width;
         }
 

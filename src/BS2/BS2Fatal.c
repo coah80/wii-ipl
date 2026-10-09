@@ -58,7 +58,8 @@ static void ScreenReport(void* xfb, u16 xfbW, u16 xfbH, GXColor yuv, s32 x, s32 
     u32 pixel;
     s32 col;
 
-loop:
+    // MWCC needs newline and wrapping paths to share this line-start branch.
+nextLine:
     if (xfbH - 24 >= y) {
         ptr = (u8*)xfb + ((x + (y * xfbW)) * 2);
         col = x;
@@ -67,12 +68,12 @@ loop:
             if (*string == '\n') {
                 string++;
                 y += (u32)leading;
-                goto loop;
+                goto nextLine;
             }
 
             if (xfbW - 48 < col) {
                 y += leading;
-                goto loop;
+                goto nextLine;
             }
 
             for (i = 0; i < 24; i++) {
