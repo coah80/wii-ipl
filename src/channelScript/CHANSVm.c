@@ -647,7 +647,7 @@ static s32 CHANSVmParseInt(const CHANSVmObjHdr* obj, s32 base, u64* out) {
     return 0;
 }
 
-CHANSVmObjHdr* CHANSVmConvertToIntFromFloat(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToIntFromFloat(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* object) {
     // Convert to int from float
     CHANSVmObjHdr* newObj = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_INTEGER, 0);
     if (newObj != vmNull) {
@@ -660,7 +660,7 @@ CHANSVmObjHdr* CHANSVmConvertToIntFromFloat(CHANSVm* vm, CHANSVmObjType type, CH
     return newObj;
 }
 
-CHANSVmObjHdr* CHANSVmConvertToIntFromStr(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToIntFromStr(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* object) {
     CHANSVmObjHdr* newObj = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_INTEGER, 0);
     if (newObj != vmNull && !CHANSVmParseInt(object, 0, (u64*)&newObj->value.int_v)) {
         newObj = vmNull;
@@ -668,11 +668,11 @@ CHANSVmObjHdr* CHANSVmConvertToIntFromStr(CHANSVm* vm, CHANSVmObjType type, CHAN
     return newObj;
 }
 
-CHANSVmObjHdr* CHANSVmConvertToIntFromArray(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToIntFromArray(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* object) {
     return vmNull;
 }
 
-CHANSVmObjHdr* CHANSVmConvertToFloatFromUndefined(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToFloatFromUndefined(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* object) {
     CHANSVmObjHdr* result = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_FLOAT, 0);
     if (result != vmNull) {
         result->value.float_v = VM_NAN;
@@ -680,7 +680,7 @@ CHANSVmObjHdr* CHANSVmConvertToFloatFromUndefined(CHANSVm* vm, CHANSVmObjType ty
     return result;
 }
 
-CHANSVmObjHdr* CHANSVmConvertToFloatFromInt(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* intObj) {
+CHANSVmObjHdr* CHANSVmConvertToFloatFromInt(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* intObj) {
     CHANSVmObjHdr* result = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_FLOAT, 0);
     if (result != vmNull) {
         result->value.float_v = VmIntToFloat(intObj->value.int_v);
@@ -778,7 +778,7 @@ CHANSVmObjHdr* CHANSVmConvertToFloatFromStr(CHANSVm* vm, CHANSVmObjType type, co
     return newObj;
 }
 
-CHANSVmObjHdr* CHANSVmConvertToStrFromUndefined(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToStrFromUndefined(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* object) {
     return (CHANSVmObjHdr*)CHANSVmConstStringObjectUndefined_;
 }
 
@@ -796,7 +796,7 @@ static int VmToStrFromInt(vmWString output, vmSize length, vmInteger integer) {
     return len;
 }
 
-CHANSVmObjHdr* CHANSVmConvertToStrFromInt(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToStrFromInt(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* object) {
     CHANSVmObjHdr* newObject = CHANSVmNewObject(vm, vmFalse, vmNull, CHANS_VM_OBJ_TYPE_STRING, VM_STR_LENGTH(64));
     if (newObject) {
         vmS32 len = VmToStrFromInt(newObject->value.wstring_v->spData, 64, object->value.int_v);
@@ -812,7 +812,7 @@ error:
     return vmNull;
 }
 
-CHANSVmObjHdr* CHANSVmConvertToStrFromFloat(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* value) {
+CHANSVmObjHdr* CHANSVmConvertToStrFromFloat(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* value) {
     const CHANSVmObjHdr* base;
     CHANSVmObjHdr* newObj;
     s32 result;
@@ -843,13 +843,13 @@ error:
     return vmNull;
 }
 
-static CHANSVmObjHdr* VmArrayJoinCommon(CHANSVm* vm, u32 retObjAddr, CHANSVmObjHdr* object, u32 separatorAddr, u32 separatorLen);
+static CHANSVmObjHdr* VmArrayJoinCommon(CHANSVm* vm, u32 retObjAddr, const CHANSVmObjHdr* object, u32 separatorAddr, u32 separatorLen);
 
-CHANSVmObjHdr* CHANSVmConvertToStrFromArray(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertToStrFromArray(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* object) {
     return VmArrayJoinCommon(vm, 0, object, 0, 0);
 }
 
-CHANSVmObjHdr* CHANSVmConvertObjectTypeError(CHANSVm* vm, CHANSVmObjType type, CHANSVmObjHdr* object) {
+CHANSVmObjHdr* CHANSVmConvertObjectTypeError(CHANSVm* vm, CHANSVmObjType type, const CHANSVmObjHdr* object) {
     CHANS_VM_PRINTF(1176, ", type to %d from %d\n", type, object->type);
     return vmNull;
 }
@@ -902,7 +902,7 @@ char scVmGetResultType[] = "VmGetResultType";
 const VmConvertEntry VmTypeConvertFuncTbl[] = {
     {vmNull, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertObjectTypeError, vmNull, CHANSVmConvertToIntFromFloat, CHANSVmConvertToIntFromStr, CHANSVmConvertToIntFromArray, CHANSVmConvertObjectTypeError},
-    {CHANSVmConvertToFloatFromUndefined, CHANSVmConvertToFloatFromInt, vmNull, (VmConvertFunc)CHANSVmConvertToFloatFromStr, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
+    {CHANSVmConvertToFloatFromUndefined, CHANSVmConvertToFloatFromInt, vmNull, CHANSVmConvertToFloatFromStr, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertToStrFromUndefined, CHANSVmConvertToStrFromInt, CHANSVmConvertToStrFromFloat, vmNull, CHANSVmConvertToStrFromArray, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, vmNull, CHANSVmConvertObjectTypeError},
     {CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, CHANSVmConvertObjectTypeError, vmNull},
@@ -1962,7 +1962,7 @@ error:
     return vmFalse;
 }
 
-static ArrayChunk* VmArraySeekTop(CHANSVmObjHdr* array) {
+static ArrayChunk* VmArraySeekTop(const CHANSVmObjHdr* array) {
     ArrayChunk* cur = vmNull;
     if (array != vmNull) {
         cur = *array->value.ptr_v;
@@ -2089,7 +2089,7 @@ u32 CHANSVmGetArrayLength(CHANSVm* vm, CHANSVmObjHdr* array) {
     return 0;
 }
 
-static u32 VmArrayJoinEstimateStrSize(CHANSVmObjHdr* object, u32 sepLen) {
+static u32 VmArrayJoinEstimateStrSize(const CHANSVmObjHdr* object, u32 sepLen) {
     ArrayChunk* chunk;
     u32 total;
     u32 countInChunk;
@@ -2137,7 +2137,7 @@ error:
     return 0;
 }
 
-static u32 VmArrayJoinSub(CHANSVmObjHdr* obj, CHANSVmObjHdr* array, wchar_t* separator, u32 sepLen, u32 bufSize, u32 offset) {
+static u32 VmArrayJoinSub(CHANSVmObjHdr* obj, const CHANSVmObjHdr* array, wchar_t* separator, u32 sepLen, u32 bufSize, u32 offset) {
     ArrayChunk* chunk;
     u32 countInChunk;
     u32 savedOffset;
@@ -2216,7 +2216,7 @@ error:
     return 0;
 }
 
-CHANSVmObjHdr* VmArrayJoinCommon(CHANSVm* vm, u32 retObjAddr, CHANSVmObjHdr* object, u32 separatorAddr, u32 separatorLen) {
+CHANSVmObjHdr* VmArrayJoinCommon(CHANSVm* vm, u32 retObjAddr, const CHANSVmObjHdr* object, u32 separatorAddr, u32 separatorLen) {
     CHANSVmObjHdr* result;
     u32 estSize;
     u32 actualLen;
