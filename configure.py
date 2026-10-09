@@ -942,7 +942,7 @@ config.libs = [
         ]
     ),
     IPLSection("channelScript", [
-            Object(NonMatching, "channelScript/CHANSVm.c"),
+            Object(Matching,    "channelScript/CHANSVm.c"),
             Object(Matching,    "channelScript/systemmenu/VmSystem.c"),
             Object(Matching,    "channelScript/systemmenu/iplCSSystem.cpp"),
             Object(Matching,    "channelScript/systemmenu/iplCSLayout.cpp"),
