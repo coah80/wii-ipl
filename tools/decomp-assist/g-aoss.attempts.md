@@ -126,3 +126,8 @@ Independent focused checks: AOSS pool 1/1 strings identical, AOSSLink 0/0 identi
 - `#pragma optimization_level 2` scoped to AOSS_Init_old: 1603 insns/1040 diffs (regression). `optimization_level 3`: inert (identical 1582/534 — O4,p TU flag dominates). `#pragma ppc_iro_level 0/1`: inert. Opt-level hypothesis (idct-style) disproved for this fn.
 - insn-272 `ble;b` decoded from raw bytes (capstone printed reloc-addend targets — real targets are sign-extended imm): `0x40810008` = ble+8 -> memcpy body; `0x48000014` = b+0x14 -> SetNCDIPAddr args. Orig emits TWIN-BRANCH (ble->body + b->join) vs ours bgt-skip. Failed producers: goto-label form, explicit empty else{}, do{...}while(0), `|| *cfg` at lines 539/1194 (773d regression — orig does NOT deref *cfg at those sites). Likely an MWCC block-layout artifact — unresolved.
 - Residual bne sites at orig 371/713/1273: NOT `||`-sites (adding *cfg loads regresses); undecoded.
+
+## w1011/aoss wave-3 (volatile-param lever — assessed N/A)
+
+- pdm's `volatile pf_u8* buf` idiom (ordered loads from hardware-filled mem) does NOT apply: WLANConnect's 2d is arg-marshal `li r5/mr r3` scheduling — no loads involved. `NCDIpConfig* volatile ipConfig` spills the pointer (166 insns/109d regression); `memset((volatile T*)p,...)` is an illegal qualifier-discard error on MWCC.
+- Init_old residual regions (twin-branch @272, dead-bne @371/713/1273, materialization ~566-590, spills ~969-985) are control-flow/constant-materialization classes — no reordered buffer loads to pin. `*cfg`/`AOSSi_cancel_flag` reads already emit plain loads matching orig.
